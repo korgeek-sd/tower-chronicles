@@ -11,6 +11,9 @@ import {isValidJobId} from '../game/jobs/catalog';
 import {createMonsterRuntime} from '../game/engine/monsterAi';
 import {EFFECTS} from '../game/engine/effects';
 export interface StoragePort {getItem(key:string):string|null;setItem(key:string,value:string):void}
+export const APP_VERSION='0.1.28';
+export const SAVE_EXPORT_FORMAT='tower-chronicles-save';
+export const SAVE_EXPORT_FORMAT_VERSION=1;
 // Keep the original key so an existing file/browser origin finds its save.
 export const SAVE_KEY='tower-record-v1';
 export const LEGACY_BACKUP_KEY='tower-record-v1-before-loot-v2';
@@ -23,6 +26,7 @@ export const GOLDEN_RECORDER_BACKUP_KEY='tower-record-v1-before-golden-recorder-
 export const MARKET_BACKUP_KEY='tower-record-v1-before-market-v9';
 export const ASSOCIATION_BACKUP_KEY='tower-record-v1-before-association-v10';
 export const CRAFTING_BACKUP_KEY='tower-record-v1-before-crafting-v11';
+export const IMPORT_BACKUP_KEY='tower-record-v1-before-manual-import';
 type Obj=Record<string,unknown>;
 const obj=(x:unknown):x is Obj=>!!x&&typeof x==='object'&&!Array.isArray(x);
 const finite=(x:unknown):x is number=>typeof x==='number'&&Number.isFinite(x);
@@ -175,12 +179,37 @@ export const JOBS_BACKUP_KEY='tower-record-v1-before-jobs-v16';
 export function migrateV14(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {if(!obj(value)||value.version!==14||!validTurnExpedition(value.expedition)||!validV13({...value,version:13},catalog))throw Error('v14 저장 데이터를 안전하게 이전할 수 없습니다.');const next:any=structuredClone(value);next.version=15;if(next.expedition){next.expedition.playerEffects=[];next.expedition.monsterEffects=[];next.expedition.preparedEffects=[];next.expedition.effectSequence=0;}if(!validV15(next,catalog))throw Error('상태효과 저장 데이터 이전 검증에 실패했습니다.');return migrateV15(next,catalog);}
 export function migrateV15(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {if(!validV15(value,catalog))throw Error('v15 저장 데이터를 안전하게 이전할 수 없습니다.');const next:any=structuredClone(value);next.version=16;next.ownedJobIds=[];next.currentJobId=null;if(next.expedition)next.expedition={...next.expedition,jobSnapshotId:null,jobRuntime:{jobId:null,passiveIds:[],activeSkillIds:[],resource:null}};if(!validV16(next,catalog))throw Error('직업 저장 데이터 이전 검증에 실패했습니다.');return migrateV16(next,catalog);}
 function normalizeV16JobReferences(value:unknown):unknown {if(!obj(value)||value.version!==16)return value;const next:any=structuredClone(value);if(Array.isArray(next.ownedJobIds))next.ownedJobIds=[...new Set(next.ownedJobIds.filter(isValidJobId))];if(!isValidJobId(next.currentJobId)||!next.ownedJobIds?.includes(next.currentJobId))next.currentJobId=null;if(next.expedition&&!isValidJobId(next.expedition.jobSnapshotId)){next.expedition.jobSnapshotId=null;next.expedition.jobRuntime={jobId:null,passiveIds:[],activeSkillIds:[],resource:null};}return next;}
+export interface SaveExportEnvelope {format:typeof SAVE_EXPORT_FORMAT;formatVersion:typeof SAVE_EXPORT_FORMAT_VERSION;appVersion:string;exportedAt:string;state:GameState}
+export function serializeSaveExport(state:GameState,exportedAt=Date.now(),catalog:CosmeticsCatalog=COSMETICS_CATALOG):string {
+  if(!validSave(state,catalog))throw Error('유효하지 않은 게임 상태는 내보낼 수 없습니다.');
+  const envelope:SaveExportEnvelope={format:SAVE_EXPORT_FORMAT,formatVersion:SAVE_EXPORT_FORMAT_VERSION,appVersion:APP_VERSION,exportedAt:new Date(exportedAt).toISOString(),state};
+  return JSON.stringify(envelope,null,2);
+}
+export function parseSaveImport(raw:string,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {
+  let parsed:unknown;try{parsed=JSON.parse(raw);}catch{throw Error('가져올 저장 파일이 올바른 JSON이 아닙니다.');}
+  let candidate=parsed;
+  if(obj(parsed)&&parsed.format===SAVE_EXPORT_FORMAT){
+    if(parsed.formatVersion!==SAVE_EXPORT_FORMAT_VERSION)throw Error('지원하지 않는 저장 파일 형식입니다.');
+    candidate=parsed.state;
+  }
+  let current=JSON.stringify(candidate);
+  const memory:StoragePort={getItem:key=>key===SAVE_KEY?current:null,setItem:(key,value)=>{if(key===SAVE_KEY)current=value;}};
+  try{return createRepository(memory,catalog).load();}catch(error){throw Error(error instanceof Error?`저장 파일을 가져올 수 없습니다. ${error.message}`:'저장 파일을 가져올 수 없습니다.');}
+}
 export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=COSMETICS_CATALOG){
   return {
     save(state:GameState){
       if(!validSave(state,catalog))throw Error('유효하지 않은 게임 상태는 저장할 수 없습니다.');
       // Both permanent balances and active expedition are one atomic storage value.
       storage.setItem(SAVE_KEY,JSON.stringify(state));
+    },
+    exportSave(state:GameState,exportedAt=Date.now()){return serializeSaveExport(state,exportedAt,catalog);},
+    importSave(raw:string):GameState {
+      const next=parseSaveImport(raw,catalog);
+      const current=storage.getItem(SAVE_KEY);
+      if(current!==null)storage.setItem(IMPORT_BACKUP_KEY,current);
+      storage.setItem(SAVE_KEY,JSON.stringify(next));
+      return next;
     },
     load():GameState {
       const raw=storage.getItem(SAVE_KEY);if(!raw)return initialState();

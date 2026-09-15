@@ -17,3 +17,5 @@ nav{grid-template-columns:repeat(6,1fr);padding-left:6px;padding-right:6px}
 
 
 .gold-balance{color:#e5bd59;white-space:nowrap}
+
+.save-management p{line-height:1.55}.save-file-input{display:none}.danger-button{width:100%;border-color:#8b5948;background:#38241f;color:#f0d2c5}.danger-button:hover{background:#4a2c25}
