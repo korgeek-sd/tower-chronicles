@@ -1,0 +1,6 @@
+﻿type Tool={name:string;title:string;description:string;inputSchema:object;annotations:{readOnlyHint:boolean};execute:(input:unknown)=>unknown};
+export function registerGameTools(read:()=>unknown,returnHome:()=>Promise<unknown>){const context=(document as Document&{modelContext?:{registerTool:(tool:Tool,options:{signal:AbortSignal})=>void|Promise<void>}}).modelContext;if(!context)return;const controller=new AbortController();const schema={type:'object',properties:{},additionalProperties:false};function validate(input:unknown){if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)throw Error('빈 객체를 입력하세요.');}
+  for(const tool of [{name:'read_expedition_status',title:'원정 상태 확인',description:'현재 원정, 영구 보유량, 임시 원정 전리품을 확인합니다.',inputSchema:schema,annotations:{readOnlyHint:true},execute:(input:unknown)=>{validate(input);return read();}},{name:'return_from_expedition',title:'원정에서 귀환',description:'원정을 안전하게 종료하고 임시 전리품과 남은 포션을 영구 보관함에 한 번만 확정합니다. 입장에 사용한 입장권은 반환되지 않습니다.',inputSchema:schema,annotations:{readOnlyHint:false},execute:(input:unknown)=>{validate(input);return returnHome();}}]){try{void Promise.resolve(context.registerTool(tool,{signal:controller.signal})).catch(()=>{});}catch{}}
+return()=>controller.abort();
+}
+

@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Generated builds and standalone copies
+dist/
+assets/
+play.html
+event-preview.html
+qa-v0.1.24/
+
+# Generated validation output
+validation-*.txt
+validation-tests.txt
+inventory-test-results*.txt
+*.tap
+
+# Local backups and temporary files
+backups/
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+~$*
+.DS_Store
+Thumbs.db
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+
+# Editor settings
+.idea/
+.vscode/
