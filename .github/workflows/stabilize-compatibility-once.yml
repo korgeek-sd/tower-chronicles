@@ -1,0 +1,73 @@
+name: One-off v0.1.31 compatibility patch
+
+on:
+  push:
+    branches:
+      - codex/v0.1.31-stabilization
+    paths:
+      - .github/workflows/stabilize-compatibility-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout stabilization branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch legacy boss compatibility and lockfile version
+        shell: python
+        run: |
+          from pathlib import Path
+
+          repository = Path('src/storage/repository.ts')
+          text = repository.read_text(encoding='utf-8')
+          old = "function validBossTracking(x:unknown,towerId:Tower,floorNumber:number):boolean {if(!obj(x)||!count(x.progress)||x.progress>100||typeof x.bossDefeated!=='boolean')return false;const pending=x.pendingBossId,reason=x.encounterReason;if(pending===null){if(reason!==null)return false;}else if(typeof pending!=='string'||!bossById(pending)?.boss||pending!==bossIdFor(towerId,floorNumber)||!['early','max'].includes(reason as string)||(reason==='max'&&x.progress!==100)||(reason==='early'&&x.progress>=100))return false;if(!bossIdFor(towerId,floorNumber)&&(x.progress!==0||pending!==null||x.bossDefeated))return false;if(x.bossDefeated&&pending!==null)return false;return true;}"
+          new = "const historicalBossMatches=(pending:string,towerId:Tower,floorNumber:number)=>pending===bossIdFor(towerId,floorNumber)||(towerId==='ore'&&floorNumber===10&&pending==='mining_ogre');\nfunction validBossTracking(x:unknown,towerId:Tower,floorNumber:number):boolean {if(!obj(x)||!count(x.progress)||x.progress>100||typeof x.bossDefeated!=='boolean')return false;const pending=x.pendingBossId,reason=x.encounterReason;if(pending===null){if(reason!==null)return false;}else if(typeof pending!=='string'||!bossById(pending)?.boss||!historicalBossMatches(pending,towerId,floorNumber)||!['early','max'].includes(reason as string)||(reason==='max'&&x.progress!==100)||(reason==='early'&&x.progress>=100))return false;if(!bossIdFor(towerId,floorNumber)&&(x.progress!==0||pending!==null||x.bossDefeated))return false;if(x.bossDefeated&&pending!==null)return false;return true;}"
+          if old not in text:
+              raise SystemExit('expected validBossTracking source was not found')
+          repository.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          events = Path('tests/events.test.ts')
+          text = events.read_text(encoding='utf-8')
+          start = text.index("test('EVENT 20:")
+          end = text.index("\ntest('EVENT 21:", start)
+          block = text[start:end]
+          block = block.replace('current mapped pending boss', 'legacy pending Mining Ogre')
+          block = block.replace("pendingBossId:'iron_core_pulsator'", "pendingBossId:'mining_ogre'")
+          block = block.replace("pendingEvent!.bossId,'iron_core_pulsator'", "pendingEvent!.bossId,'mining_ogre'")
+          text = text[:start] + block + text[end:]
+          events.write_text(text, encoding='utf-8')
+
+          lock = Path('package-lock.json')
+          text = lock.read_text(encoding='utf-8')
+          if text.count('"version": "0.1.29"') < 2:
+              raise SystemExit('expected package-lock version markers were not found')
+          lock.write_text(text.replace('"version": "0.1.29"', '"version": "0.1.31"', 2), encoding='utf-8')
+
+      - name: Use Node.js 22.20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+
+      - name: Verify patched tree
+        run: |
+          npm ci
+          npm test
+          npm run typecheck
+          npm run build
+
+      - name: Commit compatibility fix and remove one-off workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/stabilize-compatibility-once.yml
+          git add src/storage/repository.ts tests/events.test.ts package-lock.json
+          git commit -m "fix: preserve legacy pending boss migration"
+          git push origin HEAD:codex/v0.1.31-stabilization
