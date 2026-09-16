@@ -32,6 +32,19 @@ jobs:
               raise SystemExit('expected validBossTracking source was not found')
           repository.write_text(text.replace(old, new, 1), encoding='utf-8')
 
+          validation = Path('src/game/events/validation.ts')
+          text = validation.read_text(encoding='utf-8')
+          old = "const strings=(v:unknown):v is string[]=>Array.isArray(v)&&v.every(x=>typeof x==='string');"
+          new = old + "\nconst compatibleBossId=(tower:unknown,floor:unknown,id:unknown,current:string|null)=>id===current||(tower==='ore'&&floor===10&&id==='mining_ogre');"
+          if old not in text:
+              raise SystemExit('expected event validation prelude was not found')
+          text = text.replace(old, new, 1)
+          old = "(p.bossId!==null&&(!boss||p.bossId!==boss))"
+          new = "(p.bossId!==null&&(!boss||!compatibleBossId(value.tower,value.floor,p.bossId,boss)))"
+          if old not in text:
+              raise SystemExit('expected pending boss validation source was not found')
+          validation.write_text(text.replace(old, new, 1), encoding='utf-8')
+
           events = Path('tests/events.test.ts')
           text = events.read_text(encoding='utf-8')
           start = text.index("test('EVENT 20:")
@@ -68,6 +81,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/stabilize-compatibility-once.yml
-          git add src/storage/repository.ts tests/events.test.ts package-lock.json
+          git add src/storage/repository.ts src/game/events/validation.ts tests/events.test.ts package-lock.json
           git commit -m "fix: preserve legacy pending boss migration"
           git push origin HEAD:codex/v0.1.31-stabilization
