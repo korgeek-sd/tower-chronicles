@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialState} from '../src/game/engine/state.ts';
 import {enter,requestReturn} from '../src/game/engine/expedition.ts';
-import {basicAttack,resolveMonsterTurn,tick} from '../src/game/engine/combat.ts';
+import {basicAttack,resolveMonsterTurn} from '../src/game/engine/combat.ts';
 import {graphicFor,backgroundFor,MONSTER_GRAPHICS,PLAYER_GRAPHIC} from '../src/game/data/graphics.ts';
 import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} from '../src/components/battle/presentation.ts';
 import {createRepository} from '../src/storage/repository.ts';
 const start=()=>enter(initialState(),'ore',1);
 test('그래픽 01: 그래픽 없는 기존 몬스터도 수동 전투 가능',()=>{const s=start();s.expedition!.monster.name='기존 이름';assert.equal(graphicFor('ore',s.expedition!.monster),undefined);assert.ok(basicAttack(s).expedition!.monster.currentHp<s.expedition!.monster.currentHp);});
-test('그래픽 02: 실제 철맥탑 몬스터 이름으로 그래픽 데이터 조회',()=>{assert.equal(graphicFor('ore',start().expedition!.monster)?.id,'goblin_miner');assert.equal(MONSTER_GRAPHICS.length,9);});
+test('그래픽 02: 철맥 일반 5종과 보스 5종을 포함한 현재 그래픽 카탈로그를 조회한다',()=>{assert.equal(graphicFor('ore',start().expedition!.monster)?.id,'goblin_miner');assert.equal(MONSTER_GRAPHICS.length,14);for(const name of ['쇄철턱 굴혈수','흑맥갑주 파쇄충','울림포식자','심층 권양감독체','철심 맥동체'])assert.ok(graphicFor('ore',{name}));});
 test('그래픽 03: 이미지 없음 및 로딩 실패는 placeholder',()=>{assert.equal(imageState(false,false,false),'placeholder');assert.equal(imageState(true,false,false),'placeholder');});
 test('그래픽 04: 몬스터 교체는 다른 encounter와 데이터',()=>{const a=start().expedition!,b=structuredClone(a);b.monster.name='다른 몬스터';assert.notEqual(encounterKey(a),encounterKey(b));assert.equal(graphicFor('ore',b.monster),undefined);assert.equal(damageBetween(a,b),0);});
 test('그래픽 05: HUD는 실제 HP만 사용',()=>{const e=start().expedition!;e.monster.currentHp=21;assert.deepEqual(monsterHud(e.monster),{name:e.monster.name,current:21,max:42,percent:50});});
@@ -18,8 +18,8 @@ test('그래픽 08: 피해량 UI 조회는 계산과 저장 상태를 변경하�
 test('그래픽 09: 귀환 예약은 적의 마지막 행동 뒤 정산',()=>{const s=requestReturn(start());assert.ok(s.expedition);s.expedition!.monster.attack=1;const n=resolveMonsterTurn(s);assert.equal(n.lastExpedition?.outcome,'returned');});
 test('그래픽 10: 처치 시 장비 숙련 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;assert.equal(basicAttack(s,()=>.99).gearMastery.sword.progress,10);});
 test('그래픽 11: 처치 전리품은 기존 임시 보관함에 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.equal(n.silver,0);assert.ok(n.expedition!.loot.silver>0);});
-test('그래픽 12: v13 저장은 그래픽 상태 없이 왕복',()=>{let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,s)=>{raw=s;}}),s=start();repo.save(s);assert.deepEqual(repo.load(),s);assert.equal(s.version,20);assert.ok(!raw.includes('imageReady'));});
-test('각 탑은 층 티어에 맞는 최신 배경을 조회한다',()=>{for(const t of ['ore','leather','gem','kaleon'] as const)for(let floor=1;floor<=50;floor++)assert.equal(backgroundFor(t,floor),`assets/backgrounds/${t}/t${Math.ceil(floor/10)}.png`);});
+test('그래픽 12: 현재 v21 저장은 그래픽 런타임 UI 상태 없이 왕복',()=>{let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,s)=>{raw=s;}}),s=start();repo.save(s);assert.deepEqual(repo.load(),s);assert.equal(s.version,21);assert.ok(!raw.includes('imageReady'));});
+test('현재 10층 구조는 각 탑에서 단일 배경 tier를 조회한다',()=>{for(const t of ['ore','leather','gem','kaleon'] as const)for(let floor=1;floor<=10;floor++)assert.equal(backgroundFor(t,floor),`assets/backgrounds/${t}/t1.png`);});
 test('처치 뒤 즉시 교체된 몬스터에는 이전 피해를 표시하지 않음',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.notEqual(encounterKey(s.expedition!),encounterKey(n.expedition!));assert.equal(damageBetween(s.expedition!,n.expedition!),0);});
 test('버프 스킬과 같은 HP 상태는 피해 이벤트를 만들지 않음',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;assert.equal(damageBetween(a,b),0);});
 test('세로 UI 01: 플레이어 HP 감소량을 피해 이벤트로 계산',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;b.hp-=17;assert.deepEqual(playerVitalBetween(a,b),{kind:'damage',amount:17});});
@@ -28,11 +28,3 @@ test('세로 UI 03: 플레이어 HP 변화가 없으면 이벤트 없음',()=>{c
 test('세로 UI 04: 시간 역행과 몬스터 전환은 플레이어 이벤트를 만들지 않음',()=>{const a=start().expedition!,past=structuredClone(a),changed=structuredClone(a);past.time=-1;past.hp-=9;changed.time+=.2;changed.monster.name='교체된 몬스터';changed.hp-=9;assert.equal(playerVitalBetween(a,past),null);assert.equal(playerVitalBetween(a,changed),null);});
 test('세로 UI 05: 플레이어/몬스터 이미지가 없어도 placeholder 계약 유지',()=>{assert.equal(PLAYER_GRAPHIC.image.idle,'assets/player/default.png');assert.equal(imageState(false,false,false),'placeholder');});
 test('세로 UI 06: HP 표현 계산은 원정 상태를 변경하지 않음',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;b.hp-=5;const before=JSON.stringify([a,b]);playerVitalBetween(a,b);monsterHud(b.monster);assert.equal(JSON.stringify([a,b]),before);});
-
-
-
-
-
-
-
-

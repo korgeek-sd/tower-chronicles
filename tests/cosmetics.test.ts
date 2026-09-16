@@ -6,17 +6,18 @@ import {initialCosmetics,registerAppearance,selectAppearance,selectTitle} from '
 import {playerGraphicFor} from '../src/game/data/graphics.ts';
 import type {CosmeticsCatalog} from '../src/game/data/cosmetics.ts';
 import {COSMETICS_BACKUP_KEY,SAVE_KEY,createRepository,migrateV4,validCosmetics,validSave} from '../src/storage/repository.ts';
+import {withHistoricalTickets} from './legacyFixture.ts';
 
 const catalog:CosmeticsCatalog={appearances:[
  {id:'default',name:'기본 모험가',imagePath:'assets/player/default.png',description:'기본',sourceLabel:'기본 지급',tradeable:false},
  {id:'ashen',name:'테스트 외형',imagePath:'assets/player/ashen.png',description:'시험용',sourceLabel:'테스트',tradeable:true}
 ],titles:[{id:'test_title',name:'시험 칭호',description:'시험용',sourceLabel:'테스트'}]};
-const v4=()=>{const x:any=structuredClone(initialState());x.version=4;delete x.cosmetics;return x;};
+const v4=()=>{const x:any=structuredClone(initialState());x.version=4;delete x.cosmetics;return withHistoricalTickets(x);};
 const memory=(raw?:string)=>{const mem=new Map<string,string>();if(raw)mem.set(SAVE_KEY,raw);return {mem,repo:createRepository({getItem:k=>mem.get(k)??null,setItem:(k,v)=>void mem.set(k,v)},catalog)};};
 
 test('외형 01-03: 기본 외형은 최초부터 영구 해금·선택되고 칭호는 비어 있다',()=>{assert.deepEqual(initialCosmetics(),{unlockedAppearanceIds:['default'],selectedAppearanceId:'default',appearanceItems:{},unlockedTitleIds:[],selectedTitleId:null});});
-test('외형 04-06: v4→v5 이전은 기존 재산·진행 원정·결과를 보존하고 기본 외형만 더한다',()=>{const old=v4();old.silver=77;old.expedition=enter(initialState(),'ore',1).expedition;old.lastExpedition=leave(enter(initialState(),'gem',1)).lastExpedition;const n=migrateV4(old,catalog);assert.equal(n.version,5);assert.equal(n.silver,77);assert.deepEqual(n.expedition,old.expedition);assert.deepEqual(n.lastExpedition,old.lastExpedition);assert.deepEqual(n.cosmetics,initialCosmetics());});
-test('외형 07-09: v4 백업은 한 번만 만들고 v5 재로드는 다시 이전하지 않는다',()=>{const raw=JSON.stringify(v4()),{mem,repo}=memory(raw);const n=repo.load();assert.equal(mem.get(COSMETICS_BACKUP_KEY),raw);const backup=mem.get(COSMETICS_BACKUP_KEY);repo.save(n);assert.deepEqual(repo.load(),n);assert.equal(mem.get(COSMETICS_BACKUP_KEY),backup);});
+test('외형 04-06: v4→v5 이전은 기존 재산·진행 원정·결과를 보존하고 기본 외형만 더한다',()=>{const old=v4();old.silver=77;old.expedition=withHistoricalTickets(enter(initialState(),'ore',1)).expedition;old.lastExpedition=withHistoricalTickets(leave(enter(initialState(),'gem',1))).lastExpedition;const n=migrateV4(old,catalog);assert.equal(n.version,5);assert.equal(n.silver,77);assert.deepEqual(n.expedition,old.expedition);assert.deepEqual(n.lastExpedition,old.lastExpedition);assert.deepEqual(n.cosmetics,initialCosmetics());});
+test('외형 07-09: v4 백업은 한 번만 만들고 최신 저장으로 이전한 뒤 다시 이전하지 않는다',()=>{const raw=JSON.stringify(v4()),{mem,repo}=memory(raw);const n=repo.load();assert.equal(n.version,21);assert.equal(mem.get(COSMETICS_BACKUP_KEY),raw);const backup=mem.get(COSMETICS_BACKUP_KEY);repo.save(n);assert.deepEqual(repo.load(),n);assert.equal(mem.get(COSMETICS_BACKUP_KEY),backup);});
 test('외형 10: 백업 실패 시 메인 원본을 보존한다',()=>{const raw=JSON.stringify(v4());let main=raw;const repo=createRepository({getItem:k=>k===SAVE_KEY?main:null,setItem:(k,v)=>{if(k===COSMETICS_BACKUP_KEY)throw Error('full');main=v;}},catalog);assert.throws(()=>repo.load());assert.equal(main,raw);});
 test('외형 11-13: 아이템 하나를 소비해 영구 등록하고 중복 등록은 소비하지 않는다',()=>{const s=initialState();s.cosmetics.appearanceItems.ashen=2;const n=registerAppearance(s,'ashen',catalog);assert.equal(n.cosmetics.appearanceItems.ashen,1);assert.ok(n.cosmetics.unlockedAppearanceIds.includes('ashen'));const duplicate=registerAppearance(n,'ashen',catalog);assert.equal(duplicate.cosmetics.appearanceItems.ashen,1);assert.equal(duplicate.notice,'이미 등록된 외형입니다.');});
 test('외형 14: 없는 아이템과 알 수 없는 외형은 등록되지 않는다',()=>{const s=initialState();assert.match(registerAppearance(s,'ashen',catalog).notice,/보유한/);assert.match(registerAppearance(s,'missing',catalog).notice,/등록할 수 없는/);});
@@ -27,4 +28,3 @@ test('외형 24-26: 외형·칭호 선택은 저장 후 복구되고 원정 중 
 test('외형 27-31: 손상된 수량·중복·선택 참조·미등록 ID·칭호 참조를 거부한다',()=>{const mutations=[(s:any)=>s.cosmetics.appearanceItems.ashen=-1,(s:any)=>s.cosmetics.unlockedAppearanceIds.push('default'),(s:any)=>s.cosmetics.selectedAppearanceId='ashen',(s:any)=>s.cosmetics.appearanceItems.missing=1,(s:any)=>s.cosmetics.selectedTitleId='test_title'];for(const mutate of mutations){const s:any=initialState();mutate(s);assert.equal(validSave(s,catalog),false);}});
 test('외형 32: 카탈로그 검증은 NaN·Infinity·소수 수량을 거부한다',()=>{for(const n of [NaN,Infinity,1.5]){const c:any=initialCosmetics();c.appearanceItems.ashen=n;assert.equal(validCosmetics(c,catalog),false);}});
 test('외형 33-34: 선택 이미지 경로를 사용하고 알 수 없는 ID는 기본 이미지로 폴백한다',()=>{assert.equal(playerGraphicFor('default').image.idle,'assets/player/default.png');assert.equal(playerGraphicFor('missing').id,'default');});
-

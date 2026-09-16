@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {initialState,stats} from '../src/game/engine/state.ts';
+import {initialState} from '../src/game/engine/state.ts';
 import {enter} from '../src/game/engine/expedition.ts';
 import {applyPreset,BASE_PRESET_SLOT_LIMIT,canAccessPresetSlot,getPresetSlotLimit,PREMIUM_PRESET_SLOT_LIMIT,savePreset,snapshotPreset,validatePresetApply} from '../src/game/engine/presets.ts';
 import {migrateV6,PRESETS_BACKUP_KEY,SAVE_KEY,createRepository,validSave} from '../src/storage/repository.ts';
+import {withHistoricalTickets} from './legacyFixture.ts';
 
-const v6=(active=true)=>{const base=initialState();base.tickets.ore[9]=1;const s:any=active?enter(base,'ore',10):base;s.version=6;delete s.expeditionPresets;return s;};
+const v6=(active=true)=>{const base=initialState();base.tickets.ore[9]=1;const s:any=active?enter(base,'ore',10):base;s.version=6;delete s.expeditionPresets;return withHistoricalTickets(s);};
 test('프리셋 저장 01-03: v6→v7은 기존 전체 상태를 보존하고 빈 5슬롯만 추가한다',()=>{const old=v6();old.silver=88;old.expedition.hp=91;old.expedition.bossTracking.progress=20;const n=migrateV6(old);assert.equal(n.version,7);assert.equal(n.silver,88);assert.equal(n.expedition!.hp,91);assert.equal(n.expedition!.bossTracking.progress,20);assert.deepEqual(n.expeditionPresets,[null,null,null,null,null]);});
 test('프리셋 저장 04-06: 5슬롯이 저장·재로드되고 기본 2/최대 5 권한이 분리된다',()=>{let s=initialState();for(let slot=1;slot<=5;slot++)s=savePreset(s,slot,'P'+slot,5);let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,v)=>{raw=v;}});repo.save(s);assert.deepEqual(repo.load().expeditionPresets,s.expeditionPresets);assert.equal(getPresetSlotLimit(),2);assert.equal(getPresetSlotLimit(true),5);assert.equal(BASE_PRESET_SLOT_LIMIT,2);assert.equal(PREMIUM_PRESET_SLOT_LIMIT,5);});
 test('프리셋 저장 07-09: 잘못된 슬롯·이름·데이터를 거부하고 백업 실패 시 원본을 보호한다',()=>{const s=initialState();assert.equal(canAccessPresetSlot(0),false);assert.equal(canAccessPresetSlot(6,5),false);const bad:any=structuredClone(s);bad.expeditionPresets[0]={name:' ',equipment:s.equipped,skills:s.skills,potions:s.loadout,threshold:70};assert.equal(validSave(bad),false);const raw=JSON.stringify(v6()),repo=createRepository({getItem:k=>k===SAVE_KEY?raw:null,setItem:(k)=>{if(k===PRESETS_BACKUP_KEY)throw Error('full');}});assert.throws(()=>repo.load());});
@@ -15,5 +16,3 @@ test('프리셋 포션 19-21: 충분하면 적용하고 부족하면 수량을 �
 test('프리셋 스킬 22-24: 습득 스킬만 snapshot하며 잘못된 ID는 원자 적용되지 않는다',()=>{const s=initialState();assert.ok(snapshotPreset(s,'스킬'));s.skills[0]='unknown';assert.equal(snapshotPreset(s,'실패'),null);s.expeditionPresets[0]={name:'오류',equipment:{...s.equipped},skills:['unknown',null,null],potions:{...s.loadout},threshold:70};const before=[...s.skills],n=applyPreset(s,1);assert.deepEqual(n.skills,before);assert.match(n.notice,/사용할 수 없는 스킬/);});
 test('프리셋 권한 25-28: 3~5번은 잠겨도 데이터가 보존되고 limit 5에서 복구된다',()=>{let s=savePreset(initialState(),3,'보존 프리셋',5);const stored=structuredClone(s.expeditionPresets[2]);const blocked=applyPreset(s,3);assert.deepEqual(blocked.expeditionPresets[2],stored);assert.match(blocked.notice,/잠긴/);assert.equal(validatePresetApply(s,3,5).length,0);assert.equal(applyPreset(s,3,5).notice,'보존 프리셋 프리셋을 불러왔습니다.');});
 test('프리셋 원정 29-30: 원정 중 적용과 덮어쓰기를 모두 차단한다',()=>{let s=savePreset(initialState(),1);s=enter(s,'ore',1);const preset=structuredClone(s.expeditionPresets[0]),equipped=structuredClone(s.equipped);const applied=applyPreset(s,1),saved=savePreset(s,1);assert.deepEqual(applied.equipped,equipped);assert.deepEqual(saved.expeditionPresets[0],preset);assert.match(applied.notice,/원정 중/);assert.match(saved.notice,/원정 중/);});
-
-
