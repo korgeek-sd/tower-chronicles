@@ -13,6 +13,12 @@ export const EFFECTS:Record<string,EffectDefinition>={
  test_resonance:{id:'test_resonance',name:'TEST_RESONANCE',description:'개발용 공진 중첩입니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:5,stackingPolicy:'STACK',maxStacks:5},
  test_latched_stack:{id:'test_latched_stack',name:'TEST_LATCHED_STACK',description:'개발용 경계 통과 검증 상태입니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:5,stackingPolicy:'STACK',maxStacks:3,thresholdReaction:{threshold:3,applyEffectIds:['test_exposed']}},
  test_shield:{id:'test_shield',name:'TEST_SHIELD',description:'개발용 공통 보호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:30,scope:'BATTLE'},
+ iron_armor:{id:'iron_armor',name:'흑맥 갑주',description:'방어력이 크게 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:99,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:.65}},
+ fracture:{id:'fracture',name:'균열',description:'직접 공격을 받을 때 누적됩니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:99,stackingPolicy:'STACK',maxStacks:3,thresholdReaction:{threshold:3,removeSelf:true,removeEffectIds:['iron_armor'],applyEffectIds:['exposed_core'],message:'갑주가 파쇄되어 노출 상태가 되었습니다.'}},
+ exposed_core:{id:'exposed_core',name:'노출',description:'방어력이 감소합니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:4,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:-.35}},
+ resonance:{id:'resonance',name:'울림',description:'울림이 누적됩니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:5,stackingPolicy:'STACK',maxStacks:5},
+ crushing_pressure:{id:'crushing_pressure',name:'압착 저주',description:'방어력이 감소합니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:-.3}},
+ iron_core_shield:{id:'iron_core_shield',name:'철심 보호막',description:'철심의 보호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:70,scope:'BATTLE'},
 };
 export type EffectActor='player'|'monster';
 const effectsFor=(e:Expedition,actor:EffectActor)=>actor==='player'?e.playerEffects:e.monsterEffects;

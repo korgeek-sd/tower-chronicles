@@ -1,10 +1,10 @@
 ﻿import type {ExpeditionLoot, GameState} from '../types';
-import {SKILLS,TOWERS,towerIds} from '../data/config';
+import {SKILLS,TOWERS,towerIds,CONFIG} from '../data/config';
 
 export const emptyLoot = (): ExpeditionLoot => ({
   silver: 0,
   materials: Object.fromEntries(towerIds.map(t => [t, Array(5).fill(0)])) as ExpeditionLoot['materials'],
-  tickets: Object.fromEntries(towerIds.map(t => [t, Array(50).fill(0)])) as ExpeditionLoot['tickets'],
+  tickets: Object.fromEntries(towerIds.map(t => [t, Array(CONFIG.maxFloor).fill(0)])) as ExpeditionLoot['tickets'],
   skillBooks: {},
   items: {},
 });
@@ -40,4 +40,3 @@ export function commitLoot(state: GameState, loot: ExpeditionLoot): void {
   for (const [id,n] of Object.entries(loot.skillBooks)) state.skillBooks[id] = (state.skillBooks[id] || 0) + n;
   for (const [id,n] of Object.entries(loot.items)) state.lootItems[id] = (state.lootItems[id] || 0) + n;
 }
-

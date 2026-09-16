@@ -1,0 +1,43 @@
+name: Tower Chronicles CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'codex/**'
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22.20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Standalone build when source assets are versioned
+        shell: bash
+        run: |
+          if [ -d public/assets ]; then
+            node scripts/standalone.mjs
+          else
+            echo "::notice::public/assets is not versioned on this branch yet; standalone validation is skipped until source assets are committed."
+          fi

@@ -1,0 +1,8 @@
+.inventory-screen .inventory-grid{gap:8px}
+.inventory-screen .inventory-slot{padding:0;border:2px solid #796a53;border-image:none;background:#171512;border-radius:4px;overflow:hidden;box-shadow:0 2px 4px #0006;isolation:isolate}
+.inventory-screen .inventory-slot>.inventory-icon{display:block;width:100%;height:100%;aspect-ratio:1;object-fit:contain;pointer-events:none}
+.inventory-screen .inventory-slot.selected{border-color:#e8c780;border-image:none;box-shadow:0 0 0 2px #e8c78066,0 2px 5px #0008}
+.inventory-screen .inventory-slot:focus-visible{outline:2px solid #f9e1a2;outline-offset:2px}
+.inventory-screen .item-count{right:3px;bottom:3px;min-width:22px;min-height:22px;display:flex;align-items:center;justify-content:center;padding:2px 5px;border:1px solid #a89b85;border-radius:12px;background:#191b1eed;font-size:12px;line-height:1;color:#fff;font-variant-numeric:tabular-nums;box-sizing:border-box}
+.inventory-screen .item-equipped{left:3px;bottom:3px;display:flex;align-items:center;justify-content:center;width:19px;height:19px;padding:0;border:1px solid #bca36a;border-radius:50%;background:#283226ed;color:#efda9e;font-size:12px}
+.inventory-screen .item-enhancement{right:3px;top:3px;padding:2px 4px;border-radius:3px;color:#f1ddb0;font-size:11px}
