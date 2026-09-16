@@ -63,7 +63,7 @@ export const COMMON_EVENTS:ExpeditionEventDefinition[]=[
   choices:[
    {id:'clear_debris',label:'잔해를 치운다',description:'부상 위험을 감수하고 화물을 회수합니다.',icon:'⚠',styleVariant:'DANGER',effects:[],outcomes:[
     {id:'recovered_cargo',weight:3,effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:4}},{kind:'ADD_EXPEDITION_SILVER',amount:15}],resultText:'통로가 버텨 주는 사이 화물을 안전하게 꺼냈습니다.'},
-    {id:'falling_debris',weight:1,effects:[{kind:'TAKE_DAMAGE_RATIO',ratio:.12,minimum:14}],resultText:'잔해가 다시 무너지며 몸을 덮쳤습니다.'}
+    {id:'falling_debris',weight:1,effects:[{kind:'TAKE_DAMAGE',amount:14}],resultText:'잔해가 다시 무너지며 몸을 덮쳤습니다.'}
    ]},
    skip('불안정한 통로를 표시해 두고 우회합니다.')
   ]
