@@ -6,6 +6,7 @@ const skip=(resultText:string):EventChoice=>({
  description:'위험을 늘리지 않고 탐사를 계속합니다.',
  icon:'⇥',
  styleVariant:'SKIP',
+ behavior:'SKIP',
  effects:[],
  resultText
 });
@@ -15,6 +16,7 @@ export const EVENT_CATALOG:ExpeditionEventDefinition[]=[
  {
   id:'sheltered_rest_niche',
   type:'RECOVERY',
+  tags:['COMMON','RECOVERY'],
   title:'바람 막힌 휴식처',
   description:'무너진 구조물 안쪽에 잠시 숨을 고를 만한 공간이 남아 있습니다.',
   weight:1,
@@ -27,6 +29,7 @@ export const EVENT_CATALOG:ExpeditionEventDefinition[]=[
  {
   id:'sealed_emergency_cache',
   type:'SUPPLY',
+  tags:['COMMON','RESOURCE'],
   title:'봉인된 비상 보급함',
   description:'탐사대가 공용으로 남긴 낡은 보급함 하나가 벽면에 고정되어 있습니다.',
   weight:1,
@@ -39,6 +42,7 @@ export const EVENT_CATALOG:ExpeditionEventDefinition[]=[
  {
   id:'unclaimed_route_satchel',
   type:'DISCOVERY',
+  tags:['COMMON','DISCOVERY','RESOURCE'],
   title:'회수되지 않은 표식 주머니',
   description:'오래된 경로 표식 아래에 소유자를 알 수 없는 작은 작업 주머니가 놓여 있습니다.',
   weight:1,
@@ -51,6 +55,7 @@ export const EVENT_CATALOG:ExpeditionEventDefinition[]=[
  {
   id:'collapsed_haulway',
   type:'RISK',
+  tags:['COMMON','RISK_REWARD'],
   title:'무너진 운반로',
   description:'잔해 너머로 버려진 화물이 보입니다. 통로가 더 무너지기 전에 꺼낼 수 있을지도 모릅니다.',
   weight:.8,
@@ -66,18 +71,20 @@ export const EVENT_CATALOG:ExpeditionEventDefinition[]=[
  {
   id:'surveyor_dead_drop',
   type:'DISCOVERY',
+  tags:['COMMON','DISCOVERY'],
   title:'측량사의 비밀 보관함',
   description:'벽 틈에서 탐사 경로를 기록하던 측량사의 작은 철제 보관함을 발견했습니다.',
   weight:.75,
   choices:[
    {id:'take_silver',label:'은화를 회수한다',description:'운반이 쉬운 은화만 챙깁니다.',icon:'◈',styleVariant:'PRIMARY',effects:[{kind:'ADD_EXPEDITION_SILVER',amount:22}],resultText:'비상 자금으로 남겨 둔 Silver를 회수했습니다.'},
-   {id:'take_materials',label:'표본을 회수한다',description:'현지에서 채집한 표본 묶음을 챙깁니다.',icon:'◇',effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:3}}],resultText:'분류가 끝난 현지 재료 표본을 회수했습니다.'},
+   {id:'take_materials',label:'표본을 회수한다',description:'현지에서 채집한 표본 묶음을 챙깁니다.',icon:'◇',styleVariant:'SECONDARY',effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:3}}],resultText:'분류가 끝난 현지 재료 표본을 회수했습니다.'},
    skip('기록의 주인이 돌아올 가능성을 생각해 그대로 둡니다.')
   ]
  },
  {
   id:'abandoned_guard_post',
   type:'STATUS',
+  tags:['COMMON','STATUS'],
   title:'버려진 방호 거점',
   description:'탐사대가 전투 직전 장비를 정비하던 임시 방호 거점이 남아 있습니다.',
   weight:.65,
@@ -88,7 +95,7 @@ export const EVENT_CATALOG:ExpeditionEventDefinition[]=[
  }
 ];
 
-export const BOSS_EVENT:ExpeditionEventDefinition={id:'boss_encounter',type:'BOSS',title:'강력한 존재의 흔적',description:'앞쪽에서 거대한 발소리가 들려옵니다. 흔적을 따라가면 이 구역의 보스와 마주할 수 있습니다.',weight:1,conditions:[{kind:'BOSS_FLOOR',value:true}],choices:[{id:'challenge',label:'도전한다',description:'준비를 마치고 보스에게 향합니다.',icon:'⚔',styleVariant:'PRIMARY',effects:[{kind:'START_BOSS_BATTLE'}],resultText:'보스에게 향할 준비를 마쳤습니다.'},{id:'skip',label:'지나간다',description:'이번 흔적을 포기하고 탐사를 계속합니다.',icon:'⇥',styleVariant:'SKIP',effects:[],resultText:'흔적을 뒤로하고 다른 길로 나아갑니다.'}]};
+export const BOSS_EVENT:ExpeditionEventDefinition={id:'boss_encounter',type:'BOSS',title:'강력한 존재의 흔적',description:'앞쪽에서 거대한 발소리가 들려옵니다. 흔적을 따라가면 이 구역의 보스와 마주할 수 있습니다.',weight:1,conditions:[{kind:'BOSS_FLOOR',value:true}],choices:[{id:'challenge',label:'도전한다',description:'준비를 마치고 보스에게 향합니다.',icon:'⚔',styleVariant:'PRIMARY',effects:[{kind:'START_BOSS_BATTLE'}],resultText:'보스에게 향할 준비를 마쳤습니다.'},{id:'skip',label:'지나간다',description:'이번 흔적을 포기하고 탐사를 계속합니다.',icon:'⇥',styleVariant:'SKIP',behavior:'SKIP',effects:[],resultText:'흔적을 뒤로하고 다른 길로 나아갑니다.'}]};
 // Asset keys are resolved centrally; missing or failed art receives a neutral placeholder.
 export const EVENT_ASSETS:Record<string,string>={dev_mine_backdrop:'./assets/backgrounds/ore/t1.png',potion:'./assets/ui/inventory/health.png',ore:'./assets/ui/inventory/ore.png',silver:'./assets/ui/pixel-v1/13-silver-icon.png'};
 export const eventAsset=(key?:string)=>key?EVENT_ASSETS[key]:undefined;
