@@ -1,5 +1,5 @@
 import type {Weapon,Slot,Field,Potion,Tower,GearMasteryKey,GeneralPotion} from '../types';
-export const CONFIG={baseHp:180,baseAttack:8,baseDefense:3,baseSpeed:1,starterTickets:20,starterLesser:30,starterStandard:5,logLimit:80,spawnDelay:1.2,ticketChance:.4,bookChance:.07,craftCost:6,masteryRequired:4,discountPerCraft:.02,maxDiscount:.3,generalPotionLimit:30,revivalPotionLimit:1,revivalHealRatio:.3,maxFloor:50,tick:.2};
+export const CONFIG={baseHp:180,baseAttack:8,baseDefense:3,baseSpeed:1,starterTickets:20,starterLesser:30,starterStandard:5,logLimit:80,spawnDelay:1.2,ticketChance:.4,bookChance:.07,craftCost:6,masteryRequired:4,discountPerCraft:.02,maxDiscount:.3,generalPotionLimit:30,revivalPotionLimit:1,revivalHealRatio:.3,maxFloor:10,tick:.2};
 export const MARKET_ITEM_TRADE_FEE_RATE=0;
 export const WEAPONS:Record<Weapon,{name:string;icon:string;attack:number;defense:number;speed:number;skillPower:number;description:string}>={sword:{name:'검',icon:'⚔',attack:10,defense:4,speed:1,skillPower:1,description:'안정적인 공격과 방어'},dagger:{name:'단검',icon:'🗡',attack:7,defense:0,speed:1.65,skillPower:1.15,description:'빠른 공격과 순간 화력'},bow:{name:'활',icon:'🏹',attack:12,defense:1,speed:1.15,skillPower:1,description:'꾸준한 공격과 견제'},staff:{name:'지팡이',icon:'✦',attack:6,defense:0,speed:.85,skillPower:2.3,description:'강력한 자동 마법 스킬'}};
 export const TOWERS:Record<Tower,{name:string;material:string;icon:string;color:string;monster:string}>={ore:{name:'철맥의 첨탑',material:'철광석',icon:'◆',color:'#83b4c5',monster:'고블린 광부'},leather:{name:'붉은 송곳니의 성소',material:'가죽',icon:'◈',color:'#c7a17a',monster:'황야 멧돼지'},gem:{name:'천광의 수정탑',material:'보석',icon:'◇',color:'#b0a5e1',monster:'수정 파수꾼'},kaleon:{name:'칼레온의 녹빛 첨탑',material:'약초',icon:'✣',color:'#85c6a6',monster:'이끼 정령'}};
@@ -29,7 +29,11 @@ export const COMBAT={monsterHp:42,hpPerFloor:10,monsterAttack:11,attackPerFloor:
 export const towerIds=Object.keys(TOWERS) as Tower[];
 export const potionIds=Object.keys(POTIONS) as Potion[];
 export const generalPotionIds=potionIds.filter((id):id is GeneralPotion=>id!=='revival');
-export const tierOf=(floor:number)=>Math.ceil(floor/10);
+/** Equipment tiers are independent from tower floors after v0.1.30. */
+export const tierOf=(_floor:number)=>1;
+export type FloorSafety='SAFE'|'PK_ELIGIBLE';
+export const floorSafety=(floor:number):FloorSafety=>floor<=2?'SAFE':'PK_ELIGIBLE';
+export const isValidTowerFloor=(floor:number)=>Number.isInteger(floor)&&floor>=1&&floor<=CONFIG.maxFloor;
 
 export const STARTER={name:'낡은 훈련용 검',scale:.55};
 

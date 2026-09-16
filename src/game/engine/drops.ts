@@ -13,14 +13,9 @@ export function reward(s:GameState,rng:()=>number=Math.random){
   e.loot.silver+=silver;
   e.loot.materials[e.tower][tier-1]+=COMBAT.materialAmount;
   log(s,e.monster.name+' 처치! '+tier+'T '+TOWERS[e.tower].material+' ×'+COMBAT.materialAmount+' · Silver +'+silver+' (원정 임시 보관)');
-  if(e.floor<50&&rng()<CONFIG.ticketChance){
+  if(e.floor<CONFIG.maxFloor&&rng()<CONFIG.ticketChance){
     e.loot.tickets[e.tower][e.floor]++;
     log(s,(e.floor+1)+'층 입장권 획득 · 안전 귀환 후 보관');
-  }
-  // Books remain tradeable counts, even for skills already learned.
-  if(rng()<CONFIG.bookChance){
-    e.loot.skillBooks.execute=(e.loot.skillBooks.execute||0)+1;
-    log(s,'[처형] 스킬북 획득 · 원정 임시 보관 (미학습)');
   }
 }
 

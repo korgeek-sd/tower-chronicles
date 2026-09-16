@@ -1,6 +1,6 @@
 import {initialEvents} from '../events/service';
 import type {GameState,Tower} from '../types';
-import {CONFIG,potionIds,generalPotionIds,TOWERS,POTIONS} from '../data/config';
+import {CONFIG,potionIds,generalPotionIds,TOWERS,POTIONS,isValidTowerFloor} from '../data/config';
 import {stats,log} from './state';
 import {monsterFor} from './drops';
 import {emptyLoot,commitLoot,lootLines} from './loot';
@@ -10,7 +10,7 @@ import {createMonsterRuntime} from './monsterAi';
 import {emptyReactivePrepared} from './reactions';
 export function enter(s:GameState,tower:Tower,floor:number):GameState {
   const n=structuredClone(s);if(n.expedition)return n;
-  if(!(tower in TOWERS)||!Number.isInteger(floor)||floor<1||floor>50||n.tickets[tower][floor-1]<1)return {...n,notice:'이 층의 입장권이 없습니다.'};
+  if(!(tower in TOWERS)||!isValidTowerFloor(floor)||n.tickets[tower][floor-1]<1)return {...n,notice:'이 층의 입장권이 없습니다.'};
   if(generalPotionIds.reduce((sum,p)=>sum+n.loadout[p],0)>CONFIG.generalPotionLimit)return {...n,notice:`일반 회복 포션은 합쳐서 ${CONFIG.generalPotionLimit}개까지 가져갈 수 있습니다.`};
   if(n.loadout.revival>CONFIG.revivalPotionLimit)return {...n,notice:`회생 포션은 ${CONFIG.revivalPotionLimit}개까지만 가져갈 수 있습니다.`};
   if(potionIds.some(p=>!Number.isInteger(n.loadout[p])||n.loadout[p]<0||n.loadout[p]>n.potions[p]))return {...n,notice:'창고의 포션 수량을 확인하세요.'};
@@ -43,7 +43,6 @@ export function leave(s:GameState,dead=false):GameState {
     const snapshot=e.revenueShareSnapshot,association=snapshot?.associationId?n.association.associations.find(a=>a.associationId===snapshot.associationId&&a.status==='ACTIVE'):undefined,share=association?Math.floor(e.loot.silver*Math.max(0,Math.min(30,snapshot?.rate??0))/100):0;if(share){e.loot.silver-=share;association!.treasurySilver+=share;association!.treasuryLedger.unshift({entryId:'treasury-'+(association!.treasuryLedger.length+1),memberId:n.market.ownerId,deltaSilver:share,grossExpeditionSilver:e.loot.silver+share,revenueShareRatePercent:snapshot!.rate,createdAt:Date.now()});}
     commitLoot(n,e.loot);
     n.exploration.highestReturned[e.tower]=Math.max(n.exploration.highestReturned[e.tower],e.floor);
-    if(e.floor%10===0&&e.bossTracking.bossDefeated)n.exploration.unlockedTier[e.tower]=Math.max(n.exploration.unlockedTier[e.tower],Math.min(5,e.floor/10+1));
     if(e.floor===10&&e.bossTracking.bossDefeated)n.market.traderCertified=true;
     n.progress[e.tower]=Math.max(n.progress[e.tower],e.floor);
     potionIds.forEach(p=>n.potions[p]+=e.bag[p]);

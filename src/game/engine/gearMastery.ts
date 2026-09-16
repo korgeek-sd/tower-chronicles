@@ -1,11 +1,11 @@
 import type {GameState,GearMasteryKey,Item,Slot} from '../types';
-import {GEAR_MASTERY_CONFIG,GEAR_MASTERY_NAMES,tierOf} from '../data/config';
+import {GEAR_MASTERY_CONFIG,GEAR_MASTERY_NAMES,CONFIG} from '../data/config';
 import {masteryKeyOf,log} from './state';
 
 export const masteryRequired=(targetTier:number)=>GEAR_MASTERY_CONFIG.requiredByTargetTier[targetTier]||0;
 export function masteryGainForFloor(floor:number){
-  const tier=tierOf(floor),position=(floor-1)%10;
-  return Math.round(GEAR_MASTERY_CONFIG.baseGainByFloorTier[tier-1]*(1+(GEAR_MASTERY_CONFIG.endOfTierMultiplier-1)*position/9));
+  const position=Math.max(0,Math.min(CONFIG.maxFloor-1,floor-1));
+  return Math.round(GEAR_MASTERY_CONFIG.baseGainByFloorTier[0]*(1+(GEAR_MASTERY_CONFIG.endOfTierMultiplier-1)*position/(CONFIG.maxFloor-1)));
 }
 export const masteryPercent=(s:GameState,key:GearMasteryKey)=>s.gearMastery[key].unlockedTier>=5?100:Math.min(100,s.gearMastery[key].progress/masteryRequired(s.gearMastery[key].unlockedTier+1)*100);
 
