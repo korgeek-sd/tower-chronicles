@@ -27,6 +27,7 @@ test('EVENT SCHEMA 02: invalid catalog data is rejected with useful errors',()=>
 
 test('EVENT SCHEMA 03: potion conditions inspect the expedition bag',()=>{
  const s=run();
+ s.expedition!.bag.healing_lesser=0;
  assert.equal(meetsCondition(s,{kind:'HAS_POTION',potion:'healing_lesser',amount:1}),false);
  assert.equal(meetsCondition(s,{kind:'MISSING_POTION',potion:'healing_lesser',amount:1}),true);
  s.expedition!.bag.healing_lesser=1;
@@ -37,6 +38,7 @@ test('EVENT SCHEMA 03: potion conditions inspect the expedition bag',()=>{
 test('EVENT SCHEMA 04: behavior is separate from style and new effects resolve deterministically',()=>{
  const fixture=DEV_EVENTS.find(event=>event.id==='TEST_SCHEMA_EVENT')!;
  const blocked=run();
+ blocked.expedition!.bag.healing_lesser=0;
  openEvent(blocked,fixture,()=>.25);
  const instance=blocked.expedition!.events.pendingEvent!.instanceId;
  assert.strictEqual(resolveEvent(blocked,instance,'trade_health'),blocked);
