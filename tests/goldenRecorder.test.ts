@@ -32,7 +32,7 @@ test('황금기록자 08-12: 만료 시 전용 프리셋 데이터는 보존되�
 });
 
 test('황금기록자 13-15: 시간 경과는 현재 준비 설정과 진행 중 원정을 바꾸지 않는다',()=>{
- let s=active();s.loadout.health=7;s=enter(s,'ore',1);const before=structuredClone(s);
+ let s=active();s.loadout.healing_lesser=7;s=enter(s,'ore',1);const before=structuredClone(s);
  assert.equal(isGoldenRecorderActive(s,NOW+86_400_000),false);assert.deepEqual(s,before);
 });
 
@@ -61,7 +61,7 @@ test('황금기록자 28-32: expiresAt 형식과 유한·비음수 범위를 검
 test('황금기록자 33-38: v7→v8은 전체 상태를 보존하고 원본을 한 번 백업한다',()=>{
  const old=v7();old.silver=77;old.expeditionPresets[4]={name:'5번',equipment:{...old.equipped},skills:[...old.skills],potions:{...old.loadout},threshold:old.threshold};old.tickets.ore[0]=1;old.expedition=enter(old,'ore',1).expedition;
  const direct=migrateV7(old);assert.equal(direct.version,8);assert.deepEqual(direct.goldenRecorder,{expiresAt:null});assert.deepEqual(direct.expeditionPresets,old.expeditionPresets);assert.deepEqual(direct.expedition,old.expedition);assert.equal(direct.silver,77);
- const raw=JSON.stringify(old),mem=new Map<string,string>([[SAVE_KEY,raw]]),repo=createRepository({getItem:k=>mem.get(k)??null,setItem:(k,v)=>mem.set(k,v)});assert.equal(repo.load().version,19);assert.equal(mem.get(GOLDEN_RECORDER_BACKUP_KEY),raw);repo.load();assert.equal(mem.get(GOLDEN_RECORDER_BACKUP_KEY),raw);
+ const raw=JSON.stringify(old),mem=new Map<string,string>([[SAVE_KEY,raw]]),repo=createRepository({getItem:k=>mem.get(k)??null,setItem:(k,v)=>mem.set(k,v)});assert.equal(repo.load().version,20);assert.equal(mem.get(GOLDEN_RECORDER_BACKUP_KEY),raw);repo.load();assert.equal(mem.get(GOLDEN_RECORDER_BACKUP_KEY),raw);
 });
 
 test('황금기록자 39: 백업 실패 시 v7 원본 저장값을 덮어쓰지 않는다',()=>{

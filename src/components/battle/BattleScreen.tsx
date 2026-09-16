@@ -2,22 +2,22 @@ import {EVENT_BALANCE} from '../../game/events/selector';
 import {isBossFloor} from '../../game/data/graphics';
 import React,{useState} from 'react';
 import type {GameState,Potion} from '../../game/types';
-import {TOWERS,tierOf,POTIONS,potionIds,WEAPONS,SKILLS,GEAR_MASTERY_NAMES} from '../../game/data/config';
+import {TOWERS,tierOf,POTIONS,potionIds,generalPotionIds,WEAPONS,SKILLS,GEAR_MASTERY_NAMES} from '../../game/data/config';
 import {stats,weaponOf} from '../../game/engine/state';
 import {BattleScene} from './BattleScene';
 import {ExpeditionLootPanel} from '../ExpeditionLoot';
 import {titleById} from '../../game/data/cosmetics';
 import {bossIdFor} from '../../game/engine/bossTracking';
 import {skillTurnsLeft} from '../../game/engine/turns';
-import {canPlayerAct,canUseSkill} from '../../game/engine/combat';
+import {canPlayerAct,canUseSkill,canUsePotion} from '../../game/engine/combat';
 import {activeShield,EFFECTS} from '../../game/engine/effects';
 import {resolvePlayerCombatKit} from '../../game/jobs/service';
 import {preparedMonsterSkill} from '../../game/engine/monsterAi';
 import {reactivePreparedSkill} from '../../game/engine/reactions';
 
-type Props={game:GameState;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void};
+type Props={game:GameState;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void};
 const art:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
-export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome}:Props){
+export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment),[menu,setMenu]=useState(false),[itemsOpen,setItemsOpen]=useState(false),prepared=preparedMonsterSkill(e.monster,e.monsterRuntime),monsterReactive=reactivePreparedSkill(e,'monster'),playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),monsterShield=activeShield(e,'monster');
  const buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const cards=skillIds.map((id,i)=>{const skill=SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;return <button type="button" disabled={!skill||!canUseSkill(game,id||'')} className={'battle-card art-'+(id||'empty')+(mismatch?' unavailable':'')} key={i} onClick={()=>skill&&onSkill(skill.id)} aria-label={`${skill?.name||'미구현 스킬'}, ${turns}턴 대기`}><div className="card-art">{skill?<img src={`./assets/ui/inventory/${art[skill.id]}.png`} alt=""/>:<span>◇</span>}<span className="turn-badge" title="내 플레이어 턴 기준 남은 턴">⌛ {turns}</span></div><strong>{skill?.name||'전투 키트 미구현'}</strong><small>{mismatch?'무기 불일치':skill?.effect==='damage'?'직접 사용':skill?'자신 강화':'미장착'}</small></button>;});
@@ -35,7 +35,8 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome}
   <div className="battle-state-line" role="status">{e.phase==='PLAYER_TURN'?'내 턴 · 행동을 선택하세요':e.phase==='MONSTER_TURN'?'적의 턴':e.bossTracking.pendingBossId?'보스 조우 선택':'전투 종료'} · {e.kills}마리 처치</div>
   {bossIdFor(e.tower,e.floor)&&<div className="battle-boss-progress">보스 흔적 <b>{e.bossTracking.progress+' / '+EVENT_BALANCE.bossMaxProgress}</b><progress value={e.bossTracking.progress} max={EVENT_BALANCE.bossMaxProgress}/></div>}
   <div className="battle-deck"><button type="button" className="battle-card art-heavy" disabled={!playerTurn} onClick={onBasicAttack} aria-label="기본 공격"><div className="card-art"><img src="./assets/ui/inventory/sword.png" alt=""/></div><strong>기본 공격</strong><small>{weapon==='bow'?'2회 타격':'직접 사용'}</small></button>{cards}<button type="button" className="battle-card art-health" disabled={!playerTurn} onClick={()=>setItemsOpen(true)} aria-expanded={itemsOpen} aria-label="전투 아이템"><div className="card-art"><span>⚗</span></div><strong>아이템</strong><small>포션 선택</small></button><button type="button" className="battle-card art-empty" disabled={!playerTurn} onClick={onFlee} aria-label="도망가기"><div className="card-art"><span>⇥</span></div><strong>도망가기</strong><small>적 행동 후 귀환</small></button></div>
-  {itemsOpen&&<section className="battle-item-panel" aria-label="전투 아이템"><div><h2>원정 포션</h2><button type="button" onClick={()=>setItemsOpen(false)} aria-label="아이템 패널 닫기">×</button></div><p>패널을 여닫는 것은 행동을 소비하지 않습니다.</p>{potionIds.map(p=><button type="button" key={p} disabled={!playerTurn||e.bag[p]<1} onClick={()=>{setItemsOpen(false);onPotion(p);}}><span>{POTIONS[p].icon} {POTIONS[p].name}</span><b>{e.bag[p]}개</b><small>{POTIONS[p].description}</small></button>)}</section>}
+  {itemsOpen&&<section className="battle-item-panel" aria-label="전투 아이템"><div><h2>원정 포션</h2><button type="button" onClick={()=>setItemsOpen(false)} aria-label="아이템 패널 닫기">×</button></div><p>패널을 여닫는 것은 행동을 소비하지 않습니다.</p><p>회생 포션 ×{e.bag.revival} · 치명 피해 시 선택 가능</p>{generalPotionIds.map(p=><button type="button" key={p} disabled={!canUsePotion(game,p)} onClick={()=>{setItemsOpen(false);onPotion(p);}}><span>{POTIONS[p].icon} {POTIONS[p].name}</span><b>{e.bag[p]}개</b><small>{POTIONS[p].description}</small></button>)}</section>}
+  {e.pendingRevival&&<div className="battle-dialog-backdrop" role="presentation"><section className="battle-encounter revival-dialog" role="dialog" aria-modal="true" aria-labelledby="revival-title"><h2 id="revival-title">치명상을 입었습니다</h2><p>회생 포션을 사용하면 1개를 소비하고 최대 HP의 30%로 현재 전투를 이어갑니다.</p><div className="mini-stats"><span>보유 <b>{e.bag.revival}개</b></span><span>회복 <b>최대 HP 30%</b></span></div><button className="primary" onClick={()=>onRevival(true)}>회생 포션 사용</button><button onClick={()=>onRevival(false)}>사용하지 않고 원정 종료</button></section></div>}
   <div className="battle-bottom"><span>─ ◇ ─ ⚒ ─ ◇ ─</span><p>더 깊이. 더 진실에.</p><button disabled={!playerTurn} onClick={onFlee}>⇥ 도망가기</button></div>
   {menu&&<section className="battle-drawer" aria-label="전투 메뉴"><div className="drawer-heading"><h2>원정 기록</h2><button onClick={()=>setMenu(false)} aria-label="전투 메뉴 닫기">×</button></div><button onClick={onHome}>거점 / 장비 / 스킬 관리 →</button><ExpeditionLootPanel expedition={e}/><h3>전투 기록</h3><div className="logs" role="log">{game.logs.map((line,i)=><div key={i}>{line}</div>)}</div><h3>원정 포션</h3>{potionIds.map(p=><p key={p}>{POTIONS[p].name} · {e.bag[p]}개</p>)}<details><summary>장비 숙련도</summary>{Object.entries(game.gearMastery).map(([id,m])=><p key={id}>{GEAR_MASTERY_NAMES[id as keyof typeof GEAR_MASTERY_NAMES]} · T{m.unlockedTier} · {m.progress}</p>)}</details><p>도망가면 적이 한 번 공격합니다. 생존 시 획득물을 정산하고 귀환합니다.</p><button disabled={!playerTurn} onClick={onFlee}>도망가기</button></section>}
 

@@ -18,7 +18,7 @@ test('그래픽 08: 피해량 UI 조회는 계산과 저장 상태를 변경하�
 test('그래픽 09: 귀환 예약은 적의 마지막 행동 뒤 정산',()=>{const s=requestReturn(start());assert.ok(s.expedition);s.expedition!.monster.attack=1;const n=resolveMonsterTurn(s);assert.equal(n.lastExpedition?.outcome,'returned');});
 test('그래픽 10: 처치 시 장비 숙련 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;assert.equal(basicAttack(s,()=>.99).gearMastery.sword.progress,10);});
 test('그래픽 11: 처치 전리품은 기존 임시 보관함에 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.equal(n.silver,0);assert.ok(n.expedition!.loot.silver>0);});
-test('그래픽 12: v13 저장은 그래픽 상태 없이 왕복',()=>{let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,s)=>{raw=s;}}),s=start();repo.save(s);assert.deepEqual(repo.load(),s);assert.equal(s.version,19);assert.ok(!raw.includes('imageReady'));});
+test('그래픽 12: v13 저장은 그래픽 상태 없이 왕복',()=>{let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,s)=>{raw=s;}}),s=start();repo.save(s);assert.deepEqual(repo.load(),s);assert.equal(s.version,20);assert.ok(!raw.includes('imageReady'));});
 test('각 탑은 층 티어에 맞는 최신 배경을 조회한다',()=>{for(const t of ['ore','leather','gem','kaleon'] as const)for(let floor=1;floor<=50;floor++)assert.equal(backgroundFor(t,floor),`assets/backgrounds/${t}/t${Math.ceil(floor/10)}.png`);});
 test('처치 뒤 즉시 교체된 몬스터에는 이전 피해를 표시하지 않음',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.notEqual(encounterKey(s.expedition!),encounterKey(n.expedition!));assert.equal(damageBetween(s.expedition!,n.expedition!),0);});
 test('버프 스킬과 같은 HP 상태는 피해 이벤트를 만들지 않음',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;assert.equal(damageBetween(a,b),0);});

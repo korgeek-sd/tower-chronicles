@@ -1,5 +1,5 @@
 ﻿import type {Expedition,ExpeditionLoot,ExpeditionResult} from '../game/types';
-import {POTIONS,potionIds} from '../game/data/config';
+import {POTIONS,potionIds,generalPotionIds} from '../game/data/config';
 import {lootLines,lootTotals} from '../game/engine/loot';
 export const duration=(seconds:number)=>Math.floor(seconds/60)+':'+String(Math.floor(seconds%60)).padStart(2,'0');
 function LootDetails({loot}:{loot:ExpeditionLoot}){
@@ -18,7 +18,7 @@ export function ExpeditionLootPanel({expedition:e}:{expedition:Expedition}){
       <div><small>스킬북</small><b>{totals.skillBooks}개</b></div>
     </div>
     <details><summary>전리품 상세 보기</summary><LootDetails loot={e.loot}/></details>
-    <div className="healing-stock">남은 회복 포션 <span>체력 {e.bag.health} · 재생 {e.bag.regen}</span></div>
+    <div className="healing-stock">남은 회복 포션 <span>{generalPotionIds.map(p=>POTIONS[p].name+' '+e.bag[p]).join(' · ')} · 회생 {e.bag.revival}</span></div>
     <p className="risk-note"><strong>아직 확보되지 않은 전리품입니다.</strong> 안전 귀환 시 보관함에 저장되며 사망하면 모두 잃습니다.</p>
   </section>;
 }

@@ -7,7 +7,7 @@ function memory(raw?:string){const map=new Map<string,string>();if(raw)map.set(S
 
 test('SAVE EXPORT 01: v19 상태를 버전이 명시된 이식 가능한 봉투로 내보낸다',()=>{const state=initialState();state.silver=4321;const raw=serializeSaveExport(state,0),data=JSON.parse(raw);assert.equal(data.format,SAVE_EXPORT_FORMAT);assert.equal(data.formatVersion,1);assert.equal(data.appVersion,APP_VERSION);assert.equal(data.exportedAt,'1970-01-01T00:00:00.000Z');assert.deepEqual(parseSaveImport(raw),state);});
 
-test('SAVE EXPORT 02: 이전 v18 원본 저장도 가져오기 과정에서 v19로 이전한다',()=>{const legacy:any=structuredClone(initialState());legacy.version=18;const imported=parseSaveImport(JSON.stringify(legacy));assert.equal(imported.version,19);assert.deepEqual(imported.silver,legacy.silver);});
+test('SAVE EXPORT 02: 이전 v18 원본 저장도 가져오기 과정에서 v19로 이전한다',()=>{const legacy:any=structuredClone(initialState());legacy.version=18;const imported=parseSaveImport(JSON.stringify(legacy));assert.equal(imported.version,20);assert.deepEqual(imported.silver,legacy.silver);});
 
 test('SAVE EXPORT 03: 손상 파일과 미래 봉투 형식을 거부한다',()=>{assert.throws(()=>parseSaveImport('{broken'),/JSON/);assert.throws(()=>parseSaveImport(JSON.stringify({format:SAVE_EXPORT_FORMAT,formatVersion:2,state:initialState()})),/지원하지 않는/);assert.throws(()=>parseSaveImport(JSON.stringify({version:999})),/가져올 수 없습니다/);});
 

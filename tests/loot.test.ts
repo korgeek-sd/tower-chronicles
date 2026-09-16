@@ -60,14 +60,14 @@ test('요청 07: 사망은 기존 영구 재산, 장착, 숙련도, 배운 스�
 });
 test('요청 08: 사망 시 원정에 남은 모든 종류 포션만 소멸한다',()=>{
   const before=owned(),s=enter(before,'ore',1);
-  s.expedition!.bag.health-=2;
+  s.expedition!.bag.healing_lesser-=2;
   const n=leave(s,true);
-  for(const p of ['health','regen','attack','defense','haste'] as const)assert.equal(n.potions[p],before.potions[p]-before.loadout[p]);
-  assert.equal(n.lastExpedition!.remainingPotions.health,8);
+  for(const p of ['healing_lesser','healing_standard','healing_greater','healing_supreme','revival'] as const)assert.equal(n.potions[p],before.potions[p]-before.loadout[p]);
+  assert.equal(n.lastExpedition!.remainingPotions.healing_lesser,8);
 });
 test('요청 09: 귀환 시 사용하지 않은 포션만 창고로 돌아온다',()=>{
-  const before=owned(),s=enter(before,'ore',1);s.expedition!.bag.health-=2;s.expedition!.bag.attack=0;
-  const n=leave(s);assert.equal(n.potions.health,before.potions.health-2);assert.equal(n.potions.regen,before.potions.regen);assert.equal(n.potions.attack,before.potions.attack-1);
+  const before=owned();before.potions.healing_greater=1;before.loadout.healing_greater=1;const s=enter(before,'ore',1);s.expedition!.bag.healing_lesser-=2;s.expedition!.bag.healing_greater=0;
+  const n=leave(s);assert.equal(n.potions.healing_lesser,before.potions.healing_lesser-2);assert.equal(n.potions.healing_standard,before.potions.healing_standard);assert.equal(n.potions.healing_greater,before.potions.healing_greater-1);
 });
 test('요청 10: 원정에서 획득한 입장권은 귀환 전 영구 티켓과 진행도에 포함되지 않는다',()=>{
   const s=rewarded();assert.equal(s.tickets.ore[1],4);assert.equal(s.progress.ore,1);assert.equal(s.expedition!.loot.tickets.ore[1],1);
@@ -87,7 +87,7 @@ test('요청 14: 귀환한 스킬북은 직접 사용해야 1개 소비하고 �
   const duplicate=useSkillBook(s,'execute');assert.equal(duplicate.skillBooks.execute,1);assert.equal(duplicate.learned.filter(id=>id==='execute').length,1);
 });
 test('요청 15: 저장/새로고침 후 HP·포션·쿨타임·loot가 변경 없이 복구된다',()=>{
-  const {repo}=repository();const s=rewarded();s.expedition!.hp=93;s.expedition!.bag.health=7;s.expedition!.cooldowns.heavy=8;s.expedition!.time=4;
+  const {repo}=repository();const s=rewarded();s.expedition!.hp=93;s.expedition!.bag.healing_lesser=7;s.expedition!.cooldowns.heavy=8;s.expedition!.time=4;
   repo.save(s);const n=repo.load();assert.deepEqual(n,s);assert.equal(n.silver,10000);assert.equal(n.materials.ore[0],100);
 });
 test('요청 16: 연속 귀환·재렌더·저장 복구는 보상을 중복 지급하지 않는다',()=>{
@@ -118,17 +118,19 @@ test('4개 탑 모두 귀환 전 격리와 귀환 후 재료 확정이 동작한
 function legacy(active:boolean){
   const state=active?enter(owned(),'ore',1):owned();
   const old=JSON.parse(JSON.stringify(state));old.gold=old.silver;delete old.silver;old.version=1;delete old.skillBooks;delete old.lootItems;delete old.lastExpedition;
-  if(active){delete old.expedition.loot;old.expedition.gold=13;old.expedition.material=2;old.gold+=13;old.materials.ore[0]+=2;old.tickets.ore[1]++;old.learned.push('execute');old.expedition.bag.health--;}
+  if(active){delete old.expedition.loot;old.expedition.gold=13;old.expedition.material=2;old.gold+=13;old.materials.ore[0]+=2;old.tickets.ore[1]++;old.learned.push('execute');old.expedition.bag.healing_lesser--;}
+  const legacyBag=(b:any)=>({health:b.healing_lesser,regen:b.healing_standard,attack:b.healing_greater,defense:b.healing_supreme,haste:b.revival});
+  old.potions=legacyBag(old.potions);old.loadout=legacyBag(old.loadout);if(old.expedition)old.expedition.bag=legacyBag(old.expedition.bag);
   return old;
 }
 test('v1 비원정 저장은 기존 재산을 보존하고 새 필드를 초기화한다',()=>{
   const {repo,mem}=repository(),old=legacy(false);mem.set(SAVE_KEY,JSON.stringify(old));const n=repo.load();
-  assert.equal(n.version,19);assert.equal(n.silver,old.gold);assert.deepEqual(n.materials,old.materials);assert.deepEqual(n.skillBooks,{});assert.equal(n.expedition,null);
+  assert.equal(n.version,20);assert.equal(n.silver,old.gold);assert.deepEqual(n.materials,old.materials);assert.deepEqual(n.skillBooks,{});assert.equal(n.expedition,null);
   assert.equal(mem.get(LEGACY_BACKUP_KEY),JSON.stringify(old));assert.deepEqual(repo.load(),n);
 });
 test('v1 진행 원정은 재지급 없이 종료하고 남은 포션만 한 번 반환한다',()=>{
   const {repo,mem}=repository(),old=legacy(true);mem.set(SAVE_KEY,JSON.stringify(old));const n=repo.load();
-  assert.equal(n.version,19);assert.equal(n.silver,10013);assert.equal(n.materials.ore[0],102);assert.equal(n.tickets.ore[1],5);assert.equal(n.tickets.ore[0],19);assert.equal(n.potions.health,29);
+  assert.equal(n.version,20);assert.equal(n.silver,10013);assert.equal(n.materials.ore[0],102);assert.equal(n.tickets.ore[1],5);assert.equal(n.tickets.ore[0],19);assert.equal(n.potions.healing_lesser,29);
   assert.ok(n.learned.includes('execute'));assert.equal(n.expedition,null);assert.equal(n.lastExpedition,null);
   assert.deepEqual(repo.load(),n);assert.deepEqual(leave(repo.load()),n);
 });
