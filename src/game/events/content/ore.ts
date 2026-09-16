@@ -19,6 +19,7 @@ export const ORE_EVENTS:ExpeditionEventDefinition[]=[
   tags:['DISCOVERY','RESOURCE','RISK_REWARD'],
   title:'드러난 철맥',
   description:'벽면이 갈라진 틈 사이로 아직 손대지 않은 광맥이 드러나 있습니다. 안전하게 일부만 채굴하거나 더 깊이 파고들 수 있습니다.',
+  imageAssetKey:'ore_exposed_vein',
   towerIds:['ore'],
   weight:.9,
   choices:[
@@ -37,6 +38,7 @@ export const ORE_EVENTS:ExpeditionEventDefinition[]=[
   tags:['RESOURCE','RISK_REWARD'],
   title:'탈선한 광차',
   description:'선로를 벗어난 광차가 벽에 처박혀 있습니다. 적재함 안에는 아직 회수되지 않은 광석과 작업비가 남아 있습니다.',
+  imageAssetKey:'ore_derailed_cart',
   towerIds:['ore'],
   weight:.75,
   conditions:[{kind:'FLOOR_TYPE',value:'NORMAL'}],
@@ -54,6 +56,7 @@ export const ORE_EVENTS:ExpeditionEventDefinition[]=[
   tags:['RECOVERY','STATUS'],
   title:'환기구의 맑은 공기',
   description:'막혀 있던 환기구 일부가 살아 있어 차갑고 깨끗한 공기가 흐릅니다. 잠시 머무르면 먼지와 독기를 털어낼 수 있을 것 같습니다.',
+  imageAssetKey:'ore_clear_air_pocket',
   towerIds:['ore'],
   weight:.55,
   conditions:[{kind:'PLAYER_HP_BELOW',ratio:.9}],
@@ -68,6 +71,7 @@ export const ORE_EVENTS:ExpeditionEventDefinition[]=[
   tags:['RESOURCE','LORE'],
   title:'고립된 측량 탐사자',
   description:'무너진 갱도 한쪽에서 다른 탐사자가 몸을 기대고 있습니다. 가지고 있던 표본과 경로 기록을 내어줄 테니 회복 포션을 나눠 달라고 합니다.',
+  imageAssetKey:'ore_stranded_surveyor',
   towerIds:['ore'],
   weight:.45,
   choices:[
@@ -82,6 +86,7 @@ export const ORE_EVENTS:ExpeditionEventDefinition[]=[
   tags:['STATUS'],
   title:'버려진 정비 작업대',
   description:'광부와 탐사자가 장비를 손보던 튼튼한 작업대가 아직 사용할 만한 상태로 남아 있습니다.',
+  imageAssetKey:'ore_reinforced_workbench',
   towerIds:['ore'],
   weight:.5,
   choices:[
