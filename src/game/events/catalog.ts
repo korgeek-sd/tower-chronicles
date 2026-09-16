@@ -63,7 +63,7 @@ export const COMMON_EVENTS:ExpeditionEventDefinition[]=[
   choices:[
    {id:'clear_debris',label:'잔해를 치운다',description:'부상 위험을 감수하고 화물을 회수합니다.',icon:'⚠',styleVariant:'DANGER',effects:[],outcomes:[
     {id:'recovered_cargo',weight:3,effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:4}},{kind:'ADD_EXPEDITION_SILVER',amount:15}],resultText:'통로가 버텨 주는 사이 화물을 안전하게 꺼냈습니다.'},
-    {id:'falling_debris',weight:1,effects:[{kind:'TAKE_DAMAGE_RATIO',ratio:.12,minimum:8}],resultText:'잔해가 다시 무너지며 몸을 덮쳤습니다.'}
+    {id:'falling_debris',weight:1,effects:[{kind:'TAKE_DAMAGE_RATIO',ratio:.12,minimum:14}],resultText:'잔해가 다시 무너지며 몸을 덮쳤습니다.'}
    ]},
    skip('불안정한 통로를 표시해 두고 우회합니다.')
   ]
@@ -95,7 +95,10 @@ export const COMMON_EVENTS:ExpeditionEventDefinition[]=[
  }
 ];
 
-export const EVENT_CATALOG:ExpeditionEventDefinition[]=[...COMMON_EVENTS,...ORE_EVENTS];
+/** Backward-compatible shared catalog used by older tests and authoring helpers. */
+export const EVENT_CATALOG:ExpeditionEventDefinition[]=COMMON_EVENTS;
+/** Full production pool. Tower eligibility filters authored tower-specific events at selection time. */
+export const PRODUCTION_EVENT_CATALOG:ExpeditionEventDefinition[]=[...COMMON_EVENTS,...ORE_EVENTS];
 
 export const BOSS_EVENT:ExpeditionEventDefinition={id:'boss_encounter',type:'BOSS',title:'강력한 존재의 흔적',description:'앞쪽에서 거대한 발소리가 들려옵니다. 흔적을 따라가면 이 구역의 보스와 마주할 수 있습니다.',weight:1,conditions:[{kind:'BOSS_FLOOR',value:true}],choices:[{id:'challenge',label:'도전한다',description:'준비를 마치고 보스에게 향합니다.',icon:'⚔',styleVariant:'PRIMARY',effects:[{kind:'START_BOSS_BATTLE'}],resultText:'보스에게 향할 준비를 마쳤습니다.'},{id:'skip',label:'지나간다',description:'이번 흔적을 포기하고 탐사를 계속합니다.',icon:'⇥',styleVariant:'SKIP',behavior:'SKIP',effects:[],resultText:'흔적을 뒤로하고 다른 길로 나아갑니다.'}]};
 // Asset keys are resolved centrally; missing or failed art receives a neutral placeholder.
