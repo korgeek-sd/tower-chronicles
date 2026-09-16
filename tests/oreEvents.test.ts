@@ -54,7 +54,9 @@ test('ORE EVENT 03: exposed vein offers deterministic safe mining and persisted 
 });
 
 test('ORE EVENT 04: stranded surveyor trade is unavailable without a potion and consumes exactly one when used',()=>{
- const blocked=open(run(),'ore_stranded_surveyor');
+ const blocked=run();
+ blocked.expedition!.bag.healing_lesser=0;
+ open(blocked,'ore_stranded_surveyor');
  const blockedId=blocked.expedition!.events.pendingEvent!.instanceId;
  assert.strictEqual(resolveEvent(blocked,blockedId,'share_potion'),blocked);
 
