@@ -1,6 +1,6 @@
 import type {Expedition,GameState} from '../types';
 import type {EventMode,ExpeditionEventDefinition,ExpeditionEvents,EventEffect} from './types';
-import {EVENT_CATALOG,BOSS_EVENT} from './catalog';
+import {PRODUCTION_EVENT_CATALOG,BOSS_EVENT} from './catalog';
 import {DEV_EVENTS} from './fixtures';
 import {EVENT_BALANCE,bossChance,selectNormalEvent,selectBossEvent,meetsConditions,eligible} from './selector';
 import {random,unit,weighted,type Rng} from './rng';
@@ -17,7 +17,7 @@ import {clearReactivePrepared,emptyReactivePrepared} from '../engine/reactions';
 let defaultMode:EventMode='production';
 export function configureEventMode(mode:EventMode){defaultMode=mode;}
 export function initialEvents(mode:EventMode=defaultMode):ExpeditionEvents{return {phase:'BATTLE',mode,pendingEvent:null,sequence:0,recentEventIds:[],bossKillCountThisExpedition:0,activeBossId:null};}
-export const catalogFor=(mode:EventMode)=>mode==='test'?DEV_EVENTS:EVENT_CATALOG;
+export const catalogFor=(mode:EventMode)=>mode==='test'?DEV_EVENTS:PRODUCTION_EVENT_CATALOG;
 export function definitionFor(e:Expedition){const id=e.events.pendingEvent?.eventId;return id===BOSS_EVENT.id?BOSS_EVENT:catalogFor(e.events.mode).find(d=>d.id===id);}
 export function beginEncounter(s:GameState,rng:Rng=random,bossId:string|null=null):GameState {const e=s.expedition;if(!e)return s;const monster=bossId?bossMonsterFor(bossId,e.floor):monsterFor(e.tower,e.floor,rng);if(!monster)throw Error('보스 데이터를 찾을 수 없습니다.');e.events.phase='BATTLE';e.events.pendingEvent=null;e.events.activeBossId=bossId;e.monster=monster;e.monsterRuntime=createMonsterRuntime(monster);e.reactivePrepared=emptyReactivePrepared();if(bossId==='black_vein_armor_breaker'){applyEffect(e,'monster','iron_armor','monster',e.monsterTurn);log(s,'[흑맥 갑주] 전투 시작부터 갑주가 활성화됩니다.');}e.phase='PLAYER_TURN';e.playerTurn++;e.pendingFlee=false;e.spawnAt=0;e.playerTimer=0;e.enemyTimer=0;advanceSkillTurns(e,SKILLS.map(k=>k.id));log(s,monster.name+' 등장');return s;}
 export function openEvent(s:GameState,definition:ExpeditionEventDefinition,rng:Rng=random,bossId:string|null=null){const e=s.expedition;if(!e||e.events.pendingEvent||!eligible(s,definition))return;const ev=e.events;if(definition.type==='BOSS'){if(!bossId||bossId!==bossIdFor(e.tower,e.floor))return;e.bossTracking.progress=0;e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;}
