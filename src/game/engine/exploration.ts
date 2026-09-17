@@ -1,12 +1,13 @@
 import type {GameState,Tower,Slot} from '../types';
 import {towerIds,tierOf,SKILLS,potionIds,generalPotionIds,CONFIG,isValidTowerFloor} from '../data/config';
 import {ironFloorContent} from '../data/ironSpire';
+import {kaleonFloorContent} from '../data/kaleonSpire';
 import {itemSlot} from './state';
 import {enter} from './expedition';
 
-export const REGIONS:Record<Tower,string[]>={ore:['폐광','붕괴한 광맥','녹슨 채굴광도','심층 용광 갱도','철맥의 심장부'],leather:['황혼의 외곽 초원','붉은결 수림','야성의 침수림','포식자의 협곡','붉은 송곳니의 심장부'],gem:['천광의 결정동','응축 수정림','공진의 회랑','중첩광정','천광의 심핵'],kaleon:['녹빛 약초원','안정의 수림','활성의 포자습원','자가연성림','녹빛 연성심원']};
+export const REGIONS:Record<Tower,string[]>={ore:['폐광','붕괴한 광맥','녹슨 채굴광도','심층 용광 갱도','철맥의 심장부'],leather:['황혼의 외곽 초원','붉은결 수림','야성의 침수림','포식자의 협곡','붉은 송곳니의 심장부'],gem:['천광의 결정동','응축 수정림','공진의 회랑','중첩광정','천광의 심핵'],kaleon:['녹빛 수도원 외곽','치유사의 회랑','대속 예배당','희생의 성소','녹빛 구원의 심장부']};
 export const RESOURCES:Record<Tower,string>={ore:'광석 · 무기 · 군수 자원',leather:'가죽 · 갑옷·신발 · 야수 자원',gem:'보석 · 장신구 · 희귀 자원',kaleon:'약재 · 포션 · 연금술 재료'};
-export const contentReady=(tower:Tower,floor:number)=>tower==='ore'&&!!ironFloorContent(floor)?.normalPool.length;
+export const contentReady=(tower:Tower,floor:number)=>tower==='ore'?!!ironFloorContent(floor)?.normalPool.length:tower==='kaleon'?!!kaleonFloorContent(floor)?.normalPool.length:false;
 export const tierUnlocked=(s:GameState,tower:Tower,tier:number)=>tier>=1&&tier<=5&&Number.isInteger(tier)&&s.exploration.unlockedTier[tower]>=tier;
 export type EntryStatus='READY'|'IN_EXPEDITION'|'COMING_SOON'|'LOCKED'|'NO_PASS'|'INVALID';
 export const ENTRY_LABEL:Record<EntryStatus,string>={READY:'탐사 준비',IN_EXPEDITION:'현재 원정 중',COMING_SOON:'준비 중',LOCKED:'잠김',NO_PASS:'입장권 없음',INVALID:'잘못된 탐사 구역'};
