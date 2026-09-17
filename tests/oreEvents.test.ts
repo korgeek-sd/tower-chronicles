@@ -5,6 +5,7 @@ import {enter} from '../src/game/engine/expedition';
 import {applyEffect} from '../src/game/engine/effects';
 import {COMMON_EVENTS,PRODUCTION_EVENT_CATALOG} from '../src/game/events/catalog';
 import {ORE_EVENTS} from '../src/game/events/content/ore';
+import {KALEON_EVENTS} from '../src/game/events/content/kaleon';
 import {validateEventCatalog} from '../src/game/events/catalogValidation';
 import {eligible} from '../src/game/events/selector';
 import {openEvent,resolveEvent} from '../src/game/events/service';
@@ -15,21 +16,21 @@ const definition=(id:string)=>ORE_EVENTS.find(event=>event.id===id)!;
 const open=(state:GameState,id:string,roll=.1)=>{openEvent(state,definition(id),()=>roll);return state;};
 const choose=(state:GameState,choiceId:string)=>resolveEvent(state,state.expedition!.events.pendingEvent!.instanceId,choiceId);
 
-test('ORE EVENT 01: full production catalog validates as six common plus five Iron Vein events',()=>{
- assert.equal(COMMON_EVENTS.length,6);
- assert.equal(ORE_EVENTS.length,5);
- assert.equal(PRODUCTION_EVENT_CATALOG.length,11);
- assert.equal(new Set(PRODUCTION_EVENT_CATALOG.map(event=>event.id)).size,11);
- assert.deepEqual(validateEventCatalog(PRODUCTION_EVENT_CATALOG),[]);
+test('ORE EVENT 01: full production catalog validates as six common plus five Iron Vein plus five Kaleon events',()=>{
+  assert.equal(COMMON_EVENTS.length,6);
+  assert.equal(ORE_EVENTS.length,5);
+  assert.equal(KALEON_EVENTS.length,5);
+  assert.equal(PRODUCTION_EVENT_CATALOG.length,16);
+  assert.equal(new Set(PRODUCTION_EVENT_CATALOG.map(event=>event.id)).size,16);
+  assert.deepEqual(validateEventCatalog(PRODUCTION_EVENT_CATALOG),[]);
 });
 
 test('ORE EVENT 02: Iron Vein authored events are eligible only inside the ore tower',()=>{
  const ore=run('ore');
- const gem=run('gem');
  for(const event of ORE_EVENTS){
   assert.deepEqual(event.towerIds,['ore']);
   assert.equal(eligible(ore,event),event.conditions?.some(condition=>condition.kind==='PLAYER_HP_BELOW')?false:true);
-  assert.equal(eligible(gem,event),false);
+  for(const tower of ['leather','gem','kaleon'] as const)assert.equal(eligible(run(tower),event),false);
  }
 });
 
