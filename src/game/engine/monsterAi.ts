@@ -1,5 +1,6 @@
 import type {ActiveEffect,Monster,MonsterBattleRuntime} from '../types';
 import {EFFECTS,effectStacks,hasEffect} from './effects';
+import {KALEON_MONSTER_DEFINITIONS} from './kaleonMonsters';
 
 export type MonsterActionKind='BASIC_ATTACK'|'ACTIVE_SKILL'|'PREPARED_DISCHARGE';
 export type AiCondition=
@@ -31,7 +32,7 @@ export const IRON_BOSS_DEFINITIONS:MonsterDefinition[]=[
  {id:'iron_core_pulsator',name:'철심 맥동체',skills:[{id:'core_shield',name:'철심 보호막',description:'철심 보호막을 전개합니다.',cooldown:4,kind:'effect',effects:[{target:'SELF',effectId:'iron_core_shield'}]},{id:'pulse_debuff',name:'압착 맥동',description:'플레이어 방어를 약화합니다.',cooldown:3,kind:'effect',effects:[{target:'TARGET',effectId:'crushing_pressure'}]},{id:'terminal_charge',name:'종말 맥동',description:'저체력에서 준비하는 강공격입니다.',cooldown:3,kind:'charge',multiplier:2.5}],aiRules:[{id:'shield',priority:40,actionId:'core_shield',conditions:[{kind:'SELF_MISSING_EFFECT',effectId:'iron_core_shield'},{kind:'SKILL_READY',skillId:'core_shield'}]},{id:'terminal',priority:30,actionId:'terminal_charge',conditions:[{kind:'SELF_HP_BELOW',value:.5},{kind:'SKILL_READY',skillId:'terminal_charge'}]},{id:'debuff',priority:20,actionId:'pulse_debuff',conditions:[{kind:'TARGET_MISSING_EFFECT',effectId:'crushing_pressure'},{kind:'SKILL_READY',skillId:'pulse_debuff'}]}]}
 ];
 export const DEV_MONSTER_DEFINITIONS=[TEST_MONSTER_BASIC,TEST_MONSTER_CHARGE,TEST_MONSTER_MULTI,TEST_MONSTER_EFFECT,TEST_MONSTER_REACTIVE,TEST_MONSTER_STATUS,TEST_MONSTER_SELF_STATUS,TEST_MONSTER_PREPARED_COMBINED,TEST_MONSTER_SHIELD] as const;
-const DEFINITIONS=new Map<string,MonsterDefinition>([...DEV_MONSTER_DEFINITIONS,...IRON_BOSS_DEFINITIONS].map(definition=>[definition.id,definition]));
+const DEFINITIONS=new Map<string,MonsterDefinition>([...DEV_MONSTER_DEFINITIONS,...IRON_BOSS_DEFINITIONS,...KALEON_MONSTER_DEFINITIONS].map(definition=>[definition.id,definition]));
 
 export const monsterDefinitionById=(id:string)=>DEFINITIONS.get(id);
 export const monsterDefinitionFor=(monster:Monster):MonsterDefinition=>monsterDefinitionById(monster.definitionId??'')??{id:monster.definitionId??monster.name,name:monster.name,skills:[],passives:[],aiRules:[]};
@@ -44,4 +45,3 @@ export function beginMonsterTurn(runtime:MonsterBattleRuntime){runtime.turnNumbe
 export function useMonsterAction(runtime:MonsterBattleRuntime,decision:MonsterActionDecision){if(decision.kind==='ACTIVE_SKILL'&&decision.skill?.kind==='charge'){runtime.preparedActionId=decision.skill.id;return;}if(decision.kind==='PREPARED_DISCHARGE')runtime.preparedActionId=null;if(decision.skill)runtime.skillCooldowns[decision.skill.id]=Math.max(0,Math.floor(decision.skill.cooldown));}
 export const preparedMonsterSkill=(monster:Monster,runtime:MonsterBattleRuntime|null)=>runtime?.preparedActionId?definitionForRuntime(monster,runtime).skills?.find(skill=>skill.id===runtime.preparedActionId):undefined;
 export function validateMonsterDefinition(definition:MonsterDefinition){const errors:string[]=[],skills=definition.skills??[],ids=new Set(skills.map(skill=>skill.id));for(const skill of skills){if(skill.kind==='reactive_prepare'){const reaction=skills.find(candidate=>candidate.id===skill.reactionSkillId);if(skill.reactiveTrigger!=='DIRECT_HIT_RECEIVED')errors.push(`${skill.id}: invalid reactive trigger`);if(!reaction)errors.push(`${skill.id}: missing reaction skill`);else if(['reactive_prepare','charge'].includes(reaction.kind))errors.push(`${skill.id}: invalid reaction skill kind`);}for(const effect of skill.effects??[])if(!EFFECTS[effect.effectId])errors.push(`${skill.id}: unknown effect ${effect.effectId}`);}for(const rule of definition.aiRules??[]){if(!ids.has(rule.actionId))errors.push(`${rule.id}: missing action`);for(const item of rule.conditions){if('effectId' in item&&!EFFECTS[item.effectId])errors.push(`${rule.id}: unknown effect ${item.effectId}`);if('requiredStacks' in item&&(!Number.isSafeInteger(item.requiredStacks)||item.requiredStacks<1))errors.push(`${rule.id}: invalid stack threshold`);if(item.kind==='SKILL_READY'&&!ids.has(item.skillId))errors.push(`${rule.id}: missing ready skill`);}}return errors;}
-
