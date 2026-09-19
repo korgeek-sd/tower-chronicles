@@ -41,7 +41,7 @@ test('REPORT 03: empty telemetry summarizes to zeros',()=>{
 const fx=(effectId:string):ActiveEffect=>({instanceId:'effect-1',effectId,sourceActorId:'monster',targetActorId:'player',remainingDuration:3,stackCount:1,applicationSequence:1,createdTurn:1,scope:'BATTLE'});
 
 test('REPORT 04: death analysis names burst, dot, defense-down and empty potions',()=>{
- const hints=analyzeDeath({lastEvent:hit({target:'player',hpDamage:80,incomingDamage:80,critical:true}),snap:{monsterName:'적아의 주인',maxHp:180,defense:10,effects:[fx('fang_wound'),fx('crushing_pressure')],potionsLeft:0,loadoutRevival:1}});
+ const hints=analyzeDeath({lastEvent:hit({target:'player',hpDamage:80,incomingDamage:80,critical:true}),snap:{monsterName:'적아의 주인',maxHp:180,defense:30,effects:[fx('fang_wound'),fx('crushing_pressure')],potionsLeft:0,loadoutRevival:1}});
  const ids=hints.map(h=>h.id);
  assert.ok(ids.includes('burst'));
  assert.ok(ids.includes('dot'));
