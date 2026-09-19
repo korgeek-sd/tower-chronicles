@@ -102,3 +102,47 @@ nav button:focus-visible{outline:2px solid #c5a56d;outline-offset:-3px}
   nav button span{height:36px;margin-bottom:3px}
   nav button .navigation-art{width:31px;height:31px}
 }
+
+
+/* Mobile game shell: every route stays inside the visible phone viewport. */
+html,body,#root{height:100%;overflow:hidden}
+body{overscroll-behavior:none}
+.app{
+  height:100dvh;
+  min-height:0;
+  overflow:hidden;
+  padding-bottom:0;
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr) 94px;
+}
+.app>main{
+  min-height:0;
+  overflow:hidden;
+  padding:12px 14px;
+}
+nav{
+  position:relative;
+  left:auto;
+  right:auto;
+  bottom:auto;
+  transform:none;
+  width:100%;
+  max-width:none;
+  height:94px;
+}
+.mobile-screen-pager{height:100%;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;overflow:hidden}
+.mobile-screen-fit-viewport{min-height:0;height:100%;overflow:hidden;position:relative}
+.mobile-screen-fit-content{width:100%;transform-origin:top center;will-change:transform}
+.mobile-screen-page{width:100%;min-width:0;overflow:hidden}
+.mobile-screen-page>.section-label:first-child{margin-top:0}
+.mobile-screen-pager-controls{height:42px;display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding-top:4px}
+.mobile-screen-pager-controls button{min-height:36px;padding:5px 9px;font-size:11px}
+.mobile-screen-pager-controls button:last-child{justify-self:stretch}
+.mobile-screen-pager-controls span{text-align:center;min-width:44px;color:var(--muted);font-size:11px}
+.app.battle-mode{display:block}
+.app.battle-mode>main{height:100dvh;padding:0}
+@media(max-width:370px){
+  .app{grid-template-rows:auto auto minmax(0,1fr) 88px}
+  nav{height:88px}
+  .app>main{padding:9px 10px}
+}
