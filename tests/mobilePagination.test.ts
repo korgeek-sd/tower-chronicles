@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import {
   viewportBand,
   pageSizeFor,
   clampPageIndex,
   pageSlice,
 } from '../src/components/mobile/mobilePagination';
+import {useViewportHeight} from '../src/components/mobile/useViewportHeight';
 
 test('viewport bands match the mobile spec',()=>{
   assert.equal(viewportBand(640),'compact');
@@ -35,4 +38,14 @@ test('page index clamps after filtering shrinks a collection',()=>{
 test('pageSlice never leaks items from adjacent pages',()=>{
   assert.deepEqual(pageSlice([1,2,3,4,5],0,2),[1,2]);
   assert.deepEqual(pageSlice([1,2,3,4,5],2,2),[5]);
+});
+
+
+function HeightProbe(){
+  const height=useViewportHeight();
+  return React.createElement('span',null,String(height));
+}
+
+test('viewport height hook has a stable SSR fallback',()=>{
+  assert.equal(renderToStaticMarkup(React.createElement(HeightProbe)),'<span>844</span>');
 });
