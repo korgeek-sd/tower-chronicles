@@ -32,3 +32,13 @@ test('prepared warning is a full-width strip below the focal fight area',()=>{
 test('battle state line has a full-width stable reading lane',()=>{
   assert.match(immersiveCss,/\.battle-state-line\{[^}]*left:4%;right:4%/);
 });
+
+
+test('battle mode is locked to the visible mobile viewport without page scrolling',()=>{
+  assert.match(immersiveCss,/\.app\.battle-mode\{[^}]*height:100dvh;[^}]*min-height:100dvh;[^}]*overflow:hidden/);
+  assert.match(immersiveCss,/\.immersive-battle\{[^}]*height:100dvh;[^}]*min-height:0;[^}]*max-height:none/);
+});
+
+test('battle mode locks document scrolling while the mobile battle screen is mounted',()=>{
+  assert.match(immersiveCss,/body:has\(\.app\.battle-mode\)\{[^}]*overflow:hidden/);
+});
