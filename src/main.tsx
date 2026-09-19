@@ -44,7 +44,7 @@ const combatFixtureName=(['reactive','stack','status-ai','shield','shield-expiry
 const fixtureNamespace=combatFixtureName?`tower-record-qa-${combatFixtureName}-${new URLSearchParams(location.search).get('qa')||'default'}:`:'';
 const gameStorage=combatFixtureName?{getItem:(key:string)=>localStorage.getItem(fixtureNamespace+key),setItem:(key:string,value:string)=>localStorage.setItem(fixtureNamespace+key,value)}:localStorage;
 const nav:[Page,string,string][]=[['home','⌂','거점'],['inventory','▣','가방'],['market','⚖','거래소'],['association','♜','조합'],['craft','⚒','제작'],['equipment','⚔','장비']];
-const newNavigationIcons=new Set<Page>(['home','inventory','association','craft','equipment']);
+const newNavigationIcons=new Set<Page>(['home','inventory','market','association','craft','equipment']);
 function GearMasteryPanel({game,compact=false}:{game:GameState;compact?:boolean}){
   const equippedKeys=game.expedition?Object.values(game.expedition.equipment).map(id=>game.items.find(i=>i.id===id)).filter((i):i is NonNullable<typeof i>=>!!i).map(masteryKeyOf):[];
   const keys=compact?[...new Set(equippedKeys)]:GEAR_MASTERY_KEYS;
