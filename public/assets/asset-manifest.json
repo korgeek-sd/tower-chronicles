@@ -45,6 +45,14 @@
     "assets/ui/navigation/towers.png",
     "assets/ui/navigation/gold.png"
   ],
+  "navigationRelic": [
+    "assets/ui/navigation-relic/home.svg",
+    "assets/ui/navigation-relic/inventory.svg",
+    "assets/ui/navigation-relic/market.svg",
+    "assets/ui/navigation-relic/association.svg",
+    "assets/ui/navigation-relic/craft.svg",
+    "assets/ui/navigation-relic/equipment.svg"
+  ],
   "inventory": [
     "assets/ui/inventory/healing_lesser.png",
     "assets/ui/inventory/healing_standard.png",

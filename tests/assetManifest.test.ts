@@ -31,3 +31,15 @@ test('ASSETS 03: skill icons are present and use the battle-card mapping',()=>{
  ]);
  for(const path of manifest.skills)assert.ok(existsSync(`public/${path}`),path);
 });
+
+test('ASSETS 04: bottom navigation uses dedicated monochrome relic icons',()=>{
+ assert.deepEqual(manifest.navigationRelic,[
+  'assets/ui/navigation-relic/home.svg',
+  'assets/ui/navigation-relic/inventory.svg',
+  'assets/ui/navigation-relic/market.svg',
+  'assets/ui/navigation-relic/association.svg',
+  'assets/ui/navigation-relic/craft.svg',
+  'assets/ui/navigation-relic/equipment.svg'
+ ]);
+ for(const path of manifest.navigationRelic)assert.ok(existsSync(resolve(root,'public',path)),path);
+});
