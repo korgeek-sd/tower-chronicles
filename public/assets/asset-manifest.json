@@ -71,5 +71,11 @@
     "assets/ui/inventory/staff-t3.png",
     "assets/ui/inventory/staff-t4.png",
     "assets/ui/inventory/staff-t5.png"
+  ],
+  "skills": [
+    "assets/ui/inventory/skill-heavy.svg",
+    "assets/ui/inventory/skill-execute.svg",
+    "assets/ui/inventory/skill-guard.svg",
+    "assets/ui/inventory/skill-quick.svg"
   ]
 }
