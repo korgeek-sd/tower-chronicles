@@ -1,0 +1,97 @@
+{
+  "version": "0.1.32",
+  "source": "D:\\탑의 기록",
+  "notes": [
+    "Only verified source files were copied; source assets were not modified.",
+    "Iron Vein backgrounds map floors 1-2, 3-4, 5-6, 7-8, and 9-10 to t1-t5.",
+    "No armor, boots, accessory, player, or non-Iron-Vein tower art was present in the source set; existing fallbacks remain active."
+  ],
+  "backgrounds": [
+    "assets/backgrounds/ore/t1.png",
+    "assets/backgrounds/ore/t2.png",
+    "assets/backgrounds/ore/t3.png",
+    "assets/backgrounds/ore/t4.png",
+    "assets/backgrounds/ore/t5.png"
+  ],
+  "monsters": [
+    "assets/monsters/iron-t1/goblin_miner.png",
+    "assets/monsters/iron-t1/mine_bat.png",
+    "assets/monsters/iron-t1/goblin_carrier.png",
+    "assets/monsters/iron-t1/goblin_overseer.png",
+    "assets/monsters/iron-t1/muan_miner.png",
+    "assets/monsters/iron-t1/tunnel_blocker.png",
+    "assets/monsters/iron-t1/hollow_minecart.png",
+    "assets/monsters/iron-t1/vein_cutter.png",
+    "assets/monsters/iron-t1/vein_probe.png",
+    "assets/monsters/iron-t1/ore_sorter.png",
+    "assets/monsters/iron-t1/mutant_rat.png",
+    "assets/monsters/iron-t1/deep_overseer.png",
+    "assets/monsters/iron-t1/deep_hoist.png",
+    "assets/monsters/iron-t1/iron_carrier.png",
+    "assets/monsters/iron-t1/waste_compactor.png",
+    "assets/monsters/iron-bosses/iron_maw_burrower.png",
+    "assets/monsters/iron-bosses/black_vein_armor_breaker.png",
+    "assets/monsters/iron-bosses/echo_devourer.png",
+    "assets/monsters/iron-bosses/deep_hoist_overseer.png",
+    "assets/monsters/iron-bosses/iron_core_pulsator.png"
+  ],
+  "navigation": [
+    "assets/ui/navigation/home.png",
+    "assets/ui/navigation/inventory.png",
+    "assets/ui/navigation/market.png",
+    "assets/ui/navigation/craft.png",
+    "assets/ui/navigation/equipment.png",
+    "assets/ui/navigation/association.png",
+    "assets/ui/navigation/towers.png",
+    "assets/ui/navigation/gold.png"
+  ],
+  "navigationRelic": [
+    "assets/ui/navigation-relic/home.svg",
+    "assets/ui/navigation-relic/inventory.svg",
+    "assets/ui/navigation-relic/market.svg",
+    "assets/ui/navigation-relic/association.svg",
+    "assets/ui/navigation-relic/craft.svg",
+    "assets/ui/navigation-relic/equipment.svg"
+  ],
+  "navigationNew": [
+    "assets/ui/navigation-new/home.png",
+    "assets/ui/navigation-new/inventory.png",
+    "assets/ui/navigation-new/market.png",
+    "assets/ui/navigation-new/craft.png",
+    "assets/ui/navigation-new/association.png",
+    "assets/ui/navigation-new/equipment.png"
+  ],
+  "inventory": [
+    "assets/ui/inventory/healing_lesser.png",
+    "assets/ui/inventory/healing_standard.png",
+    "assets/ui/inventory/healing_greater.png",
+    "assets/ui/inventory/healing_supreme.png",
+    "assets/ui/inventory/revival.png",
+    "assets/ui/inventory/sword-t1.png",
+    "assets/ui/inventory/sword-t2.png",
+    "assets/ui/inventory/sword-t3.png",
+    "assets/ui/inventory/sword-t4.png",
+    "assets/ui/inventory/sword-t5.png",
+    "assets/ui/inventory/dagger-t1.png",
+    "assets/ui/inventory/dagger-t2.png",
+    "assets/ui/inventory/dagger-t3.png",
+    "assets/ui/inventory/dagger-t4.png",
+    "assets/ui/inventory/dagger-t5.png",
+    "assets/ui/inventory/bow-t1.png",
+    "assets/ui/inventory/bow-t2.png",
+    "assets/ui/inventory/bow-t3.png",
+    "assets/ui/inventory/bow-t4.png",
+    "assets/ui/inventory/bow-t5.png",
+    "assets/ui/inventory/staff-t1.png",
+    "assets/ui/inventory/staff-t2.png",
+    "assets/ui/inventory/staff-t3.png",
+    "assets/ui/inventory/staff-t4.png",
+    "assets/ui/inventory/staff-t5.png"
+  ],
+  "skills": [
+    "assets/ui/inventory/skill-heavy.svg",
+    "assets/ui/inventory/skill-execute.svg",
+    "assets/ui/inventory/skill-guard.svg",
+    "assets/ui/inventory/skill-quick.svg"
+  ]
+}
