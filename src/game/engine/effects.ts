@@ -21,6 +21,9 @@ export const EFFECTS:Record<string,EffectDefinition>={
  resonance:{id:'resonance',name:'울림',description:'울림이 누적됩니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:5,stackingPolicy:'STACK',maxStacks:5},
  crushing_pressure:{id:'crushing_pressure',name:'압착 저주',description:'방어력이 감소합니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:-.3}},
  iron_core_shield:{id:'iron_core_shield',name:'철심 보호막',description:'철심의 보호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:70,scope:'BATTLE'},
+ fang_wound:{id:'fang_wound',name:'송곳니 출혈',description:'직접 공격을 받으면 누적되는 출혈입니다.',category:'DEBUFF',behavior:'PERIODIC_DAMAGE',tags:['DOT','BLEED'],defaultDuration:3,stackingPolicy:'STACK',maxStacks:3,payload:{amount:6}},
+ blood_rite_ward:{id:'blood_rite_ward',name:'혈의식 수호',description:'성소의 수호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:60,scope:'BATTLE'},
+ red_mantle_shield:{id:'red_mantle_shield',name:'적아 외피',description:'적아의 주인의 외피입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:75,scope:'BATTLE'},
 };
 export type EffectActor='player'|'monster';
 const effectsFor=(e:Expedition,actor:EffectActor)=>actor==='player'?e.playerEffects:e.monsterEffects;
