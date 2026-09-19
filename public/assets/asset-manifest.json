@@ -54,6 +54,7 @@
     "assets/ui/navigation-relic/equipment.svg"
   ],
   "navigationNew": [
+    "assets/ui/navigation-new/home.png",
     "assets/ui/navigation-new/inventory.png",
     "assets/ui/navigation-new/craft.png",
     "assets/ui/navigation-new/association.png",

@@ -46,6 +46,7 @@ test('ASSETS 04: bottom navigation uses dedicated monochrome relic icons',()=>{
 
 test('ASSETS 05: provided replacement navigation icons are mapped for matching tabs',()=>{
  assert.deepEqual(manifest.navigationNew,[
+  'assets/ui/navigation-new/home.png',
   'assets/ui/navigation-new/inventory.png',
   'assets/ui/navigation-new/craft.png',
   'assets/ui/navigation-new/association.png',

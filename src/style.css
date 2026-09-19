@@ -61,6 +61,10 @@ nav button .navigation-art{
   image-rendering:pixelated;
   filter:grayscale(1) sepia(.5) brightness(.68) contrast(.9);
 }
+nav button .navigation-new-art{
+  mix-blend-mode:screen;
+  filter:none;
+}
 nav button::before{
   content:"";
   position:absolute;
@@ -91,6 +95,7 @@ nav button.active::before{
 nav button.active .navigation-art{
   filter:grayscale(1) sepia(.5) brightness(1.05) contrast(.95);
 }
+nav button.active .navigation-new-art{filter:brightness(1.08) contrast(1.05);mix-blend-mode:screen}
 nav button:focus-visible{outline:2px solid #c5a56d;outline-offset:-3px}
 @media(max-width:370px){
   nav{height:88px}
