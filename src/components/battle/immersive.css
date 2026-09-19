@@ -23,3 +23,42 @@
 
 
 .battle-dialog-backdrop:has(.revival-dialog){position:fixed;inset:0;z-index:10000;padding:16px;overflow:auto}.battle-encounter.revival-dialog{box-sizing:border-box;width:100%;max-width:390px;max-height:calc(100dvh - 32px);overflow:auto}.battle-encounter.revival-dialog button{box-sizing:border-box;width:100%;margin:8px 0;white-space:normal}.revival-dialog button:last-child{border-color:#9b6258;color:#e1bab2}
+
+
+/* Figma TARGET · Battle UI v0.1.36
+   Presentation-only layout: no combat-engine or save-schema changes. */
+.battle-topbar{top:1.8%;left:4%;right:4%;gap:8px}
+.battle-location{top:7.8%;left:4%;right:4%;padding:7px 0}
+.battle-route{position:absolute;top:13.7%;left:4%;right:4%}
+.battle-route p{text-align:center;margin:5px 0 0;font-size:clamp(8px,1.8vw,11px)}
+.immersive-battle .monster-hud{left:4%;top:18.8%;width:43%}
+.immersive-battle .player-hud{right:4%;top:49.5%;width:43%;height:14.5%;min-height:106px}
+.immersive-battle .player-placement{left:25%;top:55%;width:56%;height:34%}
+.immersive-battle .monster-placement{left:73%;top:32%;width:52%;height:30%}
+.enemy-facts{position:absolute;top:32.5%;left:auto;right:4%;width:28%;max-width:150px;padding:8px}
+.monster-effects{top:27.5%;left:4%;max-width:43%}
+.shield-status{top:24.5%;left:4%;right:4%}
+.player-effects{top:65.2%;right:4%;width:42%;gap:4px}
+.player-reactive{top:62.4%;right:4%;max-width:42%}
+.monster-prepared{position:absolute;z-index:12;top:64.5%;left:4%;right:4%;transform:none;max-width:none;box-sizing:border-box;padding:7px 12px}
+.battle-state-line{position:absolute;top:69.2%;left:4%;right:4%;text-align:center;font-size:9px}
+.battle-boss-progress{top:42%;left:4%;width:34%}
+.battle-deck{position:absolute;left:3%;right:3%;top:72%;height:20.5%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:6px}
+.immersive-battle .battle-card{padding:4px 6px}
+.battle-card .card-art{min-height:0}
+.card-art>img{width:68%;height:68%}
+.card-art>span:not(.turn-badge){font-size:28px}
+.battle-card>strong{font-size:clamp(10px,2.4vw,14px);margin:3px 0 2px}
+.battle-card>small{font-size:clamp(8px,1.7vw,10px);padding-top:3px}
+.battle-bottom{position:absolute;top:94%;bottom:auto;left:4%;right:4%;min-height:4.5%;display:block;text-align:center;color:#8f8879}
+.battle-bottom>span{display:block;width:100%;font-size:11px;line-height:13px;letter-spacing:5px;margin:0 0 3px}
+.battle-bottom p{font-size:8px;letter-spacing:1px;margin:0;color:#9f9786}
+
+@media(max-width:380px){
+  .battle-route{left:4%;right:4%}
+  .battle-deck{left:2.5%;right:2.5%;gap:4px}
+  .immersive-battle .battle-card{padding:3px 4px}
+  .battle-card>strong{font-size:9px}
+  .battle-card>small{font-size:7px}
+  .player-effects{top:65.2%;right:4%;width:42%}
+}
