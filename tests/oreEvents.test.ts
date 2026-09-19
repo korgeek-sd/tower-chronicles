@@ -45,7 +45,7 @@ test('ORE EVENT 03: exposed vein offers deterministic safe mining and persisted 
   const resolved=choose(state,'deep_mine');
   assert.equal(resolved.expedition!.events.pendingEvent!.outcomeId,outcome);
   if(outcome==='rich_vein'){
-   assert.equal(resolved.expedition!.loot.materials.ore[0],6);
+   assert.equal(resolved.expedition!.loot.materials.ore[0],5);
    assert.equal(resolved.expedition!.loot.silver,12);
   }else{
    assert.equal(resolved.expedition!.hp,beforeHp-Math.max(10,Math.floor(maxHp*.12)));

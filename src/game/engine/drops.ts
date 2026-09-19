@@ -12,7 +12,8 @@ export function reward(s:GameState,rng:()=>number=Math.random){
   e.kills++;
   awardEquippedMastery(s);
   e.loot.silver+=silver;
-  const quantity=e.events.activeBossId?({6:5,7:5,8:6,9:6,10:8}[e.floor]??5):(COMBAT.materialAmount+(rng()<.25?1:0));
+  const roll=e.events.activeBossId?1:rng();
+  const quantity=e.events.activeBossId?({6:5,7:5,8:6,9:6,10:8}[e.floor]??5):(COMBAT.materialAmount+(roll<.25?1:0));
   e.loot.materials[e.tower][grade-1]+=quantity;
   log(s,e.monster.name+' 처치! '+grade+'등급 '+TOWERS[e.tower].material+' ×'+quantity+' · Silver +'+silver+' (원정 임시 보관)');
   if(e.floor<CONFIG.maxFloor&&rng()<CONFIG.ticketChance){
@@ -20,5 +21,3 @@ export function reward(s:GameState,rng:()=>number=Math.random){
     log(s,(e.floor+1)+'층 입장권 획득 · 안전 귀환 후 보관');
   }
 }
-
-

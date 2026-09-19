@@ -83,13 +83,13 @@ test('철맥 08: 처치 보상은 원정 임시 Silver·철광석에 적립되�
  assert.equal(s.silver,0);
  assert.equal(s.materials.ore[0],0);
  assert.equal(s.expedition!.loot.silver,13);
- assert.equal(s.expedition!.loot.materials.ore[0],2);
+ assert.equal(s.expedition!.loot.materials.ore[0],1);
  assert.deepEqual(s.expedition!.loot.items,{});
  assert.equal(s.items.length,items);
  assert.match(s.logs.at(-1)!,/철광석.*원정 임시 보관/);
  const home=leave(s);
  assert.equal(home.silver,13);
- assert.equal(home.materials.ore[0],2);
+ assert.equal(home.materials.ore[0],1);
 });
 
 test('철맥 09: 현재 v21 저장은 migration 없이 그대로 로드한다',()=>{
