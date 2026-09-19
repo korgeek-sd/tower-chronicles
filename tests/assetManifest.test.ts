@@ -15,8 +15,8 @@ test('ASSETS 01: manifest paths are production files with safe ASCII slugs',()=>
  }
 });
 
-test('ASSETS 02: Iron Vein manifest covers five backgrounds, five normal monsters, and five bosses',()=>{
+test('ASSETS 02: Iron Vein manifest covers five backgrounds, fifteen normal monsters, and five bosses',()=>{
  assert.equal(manifest.backgrounds.length,5);
- assert.equal(manifest.monsters.filter(path=>path.includes('iron-t1')).length,5);
+ assert.equal(manifest.monsters.filter(path=>path.includes('iron-t1')).length,15);
  assert.equal(manifest.monsters.filter(path=>path.includes('iron-bosses')).length,5);
 });

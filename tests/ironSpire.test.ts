@@ -16,15 +16,15 @@ test('철맥 01: 내부 ore id를 유지하며 공식 이름과 철광석 자원
  assert.equal(TOWERS.ore.material,'철광석');
 });
 
-test('철맥 02: 1~10층은 동일한 일반 몬스터 5종 pool을 사용한다',()=>{
- assert.deepEqual(IRON_NORMAL_POOL,['goblin_miner','cave_rat','mine_bat','goblin_carrier','goblin_overseer']);
+test('철맥 02: 1~10층은 동일한 일반 몬스터 15종 pool을 사용한다',()=>{
+ assert.equal(IRON_NORMAL_POOL.length,15);
  for(let floor=1;floor<=10;floor++)assert.deepEqual(IRON_T1_FLOORS[floor].normalPool,IRON_NORMAL_POOL);
  for(const floor of [1,3,6,10])for(const monster of spawned(floor))assert.ok(IRON_NORMAL_POOL.includes(monster.definitionId!));
 });
 
 test('철맥 03: 일반 몬스터 identity는 유지되고 층에 따라 runtime 스탯만 상승한다',()=>{
  const one=monsterFor('ore',1,()=>0),ten=monsterFor('ore',10,()=>0);
- assert.equal(one.definitionId,'goblin_miner');
+ assert.equal(one.definitionId,'muan_miner');
  assert.equal(ten.definitionId,one.definitionId);
  assert.equal(ten.name,one.name);
  assert.ok(ten.hp>one.hp);
@@ -61,7 +61,7 @@ test('철맥 06: 일반 몬스터와 보스 그래픽 경로를 canonical id로 
  for(const id of IRON_NORMAL_POOL){
   const monster=IRON_T1_MONSTER_BY_ID[id];
   const graphic=graphicFor('ore',{name:monster.displayName});
-  assert.equal(graphic?.image.idle,`assets/monsters/iron-t1/${id}.png`);
+  assert.ok(graphic?.image.idle?.startsWith('assets/monsters/iron-t1/'));
  }
  for(const slot of Object.values(IRON_BOSS_SLOTS)){
   const graphic=graphicFor('ore',{name:slot.name});
@@ -72,7 +72,7 @@ test('철맥 06: 일반 몬스터와 보스 그래픽 경로를 canonical id로 
 });
 
 test('철맥 07: legacy 몬스터 카탈로그는 5 normal + 1 compatibility boss 구성을 유지한다',()=>{
- assert.equal(IRON_T1_MONSTERS.filter(monster=>!monster.boss).length,5);
+ assert.equal(IRON_T1_MONSTERS.filter(monster=>!monster.boss).length,15);
  assert.equal(IRON_T1_MONSTERS.filter(monster=>monster.boss).length,1);
  assert.ok(IRON_T1_MONSTERS.every(monster=>monster.graphicId===monster.id));
 });

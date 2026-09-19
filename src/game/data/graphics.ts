@@ -17,7 +17,7 @@ export const MONSTER_GRAPHICS:MonsterGraphic[]=towerIds.filter(tower=>tower!=='o
   image:{idle:`assets/monsters/${tower}/${ids[tower]}_idle.png`,hit:`assets/monsters/${tower}/${ids[tower]}_hit.png`},
   display:{scale:1,offsetX:0,offsetY:0}
 }));
-MONSTER_GRAPHICS.push(...IRON_T1_MONSTERS.map(m=>({id:m.graphicId,tower:'ore' as const,name:m.displayName,image:{idle:`assets/monsters/iron-t1/${m.id}.png`},display:{scale:m.boss?1.18:1,offsetX:0,offsetY:m.id==='mine_bat'?0:18}})));
+MONSTER_GRAPHICS.push(...IRON_T1_MONSTERS.filter(m=>!m.boss).map(m=>({id:m.graphicId,tower:'ore' as const,name:m.displayName,image:{idle:`assets/monsters/iron-t1/${m.id}.png`},display:{scale:1,offsetX:0,offsetY:m.id==='mine_bat'?0:18}})));
 const ironBossArt:Record<string,string>={iron_maw_burrower:'iron_maw_burrower',black_vein_armor_breaker:'black_vein_armor_breaker',echo_devourer:'echo_devourer',deep_hoist_overseer:'deep_hoist_overseer',iron_core_pulsator:'iron_core_pulsator'};
 MONSTER_GRAPHICS.push(...Object.values(IRON_BOSS_SLOTS).map(slot=>({id:slot.bossId,tower:'ore' as const,name:slot.name,image:{idle:`assets/monsters/iron-bosses/${ironBossArt[slot.bossId]}.png`},display:{scale:1.28,offsetX:0,offsetY:10}})));
 export const TOWER_BACKGROUNDS=Object.fromEntries(towerIds.map(t=>[t,
@@ -33,4 +33,3 @@ export const backgroundFor=(tower:Tower,floor:number)=>tower==='ore'
   : TOWER_BACKGROUNDS[tower][1];
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
 export const assetUrl=(path:string)=>'./'+path.replace(/^\/+/, '');
-
