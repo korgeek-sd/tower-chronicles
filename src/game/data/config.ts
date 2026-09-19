@@ -10,6 +10,17 @@ export const GEAR_MASTERY_NAMES:Record<GearMasteryKey,string>={sword:'검',dagge
 export const GEAR_MASTERY_CONFIG={requiredByTargetTier:{2:100,3:250,4:500,5:1000} as Record<number,number>,baseGainByFloorTier:[10,20,35,55,80],endOfTierMultiplier:1.5};
 export const PASSIVES={vampire:{name:'흡혈',description:'가한 피해의 8% 회복',value:.08,threshold:1},unyielding:{name:'불굴',description:'HP 35% 이하에서 받는 피해 30% 감소',value:.3,threshold:.35},berserker:{name:'광전사',description:'HP 40% 이하에서 공격력 40% 증가',value:.4,threshold:.4}};
 export const EQUIPMENT={armor:{name:'탐험가 갑옷',hp:55,defense:7},boots:{name:'탐험가 신발',hp:15,speed:.1}};
+// Equipment slot → source tower mapping (fixed by materialFor)
+export const SLOT_SOURCE_TOWER:Record<Slot,Tower>={weapon:'ore',armor:'leather',boots:'leather',accessory:'gem'};
+// Slot-specific equipment bonuses (source tower determines bonus)
+export const SLOT_EQUIPMENT_BONUS:Record<Slot,{hp?:number;attack?:number;defense?:number;speed?:number;skillPower?:number;critChance?:number;armorPen?:number;damageReduction?:number;dodge?:number;cooldownReduction?:number}>={
+  weapon:{attack:1.15,armorPen:0.08},      // ore: 공격/관통
+  armor:{hp:1.2,defense:1.15,damageReduction:0.05},  // leather: 체력/방어/피해감소
+  boots:{hp:1.15,speed:1.05,dodge:0.03},  // leather: 체력/속도/회피
+  accessory:{skillPower:1.25,cooldownReduction:0.1,critChance:0.08}  // gem: 스킬/쿨감/치명
+};
+// Alchemy mastery potion potency bonus (per mastery tier above 1)
+export const ALCHEMY_POTION_BONUS_PER_TIER=0.08;
 // Provisional gameplay values, not final balance. Revisit with T2–T5 content.
 export const POTION_CRAFTING={generalBatch:10,revivalBatch:1,revivalProductionEnabled:false};
 export const POTIONS:Record<Potion,{name:string;icon:string;tier:number;healRatio:number;description:string}>={
@@ -26,6 +37,13 @@ export const SKILLS=[
  {id:'quick',name:'신속',description:'현재 수동 턴제에서는 추가 효과 없음',cooldown:12,weapons:['sword','dagger','bow','staff'] as Weapon[],condition:'always',effect:'quick',value:.5,duration:5}
 ];
 export const COMBAT={monsterHp:42,hpPerFloor:10,monsterAttack:11,attackPerFloor:2.3,monsterDefense:1,defensePerFloor:1.1,monsterSpeed:.8,speedPerFloor:.004,silverBase:10,silverPerFloor:3,materialAmount:2,enemyLow:.35,selfLow:.7};
+// Base material prices by tower and tier (used for market reference pricing)
+export const MATERIAL_BASE_PRICE:Record<Tower,number[]>={
+  ore:[8,18,40,80,150],      // 철광석: 무기 제작용, 수요 꾸준
+  leather:[10,22,48,95,180], // 가죽: 방어구/신발, 중견 수요
+  gem:[15,35,80,160,300],    // 보석: 장신구, 고부가가치
+  kaleon:[12,28,60,120,220]  // 약초: 포션/연금술, 소비재 특성
+};
 export const towerIds=Object.keys(TOWERS) as Tower[];
 export const potionIds=Object.keys(POTIONS) as Potion[];
 export const generalPotionIds=potionIds.filter((id):id is GeneralPotion=>id!=='revival');

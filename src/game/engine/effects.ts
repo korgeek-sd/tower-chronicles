@@ -32,6 +32,13 @@ export const EFFECTS:Record<string,EffectDefinition>={
  resonance:{id:'resonance',name:'울림',description:'울림이 누적됩니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:5,stackingPolicy:'STACK',maxStacks:5},
  crushing_pressure:{id:'crushing_pressure',name:'압착 저주',description:'방어력이 감소합니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:-.3}},
  iron_core_shield:{id:'iron_core_shield',name:'철심 보호막',description:'철심의 보호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:70,scope:'BATTLE'},
+  blood_scent:{id:'blood_scent',name:'핏빛 추적',description:'약점을 꿰뚫어 보며 받는 피해가 증가합니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:.2}},
+  predator_wound:{id:'predator_wound',name:'포식자의 상처',description:'깊은 상처로 턴마다 피해를 입습니다.',category:'DEBUFF',behavior:'PERIODIC_DAMAGE',tags:['DOT','BLEED'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:6}},
+  pack_defense:{id:'pack_defense',name:'무리의 방어',description:'무리의 결속으로 방어력이 크게 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:.5}},
+  sanctuary_shield:{id:'sanctuary_shield',name:'성소의 보호막',description:'고대 의식으로 두른 신성한 보호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:60,scope:'BATTLE'},
+  ritual_brand:{id:'ritual_brand',name:'의식의 낙인',description:'성소의 의식으로 새겨진 낙인입니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:4,stackingPolicy:'REFRESH_DURATION'},
+  lord_shield:{id:'lord_shield',name:'적아의 장막',description:'적아의 주인이 펼치는 절대적인 보호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:85,scope:'BATTLE'},
+  crimson_debt:{id:'crimson_debt',name:'진홍의 부채',description:'적아에게 진 빚입니다. 3중첩 시 피의 수확 대상이 됩니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:6,stackingPolicy:'STACK',maxStacks:3},
 };
 export type EffectActor='player'|'monster';
 const effectsFor=(e:Expedition,actor:EffectActor)=>actor==='player'?e.playerEffects:e.monsterEffects;

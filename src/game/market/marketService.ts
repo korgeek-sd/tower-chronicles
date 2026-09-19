@@ -1,6 +1,6 @@
 import type {GameState,Item,MarketOrder,MarketSide,MarketTrade,Tower} from '../types';
 import type {InventoryCategory} from '../inventoryView';
-import {TOWERS,towerIds} from '../data/config';
+import {TOWERS,towerIds,MATERIAL_BASE_PRICE} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
 
@@ -20,7 +20,7 @@ function parseStack(itemId:string):{kind:string;tower?:Tower;index?:number;id?:s
 export function marketItems(s:GameState):MarketItem[]{
  const result:MarketItem[]=[];
  s.items.forEach(gear=>result.push({id:'gear:'+gear.id,name:itemName(gear),available:Object.values(s.equipped).includes(gear.id)||s.expedition?0:1,gear,category:'equipment',description:'노바르 제작 장비입니다.'}));
- towerIds.forEach(t=>s.materials[t].forEach((q,i)=>result.push({id:`material:${t}:${i+1}`,name:`T${i+1} ${TOWERS[t].material}`,available:q,category:'materials',description:'안전 귀환으로 확보한 제작 재료입니다.'})));
+ towerIds.forEach(t=>s.materials[t].forEach((q,i)=>result.push({id:`material:${t}:${i+1}`,name:`T${i+1} ${TOWERS[t].material}`,available:q,category:'materials',description:`안전 귀환으로 확보한 제작 재료입니다. 기준가 ${MATERIAL_BASE_PRICE[t][i]??0} Silver`})));
  towerIds.forEach(t=>s.tickets[t].forEach((q,i)=>result.push({id:`ticket:${t}:${i+1}`,name:`${TOWERS[t].name} ${i+1}층 입장권`,available:q,category:'tickets',description:'해당 층 입장에 사용하는 입장권입니다.'})));
  Object.entries(s.skillBooks).forEach(([id,q])=>result.push({id:'skillbook:'+id,name:bookName(id),available:q,category:'skillbooks',description:'아직 사용하지 않은 스킬북입니다.'}));
  Object.entries(s.lootItems).forEach(([id,q])=>result.push({id:'other:'+id,name:id,available:q,category:'other',description:'원정에서 보관한 거래 가능 아이템입니다.'}));

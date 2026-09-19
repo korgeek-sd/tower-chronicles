@@ -6,6 +6,7 @@ import {applyEffect} from '../src/game/engine/effects';
 import {createRepository,SAVE_KEY} from '../src/storage/repository';
 import {COMMON_EVENTS,PRODUCTION_EVENT_CATALOG} from '../src/game/events/catalog';
 import {KALEON_EVENTS} from '../src/game/events/content/kaleon';
+import {LEATHER_EVENTS} from '../src/game/events/content/leather';
 import {validateEventCatalog} from '../src/game/events/catalogValidation';
 import {eligible} from '../src/game/events/selector';
 import {openEvent,resolveEvent} from '../src/game/events/service';
@@ -17,11 +18,12 @@ const open=(state:GameState,id:string,roll=.1)=>{openEvent(state,definition(id),
 const choose=(state:GameState,choiceId:string)=>resolveEvent(state,state.expedition!.events.pendingEvent!.instanceId,choiceId);
 const reload=(state:GameState)=>{const map=new Map([[SAVE_KEY,JSON.stringify(state)]]),repository=createRepository({getItem:key=>map.get(key)??null,setItem:(key,value)=>void map.set(key,value)});repository.save(state);return repository.load();};
 
-test('KALEON EVENT 01: production catalog validates with common + ore + kaleon events',()=>{
+test('KALEON EVENT 01: production catalog validates with common + ore + kaleon + leather events',()=>{
   assert.equal(COMMON_EVENTS.length,6);
   assert.equal(KALEON_EVENTS.length,5);
-  assert.equal(PRODUCTION_EVENT_CATALOG.length,16);
-  assert.equal(new Set(PRODUCTION_EVENT_CATALOG.map(event=>event.id)).size,16);
+  assert.equal(LEATHER_EVENTS.length,5);
+  assert.equal(PRODUCTION_EVENT_CATALOG.length,21);
+  assert.equal(new Set(PRODUCTION_EVENT_CATALOG.map(event=>event.id)).size,21);
   assert.deepEqual(validateEventCatalog(PRODUCTION_EVENT_CATALOG),[]);
 });
 

@@ -3,6 +3,7 @@ import {TOWERS,towerIds} from './config';
 import {APPEARANCES,appearanceById,DEFAULT_APPEARANCE_ID} from './cosmetics';
 import {IRON_T1_MONSTERS,IRON_BOSS_SLOTS} from './ironSpire';
 import {KALEON_T1_MONSTERS,KALEON_BOSS_SLOTS} from './kaleonSpire';
+import {LEATHER_T1_MONSTERS,LEATHER_BOSS_SLOTS} from './leatherSpire';
 export interface MonsterGraphic {
   id:string; tower:Tower; name:string;
   image:{idle?:string;hit?:string;[state:string]:string|undefined};
@@ -22,11 +23,14 @@ MONSTER_GRAPHICS.push(...IRON_T1_MONSTERS.map(m=>({id:m.graphicId,tower:'ore' as
 MONSTER_GRAPHICS.push(...Object.values(IRON_BOSS_SLOTS).map(slot=>({id:slot.bossId,tower:'ore' as const,name:slot.name,image:{idle:`assets/monsters/iron-bosses/${slot.bossId}.png`},display:{scale:1.28,offsetX:0,offsetY:10}})));
 MONSTER_GRAPHICS.push(...KALEON_T1_MONSTERS.map(m=>({id:m.graphicId,tower:'kaleon' as const,name:m.displayName,image:{idle:`assets/monsters/kaleon-t1/${m.id}.webp`},display:{scale:1,offsetX:0,offsetY:14}})));
 MONSTER_GRAPHICS.push(...Object.values(KALEON_BOSS_SLOTS).map(slot=>({id:slot.bossId,tower:'kaleon' as const,name:slot.name,image:{idle:`assets/monsters/kaleon-bosses/${slot.bossId}.webp`},display:{scale:1.3,offsetX:0,offsetY:8}})));
+MONSTER_GRAPHICS.push(...LEATHER_T1_MONSTERS.map(m=>({id:m.graphicId,tower:'leather' as const,name:m.displayName,image:{idle:`assets/monsters/leather-t1/${m.id}.png`},display:{scale:1,offsetX:0,offsetY:14}})));
+MONSTER_GRAPHICS.push(...Object.values(LEATHER_BOSS_SLOTS).map(slot=>({id:slot.bossId,tower:'leather' as const,name:slot.name,image:{idle:`assets/monsters/leather-bosses/${slot.bossId}.png`},display:{scale:1.3,offsetX:0,offsetY:8}})));
 export const TOWER_BACKGROUNDS=Object.fromEntries(towerIds.map(t=>[t,
   Object.fromEntries([1,2,3,4,5].map(tier=>[tier,`assets/backgrounds/${t}/t${tier}.png`]))
 ])) as Record<Tower,Record<number,string>>;
 TOWER_BACKGROUNDS.ore[1]='assets/backgrounds/ore/t1.png';
 TOWER_BACKGROUNDS.kaleon[1]='assets/backgrounds/kaleon/t1.webp';
+TOWER_BACKGROUNDS.leather[1]='assets/backgrounds/leather/t1.png';
 export const BOSS_FLOORS=[6,7,8,9,10] as const;
 export const isBossFloor=(floor:number)=>BOSS_FLOORS.some(n=>n===floor);
 export const graphicFor=(tower:Tower,monster:Pick<Monster,'name'>)=>MONSTER_GRAPHICS.find(g=>g.tower===tower&&g.name===monster.name);
