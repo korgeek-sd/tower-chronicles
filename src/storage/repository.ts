@@ -12,7 +12,7 @@ import {createMonsterRuntime} from '../game/engine/monsterAi';
 import {monsterFor} from '../game/engine/drops';
 import {EFFECTS} from '../game/engine/effects';
 export interface StoragePort {getItem(key:string):string|null;setItem(key:string,value:string):void}
-export const APP_VERSION='0.1.32';
+export const APP_VERSION='0.1.34';
 export const SAVE_EXPORT_FORMAT='tower-chronicles-save';
 export const SAVE_EXPORT_FORMAT_VERSION=1;
 // Keep the original key so an existing file/browser origin finds its save.

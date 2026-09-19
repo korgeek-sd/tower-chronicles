@@ -1,6 +1,6 @@
 import {initialEvents} from '../events/service';
 import type {GameState,Tower} from '../types';
-import {CONFIG,potionIds,generalPotionIds,TOWERS,POTIONS,isValidTowerFloor} from '../data/config';
+import {CONFIG,potionIds,generalPotionIds,TOWERS,POTIONS,isValidTowerFloor,towerIds} from '../data/config';
 import {stats,log} from './state';
 import {monsterFor} from './drops';
 import {emptyLoot,commitLoot,lootLines} from './loot';
@@ -25,10 +25,32 @@ export function enter(s:GameState,tower:Tower,floor:number):GameState {
   n.notice='획득물은 원정 가방에 임시 보관됩니다. 안전 귀환해야 내 재산이 됩니다.';
   return n;
 }
+export function getTowerEntryRequirement(tower:Tower){return tower==='ore'?{itemId:'iron_vein_entry_permit',amount:1}:null;}
+export function canStartExpedition(s:GameState,tower:Tower):{ok:boolean;reason?:string}{
+  if(!towerIds.includes(tower))return {ok:false,reason:'유효하지 않은 탑입니다.'};
+  if(s.expedition)return {ok:false,reason:'진행 중인 원정이 있습니다.'};
+  const requirement=getTowerEntryRequirement(tower);
+  if(requirement&&s.tickets[tower][0]<requirement.amount)return {ok:false,reason:'철맥의 첨탑 입장권이 필요합니다.'};
+  return {ok:true};
+}
+/** Starts at the tower gate. The legacy floor-specific enter operation remains available for saves and QA. */
+export function startExpedition(s:GameState,tower:Tower):GameState {
+  const check=canStartExpedition(s,tower);
+  if(!check.ok)return {...s,notice:check.reason??'원정을 시작할 수 없습니다.'};
+  return enter(s,tower,1);
+}
 export function requestReturn(s:GameState):GameState {if(!s.expedition||s.expedition.pendingRevival||s.expedition.events.phase!=='BATTLE'||s.expedition.phase!=='PLAYER_TURN')return s;const n=structuredClone(s);n.expedition!.pendingFlee=true;n.expedition!.phase='MONSTER_TURN';return n;}
 export function cancelReturn(s:GameState):GameState {
   if(!s.expedition||!s.expedition.returnRequested)return s;
   const n=structuredClone(s);n.expedition!.returnRequested=false;n.notice='안전 귀환 예약을 취소했습니다.';log(n,'안전 귀환 예약 취소');return n;
+}
+/** Voluntary return is only available after an event has been fully resolved. */
+export function canVoluntarilyReturn(s:GameState):boolean {
+  const e=s.expedition;
+  return !!e&&!e.pendingRevival&&e.events.phase==='EVENT_RESULT'&&e.events.pendingEvent?.state==='RESULT'&&e.phase==='BATTLE_END';
+}
+export function finishExpedition(s:GameState):GameState {
+  return canVoluntarilyReturn(s)?leave(s):s;
 }
 /** Atomic pure state transition: only an active expedition can settle.
  * lastExpedition is a display-only receipt; it is never a payment source.
@@ -54,7 +76,6 @@ export function leave(s:GameState,dead=false):GameState {
   for(const p of potionIds)if(e.bag[p])log(n,(dead?'소멸: ':'반환: ')+POTIONS[p].name+' 포션 ×'+e.bag[p]);
   return n;
 }
-
 
 
 

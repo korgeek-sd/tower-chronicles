@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialState,stats,equip,emptyBag} from '../src/game/engine/state.ts';
 import {basicAttack,damage,passPlayerTurn,resolveMonsterTurn,tick,useBattlePotion} from '../src/game/engine/combat.ts';
-import {enter,leave} from '../src/game/engine/expedition.ts';
+import {enter,leave,startExpedition,canStartExpedition,canVoluntarilyReturn,finishExpedition} from '../src/game/engine/expedition.ts';
 import {reward,monsterFor} from '../src/game/engine/drops.ts';
 import {craft,cost,advanceMastery,discount} from '../src/game/engine/crafting.ts';
 import {createRepository,SAVE_KEY} from '../src/storage/repository.ts';
@@ -12,6 +12,8 @@ const noDrop=()=>.99;
 function kill(s:GameState,count=1){for(let i=0;i<count&&s.expedition;i++){s.expedition.monster.currentHp=1;s=basicAttack(s,noDrop);}return s;}
 test('피해 계산은 방어를 차감하고 최소 1 피해',()=>{assert.equal(damage(20,5),15);assert.equal(damage(5,20),1);assert.equal(damage(20,5,.6),9);});
 test('입장 즉시 티켓 1장 소비, 중복 입장 및 없는 티켓 차단',()=>{const s=initialState(),n=enter(s,'ore',1);assert.equal(s.tickets.ore[0],20);assert.equal(n.tickets.ore[0],19);assert.equal(enter(n,'gem',1).tickets.gem[0],20);assert.equal(enter(s,'ore',2).expedition,null);assert.equal(enter(leave(n),'ore',1).tickets.ore[0],18);});
+test('철맥 입장 허가증은 준비 완료 시 한 장만 소비하고 재개 시 소비하지 않는다',()=>{let s=initialState();assert.equal(canStartExpedition(s,'ore').ok,true);s=startExpedition(s,'ore');assert.equal(s.tickets.ore[0],19);const resumed=startExpedition(s,'ore');assert.equal(resumed.tickets.ore[0],19);assert.ok(resumed.expedition);});
+test('입장 허가증이 없으면 시작할 수 없고 자발적 귀환은 이벤트 결과에서만 가능하다',()=>{let s=initialState();s.tickets.ore[0]=0;assert.equal(canStartExpedition(s,'ore').ok,false);assert.equal(startExpedition(s,'ore').expedition,null);s=enter(initialState(),'ore',1);assert.equal(canVoluntarilyReturn(s),false);s.expedition!.events.phase='EVENT_RESULT';s.expedition!.events.pendingEvent={instanceId:'return-test',eventId:'missing',bossId:null,state:'RESULT',choiceId:'skip',outcomeId:null,resultText:'완료',resultLines:[],next:'NORMAL',randomValue:0};s.expedition!.phase='BATTLE_END';assert.equal(canVoluntarilyReturn(s),true);const returned=finishExpedition(s);assert.equal(returned.expedition,null);assert.equal(finishExpedition(returned),returned);});
 test('원정 회복 포션 30개 제한과 음수 차단',()=>{let s=initialState();s.potions.healing_lesser=50;s.loadout.healing_lesser=30;s.loadout.healing_standard=1;assert.equal(enter(s,'ore',1).expedition,null);s.loadout.healing_standard=0;assert.ok(enter(s,'ore',1).expedition);s.loadout.healing_lesser=-1;assert.equal(enter(s,'ore',1).expedition,null);});
 test('귀환은 남은 포션 복원, 사망은 가져간 포션만 손실',()=>{const s=initialState(),n=enter(s,'ore',1);n.silver=123;n.materials.ore[0]=8;n.expedition!.bag.healing_lesser--;const returned=leave(n);assert.equal(returned.potions.healing_lesser,s.potions.healing_lesser-1);const dead=leave(n,true);assert.equal(dead.potions.healing_lesser,s.potions.healing_lesser-s.loadout.healing_lesser);assert.equal(dead.silver,123);assert.equal(dead.materials.ore[0],8);assert.equal(dead.tickets.ore[0],19);});
 test('4개 탑의 공통 보상 엔진은 해당 재료, Silver, 다음 층 티켓만 임시 보관한다',()=>{for(const t of towerIds){const s=enter(initialState(),t,1);reward(s,()=>0);assert.equal(s.expedition!.loot.materials[t][0],2);assert.equal(s.expedition!.loot.silver,13);assert.equal(s.expedition!.loot.tickets[t][1],1);assert.deepEqual(s.expedition!.loot.skillBooks,{});assert.ok(!s.learned.includes('execute'));assert.equal(s.items.length,1);}});
