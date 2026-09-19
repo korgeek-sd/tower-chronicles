@@ -53,6 +53,12 @@
     "assets/ui/navigation-relic/craft.svg",
     "assets/ui/navigation-relic/equipment.svg"
   ],
+  "navigationNew": [
+    "assets/ui/navigation-new/inventory.png",
+    "assets/ui/navigation-new/craft.png",
+    "assets/ui/navigation-new/association.png",
+    "assets/ui/navigation-new/equipment.png"
+  ],
   "inventory": [
     "assets/ui/inventory/healing_lesser.png",
     "assets/ui/inventory/healing_standard.png",

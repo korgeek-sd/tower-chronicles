@@ -43,3 +43,13 @@ test('ASSETS 04: bottom navigation uses dedicated monochrome relic icons',()=>{
  ]);
  for(const path of manifest.navigationRelic)assert.ok(existsSync(resolve(root,'public',path)),path);
 });
+
+test('ASSETS 05: provided replacement navigation icons are mapped for matching tabs',()=>{
+ assert.deepEqual(manifest.navigationNew,[
+  'assets/ui/navigation-new/inventory.png',
+  'assets/ui/navigation-new/craft.png',
+  'assets/ui/navigation-new/association.png',
+  'assets/ui/navigation-new/equipment.png'
+ ]);
+ for(const path of manifest.navigationNew)assert.ok(existsSync(resolve(root,'public',path)),path);
+});
