@@ -16,6 +16,7 @@ export function meetsCondition(s:GameState,c:EventCondition):boolean {const e=s.
  case 'PLAYER_HP_BELOW':return hp<c.ratio;
  case 'PLAYER_HP_ABOVE':return hp>c.ratio;
  case 'HAS_ITEM':case 'MISSING_ITEM':{const q=(e.loot.items[c.itemId]??0)+(s.lootItems[c.itemId]??0)+s.items.filter(i=>i.id===c.itemId).length;return c.kind==='HAS_ITEM'?q>=(c.quantity??1):q<(c.quantity??1);}
+ case 'HAS_POTION':case 'MISSING_POTION':{const q=e.bag[c.potion]??0;return c.kind==='HAS_POTION'?q>=(c.amount??1):q<(c.amount??1);}
  case 'CUSTOM':return false; // Future registered predicates fail closed.
  default:{const exhaustive:never=c;return exhaustive;}
 }}

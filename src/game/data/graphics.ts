@@ -27,8 +27,10 @@ TOWER_BACKGROUNDS.ore[1]='assets/backgrounds/ore/t1.png';
 export const BOSS_FLOORS=[6,7,8,9,10] as const;
 export const isBossFloor=(floor:number)=>BOSS_FLOORS.some(n=>n===floor);
 export const graphicFor=(tower:Tower,monster:Pick<Monster,'name'>)=>MONSTER_GRAPHICS.find(g=>g.tower===tower&&g.name===monster.name);
-export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower][1];
+/** Current 1-10F Iron Vein uses the available five backgrounds in two-floor bands. */
+export const backgroundFor=(tower:Tower,floor:number)=>tower==='ore'
+  ? TOWER_BACKGROUNDS.ore[Math.min(5,Math.max(1,Math.ceil(floor/2)))]
+  : TOWER_BACKGROUNDS[tower][1];
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
 export const assetUrl=(path:string)=>'./'+path.replace(/^\/+/, '');
-
 

@@ -51,3 +51,81 @@ test('EVENT 27: lethal risk uses existing death flow without settling rewards',(
 test('EVENT 28: a stale click from a previous expedition cannot resolve a new event',()=>{const first=sample('TEST_SUPPLY_EVENT'),oldId=first.expedition!.events.pendingEvent!.instanceId;let s=leave(first);s.tickets.ore[0]=1;s=enter(s,'ore',1);s.expedition!.events=initialEvents('test');s.expedition!.monster.currentHp=0;openEvent(s,DEV_EVENTS[1],()=>0);assert.notEqual(s.expedition!.events.pendingEvent!.instanceId,oldId);assert.strictEqual(resolveEvent(s,oldId,'take'),s);});
 test('EVENT 29: surviving flee with a DOT kill settles without another event roll',()=>{const s=run();s.expedition!.monster.currentHp=1;s.expedition!.monster.attack=1;applyEffect(s.expedition!,'monster','poison','player',0);const n=resolveMonsterTurn(flee(s));assert.equal(n.expedition,null);assert.equal(n.lastExpedition!.outcome,'returned');assert.equal(n.lastExpedition!.kills,1);assert.ok(n.silver>0);});
 test('EVENT 30: authored boss events use a separate data-driven pool and tower conditions',()=>{const s=run(10),authored={...BOSS_EVENT,id:'future_ore_boss',towerIds:['ore'] as const};assert.equal(selectBossEvent(s,[{...authored,towerIds:['ore']}],()=>0)!.id,'future_ore_boss');assert.equal(selectBossEvent(run(),[BOSS_EVENT],()=>0),null);assert.equal(selectNormalEvent(s,[BOSS_EVENT],()=>0),null);});
+
+test('EVENT 31: production catalog contains six unique shared canonical events',()=>{
+ assert.equal(EVENT_CATALOG.length,6);
+ assert.equal(new Set(EVENT_CATALOG.map(event=>event.id)).size,EVENT_CATALOG.length);
+ for(const event of EVENT_CATALOG){
+  assert.notEqual(event.type,'BOSS');
+  assert.equal(event.towerIds,undefined);
+  assert.equal(event.metadata?.fixture,undefined);
+  assert.ok(event.weight>0);
+  assert.ok(event.choices.some(choice=>choice.styleVariant==='SKIP'));
+ }
+});
+
+test('EVENT 32: a production victory can open a canonical event instead of a fixture',()=>{
+ const state=initialState();state.tickets.ore[0]=1;
+ const expedition=enter(state,'ore',1);expedition.expedition!.monster.currentHp=1;
+ const evented=basicAttack(expedition,()=>0);
+ assert.equal(evented.expedition!.events.mode,'production');
+ assert.equal(evented.expedition!.events.phase,'EVENT');
+ assert.ok(EVENT_CATALOG.some(event=>event.id===evented.expedition!.events.pendingEvent!.eventId));
+ assert.equal(definitionFor(evented.expedition!)?.metadata?.fixture,undefined);
+});
+
+test('EVENT 33: recovery is offered only below its HP threshold and clamps healing',()=>{
+ const state=initialState();state.tickets.ore[0]=1;
+ const expedition=enter(state,'ore',1),definition=EVENT_CATALOG.find(event=>event.id==='sheltered_rest_niche')!;
+ assert.equal(eligible(expedition,definition),false);
+ expedition.expedition!.hp=Math.floor(stats(expedition).hp*.5);
+ assert.equal(eligible(expedition,definition),true);
+ openEvent(expedition,definition,()=>0);
+ const healed=resolveEvent(expedition,expedition.expedition!.events.pendingEvent!.instanceId,'rest');
+ assert.ok(healed.expedition!.hp>expedition.expedition!.hp);
+ assert.ok(healed.expedition!.hp<=stats(healed).hp);
+});
+
+test('EVENT 34: authored risk outcome uses its persisted ticket for reward or injury',()=>{
+ for(const [roll,outcome] of [[.1,'recovered_cargo'],[.9,'falling_debris']] as const){
+  const state=initialState();state.tickets.ore[0]=1;
+  const expedition=enter(state,'ore',1),definition=EVENT_CATALOG.find(event=>event.id==='collapsed_haulway')!;
+  openEvent(expedition,definition,()=>roll);
+  const resolved=resolveEvent(expedition,expedition.expedition!.events.pendingEvent!.instanceId,'clear_debris');
+  assert.equal(resolved.expedition!.events.pendingEvent!.outcomeId,outcome);
+  if(outcome==='recovered_cargo'){
+   assert.equal(resolved.expedition!.loot.materials.ore[0],4);
+   assert.equal(resolved.expedition!.loot.silver,15);
+  }else{
+   assert.equal(resolved.expedition!.hp,expedition.expedition!.hp-14);
+  }
+ }
+});
+
+test('EVENT 35: direct event opening cannot bypass repeat exclusion',()=>{
+ const state=initialState();state.tickets.ore[0]=1;
+ let expedition=enter(state,'ore',1),definition=EVENT_CATALOG.find(event=>event.id==='unclaimed_route_satchel')!;
+ openEvent(expedition,definition,()=>.1);
+ assert.ok(expedition.expedition!.events.pendingEvent);
+ const firstId=expedition.expedition!.events.pendingEvent!.instanceId;
+ expedition=resolveEvent(expedition,firstId,'skip');
+ expedition=continueEvent(expedition,firstId,()=>.99);
+ expedition.expedition!.events.recentEventIds=[definition.id];
+ expedition.expedition!.monster.currentHp=0;
+ openEvent(expedition,definition,()=>.1);
+ assert.equal(expedition.expedition!.events.pendingEvent,null);
+});
+
+test('EVENT 36: legacy style-only skip choices cannot pay rewards',()=>{
+ const state=initialState();state.tickets.ore[0]=1;
+ const expedition=enter(state,'ore',1);
+ const definition={...DEV_EVENTS[0],id:'LEGACY_SKIP_EVENT',choices:[{
+  id:'skip',label:'지나간다',styleVariant:'SKIP' as const,
+  effects:[{kind:'ADD_EXPEDITION_SILVER' as const,amount:99}],outcomes:[{
+   id:'reward',weight:1,effects:[{kind:'ADD_EXPEDITION_SILVER' as const,amount:99}],resultText:'보상'
+  }]
+ }]};
+ openEvent(expedition,definition,()=>0);
+ const resolved=resolveEvent(expedition,expedition.expedition!.events.pendingEvent!.instanceId,'skip');
+ assert.equal(resolved.expedition!.loot.silver,0);
+});

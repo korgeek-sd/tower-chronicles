@@ -68,7 +68,7 @@ test('철맥 06: 일반 몬스터와 보스 그래픽 경로를 canonical id로 
   assert.equal(graphic?.image.idle,`assets/monsters/iron-bosses/${slot.bossId}.png`);
  }
  assert.equal(graphicFor('ore',{name:'알 수 없는 적'}),undefined);
- assert.equal(backgroundFor('ore',10),'assets/backgrounds/ore/t1.png');
+ assert.equal(backgroundFor('ore',10),'assets/backgrounds/ore/t5.png');
 });
 
 test('철맥 07: legacy 몬스터 카탈로그는 5 normal + 1 compatibility boss 구성을 유지한다',()=>{
