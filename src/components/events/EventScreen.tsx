@@ -5,7 +5,7 @@ import {definitionFor} from '../../game/events/service';
 import {meetsConditions} from '../../game/events/selector';
 import {eventAsset} from '../../game/events/catalog';
 import {stats} from '../../game/engine/state';
-import {TOWERS,tierOf,potionIds} from '../../game/data/config';
+import {TOWERS,getMaterialGrade,potionIds} from '../../game/data/config';
 import {assetUrl,backgroundFor} from '../../game/data/graphics';
 import './events.css';
 
@@ -33,7 +33,7 @@ export function EventScreen({game,onChoice,onContinue,onReturn,onHome,onRevival,
  const lock=useRef(false),[busy,setBusy]=useState(false),[returnOpen,setReturnOpen]=useState(false),[error,setError]=useState('');
  function act(action:()=>void){if(lock.current)return;lock.current=true;setBusy(true);try{action();}catch{setError('선택 결과를 저장하지 못했습니다. 저장 공간을 확인하고 다시 시도하세요.');lock.current=false;setBusy(false);}}
  return <section className={`event-screen event-${eventType.toLowerCase()}`} aria-label="원정 이벤트">{e.pendingRevival&&onRevival&&<div className="battle-dialog-backdrop"><section className="battle-encounter revival-dialog" role="dialog" aria-modal="true"><h2>치명상을 입었습니다</h2><p>회생 포션을 사용해 이벤트 결과로 돌아갈 수 있습니다.</p><button className="primary" onClick={()=>onRevival(true)}>회생 포션 사용</button><button onClick={()=>onRevival(false)}>사용하지 않기</button></section></div>}
- <div className="event-hud"><span>{TOWERS[e.tower].name} · {e.floor}층 / T{tierOf(e.floor)}</span><button onClick={onHome} aria-label="원정 메뉴">메뉴</button><div><span>HP <b>{Math.ceil(e.hp)} / {max}</b></span><span>Silver <b>{e.loot.silver.toLocaleString()}</b></span><span>포션 <b>{potionIds.reduce((n,id)=>n+e.bag[id],0)}</b></span></div><progress aria-label="플레이어 HP" value={e.hp} max={max}/></div>
+ <div className="event-hud"><span>{TOWERS[e.tower].name} · {e.floor}층 / {getMaterialGrade(e.floor)}등급</span><button onClick={onHome} aria-label="원정 메뉴">메뉴</button><div><span>HP <b>{Math.ceil(e.hp)} / {max}</b></span><span>Silver <b>{e.loot.silver.toLocaleString()}</b></span><span>포션 <b>{potionIds.reduce((n,id)=>n+e.bag[id],0)}</b></span></div><progress aria-label="플레이어 HP" value={e.hp} max={max}/></div>
  {e.events.mode==='test'&&<p className="event-test-label">테스트 모드 · 샘플 이벤트</p>}
  <header className="event-title"><div className="event-title-meta"><span className="event-type-badge"><span aria-hidden="true">{meta.icon}</span>{meta.label}</span><span className="event-scope">{scope}</span></div><h1>{d?.title??'잊힌 탐사 기록'}</h1></header>
  <EventArt key={(d?.imageAssetKey??'ambient')+e.tower+e.floor} assetKey={d?.imageAssetKey} tower={e.tower} floor={e.floor} title={d?.title??'잊힌 탐사 기록'} type={eventType}/>

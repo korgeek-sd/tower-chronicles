@@ -25,7 +25,7 @@ export const ORE_EVENTS:ExpeditionEventDefinition[]=[
   choices:[
    {id:'careful_mine',label:'안전하게 채굴한다',description:'무리하지 않고 드러난 부분만 캐냅니다.',icon:'◇',styleVariant:'PRIMARY',effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:3}}],resultText:'붕괴 위험이 없는 구간에서 광석을 확보했습니다.'},
    {id:'deep_mine',label:'더 깊이 파낸다',description:'더 많은 광석을 노리지만 벽면이 무너질 수 있습니다.',icon:'⚠',styleVariant:'DANGER',effects:[],outcomes:[
-    {id:'rich_vein',weight:2,effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:6}},{kind:'ADD_EXPEDITION_SILVER',amount:12}],resultText:'안쪽에서 굵은 광맥을 찾아 예상보다 많은 자원을 확보했습니다.'},
+    {id:'rich_vein',weight:2,effects:[{kind:'ADD_TEMP_LOOT',loot:{kind:'MATERIAL',tower:'CURRENT',tier:'CURRENT',amount:5}},{kind:'ADD_EXPEDITION_SILVER',amount:12}],resultText:'안쪽에서 굵은 광맥을 찾아 예상보다 많은 자원을 확보했습니다.'},
     {id:'vein_collapse',weight:1,effects:[{kind:'TAKE_DAMAGE_RATIO',ratio:.12,minimum:10}],resultText:'금이 간 암반이 무너지며 부상을 입었습니다.'}
    ]},
    skip('광맥의 위치만 기억해 두고 탐사를 계속합니다.')

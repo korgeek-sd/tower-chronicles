@@ -20,7 +20,7 @@ export function lootLines(loot: ExpeditionLoot): string[] {
   const lines: string[] = [];
   if (loot.silver) lines.push('Silver ' + loot.silver.toLocaleString());
   for (const t of towerIds) {
-    loot.materials[t].forEach((n,i) => { if(n) lines.push((i+1)+'티어 '+TOWERS[t].material+' ×'+n); });
+    loot.materials[t].forEach((n,i) => { if(n) lines.push((i+1)+'등급 '+TOWERS[t].material+' ×'+n); });
     loot.tickets[t].forEach((n,i) => { if(n) lines.push(TOWERS[t].name+' '+(i+1)+'층 입장권 ×'+n); });
   }
   for (const [id,n] of Object.entries(loot.skillBooks)) if(n) lines.push(bookName(id)+' ×'+n);

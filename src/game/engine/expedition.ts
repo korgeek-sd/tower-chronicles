@@ -19,7 +19,7 @@ export function enter(s:GameState,tower:Tower,floor:number):GameState {
   n.logs=[];n.lastExpedition=null;
   const association=n.association.associations.find(a=>a.associationId===n.association.currentId&&a.status==='ACTIVE');
   const jobRuntime=createBattleJobRuntime(n.currentJobId),monster=monsterFor(tower,floor);
-  n.expedition={events:initialEvents(),revenueShareSnapshot:{associationId:association?.associationId??null,rate:association?.revenueShareRatePercent??0},tower,floor,hp:stats(n).hp,monster,monsterRuntime:createMonsterRuntime(monster),reactivePrepared:emptyReactivePrepared(),bag,time:0,playerTimer:0,enemyTimer:0,spawnAt:0,cooldowns:{},buffs:{},playerEffects:[],monsterEffects:[],preparedEffects:[],effectSequence:0,jobSnapshotId:jobRuntime.jobId,jobRuntime,kills:0,loot:emptyLoot(),equipment:{...n.equipped},returnRequested:false,bossTracking:initialBossTracking(),phase:'PLAYER_TURN',playerTurn:1,monsterTurn:0,pendingFlee:false,pendingRevival:null};
+  n.expedition={events:initialEvents(),revenueShareSnapshot:{associationId:association?.associationId??null,rate:association?.revenueShareRatePercent??0},tower,floor,hp:stats(n).hp,monster,monsterRuntime:createMonsterRuntime(monster),reactivePrepared:emptyReactivePrepared(),bag,time:0,playerTimer:0,enemyTimer:0,spawnAt:0,cooldowns:{},buffs:{},playerEffects:[],monsterEffects:[],preparedEffects:[],effectSequence:0,jobSnapshotId:jobRuntime.jobId,jobRuntime,kills:0,loot:emptyLoot(),equipment:{...n.equipped},returnRequested:false,bossTracking:initialBossTracking(),phase:'PLAYER_TURN',playerTurn:1,monsterTurn:0,pendingFlee:false,pendingRevival:null,rewardClaimed:false};
   log(n,TOWERS[tower].name+' '+floor+'층 · 입장권 1장 사용');
   log(n,n.expedition.monster.name+' 등장');
   n.notice='획득물은 원정 가방에 임시 보관됩니다. 안전 귀환해야 내 재산이 됩니다.';
@@ -76,6 +76,5 @@ export function leave(s:GameState,dead=false):GameState {
   for(const p of potionIds)if(e.bag[p])log(n,(dead?'소멸: ':'반환: ')+POTIONS[p].name+' 포션 ×'+e.bag[p]);
   return n;
 }
-
 
 
