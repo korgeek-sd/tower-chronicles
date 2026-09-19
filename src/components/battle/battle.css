@@ -14,3 +14,30 @@
 
 .boss-tracker{margin:10px 0;padding:12px;border:1px solid #675337;background:#12100d;border-radius:8px}.boss-tracker>div:first-child{display:flex;justify-content:space-between;color:#e4bd72}.boss-tracker small{display:block;color:#988b76;margin-top:7px}.boss-progress{height:9px;background:#252017;border-radius:9px;overflow:hidden;margin-top:8px}.boss-progress i{display:block;height:100%;background:linear-gradient(90deg,#9f6934,#e0ad55);transition:width .25s}.boss-encounter{position:relative;z-index:3;margin:-180px 18px 45px;padding:22px;text-align:center;border:1px solid #b68a4c;border-radius:10px;background:rgba(12,10,8,.96);box-shadow:0 12px 40px #000}.boss-encounter>span{font-size:11px;color:#e5b45f;letter-spacing:2px}.boss-encounter h2{margin:7px 0;font-size:25px}.boss-encounter p{color:#b7aca0}.boss-encounter>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}.boss-encounter .primary{margin:0;min-height:44px}.tracking-return-warning{text-align:center;color:#d7a76b;font-size:11px;margin:10px 0}
 
+
+
+/* Battle FX queue: character-local hit feedback only; never shakes the whole scene. */
+.player-placement,.monster-placement{overflow:visible}
+.actor-fx-layer{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:visible}
+.actor-fx-layer .impact-fx{position:absolute;left:50%;top:48%;width:44%;height:44%;transform:translate(-50%,-50%);opacity:0;image-rendering:pixelated;animation:impact-pop 260ms steps(4,end) forwards}
+.actor-fx-layer .floating-number{left:50%;top:7%;transform:translateX(-50%);white-space:nowrap;z-index:10}
+.actor-fx-layer .floating-number.damage{color:#e9c4a4}.actor-fx-layer .floating-number.heal{color:#9bc9ad}.actor-fx-layer .floating-number.break{color:#dfad68;font-size:18px}
+.player-figure.is-hit.shake-light,.monster-figure.is-hit.shake-light{animation:character-hit-light 120ms steps(3,end)}
+.player-figure.is-hit.shake-normal,.monster-figure.is-hit.shake-normal{animation:character-hit-normal 165ms steps(4,end)}
+.player-figure.is-hit.shake-heavy,.monster-figure.is-hit.shake-heavy{animation:character-hit-heavy 225ms steps(5,end)}
+.impact-slash:before,.impact-heavy_hit:before,.impact-heavy_hit:after{content:'';position:absolute;left:8%;right:8%;top:48%;height:4px;background:#d7cab2;box-shadow:0 3px #6f5547;transform:rotate(-34deg);transform-origin:center}
+.impact-heavy_hit:after{transform:rotate(34deg);background:#b98a69}
+.impact-stab:before,.impact-arrow:before{content:'';position:absolute;left:5%;right:15%;top:49%;height:3px;background:#c6baa5;box-shadow:0 2px #66564a}
+.impact-arrow:after{content:'';position:absolute;right:8%;top:42%;width:10px;height:10px;border-top:3px solid #c6baa5;border-right:3px solid #c6baa5;transform:rotate(45deg)}
+.impact-magic_burst:before,.impact-haste:before,.impact-heal:before{content:'';position:absolute;left:50%;top:50%;width:28%;height:28%;transform:translate(-50%,-50%) rotate(45deg);border:4px solid #b8b09d;box-shadow:14px 0 0 -10px #786f61,-14px 0 0 -10px #786f61,0 14px 0 -10px #786f61,0 -14px 0 -10px #786f61}
+.impact-heal:before{border-color:#91b29a}.impact-haste:before{border-color:#9f98aa}
+.impact-shield_hit:before,.impact-shield_cast:before,.impact-guard:before{content:'';position:absolute;inset:14%;border:4px solid #9ca8a5;clip-path:polygon(50% 0,92% 18%,82% 77%,50% 100%,18% 77%,8% 18%)}
+.impact-shield_hit:after{content:'';position:absolute;left:20%;right:20%;top:49%;height:3px;background:#d6c5a9;transform:rotate(-18deg)}
+.impact-poison:before{content:'';position:absolute;left:34%;top:30%;width:10px;height:10px;background:#7b8068;box-shadow:20px 13px #686e5b,-9px 27px #858673}
+.impact-bleed:before,.impact-armor_break:before{content:'';position:absolute;left:44%;top:27%;width:7px;height:28px;background:#8b4d43;transform:rotate(27deg);box-shadow:19px 12px #72453e,-17px 15px #9b6350}
+.impact-armor_break:before{background:#a98c67;box-shadow:22px 10px #716453,-21px 17px #8b755b,5px 30px #b39b79}
+@keyframes character-hit-light{0%,100%{transform:translateX(0);filter:brightness(1)}30%{transform:translateX(-2px);filter:brightness(1.35)}65%{transform:translateX(2px)}}
+@keyframes character-hit-normal{0%,100%{transform:translateX(0);filter:brightness(1)}20%{transform:translateX(-5px);filter:brightness(1.48)}45%{transform:translateX(4px)}70%{transform:translateX(-2px)}}
+@keyframes character-hit-heavy{0%,100%{transform:translate(0,0);filter:brightness(1)}18%{transform:translate(-7px,1px);filter:brightness(1.6)}38%{transform:translate(6px,-1px)}60%{transform:translate(-4px,0)}80%{transform:translate(2px,0)}}
+@keyframes impact-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}18%,70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.actor-fx-layer .impact-fx,.player-figure.is-hit,.monster-figure.is-hit{animation:none!important}.actor-fx-layer .impact-fx{opacity:1}}

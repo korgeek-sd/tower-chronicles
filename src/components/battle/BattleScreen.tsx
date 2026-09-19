@@ -14,15 +14,16 @@ import {activeShield,EFFECTS} from '../../game/engine/effects';
 import {resolvePlayerCombatKit} from '../../game/jobs/service';
 import {preparedMonsterSkill} from '../../game/engine/monsterAi';
 import {reactivePreparedSkill} from '../../game/engine/reactions';
+import type {BattleFxPlaybackEvent} from './battleFxPresentation';
 
-type Props={game:GameState;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void};
+type Props={game:GameState;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void;fxEvents:BattleFxPlaybackEvent[];presentationBusy:boolean};
 const art:Record<string,string>={heavy:'skill-heavy',execute:'skill-execute',guard:'skill-guard',quick:'skill-quick'};
-export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival}:Props){
+export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival,fxEvents,presentationBusy}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment),[menu,setMenu]=useState(false),[itemsOpen,setItemsOpen]=useState(false),prepared=preparedMonsterSkill(e.monster,e.monsterRuntime),monsterReactive=reactivePreparedSkill(e,'monster'),playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),monsterShield=activeShield(e,'monster');
- const buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
+ const buffs=e.playerEffects,playerTurn=canPlayerAct(game)&&!presentationBusy,skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const cards=skillIds.map((id,i)=>{const skill=SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;return <button type="button" disabled={!skill||!canUseSkill(game,id||'')} className={'battle-card art-'+(id||'empty')+(mismatch?' unavailable':'')} key={i} onClick={()=>skill&&onSkill(skill.id)} aria-label={`${skill?.name||'미구현 스킬'}, ${turns}턴 대기`}><div className="card-art">{skill?<img src={`./assets/ui/inventory/${art[skill.id]}.svg?v=2`} alt={`${skill.name} 아이콘`}/>:<span>◇</span>}<span className="turn-badge" title="내 플레이어 턴 기준 남은 턴">⌛ {turns}</span></div><strong>{skill?.name||'전투 키트 미구현'}</strong><small>{mismatch?'무기 불일치':skill?.effect==='damage'?'직접 사용':skill?'자신 강화':'미장착'}</small></button>;});
  return <div className="battle-screen immersive-battle">
-  <BattleScene expedition={e} playerMaxHp={st.hp} appearanceId={game.cosmetics.selectedAppearanceId} titleName={titleById(game.cosmetics.selectedTitleId||'')?.name}/>
+  <BattleScene expedition={e} playerMaxHp={st.hp} appearanceId={game.cosmetics.selectedAppearanceId} titleName={titleById(game.cosmetics.selectedTitleId||'')?.name} fxEvents={fxEvents}/>
   <div className="battle-topbar"><div className="battle-currency"><span>◈</span><b>{game.silver.toLocaleString()}</b><small>Silver</small></div><div className="battle-currency gold"><img className="currency-art" src="./assets/ui/navigation/gold.png" alt=""/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></div><button className="battle-menu-toggle" onClick={()=>setMenu(!menu)} aria-label="전투 메뉴" aria-expanded={menu}>☰</button></div>
   <div className="battle-location"><img className="navigation-art" src="./assets/ui/navigation/towers.png" alt=""/><h1>{TOWERS[e.tower].name}</h1><b>{e.floor}F <small>/ 10F · {e.floor<=2?'SAFE · PK 불가':e.floor<=5?'PK 가능':'보스 구간'}</small></b></div>
   <div className="battle-route" aria-label={`현재 ${e.floor}층`}><div>{Array.from({length:10},(_,i)=>{const floor=i+1;return <i key={floor} className={i===e.floor-1?'current':i<e.floor-1?'passed':''}>{floor>=6?'♜':'◆'}</i>;})}</div><p>{e.floor<=2?'SAFE · PK 불가':e.floor<=5?'일반 경쟁 구간 · PK 가능':'보스 구간 · 일반 탐사 및 보스 조우'}</p></div>

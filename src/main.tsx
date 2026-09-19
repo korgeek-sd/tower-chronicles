@@ -19,6 +19,8 @@ import {initialState,stats,itemName,itemSlot,equip,weaponOf,equippedItem,mastery
 import {enter,leave,requestReturn,finishExpedition,startExpedition} from './game/engine/expedition';
 import {masteryPercent,masteryRequired} from './game/engine/gearMastery';
 import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resolveRevivalDecision} from './game/engine/combat';
+import {createBattleFxCollector,type BattleFxCollector} from './game/engine/battleFx';
+import {useBattleFxQueue} from './components/battle/useBattleFxQueue';
 import {startCraft,cost,discount,materialFor,settleCrafting,cancelCraft,claimCraft,claimAllCraft,GOLDEN_RECORDER_CRAFT_QUEUE_LIMIT} from './game/engine/crafting';
 import {monsterFor} from './game/engine/drops';
 import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
@@ -60,6 +62,8 @@ const [page,setPage]=useState<Page>(game.expedition||game.lastExpedition?'battle
 const wasExpedition=useRef(!!game.expedition);
 const [tower,setTower]=useState<Tower>('ore');const [floor,setFloor]=useState(1);const [field,setField]=useState<Field>('weapon');const [tier,setTier]=useState(1);
 const stateRef=useRef(game);stateRef.current=game;
+const battleFx=useBattleFxQueue();
+const battleActionLock=useRef(false);
 useEffect(()=>{window.scrollTo(0,0);if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
 useEffect(()=>{
   if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');
@@ -69,16 +73,42 @@ useEffect(()=>registerGameTools(()=>({silver:stateRef.current.silver,materials:s
 const [saved,setSaved]=useState('');const logBox=useRef<HTMLDivElement>(null);
 useEffect(()=>{if(blocked.current){setStorageError('기존 저장 데이터를 읽지 못해 덮어쓰기를 중단했습니다. 브라우저 저장소를 확인한 뒤 다시 여세요.');return;}try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA 저장됨':'자동 저장됨');}catch{setStorageError('저장 공간을 사용할 수 없습니다. 이 창을 닫으면 진행 상황이 사라질 수 있습니다.');}},[game]);
 useEffect(()=>{const id=setInterval(()=>{if(!document.hidden)setGame(settleCrafting);},1000);return()=>clearInterval(id);},[]);
-// The delay is presentation only: the engine accepts exactly one pending monster
-// turn, so clicks, speed, or elapsed wall-clock time cannot add extra actions.
-useEffect(()=>{if(game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),1000);return()=>window.clearTimeout(id);},[game.expedition?.phase,game.expedition?.pendingRevival]);
+// Battle resolution stays synchronous; this waits only for the presentation queue.
+useEffect(()=>{
+  if(game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival||battleFx.busy)return;
+  const id=window.setTimeout(()=>{
+    const current=stateRef.current;
+    if(current.expedition?.phase!=='MONSTER_TURN'||current.expedition.pendingRevival)return;
+    const collector=createBattleFxCollector();
+    const next=resolveMonsterTurn(current,collector);
+    if(next===current)return;
+    stateRef.current=next;
+    flushSync(()=>{battleFx.enqueue(collector.events,'MONSTER_ACTION');setGame(next);});
+  },220);
+  return()=>window.clearTimeout(id);
+},[game.expedition?.phase,game.expedition?.pendingRevival,battleFx.busy,battleFx.enqueue]);
+useEffect(()=>{if(!game.expedition||(game.expedition.phase==='PLAYER_TURN'&&!battleFx.busy))battleActionLock.current=false;},[game.expedition?.phase,battleFx.busy]);
 useEffect(()=>{logBox.current?.scrollTo(0,logBox.current.scrollHeight);},[game.logs.length,game.expedition?.time,page]);
 const eventOpen=!!game.expedition?.events.pendingEvent;
 const exp=game.expedition,st=stats(game,exp?.equipment),w=WEAPONS[weaponOf(game,exp?.equipment)],golden=getGoldenRecorderBenefits(game,now),goldenActive=isGoldenRecorderActive(game,now),presetLimit=getGoldenPresetSlotLimit(game,now);
 function move(p:Page){if(exp?.pendingRevival)return;setPage(p==='towers'&&exp?'battle':p);}
 function acceptImportedSave(next:GameState){blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('백업에서 복구됨');setPage(next.expedition||next.lastExpedition?'battle':'home');}
 function commitEvent(action:(state:GameState)=>GameState){if(blocked.current)throw Error('저장 차단');const current=stateRef.current,next=action(current);if(next===current)return;createRepository(localStorage).save(next);stateRef.current=next;flushSync(()=>setGame(next));}
-function takeBattleTurn(action:(state:GameState)=>GameState){setGame(action);}
+function takeBattleTurn(action:(state:GameState,fx:BattleFxCollector)=>GameState,source:'PLAYER_ACTION'|'SYSTEM'='PLAYER_ACTION'){
+  if(battleActionLock.current||battleFx.busy)return;
+  battleActionLock.current=true;
+  const current=stateRef.current,collector=createBattleFxCollector(),next=action(current,collector);
+  if(next===current){battleActionLock.current=false;return;}
+  stateRef.current=next;
+  flushSync(()=>{battleFx.enqueue(collector.events,source);setGame(next);});
+}
+function takeRevivalDecision(use:boolean){
+  if(battleFx.busy)return;
+  const current=stateRef.current,collector=createBattleFxCollector(),next=resolveRevivalDecision(current,use,collector);
+  if(next===current)return;
+  stateRef.current=next;
+  flushSync(()=>{battleFx.enqueue(collector.events,'SYSTEM');setGame(next);});
+}
 function updateBag(p:Potion,value:number){setGame(s=>({...s,loadout:{...s.loadout,[p]:Math.max(0,Math.min(s.potions[p],Math.floor(value)||0))}}));}
 const recipes=field==='weapon'?Object.keys(WEAPONS):field==='armor'?['armor','boots']:field==='accessory'?Object.keys(PASSIVES):potionIds.filter(p=>p!=='revival'&&POTIONS[p].tier===tier);
 const card=(title:string,body:React.ReactNode)=><section className="panel" key={title}><h2>{title}</h2>{body}</section>;
@@ -99,7 +129,7 @@ return <div className={page==='battle'&&exp?(eventOpen?'app event-mode':'app bat
 {page==='floor'&&<><button className="back" onClick={()=>setPage('towers')}>← 탑 선택</button><h1>{TOWERS[tower].name} 원정 준비</h1><p className="muted">탑 관문을 통과하기 전에 장비와 원정 가방을 확인하세요.</p>{tower==='ore'&&<section className="panel entry-permit-card"><div className="section-heading"><h2>{ENTRY_PERMITS.ore.name}</h2><span className={game.tickets.ore[0]>0?'badge':'danger'}>× {game.tickets.ore[0]}</span></div><p className="muted">소모품 · 탐사 허가증</p><p>{ENTRY_PERMITS.ore.description}</p><small>필요 × 1 · 탐사 시작 시에만 소비됩니다.</small></section>}<RegionBackgrounds key={tower} tower={tower}/>{card('원정 프리셋',<><p className="muted">장비 4부위, 자동 스킬 3개, 포션 휴대량과 자동사용 기준을 저장합니다.</p>{game.expeditionPresets.map((preset,i)=>{const slot=i+1,open=canAccessPresetSlot(slot,presetLimit);return <div className={'preset-row '+(!open?'locked':'')} key={slot}><div><strong>{slot}. {preset?.name||`빈 프리셋 ${slot}`}</strong><small>{open?(preset?'저장된 원정 준비 설정':'현재 설정을 저장할 수 있습니다.'):'황금기록자 전용 · 데이터 보존'}</small></div>{open?<div>{preset&&<button disabled={!!exp} onClick={()=>setGame(s=>applyPreset(s,slot,presetLimit))}>불러오기</button>}<button disabled={!!exp} onClick={()=>setGame(s=>savePreset(s,slot,preset?.name,presetLimit))}>{preset?'덮어쓰기':'현재 설정 저장'}</button>{preset&&<button disabled={!!exp} onClick={()=>{const name=window.prompt('프리셋 이름',preset.name);if(name!==null)setGame(s=>renamePreset(s,slot,name,presetLimit));}}>이름 변경</button>}</div>:<b>잠김</b>}</div>;})}{exp&&<p className="danger">원정 중에는 프리셋을 변경할 수 없습니다.</p>}</>)}{card('목표 층',<><div className="floor-select"><button aria-label="이전 층" onClick={()=>setFloor(Math.max(1,floor-1))}>−</button><label><select aria-label="목표 층" value={floor} onChange={e=>setFloor(+e.target.value)}>{Array.from({length:CONFIG.maxFloor},(_,i)=><option key={i} value={i+1}>{i+1}층 · 입장권 {game.tickets[tower][i]}장</option>)}</select><small>{floor<=2?'SAFE · PK 불가':floor<=5?'PK 가능 구간':'보스 구간'} · {TOWERS[tower].material}</small></label><button aria-label="다음 층" onClick={()=>setFloor(Math.min(CONFIG.maxFloor,floor+1))}>+</button></div><div className="mini-stats"><span>적 HP <b>{monsterFor(tower,floor).hp}</b></span><span>적 공격 <b>{monsterFor(tower,floor).attack.toFixed(0)}</b></span><span>적 방어 <b>{monsterFor(tower,floor).defense.toFixed(0)}</b></span><span>공격/초 <b>{monsterFor(tower,floor).speed.toFixed(2)}</b></span></div></>)}
 {card('원정 가방',<><p className="muted">일반 회복 포션 <b className={generalPotionIds.reduce((sum,p)=>sum+game.loadout[p],0)>CONFIG.generalPotionLimit?'danger':''}>{generalPotionIds.reduce((sum,p)=>sum+game.loadout[p],0)} / {CONFIG.generalPotionLimit}</b></p>{potionIds.map(p=><div className="potion-row" key={p}><span className="potion-icon">{POTIONS[p].icon}</span><label htmlFor={'bag-'+p}>{POTIONS[p].name} 포션<small>T{POTIONS[p].tier} · 창고 {game.potions[p]}개{p==='revival'?' · 휴대 '+game.loadout.revival+' / '+CONFIG.revivalPotionLimit:''}</small></label><input id={'bag-'+p} type="number" min="0" disabled={!!exp||game.potions[p]===0} max={p==='revival'?Math.min(game.potions[p],CONFIG.revivalPotionLimit):game.potions[p]} value={game.loadout[p]} onChange={e=>updateBag(p,+e.target.value)}/></div>)}<label className="setting">기존 회복 기준(현재 수동 전투 미사용)<select value={game.threshold} onChange={e=>setGame(s=>({...s,threshold:+e.target.value}))}>{[30,50,70,0].map(x=><option value={x} key={x}>{x?'HP '+x+'% 이하':'사용 안 함'}</option>)}</select></label><small className="muted">일반 회복 포션은 전투 중 직접 사용합니다. 회생 포션은 치명상 시 선택창이 열립니다.</small></>)}
 <div className="note">입장권 1장은 탐사 시작 순간 소비됩니다. 안전 귀환 시 획득물과 남은 포션을 보관합니다. 사망 시 이번 원정 획득물과 남은 원정 포션이 모두 소멸합니다.</div><button className="primary" disabled={!game.tickets[tower][0]||generalPotionIds.reduce((sum,p)=>sum+game.loadout[p],0)>CONFIG.generalPotionLimit} onClick={()=>{const n=startExpedition(game,tower);setGame(n);if(n.expedition)setPage('battle');}}>{tower==='ore'?'탐사 시작':'입장'} <span>{tower==='ore'?`${ENTRY_PERMITS.ore.name} ${game.tickets.ore[0]}장 보유`:`${game.tickets[tower][0]}장 보유`} →</span></button></>}
-{page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} onHome={()=>setPage('home')} onChoice={(instance,choice)=>commitEvent(s=>resolveEvent(s,instance,choice))} onContinue={instance=>commitEvent(s=>continueEvent(s,instance))} onReturn={()=>commitEvent(finishExpedition)} onRevival={(use:boolean)=>setGame(s=>resolveRevivalDecision(s,use))}/>:<BattleScreen onHome={()=>setPage('home')} game={game} onBasicAttack={()=>takeBattleTurn(basicAttack)} onSkill={id=>takeBattleTurn(s=>useBattleSkill(s,id))} onPotion={potion=>takeBattleTurn(s=>useBattlePotion(s,potion))} onFlee={()=>takeBattleTurn(flee)} onRevival={(use:boolean)=>setGame(s=>resolveRevivalDecision(s,use))}/> ):<><div className="section-label">EXPEDITION COMPLETE</div><h1>{game.lastExpedition?.outcome==='dead'?'원정에 실패했습니다.':'안전하게 돌아왔습니다.'}</h1>{game.lastExpedition?<ExpeditionResultPanel result={game.lastExpedition}/>:<div className="panel">{game.notice}</div>}<button className="primary" onClick={()=>setPage('inventory')}>영구 보관함 확인 →</button><button className="wide-link" onClick={()=>setPage('towers')}>다음 원정 준비 →</button></>)}
+{page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} onHome={()=>setPage('home')} onChoice={(instance,choice)=>commitEvent(s=>resolveEvent(s,instance,choice))} onContinue={instance=>commitEvent(s=>continueEvent(s,instance))} onReturn={()=>commitEvent(finishExpedition)} onRevival={(use:boolean)=>setGame(s=>resolveRevivalDecision(s,use))}/>:<BattleScreen onHome={()=>setPage('home')} game={game} fxEvents={battleFx.activeEvents} presentationBusy={battleFx.busy} onBasicAttack={()=>takeBattleTurn((s,fx)=>basicAttack(s,undefined,fx))} onSkill={id=>takeBattleTurn((s,fx)=>useBattleSkill(s,id,undefined,fx))} onPotion={potion=>takeBattleTurn((s,fx)=>useBattlePotion(s,potion,undefined,fx))} onFlee={()=>takeBattleTurn((s,fx)=>flee(s,undefined,fx))} onRevival={takeRevivalDecision}/> ):<><div className="section-label">EXPEDITION COMPLETE</div><h1>{game.lastExpedition?.outcome==='dead'?'원정에 실패했습니다.':'안전하게 돌아왔습니다.'}</h1>{game.lastExpedition?<ExpeditionResultPanel result={game.lastExpedition}/>:<div className="panel">{game.notice}</div>}<button className="primary" onClick={()=>setPage('inventory')}>영구 보관함 확인 →</button><button className="wide-link" onClick={()=>setPage('towers')}>다음 원정 준비 →</button></>)}
 {page==='inventory'&&<InventoryScreen game={game} setGame={setGame}/>}
 {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave}/>}
 {page==='jobs'&&<JobsScreen game={game} setGame={setGame}/>}

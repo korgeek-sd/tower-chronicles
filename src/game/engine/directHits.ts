@@ -6,5 +6,41 @@ const setHp=(e:Expedition,actor:CombatActor,value:number)=>{if(actor==='player')
 
 export interface DirectHitResolution extends DamageAbsorption {hpBefore:number;hpAfter:number}
 export interface DirectHitResult {remaining:number;total:number;hits:number[];triggerPoints:number;incomingTotal:number;absorbedByShield:number;resolutions:DirectHitResolution[]}
-export function resolveDirectHits(e:Expedition,attacker:CombatActor,target:CombatActor,hitCount:number,damagePerHit:()=>number,onSurvivingDirectHit?:(target:CombatActor,attacker:CombatActor)=>void):DirectHitResult {const values:number[]=[],resolutions:DirectHitResolution[]=[];let triggerPoints=0;for(let index=0;index<Math.max(1,Math.floor(hitCount));index++){if(hp(e,attacker)<=0||hp(e,target)<=0)break;const hpBefore=hp(e,target),absorption=applyIncomingDamage(e,target,Math.max(0,damagePerHit())),dealt=Math.min(hpBefore,absorption.hpDamage),hpAfter=hpBefore-dealt;setHp(e,target,hpAfter);values.push(dealt);resolutions.push({...absorption,hpDamage:dealt,hpBefore,hpAfter});if(absorption.incomingDamage>0)triggerPoints++;if(absorption.incomingDamage>0&&hpAfter>0)onSurvivingDirectHit?.(target,attacker);if(hp(e,attacker)<=0)break;}return {remaining:hp(e,target),total:values.reduce((sum,value)=>sum+value,0),hits:values,triggerPoints,incomingTotal:resolutions.reduce((sum,value)=>sum+value.incomingDamage,0),absorbedByShield:resolutions.reduce((sum,value)=>sum+value.absorbedByShield,0),resolutions};}
 
+export function resolveDirectHits(
+  e:Expedition,
+  attacker:CombatActor,
+  target:CombatActor,
+  hitCount:number,
+  damagePerHit:()=>number,
+  onSurvivingDirectHit?:(target:CombatActor,attacker:CombatActor)=>void,
+  onResolved?:(resolution:DirectHitResolution,index:number)=>void
+):DirectHitResult {
+  const values:number[]=[];
+  const resolutions:DirectHitResolution[]=[];
+  let triggerPoints=0;
+  for(let index=0;index<Math.max(1,Math.floor(hitCount));index++){
+    if(hp(e,attacker)<=0||hp(e,target)<=0)break;
+    const hpBefore=hp(e,target);
+    const absorption=applyIncomingDamage(e,target,Math.max(0,damagePerHit()));
+    const dealt=Math.min(hpBefore,absorption.hpDamage);
+    const hpAfter=hpBefore-dealt;
+    setHp(e,target,hpAfter);
+    const resolution:DirectHitResolution={...absorption,hpDamage:dealt,hpBefore,hpAfter};
+    values.push(dealt);
+    resolutions.push(resolution);
+    if(absorption.incomingDamage>0)triggerPoints++;
+    onResolved?.(resolution,index);
+    if(absorption.incomingDamage>0&&hpAfter>0)onSurvivingDirectHit?.(target,attacker);
+    if(hp(e,attacker)<=0)break;
+  }
+  return {
+    remaining:hp(e,target),
+    total:values.reduce((sum,value)=>sum+value,0),
+    hits:values,
+    triggerPoints,
+    incomingTotal:resolutions.reduce((sum,value)=>sum+value.incomingDamage,0),
+    absorbedByShield:resolutions.reduce((sum,value)=>sum+value.absorbedByShield,0),
+    resolutions
+  };
+}
