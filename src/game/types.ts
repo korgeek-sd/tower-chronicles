@@ -9,7 +9,7 @@ export type Tower = 'ore'|'leather'|'gem'|'kaleon';
 export type GearMasteryKey = Weapon|'armor'|'boots'|'accessory';
 export type Bag = Record<Potion,number>;
 export interface Item {id:string; kind:string; tier:number; enhancement:0|1|2|3}
-export interface Stats {hp:number;attack:number;defense:number;speed:number;skillPower:number}
+export interface Stats {hp:number;attack:number;defense:number;speed:number;skillPower:number;critChance?:number;critDamage?:number;attackHits?:number}
 export interface Monster extends Stats {name:string;currentHp:number;definitionId?:string}
 export interface BossTracking {progress:number;pendingBossId:string|null;encounterReason:'early'|'max'|null;bossDefeated:boolean}
 export interface ExpeditionPreset {name:string;equipment:Record<Slot,string|null>;skills:[string|null,string|null,string|null];potions:Bag;threshold:number}
@@ -29,12 +29,12 @@ export interface ExpeditionResult {outcome:'returned'|'dead';tower:Tower;floor:n
 export type BattlePhase='PLAYER_TURN'|'MONSTER_TURN'|'BATTLE_END';
 export type EffectCategory='BUFF'|'DEBUFF'|'SPECIAL';export type EffectBehavior='STAT_MODIFIER'|'PERIODIC_DAMAGE'|'PERIODIC_HEAL'|'SHIELD'|'TURN_START_TRIGGER'|'TURN_END_TRIGGER'|'PREPARED_REACTION'|'PREPARED_DELAYED'|'CONTROL';export type EffectTag='DOT'|'HOT'|'POISON'|'BLEED'|'REGEN'|'STAT_UP'|'STAT_DOWN'|'CONTROL'|'STUN'|'PREPARED'|'SHIELD';export type StackingPolicy='REFRESH_DURATION'|'REPLACE'|'STACK'|'IGNORE_IF_ACTIVE';
 export interface EffectThresholdReaction {threshold:number;removeSelf?:boolean;removeEffectIds?:string[];applyEffectIds?:string[];message?:string}
-export interface EffectDefinition {id:string;name:string;description:string;category:EffectCategory;behavior:EffectBehavior;tags:EffectTag[];defaultDuration:number;stackingPolicy:StackingPolicy;maxStacks?:number;shieldAmount?:number;scope?:'BATTLE'|'EXPEDITION';payload?:{stat?:'attack'|'defense'|'receivedDamage';multiplier?:number;amount?:number};thresholdReaction?:EffectThresholdReaction}
-export interface ActiveEffect {instanceId:string;effectId:string;sourceActorId:'player'|'monster';targetActorId:'player'|'monster';remainingDuration:number;stackCount:number;applicationSequence:number;createdTurn:number;scope:'BATTLE'|'EXPEDITION';currentShield?:number}
+export interface EffectDefinition {id:string;name:string;description:string;category:EffectCategory;behavior:EffectBehavior;tags:EffectTag[];defaultDuration:number;stackingPolicy:StackingPolicy;maxStacks?:number;shieldAmount?:number;shieldHits?:number;scope?:'BATTLE'|'EXPEDITION';payload?:{stat?:'attack'|'defense'|'receivedDamage';multiplier?:number;amount?:number};thresholdReaction?:EffectThresholdReaction}
+export interface ActiveEffect {instanceId:string;effectId:string;sourceActorId:'player'|'monster';targetActorId:'player'|'monster';remainingDuration:number;stackCount:number;applicationSequence:number;createdTurn:number;scope:'BATTLE'|'EXPEDITION';currentShield?:number;currentShieldHits?:number}
 export interface BattleJobRuntime {jobId:string|null;passiveIds:[string,string]|[];activeSkillIds:[string,string,string]|[];resource:{id:string;value:number;maxValue?:number}|null}
 export interface MonsterBattleRuntime {definitionId:string;skillCooldowns:Record<string,number>;preparedActionId:string|null;turnNumber:number}
 export type CombatActor='player'|'monster';
-export type CombatContinuationStep={kind:'DIRECT_HITS';attacker:CombatActor;remainingHits:number;multiplier:number;allowReactive:boolean}|{kind:'SKILL_EFFECTS';actor:CombatActor;effects:{effectId:string;target:'SELF'|'TARGET'}[]}|{kind:'AFTER_PLAYER_ACTION'}|{kind:'AFTER_PLAYER_PERIODIC'}|{kind:'AFTER_MONSTER_ACTION'}|{kind:'AFTER_EVENT_RESULT'};
+export type CombatContinuationStep={kind:'DIRECT_HITS';attacker:CombatActor;remainingHits:number;multiplier:number;allowReactive:boolean;defenseDivisor?:number}|{kind:'SKILL_EFFECTS';actor:CombatActor;effects:{effectId:string;target:'SELF'|'TARGET'}[]}|{kind:'AFTER_PLAYER_ACTION'}|{kind:'AFTER_PLAYER_PERIODIC'}|{kind:'AFTER_MONSTER_ACTION'}|{kind:'AFTER_EVENT_RESULT'};
 export interface PendingRevivalDecision {source:'DIRECT_HIT'|'PERIODIC_DAMAGE'|'EVENT_DAMAGE';steps:CombatContinuationStep[]}
 export interface ReactivePreparedRuntime {definitionId:string;prepareSkillId:string;reactionSkillId:string;trigger:'DIRECT_HIT_RECEIVED'}
 export type ReactivePreparedByActor=Record<CombatActor,ReactivePreparedRuntime|null>;

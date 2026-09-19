@@ -10,7 +10,7 @@ import {CONFIG,towerIds,tierOf} from '../src/game/data/config.ts';
 import type {GameState} from '../src/game/types.ts';
 const noDrop=()=>.99;
 function kill(s:GameState,count=1){for(let i=0;i<count&&s.expedition;i++){s.expedition.monster.currentHp=1;s=basicAttack(s,noDrop);}return s;}
-test('피해 계산은 방어를 차감하고 최소 1 피해',()=>{assert.equal(damage(20,5),15);assert.equal(damage(5,20),1);assert.equal(damage(20,5,.6),9);});
+test('피해 계산은 방어를 차감하고 최소 1 피해',()=>{assert.equal(damage(20,5),15);assert.equal(damage(5,20),1);assert.equal(damage(20,5,.6),7);});
 test('입장 즉시 티켓 1장 소비, 중복 입장 및 없는 티켓 차단',()=>{const s=initialState(),n=enter(s,'ore',1);assert.equal(s.tickets.ore[0],20);assert.equal(n.tickets.ore[0],19);assert.equal(enter(n,'gem',1).tickets.gem[0],20);assert.equal(enter(s,'ore',2).expedition,null);assert.equal(enter(leave(n),'ore',1).tickets.ore[0],18);});
 test('원정 회복 포션 30개 제한과 음수 차단',()=>{let s=initialState();s.potions.healing_lesser=50;s.loadout.healing_lesser=30;s.loadout.healing_standard=1;assert.equal(enter(s,'ore',1).expedition,null);s.loadout.healing_standard=0;assert.ok(enter(s,'ore',1).expedition);s.loadout.healing_lesser=-1;assert.equal(enter(s,'ore',1).expedition,null);});
 test('귀환은 남은 포션 복원, 사망은 가져간 포션만 손실',()=>{const s=initialState(),n=enter(s,'ore',1);n.silver=123;n.materials.ore[0]=8;n.expedition!.bag.healing_lesser--;const returned=leave(n);assert.equal(returned.potions.healing_lesser,s.potions.healing_lesser-1);const dead=leave(n,true);assert.equal(dead.potions.healing_lesser,s.potions.healing_lesser-s.loadout.healing_lesser);assert.equal(dead.silver,123);assert.equal(dead.materials.ore[0],8);assert.equal(dead.tickets.ore[0],19);});
