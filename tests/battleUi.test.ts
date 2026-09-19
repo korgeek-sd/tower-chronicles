@@ -16,3 +16,19 @@ test('battle bottom is informational and does not duplicate flee action',()=>{
   assert.doesNotMatch(bottom,/onFlee/);
   assert.doesNotMatch(bottom,/<button/);
 });
+
+test('battle route spans the compact expedition header width',()=>{
+  assert.match(immersiveCss,/\.battle-route\{[^}]*left:4%;right:4%/);
+});
+
+test('enemy facts sit on the upper-right of the battle field',()=>{
+  assert.match(immersiveCss,/\.enemy-facts\{[^}]*left:auto;right:4%/);
+});
+
+test('prepared warning is a full-width strip below the focal fight area',()=>{
+  assert.match(immersiveCss,/\.monster-prepared\{[^}]*left:4%;right:4%;transform:none;max-width:none/);
+});
+
+test('battle state line has a full-width stable reading lane',()=>{
+  assert.match(immersiveCss,/\.battle-state-line\{[^}]*left:4%;right:4%/);
+});
