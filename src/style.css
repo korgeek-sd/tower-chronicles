@@ -107,6 +107,7 @@ nav button:focus-visible{outline:2px solid #c5a56d;outline-offset:-3px}
 /* Mobile game shell: every route stays inside the visible phone viewport. */
 html,body,#root{height:100%;overflow:hidden}
 body{overscroll-behavior:none}
+main{min-height:0;overflow:hidden}
 .app{
   height:100dvh;
   min-height:0;

@@ -6,7 +6,7 @@ function flatten(node:React.ReactNode):React.ReactNode[]{
   const out:React.ReactNode[]=[];
   React.Children.forEach(node,child=>{
     if(child===null||child===undefined||child===false)return;
-    if(React.isValidElement(child)&&child.type===Fragment)out.push(...flatten(child.props.children));
+    if(React.isValidElement(child)&&child.type===Fragment){const fragment=child as React.ReactElement<{children?:React.ReactNode}>;out.push(...flatten(fragment.props.children));}
     else out.push(child);
   });
   return out;
@@ -15,7 +15,8 @@ function flatten(node:React.ReactNode):React.ReactNode[]{
 function weight(node:React.ReactNode){
   if(!React.isValidElement(node))return .25;
   if(typeof node.type!=='string')return 2.1;
-  const cls=String(node.props.className??'');
+  const element=node as React.ReactElement<{className?:string}>;
+  const cls=String(element.props.className??'');
   if(node.type==='section'||cls.includes('panel'))return 1.2;
   if(cls.includes('tower-list'))return 1.8;
   if(cls.includes('note')||cls.includes('notice'))return .65;
