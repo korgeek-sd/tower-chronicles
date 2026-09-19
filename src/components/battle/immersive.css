@@ -23,3 +23,4 @@
 
 
 .battle-dialog-backdrop:has(.revival-dialog){position:fixed;inset:0;z-index:10000;padding:16px;overflow:auto}.battle-encounter.revival-dialog{box-sizing:border-box;width:100%;max-width:390px;max-height:calc(100dvh - 32px);overflow:auto}.battle-encounter.revival-dialog button{box-sizing:border-box;width:100%;margin:8px 0;white-space:normal}.revival-dialog button:last-child{border-color:#9b6258;color:#e1bab2}
+.player-combat-facts{position:absolute;z-index:7;right:3.5%;top:67.2%;width:44%;display:flex;flex-wrap:wrap;gap:3px;font-size:9px;color:#d8d2c5}.player-combat-facts small{width:100%;color:#e5c77d}.player-combat-facts span{padding:2px 4px;border:1px solid #5f665f;background:#080c0ddc}.immersive-battle .floating-number small,.immersive-battle .floating-number b{font-size:9px}.immersive-battle .monster-shield-float{left:68%;top:29%}.immersive-battle .player-shield-float{left:24%;top:58%}
