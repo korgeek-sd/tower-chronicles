@@ -3,7 +3,50 @@ export type JobCombatKit={passiveIds:[string,string];activeSkillIds:[string,stri
 export type JobResourceDefinition={id:string;initialValue:number;maxValue?:number};
 export type JobDefinition={id:string;displayName:string;rarity:JobRarity;description?:string;combatKit?:JobCombatKit;jobResource?:JobResourceDefinition;implementationStatus:'CATALOG_ONLY'|'COMBAT_READY';visualAssetKey?:string};
 const rows:[JobRarity,string,string][]=[['C','contract_mercenary','계약용병'],['C','hunter','사냥꾼'],['C','excavator','굴착인부'],['C','field_medic','야전구호원'],['C','reclaimer','회수업자'],['B','vanguard_explorer','선봉 탐사자'],['B','tracker','추적자'],['B','survivor','생환가'],['B','duelist','결투가'],['B','expedition_medic','탐사 의무관'],['A','executor','집행인'],['A','inquisitor','심문관'],['A','deep_delver','심층 도굴꾼'],['A','bloodfighter','혈전가'],['A','expedition_tactician','원정 전술가'],['SR','berserker','광전사'],['SR','mutagen_doctor','변질의사'],['SR','soulcaster','잔혼술사'],['SR','ascetic_fighter','고행투사'],['SR','field_engineer','현장기술자'],['SSR','dragonblood_knight','용혈기사'],['SSR','sealed_archivist','봉인기록관'],['SSR','corpse_tuner','시체조율사'],['SSR','self_alchemist','자가연성가'],['SSR','black_carriage_gambler','검은수레 승부사']];
-export const JOB_CATALOG:JobDefinition[]=rows.map(([rarity,id,displayName])=>({id,displayName,rarity,implementationStatus:'CATALOG_ONLY'}));
+const COMBAT_READY_JOBS: Record<string, { combatKit: JobCombatKit; jobResource?: JobResourceDefinition }> = {
+  contract_mercenary: {
+    combatKit: {
+      passiveIds: ['mercenary_passive_1', 'mercenary_passive_2'],
+      activeSkillIds: ['mercenary_skill_1', 'mercenary_skill_2', 'mercenary_skill_3'],
+    },
+  },
+  hunter: {
+    combatKit: {
+      passiveIds: ['hunter_passive_1', 'hunter_passive_2'],
+      activeSkillIds: ['hunter_skill_1', 'hunter_skill_2', 'hunter_skill_3'],
+    },
+  },
+  field_medic: {
+    combatKit: {
+      passiveIds: ['field_medic_passive_1', 'field_medic_passive_2'],
+      activeSkillIds: ['field_medic_skill_1', 'field_medic_skill_2', 'field_medic_skill_3'],
+    },
+  },
+  duelist: {
+    combatKit: {
+      passiveIds: ['duelist_passive_1', 'duelist_passive_2'],
+      activeSkillIds: ['duelist_skill_1', 'duelist_skill_2', 'duelist_skill_3'],
+    },
+  },
+  berserker: {
+    combatKit: {
+      passiveIds: ['berserker_passive_1', 'berserker_passive_2'],
+      activeSkillIds: ['berserker_skill_1', 'berserker_skill_2', 'berserker_skill_3'],
+    },
+    jobResource: { id: 'rage', initialValue: 0, maxValue: 100 },
+  },
+};
+
+export const JOB_CATALOG:JobDefinition[]=rows.map(([rarity,id,displayName])=>{
+  const ready = COMBAT_READY_JOBS[id];
+  return {
+    id,
+    displayName,
+    rarity,
+    implementationStatus: ready ? 'COMBAT_READY' : 'CATALOG_ONLY',
+    ...(ready ? { combatKit: ready.combatKit, jobResource: ready.jobResource } : {}),
+  };
+});
 export const jobById=(id:string|null)=>id?JOB_CATALOG.find(job=>job.id===id)??null:null;
 export const JOB_RARITIES:JobRarity[]=['C','B','A','SR','SSR'];
 export const jobsByRarity=(rarity:JobRarity)=>JOB_CATALOG.filter(job=>job.rarity===rarity);

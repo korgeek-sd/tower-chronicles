@@ -36,6 +36,12 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,
   <div className="battle-location"><img className="navigation-art" src="./assets/ui/navigation/towers.png" alt=""/><h1>{TOWERS[e.tower].name}</h1><b>{e.floor}F <small>/ 10F · {e.floor<=2?'SAFE · PK 불가':e.floor<=5?'PK 가능':'보스 구간'}</small></b></div>
   <div className="battle-route" aria-label={`현재 ${e.floor}층`}><div>{Array.from({length:10},(_,i)=>{const floor=i+1;return <i key={floor} className={i===e.floor-1?'current':i<e.floor-1?'passed':''}>{floor>=6?'♜':'◆'}</i>;})}</div><p>{e.floor<=2?'SAFE · PK 불가':e.floor<=5?'일반 경쟁 구간 · PK 가능':'보스 구간 · 일반 탐사 및 보스 조우'}</p></div>
   <aside className="enemy-facts"><small>적 능력</small><span>⚔ {Math.round(e.monster.attack)} <em>공격</em></span><span>⬡ {Math.round(e.monster.defense)} <em>방어</em></span></aside>
+  {e.jobRuntime?.resource && (
+    <aside className="job-resource-facts" aria-label="직업 자원">
+      <small>{e.jobRuntime.resource.id.toUpperCase()}</small>
+      <span>⚡ <b>{e.jobRuntime.resource.value}</b> / {e.jobRuntime.resource.maxValue ?? 100}</span>
+    </aside>
+  )}
   <aside className="player-combat-facts" aria-label="플레이어 전투 능력"><small>{WEAPONS[weapon].name}</small><span>⚔ {Math.round(st.attack)}</span><span>⬡ {Math.round(st.defense)}</span><span>✦ {Math.round((st.critChance??0)*100)}%</span><span>치명 {Math.round((st.critDamage??1)*100)}%</span><span>{st.attackHits??1}타</span><span>스킬 {Math.round(st.skillPower*100)}%</span></aside>
   {(playerShield||monsterShield)&&<div className="shield-status" aria-label="보호막 상태">{playerShield&&<span className="player-shield"><b>⬢ 내 보호막</b>{effectText(playerShield)}</span>}{monsterShield&&<span className="monster-shield"><b>⬢ 적 보호막</b>{effectText(monsterShield)}</span>}</div>}
   {e.monsterEffects.length>0&&<div className="monster-effects" aria-label="몬스터 효과">{e.monsterEffects.map(effect=><span key={effect.instanceId} title={EFFECTS[effect.effectId]?.description}>{effectText(effect)}</span>)}</div>}
