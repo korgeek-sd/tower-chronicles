@@ -14,7 +14,7 @@ test('market browse uses mobile page sizes instead of the old 30-row page',()=>{
   const html=renderToStaticMarkup(React.createElement(MarketScreen,{
     game:initialState(),setGame:()=>{},
   }));
-  assert.equal((html.match(/class="market-row/g)||[]).length,5);
+  assert.equal((html.match(/class="market-row"/g)||[]).length,5);
   assert.match(html,/class="page-stepper"/);
 });
 
