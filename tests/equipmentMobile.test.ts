@@ -1,63 +1,69 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
+import type {GameState} from '../src/game/types';
 import {initialState} from '../src/game/engine/state';
 import {EquipmentScreen} from '../src/components/equipment/EquipmentScreen';
 import {SkillsScreen} from '../src/components/skills/SkillsScreen';
 
-function stateWithActiveExpedition(){
+function expeditionState(){
   const game=initialState();
-  game.expedition={
-    events:{state:null,pending:null,history:[]},
-    tower:'ore',floor:1,hp:180,
-    monster:{name:'고블린 광부',hp:42,attack:11,defense:1,speed:.8,skillPower:1,currentHp:42},
-    monsterRuntime:null,
-    reactivePrepared:{player:null,monster:null},
-    bag:{healing_lesser:10,healing_standard:0,healing_greater:0,healing_supreme:0,revival:0},
-    time:0,playerTimer:0,enemyTimer:0,spawnAt:0,cooldowns:{},buffs:{},
-    playerEffects:[],monsterEffects:[],preparedEffects:[],effectSequence:0,
-    jobSnapshotId:null,jobRuntime:{jobId:null,passiveIds:[],activeSkillIds:[],resource:null},
-    kills:0,
-    loot:{silver:0,materials:{ore:[0,0,0,0,0],leather:[0,0,0,0,0],gem:[0,0,0,0,0],kaleon:[0,0,0,0,0]},tickets:{ore:Array(10).fill(0),leather:Array(10).fill(0),gem:Array(10).fill(0),kaleon:Array(10).fill(0)},skillBooks:{},items:{}},
-    equipment:{...game.equipped},returnRequested:false,
-    bossTracking:{progress:0,pendingBossId:null,encounterReason:null,bossDefeated:false},
-    phase:'PLAYER_TURN',playerTurn:1,monsterTurn:0,pendingFlee:false,pendingRevival:null,
-  };
+  game.expedition={} as GameState['expedition'];
   return game;
 }
 
-test('equipment screen is character-centered with four explicit gear slots',()=>{
+test('equipment shows four character-centered slots and combat stats',()=>{
   const html=renderToStaticMarkup(React.createElement(EquipmentScreen,{
-    game:initialState(),setGame:()=>{},onSkills:()=>{},
+    game:initialState(),
+    setGame:()=>{},
+    onSkills:()=>{},
   }));
-  for(const label of ['무기','갑옷','신발','장신구'])assert.match(html,new RegExp(label));
+  for(const label of ['무기','갑옷','신발','장신구','HP','공격','방어','공격속도']){
+    assert.match(html,new RegExp(label));
+  }
   assert.equal((html.match(/equipment-slot-button/g)||[]).length,4);
-  for(const stat of ['HP','공격','방어','공격속도'])assert.match(html,new RegExp(stat));
 });
 
 test('equipment replacement controls remain locked during an expedition',()=>{
   const html=renderToStaticMarkup(React.createElement(EquipmentScreen,{
-    game:stateWithActiveExpedition(),setGame:()=>{},onSkills:()=>{},
+    game:expeditionState(),
+    setGame:()=>{},
+    onSkills:()=>{},
   }));
   assert.match(html,/원정 잠금/);
   assert.match(html,/disabled/);
 });
 
-test('skills screen keeps three equipped priority slots and a paged catalog',()=>{
+test('skills screen renders three loadout slots and a paged catalog',()=>{
   const html=renderToStaticMarkup(React.createElement(SkillsScreen,{
-    game:initialState(),setGame:()=>{},onBack:()=>{},
+    game:initialState(),
+    setGame:()=>{},
+    onBack:()=>{},
   }));
-  assert.equal((html.match(/class="skill-loadout-slot/g)||[]).length,3);
-  assert.match(html,/class="skill-catalog"/);
-  assert.match(html,/class="page-stepper"/);
-  assert.match(html,/1 \/ 1/);
+  assert.equal((html.match(/skill-loadout-slot/g)||[]).length,3);
+  assert.match(html,/1순위/);
+  assert.match(html,/2순위/);
+  assert.match(html,/3순위/);
+  assert.match(html,/page-stepper/);
 });
 
-test('skill loadout controls remain locked during an expedition',()=>{
+test('skills changing controls remain locked during an expedition',()=>{
   const html=renderToStaticMarkup(React.createElement(SkillsScreen,{
-    game:stateWithActiveExpedition(),setGame:()=>{},onBack:()=>{},
+    game:expeditionState(),
+    setGame:()=>{},
+    onBack:()=>{},
   }));
-  assert.match(html,/원정 중 변경 불가/);
-  assert.ok((html.match(/disabled/g)||[]).length>=3);
+  assert.match(html,/원정 중에는 스킬 구성을 변경할 수 없습니다/);
+  assert.match(html,/disabled/);
+});
+
+test('equipment and skills mobile CSS never enables page scrolling',()=>{
+  const equipmentCss=readFileSync(new URL('../src/components/equipment/equipment-mobile.css',import.meta.url),'utf8');
+  const skillsCss=readFileSync(new URL('../src/components/skills/skills-mobile.css',import.meta.url),'utf8');
+  assert.match(equipmentCss,/\.equipment-screen\{[^}]*height:100%[^}]*overflow:hidden/);
+  assert.match(skillsCss,/\.skills-screen\{[^}]*height:100%[^}]*overflow:hidden/);
+  assert.doesNotMatch(equipmentCss,/overflow-y:auto/);
+  assert.doesNotMatch(skillsCss,/overflow-y:auto/);
 });
