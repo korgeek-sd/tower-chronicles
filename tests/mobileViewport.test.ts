@@ -17,7 +17,7 @@ test('bottom navigation participates in the viewport layout instead of extending
   assert.match(style,/nav\{[^}]*transform:none/);
 });
 
-test('non-battle screens are presented through a no-scroll pager',()=>{
+test('legacy screens retain their no-scroll pager',()=>{
   assert.match(main,/MobileScreenPager/);
   assert.match(style,/\.mobile-screen-pager\{[^}]*overflow:hidden/);
   assert.match(pager,/이전/);

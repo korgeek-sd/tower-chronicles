@@ -7,13 +7,13 @@ import {HomeScreen} from '../src/components/home/HomeScreen';
 import {TowerSelectScreen} from '../src/components/expedition/TowerSelectScreen';
 import {ExpeditionResultScreen} from '../src/components/expedition/ExpeditionResultScreen';
 
-test('home exposes one expedition CTA and four quick actions',()=>{
+test('home exposes one expedition CTA and a compact auxiliary menu',()=>{
   const html=renderToStaticMarkup(React.createElement(HomeScreen,{
     game:initialState(),
     onNavigate:()=>{},
   }));
-  assert.equal((html.match(/탑으로 떠나기/g)||[]).length,1);
-  for(const label of ['직업','외형','저장','숙련'])assert.match(html,new RegExp(label));
+  assert.equal((html.match(/탐사 준비/g)||[]).length,1);
+  assert.match(html,/aria-label="거점 메뉴"/);
   assert.doesNotMatch(html,/원정의 순환/);
 });
 
@@ -22,7 +22,8 @@ test('home character summary shows current combat identity without a long web da
     game:initialState(),
     onNavigate:()=>{},
   }));
-  for(const label of ['HP','공격','방어','검'])assert.match(html,new RegExp(label));
+  for(const label of ['최대 체력','최고 귀환층','무기','검'])assert.match(html,new RegExp(label));
+  assert.doesNotMatch(html,/현재 체력/);
   assert.doesNotMatch(html,/wide-link/);
 });
 

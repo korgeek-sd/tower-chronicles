@@ -27,22 +27,24 @@ test('inventory renders only the standard-height mobile page of 16 slots',()=>{
   assert.match(html,/1 \/ 2/);
 });
 
-test('inventory detail uses the shared bottom sheet instead of a scrolling inventory sheet',()=>{
+test('inventory detail uses a labeled native modal with an explicit close control',()=>{
   const game=initialState();
   const item=inventoryView(game)[0];
   const html=renderToStaticMarkup(React.createElement(InventoryDetailSheet,{
     item,
     onClose:()=>{},
   }));
-  assert.match(html,/class="bottom-sheet"/);
+  assert.match(html,/<dialog class="camp-dialog" aria-label=/);
+  assert.match(html,/aria-label="닫기"/);
   assert.doesNotMatch(html,/inventory-sheet/);
 });
 
 test('inventory mobile layout is fixed to a four-column no-scroll content region',()=>{
   const css=readFileSync(new URL('../src/components/inventory/inventory.css',import.meta.url),'utf8');
   assert.match(css,/\.inventory-screen\{[^}]*height:100%[^}]*grid-template-rows:auto auto auto minmax\(0,1fr\) auto[^}]*overflow:hidden/);
-  assert.match(css,/\.inventory-grid\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)[^}]*overflow:hidden/);
-  assert.match(css,/\.inventory-slot\{[^}]*min-height:44px/);
+  assert.match(css,/\.inventory-grid\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.inventory-grid-space\{[^}]*overflow:hidden/);
+  assert.match(css,/\.inventory-slot,[^{]+\{[^}]*min-height:44px/);
   assert.doesNotMatch(css,/overflow-y:auto/);
 });
 

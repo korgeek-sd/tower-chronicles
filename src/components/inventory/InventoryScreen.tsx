@@ -1,14 +1,13 @@
-import React,{useState,useCallback,useEffect} from 'react';
+import React,{useState,useCallback,useEffect,useRef,useLayoutEffect} from 'react';
 import type {GameState} from '../../game/types';
 import {inventoryView,selectInventory,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
 import {equip} from '../../game/engine/state';
 import {useSkillBook} from '../../game/engine/skills';
 import {registerAppearance} from '../../game/engine/cosmetics';
 import {SKILLS} from '../../game/data/config';
-import {pageSizeFor,pageSlice,clampPageIndex} from '../mobile/mobilePagination';
-import {useViewportHeight} from '../mobile/useViewportHeight';
+import {pageSlice,clampPageIndex} from '../mobile/mobilePagination';
+import {inventoryPageSize,equipmentPreview} from './inventoryPresentation';
 import {PageStepper} from '../mobile/PageStepper';
-import {ScreenHeader} from '../mobile/ScreenHeader';
 import {InventoryToolbar} from './InventoryToolbar';
 import {InventoryTabs} from './InventoryTabs';
 import {InventoryGrid} from './InventoryGrid';
@@ -22,14 +21,20 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
  const [filter,setFilter]=useState<InventoryFilter>({tier:0,status:false});
  const [selected,setSelected]=useState<string|null>(null);
  const [page,setPage]=useState(0);
- const height=useViewportHeight();
- const size=pageSizeFor('inventory',height);
+ const gridSpace=useRef<HTMLDivElement>(null);
+ const [size,setSize]=useState(16);
+ useLayoutEffect(()=>{
+  const el=gridSpace.current;if(!el)return;
+  const update=()=>setSize(inventoryPageSize(el.clientHeight,el.clientWidth));
+  update();const observer=new ResizeObserver(update);observer.observe(el);return()=>observer.disconnect();
+ },[]);
  const items=inventoryView(game);
  const visible=selectInventory(items,category,query,sort,filter);
  const pageCount=Math.max(1,Math.ceil(visible.length/size));
  const safePage=clampPageIndex(page,visible.length,size);
  const pageItems=pageSlice(visible,safePage,size);
  const item=visible.find(i=>i.key===selected);
+ const comparison=item?.category==='equipment'?equipmentPreview(game,item.sourceId):null;
  const close=useCallback(()=>setSelected(null),[]);
 
  useEffect(()=>{
@@ -41,11 +46,13 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
   if(page!==safePage)setPage(safePage);
  },[page,safePage]);
 
+ useEffect(()=>{if(selected&&!item)setSelected(null);},[selected,item]);
+
  let action:(()=>void)|undefined,label='',disabled=false;
  if(item?.category==='equipment'){
   action=()=>setGame(s=>equip(s,item.sourceId));
-  label=item.equipped?'장착 중':game.expedition?'원정 중 변경 불가':'장착';
-  disabled=!!item.equipped||!!game.expedition;
+  label=comparison?.reason||'장착';
+  disabled=!!comparison?.reason;
  }
  if(item?.category==='skillbooks'){
   action=()=>setGame(s=>useSkillBook(s,item.sourceId));
@@ -64,14 +71,16 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
  };
 
  return <section className="inventory-screen">
-  <ScreenHeader title="모험가의 가방" meta={'보유 '+items.length+'종 · 표시 '+visible.length+'종'}/>
+  <div className="inventory-heading"><div><small>소지품</small><h1>가방</h1></div><span>보유 {items.length}종</span></div>
   <InventoryToolbar key={category} {...{query,setQuery,sort,setSort,filter,setFilter,category}}/>
   <InventoryTabs value={category} onChange={c=>{
    setCategory(c);
    setFilter({tier:0,status:false});
   }}/>
-  <InventoryGrid items={pageItems} selected={selected} onSelect={setSelected}/>
+  <div className="inventory-grid-space" ref={gridSpace}>
+   {visible.length?<InventoryGrid items={pageItems} selected={selected} onSelect={setSelected} size={size}/>:<div className="inventory-empty" role="status"><p>조건에 맞는 아이템이 없습니다.</p><button onClick={()=>{setQuery('');setCategory('all');setFilter({tier:0,status:false});}}>전체 아이템 보기</button></div>}
+  </div>
   <PageStepper page={safePage} pageCount={pageCount} onPage={changePage}/>
-  {item&&<InventoryDetailSheet item={item} onClose={close} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet key={item.key} item={item} comparison={comparison} onClose={close} {...{action,label,disabled}}/>}
  </section>;
 }
