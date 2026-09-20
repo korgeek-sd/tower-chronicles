@@ -24,6 +24,12 @@ export const EFFECTS:Record<string,EffectDefinition>={
  fang_wound:{id:'fang_wound',name:'송곳니 출혈',description:'직접 공격을 받으면 누적되는 출혈입니다.',category:'DEBUFF',behavior:'PERIODIC_DAMAGE',tags:['DOT','BLEED'],defaultDuration:3,stackingPolicy:'STACK',maxStacks:3,payload:{amount:6}},
  blood_rite_ward:{id:'blood_rite_ward',name:'혈의식 수호',description:'성소의 수호막입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:60,scope:'BATTLE'},
  red_mantle_shield:{id:'red_mantle_shield',name:'적아 외피',description:'적아의 주인의 외피입니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:75,scope:'BATTLE'},
+ hunter_mark:{id:'hunter_mark',name:'사냥감 표식',description:'추적 중인 사냥감 표식입니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION'},
+ mercenary_guard:{id:'mercenary_guard',name:'방패 올리기',description:'받는 피해가 25% 감소합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.25}},
+ field_medic_regen:{id:'field_medic_regen',name:'지혈 재생',description:'턴당 최대 HP 5%를 회복합니다.',category:'BUFF',behavior:'PERIODIC_HEAL',tags:['HOT','REGEN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:.05}},
+ field_medic_analgesic:{id:'field_medic_analgesic',name:'진통제',description:'받는 피해가 30% 감소합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.3}},
+ duelist_counter_stance:{id:'duelist_counter_stance',name:'받아치기 태세',description:'다음 직접 공격을 반격 준비합니다.',category:'BUFF',behavior:'PREPARED_REACTION',tags:['PREPARED'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION'},
+ berserker_blood_boost:{id:'berserker_blood_boost',name:'피의 대가',description:'공격 피해가 25% 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'attack',multiplier:.25}},
 };
 export type EffectActor='player'|'monster';
 const effectsFor=(e:Expedition,actor:EffectActor)=>actor==='player'?e.playerEffects:e.monsterEffects;

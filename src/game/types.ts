@@ -31,7 +31,7 @@ export type EffectCategory='BUFF'|'DEBUFF'|'SPECIAL';export type EffectBehavior=
 export interface EffectThresholdReaction {threshold:number;removeSelf?:boolean;removeEffectIds?:string[];applyEffectIds?:string[];message?:string}
 export interface EffectDefinition {id:string;name:string;description:string;category:EffectCategory;behavior:EffectBehavior;tags:EffectTag[];defaultDuration:number;stackingPolicy:StackingPolicy;maxStacks?:number;shieldAmount?:number;shieldHits?:number;scope?:'BATTLE'|'EXPEDITION';payload?:{stat?:'attack'|'defense'|'receivedDamage';multiplier?:number;amount?:number};thresholdReaction?:EffectThresholdReaction}
 export interface ActiveEffect {instanceId:string;effectId:string;sourceActorId:'player'|'monster';targetActorId:'player'|'monster';remainingDuration:number;stackCount:number;applicationSequence:number;createdTurn:number;scope:'BATTLE'|'EXPEDITION';currentShield?:number;currentShieldHits?:number}
-export interface BattleJobRuntime {jobId:string|null;passiveIds:[string,string]|[];activeSkillIds:[string,string,string]|[];resource:{id:string;value:number;maxValue?:number}|null}
+export interface BattleJobRuntime {jobId:string|null;passiveIds:[string,string]|[];activeSkillIds:[string,string,string]|[];resource:{id:string;value:number;maxValue?:number}|null;flags?:Record<string,boolean>;counters?:Record<string,number>}
 export interface MonsterBattleRuntime {definitionId:string;skillCooldowns:Record<string,number>;preparedActionId:string|null;turnNumber:number}
 export type CombatActor='player'|'monster';
 export interface CombatEvent {id:number;kind:'DIRECT_DAMAGE';attacker:CombatActor;target:CombatActor;hitIndex:number;hitCount:number;incomingDamage:number;absorbedByShield:number;hpDamage:number;critical:boolean}
