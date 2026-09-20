@@ -10,7 +10,7 @@ import {applyEffect,applyIncomingDamage,clearBattleEffects,expireTurnEffects,mod
 import {resolveBattleJobId,resolvePlayerCombatKit} from '../jobs/service';
 import {jobById} from '../jobs/catalog';
 import {getJobCombatDefinition} from '../jobs/framework';
-import {executeJobSkill,resolveJobDirectHitMultiplier} from '../jobs/resolver';
+import {executeJobSkill,resolveJobDirectHitMultiplier,runJobHook} from '../jobs/resolver';
 import {initFiveJobCombatDefinitions} from '../jobs/definitions';
 
 initFiveJobCombatDefinitions();
@@ -42,7 +42,10 @@ export function canUseSkill(s:GameState,id:string){
     const jobSkill = jobDef.skills.find(sk => sk.id === id);
     if (!jobSkill) return false;
     if (skillTurnsLeft(e, id) > 0) return false;
-    if (id === 'berserker_skill_3' && (e.jobRuntime.resource?.value ?? 0) < 60) return false;
+    if (jobSkill.conditions) {
+      const match = jobSkill.conditions.every(c => (c.kind === 'RESOURCE_GE' ? (e.jobRuntime.resource?.value ?? 0) >= c.amount : true));
+      if (!match) return false;
+    }
     return true;
   }
 
@@ -96,8 +99,8 @@ export function useBattlePotion(state:GameState,potion:Potion,rng:()=>number=ran
   if(!canUsePotion(state,potion))return state;
   const s=structuredClone(state),e=s.expedition!,data=POTIONS[potion as GeneralPotion];
   e.bag[potion]--;
-  let ratio = data.healRatio;
-  if (e.jobRuntime.jobId === 'field_medic') ratio *= 1.2; // Field Medic Passive 2: +20% potion heal
+  const { healMultiplier } = runJobHook(s, 'BEFORE_HEAL', { actionType: 'POTION' });
+  const ratio = data.healRatio * healMultiplier;
   heal(s,stats(s,e.equipment).hp*ratio);
   log(s,'['+data.name+' 포션] 사용 · 남은 수량 '+e.bag[potion]);
   return finishPlayerTurn(s,rng);

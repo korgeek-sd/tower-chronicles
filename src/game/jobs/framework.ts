@@ -1,4 +1,4 @@
-import type {BattleJobRuntime,CombatActor,Expedition,GameState} from '../types';
+import type { BattleJobRuntime, CombatActor, Expedition, GameState } from '../types';
 
 export type CombatHook =
   | 'BATTLE_START'
@@ -7,6 +7,7 @@ export type CombatHook =
   | 'BEFORE_DIRECT_HIT'
   | 'AFTER_DIRECT_HIT'
   | 'DAMAGE_TAKEN'
+  | 'BEFORE_HEAL'
   | 'AFTER_HEAL'
   | 'HP_THRESHOLD'
   | 'MONSTER_DEFEATED'
@@ -22,19 +23,26 @@ export type JobCondition =
   | { kind: 'FLAG_IS'; flag: string; value: boolean }
   | { kind: 'ACTION_IS_BASIC_ATTACK' }
   | { kind: 'ACTION_IS_SKILL' }
-  | { kind: 'IS_DIRECT_HIT' };
+  | { kind: 'ACTION_IS_POTION' }
+  | { kind: 'IS_DIRECT_HIT' }
+  | { kind: 'ALL'; conditions: JobCondition[] };
 
 export type JobEffectAction =
   | { kind: 'DAMAGE_MULTIPLIER'; multiplier: number }
+  | { kind: 'CONDITIONAL_DAMAGE_MULTIPLIER'; condition: JobCondition; multiplier: number }
   | { kind: 'FLAT_DAMAGE'; amount: number }
   | { kind: 'HEAL_PERCENT'; percent: number }
   | { kind: 'HEAL_FLAT'; amount: number }
+  | { kind: 'MODIFY_HEAL_MULTIPLIER'; multiplier: number }
   | { kind: 'SELF_HP_COST_PERCENT'; percentOfMax: number }
   | { kind: 'APPLY_EFFECT'; target: 'SELF' | 'TARGET'; effectId: string; duration?: number }
   | { kind: 'REMOVE_EFFECT_TAG'; target: 'SELF' | 'TARGET'; tag: string }
   | { kind: 'CHANGE_RESOURCE'; delta: number }
+  | { kind: 'GAIN_RESOURCE_FROM_HP_DAMAGE' }
   | { kind: 'SET_FLAG'; flag: string; value: boolean }
-  | { kind: 'PREPARE_REACTION'; reactionId: string };
+  | { kind: 'PREPARE_REACTION'; reactionId: string }
+  | { kind: 'DIRECT_ATTACK'; hits: number; baseMultiplier: number; conditionalHits?: { condition: JobCondition; hits: number }; conditionalLastHitMultiplier?: { condition: JobCondition; multiplier: number } }
+  | { kind: 'CHANCE_REACTION'; chance: number; multiplier: number };
 
 export interface PassiveDefinition {
   id: string;
@@ -56,7 +64,7 @@ export interface JobSkillDefinition {
 
 export interface JobCombatDefinition {
   jobId: string;
-  passives: [PassiveDefinition, PassiveDefinition];
+  passives: PassiveDefinition[];
   skills: [JobSkillDefinition, JobSkillDefinition, JobSkillDefinition];
   resource?: { id: string; initialValue: number; maxValue?: number };
 }
@@ -87,4 +95,15 @@ export function setJobFlag(runtime: BattleJobRuntime, flag: string, value: boole
 
 export function getJobFlag(runtime: BattleJobRuntime, flag: string): boolean {
   return !!runtime.flags?.[flag];
+}
+
+export interface JobHookContext {
+  actor?: CombatActor;
+  actionType?: 'BASIC' | 'SKILL' | 'POTION';
+  skillId?: string;
+  isDirectHit?: boolean;
+  damage?: number;
+  actualHpDamage?: number;
+  healAmount?: number;
+  healRatio?: number;
 }

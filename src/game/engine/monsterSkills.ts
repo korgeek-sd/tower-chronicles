@@ -43,11 +43,6 @@ export function resolveActorDirectHits(s:GameState,attacker:CombatActor,hitCount
         applyJobHpTakenRageGain(s, resolution.hpDamage);
         checkJobHpThresholdHooks(s);
       }
-      // Duelist passive 2: 20% counter attack chance if allowed and target is player
-      if (target === 'player' && allowReactive && e.jobRuntime.jobId === 'duelist' && rng() < 0.2) {
-        log(s, '[반격 태세] 20% 확률 반격 발동!');
-        resolveActorDirectHits(s, 'player', 1, 0.6 * stats(s, e.equipment).skillPower, false, rng);
-      }
     });
     results.push(result);
     const remaining=count-i-1;
