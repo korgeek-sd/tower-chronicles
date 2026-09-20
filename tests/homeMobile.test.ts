@@ -35,7 +35,7 @@ test('tower selection shows four tower cards but only Iron Vein is currently ent
     assert.match(html,new RegExp(name));
   }
   assert.equal((html.match(/tower-select-enter/g)||[]).length,1);
-  assert.equal((html.match(/준비 중/g)||[]).length,3);
+  assert.equal((html.match(/class=\"tower-select-soon\"/g)||[]).length,3);
 });
 
 test('expedition result stays compact and exposes one primary storage action',()=>{
