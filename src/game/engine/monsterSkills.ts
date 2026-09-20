@@ -5,7 +5,7 @@ import {resolveDirectHits,type DirectHitResult} from './directHits';
 import {stats,equippedItem,log,recordCombatEvent} from './state';
 import {PASSIVES} from '../data/config';
 import {applyEffect,EFFECTS,modifier} from './effects';
-import {consumeDirectHitReaction,prepareReactive} from './reactions';
+import {checkJobPreparedReaction,consumeJobPreparedReaction,consumeDirectHitReaction,prepareReactive} from './reactions';
 import {applyJobDamageTakenHooks,notifyJobHpDamageTaken,checkJobHpThresholdHooks} from '../jobs/resolver';
 import {random} from '../events/rng';
 
@@ -16,6 +16,13 @@ function actorSkillPower(s:GameState,actor:CombatActor){const e=s.expedition!;re
 function receivedDamageMultiplier(s:GameState,actor:CombatActor){if(actor==='monster')return Math.max(0,1+modifier(s.expedition!,'monster','receivedDamage'));const e=s.expedition!,base=stats(s,e.equipment),passive=equippedItem(s,'accessory',e.equipment)?.kind as keyof typeof PASSIVES|undefined;let value=1+modifier(e,'player','receivedDamage');if(passive==='unyielding'&&e.hp/base.hp<=PASSIVES.unyielding.threshold)value*=1-PASSIVES.unyielding.value;return Math.max(0,value);}
 function resolveReaction(s:GameState,target:CombatActor,rng:()=>number=random){
   const e=s.expedition!;
+  const jobReaction = checkJobPreparedReaction(e, target);
+  if (jobReaction) {
+    if (jobReaction.consumeOnTrigger) consumeJobPreparedReaction(e, target);
+    log(s, '[반격 태세] 준비 반격 발동!');
+    resolveActorDirectHits(s, target === 'player' ? 'player' : 'monster', jobReaction.counterHits ?? 1, (jobReaction.counterMultiplier ?? 1) * actorSkillPower(s, target === 'player' ? 'player' : 'monster'), false, rng);
+    return;
+  }
   const prepared=consumeDirectHitReaction(e,target);
   if(!prepared)return;
   log(s,'['+prepared.prepare.name+'] 반응 · 준비된 행동 소모');
@@ -27,12 +34,16 @@ export function resolveActorDirectHits(s:GameState,attacker:CombatActor,hitCount
   const e=s.expedition!,target=other(attacker),count=Math.max(1,Math.floor(hitCount)),results:DirectHitResult[]=[];
   for(let i=0;i<count;i++){
     const playerStats=attacker==='player'?stats(s,e.equipment):null,critical=!!playerStats&&rng()<(playerStats.critChance??.05),criticalMultiplier=critical?(playerStats!.critDamage??1.5):1;
-    const rawDamage = damage(actorAttack(s,attacker),actorDefense(s,target)/Math.max(1,defenseDivisor),multiplier*receivedDamageMultiplier(s,target),criticalMultiplier);
+    let rawDamage = damage(actorAttack(s,attacker),actorDefense(s,target)/Math.max(1,defenseDivisor),multiplier*receivedDamageMultiplier(s,target),criticalMultiplier);
+    const jobReaction = allowReactive ? checkJobPreparedReaction(e, target) : undefined;
+    if (jobReaction?.incomingDamageMultiplier !== undefined) {
+      rawDamage *= jobReaction.incomingDamageMultiplier;
+    }
     const finalDamage = target === 'player' ? applyJobDamageTakenHooks(s, rawDamage, true) : rawDamage;
 
     const result=resolveDirectHits(e,attacker,target,1,()=>({damage:finalDamage,critical}),allowReactive?(hitTarget)=>resolveReaction(s,hitTarget,rng):undefined,resolution=>{
       recordCombatEvent(s,{kind:'DIRECT_DAMAGE',attacker,target,hitIndex:i+1,hitCount:count,incomingDamage:resolution.incomingDamage,absorbedByShield:resolution.absorbedByShield,hpDamage:resolution.hpDamage,critical:resolution.critical});
-      if (target === 'player' && resolution.hpDamage > 0) {
+      if (target === 'player') {
         notifyJobHpDamageTaken(s, resolution.hpDamage, rng);
         checkJobHpThresholdHooks(s, rng);
       }

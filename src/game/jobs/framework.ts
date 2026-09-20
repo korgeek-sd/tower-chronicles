@@ -6,7 +6,8 @@ export type CombatHook =
   | 'BEFORE_ACTION'
   | 'BEFORE_DIRECT_HIT'
   | 'AFTER_DIRECT_HIT'
-  | 'DAMAGE_TAKEN'
+  | 'BEFORE_DAMAGE_TAKEN'
+  | 'AFTER_DAMAGE_TAKEN'
   | 'BEFORE_HEAL'
   | 'AFTER_HEAL'
   | 'HP_THRESHOLD'
@@ -42,8 +43,7 @@ export type JobEffectAction =
   | { kind: 'SET_FLAG'; flag: string; value: boolean }
   | { kind: 'PREPARE_REACTION'; reactionId: string }
   | { kind: 'DIRECT_ATTACK'; hits: number; baseMultiplier: number; conditionalHits?: { condition: JobCondition; hits: number }; conditionalLastHitMultiplier?: { condition: JobCondition; multiplier: number } }
-  | { kind: 'CHANCE_REACTION'; chance: number; multiplier: number }
-  | { kind: 'APPLY_COUNTER_STANCE' };
+  | { kind: 'CHANCE_REACTION'; chance: number; multiplier: number };
 
 export interface PassiveDefinition {
   id: string;

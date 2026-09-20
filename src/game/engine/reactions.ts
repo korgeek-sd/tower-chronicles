@@ -10,12 +10,12 @@ export interface ReactionHandlerResult {
   logMessage?: string;
 }
 
-export interface PreparedReactionState {
-  effectId?: string;
+export interface JobReactionPrepared {
+  trigger: 'DIRECT_HIT_RECEIVED';
   incomingDamageMultiplier?: number;
   counterMultiplier?: number;
   counterHits?: number;
-  logMessage?: string;
+  consumeOnTrigger?: boolean;
 }
 
 export const emptyReactivePrepared = () => ({ player: null, monster: null } satisfies Expedition['reactivePrepared']);
@@ -46,4 +46,37 @@ export function consumeDirectHitReaction(e: Expedition, target: CombatActor): { 
   if (!found) return;
   e.reactivePrepared[target] = null;
   return found;
+}
+
+export function checkJobPreparedReaction(e: Expedition, target: CombatActor): JobReactionPrepared | undefined {
+  const prepared = e.preparedEffects.find(ef => ef.targetActorId === target && ef.remainingDuration > 0);
+  if (prepared && prepared.currentShieldHits) {
+    return {
+      trigger: 'DIRECT_HIT_RECEIVED',
+      incomingDamageMultiplier: 0.6,
+      counterMultiplier: 1.8,
+      counterHits: 1,
+      consumeOnTrigger: true,
+    };
+  }
+  // Check active PREPARED effects for general reaction data if stored on effect or active effect graph
+  const stance = (target === 'player' ? e.playerEffects : e.monsterEffects).find(ef => ef.scope === 'BATTLE' && ef.effectId.endsWith('_counter_stance'));
+  if (stance) {
+    return {
+      trigger: 'DIRECT_HIT_RECEIVED',
+      incomingDamageMultiplier: 0.6,
+      counterMultiplier: 1.8,
+      counterHits: 1,
+      consumeOnTrigger: true,
+    };
+  }
+  return undefined;
+}
+
+export function consumeJobPreparedReaction(e: Expedition, target: CombatActor) {
+  const list = target === 'player' ? e.playerEffects : e.monsterEffects;
+  const idx = list.findIndex(ef => ef.scope === 'BATTLE' && ef.effectId.endsWith('_counter_stance'));
+  if (idx !== -1) {
+    list.splice(idx, 1);
+  }
 }
