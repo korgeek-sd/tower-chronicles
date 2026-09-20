@@ -38,7 +38,7 @@ export function SkillsScreen({game,setGame,onBack}:{
   return <section className="skills-screen">
     <ScreenHeader title="자동 스킬" meta={locked?'원정 중 변경 불가':'1 → 2 → 3순위로 조건 검사'} onBack={onBack}/>
 
-    {locked&&<div className="skills-lock-banner">원정 중 변경 불가 · 안전 귀환 후 스킬 구성을 변경할 수 있습니다.</div>}
+    {locked&&<div className="skills-lock-banner">원정 중에는 스킬 구성을 변경할 수 없습니다. 안전 귀환 후 다시 설정하세요.</div>}
 
     <div className="skill-loadout" aria-label="장착 스킬">
       {game.skills.map((id,index)=><label className="skill-loadout-slot" key={index}>
