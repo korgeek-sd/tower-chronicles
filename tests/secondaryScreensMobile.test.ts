@@ -54,7 +54,7 @@ test('jobs screen shows one rarity at a time and five standard-height cards',()=
     setGame:()=>{},
   }));
   for(const rarity of ['C','B','A','SR','SSR'])assert.match(html,new RegExp('>'+rarity+'<'));
-  assert.equal((html.match(/class="job-card/g)||[]).length,5);
+  assert.equal((html.match(/<button type="button" class="job-card /g)||[]).length,5);
   assert.doesNotMatch(html,/선봉 탐사자/);
 });
 
