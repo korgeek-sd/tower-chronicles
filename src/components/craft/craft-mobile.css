@@ -1,0 +1,432 @@
+.craft-screen,
+.craft-mastery-screen{
+  height:100%;
+  min-height:0;
+  display:grid;
+  gap:7px;
+  overflow:hidden;
+}
+
+.craft-screen{
+  grid-template-rows:auto auto auto minmax(0,1fr) auto auto;
+}
+
+.craft-mastery-screen{
+  grid-template-rows:auto auto minmax(0,1fr);
+}
+
+.craft-screen .screen-header,
+.craft-mastery-screen .screen-header{
+  margin-bottom:0;
+}
+
+.craft-title-actions{
+  min-height:44px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 72px;
+  gap:6px;
+}
+
+.craft-title-actions .segment-tabs{
+  min-width:0;
+}
+
+.craft-mastery-link{
+  min-width:72px;
+  min-height:44px;
+  color:#d1b77d;
+}
+
+.craft-grade-panel{
+  display:grid;
+  gap:6px;
+  padding:8px;
+  border:1px solid #59493c;
+  background:linear-gradient(145deg,#241e19,#171310);
+}
+
+.craft-grade-heading{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.craft-grade-heading>div:first-child,
+.craft-material-stock{
+  display:grid;
+  gap:1px;
+}
+
+.craft-grade-heading small,
+.craft-material-stock small{
+  color:#988b7a;
+  font-size:8px;
+}
+
+.craft-grade-heading strong{
+  color:#ead9ba;
+  font-size:16px;
+}
+
+.craft-material-stock{
+  justify-items:end;
+}
+
+.craft-material-stock b{
+  color:#d4bc8a;
+  font-size:13px;
+}
+
+.craft-grade-selector{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(44px,1fr));
+  gap:5px;
+}
+
+.craft-grade-selector button{
+  min-width:44px;
+  min-height:44px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:0;
+  padding:3px;
+}
+
+.craft-grade-selector button b{
+  font-size:13px;
+}
+
+.craft-grade-selector button small{
+  font-size:7px;
+  color:#998c7b;
+}
+
+.craft-grade-selector button.active{
+  border-color:#b5945b;
+  color:#e3c98f;
+  background:#33291d;
+}
+
+.craft-grade-selector button:disabled{
+  opacity:.42;
+}
+
+.craft-grade-meta{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+  color:#9e9282;
+  font-size:8px;
+}
+
+.craft-grade-meta span{
+  padding:4px 6px;
+  border:1px solid #43382f;
+  background:#13100eaa;
+  text-align:center;
+}
+
+.craft-grade-meta b{
+  color:#d7c29b;
+}
+
+.craft-recipe-list{
+  min-height:0;
+  display:grid;
+  grid-auto-rows:minmax(0,1fr);
+  gap:6px;
+  overflow:hidden;
+}
+
+.craft-recipe-card{
+  min-height:54px;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) 50px;
+  align-items:center;
+  gap:8px;
+  padding:7px 8px;
+  text-align:left;
+  border:1px solid #56473a;
+  background:linear-gradient(135deg,#211b17,#161310);
+}
+
+.craft-recipe-card.selected{
+  border-color:#b4945d;
+  box-shadow:inset 3px 0 #b4945d;
+  background:linear-gradient(135deg,#2b241c,#181410);
+}
+
+.craft-recipe-emblem{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid #514337;
+  background:#110e0c;
+  color:#cfb477;
+  font-size:19px;
+}
+
+.craft-recipe-copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+
+.craft-recipe-copy strong{
+  color:#e3d3b8;
+  font-size:12px;
+}
+
+.craft-recipe-copy small{
+  color:#9f9383;
+  font-size:8px;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.craft-recipe-cost{
+  display:grid;
+  justify-items:end;
+  color:#d4b777;
+  font-size:13px;
+}
+
+.craft-recipe-cost small{
+  max-width:50px;
+  color:#8f8374;
+  font-size:7px;
+  text-align:right;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.craft-empty{
+  align-self:center;
+  padding:18px 10px;
+  color:#9c9080;
+  text-align:center;
+  border:1px dashed #514438;
+}
+
+.craft-local-actions{
+  min-height:48px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(126px,1fr);
+  gap:7px;
+}
+
+.craft-local-actions .page-stepper{
+  min-width:0;
+}
+
+.craft-primary-action{
+  min-height:48px;
+  justify-content:center;
+}
+
+.craft-job-strip{
+  min-height:32px;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:7px;
+  padding:4px 7px;
+  border-top:1px solid #514338;
+  color:#9e9282;
+  font-size:8px;
+}
+
+.craft-job-strip b{
+  min-width:0;
+  color:#d8c5a5;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.craft-job-strip small{
+  color:#8d8275;
+}
+
+.craft-mastery-screen>.segment-tabs{
+  min-height:44px;
+}
+
+.craft-mastery-panel{
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto auto auto auto minmax(0,1fr);
+  align-content:start;
+  gap:12px;
+  padding:14px;
+  overflow:hidden;
+  border:1px solid #59493c;
+  background:
+    radial-gradient(circle at 50% 14%,#715c3624,transparent 32%),
+    linear-gradient(150deg,#28211b,#15120f 75%);
+}
+
+.craft-mastery-symbol{
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+  justify-self:center;
+  border:1px solid #806949;
+  background:#15110e;
+  color:#d1b274;
+  font-size:28px;
+}
+
+.craft-mastery-heading{
+  display:grid;
+  justify-items:center;
+  gap:2px;
+  text-align:center;
+}
+
+.craft-mastery-heading small{
+  color:#988b7a;
+  font-size:8px;
+}
+
+.craft-mastery-heading h2{
+  margin:0;
+  color:#eadbc1;
+  font-size:18px;
+}
+
+.craft-mastery-heading strong{
+  color:#cfb478;
+  font-size:11px;
+}
+
+.craft-mastery-path{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:5px;
+}
+
+.craft-mastery-path>div{
+  min-height:44px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  border:1px solid #44392f;
+  background:#13110f;
+  color:#6f675d;
+}
+
+.craft-mastery-path>div.unlocked{
+  border-color:#746044;
+  color:#d0b77f;
+  background:#211b15;
+}
+
+.craft-mastery-path>div.next{
+  border-color:#9a7745;
+  color:#e0bd76;
+  background:#2b2116;
+}
+
+.craft-mastery-path b{font-size:13px}
+.craft-mastery-path small{font-size:7px}
+
+.craft-mastery-progress{
+  display:grid;
+  gap:6px;
+}
+
+.craft-mastery-progress-head{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  color:#a89a87;
+  font-size:9px;
+}
+
+.craft-mastery-progress-head b{
+  color:#dbc495;
+}
+
+.craft-mastery-bar{
+  height:12px;
+  overflow:hidden;
+  border:1px solid #5c4a39;
+  background:#110e0c;
+}
+
+.craft-mastery-bar>div{
+  height:100%;
+  background:linear-gradient(90deg,#745b35,#b59150);
+}
+
+.craft-mastery-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+.craft-mastery-stats span{
+  min-height:54px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:2px;
+  border:1px solid #493d32;
+  background:#14110ec7;
+}
+
+.craft-mastery-stats small{
+  color:#8f8375;
+  font-size:8px;
+}
+
+.craft-mastery-stats b{
+  color:#dfcba6;
+  font-size:12px;
+}
+
+.craft-mastery-rule{
+  align-self:start;
+  margin:0;
+  padding-top:10px;
+  border-top:1px solid #493c31;
+  color:#a69a89;
+  font-size:10px;
+  line-height:1.45;
+}
+
+@media(max-height:719px){
+  .craft-screen{gap:4px}
+  .craft-screen .screen-header,
+  .craft-mastery-screen .screen-header{min-height:44px}
+  .craft-screen .screen-header h1,
+  .craft-mastery-screen .screen-header h1{font-size:20px}
+  .craft-screen .screen-header-meta,
+  .craft-mastery-screen .screen-header-meta{display:none}
+  .craft-grade-panel{gap:4px;padding:6px}
+  .craft-grade-heading{display:none}
+  .craft-recipe-list{gap:4px}
+  .craft-recipe-card{min-height:48px;padding:4px 6px}
+  .craft-recipe-emblem{width:34px;height:34px}
+  .craft-job-strip{display:none}
+  .craft-mastery-panel{gap:7px;padding:9px}
+  .craft-mastery-symbol{width:44px;height:44px;font-size:22px}
+  .craft-mastery-rule{font-size:9px;padding-top:6px}
+}
+
+@media(max-width:350px){
+  .craft-title-actions{grid-template-columns:minmax(0,1fr) 62px}
+  .craft-mastery-link{min-width:62px;font-size:9px}
+  .craft-grade-selector{gap:3px}
+  .craft-recipe-card{grid-template-columns:36px minmax(0,1fr) 42px;gap:5px}
+  .craft-recipe-emblem{width:32px;height:32px}
+  .craft-local-actions{grid-template-columns:1fr 120px}
+}
