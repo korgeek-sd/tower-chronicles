@@ -69,7 +69,7 @@ test('craft mastery screen shows one field at a time with progress, crafts and d
   assert.match(html,/무기 제작/);
   assert.match(html,/2등급 해금/);
   assert.match(html,/3 \/ 4/);
-  assert.match(html,/총 제작 7회/);
-  assert.match(html,/재료 절감 14%/);
+  assert.match(html,/총 제작<\/small><b>7회/);
+  assert.match(html,/재료 절감<\/small><b>14%/);
   assert.equal((html.match(/craft-mastery-panel/g)||[]).length,1);
 });
