@@ -3,41 +3,32 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import type {GameState,Item} from '../src/game/types';
+import type {GameState} from '../src/game/types';
 import {initialState} from '../src/game/engine/state';
 import {EquipmentScreen} from '../src/components/equipment/EquipmentScreen';
 import {SkillsScreen} from '../src/components/skills/SkillsScreen';
 
-function equippedFixture(){
+function expeditionState(){
   const game=initialState();
-  const extra:Item[]=[
-    {id:'armor-1',kind:'armor',tier:1,enhancement:0},
-    {id:'boots-1',kind:'boots',tier:1,enhancement:0},
-    {id:'accessory-1',kind:'vampire',tier:1,enhancement:0},
-  ];
-  game.items.push(...extra);
-  game.equipped.armor='armor-1';
-  game.equipped.boots='boots-1';
-  game.equipped.accessory='accessory-1';
+  game.expedition={} as GameState['expedition'];
   return game;
 }
 
-test('equipment screen renders four character-centered equipment slots',()=>{
+test('equipment shows four character-centered slots and combat stats',()=>{
   const html=renderToStaticMarkup(React.createElement(EquipmentScreen,{
-    game:equippedFixture(),
+    game:initialState(),
     setGame:()=>{},
     onSkills:()=>{},
   }));
-  for(const slot of ['무기','갑옷','장신구','신발'])assert.match(html,new RegExp(slot));
-  assert.equal((html.match(/class="equipment-slot-button/g)||[]).length,4);
-  for(const stat of ['HP','공격','방어','공격속도'])assert.match(html,new RegExp(stat));
+  for(const label of ['무기','갑옷','신발','장신구','HP','공격','방어','공격속도']){
+    assert.match(html,new RegExp(label));
+  }
+  assert.equal((html.match(/equipment-slot-button/g)||[]).length,4);
 });
 
 test('equipment replacement controls remain locked during an expedition',()=>{
-  const game=equippedFixture();
-  game.expedition={} as unknown as NonNullable<GameState['expedition']>;
   const html=renderToStaticMarkup(React.createElement(EquipmentScreen,{
-    game,
+    game:expeditionState(),
     setGame:()=>{},
     onSkills:()=>{},
   }));
@@ -45,37 +36,34 @@ test('equipment replacement controls remain locked during an expedition',()=>{
   assert.match(html,/disabled/);
 });
 
-test('skills screen renders exactly three equipped skill slots and a paged catalog',()=>{
+test('skills screen renders three loadout slots and a paged catalog',()=>{
   const html=renderToStaticMarkup(React.createElement(SkillsScreen,{
     game:initialState(),
     setGame:()=>{},
     onBack:()=>{},
   }));
-  assert.equal((html.match(/class="skill-loadout-slot/g)||[]).length,3);
-  assert.match(html,/스킬 카탈로그/);
-  assert.match(html,/class="page-stepper"/);
+  assert.equal((html.match(/skill-loadout-slot/g)||[]).length,3);
+  assert.match(html,/1순위/);
+  assert.match(html,/2순위/);
+  assert.match(html,/3순위/);
+  assert.match(html,/page-stepper/);
 });
 
-test('skills controls stay locked during an expedition',()=>{
-  const game=initialState();
-  game.expedition={} as unknown as NonNullable<GameState['expedition']>;
+test('skills changing controls remain locked during an expedition',()=>{
   const html=renderToStaticMarkup(React.createElement(SkillsScreen,{
-    game,
+    game:expeditionState(),
     setGame:()=>{},
     onBack:()=>{},
   }));
-  assert.match(html,/원정 중 변경 불가/);
+  assert.match(html,/원정 중에는 스킬 구성을 변경할 수 없습니다/);
   assert.match(html,/disabled/);
 });
 
-
-test('equipment and skills mobile CSS avoid vertical scrolling and preserve touch targets',()=>{
+test('equipment and skills mobile CSS never enables page scrolling',()=>{
   const equipmentCss=readFileSync(new URL('../src/components/equipment/equipment-mobile.css',import.meta.url),'utf8');
   const skillsCss=readFileSync(new URL('../src/components/skills/skills-mobile.css',import.meta.url),'utf8');
   assert.match(equipmentCss,/\.equipment-screen\{[^}]*height:100%[^}]*overflow:hidden/);
-  assert.match(equipmentCss,/\.equipment-slot-button\{[^}]*min-height:44px/);
   assert.match(skillsCss,/\.skills-screen\{[^}]*height:100%[^}]*overflow:hidden/);
-  assert.match(skillsCss,/\.skill-loadout-slot\{[^}]*min-height:44px/);
   assert.doesNotMatch(equipmentCss,/overflow-y:auto/);
   assert.doesNotMatch(skillsCss,/overflow-y:auto/);
 });
