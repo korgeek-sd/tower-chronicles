@@ -34,7 +34,7 @@ test('expedition prep defaults to the expedition tab and exposes all three mobil
     onStart:()=>{},
   }));
   for(const label of ['원정','장비','소모품'])assert.match(html,new RegExp(label));
-  assert.equal((html.match(/탐사 시작/g)||[]).length,1);
+  assert.equal((html.match(/class=\"game-button primary\"/g)||[]).length,1);
   assert.match(html,/철맥의 첨탑/);
   assert.match(html,/SAFE/);
 });
