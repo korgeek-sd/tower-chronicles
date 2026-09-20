@@ -111,13 +111,20 @@ test('JOB 04: field_medic (야전구호원) emergency first aid & potion boost',
 test('JOB 05: duelist (결투가) counter stance & 20% counter chance', () => {
   let s = setupJobBattleState('duelist');
 
-  // Skill 2: 받아치기
+  // Skill 2: 받아치기 (applies 40% damage reduction effect duelist_counter_stance)
   s = useBattleSkill(s, 'duelist_skill_2', () => 0.5);
   assert.ok(hasEffect(s.expedition!.playerEffects, 'duelist_counter_stance'));
 
-  // Monster attacks -> trigger counter
+  // Monster attacks -> trigger counter (duelist_counter_stance is removed on trigger)
   const monsterHpBefore = s.expedition!.monster.currentHp;
+  const playerHpBefore = s.expedition!.hp;
+
+  // Monster attack power = 20, defense = 8. Base damage = Math.max(1, 20 - 8) = 12.
+  // Duelist passive 1 (일대일) + 40% damage reduction (multiplier 0.6) -> 12 * 0.6 = 7.2 -> 7 damage taken.
+  // Random RNG for counter stance trigger check
   s = resolveMonsterTurn(s);
+
+  assert.equal(s.expedition!.hp, playerHpBefore - 7);
   assert.ok(s.expedition!.monster.currentHp < monsterHpBefore);
   assert.ok(!hasEffect(s.expedition!.playerEffects, 'duelist_counter_stance'));
 });

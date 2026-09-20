@@ -28,7 +28,7 @@ export const EFFECTS:Record<string,EffectDefinition>={
  mercenary_guard:{id:'mercenary_guard',name:'방패 올리기',description:'받는 피해가 25% 감소합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.25}},
  field_medic_regen:{id:'field_medic_regen',name:'지혈 재생',description:'턴당 최대 HP 5%를 회복합니다.',category:'BUFF',behavior:'PERIODIC_HEAL',tags:['HOT','REGEN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:.05}},
  field_medic_analgesic:{id:'field_medic_analgesic',name:'진통제',description:'받는 피해가 30% 감소합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.3}},
- duelist_counter_stance:{id:'duelist_counter_stance',name:'받아치기 태세',description:'다음 직접 공격을 반격 준비합니다.',category:'BUFF',behavior:'PREPARED_REACTION',tags:['PREPARED'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION'},
+ duelist_counter_stance:{id:'duelist_counter_stance',name:'받아치기 태세',description:'다음 직접 공격을 반격 준비합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.4}},
  berserker_blood_boost:{id:'berserker_blood_boost',name:'피의 대가',description:'공격 피해가 25% 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'attack',multiplier:.25}},
 };
 export type EffectActor='player'|'monster';

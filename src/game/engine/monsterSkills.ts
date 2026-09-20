@@ -6,7 +6,7 @@ import {stats,equippedItem,log,recordCombatEvent} from './state';
 import {PASSIVES} from '../data/config';
 import {applyEffect,EFFECTS,modifier} from './effects';
 import {consumeDirectHitReaction,prepareReactive} from './reactions';
-import {applyJobDamageTakenHooks,applyJobHpTakenRageGain,checkJobHpThresholdHooks} from '../jobs/resolver';
+import {applyJobDamageTakenHooks,notifyJobHpDamageTaken,checkJobHpThresholdHooks} from '../jobs/resolver';
 import {random} from '../events/rng';
 
 const other=(actor:CombatActor):CombatActor=>actor==='player'?'monster':'player';
@@ -14,15 +14,8 @@ function actorAttack(s:GameState,actor:CombatActor){const e=s.expedition!;if(act
 function actorDefense(s:GameState,actor:CombatActor){const e=s.expedition!;return actor==='monster'?e.monster.defense*(1+modifier(e,'monster','defense')):stats(s,e.equipment).defense*(1+modifier(e,'player','defense'));}
 function actorSkillPower(s:GameState,actor:CombatActor){const e=s.expedition!;return actor==='monster'?e.monster.skillPower:stats(s,e.equipment).skillPower;}
 function receivedDamageMultiplier(s:GameState,actor:CombatActor){if(actor==='monster')return Math.max(0,1+modifier(s.expedition!,'monster','receivedDamage'));const e=s.expedition!,base=stats(s,e.equipment),passive=equippedItem(s,'accessory',e.equipment)?.kind as keyof typeof PASSIVES|undefined;let value=1+modifier(e,'player','receivedDamage');if(passive==='unyielding'&&e.hp/base.hp<=PASSIVES.unyielding.threshold)value*=1-PASSIVES.unyielding.value;return Math.max(0,value);}
-function resolveReaction(s:GameState,target:CombatActor){
+function resolveReaction(s:GameState,target:CombatActor,rng:()=>number=random){
   const e=s.expedition!;
-  // Check Duelist 받아치기 (duelist_counter_stance) first if target is player
-  if (target === 'player' && e.playerEffects.some(ef => ef.effectId === 'duelist_counter_stance')) {
-    e.playerEffects = e.playerEffects.filter(ef => ef.effectId !== 'duelist_counter_stance');
-    log(s, '[받아치기] 반격 발동 · 180% 즉시 반격!');
-    resolveActorDirectHits(s, 'player', 1, 1.8 * stats(s, e.equipment).skillPower, false, random);
-    return;
-  }
   const prepared=consumeDirectHitReaction(e,target);
   if(!prepared)return;
   log(s,'['+prepared.prepare.name+'] 반응 · 준비된 행동 소모');
@@ -37,11 +30,11 @@ export function resolveActorDirectHits(s:GameState,attacker:CombatActor,hitCount
     const rawDamage = damage(actorAttack(s,attacker),actorDefense(s,target)/Math.max(1,defenseDivisor),multiplier*receivedDamageMultiplier(s,target),criticalMultiplier);
     const finalDamage = target === 'player' ? applyJobDamageTakenHooks(s, rawDamage, true) : rawDamage;
 
-    const result=resolveDirectHits(e,attacker,target,1,()=>({damage:finalDamage,critical}),allowReactive?(hitTarget)=>resolveReaction(s,hitTarget):undefined,resolution=>{
+    const result=resolveDirectHits(e,attacker,target,1,()=>({damage:finalDamage,critical}),allowReactive?(hitTarget)=>resolveReaction(s,hitTarget,rng):undefined,resolution=>{
       recordCombatEvent(s,{kind:'DIRECT_DAMAGE',attacker,target,hitIndex:i+1,hitCount:count,incomingDamage:resolution.incomingDamage,absorbedByShield:resolution.absorbedByShield,hpDamage:resolution.hpDamage,critical:resolution.critical});
       if (target === 'player' && resolution.hpDamage > 0) {
-        applyJobHpTakenRageGain(s, resolution.hpDamage);
-        checkJobHpThresholdHooks(s);
+        notifyJobHpDamageTaken(s, resolution.hpDamage, rng);
+        checkJobHpThresholdHooks(s, rng);
       }
     });
     results.push(result);

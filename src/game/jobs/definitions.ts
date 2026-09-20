@@ -206,6 +206,14 @@ const duelistDef: JobCombatDefinition = {
       conditions: [{ kind: 'IS_DIRECT_HIT' }],
       effectActions: [{ kind: 'CHANCE_REACTION', chance: 0.2, multiplier: 0.6 }],
     },
+    {
+      id: 'duelist_passive_counter_stance_hook',
+      name: '받아치기 반격',
+      description: 'duelist_counter_stance 효과를 소모하여 180% 즉시 반격',
+      hooks: ['DAMAGE_TAKEN'],
+      conditions: [{ kind: 'IS_DIRECT_HIT' }, { kind: 'SELF_HAS_EFFECT', effectId: 'duelist_counter_stance' }],
+      effectActions: [{ kind: 'APPLY_COUNTER_STANCE' }],
+    },
   ],
   skills: [
     {

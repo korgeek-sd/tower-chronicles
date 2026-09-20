@@ -49,7 +49,8 @@ export function evaluateJobCondition(
 export function runJobHook(
   s: GameState,
   hook: CombatHook,
-  context: JobHookContext = {}
+  context: JobHookContext = {},
+  rng: () => number = Math.random
 ): { damageMultiplier: number; healMultiplier: number } {
   const e = s.expedition;
   if (!e || !e.jobRuntime.jobId) return { damageMultiplier: 1.0, healMultiplier: 1.0 };
@@ -88,9 +89,15 @@ export function runJobHook(
         } else if (act.kind === 'SET_FLAG') {
           setJobFlag(e.jobRuntime, act.flag, act.value);
         } else if (act.kind === 'CHANCE_REACTION' && context.isDirectHit) {
-          if (context.actor === 'player' && Math.random() < act.chance) {
+          if (context.actor === 'player' && rng() < act.chance) {
             log(s, `[${passive.name}] 반격 발동!`);
-            resolveActorDirectHits(s, 'player', 1, act.multiplier * stats(s, e.equipment).skillPower, false);
+            resolveActorDirectHits(s, 'player', 1, act.multiplier * stats(s, e.equipment).skillPower, false, rng);
+          }
+        } else if (act.kind === 'APPLY_COUNTER_STANCE' && context.isDirectHit) {
+          if (hasEffect(e.playerEffects, 'duelist_counter_stance')) {
+            e.playerEffects = e.playerEffects.filter(ef => ef.effectId !== 'duelist_counter_stance');
+            log(s, '[받아치기] 반격 발동 · 180% 즉시 반격!');
+            resolveActorDirectHits(s, 'player', 1, 1.8 * stats(s, e.equipment).skillPower, false, rng);
           }
         }
       }
@@ -100,27 +107,28 @@ export function runJobHook(
   return { damageMultiplier, healMultiplier };
 }
 
-export function applyJobDamageTakenHooks(s: GameState, rawDamage: number, isDirectHit: boolean): number {
-  const { damageMultiplier } = runJobHook(s, 'DAMAGE_TAKEN', { isDirectHit, damage: rawDamage });
+export function applyJobDamageTakenHooks(s: GameState, rawDamage: number, isDirectHit: boolean, rng: () => number = () => Math.random()): number {
+  const { damageMultiplier } = runJobHook(s, 'DAMAGE_TAKEN', { isDirectHit, damage: rawDamage, actor: 'player' }, rng);
   return rawDamage * damageMultiplier;
 }
 
-export function applyJobHpTakenRageGain(s: GameState, actualHpDamage: number) {
-  runJobHook(s, 'DAMAGE_TAKEN', { isDirectHit: true, actualHpDamage });
+export function notifyJobHpDamageTaken(s: GameState, actualHpDamage: number, rng: () => number = () => Math.random()) {
+  runJobHook(s, 'DAMAGE_TAKEN', { isDirectHit: true, actualHpDamage, actor: 'player' }, rng);
 }
 
-export function checkJobHpThresholdHooks(s: GameState) {
+export function checkJobHpThresholdHooks(s: GameState, rng: () => number = Math.random) {
   const e = s.expedition;
   if (!e || !e.jobRuntime.jobId || e.hp <= 0 || e.pendingRevival) return;
-  runJobHook(s, 'HP_THRESHOLD');
+  runJobHook(s, 'HP_THRESHOLD', { actor: 'player' }, rng);
 }
 
 export function resolveJobDirectHitMultiplier(
   s: GameState,
   actionType: 'BASIC' | 'SKILL',
-  skillId?: string
+  skillId?: string,
+  rng: () => number = Math.random
 ): number {
-  const { damageMultiplier } = runJobHook(s, 'BEFORE_DIRECT_HIT', { actionType, skillId, isDirectHit: true });
+  const { damageMultiplier } = runJobHook(s, 'BEFORE_DIRECT_HIT', { actionType, skillId, isDirectHit: true, actor: 'player' }, rng);
   return damageMultiplier;
 }
 
