@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import type {GameState,Item} from '../src/game/types';
@@ -65,4 +66,16 @@ test('skills controls stay locked during an expedition',()=>{
   }));
   assert.match(html,/원정 중 변경 불가/);
   assert.match(html,/disabled/);
+});
+
+
+test('equipment and skills mobile CSS avoid vertical scrolling and preserve touch targets',()=>{
+  const equipmentCss=readFileSync(new URL('../src/components/equipment/equipment-mobile.css',import.meta.url),'utf8');
+  const skillsCss=readFileSync(new URL('../src/components/skills/skills-mobile.css',import.meta.url),'utf8');
+  assert.match(equipmentCss,/\.equipment-screen\{[^}]*height:100%[^}]*overflow:hidden/);
+  assert.match(equipmentCss,/\.equipment-slot-button\{[^}]*min-height:44px/);
+  assert.match(skillsCss,/\.skills-screen\{[^}]*height:100%[^}]*overflow:hidden/);
+  assert.match(skillsCss,/\.skill-loadout-slot\{[^}]*min-height:44px/);
+  assert.doesNotMatch(equipmentCss,/overflow-y:auto/);
+  assert.doesNotMatch(skillsCss,/overflow-y:auto/);
 });

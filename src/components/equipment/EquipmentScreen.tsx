@@ -152,7 +152,7 @@ export function EquipmentScreen({game,setGame,onSkills}:{
         <span><small>HP</small><b>{Math.round(currentStats.hp)}</b></span>
         <span><small>공격</small><b>{Math.round(currentStats.attack)}</b></span>
         <span><small>방어</small><b>{Math.round(currentStats.defense)}</b></span>
-        <span><small>공속</small><b>{currentStats.speed.toFixed(2)}</b></span>
+        <span><small>공격속도</small><b>{currentStats.speed.toFixed(2)}</b></span>
       </div>
 
       <button type="button" className="equipment-skills-button" disabled={locked} onClick={onSkills}>
