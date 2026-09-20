@@ -2,8 +2,9 @@ import React,{useMemo,useState} from 'react';
 import type {GameState,Potion,Slot,Tower} from '../../game/types';
 import {
   CONFIG,ENTRY_PERMITS,POTIONS,SLOTS,TOWERS,
-  floorSafety,generalPotionIds,isBossFloor,potionIds,
+  floorSafety,generalPotionIds,potionIds,
 } from '../../game/data/config';
+import {isBossFloor} from '../../game/data/graphics';
 import {monsterFor} from '../../game/engine/drops';
 import {equippedItem,itemName} from '../../game/engine/state';
 import {applyPreset,canAccessPresetSlot,renamePreset,savePreset} from '../../game/engine/presets';
