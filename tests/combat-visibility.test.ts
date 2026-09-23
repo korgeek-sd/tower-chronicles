@@ -6,6 +6,7 @@ import {basicAttack,resolveMonsterTurn} from '../src/game/engine/combat.ts';
 import {inventoryView} from '../src/game/inventoryView.ts';
 import {activeShield,applyEffect} from '../src/game/engine/effects.ts';
 import {effectText} from '../src/components/battle/presentation.ts';
+import {monsterCombatIntel} from '../src/components/battle/combatIntel.ts';
 import {createRepository,validSave} from '../src/storage/repository.ts';
 
 const noCrit=()=>.99;
@@ -24,3 +25,35 @@ test('VISIBILITY 05: effect labels include numeric modifier, stacks, shield mode
 test('VISIBILITY 06: combat event history is bounded and old v21 saves remain valid',()=>{const s=initialState();delete s.combatEvents;delete s.combatEventSequence;assert.equal(validSave(s),true);for(let i=0;i<45;i++)recordCombatEvent(s,{kind:'DIRECT_DAMAGE',attacker:'player',target:'monster',hitIndex:1,hitCount:1,incomingDamage:1,absorbedByShield:0,hpDamage:1,critical:false});assert.equal(s.combatEvents?.length,40);assert.equal(s.combatEvents?.[0].id,6);assert.equal(validSave(s),true);const map=new Map<string,string>(),repo=createRepository({getItem:key=>map.get(key)??null,setItem:(key,value)=>void map.set(key,value)});repo.save(s);assert.deepEqual(repo.load().combatEvents,s.combatEvents);});
 
 test('VISIBILITY 07: malformed combat-event telemetry is rejected',()=>{const s:any=initialState();s.combatEvents=[{id:1,kind:'DIRECT_DAMAGE',attacker:'player',target:'player',hitIndex:2,hitCount:1,incomingDamage:-1,absorbedByShield:0,hpDamage:0,critical:'yes'}];s.combatEventSequence=1;assert.equal(validSave(s),false);});
+
+
+test('VISIBILITY 08: combat intel only announces committed Charge or Reactive actions and never predicts AI',()=>{
+ const s=enter(initialState(),'ore',1),e=s.expedition!;
+ e.monster={...e.monster,definitionId:'test-prepared-combined',name:'복합 준비 훈련체'};
+ e.monsterRuntime={definitionId:'test-prepared-combined',skillCooldowns:{},preparedActionId:null,turnNumber:0};
+ assert.equal(monsterCombatIntel(e).intent.kind,'NONE');
+ e.monsterRuntime.preparedActionId='qa_charge';
+ let intel=monsterCombatIntel(e);
+ assert.equal(intel.intent.kind,'CHARGE');
+ assert.equal(intel.intent.skillName,'TEST_CHARGE_LONG_NAME');
+ e.monsterRuntime.preparedActionId=null;
+ e.reactivePrepared.monster={definitionId:'test-prepared-combined',prepareSkillId:'qa_counter_stance',reactionSkillId:'qa_counter',trigger:'DIRECT_HIT_RECEIVED'};
+ intel=monsterCombatIntel(e);
+ assert.equal(intel.intent.kind,'REACTIVE');
+ assert.equal(intel.intent.skillName,'TEST_REACTIVE_COUNTER_LONG_NAME');
+});
+
+test('VISIBILITY 09: combat intel exposes exact effect stacks, turns, shield amount and skill cooldown state',()=>{
+ const s=enter(initialState(),'ore',1),e=s.expedition!;
+ e.monster={...e.monster,definitionId:'test-shield-monster',name:'보호막 훈련체'};
+ e.monsterRuntime={definitionId:'test-shield-monster',skillCooldowns:{shield_stance:2,shield_multi:0},preparedActionId:null,turnNumber:0};
+ applyEffect(e,'monster','test_shield','monster',0);
+ activeShield(e,'monster')!.currentShield=17;
+ const intel=monsterCombatIntel(e);
+ assert.equal(intel.shield?.shieldCurrent,17);
+ assert.equal(intel.shield?.shieldMax,30);
+ assert.equal(intel.shield?.turns,3);
+ assert.equal(intel.skills.find(skill=>skill.id==='shield_stance')?.cooldownRemaining,2);
+ assert.equal(intel.skills.find(skill=>skill.id==='shield_stance')?.ready,false);
+ assert.equal(intel.skills.find(skill=>skill.id==='shield_multi')?.ready,true);
+});
