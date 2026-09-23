@@ -8,7 +8,7 @@ export const WEAPONS:Record<Weapon,WeaponDefinition>={
  bow:{name:'활',icon:'🏹',attack:12,defense:1,speed:1.15,critChance:.05,critDamage:1.5,basicHitMultipliers:[.55,.55],skillPower:1,description:'기본 공격을 두 번 타격한다.'},
  staff:{name:'지팡이',icon:'✦',attack:6,defense:0,speed:.85,critChance:.05,critDamage:1.5,basicHitMultipliers:[1],skillPower:1.3,description:'공격 스킬 피해가 30% 증가한다.'}
 };
-export const TOWERS:Record<Tower,{name:string;material:string;icon:string;color:string;monster:string}>={ore:{name:'철맥의 첨탑',material:'철광석',icon:'◆',color:'#83b4c5',monster:'고블린 광부'},leather:{name:'붉은 송곳니의 성소',material:'가죽',icon:'◈',color:'#c7a17a',monster:'황야 멧돼지'},gem:{name:'천광의 수정탑',material:'보석',icon:'◇',color:'#b0a5e1',monster:'수정 파수꾼'},kaleon:{name:'칼레온의 녹빛 첨탑',material:'약초',icon:'✣',color:'#85c6a6',monster:'이끼 정령'}};
+export const TOWERS:Record<Tower,{name:string;material:string;icon:string;color:string;monster:string}>={ore:{name:'철맥의 첨탑',material:'철광석',icon:'◆',color:'#83b4c5',monster:'고블린 광부'},leather:{name:'붉은 송곳니의 성소',material:'가죽',icon:'◈',color:'#c7a17a',monster:'황야 멧돼지'},gem:{name:'천광의 수정탑',material:'보석',icon:'◇',color:'#b0a5e1',monster:'석영등갑충'},kaleon:{name:'칼레온의 녹빛 첨탑',material:'약초',icon:'✣',color:'#85c6a6',monster:'이끼 정령'}};
 export const FIELDS:Record<Field,string>={weapon:'무기 제작',armor:'방어구 제작',accessory:'장신구 제작',alchemy:'연금술'};
 export const SLOTS:Record<Slot,string>={weapon:'무기',armor:'갑옷',boots:'신발',accessory:'장신구'};
 export const GEAR_MASTERY_KEYS:GearMasteryKey[]=['sword','dagger','bow','staff','armor','boots','accessory'];

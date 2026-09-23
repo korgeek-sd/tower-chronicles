@@ -8,7 +8,7 @@ import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} fro
 import {createRepository} from '../src/storage/repository.ts';
 const start=()=>enter(initialState(),'ore',1);
 test('그래픽 01: 그래픽 없는 기존 몬스터도 수동 전투 가능',()=>{const s=start();s.expedition!.monster.name='기존 이름';assert.equal(graphicFor('ore',s.expedition!.monster),undefined);assert.ok(basicAttack(s).expedition!.monster.currentHp<s.expedition!.monster.currentHp);});
-test('그래픽 02: 철맥 일반 5종과 보스 5종을 포함한 현재 그래픽 카탈로그를 조회한다',()=>{assert.equal(graphicFor('ore',start().expedition!.monster)?.id,'goblin_miner');assert.equal(MONSTER_GRAPHICS.length,23);for(const name of ['쇄철턱 굴혈수','흑맥갑주 파쇄충','울림포식자','심층 권양감독체','철심 맥동체'])assert.ok(graphicFor('ore',{name}));});
+test('그래픽 02: 철맥과 천광 확장분을 포함한 현재 그래픽 카탈로그를 조회한다',()=>{assert.equal(graphicFor('ore',start().expedition!.monster)?.id,'goblin_miner');assert.equal(MONSTER_GRAPHICS.length,47);for(const name of ['쇄철턱 굴혈수','흑맥갑주 파쇄충','울림포식자','심층 권양감독체','철심 맥동체'])assert.ok(graphicFor('ore',{name}));});
 test('그래픽 03: 이미지 없음 및 로딩 실패는 placeholder',()=>{assert.equal(imageState(false,false,false),'placeholder');assert.equal(imageState(true,false,false),'placeholder');});
 test('그래픽 04: 몬스터 교체는 다른 encounter와 데이터',()=>{const a=start().expedition!,b=structuredClone(a);b.monster.name='다른 몬스터';assert.notEqual(encounterKey(a),encounterKey(b));assert.equal(graphicFor('ore',b.monster),undefined);assert.equal(damageBetween(a,b),0);});
 test('그래픽 05: HUD는 실제 HP만 사용',()=>{const e=start().expedition!;e.monster.currentHp=21;assert.deepEqual(monsterHud(e.monster),{name:e.monster.name,current:21,max:42,percent:50});});
