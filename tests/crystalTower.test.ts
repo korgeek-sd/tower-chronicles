@@ -89,7 +89,8 @@ test('CRYSTAL 06: 석영등갑충은 기존 SHIELD 효과 엔진만으로 결정
 });
 
 test('CRYSTAL 07: 수정비늘 뱀은 기존 STACK 상태와 AI 조건으로 균열을 누적하고 파쇄교상을 선택한다',()=>{
- let s=enter(initialState(),'gem',5);
+ const base=initialState();base.tickets.gem[4]=1;
+ let s=enter(base,'gem',5);
  s=beginEncounter(s,()=>.999);
  assert.equal(s.expedition!.monster.definitionId,'crystal_scale_serpent');
  s.expedition!.phase='MONSTER_TURN';
