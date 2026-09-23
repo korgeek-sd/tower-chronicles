@@ -14,13 +14,14 @@ import {advanceSkillTurns} from '../engine/turns';
 import {SKILLS} from '../data/config';
 import {createMonsterRuntime} from '../engine/monsterAi';
 import {clearReactivePrepared,emptyReactivePrepared} from '../engine/reactions';
+import {recordBestiaryEncounter} from '../engine/bestiary';
 let defaultMode:EventMode='production';
 export function configureEventMode(mode:EventMode){defaultMode=mode;}
 export function initialEvents(mode:EventMode=defaultMode):ExpeditionEvents{return {phase:'BATTLE',mode,pendingEvent:null,sequence:0,recentEventIds:[],bossKillCountThisExpedition:0,activeBossId:null};}
 export const catalogFor=(mode:EventMode)=>mode==='test'?DEV_EVENTS:EVENT_CATALOG;
 export function definitionFor(e:Expedition){const id=e.events.pendingEvent?.eventId;return id===BOSS_EVENT.id?BOSS_EVENT:catalogFor(e.events.mode).find(d=>d.id===id);}
 export function beginEncounter(s:GameState,rng:Rng=random,bossId:string|null=null):GameState {const e=s.expedition;if(!e)return s;const monster=bossId?bossMonsterFor(bossId,e.floor):monsterFor(e.tower,e.floor,rng);if(!monster)throw Error('보스 데이터를 찾을 수 없습니다.');e.events.phase='BATTLE';e.events.pendingEvent=null;e.events.activeBossId=bossId;e.monster=monster;e.monsterRuntime=createMonsterRuntime(monster);e.reactivePrepared=emptyReactivePrepared();if(bossId==='black_vein_armor_breaker'){applyEffect(e,'monster','iron_armor','monster',e.monsterTurn);log(s,'[흑맥 갑주] 전투 시작부터 갑주가 활성화됩니다.');}
-if(bossId==='sanctuary_talon_bishop'){applyEffect(e,'monster','blood_rite_ward','monster',e.monsterTurn);log(s,'[혈의식 수호] 전투 시작부터 수호막이 활성화됩니다.');}e.phase='PLAYER_TURN';e.playerTurn++;e.pendingFlee=false;e.spawnAt=0;e.playerTimer=0;e.enemyTimer=0;advanceSkillTurns(e,SKILLS.map(k=>k.id));log(s,monster.name+' 등장');return s;}
+if(bossId==='sanctuary_talon_bishop'){applyEffect(e,'monster','blood_rite_ward','monster',e.monsterTurn);log(s,'[혈의식 수호] 전투 시작부터 수호막이 활성화됩니다.');}e.phase='PLAYER_TURN';e.playerTurn++;e.pendingFlee=false;e.spawnAt=0;e.playerTimer=0;e.enemyTimer=0;advanceSkillTurns(e,SKILLS.map(k=>k.id));recordBestiaryEncounter(s,monster);log(s,monster.name+' 등장');return s;}
 export function openEvent(s:GameState,definition:ExpeditionEventDefinition,rng:Rng=random,bossId:string|null=null){const e=s.expedition;if(!e||e.events.pendingEvent||!eligible(s,definition))return;const ev=e.events;if(definition.type==='BOSS'){if(!bossId||bossId!==bossIdFor(e.tower,e.floor))return;e.bossTracking.progress=0;e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;}
  ev.phase='EVENT';e.phase='BATTLE_END';e.monsterRuntime=null;clearReactivePrepared(e);ev.pendingEvent={instanceId:'event-'+(ev.sequence=++s.nextId),eventId:definition.id,bossId,state:'CHOICE',choiceId:null,outcomeId:null,resultText:'',resultLines:[],next:'NORMAL',randomValue:unit(rng)};ev.recentEventIds=[definition.id,...ev.recentEventIds].slice(0,EVENT_BALANCE.repeatWindow);log(s,definition.title+' · 선택 대기');}
 /** Called once by victory. Boss rolls precede the normal pool and consume progress on appearance. */
