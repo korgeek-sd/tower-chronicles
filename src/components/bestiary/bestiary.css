@@ -1,0 +1,21 @@
+.bestiary-screen{padding-bottom:18px}
+.bestiary-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.bestiary-heading h1{margin-top:0}.bestiary-heading p{margin:0;color:var(--muted)}
+.bestiary-heading>strong{min-width:82px;text-align:center;border:1px solid #5b574c;background:#12191c;padding:11px 8px;font-size:22px;color:var(--accent)}
+.bestiary-heading>strong small{display:block;margin-top:4px;font-size:9px;color:var(--muted);letter-spacing:1px}
+.bestiary-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:14px 0 18px}
+.bestiary-tabs button{min-height:66px;text-align:left;display:grid;grid-template-columns:24px 1fr;grid-template-rows:auto auto;gap:2px 8px;padding:9px;background:#121d22;border-color:#37464c}
+.bestiary-tabs button>span{grid-row:1/3;font-size:20px;color:var(--accent);align-self:center}.bestiary-tabs button strong{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bestiary-tabs button small{color:var(--muted);font-size:9px}
+.bestiary-tabs button[aria-selected=true]{border-color:#b99a62;box-shadow:inset 0 0 0 1px #6d5b3c;background:#1d282a}.bestiary-tabs button:disabled{opacity:.42}
+.bestiary-grid{display:grid;gap:7px}
+.bestiary-card{width:100%;display:grid;grid-template-columns:66px 1fr;gap:12px;align-items:center;text-align:left;padding:8px 10px;background:#141f24;border-color:#35434a}
+.bestiary-card.selected{border-color:#c2a468;box-shadow:inset 0 0 0 1px #6f6041}.bestiary-card.knowledge-unknown{opacity:.72}
+.bestiary-art{width:62px;height:62px;border:1px solid #3a4548;background:#090e11;display:grid;place-items:center;overflow:hidden}
+.bestiary-art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}.bestiary-art span{font-size:28px;color:#5d6667}
+.bestiary-card>div:last-child{min-width:0}.bestiary-card small,.bestiary-card span{display:block;color:var(--muted);font-size:9px}.bestiary-card strong{display:block;margin:5px 0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bestiary-card.knowledge-mastered strong{color:#ead4a0}
+.bestiary-detail{margin-top:18px;padding:15px;border:1px solid #625b4b;background:#121a1d}
+.bestiary-detail-heading{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.bestiary-detail-heading h2{margin:4px 0 3px}.bestiary-detail-heading small,.bestiary-detail-heading p{color:var(--muted);font-size:10px}.bestiary-detail-heading p{margin:0}.bestiary-detail-heading>button{min-width:34px;min-height:34px;padding:2px 9px}
+.bestiary-lock-note{margin:13px 0;padding:10px;border-left:2px solid #8e744d;background:#171713;color:#c8bfa9;font-size:11px;line-height:1.6}
+.bestiary-skills{display:grid;gap:8px}.bestiary-skills article{border:1px solid #3d4545;background:#0e1518;padding:10px}.bestiary-skills article>div{display:flex;justify-content:space-between;gap:8px}.bestiary-skills article strong{font-size:12px}.bestiary-skills article span{font-size:9px;color:#d2ae68}.bestiary-skills article p{font-size:11px;margin:7px 0;color:#c8cecb}.bestiary-skills article small{font-size:9px;color:var(--muted)}.bestiary-skills ul{margin:7px 0 0;padding-left:18px;color:#afa995;font-size:10px;line-height:1.55}.bestiary-skills .locked-copy{color:#817e77}
+.bestiary-empty{text-align:center}
+@media(max-width:370px){.bestiary-tabs{grid-template-columns:1fr}.bestiary-card{grid-template-columns:56px 1fr}.bestiary-art{width:52px;height:52px}}
