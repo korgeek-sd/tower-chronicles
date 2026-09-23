@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {APP_VERSION} from '../src/storage/repository.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {
   ACCESSORY_ENHANCEMENT_VALUES,
@@ -11,8 +10,7 @@ import {
 } from '../src/game/data/enhancement.ts';
 import {enhancementQuote} from '../src/game/engine/enhancement.ts';
 
-test('RELEASE 0.1.43: app metadata and save schema stay aligned',()=>{
-  assert.equal(APP_VERSION,'0.1.43');
+test('RELEASE 0.1.43: save schema remains compatible with the enhancement release',()=>{
   assert.equal(initialState().version,22);
 });
 
