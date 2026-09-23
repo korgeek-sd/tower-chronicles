@@ -11,6 +11,8 @@ import {isValidJobId} from '../game/jobs/catalog';
 import {createMonsterRuntime} from '../game/engine/monsterAi';
 import {monsterFor} from '../game/engine/drops';
 import {EFFECTS} from '../game/engine/effects';
+import {BESTIARY_ENTRIES,bestiaryEntryById} from '../game/data/bestiary';
+import {emptyBestiary} from '../game/engine/bestiary';
 export interface StoragePort {getItem(key:string):string|null;setItem(key:string,value:string):void}
 export const APP_VERSION='0.1.40';
 export const SAVE_EXPORT_FORMAT='tower-chronicles-save';
@@ -27,6 +29,7 @@ export const GOLDEN_RECORDER_BACKUP_KEY='tower-record-v1-before-golden-recorder-
 export const MARKET_BACKUP_KEY='tower-record-v1-before-market-v9';
 export const ASSOCIATION_BACKUP_KEY='tower-record-v1-before-association-v10';
 export const CRAFTING_BACKUP_KEY='tower-record-v1-before-crafting-v11';
+export const BESTIARY_BACKUP_KEY='tower-record-v1-before-bestiary-v22';
 export const IMPORT_BACKUP_KEY='tower-record-v1-before-manual-import';
 type Obj=Record<string,unknown>;
 const obj=(x:unknown):x is Obj=>!!x&&typeof x==='object'&&!Array.isArray(x);
@@ -138,7 +141,26 @@ function validV21(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean 
 const floor21=(x:unknown)=>count(x)&&x>=1&&x<=10;
 function validResult21(x:unknown):boolean{if(x===null)return true;if(!obj(x))return false;const result=x as Obj,loot=result.loot;if(!obj(loot)||!obj(loot.tickets))return false;const tickets=loot.tickets as Obj;return floor21(result.floor)&&towerIds.every(t=>numbers(tickets[t],10));}
 function validExpedition21(x:unknown):boolean{if(x===null)return true;if(!obj(x))return false;const expedition=x as Obj,loot=expedition.loot;if(!obj(loot)||!obj(loot.tickets))return false;const tickets=loot.tickets as Obj;return floor21(expedition.floor)&&towerIds.every(t=>numbers(tickets[t],10));}
-export function validSave(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):x is GameState {return validV21(x,catalog);}
+const BESTIARY_IDS=new Set(BESTIARY_ENTRIES.map(entry=>entry.id));
+export function validBestiary(x:unknown):boolean {
+ if(!obj(x)||!obj(x.entries))return false;
+ return Object.entries(x.entries).every(([id,value])=>BESTIARY_IDS.has(id)&&obj(value)&&count(value.encounters)&&count(value.defeats)&&Number(value.defeats)<=Number(value.encounters));
+}
+function validV22(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {
+ if(!obj(x)||x.version!==22||!validBestiary(x.bestiary))return false;
+ return validV21({...x,version:21},catalog);
+}
+export function validSave(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):x is GameState {return validV22(x,catalog);}
+export function migrateV21(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {
+ if(!validV21(value,catalog))throw Error('v21 저장 데이터를 안전하게 이전할 수 없습니다.');
+ const next:any=structuredClone(value);
+ next.version=22;
+ next.bestiary=emptyBestiary();
+ const id=next.expedition?.monster?.definitionId;
+ if(typeof id==='string'&&bestiaryEntryById(id))next.bestiary.entries[id]={encounters:1,defeats:0};
+ if(!validV22(next,catalog))throw Error('탐사 생물록 저장 데이터 이전 검증에 실패했습니다.');
+ return next;
+}
 export const COMBAT_TRIGGERS_BACKUP_KEY='tower-record-v1-before-combat-triggers-v19';
 export const POTION_OVERHAUL_BACKUP_KEY='tower-record-v1-before-potions-v20';
 export function migrateV18(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {const compatible=padTickets(value);if(!validV18(compatible,catalog))throw Error('v18 저장 데이터를 안전하게 이전할 수 없습니다.');const next:any=structuredClone(compatible);next.version=19;if(next.expedition)next.expedition.reactivePrepared={player:null,monster:null};if(!validV19(next,catalog))throw Error('전투 트리거 저장 데이터 이전 검증에 실패했습니다.');return migrateV19(next,catalog);}
@@ -150,7 +172,7 @@ export const TOWER_STRUCTURE_BACKUP_KEY='tower-record-v1-before-tower-structure-
  * instead of silently deleting permanent inventory during the one-way migration. */
 const trimTickets=(row:unknown)=>{const source=Array.isArray(row)?row:[];const next=Array.from({length:10},(_,index)=>Number(source[index]??0));for(let index=10;index<source.length;index++)next[9]+=Number(source[index]??0);return next;};
 /** v20's 50-floor progress becomes the final available 10F state; permanent wealth remains intact. */
-export function migrateV20(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {const compatible=padTickets(value);if(!validV20(compatible,catalog))throw Error('v20 저장 데이터를 안전하게 이전할 수 없습니다.');const next:any=structuredClone(compatible);next.version=21;for(const t of towerIds){next.tickets[t]=trimTickets(next.tickets[t]);next.progress[t]=Math.min(10,Math.max(1,next.progress[t]));next.exploration.highestReturned[t]=Math.min(10,next.exploration.highestReturned[t]);next.exploration.unlockedTier[t]=1;}const normalizeLoot=(loot:any)=>{if(loot?.tickets)for(const t of towerIds)loot.tickets[t]=trimTickets(loot.tickets[t]);};normalizeLoot(next.lastExpedition?.loot);if(next.lastExpedition)next.lastExpedition.floor=Math.min(10,next.lastExpedition.floor);if(next.expedition){const e=next.expedition,wasBeyondFinalFloor=e.floor>10;e.floor=Math.min(10,e.floor);normalizeLoot(e.loot);if(wasBeyondFinalFloor){e.bossTracking=initialBossTracking();e.monster=monsterFor(e.tower,e.floor);e.monsterRuntime=createMonsterRuntime(e.monster,e.monsterTurn);}}if(!validV21(next,catalog))throw Error('10층 탑 구조 저장 데이터 이전 검증에 실패했습니다.');return next;}
+export function migrateV20(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {const compatible=padTickets(value);if(!validV20(compatible,catalog))throw Error('v20 저장 데이터를 안전하게 이전할 수 없습니다.');const next:any=structuredClone(compatible);next.version=21;for(const t of towerIds){next.tickets[t]=trimTickets(next.tickets[t]);next.progress[t]=Math.min(10,Math.max(1,next.progress[t]));next.exploration.highestReturned[t]=Math.min(10,next.exploration.highestReturned[t]);next.exploration.unlockedTier[t]=1;}const normalizeLoot=(loot:any)=>{if(loot?.tickets)for(const t of towerIds)loot.tickets[t]=trimTickets(loot.tickets[t]);};normalizeLoot(next.lastExpedition?.loot);if(next.lastExpedition)next.lastExpedition.floor=Math.min(10,next.lastExpedition.floor);if(next.expedition){const e=next.expedition,wasBeyondFinalFloor=e.floor>10;e.floor=Math.min(10,e.floor);normalizeLoot(e.loot);if(wasBeyondFinalFloor){e.bossTracking=initialBossTracking();e.monster=monsterFor(e.tower,e.floor);e.monsterRuntime=createMonsterRuntime(e.monster,e.monsterTurn);}}if(!validV21(next,catalog))throw Error('10층 탑 구조 저장 데이터 이전 검증에 실패했습니다.');return migrateV21(next,catalog);}
 export function migrateV8(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):any {if(!validV8(value,catalog))throw Error('v8 저장 데이터를 안전하게 이전할 수 없습니다.');const next={...(structuredClone(value) as Obj),version:9,market:initialMarketState()};if(!validV9(next,catalog))throw Error('거래소 저장 데이터 이전 검증에 실패했습니다.');return next;}
 export function migrateV9(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):any {if(!validV9(value,catalog))throw Error('v9 저장 데이터를 안전하게 이전할 수 없습니다.');const next={...(structuredClone(value) as Obj),version:10,association:initialAssociationState()};if(!validV10(next,catalog))throw Error('조합 저장 데이터 이전 검증에 실패했습니다.');return next;}
 export function migrateV10(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):any {if(!validV10(value,catalog))throw Error('v10 저장 데이터를 안전하게 이전할 수 없습니다.');const next={...(structuredClone(value) as Obj),version:11,crafting:initialCraftingState()};if(!validV11(next,catalog))throw Error('제작 저장 데이터 이전 검증에 실패했습니다.');return next as unknown as GameState;} export function migrateV11(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState{if(!validV11(value,catalog))throw Error('v11 저장 데이터를 안전하게 이전할 수 없습니다.');const next:any={...(structuredClone(value) as Obj),version:12};for(const a of next.association.associations){a.revenueShareRatePercent??=0;a.treasurySilver??=0;a.treasuryLedger??=[];}return next as GameState;}
@@ -308,6 +330,7 @@ export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=CO
        if(obj(data)&&data.version===18){const next=migrateV18(data,catalog);if(storage.getItem(COMBAT_TRIGGERS_BACKUP_KEY)===null)storage.setItem(COMBAT_TRIGGERS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
        if(obj(data)&&data.version===19){const next=migrateV19(data,catalog);if(storage.getItem(POTION_OVERHAUL_BACKUP_KEY)===null)storage.setItem(POTION_OVERHAUL_BACKUP_KEY,raw);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
       if(obj(data)&&data.version===20){const next=migrateV20(data,catalog);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
       if(!validSave(data,catalog))throw Error('지원하지 않거나 손상된 저장 데이터입니다.');
       return data;
     }

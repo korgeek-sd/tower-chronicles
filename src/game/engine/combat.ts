@@ -17,12 +17,13 @@ initFiveJobCombatDefinitions();
 import {beginMonsterTurn,chooseMonsterAction,createMonsterRuntime,definitionForRuntime,useMonsterAction} from './monsterAi';
 import {directHitLog,resolveActorDirectHits,resolveMonsterAction} from './monsterSkills';
 import {clearReactivePrepared} from './reactions';
+import {recordBestiaryDefeat} from './bestiary';
 
 export {damage} from './damage';
 const skillById=(id:string)=>SKILLS.find(skill=>skill.id===id);
 function heal(s:GameState,amount:number){const e=s.expedition!;e.hp=Math.min(stats(s,e.equipment).hp,e.hp+amount);}
 function startPlayerTurn(s:GameState){const e=s.expedition!;e.phase='PLAYER_TURN';e.playerTurn++;e.pendingFlee=false;for(const key of Object.keys(e.buffs)){e.buffs[key]=Math.max(0,e.buffs[key]-1);if(e.buffs[key]===0)delete e.buffs[key];}advanceSkillTurns(e,SKILLS.map(skill=>skill.id));}
-function defeatMonster(s:GameState,rng:()=>number){const e=s.expedition!;e.monster.currentHp=0;e.monsterRuntime=null;clearReactivePrepared(e);const defeatedBoss=e.events.activeBossId!==null;reward(s,rng);if(e.pendingFlee){if(defeatedBoss){e.bossTracking.bossDefeated=true;e.events.bossKillCountThisExpedition++;}return leave(s);}return postBattle(s,defeatedBoss,rng);}
+function defeatMonster(s:GameState,rng:()=>number){const e=s.expedition!;e.monster.currentHp=0;e.monsterRuntime=null;clearReactivePrepared(e);const defeatedBoss=e.events.activeBossId!==null;recordBestiaryDefeat(s,e.monster);reward(s,rng);if(e.pendingFlee){if(defeatedBoss){e.bossTracking.bossDefeated=true;e.events.bossKillCountThisExpedition++;}return leave(s);}return postBattle(s,defeatedBoss,rng);}
 function canOfferRevival(s:GameState){const e=s.expedition;return !!e&&e.bag.revival>0&&!e.pendingRevival;}
 function applyPeriodicDelta(s:GameState,actor:'player'|'monster',delta:number){const e=s.expedition!;if(delta<0){const result=applyIncomingDamage(e,actor,-delta),before=actor==='player'?e.hp:e.monster.currentHp,after=Math.max(0,before-result.hpDamage);if(actor==='player')e.hp=after;else e.monster.currentHp=after;log(s,(actor==='player'?'지속 피해 · ':'적 지속 피해 · ')+result.hpDamage+(result.absorbedByShield>0?' · 보호막 '+result.absorbedByShield+' 흡수':''));return;}if(delta>0){if(actor==='player')e.hp=Math.min(stats(s,e.equipment).hp,e.hp+delta);else e.monster.currentHp=Math.min(e.monster.hp,e.monster.currentHp+delta);log(s,(actor==='player'?'재생 회복 · ':'적 지속 회복 · ')+delta);}}
 function afterPlayerPeriodic(s:GameState,rng:()=>number){const e=s.expedition!;expireTurnEffects(e,'player',e.playerTurn);e.time++;if(e.hp<=0)return leave(s,true);if(e.monster.currentHp<=0){clearBattleEffects(e);return defeatMonster(s,rng);}e.phase='MONSTER_TURN';return s;}
