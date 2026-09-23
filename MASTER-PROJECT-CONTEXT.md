@@ -93,7 +93,7 @@ E:\탑의 기록\일러스트
 최신 production 기준:
 
 App version:
-0.1.42
+0.1.43
 
 Save schema:
 v22
@@ -112,16 +112,31 @@ Current main features relevant to this baseline:
 - Shield / DOT / HOT / stat modifier / stack / HP·status AI 조건
 - 전투 화면 Combat Intel: 확정 Charge/Reactive 경고, 적 효과/보호막/스킬 cooldown 정보
 - 탐사 생물록 active catalog 45종
-  - 철맥 10
-  - 붉은 송곳니 10
-  - 천광 25
-- 탐사 생물록 진행도는 GameState.bestiary에 canonical monster id 기준으로 영구 저장
-- 일반 개체: 조우 → 1회 처치 → 3회 처치 단계 공개
-- 보스: 1회 처치 시 전체 정보 공개
-- v21 → v22 migration은 bestiary progress를 추가하고 원본 backup을 보존
+- 장비 강화 v1 실제 구현
+  - 최대 +3
+  - +0→+1: 성공 50 / 유지 50
+  - +1→+2: 성공 35 / 유지 40 / 하락 20 / 파괴 5
+  - +2→+3: 성공 20 / 유지 35 / 하락 30 / 파괴 15
+  - 실패 하락은 정확히 1단계
+  - 파괴 장비는 영구 삭제, 장착 중이면 자동 해제
+  - 원정 중 강화 및 starter 장비 강화 불가
+  - 성공/실패 관계없이 Silver와 재료 소모
+- 강화 비용은 provisional
+  - T1 +1: 100 Silver / 재료 4
+  - T1 +2: 250 Silver / 재료 8
+  - T1 +3: 600 Silver / 재료 16
+  - T2~T5는 ×2~×5
+- 강화 재료는 무기=철광석, 갑옷/신발=가죽, 장신구=보석
+- numeric 장비 기여도는 +1당 +0의 10% 증가
+- 장신구 강화:
+  - 흡혈 8/9/10/11%
+  - 불굴 30/32/34/36%, HP 35% 조건 고정
+  - 광전사 40/43/46/50%, HP 40% 조건 고정
+- 강화 장비는 인벤토리 / 장비 / 전투 / 거래소 escrow / 저장·로드에서 enhancement identity를 유지
+- save schema는 v22 유지. v0.1.43은 신규 persisted field가 없다.
 - 천광 전용 monster/boss art는 아직 placeholder
 
-v0.1.42 release gate:
+v0.1.43 release gate:
 
 - npm test
 - npm run typecheck
@@ -130,7 +145,7 @@ v0.1.42 release gate:
 - main merge 후 GitHub Pages deploy 확인
 
 이 문서의 아래 과거 milestone은 역사 기록이다.
-현재 상태 판단에는 production code, GPT-HANDOFF-v0.1.42.md, 자동 테스트를 우선한다.
+현재 상태 판단에는 production code, GPT-HANDOFF-v0.1.43.md, 자동 테스트를 우선한다.
 
 ==================================================
 3. VERSION HISTORY — IMPORTANT MILESTONES
