@@ -93,7 +93,7 @@ E:\탑의 기록\일러스트
 최신 production 기준:
 
 App version:
-0.1.43
+0.1.44
 
 Save schema:
 v22
@@ -104,39 +104,41 @@ tower-record-v1
 Current main features relevant to this baseline:
 
 - 철맥의 첨탑 1~10F 실제 플레이 가능
+- 붉은 송곳니의 성소 1~10F 실제 플레이 가능
 - 천광의 수정탑 1~10F 실제 플레이 가능
-- 붉은 송곳니의 성소는 content data/boss definitions가 존재하지만 탑 선택에서는 아직 잠김
-- 칼레온의 녹빛 첨탑은 실제 몬스터 content 미구현
+- 칼레온의 녹빛 첨탑은 실제 몬스터 content 미구현 / 탑 선택 잠김
 - 수동 1대1 턴제
 - Monster Combat Framework: damage / charge / reactive_prepare / effect
 - Shield / DOT / HOT / stat modifier / stack / HP·status AI 조건
 - 전투 화면 Combat Intel: 확정 Charge/Reactive 경고, 적 효과/보호막/스킬 cooldown 정보
 - 탐사 생물록 active catalog 45종
-- 장비 강화 v1 실제 구현
+  - 철맥 10
+  - 붉은 송곳니 10
+  - 천광 25
+- 붉은 송곳니 일반 몬스터는 1~10F 공통 5종 pool
+  - 황야 멧돼지: defense buff + Charge
+  - 가시 자칼: fang_wound + wounded target attack
+  - 썩은날 독수리: defense down + 2-hit
+  - 가죽 갉는 하이에나: fang_wound stack + conditional heavy hit
+  - 무리 선봉: Reactive + attack buff + Charge
+- 붉은 송곳니 보스:
+  - 6F 핏갈기 추적자
+  - 7F 붉은턱 가죽포식자
+  - 8F 송곳니 무리어미
+  - 9F 성소 발톱주교
+  - 10F 적아의 주인
+- 천광 6F 정식 표시명: 백정갑주 균열거수
+- 장비 강화 v1:
   - 최대 +3
   - +0→+1: 성공 50 / 유지 50
   - +1→+2: 성공 35 / 유지 40 / 하락 20 / 파괴 5
   - +2→+3: 성공 20 / 유지 35 / 하락 30 / 파괴 15
-  - 실패 하락은 정확히 1단계
-  - 파괴 장비는 영구 삭제, 장착 중이면 자동 해제
-  - 원정 중 강화 및 starter 장비 강화 불가
-  - 성공/실패 관계없이 Silver와 재료 소모
-- 강화 비용은 provisional
-  - T1 +1: 100 Silver / 재료 4
-  - T1 +2: 250 Silver / 재료 8
-  - T1 +3: 600 Silver / 재료 16
-  - T2~T5는 ×2~×5
-- 강화 재료는 무기=철광석, 갑옷/신발=가죽, 장신구=보석
-- numeric 장비 기여도는 +1당 +0의 10% 증가
-- 장신구 강화:
-  - 흡혈 8/9/10/11%
-  - 불굴 30/32/34/36%, HP 35% 조건 고정
-  - 광전사 40/43/46/50%, HP 40% 조건 고정
-- 강화 장비는 인벤토리 / 장비 / 전투 / 거래소 escrow / 저장·로드에서 enhancement identity를 유지
-- save schema는 v22 유지. v0.1.43은 신규 persisted field가 없다.
-- 천광 전용 monster/boss art는 아직 placeholder
+  - 파괴 장비 영구 삭제 / 자동 해제
+- 강화 장비는 인벤토리 / 장비 / 전투 / 거래소 escrow / 저장·로드에서 enhancement identity 유지
+- save schema는 v22 유지. v0.1.44 신규 persisted field 없음.
+- 천광 전용 monster/boss art 일부는 아직 placeholder
 
-v0.1.43 release gate:
+v0.1.44 release gate:
 
 - npm test
 - npm run typecheck
@@ -145,7 +147,7 @@ v0.1.43 release gate:
 - main merge 후 GitHub Pages deploy 확인
 
 이 문서의 아래 과거 milestone은 역사 기록이다.
-현재 상태 판단에는 production code, GPT-HANDOFF-v0.1.43.md, 자동 테스트를 우선한다.
+현재 상태 판단에는 production code, GPT-HANDOFF-v0.1.44.md, 자동 테스트를 우선한다.
 
 ==================================================
 3. VERSION HISTORY — IMPORTANT MILESTONES
