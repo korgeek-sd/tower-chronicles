@@ -45,7 +45,7 @@ const FLOOR_POOLS:Record<number,string[]>={
 };
 
 export const CRYSTAL_BOSS_SLOTS={
- 6:{name:'백정갑주 거수',bossId:'white_crystal_armor_behemoth'},
+ 6:{name:'백정갑주 균열거수',bossId:'white_crystal_armor_behemoth'},
  7:{name:'만광굴절 포식자',bossId:'myriad_refraction_predator'},
  8:{name:'맥동광핵 증식체',bossId:'pulsing_crystal_core_growth'},
  9:{name:'천면결정수',bossId:'thousand_face_crystal_beast'},
