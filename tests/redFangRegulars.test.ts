@@ -5,10 +5,10 @@ import {RED_NORMAL_POOL,RED_T1_FLOORS} from '../src/game/data/redFang.ts';
 import {RED_NORMAL_DEFINITIONS} from '../src/game/data/redCombat.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {enter} from '../src/game/engine/expedition.ts';
-import {beginEncounter} from '../src/game/events/service.ts';
 import {basicAttack,resolveMonsterTurn} from '../src/game/engine/combat.ts';
 import {effectStacks,hasEffect} from '../src/game/engine/effects.ts';
-import {monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
+import {createMonsterRuntime,monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
+import {monsterFor} from '../src/game/engine/drops.ts';
 
 const noEvent=()=>.99;
 function regularState(id:string,floor=1):GameState {
@@ -16,7 +16,12 @@ function regularState(id:string,floor=1):GameState {
  base.tickets.leather[floor-1]=1;
  const entered=enter(base,'leather',floor);
  assert.ok(entered.expedition);
- return beginEncounter(entered,noEvent,id);
+ const index=RED_NORMAL_POOL.indexOf(id);
+ assert.ok(index>=0);
+ const monster=monsterFor('leather',floor,()=>Math.min(.999,(index+.01)/RED_NORMAL_POOL.length));
+ entered.expedition!.monster=monster;
+ entered.expedition!.monsterRuntime=createMonsterRuntime(monster);
+ return entered;
 }
 
 test('RED REGULAR 01: five authored regulars share the 1~10F pool and all have valid combat definitions',()=>{
