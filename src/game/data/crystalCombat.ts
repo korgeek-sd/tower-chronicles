@@ -229,7 +229,7 @@ export const CRYSTAL_NORMAL_DEFINITIONS:MonsterDefinition[]=[
 
 export const CRYSTAL_BOSS_DEFINITIONS:MonsterDefinition[]=[
  {
-  id:'white_crystal_armor_behemoth',name:'백정갑주 거수',
+  id:'white_crystal_armor_behemoth',name:'백정갑주 균열거수',
   skills:[
    {id:'white_bastion',name:'백정장벽',description:'두꺼운 결정 보호막을 전개합니다.',cooldown:4,kind:'effect',effects:[{target:'SELF',effectId:'crystal_bastion'}]},
    {id:'armor_collision',name:'갑주충돌',description:'거대한 결정갑주로 강타합니다.',cooldown:2,kind:'damage',multiplier:1.55},
