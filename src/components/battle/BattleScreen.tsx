@@ -12,9 +12,12 @@ import {skillTurnsLeft} from '../../game/engine/turns';
 import {canPlayerAct,canUseSkill,canUsePotion} from '../../game/engine/combat';
 import {activeShield,EFFECTS} from '../../game/engine/effects';
 import {resolvePlayerCombatKit} from '../../game/jobs/service';
-import {preparedMonsterSkill} from '../../game/engine/monsterAi';
 import {reactivePreparedSkill} from '../../game/engine/reactions';
 import {effectText} from './presentation';
+import {monsterCombatIntel} from './combatIntel';
+import {MonsterIntentBanner} from './MonsterIntentBanner';
+import {CombatEffectStrip} from './CombatEffectStrip';
+import {MonsterSkillPanel} from './MonsterSkillPanel';
 import {logKind} from './report';
 import {loadPrefs,savePrefs,SPEEDS} from './prefs';
 import type {BattlePrefs} from './prefs';
@@ -22,7 +25,7 @@ import type {BattlePrefs} from './prefs';
 type Props={game:GameState;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void};
 const art:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
 export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival}:Props){
- const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment),[menu,setMenu]=useState(false),[itemsOpen,setItemsOpen]=useState(false),prepared=preparedMonsterSkill(e.monster,e.monsterRuntime),monsterReactive=reactivePreparedSkill(e,'monster'),playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),monsterShield=activeShield(e,'monster');
+ const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment),[menu,setMenu]=useState(false),[itemsOpen,setItemsOpen]=useState(false),[enemyInfoOpen,setEnemyInfoOpen]=useState(false),playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e);
  const buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const [prefs,setPrefs]=useState<BattlePrefs>(loadPrefs);
  const [logsOpen,setLogsOpen]=useState(false);
@@ -35,7 +38,7 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,
   <div className="battle-topbar"><div className="battle-currency"><span>◈</span><b>{game.silver.toLocaleString()}</b><small>Silver</small></div><div className="battle-currency gold"><img className="currency-art" src="./assets/ui/navigation/gold.png" alt=""/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></div><button className="battle-menu-toggle" onClick={()=>setMenu(!menu)} aria-label="전투 메뉴" aria-expanded={menu}>☰</button></div>
   <div className="battle-location"><img className="navigation-art" src="./assets/ui/navigation/towers.png" alt=""/><h1>{TOWERS[e.tower].name}</h1><b>{e.floor}F <small>/ 10F · {e.floor<=2?'SAFE · PK 불가':e.floor<=5?'PK 가능':'보스 구간'}</small></b></div>
   <div className="battle-route" aria-label={`현재 ${e.floor}층`}><div>{Array.from({length:10},(_,i)=>{const floor=i+1;return <i key={floor} className={i===e.floor-1?'current':i<e.floor-1?'passed':''}>{floor>=6?'♜':'◆'}</i>;})}</div><p>{e.floor<=2?'SAFE · PK 불가':e.floor<=5?'일반 경쟁 구간 · PK 가능':'보스 구간 · 일반 탐사 및 보스 조우'}</p></div>
-  <aside className="enemy-facts"><small>적 능력</small><span>⚔ {Math.round(e.monster.attack)} <em>공격</em></span><span>⬡ {Math.round(e.monster.defense)} <em>방어</em></span></aside>
+  <aside className="enemy-facts"><small>적 능력</small><span>⚔ {Math.round(e.monster.attack)} <em>공격</em></span><span>⬡ {Math.round(e.monster.defense)} <em>방어</em></span><button type="button" className="enemy-info-toggle" onClick={()=>setEnemyInfoOpen(true)}>적 정보</button></aside>
   {e.jobRuntime?.resource && (
     <aside className="job-resource-facts" aria-label="직업 자원">
       <small>{e.jobRuntime.resource.id.toUpperCase()}</small>
@@ -43,14 +46,15 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,
     </aside>
   )}
   <aside className="player-combat-facts" aria-label="플레이어 전투 능력"><small>{WEAPONS[weapon].name}</small><span>⚔ {Math.round(st.attack)}</span><span>⬡ {Math.round(st.defense)}</span><span>✦ {Math.round((st.critChance??0)*100)}%</span><span>치명 {Math.round((st.critDamage??1)*100)}%</span><span>{st.attackHits??1}타</span><span>스킬 {Math.round(st.skillPower*100)}%</span></aside>
-  {(playerShield||monsterShield)&&<div className="shield-status" aria-label="보호막 상태">{playerShield&&<span className="player-shield"><b>⬢ 내 보호막</b>{effectText(playerShield)}</span>}{monsterShield&&<span className="monster-shield"><b>⬢ 적 보호막</b>{effectText(monsterShield)}</span>}</div>}
-  {e.monsterEffects.length>0&&<div className="monster-effects" aria-label="몬스터 효과">{e.monsterEffects.map(effect=><span key={effect.instanceId} title={EFFECTS[effect.effectId]?.description}>{effectText(effect)}</span>)}</div>}
+  {(playerShield||intel.shield)&&<div className="shield-status" aria-label="보호막 상태">{playerShield&&<span className="player-shield"><b>⬢ 내 보호막</b>{effectText(playerShield)}</span>}{intel.shield&&<span className="monster-shield"><b>⬢ 적 보호막</b>{intel.shield.name} · {intel.shield.shieldCurrent??intel.shield.shieldHits}{intel.shield.shieldMax!==undefined?` / ${intel.shield.shieldMax}`:''} · {intel.shield.turns}턴</span>}</div>}
+  <CombatEffectStrip effects={intel.effects}/>
   <div className="player-effects" aria-label="플레이어 효과">{buffs.length?buffs.map(effect=><span key={effect.instanceId} title={EFFECTS[effect.effectId]?.description}>{effectText(effect)}</span>):<small>{WEAPONS[weapon].name} 장착 · 효과 없음</small>}</div>
-  {(prepared||monsterReactive)&&<div className="monster-prepared" role="alert">{prepared&&<span><b>⚠ 강공 준비</b>{prepared.name}</span>}{monsterReactive&&<span><b>⚠ 반격 준비</b>{monsterReactive.prepare.name}</span>}</div>}
+  <MonsterIntentBanner intent={intel.intent}/>
   {playerReactive&&<div className="player-reactive" role="status"><b>반응 준비</b><span>{playerReactive.prepare.name}</span></div>}
   <div className="battle-state-line" role="status">{e.phase==='PLAYER_TURN'?'내 턴 · 행동을 선택하세요':e.phase==='MONSTER_TURN'?'적의 턴':e.bossTracking.pendingBossId?'보스 조우 선택':'전투 종료'} · {e.kills}마리 처치</div>
   {bossIdFor(e.tower,e.floor)&&<div className="battle-boss-progress">보스 흔적 <b>{e.bossTracking.progress+' / '+EVENT_BALANCE.bossMaxProgress}</b><progress value={e.bossTracking.progress} max={EVENT_BALANCE.bossMaxProgress}/></div>}
   <div className="battle-deck"><button type="button" className="battle-card art-heavy" disabled={!playerTurn} onClick={onBasicAttack} aria-label="기본 공격"><div className="card-art"><img src="./assets/ui/inventory/sword.png" alt=""/></div><strong>기본 공격</strong><small>{weapon==='bow'?'2회 타격':'직접 사용'}</small></button>{cards}<button type="button" className="battle-card art-health" disabled={!playerTurn} onClick={()=>setItemsOpen(true)} aria-expanded={itemsOpen} aria-label="전투 아이템"><div className="card-art"><span>⚗</span></div><strong>아이템</strong><small>포션 선택</small></button><button type="button" className="battle-card art-empty" disabled={!playerTurn} onClick={onFlee} aria-label="도망가기"><div className="card-art"><span>⇥</span></div><strong>도망가기</strong><small>적 행동 후 귀환</small></button></div>
+  {enemyInfoOpen&&<MonsterSkillPanel intel={intel} onClose={()=>setEnemyInfoOpen(false)}/>}
   {itemsOpen&&<section className="battle-item-panel" aria-label="전투 아이템"><div><h2>원정 포션</h2><button type="button" onClick={()=>setItemsOpen(false)} aria-label="아이템 패널 닫기">×</button></div><p>패널을 여닫는 것은 행동을 소비하지 않습니다.</p><p>회생 포션 ×{e.bag.revival} · 치명 피해 시 선택 가능</p>{generalPotionIds.map(p=><button type="button" key={p} disabled={!canUsePotion(game,p)} onClick={()=>{setItemsOpen(false);onPotion(p);}}><span>{POTIONS[p].icon} {POTIONS[p].name}</span><b>{e.bag[p]}개</b><small>{POTIONS[p].description}</small></button>)}</section>}
   {e.pendingRevival&&<div className="battle-dialog-backdrop" role="presentation"><section className="battle-encounter revival-dialog" role="dialog" aria-modal="true" aria-labelledby="revival-title"><h2 id="revival-title">치명상을 입었습니다</h2><p>회생 포션을 사용하면 1개를 소비하고 최대 HP의 30%로 현재 전투를 이어갑니다.</p><div className="mini-stats"><span>보유 <b>{e.bag.revival}개</b></span><span>회복 <b>최대 HP 30%</b></span></div><button className="primary" onClick={()=>onRevival(true)}>회생 포션 사용</button><button onClick={()=>onRevival(false)}>사용하지 않고 원정 종료</button></section></div>}
   <div className="battle-bottom"><span>─ ◇ ─ ⚒ ─ ◇ ─</span><p>더 깊이. 더 진실에.</p><button disabled={!playerTurn} onClick={onFlee}>⇥ 도망가기</button></div>
