@@ -1,6 +1,6 @@
 import {advanceSkillTurns,skillTurnsLeft} from './turns';
 import type {CombatContinuationStep,GameState,GeneralPotion,Potion} from '../types';
-import {COMBAT,SKILLS,POTIONS,PASSIVES,CONFIG,WEAPONS} from '../data/config';
+import {COMBAT,SKILLS,POTIONS,CONFIG,WEAPONS} from '../data/config';
 import {stats,weaponOf,equippedItem,log} from './state';
 import {reward} from './drops';
 import {leave} from './expedition';
@@ -18,6 +18,7 @@ import {beginMonsterTurn,chooseMonsterAction,createMonsterRuntime,definitionForR
 import {directHitLog,resolveActorDirectHits,resolveMonsterAction} from './monsterSkills';
 import {clearReactivePrepared} from './reactions';
 import {recordBestiaryDefeat} from './bestiary';
+import {accessoryPassive} from './equipmentStats';
 
 export {damage} from './damage';
 const skillById=(id:string)=>SKILLS.find(skill=>skill.id===id);
@@ -65,8 +66,8 @@ export function basicAttack(state:GameState,rng:()=>number=random):GameState {
   const hitResult=resolveActorDirectHits(s,'player',hitCount,identity.basicHitMultipliers[0]*jobMult,true,rng,hitCount);
   if(e.monster.definitionId==='black_vein_armor_breaker'&&e.monster.currentHp>0)for(const _ of hitResult.hits)applyEffect(e,'monster','fracture','player',e.monsterTurn);
   if(hitResult.hits.length===1)log(s,'당신의 공격 · '+directHitLog(hitResult));else hitResult.resolutions.forEach((value,index)=>log(s,'당신의 활 공격 '+(index+1)+'타 · '+value.hpDamage+' 피해'+(value.critical?' · 치명타!':'')+(value.absorbedByShield>0?' · 보호막 '+value.absorbedByShield+' 흡수':'')));
-  const passive=equippedItem(s,'accessory',e.equipment)?.kind as keyof typeof PASSIVES|undefined;
-  if(passive==='vampire'&&e.hp>0)heal(s,hitResult.total*PASSIVES.vampire.value);
+  const passive=accessoryPassive(equippedItem(s,'accessory',e.equipment));
+  if(passive?.kind==='vampire'&&e.hp>0)heal(s,hitResult.total*passive.value);
   if(e.pendingRevival){appendFinish(e,{kind:'AFTER_PLAYER_ACTION'});return s;}
   return finishPlayerTurn(s,rng);
 }
