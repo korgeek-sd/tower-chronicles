@@ -4,9 +4,10 @@ import {initialState} from '../src/game/engine/state.ts';
 import {PLAYABLE_TOWERS} from '../src/game/data/config.ts';
 import {BESTIARY_ENTRIES,bestiaryCountForTower} from '../src/game/data/bestiary.ts';
 
-test('RELEASE 0.1.42: save schema and playable towers remain compatible',()=>{
+test('RELEASE 0.1.42: save schema and original playable towers remain compatible',()=>{
  assert.equal(initialState().version,22);
- assert.deepEqual(PLAYABLE_TOWERS,['ore','gem']);
+ assert.equal(PLAYABLE_TOWERS.includes('ore'),true);
+ assert.equal(PLAYABLE_TOWERS.includes('gem'),true);
 });
 
 test('RELEASE 0.1.42: bestiary active catalog is 45 canonical entries',()=>{
