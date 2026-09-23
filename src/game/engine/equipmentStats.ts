@@ -43,7 +43,7 @@ const equippedItem=(s:GameState,slot:Slot,equipment:Record<Slot,string|null>)=>
 
 export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.equipped):Stats {
   const weaponItem=equippedItem(s,'weapon',equipment);
-  const weaponKind=(weaponItem?.kind in WEAPONS?weaponItem?.kind:'sword') as Weapon;
+  const weaponKind:Weapon=weaponItem&&weaponItem.kind in WEAPONS?weaponItem.kind as Weapon:'sword';
   const identity=WEAPONS[weaponKind];
   const weapon=weaponItem?equipmentContribution(weaponItem):{hp:0,attack:identity.attack*.4,defense:identity.defense*.4,speed:0};
   const armor=equipmentContribution(equippedItem(s,'armor',equipment));
