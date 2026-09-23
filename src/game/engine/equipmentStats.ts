@@ -65,6 +65,14 @@ export type AccessoryPassive =
   | {kind:'unyielding';value:number;hpRatioAtOrBelow:number}
   | {kind:'berserker';value:number;hpRatioAtOrBelow:number};
 
+export function accessoryPassiveDescription(item:Item|undefined):string|null {
+  const passive=accessoryPassive(item);
+  if(!passive)return null;
+  if(passive.kind==='vampire')return `가한 직접 피해의 ${Math.round(passive.value*100)}% 회복`;
+  if(passive.kind==='unyielding')return `HP ${Math.round(passive.hpRatioAtOrBelow*100)}% 이하에서 받는 피해 ${Math.round(passive.value*100)}% 감소`;
+  return `HP ${Math.round(passive.hpRatioAtOrBelow*100)}% 이하에서 공격력 ${Math.round(passive.value*100)}% 증가`;
+}
+
 export function accessoryPassive(item:Item|undefined):AccessoryPassive|null {
   if(!item)return null;
   if(item.kind==='vampire')return {
