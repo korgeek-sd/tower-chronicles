@@ -33,7 +33,7 @@ export const SKILLS=[
 ];
 export const COMBAT={monsterHp:42,hpPerFloor:10,monsterAttack:11,attackPerFloor:2.3,monsterDefense:1,defensePerFloor:1.1,monsterSpeed:.8,speedPerFloor:.004,silverBase:10,silverPerFloor:3,materialAmount:2,enemyLow:.35,selfLow:.7};
 export const towerIds=Object.keys(TOWERS) as Tower[];
-export const PLAYABLE_TOWERS:Tower[]=['ore','gem'];
+export const PLAYABLE_TOWERS:Tower[]=['ore','leather','gem'];
 export const potionIds=Object.keys(POTIONS) as Potion[];
 export const generalPotionIds=potionIds.filter((id):id is GeneralPotion=>id!=='revival');
 /** Equipment tiers are independent from tower floors after v0.1.30. */
