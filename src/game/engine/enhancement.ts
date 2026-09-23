@@ -63,12 +63,13 @@ export function enhancementQuote(state:GameState,itemId:string):EnhancementQuote
 export function resolveEnhancementOutcome(level:EnhancementAttemptLevel,roll:number):EnhancementOutcome {
   if(!Number.isFinite(roll)||roll<0||roll>=1)throw Error('강화 확률 판정값이 올바르지 않습니다.');
   const rule=enhancementRule(level)!;
-  const successEnd=rule.successRate;
-  const keepEnd=successEnd+rule.failKeepRate;
-  const downgradeEnd=keepEnd+rule.failDowngradeRate;
-  if(roll<successEnd)return 'SUCCESS';
-  if(roll<keepEnd)return 'FAIL_KEEP';
-  if(roll<downgradeEnd)return 'FAIL_DOWNGRADE';
+  const SCALE=1_000_000,point=Math.floor(roll*SCALE);
+  const successEnd=Math.round(rule.successRate*SCALE);
+  const keepEnd=successEnd+Math.round(rule.failKeepRate*SCALE);
+  const downgradeEnd=keepEnd+Math.round(rule.failDowngradeRate*SCALE);
+  if(point<successEnd)return 'SUCCESS';
+  if(point<keepEnd)return 'FAIL_KEEP';
+  if(point<downgradeEnd)return 'FAIL_DOWNGRADE';
   return 'FAIL_DESTROYED';
 }
 
