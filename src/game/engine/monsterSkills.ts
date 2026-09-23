@@ -3,17 +3,17 @@ import type {MonsterActionDecision,MonsterSkillDefinition} from './monsterAi';
 import {damage} from './damage';
 import {resolveDirectHits,type DirectHitResult} from './directHits';
 import {stats,equippedItem,log,recordCombatEvent} from './state';
-import {PASSIVES} from '../data/config';
+import {accessoryPassive} from './equipmentStats';
 import {applyEffect,EFFECTS,modifier} from './effects';
 import {checkJobPreparedReaction,consumeJobPreparedReaction,consumeDirectHitReaction,prepareReactive} from './reactions';
 import {applyJobDamageTakenHooks,notifyJobHpDamageTaken,checkJobHpThresholdHooks} from '../jobs/resolver';
 import {random} from '../events/rng';
 
 const other=(actor:CombatActor):CombatActor=>actor==='player'?'monster':'player';
-function actorAttack(s:GameState,actor:CombatActor){const e=s.expedition!;if(actor==='monster')return e.monster.attack*(1+modifier(e,'monster','attack'));const base=stats(s,e.equipment),passive=equippedItem(s,'accessory',e.equipment)?.kind as keyof typeof PASSIVES|undefined,berserk=passive==='berserker'&&e.hp/base.hp<=PASSIVES.berserker.threshold?1+PASSIVES.berserker.value:1;return base.attack*(1+modifier(e,'player','attack'))*berserk;}
+function actorAttack(s:GameState,actor:CombatActor){const e=s.expedition!;if(actor==='monster')return e.monster.attack*(1+modifier(e,'monster','attack'));const base=stats(s,e.equipment),passive=accessoryPassive(equippedItem(s,'accessory',e.equipment)),berserk=passive?.kind==='berserker'&&e.hp/base.hp<=passive.hpRatioAtOrBelow?1+passive.value:1;return base.attack*(1+modifier(e,'player','attack'))*berserk;}
 function actorDefense(s:GameState,actor:CombatActor){const e=s.expedition!;return actor==='monster'?e.monster.defense*(1+modifier(e,'monster','defense')):stats(s,e.equipment).defense*(1+modifier(e,'player','defense'));}
 function actorSkillPower(s:GameState,actor:CombatActor){const e=s.expedition!;return actor==='monster'?e.monster.skillPower:stats(s,e.equipment).skillPower;}
-function receivedDamageMultiplier(s:GameState,actor:CombatActor){if(actor==='monster')return Math.max(0,1+modifier(s.expedition!,'monster','receivedDamage'));const e=s.expedition!,base=stats(s,e.equipment),passive=equippedItem(s,'accessory',e.equipment)?.kind as keyof typeof PASSIVES|undefined;let value=1+modifier(e,'player','receivedDamage');if(passive==='unyielding'&&e.hp/base.hp<=PASSIVES.unyielding.threshold)value*=1-PASSIVES.unyielding.value;return Math.max(0,value);}
+function receivedDamageMultiplier(s:GameState,actor:CombatActor){if(actor==='monster')return Math.max(0,1+modifier(s.expedition!,'monster','receivedDamage'));const e=s.expedition!,base=stats(s,e.equipment),passive=accessoryPassive(equippedItem(s,'accessory',e.equipment));let value=1+modifier(e,'player','receivedDamage');if(passive?.kind==='unyielding'&&e.hp/base.hp<=passive.hpRatioAtOrBelow)value*=1-passive.value;return Math.max(0,value);}
 function resolveReaction(s:GameState,target:CombatActor,rng:()=>number=random){
   const e=s.expedition!;
   const jobReaction = checkJobPreparedReaction(e, target);
