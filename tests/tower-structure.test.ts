@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONFIG,floorSafety} from '../src/game/data/config.ts';
+import {CONFIG,floorSafety,PLAYABLE_TOWERS} from '../src/game/data/config.ts';
 import {BOSS_FLOORS} from '../src/game/data/graphics.ts';
 import {IRON_T1_FLOORS,IRON_NORMAL_POOL} from '../src/game/data/ironSpire.ts';
 import {entryStatus} from '../src/game/engine/exploration.ts';
@@ -23,4 +23,10 @@ test('v0.1.30: boss slots are 6 through 10 and legacy v20 floors safely normaliz
 test('v0.1.31: a live v21 expedition and receipt validate without changing their 10-slot loot',()=>{
  const state:any=initialState();state.progress.ore=6;state.lastExpedition={outcome:'returned',tower:'ore',floor:6,time:1,kills:1,loot:structuredClone(state.expedition?.loot??{silver:0,materials:{ore:[0,0,0,0,0],leather:[0,0,0,0,0],gem:[0,0,0,0,0],kaleon:[0,0,0,0,0]},tickets:{ore:Array(10).fill(0),leather:Array(10).fill(0),gem:Array(10).fill(0),kaleon:Array(10).fill(0)},skillBooks:{},items:{}}),remainingPotions:structuredClone(state.potions)};
  assert.ok(validSave(state));
+});
+
+test('v0.1.41: playable tower registry exposes Iron and Crystal only',()=>{
+ assert.deepEqual(PLAYABLE_TOWERS,['ore','gem']);
+ assert.equal(PLAYABLE_TOWERS.includes('leather'),false);
+ assert.equal(PLAYABLE_TOWERS.includes('kaleon'),false);
 });
