@@ -26,8 +26,17 @@ export function marketItems(s:GameState):MarketItem[]{
  Object.entries(s.lootItems).forEach(([id,q])=>result.push({id:'other:'+id,name:id,available:q,category:'other',description:'원정에서 보관한 거래 가능 아이템입니다.'}));
  return result;
 }
-export function marketItemName(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.name||itemId;}
-export function marketCatalog(s:GameState){const own=marketItems(s),known=new Map(own.map(item=>[item.id,item]));s.market.orders.forEach(order=>{if(!known.has(order.itemId))known.set(order.itemId,{id:order.itemId,name:marketItemName(s,order.itemId),available:0,category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:'거래소에 등록된 아이템입니다.'});});return [...known.values()];}
+const escrowGear=(s:GameState,itemId:string)=>s.market.orders.find(order=>order.itemId===itemId&&order.gear)?.gear;
+export function marketItemName(s:GameState,itemId:string){const own=marketItems(s).find(i=>i.id===itemId);if(own)return own.name;const gear=escrowGear(s,itemId);return gear?itemName(gear):itemId;}
+export function marketCatalog(s:GameState){
+ const own=marketItems(s),known=new Map(own.map(item=>[item.id,item]));
+ s.market.orders.forEach(order=>{
+  if(known.has(order.itemId))return;
+  const gear=order.gear??escrowGear(s,order.itemId);
+  known.set(order.itemId,{id:order.itemId,name:gear?itemName(gear):marketItemName(s,order.itemId),available:0,gear,category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'강화 단계를 포함한 개별 장비입니다.':'거래소에 등록된 아이템입니다.'});
+ });
+ return [...known.values()];
+}
 function available(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.available||0;}
 function removeItem(s:GameState,itemId:string,quantity:number):Item|undefined {
  if(itemId.startsWith('gear:')){const id=itemId.slice(5),index=s.items.findIndex(i=>i.id===id);if(quantity!==1||index<0||Object.values(s.equipped).includes(id)||s.expedition)throw Error('판매할 수 없는 장비입니다.');return s.items.splice(index,1)[0];}
@@ -76,6 +85,7 @@ export function placeOrder(state:GameState,input:OrderInput):GameState {
  const s=structuredClone(state),ownerId=input.ownerId||s.market.ownerId,now=input.createdAt??Date.now();
  if(s.expedition)return {...s,notice:'원정 중에는 거래소 주문을 등록할 수 없습니다.'};
  if(!validPositive(input.limitPrice)||!validPositive(input.quantity))return {...s,notice:'가격과 수량은 1 이상의 정수여야 합니다.'};
+ if(input.itemId.startsWith('gear:')&&input.quantity!==1)return {...s,notice:'개별 장비는 한 번에 1개만 주문할 수 있습니다.'};
  try{
   let gear:Item|undefined;
   if(input.side==='BUY'){const reserve=input.limitPrice*input.quantity;if(!Number.isSafeInteger(reserve)||s.silver<reserve)throw Error('예약할 Silver가 부족합니다.');s.silver-=reserve;}
