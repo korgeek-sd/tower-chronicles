@@ -4,6 +4,8 @@ node_modules/
 # Generated builds and standalone copies
 dist/
 assets/
+!public/assets/
+!public/assets/**
 play.html
 event-preview.html
 qa-v0.1.24/
