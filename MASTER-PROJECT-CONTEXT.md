@@ -90,48 +90,47 @@ E:\탑의 기록\일러스트
 2. CURRENT KNOWN DEVELOPMENT BASELINE
 ==================================================
 
-최신 업로드된 실제 handoff 기준:
+최신 production 기준:
 
 App version:
-0.1.30
+0.1.42
 
 Save schema:
-v21
+v22
 
 Main save key:
 tower-record-v1
 
-현재 branch:
+Current main features relevant to this baseline:
 
-codex/v0.1.30-tower-structure
+- 철맥의 첨탑 1~10F 실제 플레이 가능
+- 천광의 수정탑 1~10F 실제 플레이 가능
+- 붉은 송곳니의 성소는 content data/boss definitions가 존재하지만 탑 선택에서는 아직 잠김
+- 칼레온의 녹빛 첨탑은 실제 몬스터 content 미구현
+- 수동 1대1 턴제
+- Monster Combat Framework: damage / charge / reactive_prepare / effect
+- Shield / DOT / HOT / stat modifier / stack / HP·status AI 조건
+- 전투 화면 Combat Intel: 확정 Charge/Reactive 경고, 적 효과/보호막/스킬 cooldown 정보
+- 탐사 생물록 active catalog 45종
+  - 철맥 10
+  - 붉은 송곳니 10
+  - 천광 25
+- 탐사 생물록 진행도는 GameState.bestiary에 canonical monster id 기준으로 영구 저장
+- 일반 개체: 조우 → 1회 처치 → 3회 처치 단계 공개
+- 보스: 1회 처치 시 전체 정보 공개
+- v21 → v22 migration은 bestiary progress를 추가하고 원본 backup을 보존
+- 천광 전용 monster/boss art는 아직 placeholder
 
-v0.1.30의 목적:
+v0.1.42 release gate:
 
-기존 각 탑 50층 구조를 폐기하고
-각 탑 정확히 10층 구조로 변경.
+- npm test
+- npm run typecheck
+- npm run build
+- source assets가 versioned된 경우 standalone build
+- main merge 후 GitHub Pages deploy 확인
 
-현재 v0.1.30 handoff 기준:
-
-- typecheck 성공
-- Vite production build 성공
-- standalone 생성 성공
-- git diff check 성공
-
-하지만 npm test는
-Node 24.19.0 환경의 시스템 오류:
-
-uv_os_get_passwd returned ENOMEM
-
-때문에 테스트 assertion 시작 전에 중단됨.
-
-따라서 v0.1.30은 코드 구조상 구현 완료 상태이지만
-전체 regression test를 한 번 더 성공시켜야 한다.
-
-v0.1.30 변경은 해당 handoff 작성 시점 기준
-아직 local working tree에 있고
-commit / GitHub push 전이었다.
-
-실제 repository 상태는 항상 다시 확인한다.
+이 문서의 아래 과거 milestone은 역사 기록이다.
+현재 상태 판단에는 production code, GPT-HANDOFF-v0.1.42.md, 자동 테스트를 우선한다.
 
 ==================================================
 3. VERSION HISTORY — IMPORTANT MILESTONES
