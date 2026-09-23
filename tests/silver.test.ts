@@ -16,7 +16,7 @@ function oldV3(active=true){
  if(value.expedition){value.expedition.loot.gold=5000;delete value.expedition.loot.silver;value.expedition.hp=99;value.expedition.monster.currentHp=17;value.expedition.time=12;value.expedition.kills=2;}
  return value;
 }
-test('Silver 01-03: 초기 v21, Silver 0, 루트 gold 필드 없음',()=>{const s:any=initialState();assert.equal(s.version,21);assert.equal(s.silver,0);assert.ok(!('gold' in s));});
+test('Silver 01-03: 초기 v21, Silver 0, 루트 gold 필드 없음',()=>{const s:any=initialState();assert.equal(s.version,22);assert.equal(s.silver,0);assert.ok(!('gold' in s));});
 test('Silver 04-07: 처치 임시 보관, 귀환 정확한 합산과 중복 방지',()=>{let s=enter(initialState(),'ore',1);reward(s,()=>.99);assert.equal(s.silver,0);assert.equal(s.expedition!.loot.silver,13);s=leave(s);assert.equal(s.silver,13);assert.equal(leave(s).silver,13);});
 test('Silver 08-10: 사망 시 기존 재산 보존, 손실 결과만 기록',()=>{const base=initialState();base.silver=100;const s=enter(base,'ore',1);reward(s,()=>.99);const n=leave(s,true);assert.equal(n.silver,100);assert.equal(n.expedition,null);assert.equal(n.lastExpedition!.loot.silver,13);});
 test('Silver 11-13: 영구 100000과 원정 5000 분리 이전 및 gold 제거',()=>{const n:any=migrateV3(oldV3());assert.equal(n.silver,100000);assert.equal(n.expedition.loot.silver,5000);assert.ok(!('gold' in n));assert.ok(!('gold' in n.expedition.loot));});
