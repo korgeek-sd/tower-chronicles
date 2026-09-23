@@ -32,7 +32,7 @@ test('BESTIARY CATALOG 04: Crystal Tower normal ranges are derived from real flo
  const serpent=bestiaryEntryById('crystal_scale_serpent')!;
  const brute=bestiaryEntryById('celestial_crystal_brute')!;
  assert.deepEqual([quartz.floorMin,quartz.floorMax],[1,5]);
- assert.deepEqual([serpent.floorMin,serpent.floorMax],[5,7]);
+ assert.deepEqual([serpent.floorMin,serpent.floorMax],[5,10]);
  assert.deepEqual([brute.floorMin,brute.floorMax],[9,10]);
  assert.equal(bestiaryFloorLabel(brute),'9F ~ 10F');
 });
