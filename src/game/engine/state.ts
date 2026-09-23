@@ -3,6 +3,7 @@ import {CONFIG,STARTER,TOWERS,WEAPONS,EQUIPMENT,PASSIVES,towerIds,GEAR_MASTERY_K
 import {initialCosmetics} from './cosmetics';
 import {initialPresets} from './presets';
 import {emptyBestiary} from './bestiary';
+import {equipmentStats} from './equipmentStats';
 export const emptyBag=():Bag=>({healing_lesser:0,healing_standard:0,healing_greater:0,healing_supreme:0,revival:0});
 export const initialGearMastery=()=>Object.fromEntries(GEAR_MASTERY_KEYS.map(k=>[k,{unlockedTier:1,progress:0}])) as GameState['gearMastery'];
 export const initialMarketState=():MarketState=>({traderCertified:false,ownerId:'local-player',gold:1000,orders:[],trades:[],nextOrderId:1,nextTradeId:1,nextSequence:1});
@@ -13,7 +14,7 @@ export const itemSlot=(kind:string):Slot=>kind in WEAPONS?'weapon':kind==='armor
 export const itemName=(item:Item)=>`${item.tier}T ${item.id==='starter'?STARTER.name:item.kind in WEAPONS?WEAPONS[item.kind as Weapon].name:item.kind in EQUIPMENT?EQUIPMENT[item.kind as keyof typeof EQUIPMENT].name:PASSIVES[item.kind as keyof typeof PASSIVES].name+' 장신구'} +${item.enhancement}`;
 export const equippedItem=(s:GameState,slot:Slot,equipment=s.equipped)=>s.items.find(i=>i.id===equipment[slot]);
 export const weaponOf=(s:GameState,equipment=s.equipped):Weapon=>(equippedItem(s,'weapon',equipment)?.kind as Weapon)||'sword';
-export function stats(s:GameState,equipment=s.equipped):Stats {const w=equippedItem(s,'weapon',equipment);const d=WEAPONS[weaponOf(s,equipment)];const scale=w?(w.id==='starter'?STARTER.scale:1)*w.tier*(1+w.enhancement*.1):.4;const armor=equippedItem(s,'armor',equipment),boots=equippedItem(s,'boots',equipment);return {hp:CONFIG.baseHp+(armor?.tier||0)*EQUIPMENT.armor.hp+(boots?.tier||0)*EQUIPMENT.boots.hp,attack:CONFIG.baseAttack+d.attack*scale,defense:CONFIG.baseDefense+d.defense*scale+(armor?.tier||0)*EQUIPMENT.armor.defense,speed:d.speed+(boots?.tier||0)*EQUIPMENT.boots.speed,skillPower:d.skillPower,critChance:Math.min(1,Math.max(0,d.critChance)),critDamage:d.critDamage,attackHits:d.basicHitMultipliers.length};}
+export function stats(s:GameState,equipment=s.equipped):Stats {return equipmentStats(s,equipment);}
 export function log(s:GameState,message:string){s.logs.push(message);s.logs=s.logs.slice(-CONFIG.logLimit);}
 export function recordCombatEvent(s:GameState,event:Omit<CombatEvent,'id'>){const id=(s.combatEventSequence??0)+1;s.combatEventSequence=id;s.combatEvents=[...(s.combatEvents??[]),{...event,id}].slice(-40);}
 export const masteryKeyOf=(item:Item):GearMasteryKey=>item.kind in WEAPONS?item.kind as Weapon:itemSlot(item.kind) as Exclude<Slot,'weapon'>;
