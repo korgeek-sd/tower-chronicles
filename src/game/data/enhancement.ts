@@ -69,6 +69,12 @@ export const ENHANCEMENT_TIER_COST_MULTIPLIER={
   5:5,
 } as const satisfies Record<EquipmentTier,number>;
 
+/** Numeric equipment contributions gain 10% of their +0 value per enhancement level.
+ * This preserves the pre-v0.1.43 weapon behavior and applies the same deterministic rule
+ * to armor and boots. Accessory passives use their explicit table below instead. */
+export const EQUIPMENT_STAT_ENHANCEMENT_STEP=.10;
+export const equipmentStatMultiplier=(level:EnhancementLevel)=>1+EQUIPMENT_STAT_ENHANCEMENT_STEP*level;
+
 export const ENHANCEMENT_MATERIAL_BY_CATEGORY={
   weapon:'ore',
   armor:'leather',
