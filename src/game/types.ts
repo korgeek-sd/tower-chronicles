@@ -7,8 +7,10 @@ export type Potion = PotionId;
 export type GeneralPotion = Exclude<Potion,'revival'>;
 export type Tower = 'ore'|'leather'|'gem'|'kaleon';
 export type GearMasteryKey = Weapon|'armor'|'boots'|'accessory';
+export type EnhancementLevel = 0|1|2|3;
+export type EnhancementOutcome = 'SUCCESS'|'FAIL_KEEP'|'FAIL_DOWNGRADE'|'FAIL_DESTROYED';
 export type Bag = Record<Potion,number>;
-export interface Item {id:string; kind:string; tier:number; enhancement:0|1|2|3}
+export interface Item {id:string; kind:string; tier:number; enhancement:EnhancementLevel}
 export interface Stats {hp:number;attack:number;defense:number;speed:number;skillPower:number;critChance?:number;critDamage?:number;attackHits?:number}
 export interface Monster extends Stats {name:string;currentHp:number;definitionId?:string}
 export interface BossTracking {progress:number;pendingBossId:string|null;encounterReason:'early'|'max'|null;bossDefeated:boolean}
