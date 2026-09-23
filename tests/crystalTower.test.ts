@@ -54,7 +54,7 @@ test('CRYSTAL 03: 일반 몬스터 20종과 보스 5종 정의가 기존 Monster
 
 test('CRYSTAL 04: 6~10층 보스 슬롯은 정식 보스 5종에 연결된다',()=>{
  const expected=[
-  [6,'white_crystal_armor_behemoth','백정갑주 거수'],
+  [6,'white_crystal_armor_behemoth','백정갑주 균열거수'],
   [7,'myriad_refraction_predator','만광굴절 포식자'],
   [8,'pulsing_crystal_core_growth','맥동광핵 증식체'],
   [9,'thousand_face_crystal_beast','천면결정수'],
