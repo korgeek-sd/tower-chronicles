@@ -11,9 +11,9 @@ import {applyPreset,canAccessPresetSlot,renamePreset,savePreset} from '../../gam
 import {getGoldenPresetSlotLimit,getGoldenRecorderBenefits,isGoldenRecorderActive,remainingGoldenTime} from '../../game/premium/goldenRecorder';
 import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
-import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
 import {inventoryView} from '../../game/inventoryView';
 import {InventoryDetailSheet} from '../inventory/InventoryDetailSheet';
+import {CharacterPreview} from './CharacterPreview';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 
 export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'association'|'settings'|'bestiary';
@@ -51,7 +51,7 @@ export function EquipmentScreen({game,setGame,onSkills,onEnhancement}:{game:Game
  const [slot,setSlot]=useState<Slot>('weapon'),[page,setPage]=useState(0),[selectedId,setSelectedId]=useState<string|null>(null);
  const st=stats(game),items=game.items.filter(i=>itemSlot(i.kind)===slot),PAGE=4,pages=Math.max(1,Math.ceil(items.length/PAGE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE,safe*PAGE+PAGE);
  const views=inventoryView(game),selectedView=selectedId?views.find(v=>v.category==='equipment'&&v.sourceId===selectedId):undefined;
- const current=equippedItem(game,slot),key=current?masteryKeyOf(current):null,m=key?game.gearMastery[key]:null,target=m?m.unlockedTier+1:1,graphic=playerGraphicFor(game.cosmetics.selectedAppearanceId),character=graphic.image.idle?assetUrl(graphic.image.idle):null;
+ const current=equippedItem(game,slot),key=current?masteryKeyOf(current):null,m=key?game.gearMastery[key]:null,target=m?m.unlockedTier+1:1;
  const slotTabs=(Object.keys(SLOTS) as Slot[]).map(s=>[s,SLOTS[s]] as [Slot,string]);
  const slotItem=(s:Slot)=>game.items.find(i=>i.id===game.equipped[s])??null;
  const slotIcon=(s:Slot)=>s==='weapon'?'sword':s==='armor'?'armor':s==='boots'?'boots':'accessory';
@@ -61,7 +61,7 @@ export function EquipmentScreen({game,setGame,onSkills,onEnhancement}:{game:Game
    <section className="tc-loadout-stage">
     <div className="tc-loadout-vitals"><Stat label="HP" value={Math.round(st.hp)}/><Stat label="공격" value={Math.round(st.attack)}/><Stat label="방어" value={Math.round(st.defense)}/></div>
     {slotButton('armor','left-top')}{slotButton('accessory','left-bottom')}{slotButton('boots','right-bottom')}{slotButton('weapon','center-bottom')}
-    <div className="tc-character-figure">{character?<img src={character} alt="모험가"/>:<Glyph name="cosmetics"/>}</div>
+    <CharacterPreview appearanceId={game.cosmetics.selectedAppearanceId}/>
    </section>
    <Segments items={slotTabs} value={slot} onChange={v=>{setSlot(v);setPage(0);setSelectedId(null);}} label="장비 부위"/>
    <div className="tc-loadout-inventory">{shown.map(item=><button className={'tc-loadout-card '+(game.equipped[slot]===item.id?'equipped':'')} key={item.id} onClick={()=>setSelectedId(item.id)}><span className="tc-item-tier">T{item.tier}</span><Glyph name={slotIcon(slot)}/><b>{itemName(item)}</b><small>+{item.enhancement}{game.equipped[slot]===item.id?' · 장착':''}</small></button>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-loadout-card empty" key={'g'+i}/>)}</div>
