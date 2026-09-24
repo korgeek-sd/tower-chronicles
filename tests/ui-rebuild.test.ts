@@ -38,9 +38,14 @@ test('UI REBUILD 02: active mobile UI uses no decorative or legacy UI image asse
 test('UI REBUILD 03: the only active image tags belong to character or monster rendering',()=>{
  const battle=read('src/components/battle/BattleScene.tsx');
  const bestiary=read('src/components/bestiary/BestiaryScreen.tsx');
+ const character=read('src/components/mobile/CharacterPreview.tsx');
  assert.match(battle,/playerGraphicFor/);
  assert.match(battle,/graphicFor/);
  assert.match(bestiary,/graphicFor/);
+ assert.match(character,/playerGraphicFor/);
+ assert.match(character,/<img/);
+ assert.equal(character.includes('assets/ui'),false);
+ assert.equal(character.includes('assets/backgrounds'),false);
  for(const path of ['src/main.tsx','src/components/mobile/CoreScreens.tsx','src/components/events/EventScreen.tsx','src/components/inventory/InventoryDetailSheet.tsx']){
   assert.equal(read(path).includes('<img'),false,path+' should not render image assets');
  }
