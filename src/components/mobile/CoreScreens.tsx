@@ -11,6 +11,9 @@ import {applyPreset,canAccessPresetSlot,renamePreset,savePreset} from '../../gam
 import {getGoldenPresetSlotLimit,getGoldenRecorderBenefits,isGoldenRecorderActive,remainingGoldenTime} from '../../game/premium/goldenRecorder';
 import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
+import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
+import {inventoryView} from '../../game/inventoryView';
+import {InventoryDetailSheet} from '../inventory/InventoryDetailSheet';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 
 export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'association'|'settings'|'bestiary';
@@ -44,16 +47,27 @@ export function FloorScreen({game,setGame,tower,floor,setFloor,now,onBack,onEnte
  </Screen>;
 }
 
-export function EquipmentScreen({game,setGame,onSkills}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onSkills:()=>void}){
- const [slot,setSlot]=useState<Slot>('weapon'),[page,setPage]=useState(0),st=stats(game),items=game.items.filter(i=>itemSlot(i.kind)===slot),PAGE=4,pages=Math.max(1,Math.ceil(items.length/PAGE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE,safe*PAGE+PAGE),current=equippedItem(game,slot),key=current?masteryKeyOf(current):null,m=key?game.gearMastery[key]:null,target=m?m.unlockedTier+1:1;
+export function EquipmentScreen({game,setGame,onSkills,onEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onSkills:()=>void;onEnhancement:()=>void}){
+ const [slot,setSlot]=useState<Slot>('weapon'),[page,setPage]=useState(0),[selectedId,setSelectedId]=useState<string|null>(null);
+ const st=stats(game),items=game.items.filter(i=>itemSlot(i.kind)===slot),PAGE=4,pages=Math.max(1,Math.ceil(items.length/PAGE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE,safe*PAGE+PAGE);
+ const views=inventoryView(game),selectedView=selectedId?views.find(v=>v.category==='equipment'&&v.sourceId===selectedId):undefined;
+ const current=equippedItem(game,slot),key=current?masteryKeyOf(current):null,m=key?game.gearMastery[key]:null,target=m?m.unlockedTier+1:1,graphic=playerGraphicFor(game.cosmetics.selectedAppearanceId),character=graphic.image.idle?assetUrl(graphic.image.idle):null;
  const slotTabs=(Object.keys(SLOTS) as Slot[]).map(s=>[s,SLOTS[s]] as [Slot,string]);
- return <Screen eyebrow="EXPLORER LOADOUT" title="장비" meta={<button className="tc-action secondary slim" onClick={onSkills}>스킬</button>}>
-  <div style={{height:'100%',display:'grid',gridTemplateRows:'auto auto 1fr auto',gap:'5px'}}>
-   <div className="tc-stat-grid"><Stat label="HP" value={Math.round(st.hp)}/><Stat label="공격" value={Math.round(st.attack)}/><Stat label="방어" value={Math.round(st.defense)}/><Stat label="공속" value={st.speed.toFixed(2)}/></div>
-   <Segments items={slotTabs} value={slot} onChange={v=>{setSlot(v);setPage(0);}} label="장비 부위"/>
-   <div className="tc-job-list">{shown.map(item=><article className="tc-job" key={item.id}><div><b>{itemName(item)}</b><small>T{item.tier} · +{item.enhancement}{game.equipped[slot]===item.id?' · 장착 중':''}{item.kind in PASSIVES?' · '+PASSIVES[item.kind as keyof typeof PASSIVES].name:''}</small></div><button disabled={!!game.expedition||game.equipped[slot]===item.id} onClick={()=>setGame(s=>equip(s,item.id))}>{game.equipped[slot]===item.id?'장착':'교체'}</button></article>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-job" key={'g'+i}/>)}</div>
+ const slotItem=(s:Slot)=>game.items.find(i=>i.id===game.equipped[s])??null;
+ const slotIcon=(s:Slot)=>s==='weapon'?'sword':s==='armor'?'armor':s==='boots'?'boots':'accessory';
+ const slotButton=(s:Slot,pos:string)=>{const item=slotItem(s);return <button className={'tc-equip-slot '+pos+(slot===s?' selected':'')} aria-label={SLOTS[s]+(item?' '+itemName(item):' 비어 있음')} onClick={()=>{setSlot(s);setPage(0);if(item)setSelectedId(item.id);}}><small>{SLOTS[s]}</small><Glyph name={item?slotIcon(s):'other'}/>{item?<><b>{itemName(item)}</b><em>T{item.tier} · +{item.enhancement}</em></>:<><b>비어 있음</b><em>장비 없음</em></>}</button>;};
+ return <Screen eyebrow="EXPLORER LOADOUT" title="장비" meta={<><button className="tc-action secondary slim" onClick={onSkills}>스킬</button><button className="tc-action secondary slim" onClick={onEnhancement}>강화</button></>}>
+  <div className="tc-loadout">
+   <section className="tc-loadout-stage">
+    <div className="tc-loadout-vitals"><Stat label="HP" value={Math.round(st.hp)}/><Stat label="공격" value={Math.round(st.attack)}/><Stat label="방어" value={Math.round(st.defense)}/></div>
+    {slotButton('armor','left-top')}{slotButton('accessory','left-bottom')}{slotButton('boots','right-bottom')}{slotButton('weapon','center-bottom')}
+    <div className="tc-character-figure">{character?<img src={character} alt="모험가"/>:<Glyph name="cosmetics"/>}</div>
+   </section>
+   <Segments items={slotTabs} value={slot} onChange={v=>{setSlot(v);setPage(0);setSelectedId(null);}} label="장비 부위"/>
+   <div className="tc-loadout-inventory">{shown.map(item=><button className={'tc-loadout-card '+(game.equipped[slot]===item.id?'equipped':'')} key={item.id} onClick={()=>setSelectedId(item.id)}><span className="tc-item-tier">T{item.tier}</span><Glyph name={slotIcon(slot)}/><b>{itemName(item)}</b><small>+{item.enhancement}{game.equipped[slot]===item.id?' · 장착':''}</small></button>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-loadout-card empty" key={'g'+i}/>)}</div>
    <div><Pager page={safe} count={pages} onChange={setPage}/>{m&&key&&<div className="tc-floor-risk">{GEAR_MASTERY_NAMES[key]} · T{m.unlockedTier} 착용 가능 · {m.unlockedTier>=5?'MAX':m.progress+'/'+masteryRequired(target)}<Meter value={masteryPercent(game,key)} max={100}/></div>}</div>
   </div>
+  {selectedView&&<InventoryDetailSheet item={selectedView} onClose={()=>setSelectedId(null)} action={()=>setGame(state=>equip(state,selectedView.sourceId))} disabled={!!game.expedition||selectedView.equipped} label={selectedView.equipped?'장착 중':game.expedition?'원정 중 변경 불가':'장착'} secondaryAction={()=>{setSelectedId(null);onEnhancement();}} secondaryDisabled={!!game.expedition||selectedView.sourceId==='starter'} secondaryLabel="강화"/>}
  </Screen>;
 }
 
