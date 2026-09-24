@@ -50,8 +50,9 @@ export function leave(s:GameState,dead=false):GameState {
     potionIds.forEach(p=>n.potions[p]+=e.bag[p]);
   }
   e.loot=emptyLoot();
-  n.notice=dead?'원정 실패 · 이번 원정 전리품과 남은 원정 포션을 모두 잃었습니다. 기존 보관함은 유지됩니다.':'안전 귀환 · 이번 원정 전리품과 남은 포션을 보관함에 저장했습니다.';
-  log(n,n.notice);
+  const settlementMessage=dead?'원정 실패 · 이번 원정 전리품과 남은 원정 포션을 모두 잃었습니다. 기존 보관함은 유지됩니다.':'안전 귀환 · 이번 원정 전리품과 남은 포션을 보관함에 저장했습니다.';
+  n.notice=dead?settlementMessage:'';
+  log(n,settlementMessage);
   for(const line of lootLines(n.lastExpedition.loot))log(n,(dead?'손실: ':'보관: ')+line);
   for(const p of potionIds)if(e.bag[p])log(n,(dead?'소멸: ':'반환: ')+POTIONS[p].name+' 포션 ×'+e.bag[p]);
   return n;
