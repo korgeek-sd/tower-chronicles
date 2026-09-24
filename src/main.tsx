@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {createRoot,flushSync} from 'react-dom/client';
+import {createRoot} from 'react-dom/client';
+import {flushSync} from 'react-dom';
 import type {GameState,Tower} from './game/types';
 import {TOWERS} from './game/data/config';
 import {initialState} from './game/engine/state';
