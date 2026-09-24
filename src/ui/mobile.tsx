@@ -29,7 +29,7 @@ export function Pager({page,count,onChange}:{page:number;count:number;onChange:(
  </div>;
 }
 
-export function Segments<T extends string>({items,value,onChange,label}:{items:readonly [T,string][];value:T;onChange:(v:T)=>void;label:string}){
+export function Segments<T extends string>({items,value,onChange,label}:{items:readonly (readonly [T,string])[];value:T;onChange:(v:T)=>void;label:string}){
  return <div className="tc-segments" role="tablist" aria-label={label}>{items.map(([id,text])=><button key={id} role="tab" aria-selected={value===id} onClick={()=>onChange(id)}>{text}</button>)}</div>;
 }
 
