@@ -97,3 +97,20 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-topbar{gap:5px;padding-inline:7px}.tc-brand small{display:none}.tc-brand b{font-size:13px}.tc-brand-mark{width:26px;height:26px}.tc-premium b{display:none}.tc-wallet{gap:4px}.tc-coin b{font-size:9px}.tc-main{padding-inline:7px}.tc-nav button{font-size:7px}.tc-stat-grid{grid-template-columns:repeat(2,1fr)}.tc-home .tc-stat-grid{grid-template-columns:repeat(4,1fr)}.tc-market-row{grid-template-columns:1fr 62px 62px}.tc-bookform{grid-template-columns:1fr 1fr}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* Combat render foundation: only player and monster sprite assets remain in the scene. */
+.tc-battle-mode .tc-main,.tc-event-mode .tc-main{padding:0;height:100dvh;overflow:hidden}
+.tc-battle .player-placement,.tc-battle .monster-placement{transform:translate(-50%,-50%)}
+.tc-battle .player-figure,.tc-battle .monster-figure{width:100%;height:100%}
+.tc-battle .fighter-placeholder{width:100%;height:100%;display:grid;place-items:center;color:#73776f}.tc-battle .fighter-placeholder span{font:42px Georgia,serif}
+.tc-battle .damage-layer{position:absolute;inset:0;z-index:6;pointer-events:none}
+.tc-battle .floating-number{position:absolute;font-size:18px;font-weight:800;text-shadow:0 2px 3px #000;animation:tcFloat var(--damage-duration) ease-out forwards}
+.tc-battle .monster-damage{left:68%;top:28%;color:#e47e70}.tc-battle .player-damage,.tc-battle .player-heal{left:24%;top:55%}.tc-battle .player-damage{color:#e78175}.tc-battle .player-heal{color:#8fc397}
+.tc-battle .monster-shield-float{left:68%;top:28%;color:#91b6c0}.tc-battle .player-shield-float{left:24%;top:55%;color:#91b6c0}
+.tc-battle .floating-number small,.tc-battle .floating-number b{display:block;font-size:8px}
+.tc-battle .monster-figure.is-hit{animation:tcMonsterHit var(--hit-duration) ease-out}.tc-battle .player-figure.is-hit{animation:tcPlayerHit var(--hit-duration) ease-out}.tc-battle .defeated .monster-figure{opacity:0}
+.tc-battle .title-tag{display:block;font-size:7px;color:var(--brass)}
+@keyframes tcFloat{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-28px)}}
+@keyframes tcMonsterHit{0%,100%{transform:translateX(0);filter:brightness(1)}35%{transform:translateX(4px);filter:brightness(1.35)}}
+@keyframes tcPlayerHit{0%,100%{transform:translateX(0);filter:brightness(1)}35%{transform:translateX(-4px);filter:brightness(1.35)}}
