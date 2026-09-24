@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - codex/mobile-ui-rebuild-v0.1.45
   workflow_dispatch:
 
 permissions:
