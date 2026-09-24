@@ -1,37 +1,21 @@
-import {EventScreen} from './components/events/EventScreen';
-import {resolveEvent,continueEvent,configureEventMode} from './game/events/service';
-configureEventMode(new URLSearchParams(location.search).get('events')==='test'?'test':'production');
-import {RegionBackgrounds} from './components/RegionBackgrounds';
-import {backgroundFor,assetUrl} from './game/data/graphics';
-import {InventoryScreen} from './components/inventory/InventoryScreen';
-import {BattleScreen} from './components/battle/BattleScreen';
-import './components/battle/battle.css';
-import {ExpeditionLootPanel,ExpeditionResultPanel} from './components/ExpeditionLoot';
-import type {BattleTally} from './components/ExpeditionLoot';
-import type {DeathSnapshot} from './components/battle/report';
-import {loadPrefs} from './components/battle/prefs';
-import {useSkillBook} from './game/engine/skills';
-import {bookName} from './game/engine/loot';
-import {flushSync} from 'react-dom';
-import {registerGameTools} from './webmcp';
-import React,{useState,useEffect,useRef} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import type {GameState,Tower,Field,Slot,Potion} from './game/types';
-import {CONFIG,EQUIPMENT,WEAPONS,TOWERS,FIELDS,SLOTS,PASSIVES,POTIONS,SKILLS,potionIds,generalPotionIds,towerIds,tierOf,GEAR_MASTERY_KEYS,GEAR_MASTERY_NAMES,PLAYABLE_TOWERS} from './game/data/config';
-import {initialState,stats,itemName,itemSlot,equip,weaponOf,equippedItem,masteryKeyOf} from './game/engine/state';
-import {accessoryPassiveDescription} from './game/engine/equipmentStats';
-import {enter,leave,requestReturn} from './game/engine/expedition';
-import {masteryPercent,masteryRequired} from './game/engine/gearMastery';
+import {flushSync} from 'react-dom';
+import type {GameState,Tower} from './game/types';
+import {TOWERS} from './game/data/config';
+import {initialState} from './game/engine/state';
+import {enter,requestReturn} from './game/engine/expedition';
 import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resolveRevivalDecision} from './game/engine/combat';
-import {discount,settleCrafting} from './game/engine/crafting';
-import {monsterFor} from './game/engine/drops';
+import {settleCrafting} from './game/engine/crafting';
 import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
-import {APPEARANCES,TITLES,appearanceById,titleById} from './game/data/cosmetics';
-import {registerAppearance,selectAppearance,selectTitle} from './game/engine/cosmetics';
+import {loadPrefs} from './components/battle/prefs';
+import {registerGameTools} from './webmcp';
 
-import {applyPreset,canAccessPresetSlot,renamePreset,savePreset} from './game/engine/presets';
-import {extendGoldenRecorder,getGoldenPresetSlotLimit,getGoldenRecorderBenefits,isGoldenRecorderActive,remainingGoldenTime} from './game/premium/goldenRecorder';
+import {EventScreen} from './components/events/EventScreen';
+import {resolveEvent,continueEvent,configureEventMode} from './game/events/service';
+import {InventoryScreen} from './components/inventory/InventoryScreen';
+import {BattleScreen} from './components/battle/BattleScreen';
 import {MarketScreen} from './components/market/MarketScreen';
 import {AssociationScreen} from './components/association/AssociationScreen';
 import {JobsScreen} from './components/JobsScreen';
@@ -39,98 +23,83 @@ import {SaveManagement} from './components/SaveManagement';
 import {BestiaryScreen} from './components/bestiary/BestiaryScreen';
 import {EnhancementScreen} from './components/enhancement/EnhancementScreen';
 import {WorkshopScreen} from './components/workshop/WorkshopScreen';
-import './components/association/association.css';
-import './components/market/market.css';
-import './style.css';
-import './pixel-ui.css';
-import './components/battle/immersive.css';
-import './components/events/events.css';
-import './components/bestiary/bestiary.css';
-import './ui-overhaul.css';
-type Page='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'association'|'settings'|'bestiary';
+import {
+  HomeScreen,TowersScreen,FloorScreen,EquipmentScreen,SkillsScreen,MasteryScreen,
+  CosmeticsScreen,PremiumScreen,ExpeditionCompleteScreen,type AppPage
+} from './components/mobile/CoreScreens';
+import {Glyph} from './ui/mobile';
+import {isGoldenRecorderActive,remainingGoldenTime} from './game/premium/goldenRecorder';
+import './mobile-game.css';
+
+configureEventMode(new URLSearchParams(location.search).get('events')==='test'?'test':'production');
+
 const fixtureParam=import.meta.env.DEV?new URLSearchParams(location.search).get('combatFixture'):null;
 const combatFixtureName=(['reactive','stack','status-ai','shield','shield-expiry'].includes(fixtureParam??'')?fixtureParam:null) as CombatFixtureName|null;
-const fixtureNamespace=combatFixtureName?`tower-record-qa-${combatFixtureName}-${new URLSearchParams(location.search).get('qa')||'default'}:`:'';
+const fixtureNamespace=combatFixtureName?'tower-record-qa-'+combatFixtureName+'-'+(new URLSearchParams(location.search).get('qa')||'default')+':':'';
 const gameStorage=combatFixtureName?{getItem:(key:string)=>localStorage.getItem(fixtureNamespace+key),setItem:(key:string,value:string)=>localStorage.setItem(fixtureNamespace+key,value)}:localStorage;
-const nav:[Page,string,string][]=[['home','⌂','거점'],['inventory','▣','가방'],['market','⚖','거래소'],['association','♜','조합'],['craft','⚒','제작'],['equipment','⚔','장비']];
-function GearMasteryPanel({game,compact=false}:{game:GameState;compact?:boolean}){
-  const equippedKeys=game.expedition?Object.values(game.expedition.equipment).map(id=>game.items.find(i=>i.id===id)).filter((i):i is NonNullable<typeof i>=>!!i).map(masteryKeyOf):[];
-  const keys=compact?[...new Set(equippedKeys)]:GEAR_MASTERY_KEYS;
-  return <section className={'panel gear-mastery '+(compact?'compact':'')}><div className="section-heading"><h2>장비 숙련도</h2><span>{compact?'현재 장비':'영구 성장'}</span></div><div className="mastery-grid">{keys.map(key=>{const m=game.gearMastery[key],target=m.unlockedTier+1,required=masteryRequired(target);return <div className="mastery-row" key={key}><div><strong>{GEAR_MASTERY_NAMES[key]}</strong><small>T{m.unlockedTier} 착용 가능</small></div><div className="hp mastery"><div style={{width:masteryPercent(game,key)+'%'}}/></div><small>{m.unlockedTier>=5?'최고 단계':`${m.progress} / ${required} · T${target}까지 ${Math.round(masteryPercent(game,key))}%`}</small></div>;})}</div></section>;
-}
+
+const nav:[AppPage,string,string][]=[
+ ['home','home','거점'],['inventory','inventory','가방'],['market','market','거래소'],
+ ['association','association','원정단'],['craft','craft','공방'],['equipment','equipment','장비']
+];
+
 function App(){
-const [storageError,setStorageError]=useState('');
-const [now,setNow]=useState(()=>Date.now());
-useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id);},[]);
-const blocked=useRef(false);
-const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
-const [page,setPage]=useState<Page>(game.expedition||game.lastExpedition?'battle':'home');
-const wasExpedition=useRef(!!game.expedition);
-const [tower,setTower]=useState<Tower>('ore');const [floor,setFloor]=useState(1);
-const stateRef=useRef(game);stateRef.current=game;
-const tallyRef=useRef<BattleTally>({skills:{},potions:{},playerTurns:0,monsterTurns:0});
-const deathSnapRef=useRef<DeathSnapshot|null>(null);
-const battleMeta=useRef<{hadExp:boolean}>({hadExp:false});
-useEffect(()=>{
- const cur=stateRef.current,ex=cur.expedition;
- if(ex){
-  if(!battleMeta.current.hadExp){tallyRef.current={skills:{},potions:{},playerTurns:0,monsterTurns:0};deathSnapRef.current=null;}
-  battleMeta.current={hadExp:true};
-  const t=tallyRef.current;
-  if(ex.playerTurn>t.playerTurns)t.playerTurns=ex.playerTurn;
-  if(ex.monsterTurn>t.monsterTurns)t.monsterTurns=ex.monsterTurn;
-  const snapStats=stats(cur,ex.equipment);
-  deathSnapRef.current={monsterName:ex.monster.name,maxHp:snapStats.hp,defense:Math.round(snapStats.defense),effects:structuredClone(ex.playerEffects),potionsLeft:generalPotionIds.reduce((sum,p)=>sum+(ex.bag[p]??0),0),loadoutRevival:cur.loadout.revival};
- }else battleMeta.current={hadExp:false};
-});
-useEffect(()=>{window.scrollTo(0,0);if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
-useEffect(()=>{
-  if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');
-  wasExpedition.current=!!game.expedition;
-},[game.expedition,game.lastExpedition]);
-useEffect(()=>registerGameTools(()=>({silver:stateRef.current.silver,materials:stateRef.current.materials,expedition:stateRef.current.expedition?{tower:stateRef.current.expedition.tower,floor:stateRef.current.expedition.floor,kills:stateRef.current.expedition.kills,loot:stateRef.current.expedition.loot}:null}),async()=>{if(!stateRef.current.expedition)throw Error('진행 중인 원정이 없습니다.');const next=requestReturn(stateRef.current);flushSync(()=>{setGame(next);setPage('battle');});return {status:next.expedition?'return_requested':'returned',silver:next.silver};}),[]);
-const [saved,setSaved]=useState('');const logBox=useRef<HTMLDivElement>(null);
-useEffect(()=>{if(blocked.current){setStorageError('기존 저장 데이터를 읽지 못해 덮어쓰기를 중단했습니다. 브라우저 저장소를 확인한 뒤 다시 여세요.');return;}try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA 저장됨':'자동 저장됨');}catch{setStorageError('저장 공간을 사용할 수 없습니다. 이 창을 닫으면 진행 상황이 사라질 수 있습니다.');}},[game]);
-useEffect(()=>{const id=setInterval(()=>{if(!document.hidden)setGame(settleCrafting);},1000);return()=>clearInterval(id);},[]);
-// The delay is presentation only: the engine accepts exactly one pending monster
-// turn, so clicks, speed, or elapsed wall-clock time cannot add extra actions.
-useEffect(()=>{if(game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[game.expedition?.phase,game.expedition?.pendingRevival]);
-useEffect(()=>{logBox.current?.scrollTo(0,logBox.current.scrollHeight);},[game.logs.length,game.expedition?.time,page]);
-const eventOpen=!!game.expedition?.events.pendingEvent;
-const exp=game.expedition,st=stats(game,exp?.equipment),w=WEAPONS[weaponOf(game,exp?.equipment)],golden=getGoldenRecorderBenefits(game,now),goldenActive=isGoldenRecorderActive(game,now),presetLimit=getGoldenPresetSlotLimit(game,now);
-function move(p:Page){if(exp?.pendingRevival)return;setPage(p==='towers'&&exp?'battle':p);}
-function acceptImportedSave(next:GameState){blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('백업에서 복구됨');setPage(next.expedition||next.lastExpedition?'battle':'home');}
-function commitEvent(action:(state:GameState)=>GameState){if(blocked.current)throw Error('저장 차단');const current=stateRef.current,next=action(current);if(next===current)return;createRepository(localStorage).save(next);stateRef.current=next;flushSync(()=>setGame(next));}
-function takeBattleTurn(action:(state:GameState)=>GameState){setGame(action);}
-function updateBag(p:Potion,value:number){setGame(s=>({...s,loadout:{...s.loadout,[p]:Math.max(0,Math.min(s.potions[p],Math.floor(value)||0))}}));}
-const card=(title:string,body:React.ReactNode)=><section className="panel" key={title}><h2>{title}</h2>{body}</section>;
-return <div className={page==='battle'&&exp?(eventOpen?'app event-mode':'app battle-mode'):'app'}>
-<header><button className="brand" onClick={()=>move('home')}><span className="brand-icon">♜</span><span>탑의 기록<small>TOWER CHRONICLES</small></span></button><div className="silver"><span>◉</span> {game.silver.toLocaleString()}<small>Silver · <b className="gold-balance"><img className="currency-art" src="./assets/ui/navigation/gold.png" alt=""/> {game.market.gold.toLocaleString()} Gold</b></small></div><button className="golden-status" onClick={()=>setPage('premium')}><strong>황금기록자</strong><small>{goldenActive?remainingGoldenTime(game.goldenRecorder.expiresAt,now):'미등록'}</small></button></header>
-<div className="statusline"><span><i className={exp?'live':''}/> {exp?'원정 진행 중':'모험가의 거점'}</span><span>v{APP_VERSION} · {saved}</span></div>
-<main>
-{storageError&&<div className="error" role="alert">{storageError}</div>}
-{exp&&page!=='battle'&&<button className="resume" onClick={()=>setPage('battle')}>● {TOWERS[exp.tower].name} {exp.floor}층 사냥 중 · 전투로 돌아가기 →</button>}
-{page==='home'&&<>
-<div className="section-label">BASE CAMP / 01</div><h1>다음 원정을 준비하세요.</h1><p className="muted">탑에서 재료를 모으고, 직접 만든 장비로 더 높이.</p>
-<section className="hero panel"><div className="hero-top"><span className="badge">현재 전투 스타일</span><span className="hero-icon">{w.icon}</span></div><h2>{w.name}을 든 모험가</h2><p>{w.description}</p><div className="stats">{[['최대 HP',st.hp],['공격력',st.attack],['방어력',st.defense],['공격/초',st.speed]].map(([k,v])=><div key={k}><small>{k}</small><strong>{Number(v).toFixed(k==='공격/초'?2:0)}</strong></div>)}</div><button className="primary" onClick={()=>move('towers')}>{exp?'진행 중인 원정 보기':'탑으로 떠나기'} <span>→</span></button></section>
-<div className="section-heading"><h2>원정의 순환</h2><span>한 걸음씩, 더 높이</span></div><div className="steps"><div><b>01</b><strong>사냥</strong><small>재료와 Silver 수집</small></div><div><b>02</b><strong>제작</strong><small>확정 성능의 장비</small></div><div><b>03</b><strong>성장</strong><small>장착하고 재도전</small></div></div>
-<button className="wide-link" onClick={()=>setPage('bestiary')}>◇ 탐사 생물록 <span>조우·처치 기록 →</span></button><button className="wide-link" onClick={()=>setPage('settings')}>▤ 저장 관리 <span>내보내기 · 불러오기 →</span></button><button className="wide-link" onClick={()=>setPage('cosmetics')}>♙ 외형 · 칭호 <span>{appearanceById(game.cosmetics.selectedAppearanceId)?.name||'기본 모험가'} →</span></button><button className="wide-link" onClick={()=>setPage('jobs')}>♜ 직업 <span>25개 직업 카탈로그 →</span></button><button className="wide-link" onClick={()=>setPage('skills')}>✦ 기존 스킬 호환 <span>3개 슬롯 →</span></button><button className="wide-link" onClick={()=>setPage('mastery')}>⚒ 제작 숙련도 <span>분야별 자격 →</span></button>
-<div className="note">전투 화면에서 직접 행동을 선택합니다. 처음에는 철맥의 첨탑 1층을 추천합니다. 재료 6개를 모아 귀환한 뒤 검을 제작해 보세요. 포션은 전투 중 아이템 버튼에서 직접 사용합니다.</div>
-</>}
-{page==='towers'&&<><div className="section-label">EXPEDITION / 02</div><h1>어떤 탑에 도전할까요?</h1><p className="muted">원하는 재료를 고르고 원정을 준비하세요.</p><div className="tower-list">{towerIds.map((t,i)=><button className="tower-card" key={t} disabled={!PLAYABLE_TOWERS.includes(t)} onClick={()=>{setTower(t);setFloor(1);setPage('floor');}} style={{'--tower':TOWERS[t].color} as React.CSSProperties}><img className="tower-card-background" src={t==='kaleon'?undefined:assetUrl(backgroundFor(t,1))} alt="" hidden={t==='kaleon'}/><div className="tower-symbol"><img className="navigation-art" src="./assets/ui/navigation/towers.png" alt=""/></div><div><small>TOWER 0{i+1} · 최대 10층</small><h2>{TOWERS[t].name}</h2><p>{TOWERS[t].material} 수집 <span>· {game.progress[t]}층 발견</span></p></div><b>{PLAYABLE_TOWERS.includes(t)?'선택':'준비 중'}</b></button>)}</div><div className="note">각 탑은 10층 구조입니다. 1~2층은 SAFE 구간이며 3층부터는 향후 PK 가능 구간입니다.</div></>}
-{page==='floor'&&<><button className="back" onClick={()=>setPage('towers')}>← 탑 선택</button><h1>{TOWERS[tower].name}</h1><p className="muted">층과 포션을 정한 뒤 입장하세요.</p><RegionBackgrounds key={tower} tower={tower}/>{card('원정 프리셋',<><p className="muted">장비 4부위, 자동 스킬 3개, 포션 휴대량과 자동사용 기준을 저장합니다.</p>{game.expeditionPresets.map((preset,i)=>{const slot=i+1,open=canAccessPresetSlot(slot,presetLimit);return <div className={'preset-row '+(!open?'locked':'')} key={slot}><div><strong>{slot}. {preset?.name||`빈 프리셋 ${slot}`}</strong><small>{open?(preset?'저장된 원정 준비 설정':'현재 설정을 저장할 수 있습니다.'):'황금기록자 전용 · 데이터 보존'}</small></div>{open?<div>{preset&&<button disabled={!!exp} onClick={()=>setGame(s=>applyPreset(s,slot,presetLimit))}>불러오기</button>}<button disabled={!!exp} onClick={()=>setGame(s=>savePreset(s,slot,preset?.name,presetLimit))}>{preset?'덮어쓰기':'현재 설정 저장'}</button>{preset&&<button disabled={!!exp} onClick={()=>{const name=window.prompt('프리셋 이름',preset.name);if(name!==null)setGame(s=>renamePreset(s,slot,name,presetLimit));}}>이름 변경</button>}</div>:<b>잠김</b>}</div>;})}{exp&&<p className="danger">원정 중에는 프리셋을 변경할 수 없습니다.</p>}</>)}{card('목표 층',<><div className="floor-select"><button aria-label="이전 층" onClick={()=>setFloor(Math.max(1,floor-1))}>−</button><label><select aria-label="목표 층" value={floor} onChange={e=>setFloor(+e.target.value)}>{Array.from({length:CONFIG.maxFloor},(_,i)=><option key={i} value={i+1}>{i+1}층 · 입장권 {game.tickets[tower][i]}장</option>)}</select><small>{floor<=2?'SAFE · PK 불가':floor<=5?'PK 가능 구간':'보스 구간'} · {TOWERS[tower].material}</small></label><button aria-label="다음 층" onClick={()=>setFloor(Math.min(CONFIG.maxFloor,floor+1))}>+</button></div><div className="mini-stats"><span>적 HP <b>{monsterFor(tower,floor).hp}</b></span><span>적 공격 <b>{monsterFor(tower,floor).attack.toFixed(0)}</b></span><span>적 방어 <b>{monsterFor(tower,floor).defense.toFixed(0)}</b></span><span>공격/초 <b>{monsterFor(tower,floor).speed.toFixed(2)}</b></span></div></>)}
-{card('원정 가방',<><p className="muted">일반 회복 포션 <b className={generalPotionIds.reduce((sum,p)=>sum+game.loadout[p],0)>CONFIG.generalPotionLimit?'danger':''}>{generalPotionIds.reduce((sum,p)=>sum+game.loadout[p],0)} / {CONFIG.generalPotionLimit}</b></p>{potionIds.map(p=><div className="potion-row" key={p}><span className="potion-icon">{POTIONS[p].icon}</span><label htmlFor={'bag-'+p}>{POTIONS[p].name} 포션<small>T{POTIONS[p].tier} · 창고 {game.potions[p]}개{p==='revival'?' · 휴대 '+game.loadout.revival+' / '+CONFIG.revivalPotionLimit:''}</small></label><input id={'bag-'+p} type="number" min="0" disabled={!!exp||game.potions[p]===0} max={p==='revival'?Math.min(game.potions[p],CONFIG.revivalPotionLimit):game.potions[p]} value={game.loadout[p]} onChange={e=>updateBag(p,+e.target.value)}/></div>)}<label className="setting">기존 회복 기준(현재 수동 전투 미사용)<select value={game.threshold} onChange={e=>setGame(s=>({...s,threshold:+e.target.value}))}>{[30,50,70,0].map(x=><option value={x} key={x}>{x?'HP '+x+'% 이하':'사용 안 함'}</option>)}</select></label><small className="muted">일반 회복 포션은 전투 중 직접 사용합니다. 회생 포션은 치명상 시 선택창이 열립니다.</small></>)}
-<div className="note">입장권 1장을 즉시 사용합니다. 안전 귀환 시 획득물과 남은 포션을 보관합니다. 사망 시 이번 원정 획득물과 남은 원정 포션이 모두 소멸합니다.</div><button className="primary" disabled={!game.tickets[tower][floor-1]||generalPotionIds.reduce((sum,p)=>sum+game.loadout[p],0)>CONFIG.generalPotionLimit} onClick={()=>{const n=enter(game,tower,floor);setGame(n);if(n.expedition)setPage('battle');}}>{floor}층 입장 <span>입장권 {game.tickets[tower][floor-1]}장 보유 →</span></button></>}
-{page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} onHome={()=>setPage('home')} onChoice={(instance,choice)=>commitEvent(s=>resolveEvent(s,instance,choice))} onContinue={instance=>commitEvent(s=>continueEvent(s,instance))} onRevival={(use:boolean)=>setGame(s=>resolveRevivalDecision(s,use))}/>:<BattleScreen onHome={()=>setPage('home')} game={game} onBasicAttack={()=>takeBattleTurn(basicAttack)} onSkill={id=>{const t=tallyRef.current;t.skills[id]=(t.skills[id]??0)+1;takeBattleTurn(s=>useBattleSkill(s,id));}} onPotion={potion=>{const t=tallyRef.current;t.potions[potion]=(t.potions[potion]??0)+1;takeBattleTurn(s=>useBattlePotion(s,potion));}} onFlee={()=>takeBattleTurn(flee)} onRevival={(use:boolean)=>setGame(s=>resolveRevivalDecision(s,use))}/> ):<><div className="section-label">EXPEDITION COMPLETE</div><h1>{game.lastExpedition?.outcome==='dead'?'원정에 실패했습니다.':'안전하게 돌아왔습니다.'}</h1>{game.lastExpedition?<ExpeditionResultPanel result={game.lastExpedition} game={game} tally={tallyRef.current} deathSnap={deathSnapRef.current}/>:<div className="panel">{game.notice}</div>}<button className="primary" onClick={()=>setPage('inventory')}>영구 보관함 확인 →</button><button className="wide-link" onClick={()=>setPage('towers')}>다음 원정 준비 →</button></>)}
-{page==='inventory'&&<InventoryScreen game={game} setGame={setGame}/>}{page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
-{page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave}/>}
-{page==='jobs'&&<JobsScreen game={game} setGame={setGame}/>}
-{page==='market'&&<MarketScreen game={game} setGame={setGame}/>} {page==='association'&&<AssociationScreen game={game} setGame={setGame}/>}
-{page==='premium'&&<><div className="section-label">ACCOUNT STATUS</div><h1>황금기록자</h1><section className="panel"><div className="section-heading"><h2>상태</h2><span className="badge">{goldenActive?'활성':'미등록'}</span></div>{goldenActive&&<><p><strong>남은 기간 {remainingGoldenTime(game.goldenRecorder.expiresAt,now)}</strong></p><p className="muted">만료일시 {new Date(game.goldenRecorder.expiresAt!).toLocaleString()}</p></>}<div className="mini-stats"><span>프리셋 슬롯 <b>{golden.presetSlots}개</b></span><span>제작 추가 절감 <b>{golden.craftingMaterialReductionBonus?'+2%':'없음'}</b></span><span>Gold 판매 수수료 <b>{Math.round(golden.goldSaleFeeRate*100)}%</b><small>향후 거래소 적용</small></span></div></section>{import.meta.env.DEV&&<section className="panel"><h2>개발용 QA</h2><button onClick={()=>setGame(s=>extendGoldenRecorder(s,now,30*86400000))}>+30일</button><button onClick={()=>setGame(s=>extendGoldenRecorder(s,now,3600000))}>+1시간</button><button onClick={()=>setGame(s=>({...s,goldenRecorder:{expiresAt:now}}))}>즉시 만료</button></section>}</>}{page==='cosmetics'&&<><div className="section-label">PROFILE / COSMETICS</div><h1>외형 · 칭호</h1><p className="muted">외형과 칭호는 표시만 바꾸며 장비와 전투 능력치에는 영향을 주지 않습니다.</p>{exp&&<div className="note danger">원정 중에는 외형과 칭호를 변경할 수 없습니다. 안전 귀환 후 거점에서 변경하세요.</div>}<section className="panel"><div className="section-heading"><h2>외형 보관함</h2><span>{game.cosmetics.unlockedAppearanceIds.length} / {APPEARANCES.length} 등록</span></div>{APPEARANCES.map(a=>{const unlocked=game.cosmetics.unlockedAppearanceIds.includes(a.id),selected=game.cosmetics.selectedAppearanceId===a.id;return <div className="cosmetic-row" key={a.id}><div className="cosmetic-preview">♙</div><div><strong>{a.name}</strong><small>{a.description}</small><small>획득처: {a.sourceLabel} · {a.tradeable?'거래 가능':'거래 불가'}</small></div><button disabled={!!exp||selected||!unlocked} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{selected?'적용 중':unlocked?'적용':'미등록'}</button></div>;})}</section><section className="panel"><div className="section-heading"><h2>칭호</h2><span>{game.cosmetics.unlockedTitleIds.length}개 보유</span></div>{game.cosmetics.selectedTitleId&&<button className="wide-link" disabled={!!exp} onClick={()=>setGame(s=>selectTitle(s,null))}>현재 칭호 해제 <span>「{titleById(game.cosmetics.selectedTitleId)?.name}」</span></button>}{TITLES.filter(t=>game.cosmetics.unlockedTitleIds.includes(t.id)).map(t=><div className="list-row" key={t.id}><div>「{t.name}」<small>{t.description}</small></div><button disabled={!!exp||game.cosmetics.selectedTitleId===t.id} onClick={()=>setGame(s=>selectTitle(s,t.id))}>{game.cosmetics.selectedTitleId===t.id?'적용 중':'적용'}</button></div>)}{!game.cosmetics.unlockedTitleIds.length&&<p className="muted">보유한 칭호가 없습니다.</p>}</section></>}{page==='equipment'&&<><div className="section-label">EQUIPMENT / 04</div><h1>장비와 숙련도</h1><div className="stats panel">{[['HP',st.hp],['공격',st.attack],['방어',st.defense],['공격/초',st.speed]].map(([k,v])=><div key={k}><small>{k}</small><strong>{Number(v).toFixed(k==='공격/초'?2:0)}</strong></div>)}</div><GearMasteryPanel game={game}/>{(Object.keys(SLOTS) as Slot[]).map(slot=>card(SLOTS[slot],<><div className="equipped">{equippedItem(game,slot)?itemName(equippedItem(game,slot)!):'장착한 장비 없음'}</div>{game.items.filter(i=>itemSlot(i.kind)===slot).map(item=><div className="list-row" key={item.id}><div>{itemName(item)}{item.id==='starter'&&<small>지급용 검 · 제작 검보다 낮은 공격력</small>}{item.kind in PASSIVES&&<small>{accessoryPassiveDescription(item)??PASSIVES[item.kind as keyof typeof PASSIVES].description}</small>}</div><button className={exp?'locked':''} aria-disabled={!!exp} disabled={game.equipped[slot]===item.id} onClick={()=>setGame(s=>equip(s,item.id))}>{game.equipped[slot]===item.id?'장착 중':exp?'원정 잠금':'장착'}</button></div>)}</>))}<button className="wide-link" onClick={()=>setPage('skills')}>✦ 자동 스킬 3개 구성 →</button></>}
-{page==='skills'&&<><div className="section-label">AUTO SKILLS</div><h1>자동 스킬 구성</h1><p className="muted">1 → 2 → 3순위로 조건을 검사합니다. 사용할 스킬이 없으면 기본공격합니다.</p>{game.skills.map((id,i)=><label className="panel setting" key={i}>{i+1}순위<select aria-label={(i+1)+'순위 스킬'} disabled={!!exp} value={id||''} onChange={e=>setGame(s=>{const skills=[...s.skills] as GameState['skills'];skills[i]=e.target.value||null;return {...s,skills};})}><option value="">비워두기</option>{SKILLS.filter(sk=>game.learned.includes(sk.id)).map(sk=><option key={sk.id} disabled={game.skills.includes(sk.id)&&id!==sk.id} value={sk.id}>{sk.name}</option>)}</select></label>)}{SKILLS.map(sk=><section className="panel" key={sk.id}><div className="section-heading"><h2>{sk.name}</h2><span className="badge">{game.learned.includes(sk.id)?'배움':'스킬북 필요'}</span></div><p>{sk.description}</p><small className="muted">대기 {sk.cooldown}턴 · {sk.weapons.map(w=>WEAPONS[w].name).join(', ')}</small>{!sk.weapons.includes(weaponOf(game))&&<p className="danger">현재 무기로 사용할 수 없습니다.</p>}</section>)}</>}
-{page==='craft'&&<WorkshopScreen game={game} setGame={setGame} now={now} onEnhancement={()=>setPage('enhancement')} onMastery={()=>setPage('mastery')}/>}
-{page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onBack={()=>setPage('craft')}/>}{page==='mastery'&&<><div className="section-label">CRAFT MASTERY</div><h1>제작 숙련도</h1><p className="muted">현재 최고 제작 티어를 제작해야 다음 티어 자격이 오릅니다.</p>{(Object.keys(FIELDS) as Field[]).map(f=>{const m=game.mastery[f];return <section className="panel" key={f}><div className="section-heading"><h2>{FIELDS[f]}</h2><span className="badge">{m.unlocked}T 해금</span></div><p>{m.unlocked<5?m.unlocked+'T 제작 → '+(m.unlocked+1)+'T 자격':'모든 제작 티어 해금'}</p><div className="hp mastery"><div style={{width:(m.unlocked===5?100:m.progress/CONFIG.masteryRequired*100)+'%'}}/></div><div className="mini-stats"><span>{m.unlocked<5?m.progress+' / '+CONFIG.masteryRequired:'완료'}</span><span>총 제작 {m.crafts}회</span><span>재료 절감 {Math.round(discount(m.crafts)*100)}%</span></div></section>;})}<div className="note">예: 4T까지 해금했다면 4T 제작만 5T 자격을 올립니다. 낮은 티어 제작은 전체 제작 횟수에 따른 재료 절감에만 반영됩니다.</div></>}
-<div className="notice" role="status">{game.notice}</div>
-</main><nav>{nav.map(([p,_icon,label])=><button key={p} className={(page===p||(p==='towers'&&['floor','battle'].includes(page))||(p==='craft'&&['mastery','enhancement'].includes(page))||(p==='equipment'&&page==='skills'))?'active':''} onClick={()=>move(p)}><span><img className="navigation-art" src={`./assets/ui/navigation/${p}.png`} alt=""/></span>{label}</button>)}</nav></div>;
+ const [storageError,setStorageError]=useState('');
+ const [now,setNow]=useState(()=>Date.now());
+ useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id);},[]);
+ const blocked=useRef(false);
+ const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
+ const [page,setPage]=useState<AppPage>(game.expedition||game.lastExpedition?'battle':'home');
+ const [tower,setTower]=useState<Tower>('ore');
+ const [floor,setFloor]=useState(1);
+ const stateRef=useRef(game);stateRef.current=game;
+ const wasExpedition=useRef(!!game.expedition);
+ const [saved,setSaved]=useState('');
+
+ useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
+ useEffect(()=>{if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
+ useEffect(()=>registerGameTools(
+  ()=>({silver:stateRef.current.silver,materials:stateRef.current.materials,expedition:stateRef.current.expedition?{tower:stateRef.current.expedition.tower,floor:stateRef.current.expedition.floor,kills:stateRef.current.expedition.kills,loot:stateRef.current.expedition.loot}:null}),
+  async()=>{if(!stateRef.current.expedition)throw Error('진행 중인 원정이 없습니다.');const next=requestReturn(stateRef.current);flushSync(()=>{setGame(next);setPage('battle');});return {status:next.expedition?'return_requested':'returned',silver:next.silver};}
+ ),[]);
+ useEffect(()=>{if(blocked.current){setStorageError('저장 데이터를 읽지 못해 자동 저장을 중단했습니다.');return;}try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA':'저장');}catch{setStorageError('저장 공간을 사용할 수 없습니다.');}},[game]);
+ useEffect(()=>{const id=setInterval(()=>{if(!document.hidden)setGame(settleCrafting);},1000);return()=>clearInterval(id);},[]);
+ useEffect(()=>{if(game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[game.expedition?.phase,game.expedition?.pendingRevival]);
+
+ const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,goldenActive=isGoldenRecorderActive(game,now),immersive=page==='battle'&&!!exp;
+ function move(p:AppPage){if(exp?.pendingRevival)return;setPage(p==='towers'&&exp?'battle':p);}
+ function acceptImportedSave(next:GameState){blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('복구');setPage(next.expedition||next.lastExpedition?'battle':'home');}
+ function commitEvent(action:(state:GameState)=>GameState){if(blocked.current)throw Error('저장 차단');const current=stateRef.current,next=action(current);if(next===current)return;createRepository(gameStorage).save(next);stateRef.current=next;flushSync(()=>setGame(next));}
+ const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
+
+ return <div className={shellClass}>
+  {!immersive&&<><header className="tc-topbar">
+   <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
+   <div className="tc-wallet"><span className="tc-coin"><i/><b>{game.silver.toLocaleString()}</b><small>Silver</small></span><span className="tc-coin gold"><i/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></span></div>
+   <button className="tc-premium" onClick={()=>move('premium')}><b>황금기록자</b><small>{goldenActive?remainingGoldenTime(game.goldenRecorder.expiresAt,now):'미등록'}</small></button>
+  </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'NOVAR 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
+  <main className="tc-main">
+   {storageError&&<div className="error" role="alert">{storageError}</div>}
+   {page==='home'&&<HomeScreen game={game} onMove={move}/>}
+   {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
+   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{const next=enter(game,tower,floor);setGame(next);if(next.expedition)setPage('battle');}}/>}
+   {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} onHome={()=>setPage('home')} onChoice={(instance,choice)=>commitEvent(s=>resolveEvent(s,instance,choice))} onContinue={instance=>commitEvent(s=>continueEvent(s,instance))} onRevival={use=>setGame(s=>resolveRevivalDecision(s,use))}/>:<BattleScreen game={game} onHome={()=>setPage('home')} onBasicAttack={()=>setGame(basicAttack)} onSkill={id=>setGame(s=>useBattleSkill(s,id))} onPotion={p=>setGame(s=>useBattlePotion(s,p))} onFlee={()=>setGame(flee)} onRevival={use=>setGame(s=>resolveRevivalDecision(s,use))}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
+   {page==='inventory'&&<InventoryScreen game={game} setGame={setGame}/>}
+   {page==='equipment'&&<EquipmentScreen game={game} setGame={setGame} onSkills={()=>setPage('skills')}/>}
+   {page==='skills'&&<SkillsScreen game={game} setGame={setGame}/>}
+   {page==='craft'&&<WorkshopScreen game={game} setGame={setGame} now={now} onEnhancement={()=>setPage('enhancement')} onMastery={()=>setPage('mastery')}/>}
+   {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onBack={()=>setPage('craft')}/>}
+   {page==='mastery'&&<MasteryScreen game={game}/>}
+   {page==='market'&&<MarketScreen game={game} setGame={setGame}/>}
+   {page==='association'&&<AssociationScreen game={game} setGame={setGame}/>}
+   {page==='jobs'&&<JobsScreen game={game} setGame={setGame}/>}
+   {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
+   {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave}/>}
+   {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
+   {page==='premium'&&<PremiumScreen game={game} setGame={setGame} now={now}/>}
+   {!immersive&&game.notice&&<div className="notice" role="status">{game.notice}</div>}
+  </main>
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='craft'&&(page==='mastery'||page==='enhancement'))||(p==='equipment'&&page==='skills')||(p==='home'&&['settings','jobs','bestiary','cosmetics','premium'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}</button>)}</nav>}
+ </div>;
 }
 createRoot(document.getElementById('root')!).render(<App/>);

@@ -1,58 +1,92 @@
-# Tower Chronicles UI Architecture
+# Tower Chronicles Mobile UI Rebuild
 
-This branch applies a mobile-first UI architecture pass to Tower Chronicles without changing gameplay rules.
+This UI is a from-scratch mobile presentation layer. It does not load the legacy UI styles, pixel UI sheets, navigation art, item icons, tower backgrounds, event illustrations, or other decorative game assets.
 
-## Design references
+## Runtime asset rule
 
-- **game-ui-ux**: anchors/flow layout, safe areas, target-resolution verification, touch/focus behavior, screen hierarchy.
-- **game-ui-design**: decision-first information hierarchy, complete states, inventory/equipment usability, feedback and accessibility.
-- **LovecraftUi**: used only as a visual/composition reference for material surfaces, restrained motion, focus states, layered game UI and texture-like depth. The WebGL library itself is not integrated because Tower Chronicles is React/DOM-first and mobile-focused.
-- **GameUIAgent**: used as a process reference for structured component hierarchy and iterative visual consistency, not as a runtime dependency.
+Allowed image assets:
+- player character sprites
+- monster / boss sprites
 
-## Tower Chronicles direction
+Not used by the rebuilt runtime UI:
+- UI texture sheets
+- navigation icons
+- inventory / equipment icons
+- currency icons
+- tower background art
+- event illustrations
+- decorative panels
+- externally sourced UI images
 
-The interface represents tools and records used by professional tower explorers rather than a modern dashboard.
+Everything outside character and monster rendering is built from CSS, typography, borders, layout, text, and simple glyphs.
 
-Core material language:
-- blackened iron and worn steel
-- aged brass
-- old leather
-- dark wood / soot
-- warm ivory text
-- muted danger red and moss recovery green
+## Reference skills
 
-The UI deliberately avoids glassmorphism, neon gradients, SaaS cards, glossy gacha chrome and oversized rounded rectangles.
+The implementation uses principles from:
 
-## Mobile reference
+- game-ui-ux — responsive containers, safe areas, device-aware layouts, focus and input clarity.
+- game-ui-design — decision-first hierarchy, complete states, management-screen comparison, game-world identity.
+- game-ui-frontend — browser-game UI that avoids dashboard patterns and protects the playfield.
+- game-feel — restrained state feedback and reduced-motion support.
+- game-playtest — mobile viewport, HUD obstruction, input, and responsive QA criteria.
+- LovecraftUi — visual/composition study only; no runtime dependency, code, textures, or icons are imported.
+- GameUIAgent — structured hierarchy and iterative design-process reference only; no runtime dependency.
 
-Primary: **390×844**
+## One-screen mobile rule
 
-Verification targets:
+The document is the viewport.
+
+- html, body, and #root do not page-scroll.
+- The app shell is exactly 100dvh.
+- Standard screens have fixed top status chrome, one contained main region, and fixed bottom navigation.
+- Long collections use pagination, tabs, filters, drawers, or modal sheets instead of vertical page scrolling.
+- Battle and field events use the entire viewport and hide the standard shell chrome.
+
+Primary design target: 390×844.
+
+Additional constraints:
 - 360×740
 - 430×932
 - minimum 320×640
 
-Critical UI uses safe-area insets. Primary actions keep a minimum 44px touch target.
+## Visual language
 
-## Information hierarchy
+The game interface is treated as an Association expedition instrument rather than an app dashboard.
 
-- **Battle**: enemy/player state → intent/effects → actions → logs.
-- **Workshop**: completed items → active craft → queue → recipe catalog.
-- **Market**: item identity → current price/bid/ask → order book → order entry → history.
-- **Inventory**: category/filter → item grid → selected-item detail.
-- **Tower selection**: tower art/identity → progression → availability → expedition action.
+- soot-black / dark iron base
+- restrained aged-brass accent
+- warm parchment text
+- muted status colors
+- hard edges and thin rules
+- very little rounding
+- compact serif display type + plain Korean UI type
+- no gradient-purple AI aesthetic
+- no glassmorphism
+- no glossy gacha storefront treatment
+- no repeated oversized cards
 
-## Implementation constraints
+## Screen hierarchy
 
-- Existing gameplay engines remain authoritative.
-- UI reads existing state instead of duplicating gameplay state.
-- Existing save schema remains unchanged.
-- Existing pixel art remains pixelated and is framed by higher-resolution UI.
-- Reduced-motion preferences disable nonessential motion.
-- Korean text is the layout baseline.
+- Home: explorer dossier → stats → expedition action → compact secondary tools.
+- Tower board: four tower decisions at once.
+- Expedition prep: floor choice → danger stats → bag/preset tab → enter.
+- Battle: sprites/playfield → HP/intent/effects → six combat actions; details live behind one overlay.
+- Inventory: controls → 4×3 item grid → pager → detail sheet.
+- Marketplace: product/order decision table → paged lists; item detail combines compact book and order entry.
+- Workshop: completion/current job/queue → field/tier → three recipes → pager/mastery footer.
+- Enhancement: paged equipment list + probability/cost preview in the same viewport.
+- Bestiary: tower selector → 2×3 monster grid → pager → record overlay.
+- Jobs, association, cosmetics, skills, saves: fixed-capacity or paged views.
 
-## New UI layer
+## Gameplay boundary
 
-`src/ui-overhaul.css` is imported after legacy/component styles and acts as the shared presentation layer while the older UI is progressively decomposed into dedicated components.
+The rebuild replaces presentation, not game rules.
 
-The workshop is the first major screen extracted from `main.tsx` into a dedicated production component, including active work, queued jobs, completed-unclaimed output, explicit claiming and cancellation.
+- current save schema remains unchanged
+- combat and RNG remain in existing engines
+- crafting jobs and timestamps remain authoritative
+- marketplace matching and escrow remain authoritative
+- enhancement odds/costs remain authoritative
+- item/tower/job data remain authoritative
+
+The UI reads those systems and does not create a second gameplay state machine.
