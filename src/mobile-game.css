@@ -155,3 +155,99 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-loadout-vitals{top:4px}.tc-character-figure{top:18%;height:60%}.tc-equip-slot{height:27%}.tc-equip-slot.center-bottom{height:23%}
  .tc-sheet{height:min(82dvh,540px);grid-template-rows:32px 20px auto minmax(0,1fr) auto}.tc-item-overview{grid-template-columns:62px 1fr}.tc-item-overview .tc-sheet-icon{width:62px;height:62px}.tc-item-fact-list>div{min-height:23px}
 }
+
+
+/* --------------------------------------------------------------------------
+   PORTRAIT COMBAT REBUILD
+   Reference language: stark black field, outlined combat cards, asymmetric
+   enemy/player composition, five-card command strip. No non-character assets.
+   -------------------------------------------------------------------------- */
+.tc-battle-reference{background:#020303;color:#f0f0ed;font-family:"Malgun Gothic","Noto Sans KR",sans-serif}
+.tc-battle-reference:before{background:linear-gradient(180deg,#000 0,#0000 18%,#0000 78%,#000 100%);z-index:1}
+.tc-battle-ornament{position:absolute;z-index:2;left:0;right:0;pointer-events:none;opacity:.35}
+.tc-battle-ornament.top{top:0;height:7.4%;background:
+ radial-gradient(80px 28px at 14% 100%,transparent 46%,#40515c 48% 51%,transparent 53%),
+ radial-gradient(86px 30px at 31% 100%,transparent 46%,#40515c 48% 51%,transparent 53%),
+ repeating-linear-gradient(135deg,transparent 0 16px,#40515c 17px 19px,transparent 20px 34px)}
+.tc-battle-ornament.bottom{bottom:0;height:5.5%;transform:rotate(180deg);background:
+ radial-gradient(90px 26px at 20% 100%,transparent 46%,#31444f 48% 51%,transparent 53%),
+ repeating-linear-gradient(148deg,transparent 0 18px,#31444f 19px 21px,transparent 22px 38px)}
+.tc-battle-reference .tc-battle-scene{z-index:2}
+.tc-battle-reference .battle-scene,.tc-battle-reference .combat-stage{position:absolute!important;inset:0!important;height:100%!important;background:transparent!important}
+.tc-battle-reference .combat-hud{display:contents}
+.tc-battle-reference .player-placement{left:27%!important;top:63%!important;width:50%!important;height:31%!important;max-width:none!important;max-height:none!important;z-index:4}
+.tc-battle-reference .monster-placement{left:72%!important;top:39%!important;width:52%!important;height:34%!important;max-width:none!important;max-height:none!important;z-index:4}
+.tc-battle-reference .player-figure img,.tc-battle-reference .monster-figure img{filter:drop-shadow(0 8px 7px #000e)!important}
+.tc-battle-reference .fighter-placeholder{opacity:.45}
+
+/* top information board */
+.tc-ref-top{position:absolute;z-index:11;top:max(5.8%,env(safe-area-inset-top));left:1.2%;right:1.2%;height:13.5%;display:grid;grid-template-columns:minmax(0,1fr) 67px;grid-template-rows:1fr auto;column-gap:8px;pointer-events:none}
+.tc-ref-metrics{grid-column:1;display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 5px;pointer-events:auto}
+.tc-ref-metrics>div{position:relative;display:grid;grid-template-columns:22px 1fr;grid-template-rows:1fr 16px;align-items:center;border-bottom:1px solid #d7d7d2;padding:1px 4px 4px;min-width:0}
+.tc-ref-metrics>div>span{grid-row:1/3;font:700 20px Georgia,serif;color:#8db0c2;text-align:center}
+.tc-ref-metrics>div:nth-child(2)>span{color:#a7aaa5}.tc-ref-metrics>div:nth-child(3)>span{color:#d3d3ce}
+.tc-ref-metrics b{justify-self:end;font:700 16px/1 ui-monospace,Consolas,monospace;color:#f3f3ef}
+.tc-ref-metrics small{grid-column:1/3;font-size:7px;color:#a1a39d;padding-top:2px;white-space:nowrap}
+.tc-ref-floor{grid-column:1;display:flex;align-items:end;gap:8px;padding:4px 7px 0;border-bottom:1px solid #d7d7d2;color:#b9bbb5;min-width:0}
+.tc-ref-floor span{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-ref-floor b{margin-left:auto;font:700 17px ui-monospace,Consolas,monospace;color:#f0f0ec;white-space:nowrap}.tc-ref-floor i{font-style:normal;color:#b5b7b0;font-size:.8em}
+.tc-ref-menu{grid-column:2;grid-row:1/3;align-self:center;justify-self:center;width:54px;height:54px;border:3px solid #f0f0ec;border-radius:9px;background:#050606;display:grid;align-content:center;gap:5px;padding:9px;pointer-events:auto}
+.tc-ref-menu i{display:block;height:4px;border-radius:2px;background:#f0f0ec}
+
+/* fighter HUD cards */
+.tc-battle-reference .fighter-hud{position:absolute!important;z-index:9!important;width:44%!important;min-height:0!important;border:2px solid #e7e7e1!important;border-radius:5px!important;background:#050606ed!important;padding:8px 9px 7px!important;box-shadow:0 0 0 1px #111!important;color:#efefeb!important}
+.tc-battle-reference .monster-hud{left:1.2%!important;top:21.4%!important;right:auto!important;text-align:left!important}
+.tc-battle-reference .player-hud{right:1.2%!important;left:auto!important;top:58.5%!important;text-align:left!important}
+.tc-battle-reference .fighter-hud strong{display:block!important;font:400 13px/1.15 ui-monospace,Consolas,"Malgun Gothic",monospace!important;letter-spacing:.01em!important}
+.tc-battle-reference .fighter-hud .title-tag{display:inline!important;margin-right:4px!important;font-size:7px!important;color:#babcb6!important}
+.tc-battle-reference .fighter-hud>span{display:block!important;margin:5px 0 -14px!important;position:relative!important;z-index:2!important;text-align:center!important;font:700 11px ui-monospace,monospace!important;color:#fff!important;text-shadow:1px 1px #000,-1px -1px #000!important}
+.tc-battle-reference .fighter-hud .hp{height:13px!important;border:1px solid #e4e4df!important;border-radius:7px!important;background:#080808!important;padding:1px!important;margin:0!important;box-shadow:none!important;overflow:hidden!important}
+.tc-battle-reference .fighter-hud .hp>div{height:100%!important;border-radius:5px!important;background:#ef1717!important;box-shadow:inset 0 -2px #a70000!important}
+.tc-battle-reference .monster-hud .hp>div{background:#ef1717!important}
+.tc-hud-pips{display:flex;gap:4px;margin-top:5px;padding-left:34%}.tc-hud-pips i{width:15px;height:15px;border:1px solid #deded9;border-radius:50%;background:radial-gradient(circle,#303333 0 38%,#0d0f0f 40%);box-shadow:0 0 0 1px #111}.tc-hud-pips i.active{border-color:#8eafd0;background:radial-gradient(circle,#d7ecff 0 18%,#5e85b0 24% 50%,#112338 56%)}
+.tc-hud-level{position:absolute;right:7px;bottom:5px;font:8px ui-monospace,monospace;color:#c2c4be}
+
+/* return button and enemy intent */
+.tc-ref-flee{position:absolute;z-index:12;left:1.1%;top:38.2%;width:47px;height:47px;border:3px solid #efefeb;border-radius:8px;background:#060707;color:#a4b4ca;padding:3px;display:grid;place-items:center;align-content:center}
+.tc-ref-flee .tc-glyph{font-size:20px}.tc-ref-flee small{font-size:6px;color:#d5d6d2;margin-top:-2px}
+.tc-ref-intent{position:absolute;z-index:12;left:50%;top:53.3%;transform:translateX(-50%);width:42%;border:2px solid #e57378;border-radius:4px;background:#050606ed;text-align:center;padding:5px 7px;color:#f0efea}
+.tc-ref-intent b{display:block;font-size:8px;color:#ffb0a9}.tc-ref-intent span{display:block;font-size:9px;margin-top:2px}
+.tc-ref-effects.player{position:absolute;z-index:10;right:2%;top:69.4%;width:42%;display:flex;justify-content:flex-end;gap:3px;flex-wrap:wrap}.tc-ref-effects.player span{border:1px solid #757873;background:#080909d9;padding:2px 4px;font-size:6px;color:#b8bab5}
+
+/* small controls above the command cards */
+.tc-ref-sidecontrols{position:absolute;z-index:13;right:2.3%;bottom:17.6%;display:flex;gap:7px}
+.tc-ref-sidecontrols button{width:43px;height:43px;border:3px solid #ecece7;border-radius:8px;background:#050606;color:#f1f1ed;padding:2px;display:grid;place-items:center;align-content:center}
+.tc-ref-sidecontrols span{font:700 19px Georgia,serif;line-height:.9}.tc-ref-sidecontrols small{font:700 7px ui-monospace,monospace;margin-top:1px}
+
+/* five-card command row */
+.tc-ref-actions{position:absolute;z-index:14;left:.8%;right:.8%;bottom:6.7%;height:13.2%;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.tc-ref-card{position:relative;min-width:0;min-height:0;border:3px solid #efefeb;border-radius:7px;background:#0a0c0d;color:#f0f0ed;padding:3px 2px 14px;display:grid;grid-template-rows:1fr auto;text-align:center;box-shadow:0 0 0 1px #161818;overflow:visible}
+.tc-ref-card:nth-child(1){--skill-accent:#3d6fa5}.tc-ref-card:nth-child(2){--skill-accent:#a45336}.tc-ref-card:nth-child(3){--skill-accent:#755269}.tc-ref-card:nth-child(4){--skill-accent:#4b7b70}.tc-ref-card:nth-child(5){--skill-accent:#45919b}
+.tc-ref-card-art{position:relative;min-height:0;border:1px solid #303534;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--skill-accent),#fff 10%) 0,color-mix(in srgb,var(--skill-accent),#000 62%) 58%,#0a0c0c 100%);display:grid;place-items:center;overflow:hidden}
+.tc-ref-card-art .tc-glyph{font-size:clamp(24px,7vw,42px);color:#e1e5df;text-shadow:0 2px #000}
+.tc-ref-card-art>b{position:absolute;right:2px;top:2px;min-width:15px;height:15px;border:1px solid #e8e8e3;border-radius:50%;background:#161818;color:#efb59c;font:700 7px/13px ui-monospace,monospace}
+.tc-ref-card>strong{position:absolute;left:1px;right:1px;bottom:-14px;font-size:7px;line-height:12px;color:#c9cdc6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-ref-card>small{position:absolute;left:1px;right:1px;bottom:-25px;font-size:6px;color:#79b37f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-ref-card:disabled{filter:grayscale(.7);opacity:.48}
+.tc-ref-turn{position:absolute;z-index:12;left:10%;right:10%;bottom:2.1%;height:14px;text-align:center;font-size:7px;color:#8e928c;letter-spacing:.04em}
+
+/* full combat panel */
+.tc-ref-panel{inset:max(6.5%,env(safe-area-inset-top)) 4% calc(5.5% + env(safe-area-inset-bottom))!important;border:2px solid #d7d7d1!important;border-radius:6px!important;background:#090b0bf8!important;box-shadow:0 0 0 999px #000b!important}
+.tc-ref-panel .tc-bpanel-head{height:38px;border-bottom:1px solid #71746e}.tc-ref-panel .tc-bpanel-head h2{font:700 15px ui-monospace,monospace!important}.tc-ref-panel .tc-bpanel-head button{width:34px;height:30px;border:0!important;background:none!important;font-size:22px!important}
+.tc-ref-panel .tc-floor-risk,.tc-ref-panel .tc-job,.tc-ref-panel .tc-skill-list article{background:#111514;border-color:#383d38}
+.tc-ref-panel .tc-job-list{grid-template-rows:repeat(5,1fr)}
+.tc-ref-panel .tc-bprefs button{border:1px solid #5a605a!important;background:#111514!important;color:#d9dbd6!important}
+
+@media(max-height:700px){
+ .tc-ref-top{top:max(4.5%,env(safe-area-inset-top));height:14.5%}
+ .tc-ref-menu{width:48px;height:48px}
+ .tc-battle-reference .monster-hud{top:20.5%!important}
+ .tc-battle-reference .player-hud{top:57%!important}
+ .tc-battle-reference .monster-placement{top:38%!important;height:33%!important}
+ .tc-battle-reference .player-placement{top:62%!important;height:30%!important}
+ .tc-ref-actions{bottom:7.5%;height:13.7%}.tc-ref-turn{bottom:2.4%}
+}
+@media(max-width:360px){
+ .tc-ref-metrics{gap:4px;padding-inline:2px}.tc-ref-metrics>div{grid-template-columns:17px 1fr;padding-inline:2px}.tc-ref-metrics>div>span{font-size:16px}.tc-ref-metrics b{font-size:12px}.tc-ref-floor b{font-size:14px}.tc-ref-menu{width:48px;height:48px}
+ .tc-battle-reference .fighter-hud{width:46%!important;padding:6px!important}.tc-battle-reference .fighter-hud strong{font-size:11px!important}.tc-hud-pips i{width:12px;height:12px}
+ .tc-ref-actions{gap:2px}.tc-ref-card{border-width:2px}.tc-ref-card-art .tc-glyph{font-size:25px}
+}
