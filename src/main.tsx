@@ -66,7 +66,7 @@ function App(){
  useEffect(()=>{const id=setInterval(()=>{if(!document.hidden)setGame(settleCrafting);},1000);return()=>clearInterval(id);},[]);
  useEffect(()=>{if(game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[game.expedition?.phase,game.expedition?.pendingRevival]);
 
- const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,goldenActive=isGoldenRecorderActive(game,now),immersive=page==='battle'&&!!exp;
+ const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,goldenActive=isGoldenRecorderActive(game,now),immersive=page==='battle'&&!!exp,visibleNotice=game.notice.startsWith('안전 귀환 ·')?'':game.notice;
  function move(p:AppPage){if(exp?.pendingRevival)return;setPage(p==='towers'&&exp?'battle':p);}
  function acceptImportedSave(next:GameState){blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('복구');setPage(next.expedition||next.lastExpedition?'battle':'home');}
  function commitEvent(action:(state:GameState)=>GameState){if(blocked.current)throw Error('저장 차단');const current=stateRef.current,next=action(current);if(next===current)return;createRepository(gameStorage).save(next);stateRef.current=next;flushSync(()=>setGame(next));}
@@ -97,7 +97,7 @@ function App(){
    {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave}/>}
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
    {page==='premium'&&<PremiumScreen game={game} setGame={setGame} now={now}/>}
-   {!immersive&&page!=='battle'&&game.notice&&<div className="notice" role="status">{game.notice}</div>}
+   {!immersive&&page!=='battle'&&visibleNotice&&<div className="notice" role="status">{visibleNotice}</div>}
   </main>
   {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='craft'&&(page==='mastery'||page==='enhancement'))||(p==='equipment'&&page==='skills')||(p==='home'&&['settings','jobs','bestiary','cosmetics','premium'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}</button>)}</nav>}
  </div>;
