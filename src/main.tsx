@@ -97,7 +97,7 @@ function App(){
    {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave}/>}
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
    {page==='premium'&&<PremiumScreen game={game} setGame={setGame} now={now}/>}
-   {!immersive&&game.notice&&<div className="notice" role="status">{game.notice}</div>}
+   {!immersive&&page!=='battle'&&game.notice&&<div className="notice" role="status">{game.notice}</div>}
   </main>
   {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='craft'&&(page==='mastery'||page==='enhancement'))||(p==='equipment'&&page==='skills')||(p==='home'&&['settings','jobs','bestiary','cosmetics','premium'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}</button>)}</nav>}
  </div>;
