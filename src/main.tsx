@@ -16,7 +16,7 @@ import {flushSync} from 'react-dom';
 import {registerGameTools} from './webmcp';
 import React,{useState,useEffect,useRef} from 'react';
 import {createRoot} from 'react-dom/client';
-import type {GameState,Tower,Slot,Potion} from './game/types';
+import type {GameState,Tower,Field,Slot,Potion} from './game/types';
 import {CONFIG,EQUIPMENT,WEAPONS,TOWERS,FIELDS,SLOTS,PASSIVES,POTIONS,SKILLS,potionIds,generalPotionIds,towerIds,tierOf,GEAR_MASTERY_KEYS,GEAR_MASTERY_NAMES,PLAYABLE_TOWERS} from './game/data/config';
 import {initialState,stats,itemName,itemSlot,equip,weaponOf,equippedItem,masteryKeyOf} from './game/engine/state';
 import {accessoryPassiveDescription} from './game/engine/equipmentStats';
