@@ -12,7 +12,7 @@ import {InventoryDetailSheet} from './InventoryDetailSheet';
 const PAGE_SIZE=8;
 const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',armor:'armor',boots:'boots',accessory:'accessory'};
 
-export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
+export function InventoryScreen({game,setGame,onCraft,onEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onCraft:()=>void;onEnhancement:()=>void}){
  const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false);
  const close=useCallback(()=>setSelected(null),[]);
  const items=inventoryView(game),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
@@ -34,13 +34,13 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
    </section>
 
    <section className="tc-storage-board">
-    <div className="tc-storage-head"><div><b>영구 보관함</b><small>{categoryNames[category]} · {visible.length}종</small></div><button className={toolsOpen?'active':''} onClick={()=>setToolsOpen(v=>!v)} aria-label="검색과 정렬"><Glyph name="filter"/> 정렬</button></div>
+    <div className="tc-storage-head"><div><b>영구 보관함</b><small>{categoryNames[category]} · {visible.length}종</small></div><div className="tc-storage-head-actions"><button className={toolsOpen?'active':''} onClick={()=>setToolsOpen(v=>!v)} aria-label="검색과 정렬"><Glyph name="filter"/> 정렬</button><button onClick={onEnhancement}>강화</button><button onClick={onCraft}>제작</button></div></div>
     <div className="tc-storage-categories">{categorySet.map(c=><button key={c} aria-selected={category===c} aria-label={categoryNames[c]} onClick={()=>{setCategory(c);setSelected(null);setFilter({tier:0,status:false});setPage(0);}}><Glyph name={c}/><small>{categoryNames[c]}</small></button>)}</div>
     {toolsOpen&&<div className="tc-storage-tools"><input aria-label="아이템 검색" placeholder="이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/><select aria-label="정렬" value={sort} onChange={e=>setSort(e.target.value as InventorySort)}><option value="default">기본 정렬</option><option value="name">이름순</option><option value="tier">티어 높은순</option><option value="quantity">수량 많은순</option></select>{tierVisible&&<select aria-label="티어 필터" value={filter.tier} onChange={e=>{setFilter({...filter,tier:+e.target.value});setPage(0);}}>{[0,1,2,3,4,5].map(t=><option key={t} value={t}>{t?'T'+t:'전체 티어'}</option>)}</select>}{statusLabel&&<label><input type="checkbox" checked={filter.status} onChange={e=>setFilter({...filter,status:e.target.checked})}/>{statusLabel}</label>}</div>}
     <div className="tc-storage-grid">{shown.map(i=><button key={i.key} className="tc-storage-item" aria-label={i.name+' · '+i.quantity+'개'} onClick={()=>setSelected(i.key)}><div className="tc-storage-icon"><Glyph name={i.iconId}/>{i.tier&&<span>T{i.tier}</span>}</div><strong>{i.name}</strong><small>{i.stack?i.quantity.toLocaleString()+'개':i.equipped?'장착 중':i.enhancement!==undefined?'+'+i.enhancement:'1개'}</small>{i.equipped&&<em>●</em>}</button>)}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-storage-item empty" aria-hidden="true" key={'empty'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} onClose={close} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet game={game} item={item} onClose={close} onEnhancement={()=>{close();onEnhancement();}} {...{action,label,disabled}}/>}
  </Screen>;
 }
