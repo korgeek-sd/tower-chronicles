@@ -5,6 +5,7 @@ import {awardEquippedMastery} from './gearMastery';
 import {IRON_T1_MONSTER_BY_ID,ironFloorContent} from '../data/ironSpire';
 import {RED_T1_MONSTER_BY_ID,redFloorContent} from '../data/redFang';
 import {CRYSTAL_T1_MONSTER_BY_ID,crystalFloorContent} from '../data/crystalTower';
+import {KALEON_T1_MONSTER_BY_ID,kaleonFloorContent} from '../data/kaleonSpire';
 
 export function monsterFor(tower:Tower,floor:number,rng:()=>number=()=>0):Monster {
   const baseHp=COMBAT.monsterHp+(floor-1)*COMBAT.hpPerFloor;
@@ -12,9 +13,10 @@ export function monsterFor(tower:Tower,floor:number,rng:()=>number=()=>0):Monste
   const baseSpeed=COMBAT.monsterSpeed+floor*COMBAT.speedPerFloor;
   const pool=tower==='ore'&&floor<=10?ironFloorContent(floor)?.normalPool:
     tower==='leather'&&floor<=10?redFloorContent(floor)?.normalPool:
-    tower==='gem'&&floor<=10?crystalFloorContent(floor)?.normalPool:null;
+    tower==='gem'&&floor<=10?crystalFloorContent(floor)?.normalPool:
+    tower==='kaleon'&&floor<=10?kaleonFloorContent(floor)?.normalPool:null;
   const id=pool?.length?pool[Math.min(pool.length-1,Math.floor(rng()*pool.length))]:undefined;
-  const content=id?(tower==='ore'?IRON_T1_MONSTER_BY_ID[id]:tower==='leather'?RED_T1_MONSTER_BY_ID[id]:tower==='gem'?CRYSTAL_T1_MONSTER_BY_ID[id]:undefined):undefined;
+  const content=id?(tower==='ore'?IRON_T1_MONSTER_BY_ID[id]:tower==='leather'?RED_T1_MONSTER_BY_ID[id]:tower==='gem'?CRYSTAL_T1_MONSTER_BY_ID[id]:tower==='kaleon'?KALEON_T1_MONSTER_BY_ID[id]:undefined):undefined;
   const hp=Math.round(baseHp*(content?.hpMultiplier??1));
   return {definitionId:content?.id??tower+':default',name:content?.displayName??TOWERS[tower].monster,hp,currentHp:hp,attack:baseAttack*(content?.attackMultiplier??1),defense:COMBAT.monsterDefense+(floor-1)*COMBAT.defensePerFloor,speed:baseSpeed*(content?.speedMultiplier??1),skillPower:1};
 }
