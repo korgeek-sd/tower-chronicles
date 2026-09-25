@@ -347,3 +347,6 @@ button:disabled{cursor:not-allowed;opacity:.38}
 .tc-market-storage-list>.tc-market-emptyrow{min-height:0}
 @media(max-height:700px){.tc-market-board.tab-storage{grid-template-rows:34px 43px minmax(0,1fr) 29px auto}.tc-market-storage-summary>.tc-action{height:32px}}
 @media(max-width:360px){.tc-market-storage-summary{grid-template-columns:.65fr .65fr .95fr 1fr}.tc-market-storage-row{grid-template-columns:30px minmax(0,1fr) 61px 40px;gap:3px}.tc-market-storage-row>strong{font-size:7px}}
+
+.tc-nav button{position:relative}
+.tc-nav-badge{position:absolute;right:7px;top:3px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#a45149;color:#f5e7d2;font:700 6px/15px ui-monospace,Consolas,monospace;text-align:center;box-shadow:0 0 0 1px #060707}
