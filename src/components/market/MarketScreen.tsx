@@ -96,7 +96,7 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  }
 
  return <Screen eyebrow="SILVER SCALE EXCHANGE" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
-  <div className="tc-market-board">
+  <div className={"tc-market-board tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setPage(0);setFeedback('');}} label="거래소 메뉴"/>
    {(tab==='buy'||tab==='sell')&&<>
     <div className="tc-market-filters"><input placeholder="아이템 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/><select value={category} onChange={e=>{setCategory(e.target.value as Category);setPage(0);}}>{Object.entries(categories).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select><select value={tier} onChange={e=>{setTier(+e.target.value);setPage(0);}}><option value="0">전체 T</option>{[1,2,3,4,5].map(value=><option key={value} value={value}>T{value}</option>)}</select><select value={sort} onChange={e=>setSort(e.target.value as Sort)}><option value="name">이름</option><option value="priceLow">가격↑</option><option value="priceHigh">가격↓</option></select></div>
