@@ -2,8 +2,8 @@ export interface SupabasePublicConfig {url:string;publishableKey:string}
 
 const clean=(value:unknown)=>typeof value==='string'?value.trim():'';
 
-export function readSupabaseConfig(env:ImportMetaEnv=import.meta.env):SupabasePublicConfig|null {
- const url=clean(env.VITE_SUPABASE_URL),publishableKey=clean(env.VITE_SUPABASE_PUBLISHABLE_KEY);
+export function readSupabaseConfig(env?:Partial<ImportMetaEnv>):SupabasePublicConfig|null {
+ const url=clean(env?.VITE_SUPABASE_URL),publishableKey=clean(env?.VITE_SUPABASE_PUBLISHABLE_KEY);
  if(!url||!publishableKey)return null;
  try{
   const parsed=new URL(url);
@@ -12,5 +12,6 @@ export function readSupabaseConfig(env:ImportMetaEnv=import.meta.env):SupabasePu
  }catch{return null;}
 }
 
-export const supabaseConfig=readSupabaseConfig();
+const runtimeEnv=(import.meta as ImportMeta&{env?:ImportMetaEnv}).env;
+export const supabaseConfig=readSupabaseConfig(runtimeEnv);
 export const onlineConfigured=!!supabaseConfig;
