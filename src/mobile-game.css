@@ -210,3 +210,66 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-battle-reference .fighter-hud{width:46%!important;padding:6px!important}.tc-battle-reference .fighter-hud strong{font-size:11px!important}.tc-hud-pips i{width:12px;height:12px}
  .tc-ref-actions{gap:2px}.tc-ref-card{border-width:2px}.tc-ref-card-art .tc-glyph{font-size:25px}
 }
+
+
+/* --------------------------------------------------------------------------
+   INVENTORY / LOADOUT REBUILD
+   Composition inspired by portrait action-RPG loadout screens:
+   character-centered equipment stage + compact permanent storage board.
+   No UI/item/background image assets are used; only the current character
+   sprite is rendered as an image.
+   -------------------------------------------------------------------------- */
+.tc-ref-inventory{height:100%;display:grid;grid-template-rows:minmax(220px,44%) minmax(0,56%);gap:6px;overflow:hidden}
+.tc-loadout-stage{position:relative;min-height:0;overflow:hidden;border:1px solid #47504c;background:
+ radial-gradient(ellipse at 50% 76%,#27302d 0,#151b1a 35%,#0b0f10 74%),
+ linear-gradient(180deg,#161e20,#0a0d0e);box-shadow:inset 0 0 0 1px #060808}
+.tc-loadout-stage:before{content:"";position:absolute;left:12%;right:12%;bottom:8%;height:18%;border-radius:50%;background:#0008;filter:blur(10px);pointer-events:none}
+.tc-loadout-vitals{position:absolute;z-index:5;left:50%;top:7px;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);min-width:53%;border:1px solid #59605a;background:#080b0bdc}
+.tc-loadout-vitals span{padding:4px 8px;text-align:center;border-right:1px solid #343a36}.tc-loadout-vitals span:last-child{border-right:0}.tc-loadout-vitals small,.tc-loadout-vitals b{display:block}.tc-loadout-vitals small{font-size:6px;color:#888e87}.tc-loadout-vitals b{font:700 11px ui-monospace,Consolas,monospace;color:#e3dfd2}
+.tc-loadout-character{position:absolute;z-index:2;left:50%;top:51%;transform:translate(-50%,-50%);width:38%;height:72%;display:grid;place-items:center;pointer-events:none}
+.tc-loadout-character img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 9px 7px #000c)}
+.tc-loadout-character>.tc-glyph{font-size:78px;color:#69716c}
+.tc-loadout-ground{position:absolute;left:11%;right:11%;bottom:6%;height:12px;border-radius:50%;background:#0008;filter:blur(4px)}
+.tc-equip-slot{position:absolute;z-index:4;width:29%;height:31%;min-height:0;border:2px solid #6f7670;border-radius:5px;background:linear-gradient(180deg,#1b2221,#0e1313);color:#c9cbc4;padding:5px;text-align:left;box-shadow:inset 0 0 0 1px #080a0a,0 3px 8px #0008;overflow:hidden}
+.tc-equip-slot:not(:disabled):active{transform:translateY(1px)}
+.tc-equip-slot:disabled{opacity:.5}
+.tc-equip-slot.slot-weapon{left:3%;top:11%}.tc-equip-slot.slot-armor{left:3%;bottom:10%}.tc-equip-slot.slot-accessory{right:3%;top:11%}.tc-equip-slot.slot-boots{right:3%;bottom:10%}
+.tc-equip-icon{position:absolute;left:6px;top:6px;width:37px;height:37px;border:1px solid #59605a;background:#0a0e0e;display:grid;place-items:center}.tc-equip-icon .tc-glyph{font-size:22px;color:#9ca59e}
+.tc-equip-slot.filled .tc-equip-icon{border-color:#8d805e;background:#171812}.tc-equip-slot.filled .tc-equip-icon .tc-glyph{color:#d1b97f}
+.tc-equip-slot>strong{position:absolute;left:49px;right:4px;top:7px;font-size:7px;color:#8d948d;font-weight:600}
+.tc-equip-slot>small{position:absolute;left:6px;right:6px;bottom:6px;font-size:7px;line-height:1.25;color:#d7d7ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-equip-slot>b{position:absolute;right:4px;top:4px;min-width:18px;height:16px;padding:0 3px;border-radius:8px;background:#6f5f3c;color:#efe0bc;font:700 7px/16px ui-monospace,monospace;text-align:center}
+.tc-loadout-caption{position:absolute;z-index:3;left:50%;bottom:2%;transform:translateX(-50%);width:48%;font-size:6px;color:#6f7771;text-align:center;white-space:nowrap}
+
+.tc-storage-board{min-height:0;display:grid;grid-template-rows:31px 36px minmax(0,1fr) 29px;gap:4px;border:1px solid #3f4742;background:#0c1010;padding:5px;position:relative}
+.tc-storage-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #3e4540;padding:0 2px 4px}.tc-storage-head b{display:block;font:700 10px Georgia,"Noto Serif KR",serif}.tc-storage-head small{display:block;font-size:6px;color:#777f78;margin-top:1px}.tc-storage-head>button{height:25px;min-height:0;border:1px solid #525953;background:#151a18;padding:3px 7px;font-size:7px;color:#a9afa9}.tc-storage-head>button.active{border-color:#97835a;color:#dec89d}
+.tc-storage-categories{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}.tc-storage-categories button{min-width:0;height:36px;border:1px solid #353c38;background:#111615;padding:2px;display:grid;place-items:center;align-content:center;gap:1px;color:#767d77}.tc-storage-categories button .tc-glyph{font-size:14px}.tc-storage-categories button small{font-size:5.5px;white-space:nowrap}.tc-storage-categories button[aria-selected=true]{border-color:#a98d58;background:#272318;color:#ead3a4}
+.tc-storage-grid{min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:4px}
+.tc-storage-item{position:relative;min-width:0;min-height:0;border:2px solid #58605a;border-radius:5px;background:linear-gradient(180deg,#1a201f,#0e1212);padding:3px 3px 15px;display:grid;grid-template-rows:1fr auto;place-items:center;color:#cfd1cb;box-shadow:inset 0 0 0 1px #080a0a}
+.tc-storage-item.empty{border:1px solid #282e2a;background:#0b0e0e}
+.tc-storage-item:not(.empty):active{transform:translateY(1px)}
+.tc-storage-icon{position:relative;width:76%;height:74%;display:grid;place-items:center;border:1px solid #39403c;background:radial-gradient(circle,#252b28,#101413 66%)}.tc-storage-icon .tc-glyph{font-size:clamp(20px,6vw,34px);color:#b0b5af;text-shadow:0 2px #000}.tc-storage-icon>span{position:absolute;left:2px;top:2px;padding:1px 3px;border-radius:2px;background:#070909d9;color:#d7d7d0;font:700 6px ui-monospace,monospace}
+.tc-storage-item>strong{width:100%;font-size:6.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}.tc-storage-item>small{position:absolute;right:3px;bottom:2px;font-size:6px;color:#b7bdab}.tc-storage-item>em{position:absolute;right:3px;top:3px;font-style:normal;color:#c05956;font-size:7px}
+.tc-storage-board .tc-pager{height:29px}.tc-storage-board .tc-pager button{height:26px}
+.tc-storage-tools{position:absolute;z-index:25;left:5px;right:5px;top:34px;display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:3px;padding:5px;border:1px solid #6a6556;background:#0b0e0ef7;box-shadow:0 8px 18px #000b}
+.tc-storage-tools input,.tc-storage-tools select{height:29px;min-height:0;border:1px solid #424943;background:#111514;padding:3px 5px;font-size:7px}.tc-storage-tools label{display:flex;align-items:center;gap:3px;font-size:6px;white-space:nowrap}
+
+/* centered item/equipment inspector, based on a dense mobile RPG detail dialog */
+.tc-item-modal-backdrop{position:fixed;z-index:110;inset:0;background:#000c;display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 10px)}
+.tc-item-modal{width:min(460px,94vw);height:min(570px,76dvh);display:grid;grid-template-rows:47px 104px minmax(0,1fr) 36px 43px;gap:5px;border:2px solid #a8afa9;border-radius:7px;background:#161c1b;padding:7px;box-shadow:0 0 0 2px #0a0d0c,0 14px 40px #000}
+.tc-item-modal-title{display:grid;grid-template-columns:32px 1fr 34px;gap:7px;align-items:center;border-bottom:1px solid #747b75;padding:0 2px 6px}.tc-item-modal-title>.tc-glyph{width:30px;height:30px;border:1px solid #646c66;border-radius:50%;font-size:16px;color:#d3d4cf}.tc-item-modal-title small{display:block;font:6px ui-monospace,monospace;color:#8d948e;letter-spacing:.12em}.tc-item-modal-title h2{margin:3px 0 0;font:700 17px/1 Georgia,"Noto Serif KR",serif;color:#efeee8}.tc-item-modal-title button{height:31px;border:0;background:none;font-size:24px;color:#8d9690}
+.tc-item-summary{display:grid;grid-template-columns:94px 1fr;gap:8px;min-height:0}.tc-item-portrait{position:relative;border:2px solid #7a827c;border-radius:5px;background:radial-gradient(circle,#323936,#141918 70%);display:grid;place-items:center}.tc-item-portrait>.tc-glyph{font-size:49px;color:#d0d3cd;text-shadow:0 3px #000}.tc-item-portrait>b{position:absolute;left:4px;top:4px;padding:2px 4px;background:#0a0d0de6;border:1px solid #68706a;font:700 7px ui-monospace}.tc-item-portrait>em{position:absolute;left:4px;bottom:4px;font-style:normal;font-size:6px;background:#8a7447;color:#f6e7c5;padding:2px 4px}
+.tc-item-summary-copy{min-width:0;padding:5px 3px}.tc-item-summary-copy>strong{display:block;font-size:10px;color:#d8c276}.tc-item-summary-copy>span{display:inline-block;margin-top:5px;padding:2px 5px;border-radius:8px;background:#5b5138;color:#eddcad;font-size:7px}.tc-item-summary-copy p{font-size:8px;line-height:1.45;color:#b5bbb5;margin:8px 0 0}
+.tc-item-ability{min-height:0;border:1px solid #343b37;background:#0d1110;display:grid;grid-template-rows:28px minmax(0,1fr);overflow:hidden}.tc-item-ability h3{margin:0;padding:6px 8px;background:#070a0a;font:700 10px Georgia,"Noto Serif KR",serif;color:#e3e3de}.tc-item-facts{min-height:0;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));padding:4px 8px}.tc-item-facts>div{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #292f2b;font-size:8px}.tc-item-facts>div:last-child{border-bottom:0}.tc-item-facts span{color:#9da49e}.tc-item-facts b{color:#d9d8d1}
+.tc-item-ownership{display:flex;align-items:center;gap:8px;border:1px solid #343a36;background:#111513;padding:5px 8px;font-size:8px}.tc-item-ownership span{color:#8f968f}.tc-item-ownership b{font-size:11px;color:#d8c69e}.tc-item-ownership small{margin-left:auto;color:#88af8b}
+.tc-item-modal-actions{display:grid;grid-template-columns:1fr 1.6fr;gap:5px}.tc-item-modal-actions .tc-action{min-height:0;height:43px}.tc-item-modal-actions .tc-action:only-child{grid-column:1/-1}
+
+@media(max-height:700px){
+ .tc-ref-inventory{grid-template-rows:minmax(196px,42%) minmax(0,58%)}
+ .tc-equip-slot{height:30%;width:30%}.tc-equip-icon{width:31px;height:31px}.tc-equip-slot>strong{left:42px}.tc-loadout-character{height:68%}
+ .tc-storage-categories{height:31px}.tc-storage-categories button{height:31px}.tc-storage-icon .tc-glyph{font-size:22px}
+ .tc-item-modal{height:min(500px,82dvh);grid-template-rows:42px 90px minmax(0,1fr) 32px 39px}.tc-item-summary{grid-template-columns:82px 1fr}.tc-item-modal-actions .tc-action{height:39px}
+}
+@media(max-width:360px){
+ .tc-ref-inventory{grid-template-rows:minmax(205px,43%) minmax(0,57%)}.tc-equip-slot{width:30.5%;padding:4px}.tc-equip-icon{width:30px;height:30px}.tc-equip-slot>strong{left:39px;font-size:6px}.tc-equip-slot>small{font-size:6px}.tc-loadout-vitals{min-width:58%}.tc-storage-categories button small{display:none}.tc-storage-categories button .tc-glyph{font-size:15px}.tc-storage-tools{grid-template-columns:1fr 1fr}.tc-item-modal{width:96vw}.tc-item-modal-title h2{font-size:15px}
+}
