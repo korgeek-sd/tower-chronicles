@@ -55,7 +55,8 @@ export async function reconcileCloudState(local:GameState):Promise<CloudSyncResu
 type RealtimeConnectionStatus='connecting'|'subscribed'|'error';
 
 export function subscribeCloudSaveRealtime(onRemoteChange:()=>void,onStatus:(status:RealtimeConnectionStatus)=>void=()=>{}):()=>void {
- if(!supabaseConfig||typeof WebSocket==='undefined')return()=>{};
+ const config=supabaseConfig;
+ if(!config||typeof WebSocket==='undefined')return()=>{};
  let disposed=false,socket:WebSocket|null=null,heartbeat:number|null=null,tokenTimer:number|null=null,reconnectTimer:number|null=null,reconnectAttempt=0,ref=0,currentToken='';
  let topic='',joinRef='';
 
@@ -82,11 +83,11 @@ export function subscribeCloudSaveRealtime(onRemoteChange:()=>void,onStatus:(sta
   currentToken=session.accessToken;
   topic='realtime:cloud-save-'+session.userId;
   joinRef=nextRef();
-  const wsUrl=new URL(supabaseConfig.url);
+  const wsUrl=new URL(config.url);
   wsUrl.protocol=wsUrl.protocol==='https:'?'wss:':'ws:';
   wsUrl.pathname='/realtime/v1/websocket';
   wsUrl.search='';
-  wsUrl.searchParams.set('apikey',supabaseConfig.publishableKey);
+  wsUrl.searchParams.set('apikey',config.publishableKey);
   wsUrl.searchParams.set('vsn','2.0.0');
   onStatus('connecting');
   socket=new WebSocket(wsUrl.toString());
