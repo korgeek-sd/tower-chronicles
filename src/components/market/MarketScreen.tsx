@@ -1,24 +1,25 @@
 import React,{useMemo,useState} from 'react';
 import type {GameState,MarketOrder} from '../../game/types';
 import {
-  aggregateOrderBookByPrice,cancelOrder,getBestAsk,getBestBid,getLastTrade,getMyOpenOrders,
+  aggregateOrderBookByPrice,cancelOrder,claimAllMarketStorage,claimMarketStorage,getBestAsk,getBestBid,getLastTrade,getMarketStorage,getMarketStorageItemCount,getMarketStorageSilver,getMyOpenOrders,
   getRecentTrades,marketCatalog,marketItemName,orderBook,placeOrder
 } from '../../game/market/marketService';
 import {marketChart,marketStats} from '../../game/market/marketStatistics';
 import {demoTradesFor,marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 
-type Tab='buy'|'sell'|'orders'|'trades';
+type Tab='buy'|'sell'|'orders'|'storage'|'trades';
 type Sort='name'|'priceLow'|'priceHigh';
 type Category='all'|'equipment'|'materials'|'skillbooks'|'tickets'|'other';
 const PAGE_SIZE=5;
-const tabs=[['buy','구매'],['sell','판매'],['orders','내 요청'],['trades','시장 이력']] as const;
+const tabs=[['buy','구매'],['sell','판매'],['orders','내 요청'],['storage','보관함'],['trades','시장 이력']] as const;
 const categories:Record<Category,string>={all:'전체',equipment:'장비',materials:'재료',skillbooks:'스킬북',tickets:'입장권',other:'기타'};
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
 const time=(n:number)=>new Date(n).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 const levels=(orders:MarketOrder[],desc=false)=>aggregateOrderBookByPrice(orders).sort((a,b)=>desc?b.price-a.price:a.price-b.price).slice(0,4);
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const itemTier=(id:string,gearTier?:number)=>{if(gearTier)return gearTier;const m=/^.+:[^:]+:(\d+)$/.exec(id);return m?Number(m[1]):0;};
+const storageGlyph=(id:string)=>id.startsWith('gear:')?'equipment':id.startsWith('material:')?'materials':id.startsWith('skillbook:')?'skillbooks':id.startsWith('ticket:')?'tickets':'other';
 
 export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
  const [tab,setTab]=useState<Tab>('buy'),[category,setCategory]=useState<Category>('all'),[tier,setTier]=useState(0),[query,setQuery]=useState(''),[sort,setSort]=useState<Sort>('name'),[selected,setSelected]=useState<string|null>(null),[side,setSide]=useState<'BUY'|'SELL'>('BUY'),[price,setPrice]=useState(''),[qty,setQty]=useState(''),[confirm,setConfirm]=useState(false),[canceling,setCanceling]=useState<MarketOrder|null>(null),[page,setPage]=useState(0);
@@ -54,6 +55,7 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  const submit=()=>{if(!selected)return;setGame(state=>{const next=placeOrder(state,{itemId:selected,side,limitPrice:p,quantity:q});const order=next.market.orders.at(-1);if(order){const filled=order.originalQuantity-order.remainingQuantity;next.notice=filled?(order.remainingQuantity?filled+'개 체결 · '+order.remainingQuantity+'개 대기':filled+'개 전량 체결'):(side==='BUY'?'매수 지정가 주문을 등록했습니다.':'매도 지정가 주문을 등록했습니다.');}return next;});setConfirm(false);};
 
  const open=getMyOpenOrders(game),buyOrders=open.filter(order=>order.side==='BUY'),sellOrders=open.filter(order=>order.side==='SELL');
+ const storage=getMarketStorage(game),storagePages=Math.max(1,Math.ceil(storage.length/PAGE_SIZE)),storageSafe=Math.min(page,storagePages-1),storageShown=storage.slice(storageSafe*PAGE_SIZE,storageSafe*PAGE_SIZE+PAGE_SIZE),storageSilver=getMarketStorageSilver(game),storageItems=getMarketStorageItemCount(game);
  const marketHistory=useMemo(()=>{
   const realIds=new Set(game.market.trades.map(trade=>trade.itemId));
   const demo=catalog.flatMap(entry=>realIds.has(entry.id)?[]:demoTradesFor(entry.id,Date.now()).slice(-3));
@@ -94,7 +96,7 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
   </Screen>;
  }
 
- return <Screen eyebrow="SILVER SCALE EXCHANGE" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
+ return <Screen eyebrow="SILVER SCALE EXCHANGE" title="은저울 거래소" meta={<><span>{game.silver.toLocaleString()} S</span>{storage.length>0&&<b className="tc-market-storage-badge">{storage.length}</b>}</>}>
   <div className={"tc-market-board tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setPage(0);}} label="거래소 메뉴"/>
    {(tab==='buy'||tab==='sell')&&<>
@@ -108,6 +110,13 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
     <section><header><b>구매 요청서</b><span>{buyOrders.length}</span></header>{buyOrders.slice(0,3).map(order=><article key={order.orderId}><div><b>{marketItemName(game,order.itemId)}</b><small>{money(order.limitPrice)} · 잔량 {order.remainingQuantity}/{order.originalQuantity}</small></div><button onClick={()=>setCanceling(order)}>취소</button></article>)}{!buyOrders.length&&<p>진행 중인 구매 요청서가 없습니다.</p>}</section>
     <section><header><b>판매 요청서</b><span>{sellOrders.length}</span></header>{sellOrders.slice(0,3).map(order=><article key={order.orderId}><div><b>{marketItemName(game,order.itemId)}</b><small>{money(order.limitPrice)} · 잔량 {order.remainingQuantity}/{order.originalQuantity}</small></div><button onClick={()=>setCanceling(order)}>취소</button></article>)}{!sellOrders.length&&<p>진행 중인 판매 요청서가 없습니다.</p>}</section>
    </div>}
+
+   {tab==='storage'&&<>
+    <section className="tc-market-storage-summary"><div><small>수령 대기</small><b>{storage.length}건</b></div><div><small>아이템</small><b>{storageItems}개</b></div><div><small>판매대금</small><b>{money(storageSilver)}</b></div><button className="tc-action" disabled={!storage.length||!!game.expedition} onClick={()=>setGame(claimAllMarketStorage)}>모두 수령</button></section>
+    <div className="tc-market-storage-list">{storageShown.map(entry=>{const buying=entry.side==='BUY',name=marketItemName(game,entry.itemId);return <article className="tc-market-storage-row" key={entry.storageId}><span className="tc-market-miniicon"><Glyph name={buying?storageGlyph(entry.itemId):'market'}/></span><div><b>{buying?name:'판매대금'}</b><small>{buying?'구매 체결 · '+entry.quantity+'개':name+' · '+entry.quantity+'개 판매'}</small><small>{time(entry.createdAt)} · {entry.tradeId}</small></div><strong>{buying?'×'+entry.quantity:money(entry.silver)}</strong><button disabled={!!game.expedition} onClick={()=>setGame(state=>claimMarketStorage(state,entry.storageId))}>수령</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-storageShown.length)},(_,i)=><div className="tc-market-emptyrow" key={'s'+i}/>)}</div>
+    <Pager page={storageSafe} count={storagePages} onChange={setPage}/>
+    {game.expedition&&<div className="tc-floor-risk">원정 중에는 거래 보관함을 수령할 수 없습니다.</div>}
+   </>}
 
    {tab==='trades'&&<><div className="tc-market-listhead trades"><span>시장 체결</span><span>가격</span><span>수량</span></div><div className="tc-market-offers trades">{tradeShown.map(trade=>{const side=trade.buyerId===game.market.ownerId?'내 매수':trade.sellerId===game.market.ownerId?'내 매도':'시장 체결';return <div className="tc-trade-row" key={trade.tradeId}><span className="tc-market-miniicon"><Glyph name="market"/></span><span className="name"><b>{marketItemName(game,trade.itemId)}</b><small>{side} · {time(trade.executedAt)}</small></span><span><b>{money(trade.price)}</b></span><span><b>{trade.quantity}</b></span></div>;})}{Array.from({length:Math.max(0,PAGE_SIZE-tradeShown.length)},(_,i)=><div className="tc-market-emptyrow" key={'t'+i}/>)}</div><Pager page={tradeSafe} count={tradePages} onChange={setPage}/></>}
   </div>
