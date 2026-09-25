@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import {BESTIARY_ENTRIES,bestiaryEntriesForTower,bestiaryEntryById,bestiaryFloorLabel} from '../src/game/data/bestiary.ts';
 import {graphicFor} from '../src/game/data/graphics.ts';
 
-test('BESTIARY CATALOG 01: active catalog contains 45 unique entries across authored towers',()=>{
- assert.equal(BESTIARY_ENTRIES.length,45);
- assert.equal(new Set(BESTIARY_ENTRIES.map(entry=>entry.id)).size,45);
+test('BESTIARY CATALOG 01: active catalog contains 55 unique entries across four authored towers',()=>{
+ assert.equal(BESTIARY_ENTRIES.length,55);
+ assert.equal(new Set(BESTIARY_ENTRIES.map(entry=>entry.id)).size,55);
  assert.equal(bestiaryEntriesForTower('ore').length,10);
  assert.equal(bestiaryEntriesForTower('leather').length,10);
  assert.equal(bestiaryEntriesForTower('gem').length,25);
- assert.equal(bestiaryEntriesForTower('kaleon').length,0);
+ assert.equal(bestiaryEntriesForTower('kaleon').length,10);
 });
 
 test('BESTIARY CATALOG 02: legacy mining ogre is not exposed as an active bestiary entry',()=>{
@@ -18,12 +18,13 @@ test('BESTIARY CATALOG 02: legacy mining ogre is not exposed as an active bestia
 
 test('BESTIARY CATALOG 03: boss slots map to exact authored floors',()=>{
  const bosses=BESTIARY_ENTRIES.filter(entry=>entry.boss);
- assert.equal(bosses.length,15);
+ assert.equal(bosses.length,20);
  for(const entry of bosses){
   assert.equal(entry.floorMin,entry.floorMax);
   assert.ok(entry.floorMin>=6&&entry.floorMin<=10);
  }
  assert.equal(bestiaryEntryById('celestial_core_matrix')?.floorMin,10);
+ assert.equal(bestiaryEntryById('false_saint_caleon')?.floorMin,10);
  assert.equal(bestiaryFloorLabel(bestiaryEntryById('celestial_core_matrix')!),'10F');
 });
 
