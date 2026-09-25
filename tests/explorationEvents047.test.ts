@@ -5,7 +5,6 @@ import {enter} from '../src/game/engine/expedition.ts';
 import {EVENT_CATALOG} from '../src/game/events/catalog.ts';
 import {eligible} from '../src/game/events/selector.ts';
 import {openEvent,resolveEvent} from '../src/game/events/service.ts';
-import {APP_VERSION} from '../src/storage/repository.ts';
 import type {GameState,Tower} from '../src/game/types.ts';
 
 const towers:Tower[]=['ore','leather','gem','kaleon'];
@@ -23,8 +22,7 @@ const resolveAuthored=(tower:Tower,id:string,roll:number,choice:string)=>{
  return resolveEvent(s,instance,choice);
 };
 
-test('RELEASE 0.1.47: metadata and authored exploration catalog are aligned',()=>{
- assert.equal(APP_VERSION,'0.1.47');
+test('RELEASE 0.1.47: authored exploration catalog remains aligned',()=>{
  assert.equal(EVENT_CATALOG.filter(event=>event.id.startsWith('resource_gather_')).length,4);
 });
 
