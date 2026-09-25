@@ -5,6 +5,7 @@ import {
   getRecentTrades,marketCatalog,marketItemName,orderBook,placeOrder
 } from '../../game/market/marketService';
 import {marketChart,marketStats} from '../../game/market/marketStatistics';
+import {marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 
 type Tab='buy'|'sell'|'orders'|'trades';
@@ -41,11 +42,15 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=filtered.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
  const item=catalog.find(x=>x.id===selected);
  const book=selected?orderBook(game,selected):{sells:[],buys:[]},asks=levels(book.sells),bids=levels(book.buys,true),ask=selected?getBestAsk(game,selected):null,bid=selected?getBestBid(game,selected):null,last=selected?getLastTrade(game,selected):null,recent=selected?getRecentTrades(game,selected,5):[];
- const stats=selected?marketStats(game.market.trades,selected,'24H',Date.now()):null,chart=selected?marketChart(game.market.trades,selected,'24H',Date.now()):[];
+ const preview=selected?marketTradesForPreview(game.market.trades,selected,Date.now()):{trades:game.market.trades,demo:false};
+ const stats=selected?marketStats(preview.trades,selected,'24H',Date.now()):null,chart=selected?marketChart(preview.trades,selected,'24H',Date.now()):[];
+ const previewRecent=selected?preview.trades.filter(trade=>trade.itemId===selected).slice().sort((a,b)=>b.executedAt-a.executedAt).slice(0,5):[];
+ const displayRecent=recent.length?recent:previewRecent;
+ const displayLast=last?.price??stats?.lastPrice??null;
  const vals=chart.map(point=>point.price),min=vals.length?Math.min(...vals):0,max=vals.length?Math.max(...vals):1,spread=max-min||1,poly=chart.map((point,i)=>(chart.length===1?50:i/(chart.length-1)*100)+','+(88-(point.price-min)/spread*70)).join(' ');
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN,valid=!!item&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&(side==='BUY'?game.silver>=p*q:item.available>=q)&&!game.expedition;
 
- const choose=(id:string,nextSide:'BUY'|'SELL')=>{setSelected(id);setSide(nextSide);setPrice(String((nextSide==='BUY'?getBestAsk(game,id):getBestBid(game,id))??getLastTrade(game,id)?.price??''));setQty('1');setConfirm(false);setFeedback('');};
+ const choose=(id:string,nextSide:'BUY'|'SELL')=>{const sample=marketTradesForPreview(game.market.trades,id,Date.now()),sampleLast=marketStats(sample.trades,id,'24H',Date.now()).lastPrice;setSelected(id);setSide(nextSide);setPrice(String((nextSide==='BUY'?getBestAsk(game,id):getBestBid(game,id))??getLastTrade(game,id)?.price??sampleLast??''));setQty('1');setConfirm(false);setFeedback('');};
  const submit=()=>{if(!selected)return;let message='요청서가 등록되었습니다.';setGame(state=>{const next=placeOrder(state,{itemId:selected,side,limitPrice:p,quantity:q});const order=next.market.orders.at(-1);if(order){const filled=order.originalQuantity-order.remainingQuantity;message=filled?(order.remainingQuantity?filled+'개 체결 · '+order.remainingQuantity+'개 대기':filled+'개 전량 체결'):'요청서 등록 완료';}else message=next.notice;return next;});setConfirm(false);setFeedback(message);};
 
  const open=getMyOpenOrders(game),buyOrders=open.filter(order=>order.side==='BUY'),sellOrders=open.filter(order=>order.side==='SELL'),myTrades=game.market.trades.filter(trade=>trade.buyerId===game.market.ownerId||trade.sellerId===game.market.ownerId).slice().reverse();
@@ -66,19 +71,19 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
     </section>
 
     <section className="tc-market-history">
-     <div className="tc-market-history-head"><span>시장 이력 · 24H</span><b>{last?money(last.price):'체결 없음'}</b></div>
+     <div className="tc-market-history-head"><span>시장 이력 · 24H {preview.demo&&<em>미리보기</em>}</span><b>{money(displayLast)}</b></div>
      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="24시간 가격 추이">{poly&&<polyline points={poly} fill="none" vectorEffect="non-scaling-stroke"/>}<line x1="0" y1="88" x2="100" y2="88"/></svg>
      <div className="tc-market-history-stats"><span>최고 <b>{money(stats?.highPrice??null)}</b></span><span>최저 <b>{money(stats?.lowPrice??null)}</b></span><span>평균 <b>{money(stats?.averagePrice??null)}</b></span><span>거래량 <b>{stats?.volume??0}</b></span></div>
     </section>
 
     <section className="tc-market-ticket">
-     <Segments items={[['BUY','매수 요청'],['SELL','매도 요청']] as const} value={side} onChange={next=>{setSide(next);setPrice(String((next==='BUY'?ask:bid)??last?.price??''));}} label="주문 방향"/>
+     <Segments items={[['BUY','매수 요청'],['SELL','매도 요청']] as const} value={side} onChange={next=>{setSide(next);setPrice(String((next==='BUY'?ask:bid)??displayLast??''));}} label="주문 방향"/>
      <div className="tc-market-ticket-fields"><label>수량<input inputMode="numeric" value={qty} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/></label><label>가격<input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/></label><button onClick={()=>setQty(String(side==='BUY'&&p>0?Math.max(0,Math.floor(game.silver/p)):item.available))}>최대</button></div>
      <div className="tc-market-ticket-total"><span>{side==='BUY'?'예약 Silver':'예상 주문가'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b><small>{game.expedition?'원정 중 주문 등록 불가':side==='BUY'?'체결가는 지정가보다 낮을 수 있습니다.':'보유 수량만 예치할 수 있습니다.'}</small></div>
      <button className="tc-action" disabled={!valid} onClick={()=>setConfirm(true)}>{side==='BUY'?'구매 요청서 등록':'판매 요청서 등록'}</button>
     </section>
 
-    <div className="tc-market-tape">{recent.length?recent.map(trade=><span key={trade.tradeId}>{time(trade.executedAt)} {money(trade.price)}×{trade.quantity}</span>):<span>최근 체결 기록 없음</span>}</div>
+    <div className="tc-market-tape">{displayRecent.length?displayRecent.map(trade=><span key={trade.tradeId}>{time(trade.executedAt)} {money(trade.price)}×{trade.quantity}</span>):<span>최근 체결 기록 없음</span>}</div>
    </div>
    {confirm&&<div className="tc-modalback" onClick={()=>setConfirm(false)}><section className="tc-modal" role="dialog" aria-modal="true" onClick={e=>e.stopPropagation()}><h2>{side==='BUY'?'구매':'판매'} 요청서 확인</h2><p><b>{item.name}</b><br/>개당 {money(p)} · 수량 {q}<br/>총 {money(p*q)}</p><div className="tc-modal-actions"><button className="tc-action secondary" onClick={()=>setConfirm(false)}>취소</button><button className="tc-action" onClick={submit}>등록</button></div></section></div>}
    {feedback&&<div className="notice">{feedback}</div>}
