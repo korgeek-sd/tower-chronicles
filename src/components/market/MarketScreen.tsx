@@ -21,7 +21,7 @@ const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'mat
 const itemTier=(id:string,gearTier?:number)=>{if(gearTier)return gearTier;const m=/^.+:[^:]+:(\d+)$/.exec(id);return m?Number(m[1]):0;};
 
 export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
- const [tab,setTab]=useState<Tab>('buy'),[category,setCategory]=useState<Category>('all'),[tier,setTier]=useState(0),[query,setQuery]=useState(''),[sort,setSort]=useState<Sort>('name'),[selected,setSelected]=useState<string|null>(null),[side,setSide]=useState<'BUY'|'SELL'>('BUY'),[price,setPrice]=useState(''),[qty,setQty]=useState(''),[confirm,setConfirm]=useState(false),[canceling,setCanceling]=useState<MarketOrder|null>(null),[page,setPage]=useState(0),[feedback,setFeedback]=useState('');
+ const [tab,setTab]=useState<Tab>('buy'),[category,setCategory]=useState<Category>('all'),[tier,setTier]=useState(0),[query,setQuery]=useState(''),[sort,setSort]=useState<Sort>('name'),[selected,setSelected]=useState<string|null>(null),[side,setSide]=useState<'BUY'|'SELL'>('BUY'),[price,setPrice]=useState(''),[qty,setQty]=useState(''),[confirm,setConfirm]=useState(false),[canceling,setCanceling]=useState<MarketOrder|null>(null),[page,setPage]=useState(0);
  const catalog=useMemo(()=>marketCatalog(game),[game]);
 
  const filtered=useMemo(()=>{
@@ -50,8 +50,8 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  const vals=chart.map(point=>point.price),min=vals.length?Math.min(...vals):0,max=vals.length?Math.max(...vals):1,spread=max-min||1,poly=chart.map((point,i)=>(chart.length===1?50:i/(chart.length-1)*100)+','+(88-(point.price-min)/spread*70)).join(' ');
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN,valid=!!item&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&(side==='BUY'?game.silver>=p*q:item.available>=q)&&!game.expedition;
 
- const choose=(id:string,nextSide:'BUY'|'SELL')=>{const sample=marketTradesForPreview(game.market.trades,id,Date.now()),sampleLast=marketStats(sample.trades,id,'24H',Date.now()).lastPrice;setSelected(id);setSide(nextSide);setPrice(String((nextSide==='BUY'?getBestAsk(game,id):getBestBid(game,id))??getLastTrade(game,id)?.price??sampleLast??''));setQty('1');setConfirm(false);setFeedback('');};
- const submit=()=>{if(!selected)return;let message='요청서가 등록되었습니다.';setGame(state=>{const next=placeOrder(state,{itemId:selected,side,limitPrice:p,quantity:q});const order=next.market.orders.at(-1);if(order){const filled=order.originalQuantity-order.remainingQuantity;message=filled?(order.remainingQuantity?filled+'개 체결 · '+order.remainingQuantity+'개 대기':filled+'개 전량 체결'):'요청서 등록 완료';}else message=next.notice;return next;});setConfirm(false);setFeedback(message);};
+ const choose=(id:string,nextSide:'BUY'|'SELL')=>{const sample=marketTradesForPreview(game.market.trades,id,Date.now()),sampleLast=marketStats(sample.trades,id,'24H',Date.now()).lastPrice;setSelected(id);setSide(nextSide);setPrice(String((nextSide==='BUY'?getBestAsk(game,id):getBestBid(game,id))??getLastTrade(game,id)?.price??sampleLast??''));setQty('1');setConfirm(false);};
+ const submit=()=>{if(!selected)return;setGame(state=>{const next=placeOrder(state,{itemId:selected,side,limitPrice:p,quantity:q});const order=next.market.orders.at(-1);if(order){const filled=order.originalQuantity-order.remainingQuantity;next.notice=filled?(order.remainingQuantity?filled+'개 체결 · '+order.remainingQuantity+'개 대기':filled+'개 전량 체결'):(side==='BUY'?'매수 지정가 주문을 등록했습니다.':'매도 지정가 주문을 등록했습니다.');}return next;});setConfirm(false);};
 
  const open=getMyOpenOrders(game),buyOrders=open.filter(order=>order.side==='BUY'),sellOrders=open.filter(order=>order.side==='SELL');
  const marketHistory=useMemo(()=>{
@@ -91,13 +91,12 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
     <div className="tc-market-tape">{displayRecent.length?displayRecent.map(trade=><span key={trade.tradeId}>{time(trade.executedAt)} {money(trade.price)}×{trade.quantity}</span>):<span>최근 체결 기록 없음</span>}</div>
    </div>
    {confirm&&<div className="tc-modalback" onClick={()=>setConfirm(false)}><section className="tc-modal" role="dialog" aria-modal="true" onClick={e=>e.stopPropagation()}><h2>{side==='BUY'?'구매':'판매'} 요청서 확인</h2><p><b>{item.name}</b><br/>개당 {money(p)} · 수량 {q}<br/>총 {money(p*q)}</p><div className="tc-modal-actions"><button className="tc-action secondary" onClick={()=>setConfirm(false)}>취소</button><button className="tc-action" onClick={submit}>등록</button></div></section></div>}
-   {feedback&&<div className="notice">{feedback}</div>}
   </Screen>;
  }
 
  return <Screen eyebrow="SILVER SCALE EXCHANGE" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
   <div className={"tc-market-board tab-"+tab}>
-   <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setPage(0);setFeedback('');}} label="거래소 메뉴"/>
+   <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setPage(0);}} label="거래소 메뉴"/>
    {(tab==='buy'||tab==='sell')&&<>
     <div className="tc-market-filters"><input placeholder="아이템 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/><select value={category} onChange={e=>{setCategory(e.target.value as Category);setPage(0);}}>{Object.entries(categories).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select><select value={tier} onChange={e=>{setTier(+e.target.value);setPage(0);}}><option value="0">전체 T</option>{[1,2,3,4,5].map(value=><option key={value} value={value}>T{value}</option>)}</select><select value={sort} onChange={e=>setSort(e.target.value as Sort)}><option value="name">이름</option><option value="priceLow">가격↑</option><option value="priceHigh">가격↓</option></select></div>
     <div className="tc-market-listhead"><span>아이템</span><span>{tab==='buy'?'최저 판매가':'최고 구매가'}</span><span>{tab==='buy'?'시장 수량':'보유'}</span></div>
@@ -112,7 +111,6 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
 
    {tab==='trades'&&<><div className="tc-market-listhead trades"><span>시장 체결</span><span>가격</span><span>수량</span></div><div className="tc-market-offers trades">{tradeShown.map(trade=>{const side=trade.buyerId===game.market.ownerId?'내 매수':trade.sellerId===game.market.ownerId?'내 매도':'시장 체결';return <div className="tc-trade-row" key={trade.tradeId}><span className="tc-market-miniicon"><Glyph name="market"/></span><span className="name"><b>{marketItemName(game,trade.itemId)}</b><small>{side} · {time(trade.executedAt)}</small></span><span><b>{money(trade.price)}</b></span><span><b>{trade.quantity}</b></span></div>;})}{Array.from({length:Math.max(0,PAGE_SIZE-tradeShown.length)},(_,i)=><div className="tc-market-emptyrow" key={'t'+i}/>)}</div><Pager page={tradeSafe} count={tradePages} onChange={setPage}/></>}
   </div>
-  {canceling&&<div className="tc-modalback" onClick={()=>setCanceling(null)}><section className="tc-modal" onClick={e=>e.stopPropagation()}><h2>요청서 취소</h2><p><b>{marketItemName(game,canceling.itemId)}</b><br/>남은 수량 {canceling.remainingQuantity}개를 취소하고 예치 자산을 반환합니다.</p><div className="tc-modal-actions"><button className="tc-action secondary" onClick={()=>setCanceling(null)}>유지</button><button className="tc-action danger" onClick={()=>{setGame(state=>cancelOrder(state,canceling.orderId));setCanceling(null);setFeedback('요청서를 취소했습니다.');}}>취소</button></div></section></div>}
-  {feedback&&<div className="notice">{feedback}</div>}
+  {canceling&&<div className="tc-modalback" onClick={()=>setCanceling(null)}><section className="tc-modal" onClick={e=>e.stopPropagation()}><h2>요청서 취소</h2><p><b>{marketItemName(game,canceling.itemId)}</b><br/>남은 수량 {canceling.remainingQuantity}개를 취소하고 예치 자산을 반환합니다.</p><div className="tc-modal-actions"><button className="tc-action secondary" onClick={()=>setCanceling(null)}>유지</button><button className="tc-action danger" onClick={()=>{setGame(state=>cancelOrder(state,canceling.orderId));setCanceling(null);}}>취소</button></div></section></div>}
  </Screen>;
 }
