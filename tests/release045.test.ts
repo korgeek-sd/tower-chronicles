@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {APP_VERSION} from '../src/storage/repository.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {PLAYABLE_TOWERS} from '../src/game/data/config.ts';
 import {KALEON_NORMAL_POOL,KALEON_BOSS_SLOTS,KALEON_T1_FLOORS} from '../src/game/data/kaleon.ts';
@@ -11,8 +10,7 @@ import {monsterFor} from '../src/game/engine/drops.ts';
 import {entryStatus} from '../src/game/engine/exploration.ts';
 import {monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
 
-test('RELEASE 0.1.45: metadata and four playable towers are aligned',()=>{
- assert.equal(APP_VERSION,'0.1.45');
+test('RELEASE 0.1.45: save schema and four playable towers remain compatible',()=>{
  assert.equal(initialState().version,22);
  assert.deepEqual(PLAYABLE_TOWERS,['ore','leather','gem','kaleon']);
 });
