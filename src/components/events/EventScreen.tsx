@@ -6,9 +6,11 @@ import {meetsConditions} from '../../game/events/selector';
 import {stats} from '../../game/engine/state';
 import {TOWERS,tierOf,potionIds} from '../../game/data/config';
 
-type Props={game:GameState;onChoice:(instance:string,choice:string)=>void;onContinue:(instance:string)=>void;onHome:()=>void;onRevival?:(use:boolean)=>void;definition?:ExpeditionEventDefinition};
-export function EventScreen({game,onChoice,onContinue,onHome,onRevival,definition}:Props){
+type Props={game:GameState;now?:number;onChoice:(instance:string,choice:string)=>void;onContinue:(instance:string)=>void;onHome:()=>void;onRevival?:(use:boolean)=>void;definition?:ExpeditionEventDefinition};
+export function EventScreen({game,now,onChoice,onContinue,onHome,onRevival,definition}:Props){
  const e=game.expedition!,p=e.events.pendingEvent!,d=definition??definitionFor(e),max=stats(game,e.equipment).hp,lock=useRef(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const clock=now??Date.now(),timedStronghold=p.state==='CHOICE'&&d?.type==='STRONGHOLD'&&typeof p.expiresAt==='number';
+ const decisionSeconds=timedStronghold?Math.max(0,Math.ceil((p.expiresAt!-clock)/1000)):null,timedOut=decisionSeconds===0;
  function act(action:()=>void){if(lock.current)return;lock.current=true;setBusy(true);try{action();}catch{setError('선택 결과를 저장하지 못했습니다.');lock.current=false;setBusy(false);}}
  return <section className="tc-event" aria-label="원정 이벤트">
   <div className="tc-event-hud"><div><b>{TOWERS[e.tower].name} · {e.floor}F / T{tierOf(e.floor)}</b><small>HP {Math.ceil(e.hp)} / {max} · Silver {e.loot.silver.toLocaleString()} · 포션 {potionIds.reduce((n,id)=>n+e.bag[id],0)}</small></div><button onClick={onHome}>메뉴</button></div>
@@ -16,7 +18,8 @@ export function EventScreen({game,onChoice,onContinue,onHome,onRevival,definitio
   <div className="tc-event-body">
    <small className="tc-kicker">{e.events.mode==='test'?'TEST EVENT':'FIELD EVENT'}</small>
    <h1>{d?.title??'잊힌 탐사 기록'}</h1>
-   {p.state==='CHOICE'?<><p>{d?.description??'이 이벤트의 기록을 찾을 수 없습니다.'}</p><div className="tc-event-choices">{d?.choices.map(c=>{const allowed=meetsConditions(game,c.conditions);return <button key={c.id} className="tc-event-choice" disabled={busy||!allowed} onClick={()=>act(()=>onChoice(p.instanceId,c.id))}><span aria-hidden="true">{c.icon??'◇'}</span><span><strong>{c.label}</strong>{c.description&&<small>{c.description}</small>}</span><span>›</span></button>})??<button className="tc-event-choice" disabled={busy} onClick={()=>act(()=>onChoice(p.instanceId,'missing_skip'))}><span>◇</span><strong>지나간다</strong><span>›</span></button>}</div></>:<><p>{p.resultText}</p>{p.resultLines.slice(0,3).map((line,i)=><p key={i}>{line}</p>)}<button className="tc-action" disabled={busy} onClick={()=>act(()=>onContinue(p.instanceId))}>{p.next==='BOSS'?'보스에게 향한다':'탐사 계속'}</button></>}
+   {timedStronghold&&<div className={'tc-event-decision'+(timedOut?' expired':'')} role="timer" aria-live="polite"><small>결정까지</small><b>00:{String(decisionSeconds).padStart(2,'0')}</b><span>{timedOut?'자동으로 지나갑니다':'시간 안에 선택하지 않으면 지나갑니다.'}</span></div>}
+   {p.state==='CHOICE'?<><p>{d?.description??'이 이벤트의 기록을 찾을 수 없습니다.'}</p><div className="tc-event-choices">{d?.choices.map(c=>{const allowed=meetsConditions(game,c.conditions);return <button key={c.id} className="tc-event-choice" disabled={busy||timedOut||!allowed} onClick={()=>act(()=>onChoice(p.instanceId,c.id))}><span aria-hidden="true">{c.icon??'◇'}</span><span><strong>{c.label}</strong>{c.description&&<small>{c.description}</small>}</span><span>›</span></button>})??<button className="tc-event-choice" disabled={busy||timedOut} onClick={()=>act(()=>onChoice(p.instanceId,'missing_skip'))}><span>◇</span><strong>지나간다</strong><span>›</span></button>}</div></>:<><p>{p.resultText}</p>{p.resultLines.slice(0,3).map((line,i)=><p key={i}>{line}</p>)}<button className="tc-action" disabled={busy} onClick={()=>act(()=>onContinue(p.instanceId))}>{p.next==='BOSS'?'보스에게 향한다':'탐사 계속'}</button></>}
    {error&&<p className="error" role="alert">{error}</p>}
   </div>
   <p className="tc-event-foot">이곳에서 얻은 것은 살아서 돌아와야 확정됩니다.</p>

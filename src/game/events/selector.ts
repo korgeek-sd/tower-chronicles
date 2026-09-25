@@ -20,7 +20,10 @@ export function meetsCondition(s:GameState,c:EventCondition):boolean {const e=s.
  default:{const exhaustive:never=c;return exhaustive;}
 }}
 export const meetsConditions=(s:GameState,conditions:EventCondition[]=[])=>conditions.every(c=>meetsCondition(s,c));
-export function eligible(s:GameState,d:ExpeditionEventDefinition){const e=s.expedition;return !!e&&(!d.towerIds||d.towerIds.includes(e.tower))&&(!d.tiers||d.tiers.includes(tierOf(e.floor)))&&(!d.floors||d.floors.includes(e.floor))&&(d.type!=='BOSS'||isBossFloor(e.floor))&&meetsConditions(s,d.conditions);}
+export function eligible(s:GameState,d:ExpeditionEventDefinition){const e=s.expedition;if(!e)return false;const stronghold=e.events.stronghold;
+ if(d.type==='STRONGHOLD'&&(e.floor<3||e.floor>10||stronghold?.status==='ACTIVE'||stronghold?.status==='CONTESTED'))return false;
+ return (!d.towerIds||d.towerIds.includes(e.tower))&&(!d.tiers||d.tiers.includes(tierOf(e.floor)))&&(!d.floors||d.floors.includes(e.floor))&&(d.type!=='BOSS'||isBossFloor(e.floor))&&meetsConditions(s,d.conditions);
+}
 export function selectNormalEvent(s:GameState,catalog:ExpeditionEventDefinition[],rng:Rng){const recent=s.expedition?.events.recentEventIds??[];return weighted(catalog.filter(d=>d.type!=='BOSS'&&eligible(s,d)&&!recent.includes(d.id)),rng);}
 
 export function selectBossEvent(s:GameState,catalog:ExpeditionEventDefinition[],rng:Rng){return weighted(catalog.filter(d=>d.type==='BOSS'&&eligible(s,d)),rng);}
