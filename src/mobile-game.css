@@ -276,7 +276,9 @@ button:disabled{cursor:not-allowed;opacity:.38}
 
 
 /* ===== Silver Scale Exchange / dense request-board marketplace ===== */
-.tc-market-board{height:100%;display:grid;grid-template-rows:34px 30px 22px minmax(0,1fr) 31px;gap:4px;min-height:0;overflow:hidden}\n.tc-market-board.tab-orders{grid-template-rows:34px minmax(0,1fr)}\n.tc-market-board.tab-trades{grid-template-rows:34px 22px minmax(0,1fr) 31px}
+.tc-market-board{height:100%;display:grid;grid-template-rows:34px 30px 22px minmax(0,1fr) 31px;gap:4px;min-height:0;overflow:hidden}
+.tc-market-board.tab-orders{grid-template-rows:34px minmax(0,1fr)}
+.tc-market-board.tab-trades{grid-template-rows:34px 22px minmax(0,1fr) 31px}
 .tc-market-filters{display:grid;grid-template-columns:1.45fr .82fr .62fr .72fr;gap:3px}
 .tc-market-filters input,.tc-market-filters select{height:30px;min-height:0;border:1px solid var(--line);background:#0b0e0d;padding:3px 5px;font-size:7px;min-width:0}
 .tc-market-listhead{display:grid;grid-template-columns:minmax(0,1fr) 82px 48px;padding:0 32px 0 43px;align-items:end;border-bottom:1px solid var(--line-strong);color:#777d75;font:7px ui-monospace,Consolas,monospace}
@@ -310,3 +312,10 @@ button:disabled{cursor:not-allowed;opacity:.38}
 }
 
 .tc-market-history-head em{margin-left:4px;padding:1px 4px;border:1px solid #6c6048;background:#1b1914;color:#c7ae78;font-style:normal;font:6px ui-monospace,Consolas,monospace;letter-spacing:.04em}
+
+
+/* Marketplace tab-state stabilization */
+.tc-market-board.tab-orders>.tc-market-myorders{min-height:0;height:100%}
+.tc-market-board.tab-trades>.tc-market-offers.trades{min-height:0;height:100%;grid-template-rows:repeat(5,minmax(0,1fr))}
+.tc-market-myorders>section>p{min-height:0;text-align:center;padding:8px}
+.tc-market-offers.trades>.tc-trade-row,.tc-market-offers.trades>.tc-market-emptyrow{min-height:0;overflow:hidden}
