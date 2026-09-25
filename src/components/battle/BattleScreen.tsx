@@ -26,7 +26,7 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,
  const playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e),buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const [prefs,setPrefs]=useState<BattlePrefs>(loadPrefs);
  const updatePrefs=(next:BattlePrefs)=>{setPrefs(next);savePrefs(next);};
- const speedIndex=Math.max(0,SPEEDS.indexOf(prefs.speed));
+ const speedIndex=Math.max(0,SPEEDS.indexOf(prefs.speed as (typeof SPEEDS)[number]));
  const cycleSpeed=()=>updatePrefs({...prefs,speed:SPEEDS[(speedIndex+1)%SPEEDS.length]});
  const bossFloor=!!bossIdFor(e.tower,e.floor),trace=bossFloor?Math.round(e.bossTracking.progress/EVENT_BALANCE.bossMaxProgress*100):0;
  const intent=intel.intent.kind!=='NONE'?intel.intent:null;
