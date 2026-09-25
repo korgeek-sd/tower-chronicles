@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {initialState} from '../src/game/engine/state.ts';
 import {enter,abandonStrongholdAndReturn} from '../src/game/engine/expedition.ts';
 import {createStrongholdRuntime,settleStronghold,STRONGHOLD_BALANCE} from '../src/game/events/resourceStronghold.ts';
+import {openEvent,resolveEvent,expireTimedEventChoice,continueEvent} from '../src/game/events/service.ts';
+import {EVENT_CATALOG} from '../src/game/events/catalog.ts';
 import {createRepository,validSave,SAVE_KEY} from '../src/storage/repository.ts';
 
 const withStronghold=(now=1_000,floor=3)=>{
@@ -12,6 +14,17 @@ const withStronghold=(now=1_000,floor=3)=>{
  const runtime=createStrongholdRuntime(n,now);
  assert.ok(runtime);
  n.expedition!.events.stronghold=runtime;
+ return n;
+};
+
+
+const timedStrongholdEvent=(now=100_000)=>{
+ const s=initialState();
+ s.tickets.ore[2]=1;
+ const n=enter(s,'ore',3);
+ const definition=EVENT_CATALOG.find(event=>event.id==='resource_stronghold');
+ assert.ok(definition);
+ openEvent(n,definition,()=>0,null,now);
  return n;
 };
 
@@ -97,4 +110,44 @@ test('STRONGHOLD 06: completion pays the snapshotted reward once, marks the runt
  assert.equal(n.expedition!.events.stronghold!.deletedAt,end);
  assert.equal(validSave(n),true);
  assert.strictEqual(settleStronghold(n,end+1),n);
+});
+
+
+test('STRONGHOLD 07: timed encounter persists an exact 30-second deadline and does nothing before it',()=>{
+ const opened=timedStrongholdEvent(100_000),p=opened.expedition!.events.pendingEvent!;
+ assert.equal(p.expiresAt,130_000);
+ assert.equal(validSave(opened),true);
+ assert.strictEqual(expireTimedEventChoice(opened,129_999),opened);
+ const {repo}=memory();repo.save(opened);
+ assert.equal(repo.load().expedition!.events.pendingEvent!.expiresAt,130_000);
+});
+
+test('STRONGHOLD 08: deadline automatically resolves as skip without creating or rewarding a stronghold',()=>{
+ const opened=timedStrongholdEvent(200_000),before=structuredClone(opened.expedition!.loot);
+ const expired=expireTimedEventChoice(opened,230_000);
+ const p=expired.expedition!.events.pendingEvent!;
+ assert.equal(expired.expedition!.events.phase,'EVENT_RESULT');
+ assert.equal(p.state,'RESULT');
+ assert.equal(p.choiceId,'skip');
+ assert.equal(p.outcomeId,null);
+ assert.match(p.resultText,/30초가 지나/);
+ assert.equal(expired.expedition!.events.stronghold,null);
+ assert.deepEqual(expired.expedition!.loot,before);
+ assert.equal(validSave(expired),true);
+ const resumed=continueEvent(expired,p.instanceId,()=>.99);
+ assert.equal(resumed.expedition!.events.phase,'BATTLE');
+});
+
+test('STRONGHOLD 09: a late claim click is coerced to skip, while a claim before deadline starts the 15-minute timer at decision time',()=>{
+ const late=timedStrongholdEvent(300_000),lateId=late.expedition!.events.pendingEvent!.instanceId;
+ const skipped=resolveEvent(late,lateId,'claim',330_001);
+ assert.equal(skipped.expedition!.events.pendingEvent!.choiceId,'skip');
+ assert.equal(skipped.expedition!.events.stronghold,null);
+
+ const timely=timedStrongholdEvent(400_000),timelyId=timely.expedition!.events.pendingEvent!.instanceId;
+ const claimed=resolveEvent(timely,timelyId,'claim',429_999),r=claimed.expedition!.events.stronghold!;
+ assert.equal(claimed.expedition!.events.pendingEvent!.choiceId,'claim');
+ assert.equal(r.status,'ACTIVE');
+ assert.equal(r.captureStartedAt,429_999);
+ assert.equal(r.captureEndsAt,429_999+STRONGHOLD_BALANCE.captureMs);
 });
