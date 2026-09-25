@@ -308,3 +308,5 @@ button:disabled{cursor:not-allowed;opacity:.38}
 @media(max-width:360px){
  .tc-market-filters{grid-template-columns:1.3fr .8fr .58fr .68fr}.tc-market-listhead{grid-template-columns:minmax(0,1fr) 68px 40px;padding-left:40px;padding-right:25px}.tc-market-offers>button,.tc-trade-row{grid-template-columns:30px minmax(0,1fr) 68px 40px 8px;gap:3px}.tc-market-miniicon{width:27px;height:27px}.tc-market-bookdesk{gap:3px}.tc-market-item{grid-template-rows:48px 110px minmax(66px,1fr) 116px 17px}.tc-market-itemhead{grid-template-columns:39px minmax(0,1fr) 40px}.tc-market-itemicon{width:36px;height:36px}.tc-market-ticket-fields{grid-template-columns:1fr 1fr 38px}
 }
+
+.tc-market-history-head em{margin-left:4px;padding:1px 4px;border:1px solid #6c6048;background:#1b1914;color:#c7ae78;font-style:normal;font:6px ui-monospace,Consolas,monospace;letter-spacing:.04em}
