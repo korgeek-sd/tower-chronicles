@@ -64,7 +64,7 @@ function App(){
   async()=>{if(!stateRef.current.expedition)throw Error('진행 중인 원정이 없습니다.');const next=requestReturn(stateRef.current);flushSync(()=>{setGame(next);setPage('battle');});return {status:next.expedition?'return_requested':'returned',silver:next.silver};}
  ),[]);
  useEffect(()=>{if(blocked.current){setStorageError('저장 데이터를 읽지 못해 자동 저장을 중단했습니다.');return;}try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA':'저장');}catch{setStorageError('저장 공간을 사용할 수 없습니다.');}},[game]);
- useEffect(()=>{const id=setInterval(()=>{if(!document.hidden)setGame(state=>{const tick=Date.now();return expireTimedEventChoice(settleStronghold(settleCrafting(state),tick),tick);});},1000);return()=>clearInterval(id);},[]);
+ useEffect(()=>{const settle=()=>{if(document.hidden)return;const tick=Date.now();setNow(tick);setGame(state=>expireTimedEventChoice(settleStronghold(settleCrafting(state),tick),tick));};const id=setInterval(settle,1000);document.addEventListener('visibilitychange',settle);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',settle);};},[]);
  useEffect(()=>{if(game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[game.expedition?.phase,game.expedition?.pendingRevival]);
 
  const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,goldenActive=isGoldenRecorderActive(game,now),immersive=page==='battle'&&!!exp,visibleNotice=game.notice.startsWith('안전 귀환 ·')?'':game.notice;
