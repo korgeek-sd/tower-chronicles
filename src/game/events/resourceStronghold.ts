@@ -65,19 +65,3 @@ export function abandonStronghold(state:GameState,now=Date.now()):GameState {
  r.status='DELETED';r.deletedAt=now;r.version++;
  return s;
 }
-
-/** Voluntary stronghold exit is an immediate safe-return path.
- * It is only available on the player's battle turn; an event, enemy turn,
- * revival decision or future CONTESTED state cannot be escaped through it.
- */
-export function abandonStrongholdAndReturn(state:GameState,now=Date.now()):GameState {
- const e=state.expedition,runtime=activeStronghold(state);
- if(!e||!runtime||e.pendingRevival||e.events.phase!=='BATTLE'||e.phase!=='PLAYER_TURN')return state;
- const abandoned=abandonStronghold(state,now);
- if(abandoned===state)return state;
- // Lazy import avoided: expedition.leave is cycle-safe here because
- // resourceStronghold is never imported by expedition.ts.
- return safeReturnAfterAbandon(abandoned);
-}
-
-import {leave as safeReturnAfterAbandon} from '../engine/expedition';
