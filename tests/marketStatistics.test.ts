@@ -6,3 +6,5 @@ test('통계 TC-02~05 고저·수량 가중 평균·거래량·변동을 계산�
 test('통계 TC-06 단일 체결은 변동 비교 데이터를 만들지 않는다',()=>{const s=marketStats([trade(100,2,now-1,1)],'material:ore:1','1H',now);assert.equal(s.priceChange,null);assert.equal(s.priceChangePercent,null);});
 test('통계 TC-07 차트 버킷은 마지막 가격과 실제 거래량만 사용한다',()=>{const ts=[trade(90,2,now-3_000_000,1),trade(95,3,now-2_900_000,2)],chart=marketChart(ts,'material:ore:1','1H',now);assert.equal(chart.length,1);assert.deepEqual([chart[0].price,chart[0].volume],[95,5]);});
 
+
+test('통계 TC-08 30일 범위는 30일 시작 경계를 포함하고 하루 단위 버킷을 사용한다',()=>{const day=86_400_000,ts=[trade(80,1,now-31*day,1),trade(90,2,now-30*day,2),trade(100,3,now-day,3)],data=tradesInRange(ts,'material:ore:1','30D',now),chart=marketChart(ts,'material:ore:1','30D',now);assert.deepEqual(data.map(t=>t.price),[90,100]);assert.equal(chart.length,2);assert.equal(marketStats(ts,'material:ore:1','30D',now).volume,5);});
