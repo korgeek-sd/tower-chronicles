@@ -11,6 +11,7 @@ import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
+import {consumeOAuthRedirect,getStoredSession} from './online/auth';
 
 import {EventScreen} from './components/events/EventScreen';
 import {resolveEvent,continueEvent,configureEventMode,expireTimedEventChoice} from './game/events/service';
@@ -56,6 +57,7 @@ function App(){
  const stateRef=useRef(game);stateRef.current=game;
  const wasExpedition=useRef(!!game.expedition);
  const [saved,setSaved]=useState('');
+ useEffect(()=>{const before=getStoredSession();const session=consumeOAuthRedirect();if(session&&!before)setGame(s=>({...s,notice:'Google 로그인 완료 · 저장 관리에서 클라우드 저장을 확인할 수 있습니다.'}));},[]);
 
  useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
  useEffect(()=>{if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
