@@ -1,4 +1,4 @@
-import type {GameState,Item,MarketOrder,MarketSide,MarketTrade,Tower} from '../types';
+import type {GameState,Item,MarketOrder,MarketSide,MarketStorageEntry,MarketTrade,Tower} from '../types';
 import type {InventoryCategory} from '../inventoryView';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
@@ -27,7 +27,16 @@ export function marketItems(s:GameState):MarketItem[]{
  return result;
 }
 const escrowGear=(s:GameState,itemId:string)=>s.market.orders.find(order=>order.itemId===itemId&&order.gear)?.gear;
-export function marketItemName(s:GameState,itemId:string){const own=marketItems(s).find(i=>i.id===itemId);if(own)return own.name;const gear=escrowGear(s,itemId);return gear?itemName(gear):itemId;}
+function staticItemName(itemId:string,gear?:Item){
+ if(gear)return itemName(gear);
+ const p=parseStack(itemId);
+ if(!p)return itemId;
+ if(p.kind==='material')return `T${(p.index??0)+1} ${TOWERS[p.tower!].material}`;
+ if(p.kind==='ticket')return `${TOWERS[p.tower!].name} ${(p.index??0)+1}층 입장권`;
+ if(p.kind==='skillbook')return bookName(p.id!);
+ return p.id??itemId;
+}
+export function marketItemName(s:GameState,itemId:string){const own=marketItems(s).find(i=>i.id===itemId);if(own)return own.name;return staticItemName(itemId,escrowGear(s,itemId));}
 export function marketCatalog(s:GameState){
  const own=marketItems(s),known=new Map(own.map(item=>[item.id,item]));
  s.market.orders.forEach(order=>{
@@ -64,11 +73,33 @@ export const getLastTrade=(s:GameState,itemId:string)=>s.market.trades.filter(t=
 export const getRecentTrades=(s:GameState,itemId:string,limit=8)=>s.market.trades.filter(t=>t.itemId===itemId).slice(-limit).reverse();
 export const getMyOpenOrders=(s:GameState)=>s.market.orders.filter(o=>o.ownerId===s.market.ownerId&&active(o));
 export function aggregateOrderBookByPrice(orders:MarketOrder[]){const totals=new Map<number,number>();orders.forEach(o=>totals.set(o.limitPrice,(totals.get(o.limitPrice)||0)+o.remainingQuantity));return [...totals].map(([price,quantity])=>({price,quantity}));}
+function storageEntries(s:GameState){return s.market.storage??[];}
+function ensureStorage(s:GameState){s.market.storage??=[];s.market.nextStorageId??=1;return s.market.storage;}
+function depositStorage(s:GameState,trade:MarketTrade,side:MarketSide,quantity:number,silver:number,gear?:Item){
+ const entries=ensureStorage(s),id=s.market.nextStorageId??1;
+ const entry:MarketStorageEntry={storageId:'storage-'+id,tradeId:trade.tradeId,side,itemId:trade.itemId,quantity,silver,createdAt:trade.executedAt,gear:gear?structuredClone(gear):undefined};
+ s.market.nextStorageId=id+1;entries.push(entry);
+}
+export const getMarketStorage=(s:GameState)=>storageEntries(s).slice().sort((a,b)=>b.createdAt-a.createdAt||b.storageId.localeCompare(a.storageId));
+export const getMarketStorageCount=(s:GameState)=>storageEntries(s).length;
+export const getMarketStorageSilver=(s:GameState)=>storageEntries(s).reduce((sum,entry)=>sum+(entry.side==='SELL'?entry.silver:0),0);
+export const getMarketStorageItemCount=(s:GameState)=>storageEntries(s).reduce((sum,entry)=>sum+(entry.side==='BUY'?entry.quantity:0),0);
+export function claimMarketStorage(state:GameState,storageId:string):GameState {
+ const s=structuredClone(state);if(s.expedition)return {...s,notice:'원정 중에는 거래 보관함을 수령할 수 없습니다.'};
+ const entries=ensureStorage(s),index=entries.findIndex(entry=>entry.storageId===storageId);if(index<0)return s;
+ const entry=entries[index];if(entry.side==='BUY')addItem(s,entry.itemId,entry.quantity,entry.gear);else s.silver+=entry.silver;
+ entries.splice(index,1);return s;
+}
+export function claimAllMarketStorage(state:GameState):GameState {
+ const s=structuredClone(state);if(s.expedition)return {...s,notice:'원정 중에는 거래 보관함을 수령할 수 없습니다.'};
+ const entries=[...ensureStorage(s)];for(const entry of entries){if(entry.side==='BUY')addItem(s,entry.itemId,entry.quantity,entry.gear);else s.silver+=entry.silver;}
+ s.market.storage=[];return s;
+}
 function settle(s:GameState,buy:MarketOrder,sell:MarketOrder,quantity:number,price:number,now:number){
  const m=s.market,trade:MarketTrade={tradeId:'trade-'+m.nextTradeId++,itemId:buy.itemId,price,quantity,buyOrderId:buy.orderId,sellOrderId:sell.orderId,buyerId:buy.ownerId,sellerId:sell.ownerId,executedAt:now,sequence:m.nextSequence++};
  // The buy deposit was withdrawn at registration. A buyer gets only the difference between its limit and the resting price.
- if(local(s,buy.ownerId)){addItem(s,buy.itemId,quantity,sell.gear);s.silver+=(buy.limitPrice-price)*quantity;}
- if(local(s,sell.ownerId))s.silver+=price*quantity;
+ if(local(s,buy.ownerId)){depositStorage(s,trade,'BUY',quantity,0,sell.gear);s.silver+=(buy.limitPrice-price)*quantity;}
+ if(local(s,sell.ownerId))depositStorage(s,trade,'SELL',quantity,price*quantity);
  buy.remainingQuantity-=quantity;sell.remainingQuantity-=quantity;buy.status=status(buy.remainingQuantity,buy.originalQuantity);sell.status=status(sell.remainingQuantity,sell.originalQuantity);m.trades.push(trade);
 }
 function matchIncoming(s:GameState,incoming:MarketOrder,now:number){
