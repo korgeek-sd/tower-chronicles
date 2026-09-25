@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import type {Item,MarketOrder} from '../src/game/types.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {inventoryView} from '../src/game/inventoryView.ts';
-import {cancelOrder,marketCatalog,marketItemName,placeOrder} from '../src/game/market/marketService.ts';
+import {cancelOrder,claimMarketStorage,getMarketStorage,marketCatalog,marketItemName,placeOrder} from '../src/game/market/marketService.ts';
 import {createRepository,validSave} from '../src/storage/repository.ts';
 
 const enhanced=(id:string,kind:string,tier:number,enhancement:0|1|2|3):Item=>({id,kind,tier,enhancement});
@@ -39,15 +39,18 @@ test('ENHANCE COMPAT 03: cancelling enhanced gear sell order restores the exact 
   assert.deepEqual(n.items.find(i=>i.id===gear.id),gear);
 });
 
-test('ENHANCE COMPAT 04: buying escrowed +3 gear transfers the exact enhancement state',()=>{
+test('ENHANCE COMPAT 04: buying escrowed +3 gear keeps exact enhancement state through trade storage claim',()=>{
   const s=initialState();s.silver=1000;
   const gear=enhanced('remote-gear','dagger',1,3);
   const sell:MarketOrder={orderId:'remote-sell',itemId:'gear:remote-gear',side:'SELL',limitPrice:100,originalQuantity:1,remainingQuantity:1,ownerId:'remote',createdAt:500,sequence:1,status:'OPEN',gear};
   s.market.orders.push(sell);
   const n=placeOrder(s,{itemId:'gear:remote-gear',side:'BUY',limitPrice:100,quantity:1,createdAt:1000});
-  assert.deepEqual(n.items.find(i=>i.id==='remote-gear'),gear);
+  assert.equal(n.items.find(i=>i.id==='remote-gear'),undefined);
+  assert.deepEqual(getMarketStorage(n)[0].gear,gear);
   assert.equal(n.silver,900);
   assert.equal(n.market.trades.length,1);
+  const claimed=claimMarketStorage(n,getMarketStorage(n)[0].storageId);
+  assert.deepEqual(claimed.items.find(i=>i.id==='remote-gear'),gear);
 });
 
 test('ENHANCE COMPAT 05: enhanced gear escrow survives save/load with schema v22 unchanged',()=>{
