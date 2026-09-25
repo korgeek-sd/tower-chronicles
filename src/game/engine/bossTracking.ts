@@ -4,6 +4,7 @@ import {COMBAT} from '../data/config';
 import {IRON_T1_MONSTER_BY_ID,IRON_T1_MONSTERS,ironFloorContent,IRON_BOSS_SLOTS,IRON_BOSS_STATS} from '../data/ironSpire';
 import {RED_T1_MONSTER_BY_ID,redFloorContent,RED_BOSS_SLOTS,RED_BOSS_STATS} from '../data/redFang';
 import {CRYSTAL_T1_MONSTER_BY_ID,crystalFloorContent,CRYSTAL_BOSS_SLOTS,CRYSTAL_BOSS_STATS} from '../data/crystalTower';
+import {KALEON_T1_MONSTER_BY_ID,kaleonFloorContent,KALEON_BOSS_SLOTS,KALEON_BOSS_STATS} from '../data/kaleonSpire';
 
 /** @deprecated Historical v0.1.8 values; current tuning lives in events/selector.ts. */
 export const BOSS_TRACKING_BALANCE={gainPerKill:20,earlyEncounterChance:.12} as const;
@@ -11,15 +12,18 @@ export const initialBossTracking=():BossTracking=>({progress:0,pendingBossId:nul
 export const bossIdFor=(tower:Tower,floor:number):string|null=>
   tower==='ore'?ironFloorContent(floor)?.bossId??null:
   tower==='leather'?redFloorContent(floor)?.bossId??null:
-  tower==='gem'?crystalFloorContent(floor)?.bossId??null:null;
+  tower==='gem'?crystalFloorContent(floor)?.bossId??null:
+  tower==='kaleon'?kaleonFloorContent(floor)?.bossId??null:null;
 
 export const bossById=(id:string)=>
   IRON_T1_MONSTER_BY_ID[id]??
   RED_T1_MONSTER_BY_ID[id]??
   CRYSTAL_T1_MONSTER_BY_ID[id]??
+  KALEON_T1_MONSTER_BY_ID[id]??
   (Object.values(IRON_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(IRON_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...IRON_BOSS_STATS[id]}:undefined)??
   (Object.values(RED_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(RED_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...RED_BOSS_STATS[id]}:undefined)??
-  (Object.values(CRYSTAL_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(CRYSTAL_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...CRYSTAL_BOSS_STATS[id]}:undefined);
+  (Object.values(CRYSTAL_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(CRYSTAL_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...CRYSTAL_BOSS_STATS[id]}:undefined)??
+  (Object.values(KALEON_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(KALEON_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...KALEON_BOSS_STATS[id]}:undefined);
 
 export const bossIdByName=(name:string)=>IRON_T1_MONSTERS.find(m=>m.boss&&m.displayName===name)?.id??null;
 export function bossMonsterFor(id:string,floor:number):Monster|null {

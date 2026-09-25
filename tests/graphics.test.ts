@@ -8,7 +8,7 @@ import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} fro
 import {createRepository} from '../src/storage/repository.ts';
 const start=()=>enter(initialState(),'ore',1);
 test('그래픽 01: 그래픽 없는 기존 몬스터도 수동 전투 가능',()=>{const s=start();s.expedition!.monster.name='기존 이름';assert.equal(graphicFor('ore',s.expedition!.monster),undefined);assert.ok(basicAttack(s).expedition!.monster.currentHp<s.expedition!.monster.currentHp);});
-test('그래픽 02: 철맥과 천광 확장분을 포함한 현재 그래픽 카탈로그를 조회한다',()=>{assert.equal(graphicFor('ore',start().expedition!.monster)?.id,'goblin_miner');assert.equal(MONSTER_GRAPHICS.length,47);for(const name of ['쇄철턱 굴혈수','흑맥갑주 파쇄충','울림포식자','심층 권양감독체','철심 맥동체'])assert.ok(graphicFor('ore',{name}));});
+test('그래픽 02: 철맥과 천광 확장분을 포함한 현재 그래픽 카탈로그를 조회한다',()=>{assert.equal(graphicFor('ore',start().expedition!.monster)?.id,'goblin_miner');assert.equal(MONSTER_GRAPHICS.length,56);for(const name of ['쇄철턱 굴혈수','흑맥갑주 파쇄충','울림포식자','심층 권양감독체','철심 맥동체'])assert.ok(graphicFor('ore',{name}));});
 test('그래픽 03: 이미지 없음 및 로딩 실패는 placeholder',()=>{assert.equal(imageState(false,false,false),'placeholder');assert.equal(imageState(true,false,false),'placeholder');});
 test('그래픽 04: 몬스터 교체는 다른 encounter와 데이터',()=>{const a=start().expedition!,b=structuredClone(a);b.monster.name='다른 몬스터';assert.notEqual(encounterKey(a),encounterKey(b));assert.equal(graphicFor('ore',b.monster),undefined);assert.equal(damageBetween(a,b),0);});
 test('그래픽 05: HUD는 실제 HP만 사용',()=>{const e=start().expedition!;e.monster.currentHp=21;assert.deepEqual(monsterHud(e.monster),{name:e.monster.name,current:21,max:42,percent:50});});
@@ -19,7 +19,7 @@ test('그래픽 09: 귀환 예약은 적의 마지막 행동 뒤 정산',()=>{co
 test('그래픽 10: 처치 시 장비 숙련 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;assert.equal(basicAttack(s,()=>.99).gearMastery.sword.progress,10);});
 test('그래픽 11: 처치 전리품은 기존 임시 보관함에 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.equal(n.silver,0);assert.ok(n.expedition!.loot.silver>0);});
 test('그래픽 12: 현재 v21 저장은 그래픽 런타임 UI 상태 없이 왕복',()=>{let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,s)=>{raw=s;}}),s=start();repo.save(s);assert.deepEqual(repo.load(),s);assert.equal(s.version,22);assert.ok(!raw.includes('imageReady'));});
-test('현재 10층 구조는 각 탑에서 단일 배경 tier를 조회한다',()=>{for(const t of ['ore','leather','gem','kaleon'] as const)for(let floor=1;floor<=10;floor++)assert.equal(backgroundFor(t,floor),`assets/backgrounds/${t}/t1.png`);});
+test('현재 10층 구조는 각 탑에서 단일 배경 tier를 조회한다',()=>{for(const t of ['ore','leather','gem','kaleon'] as const)for(let floor=1;floor<=10;floor++)assert.equal(backgroundFor(t,floor),t==='kaleon'?'assets/backgrounds/kaleon/t1.webp':`assets/backgrounds/${t}/t1.png`);});
 test('처치 뒤 즉시 교체된 몬스터에는 이전 피해를 표시하지 않음',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.notEqual(encounterKey(s.expedition!),encounterKey(n.expedition!));assert.equal(damageBetween(s.expedition!,n.expedition!),0);});
 test('버프 스킬과 같은 HP 상태는 피해 이벤트를 만들지 않음',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;assert.equal(damageBetween(a,b),0);});
 test('세로 UI 01: 플레이어 HP 감소량을 피해 이벤트로 계산',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;b.hp-=17;assert.deepEqual(playerVitalBetween(a,b),{kind:'damage',amount:17});});
