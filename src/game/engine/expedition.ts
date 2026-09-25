@@ -9,6 +9,7 @@ import {createBattleJobRuntime} from '../jobs/service';
 import {createMonsterRuntime} from './monsterAi';
 import {emptyReactivePrepared} from './reactions';
 import {recordBestiaryEncounter} from './bestiary';
+import {abandonStronghold,activeStronghold} from '../events/resourceStronghold';
 export function enter(s:GameState,tower:Tower,floor:number):GameState {
   const n=structuredClone(s);if(n.expedition)return n;
   if(!(tower in TOWERS)||!isValidTowerFloor(floor)||n.tickets[tower][floor-1]<1)return {...n,notice:'이 층의 입장권이 없습니다.'};
@@ -31,6 +32,16 @@ export function requestReturn(s:GameState):GameState {if(!s.expedition||s.expedi
 export function cancelReturn(s:GameState):GameState {
   if(!s.expedition||!s.expedition.returnRequested)return s;
   const n=structuredClone(s);n.expedition!.returnRequested=false;n.notice='안전 귀환 예약을 취소했습니다.';log(n,'안전 귀환 예약 취소');return n;
+}
+/** Resource-stronghold owners may cash out by deleting the stronghold and returning safely.
+ * This special exit is only valid on the player's turn and never during an event,
+ * enemy action, revival decision or future contested state.
+ */
+export function abandonStrongholdAndReturn(s:GameState,now=Date.now()):GameState {
+ const e=s.expedition;
+ if(!e||!activeStronghold(s)||e.pendingRevival||e.events.phase!=='BATTLE'||e.phase!=='PLAYER_TURN')return s;
+ const abandoned=abandonStronghold(s,now);
+ return abandoned===s?s:leave(abandoned,false);
 }
 /** Atomic pure state transition: only an active expedition can settle.
  * lastExpedition is a display-only receipt; it is never a payment source.
