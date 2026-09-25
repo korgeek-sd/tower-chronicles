@@ -4,7 +4,7 @@ import {
   aggregateOrderBookByPrice,cancelOrder,getBestAsk,getBestBid,getLastTrade,getMyOpenOrders,
   getRecentTrades,marketCatalog,marketItemName,orderBook,placeOrder
 } from '../../game/market/marketService';
-import {marketChart,marketStats} from '../../game/market/marketStatistics';
+import {marketChart,marketStats,type MarketTimeRange} from '../../game/market/marketStatistics';
 import {marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 
@@ -21,7 +21,7 @@ const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'mat
 const itemTier=(id:string,gearTier?:number)=>gearTier??(/^.+:[^:]+:(\d+)$/.exec(id)?.[1]?Number(/^.+:[^:]+:(\d+)$/.exec(id)![1]):0);
 
 export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
- const [tab,setTab]=useState<Tab>('buy'),[category,setCategory]=useState<Category>('all'),[tier,setTier]=useState(0),[query,setQuery]=useState(''),[sort,setSort]=useState<Sort>('name'),[selected,setSelected]=useState<string|null>(null),[side,setSide]=useState<'BUY'|'SELL'>('BUY'),[price,setPrice]=useState(''),[qty,setQty]=useState(''),[confirm,setConfirm]=useState(false),[canceling,setCanceling]=useState<MarketOrder|null>(null),[page,setPage]=useState(0),[feedback,setFeedback]=useState('');
+ const [tab,setTab]=useState<Tab>('buy'),[category,setCategory]=useState<Category>('all'),[tier,setTier]=useState(0),[query,setQuery]=useState(''),[sort,setSort]=useState<Sort>('name'),[selected,setSelected]=useState<string|null>(null),[side,setSide]=useState<'BUY'|'SELL'>('BUY'),[price,setPrice]=useState(''),[qty,setQty]=useState(''),[confirm,setConfirm]=useState(false),[canceling,setCanceling]=useState<MarketOrder|null>(null),[page,setPage]=useState(0),[feedback,setFeedback]=useState(''),[chartRange,setChartRange]=useState<MarketTimeRange>('24H');
  const catalog=useMemo(()=>marketCatalog(game),[game]);
 
  const filtered=useMemo(()=>{
@@ -43,14 +43,14 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  const item=catalog.find(x=>x.id===selected);
  const book=selected?orderBook(game,selected):{sells:[],buys:[]},asks=levels(book.sells),bids=levels(book.buys,true),ask=selected?getBestAsk(game,selected):null,bid=selected?getBestBid(game,selected):null,last=selected?getLastTrade(game,selected):null,recent=selected?getRecentTrades(game,selected,5):[];
  const preview=selected?marketTradesForPreview(game.market.trades,selected,Date.now()):{trades:game.market.trades,demo:false};
- const stats=selected?marketStats(preview.trades,selected,'24H',Date.now()):null,chart=selected?marketChart(preview.trades,selected,'24H',Date.now()):[];
+ const stats=selected?marketStats(preview.trades,selected,chartRange,Date.now()):null,chart=selected?marketChart(preview.trades,selected,chartRange,Date.now()):[];
  const previewRecent=selected?preview.trades.filter(t=>t.itemId===selected).slice().sort((a,b)=>b.executedAt-a.executedAt).slice(0,5):[];
  const displayRecent=recent.length?recent:previewRecent;
  const displayLast=last?.price??stats?.lastPrice??null;
  const vals=chart.map(p=>p.price),min=vals.length?Math.min(...vals):0,max=vals.length?Math.max(...vals):1,spread=max-min||1,poly=chart.map((pt,i)=>(chart.length===1?50:i/(chart.length-1)*100)+','+(88-(pt.price-min)/spread*70)).join(' ');
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN,valid=!!item&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&(side==='BUY'?game.silver>=p*q:item.available>=q)&&!game.expedition;
 
- const choose=(id:string,nextSide:'BUY'|'SELL')=>{const demo=marketTradesForPreview(game.market.trades,id,Date.now()),demoLast=marketStats(demo.trades,id,'24H',Date.now()).lastPrice;setSelected(id);setSide(nextSide);setPrice(String((nextSide==='BUY'?getBestAsk(game,id):getBestBid(game,id))??getLastTrade(game,id)?.price??demoLast??''));setQty('1');setConfirm(false);setFeedback('');};
+ const choose=(id:string,nextSide:'BUY'|'SELL')=>{const demo=marketTradesForPreview(game.market.trades,id,Date.now()),demoLast=marketStats(demo.trades,id,'24H',Date.now()).lastPrice;setChartRange('24H');setSelected(id);setSide(nextSide);setPrice(String((nextSide==='BUY'?getBestAsk(game,id):getBestBid(game,id))??getLastTrade(game,id)?.price??demoLast??''));setQty('1');setConfirm(false);setFeedback('');};
  const submit=()=>{if(!selected)return;let message='주문이 등록되었습니다.';setGame(s=>{const n=placeOrder(s,{itemId:selected,side,limitPrice:p,quantity:q});const o=n.market.orders.at(-1);if(o){const filled=o.originalQuantity-o.remainingQuantity;message=filled?(o.remainingQuantity?filled+'개 체결 · '+o.remainingQuantity+'개 대기':filled+'개 전량 체결'):'요청서 등록 완료';}else message=n.notice;return n;});setConfirm(false);setFeedback(message);};
 
  const open=getMyOpenOrders(game),buyOrders=open.filter(o=>o.side==='BUY'),sellOrders=open.filter(o=>o.side==='SELL'),myTrades=game.market.trades.filter(t=>t.buyerId===game.market.ownerId||t.sellerId===game.market.ownerId).slice().reverse();
@@ -71,8 +71,9 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
     </section>
 
     <section className="tc-market-history">
-     <div className="tc-market-history-head"><span>시장 이력 · 24H {preview.demo&&<em>미리보기</em>}</span><b>{money(displayLast)}</b></div>
-     <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="24시간 가격 추이">{poly&&<polyline points={poly} fill="none" vectorEffect="non-scaling-stroke"/>}<line x1="0" y1="88" x2="100" y2="88"/></svg>
+     <div className="tc-market-history-head"><span>시장 이력 {preview.demo&&<em>미리보기</em>}</span><b>{money(displayLast)}</b></div>
+     <div className="tc-market-range" role="tablist" aria-label="가격 차트 기간">{([['24H','24시간'],['7D','7일'],['30D','30일']] as [MarketTimeRange,string][]).map(([range,label])=><button key={range} role="tab" aria-selected={chartRange===range} onClick={()=>setChartRange(range)}>{label}</button>)}</div>
+     <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label={chartRange==='24H'?'24시간 가격 추이':chartRange==='7D'?'7일 가격 추이':'30일 가격 추이'}>{poly&&<polyline points={poly} fill="none" vectorEffect="non-scaling-stroke"/>}<line x1="0" y1="88" x2="100" y2="88"/></svg>
      <div className="tc-market-history-stats"><span>최고 <b>{money(stats?.highPrice??null)}</b></span><span>최저 <b>{money(stats?.lowPrice??null)}</b></span><span>평균 <b>{money(stats?.averagePrice??null)}</b></span><span>거래량 <b>{stats?.volume??0}</b></span></div>
     </section>
 
