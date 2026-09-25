@@ -31,7 +31,7 @@ export function postBattle(s:GameState,defeatedBoss:boolean,rng:Rng=random):Game
  if(unit(rng)<EVENT_BALANCE.normalChance){const definition=selectNormalEvent(s,catalogFor(e.events.mode),rng);if(definition){openEvent(s,definition,rng);return s;}}
  return beginEncounter(s,rng);
 }
-function apply(s:GameState,effect:EventEffect,lines:string[]){const e=s.expedition!;switch(effect.kind){
+function apply(s:GameState,effect:EventEffect,lines:string[],now=Date.now()){const e=s.expedition!;switch(effect.kind){
  case 'HEAL_HP':{const before=e.hp;e.hp=Math.min(stats(s,e.equipment).hp,e.hp+Math.floor(stats(s,e.equipment).hp*effect.ratio));lines.push('HP +'+(e.hp-before));break;}
  case 'ADD_POTION':e.bag[effect.potion]+=effect.amount;lines.push(POTIONS[effect.potion].name+' 포션 +'+effect.amount);break;
  case 'ADD_EXPEDITION_SILVER':e.loot.silver+=effect.amount;lines.push('Silver +'+effect.amount+' · 원정 임시 보관');break;
@@ -40,14 +40,25 @@ function apply(s:GameState,effect:EventEffect,lines:string[]){const e=s.expediti
  case 'REMOVE_EFFECT':removeEffectById(e,'player',effect.effectId);lines.push((EFFECTS[effect.effectId]?.name??effect.effectId)+' 해제');break;
  case 'TAKE_DAMAGE':{const damage=Math.min(e.hp,effect.amount);e.hp-=damage;lines.push('HP -'+damage);break;}
  case 'START_BOSS_BATTLE':e.events.pendingEvent!.next='BOSS';break;
- case 'START_RESOURCE_STRONGHOLD':{const runtime=createStrongholdRuntime(s,Date.now());if(runtime){e.events.stronghold=runtime;lines.push('자원거점 점령 시작 · 15분');}break;}
+ case 'START_RESOURCE_STRONGHOLD':{const runtime=createStrongholdRuntime(s,now);if(runtime){e.events.stronghold=runtime;lines.push('자원거점 점령 시작 · 15분');}break;}
  case 'NO_EFFECT':break;
  default:{const exhaustive:never=effect;throw Error(String(exhaustive));}
 }}
 /** Instance and phase guard: stale clicks and saved RESULT states never pay twice.
  * A persisted random ticket is assigned at appearance, preventing reload rerolls. */
 export function resolveEvent(state:GameState,instanceId:string,choiceId:string,now=Date.now()):GameState {const current=state.expedition,p=current?.events.pendingEvent;if(!current||current.pendingRevival||current.events.phase!=='EVENT'||p?.state!=='CHOICE'||p.instanceId!==instanceId)return state;const definition=definitionFor(current),expired=definition?.type==='STRONGHOLD'&&typeof p.expiresAt==='number'&&now>=p.expiresAt,effectiveChoiceId=expired?'skip':choiceId,choice=definition?.choices.find(c=>c.id===effectiveChoiceId);if(!definition&&choiceId==='missing_skip'){const n=structuredClone(state),ev=n.expedition!.events;ev.phase='EVENT_RESULT';ev.pendingEvent!.state='RESULT';ev.pendingEvent!.choiceId=choiceId;ev.pendingEvent!.resultText='남은 기록을 뒤로하고 탐사를 계속합니다.';return n;}if(!choice||!meetsConditions(state,choice.conditions))return state;if(choice.effects.some(e=>e.kind==='START_BOSS_BATTLE')&&!p.bossId)return state;
- const s=structuredClone(state),e=s.expedition!,pending=e.events.pendingEvent!;pending.state='RESULT';pending.choiceId=effectiveChoiceId;e.events.phase='EVENT_RESULT';const outcome=choice.styleVariant==='SKIP'?null:weighted(choice.outcomes??[],()=>pending.randomValue);pending.outcomeId=outcome?.id??null;pending.resultText=expired?'30초가 지나 자원거점을 지나쳤습니다.':outcome?.resultText??choice.resultText??'선택한 행동을 마쳤습니다.';const effects=choice.styleVariant==='SKIP'?[]:[...choice.effects,...(outcome?.effects??[])];for(const effect of effects){apply(s,effect,pending.resultLines);if(e.hp<=0)break;}log(s,pending.resultText);pending.resultLines.forEach(line=>log(s,line));if(e.hp<=0){if(e.bag.revival>0){e.pendingRevival={source:'EVENT_DAMAGE',steps:[{kind:'AFTER_EVENT_RESULT'}]};log(s,'치명상 · 부활 포션 사용 여부를 선택하세요.');return s;}return leave(s,true);}return s;}
+ const s=structuredClone(state),e=s.expedition!,pending=e.events.pendingEvent!;pending.state='RESULT';pending.choiceId=effectiveChoiceId;e.events.phase='EVENT_RESULT';const outcome=choice.styleVariant==='SKIP'?null:weighted(choice.outcomes??[],()=>pending.randomValue);pending.outcomeId=outcome?.id??null;pending.resultText=expired?'30초가 지나 자원거점을 지나쳤습니다.':outcome?.resultText??choice.resultText??'선택한 행동을 마쳤습니다.';const effects=choice.styleVariant==='SKIP'?[]:[...choice.effects,...(outcome?.effects??[])];for(const effect of effects){apply(s,effect,pending.resultLines,now);if(e.hp<=0)break;}log(s,pending.resultText);pending.resultLines.forEach(line=>log(s,line));if(e.hp<=0){if(e.bag.revival>0){e.pendingRevival={source:'EVENT_DAMAGE',steps:[{kind:'AFTER_EVENT_RESULT'}]};log(s,'치명상 · 부활 포션 사용 여부를 선택하세요.');return s;}return leave(s,true);}return s;}
+/** Timestamp-driven expiry for timed event choices.
+ * The transition is idempotent: only a still-open stronghold CHOICE can expire.
+ * Expiry deliberately reuses resolveEvent('skip') so manual and automatic
+ * pass-through produce the same RESULT state and never create a stronghold.
+ */
+export function expireTimedEventChoice(state:GameState,now=Date.now()):GameState {
+ const e=state.expedition,p=e?.events.pendingEvent;
+ if(!e||e.events.phase!=='EVENT'||p?.state!=='CHOICE'||p.eventId!=='resource_stronghold'||typeof p.expiresAt!=='number'||now<p.expiresAt)return state;
+ return resolveEvent(state,p.instanceId,'skip',now);
+}
+
 export function continueEvent(state:GameState,instanceId:string,rng:Rng=random):GameState {const e=state.expedition,p=e?.events.pendingEvent;if(!e||e.pendingRevival||e.events.phase!=='EVENT_RESULT'||p?.state!=='RESULT'||p.instanceId!==instanceId)return state;return beginEncounter(structuredClone(state),rng,p.next==='BOSS'?p.bossId:null);}
 /** One compatibility conversion, preserving active bosses and unfinished old encounters. */
 export function upgradeEvents(e:Expedition){e.events=initialEvents('production');e.events.bossKillCountThisExpedition=e.bossTracking.bossDefeated?1:0;const pending=e.bossTracking.pendingBossId;const id=bossIdFor(e.tower,e.floor);if(id&&bossMonsterFor(id,e.floor)?.name===e.monster.name&&e.monster.currentHp>0)e.events.activeBossId=id;e.bossTracking.progress=Math.min(EVENT_BALANCE.bossMaxProgress,Math.floor(e.bossTracking.progress/100*EVENT_BALANCE.bossMaxProgress));if(pending){e.events.phase='EVENT';e.phase='BATTLE_END';e.bossTracking.progress=0;e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;e.events.sequence=1;e.events.pendingEvent={instanceId:'event-1',eventId:BOSS_EVENT.id,bossId:pending,state:'CHOICE',choiceId:null,outcomeId:null,resultText:'',resultLines:[],next:'NORMAL',randomValue:0};}}
