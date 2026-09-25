@@ -4,6 +4,7 @@ import {APP_VERSION} from '../src/storage/repository.ts';
 import {readSupabaseConfig} from '../src/online/config.ts';
 import {decodeJwtPayload} from '../src/online/auth.ts';
 import {stableStringify} from '../src/online/cloudSave.ts';
+import {decideCloudSync} from '../src/online/cloudSync.ts';
 
 const b64=(value:string)=>Buffer.from(value).toString('base64url');
 
@@ -27,4 +28,14 @@ test('ONLINE 02: canonical save serialization ignores object insertion order',()
  const a={z:1,a:{d:4,b:2},list:[{y:2,x:1}]};
  const b={list:[{x:1,y:2}],a:{b:2,d:4},z:1};
  assert.equal(stableStringify(a),stableStringify(b));
+});
+
+
+test('ONLINE 03: automatic cloud sync chooses push, pull and noop without manual transfer controls',()=>{
+ const remote={revision:2,payloadHash:'remote'} as any;
+ assert.equal(decideCloudSync('local',null,null,'user-1'),'push');
+ assert.equal(decideCloudSync('remote',remote,null,'user-1'),'noop');
+ assert.equal(decideCloudSync('local',remote,null,'user-1'),'pull');
+ assert.equal(decideCloudSync('local',remote,{userId:'user-1',revision:2,payloadHash:'remote',updatedAt:''},'user-1'),'push');
+ assert.equal(decideCloudSync('local',{...remote,revision:3},{userId:'user-1',revision:2,payloadHash:'remote',updatedAt:''},'user-1'),'pull');
 });
