@@ -62,7 +62,7 @@ export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  const tradePages=Math.max(1,Math.ceil(marketHistory.length/PAGE_SIZE)),tradeSafe=Math.min(page,tradePages-1),tradeShown=marketHistory.slice(tradeSafe*PAGE_SIZE,tradeSafe*PAGE_SIZE+PAGE_SIZE);
 
  if(item){
-  return <Screen eyebrow="SILVER SCALE / ORDER DESK" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>{setSelected(null);setConfirm(false);setFeedback('');}}>목록</button>}>
+  return <Screen eyebrow="SILVER SCALE / ORDER DESK" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>{setSelected(null);setConfirm(false);}}>목록</button>}>
    <div className="tc-market-item">
     <section className="tc-market-itemhead">
      <div className="tc-market-itemicon"><Glyph name={categoryGlyph(item.category)}/></div>
