@@ -102,3 +102,8 @@ export function readCloudMeta(storage:Storage=localStorage):CloudMeta|null{
   return value&&typeof value.userId==='string'&&Number.isSafeInteger(value.revision)?value:null;
  }catch{return null;}
 }
+
+export function rememberCloudRecord(record:CloudSaveRecord,userId:string,storage:Storage=localStorage){
+ const meta:CloudMeta={userId,revision:record.revision,payloadHash:record.payloadHash,updatedAt:record.updatedAt};
+ storage.setItem(CLOUD_META_KEY,JSON.stringify(meta));
+}
