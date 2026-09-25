@@ -2,6 +2,7 @@ import type {ActiveEffect,Monster,MonsterBattleRuntime} from '../types';
 import {EFFECTS,effectStacks,hasEffect} from './effects';
 import {CRYSTAL_MONSTER_DEFINITIONS} from '../data/crystalCombat';
 import {RED_NORMAL_DEFINITIONS} from '../data/redCombat';
+import {KALEON_NORMAL_DEFINITIONS,KALEON_BOSS_DEFINITIONS} from '../data/kaleonCombat';
 
 export type MonsterActionKind='BASIC_ATTACK'|'ACTIVE_SKILL'|'PREPARED_DISCHARGE';
 export type AiCondition=
@@ -40,7 +41,7 @@ export const RED_BOSS_DEFINITIONS:MonsterDefinition[]=[
  {id:'lord_of_red_fang',name:'적아의 주인',skills:[{id:'red_mantle',name:'적아 외피',description:'외피를 전개합니다.',cooldown:4,kind:'effect',effects:[{target:'SELF',effectId:'red_mantle_shield'}]},{id:'fang_rupture',name:'송곳니 파열',description:'출혈을 누적합니다.',cooldown:1,kind:'damage',multiplier:1.3,effects:[{target:'TARGET',effectId:'fang_wound'}]},{id:'crushing_roar',name:'포식 포효',description:'플레이어 방어를 약화합니다.',cooldown:3,kind:'effect',effects:[{target:'TARGET',effectId:'crushing_pressure'}]},{id:'terminal_hunt',name:'종말 사냥',description:'저체력에서 준비하는 강공격입니다.',cooldown:3,kind:'charge',multiplier:2.5}],aiRules:[{id:'shield',priority:40,actionId:'red_mantle',conditions:[{kind:'SELF_MISSING_EFFECT',effectId:'red_mantle_shield'},{kind:'SKILL_READY',skillId:'red_mantle'}]},{id:'terminal',priority:30,actionId:'terminal_hunt',conditions:[{kind:'SELF_HP_BELOW',value:.5},{kind:'SKILL_READY',skillId:'terminal_hunt'}]},{id:'debuff',priority:20,actionId:'crushing_roar',conditions:[{kind:'TARGET_MISSING_EFFECT',effectId:'crushing_pressure'},{kind:'SKILL_READY',skillId:'crushing_roar'}]},{id:'rupture',priority:10,actionId:'fang_rupture',conditions:[{kind:'SKILL_READY',skillId:'fang_rupture'}]}]}
 ];
 export const DEV_MONSTER_DEFINITIONS=[TEST_MONSTER_BASIC,TEST_MONSTER_CHARGE,TEST_MONSTER_MULTI,TEST_MONSTER_EFFECT,TEST_MONSTER_REACTIVE,TEST_MONSTER_STATUS,TEST_MONSTER_SELF_STATUS,TEST_MONSTER_PREPARED_COMBINED,TEST_MONSTER_SHIELD] as const;
-const DEFINITIONS=new Map<string,MonsterDefinition>([...DEV_MONSTER_DEFINITIONS,...IRON_BOSS_DEFINITIONS,...RED_NORMAL_DEFINITIONS,...RED_BOSS_DEFINITIONS,...CRYSTAL_MONSTER_DEFINITIONS].map(definition=>[definition.id,definition]));
+const DEFINITIONS=new Map<string,MonsterDefinition>([...DEV_MONSTER_DEFINITIONS,...IRON_BOSS_DEFINITIONS,...RED_NORMAL_DEFINITIONS,...RED_BOSS_DEFINITIONS,...CRYSTAL_MONSTER_DEFINITIONS,...KALEON_NORMAL_DEFINITIONS,...KALEON_BOSS_DEFINITIONS].map(definition=>[definition.id,definition]));
 
 export const monsterDefinitionById=(id:string)=>DEFINITIONS.get(id);
 export const monsterDefinitionFor=(monster:Monster):MonsterDefinition=>monsterDefinitionById(monster.definitionId??'')??{id:monster.definitionId??monster.name,name:monster.name,skills:[],passives:[],aiRules:[]};
