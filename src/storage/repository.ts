@@ -13,7 +13,6 @@ import {monsterFor} from '../game/engine/drops';
 import {EFFECTS} from '../game/engine/effects';
 import {BESTIARY_ENTRIES,bestiaryEntryById} from '../game/data/bestiary';
 import {emptyBestiary} from '../game/engine/bestiary';
-import {seedPrelaunchMarketHistory} from '../game/market/prelaunchHistory';
 export interface StoragePort {getItem(key:string):string|null;setItem(key:string,value:string):void}
 export const APP_VERSION='0.1.44';
 export const SAVE_EXPORT_FORMAT='tower-chronicles-save';
@@ -250,7 +249,6 @@ export function parseSaveImport(raw:string,catalog:CosmeticsCatalog=COSMETICS_CA
   try{return createRepository(memory,catalog).load();}catch(error){throw Error(error instanceof Error?`저장 파일을 가져올 수 없습니다. ${error.message}`:'저장 파일을 가져올 수 없습니다.');}
 }
 export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=COSMETICS_CATALOG){
-  const seedLoaded=(state:GameState)=>{const seeded=seedPrelaunchMarketHistory(state);if(seeded!==state)storage.setItem(SAVE_KEY,JSON.stringify(seeded));return seeded;};
   return {
     save(state:GameState){
       if(!validSave(state,catalog))throw Error('유효하지 않은 게임 상태는 저장할 수 없습니다.');
@@ -266,76 +264,76 @@ export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=CO
       return next;
     },
     load():GameState {
-      const raw=storage.getItem(SAVE_KEY);if(!raw)return seedLoaded(initialState());
+      const raw=storage.getItem(SAVE_KEY);if(!raw)return initialState();
       let data:unknown;try{data=JSON.parse(raw);}catch{throw Error('저장 파일을 읽을 수 없습니다.');}
       if(obj(data)&&data.version===1){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(migrateV1(data),catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(LEGACY_BACKUP_KEY)===null)storage.setItem(LEGACY_BACKUP_KEY,raw);
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===2){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(migrateV2(data),catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(MASTERY_BACKUP_KEY)===null)storage.setItem(MASTERY_BACKUP_KEY,raw);
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===3){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(migrateV3(data),catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(SILVER_BACKUP_KEY)===null)storage.setItem(SILVER_BACKUP_KEY,raw);
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===4){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(data,catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===5){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(data,catalog),catalog),catalog),catalog)))));
         if(storage.getItem(BOSS_TRACKING_BACKUP_KEY)===null)storage.setItem(BOSS_TRACKING_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===6){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(data,catalog),catalog),catalog)))));
         if(storage.getItem(PRESETS_BACKUP_KEY)===null)storage.setItem(PRESETS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===7){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(data,catalog),catalog)))));
         if(storage.getItem(GOLDEN_RECORDER_BACKUP_KEY)===null)storage.setItem(GOLDEN_RECORDER_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===8){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(data,catalog)))));
         if(storage.getItem(MARKET_BACKUP_KEY)===null)storage.setItem(MARKET_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return seedLoaded(next);
+        return next;
       }
       if(obj(data)&&data.version===9&&obj(data.market)&&!('gold' in data.market)){data.market.gold=1000;storage.setItem(SAVE_KEY,JSON.stringify(data));}
-      if(obj(data)&&data.version===9){const next=migrateV12(migrateV11(migrateV10(migrateV9(data,catalog),catalog)));if(storage.getItem(ASSOCIATION_BACKUP_KEY)===null)storage.setItem(ASSOCIATION_BACKUP_KEY,raw);if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===10){const next=migrateV12(migrateV11(migrateV10(data,catalog)));if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===11){const next=migrateV12(migrateV11(data,catalog),catalog);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===12){const next=migrateV12(data,catalog);if(storage.getItem(EXPLORATION_BACKUP_KEY)===null)storage.setItem(EXPLORATION_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===13){const next=migrateV13(data,catalog);if(storage.getItem(TURN_BATTLE_BACKUP_KEY)===null)storage.setItem(TURN_BATTLE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===14){const next=migrateV14(data,catalog);if(storage.getItem(EFFECTS_BACKUP_KEY)===null)storage.setItem(EFFECTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===15){const next=migrateV15(data,catalog);if(storage.getItem(JOBS_BACKUP_KEY)===null)storage.setItem(JOBS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
+      if(obj(data)&&data.version===9){const next=migrateV12(migrateV11(migrateV10(migrateV9(data,catalog),catalog)));if(storage.getItem(ASSOCIATION_BACKUP_KEY)===null)storage.setItem(ASSOCIATION_BACKUP_KEY,raw);if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===10){const next=migrateV12(migrateV11(migrateV10(data,catalog)));if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===11){const next=migrateV12(migrateV11(data,catalog),catalog);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===12){const next=migrateV12(data,catalog);if(storage.getItem(EXPLORATION_BACKUP_KEY)===null)storage.setItem(EXPLORATION_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===13){const next=migrateV13(data,catalog);if(storage.getItem(TURN_BATTLE_BACKUP_KEY)===null)storage.setItem(TURN_BATTLE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===14){const next=migrateV14(data,catalog);if(storage.getItem(EFFECTS_BACKUP_KEY)===null)storage.setItem(EFFECTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===15){const next=migrateV15(data,catalog);if(storage.getItem(JOBS_BACKUP_KEY)===null)storage.setItem(JOBS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
       data=normalizeV16JobReferences(data);
-      if(obj(data)&&data.version===16){const next=migrateV16(data,catalog);if(storage.getItem(EVENTS_BACKUP_KEY)===null)storage.setItem(EVENTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-       if(obj(data)&&data.version===17){const next=migrateV17(data,catalog);if(storage.getItem(MONSTER_RUNTIME_BACKUP_KEY)===null)storage.setItem(MONSTER_RUNTIME_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-       if(obj(data)&&data.version===18){const next=migrateV18(data,catalog);if(storage.getItem(COMBAT_TRIGGERS_BACKUP_KEY)===null)storage.setItem(COMBAT_TRIGGERS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-       if(obj(data)&&data.version===19){const next=migrateV19(data,catalog);if(storage.getItem(POTION_OVERHAUL_BACKUP_KEY)===null)storage.setItem(POTION_OVERHAUL_BACKUP_KEY,raw);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===20){const next=migrateV20(data,catalog);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
-      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return seedLoaded(next);}
+      if(obj(data)&&data.version===16){const next=migrateV16(data,catalog);if(storage.getItem(EVENTS_BACKUP_KEY)===null)storage.setItem(EVENTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+       if(obj(data)&&data.version===17){const next=migrateV17(data,catalog);if(storage.getItem(MONSTER_RUNTIME_BACKUP_KEY)===null)storage.setItem(MONSTER_RUNTIME_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+       if(obj(data)&&data.version===18){const next=migrateV18(data,catalog);if(storage.getItem(COMBAT_TRIGGERS_BACKUP_KEY)===null)storage.setItem(COMBAT_TRIGGERS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+       if(obj(data)&&data.version===19){const next=migrateV19(data,catalog);if(storage.getItem(POTION_OVERHAUL_BACKUP_KEY)===null)storage.setItem(POTION_OVERHAUL_BACKUP_KEY,raw);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===20){const next=migrateV20(data,catalog);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
       if(!validSave(data,catalog))throw Error('지원하지 않거나 손상된 저장 데이터입니다.');
-      return seedLoaded(data);
+      return data;
     }
   };
 }
