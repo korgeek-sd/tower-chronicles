@@ -350,3 +350,24 @@ button:disabled{cursor:not-allowed;opacity:.38}
 
 .tc-nav button{position:relative}
 .tc-nav-badge{position:absolute;right:7px;top:3px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#a45149;color:#f5e7d2;font:700 6px/15px ui-monospace,Consolas,monospace;text-align:center;box-shadow:0 0 0 1px #060707}
+
+
+/* Inventory reference polish: dense loadout actions + equipment mastery inspector */
+.tc-storage-head-actions{display:grid;grid-template-columns:repeat(3,auto);gap:3px}
+.tc-storage-head-actions button{height:25px;min-height:0;border:1px solid #525953;background:#151a18;padding:3px 6px;font-size:7px;color:#a9afa9;white-space:nowrap}
+.tc-storage-head-actions button.active{border-color:#97835a;color:#dec89d;background:#201d16}
+.tc-storage-head-actions button:last-child{border-color:#76643e;color:#d9c59a;background:#211e17}
+.tc-item-modal.equipment{grid-template-rows:47px 104px minmax(0,1fr) 50px 36px 43px}
+.tc-item-mastery{border:1px solid #343a36;background:#101411;padding:6px 8px;display:grid;grid-template-rows:auto 6px auto;gap:4px}
+.tc-item-mastery>div:first-child{display:flex;justify-content:space-between;gap:8px;align-items:center}.tc-item-mastery span{font-size:7px;color:#8f968f}.tc-item-mastery b{font-size:8px;color:#d3c09b;white-space:nowrap}.tc-item-mastery small{font-size:6.5px;color:#888f89;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-item-mastery .tc-meter{height:6px}
+.tc-item-modal-actions.three{grid-template-columns:.8fr .9fr 1.35fr}
+.tc-item-modal-actions.three .tc-action{min-width:0;padding-inline:5px}
+@media(max-height:700px){
+ .tc-item-modal.equipment{height:min(520px,84dvh);grid-template-rows:42px 86px minmax(0,1fr) 44px 30px 39px}
+ .tc-storage-head-actions button{padding-inline:5px}
+}
+@media(max-width:360px){
+ .tc-storage-head-actions{gap:2px}.tc-storage-head-actions button{padding-inline:4px;font-size:6px}
+ .tc-item-mastery b{font-size:7px}
+}
