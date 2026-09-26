@@ -25,6 +25,7 @@ const errors:RpcErrorMap={
  EXPEDITION_LOOT_EXCEEDS_SERVER_CAP:'원정 보상 검증에 실패했습니다.',
  EXPEDITION_KILL_SEQUENCE_INVALID:'서버 원정 처치 순서가 일치하지 않습니다. 동기화 후 다시 시도하세요.',
  EXPEDITION_MONSTER_INVALID:'서버가 처치 몬스터를 확인하지 못했습니다.',
+ EXPEDITION_KILL_RATE_INVALID:'비정상적으로 빠른 처치 요청이 감지되었습니다.',
  CRAFT_MATERIAL_SHORTAGE:'서버에 확인된 제작 재료가 부족합니다.',
  CRAFT_BUSY:'현재 다른 제작이 진행 중입니다.',
  CRAFT_QUEUE_FULL:'제작 대기열이 가득 찼습니다.',
