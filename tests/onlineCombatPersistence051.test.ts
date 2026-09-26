@@ -30,6 +30,7 @@ test('ONLINE COMBAT SAVE 01: server revival snapshot remains persistable',()=>{
  state.expedition!.bag.revival=1;
  const next=reconcileOnlineCombatState(state,snapshot(state,{playerHp:0,phase:'PLAYER_DEAD',pendingRevival:true}));
  assert.deepEqual(next.expedition!.pendingRevival,{source:'DIRECT_HIT',steps:[{kind:'AFTER_MONSTER_ACTION'}]});
+ assert.equal(next.expedition!.phase,'MONSTER_TURN');
  assert.equal(validSave(next),true);
 });
 
@@ -52,5 +53,15 @@ test('ONLINE COMBAT SAVE 03: active server shields are clamped to catalog limits
  }));
  assert.equal(next.expedition!.playerEffects[0]?.currentShield,30);
  assert.equal(next.expedition!.monsterEffects[0]?.currentShieldHits,2);
+ assert.equal(validSave(next),true);
+});
+
+
+test('ONLINE COMBAT SAVE 04: terminal kill snapshots never create an invalid BATTLE/BATTLE_END save',()=>{
+ const state=activeRun();
+ const next=reconcileOnlineCombatState(state,snapshot(state,{monsterHp:0,phase:'DEFEATED'}));
+ assert.equal(next.expedition!.events.phase,'BATTLE');
+ assert.ok(['PLAYER_TURN','MONSTER_TURN'].includes(next.expedition!.phase));
+ assert.equal(next.expedition!.monster.currentHp,0);
  assert.equal(validSave(next),true);
 });
