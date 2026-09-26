@@ -46,6 +46,11 @@ const errors:RpcErrorMap={
  EXPEDITION_VERSION_CONFLICT:'서버 원정 상태가 변경되었습니다. 최신 상태를 다시 불러옵니다.',
  EXPEDITION_EVENT_MISSING:'서버 이벤트 기록을 찾지 못했습니다.',
  EXPEDITION_EVENT_CHOICE_INVALID:'선택할 수 없는 이벤트 행동입니다.',
+ EXPEDITION_CONTINUE_REQUIRED:'현재 전투 결과를 처리한 뒤 다음 탐험으로 진행해야 합니다.',
+ EXPEDITION_CONTINUE_INVALID:'현재 상태에서는 다음 탐험으로 진행할 수 없습니다.',
+ EXPEDITION_EVENT_PENDING:'처리해야 할 원정 이벤트가 남아 있습니다.',
+ EXPEDITION_REVIVAL_REQUIRED:'회생 여부를 먼저 결정해야 합니다.',
+ RESOURCE_STRONGHOLD_DECISION_EXPIRED:'자원거점 선택 시간이 지나 자동으로 지나갑니다.',
  RESOURCE_STRONGHOLD_ALREADY_ACTIVE:'이미 점령 중인 자원거점이 있습니다.',
  RESOURCE_STRONGHOLD_NOT_ACTIVE:'진행 중인 자원거점 점령이 없습니다.',
  RESOURCE_STRONGHOLD_NOT_READY:'아직 자원거점 점령 시간이 끝나지 않았습니다.',
@@ -204,7 +209,7 @@ export function reconcileOnlineExpeditionState(local:GameState,restored:Restored
  const combat=restored.combat;if(combat&&typeof combat.playerHp==='number'&&typeof combat.monsterHp==='number'&&typeof combat.monsterId==='string'&&typeof combat.phase==='string')next=reconcileOnlineCombatState(next,{...combat,encounterIndex:combat.encounterIndex??run.encounterIndex,actionNonce:combat.actionNonce??0} as OnlineCombatState);
  e=next.expedition!;e.tower=run.tower;e.floor=run.floor;e.kills=run.confirmedKills;e.bossTracking.progress=run.bossProgress;e.bossTracking.bossDefeated=run.bossDefeated;
  const p=run.potions;e.bag.healing_lesser=p.lesser??e.bag.healing_lesser;e.bag.healing_standard=p.standard??e.bag.healing_standard;e.bag.healing_greater=p.greater??e.bag.healing_greater;e.bag.healing_supreme=p.supreme??e.bag.healing_supreme;e.bag.revival=p.revival??e.bag.revival;
- const pending=run.pendingEvent;if(pending){e.events.pendingEvent=structuredClone(pending) as PendingExpeditionEvent;e.events.phase=pending.state==='RESULT'?'EVENT_RESULT':'EVENT';e.phase='BATTLE_END';e.bossTracking.pendingBossId=pending.bossId??null;}else{e.events.pendingEvent=null;e.events.phase='BATTLE';e.bossTracking.pendingBossId=null;}
+ const pending=run.pendingEvent;if(pending){const eventId=pending.eventId??pending.id??'',state=pending.state==='RESULT'?'RESULT':'CHOICE';const normalized:PendingExpeditionEvent={instanceId:pending.instanceId??`server-event-${run.runId}-${run.runVersion}`,eventId,bossId:pending.bossId??null,state,choiceId:pending.choiceId??null,outcomeId:pending.outcomeId??null,resultText:pending.resultText??'',resultLines:Array.isArray(pending.resultLines)?pending.resultLines:[],next:pending.next==='BOSS'?'BOSS':'NORMAL',randomValue:Number(pending.randomValue??pending.outcomeTicket??0),expiresAt:typeof pending.expiresAt==='number'?pending.expiresAt:null};e.events.pendingEvent=normalized;e.events.phase=state==='RESULT'?'EVENT_RESULT':'EVENT';e.phase='BATTLE_END';e.bossTracking.pendingBossId=normalized.bossId;}else{e.events.pendingEvent=null;e.events.phase='BATTLE';e.bossTracking.pendingBossId=null;}
  const activeMonsterId=typeof combat?.monsterId==='string'?combat.monsterId:e.monster.definitionId??'';const entry=activeMonsterId?bestiaryEntryById(activeMonsterId):undefined;e.events.activeBossId=entry?.boss?activeMonsterId:null;
  const loot=run.temporaryLoot??{};e.loot.silver=Math.max(0,Number(loot.silver??0));for(const t of Object.keys(e.loot.materials) as Tower[])e.loot.materials[t]=e.loot.materials[t].map(()=>0);for(const t of Object.keys(e.loot.tickets) as Tower[])e.loot.tickets[t]=e.loot.tickets[t].map(()=>0);e.loot.skillBooks={};e.loot.items={};e.loot.materials[e.tower][tierOf(e.floor)-1]=Math.max(0,Number(loot.material??0));if(e.floor<e.loot.tickets[e.tower].length)e.loot.tickets[e.tower][e.floor]=Math.max(0,Number(loot.tickets??0));
  const sh=run.stronghold;if(sh)e.events.stronghold={instanceId:sh.instanceId,status:sh.status as any,ownerUserId:next.market.ownerId,tower:sh.tower,floor:sh.floor,version:sh.version,captureStartedAt:new Date(sh.captureStartedAt).getTime(),captureEndsAt:new Date(sh.captureEndsAt).getTime(),reward:sh.reward,contestedByUserId:null,contestRemainingMs:null,completedAt:null,abandonedAt:null,deletedAt:sh.status==='DELETED'?Date.now():null};else e.events.stronghold=null;
