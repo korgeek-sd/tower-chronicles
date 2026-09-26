@@ -177,19 +177,19 @@ export async function spendOnlineAssociationFee(lease:GameplayLease){
 
 export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatState):GameState{
  const next=structuredClone(local),e=next.expedition;if(!e)return next;
- e.hp=server.playerHp;
+ e.hp=Math.max(0,Number.isFinite(server.playerHp)?server.playerHp:e.hp);
  if(server.monsterId)e.monster.definitionId=server.monsterId;
- e.monster.currentHp=server.monsterHp;
- if(server.monsterMaxHp)e.monster.hp=server.monsterMaxHp;
+ e.monster.currentHp=Math.max(0,Number.isFinite(server.monsterHp)?server.monsterHp:e.monster.currentHp);
+ if(Number.isFinite(server.monsterMaxHp)&&Number(server.monsterMaxHp)>0)e.monster.hp=Number(server.monsterMaxHp);
  e.phase=server.phase==='MONSTER_TURN'?'MONSTER_TURN':'PLAYER_TURN';
  if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[{kind:'AFTER_MONSTER_ACTION'}]};
  if(!server.pendingRevival)e.pendingRevival=null;
  if(typeof server.jobId==='string'||server.jobId===null){e.jobSnapshotId=server.jobId??null;e.jobRuntime.jobId=server.jobId??null;}
  if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
  if(server.jobFlags)e.jobRuntime.flags={...server.jobFlags};
- if(server.playerCooldowns)e.cooldowns={...server.playerCooldowns};
- if(typeof server.playerTurn==='number')e.playerTurn=server.playerTurn;
- if(typeof server.monsterTurn==='number')e.monsterTurn=server.monsterTurn;
+ if(server.playerCooldowns)e.cooldowns=Object.fromEntries(Object.entries(server.playerCooldowns).filter(([,value])=>Number.isFinite(value)).map(([key,value])=>[key,Math.max(0,Math.trunc(Number(value)))]));
+ if(typeof server.playerTurn==='number')e.playerTurn=Math.max(1,Math.trunc(server.playerTurn));
+ if(typeof server.monsterTurn==='number')e.monsterTurn=Math.max(0,Math.trunc(server.monsterTurn));
  const normalizeEffects=(raw:unknown[]|undefined,target:'player'|'monster'):ActiveEffect[]=>Array.isArray(raw)?raw.flatMap((value,index)=>{const x=value as Record<string,unknown>,effectId=typeof x.effectId==='string'?x.effectId:'',definition=EFFECTS[effectId];if(!effectId||!definition)return [];const remaining=Math.max(0,Math.trunc(Number(x.remainingDuration??x.duration??0))),stacks=Math.max(1,Math.trunc(Number(x.stackCount??x.stacks??1))),sequence=Math.max(1,Math.trunc(Number(x.applicationSequence??index+1))),created=Math.max(0,Math.trunc(Number(x.createdTurn??0))),source=x.sourceActorId==='player'||x.sourceActorId==='monster'?x.sourceActorId:target,effect:ActiveEffect={instanceId:typeof x.instanceId==='string'?x.instanceId:`server-${target}-${sequence}`,effectId,sourceActorId:source,targetActorId:target,remainingDuration:remaining,stackCount:stacks,applicationSequence:sequence,createdTurn:created,scope:x.scope==='EXPEDITION'?'EXPEDITION':'BATTLE'};if(definition.behavior==='SHIELD'){if(definition.shieldHits){const hits=Math.min(definition.shieldHits,Math.trunc(Number(x.currentShieldHits??0)));if(hits<=0)return [];effect.currentShieldHits=hits;}else if(definition.shieldAmount){const shield=Math.min(definition.shieldAmount,Number(x.currentShield??0));if(!Number.isFinite(shield)||shield<=0)return [];effect.currentShield=shield;}else return [];}return [effect];}):[];
  if(Array.isArray(server.playerEffects))e.playerEffects=normalizeEffects(server.playerEffects,'player');
  if(Array.isArray(server.monsterEffects))e.monsterEffects=normalizeEffects(server.monsterEffects,'monster');
@@ -197,7 +197,7 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  if(typeof server.monsterAttack==='number')e.monster.attack=server.monsterAttack;
  if(typeof server.monsterDefense==='number')e.monster.defense=server.monsterDefense;
  const entry=server.monsterId?bestiaryEntryById(server.monsterId):undefined;if(entry)e.monster.name=entry.name;
- if(server.monsterId)e.monsterRuntime={definitionId:server.monsterId,skillCooldowns:{...(server.monsterCooldowns??{})},preparedActionId:server.monsterPreparedAction??null,turnNumber:server.monsterTurn??e.monsterTurn};
+ if(server.monsterId)e.monsterRuntime={definitionId:server.monsterId,skillCooldowns:Object.fromEntries(Object.entries(server.monsterCooldowns??{}).filter(([,value])=>Number.isFinite(value)).map(([key,value])=>[key,Math.max(0,Math.trunc(Number(value)))])),preparedActionId:server.monsterPreparedAction??null,turnNumber:Math.max(0,Math.trunc(Number(server.monsterTurn??e.monsterTurn)))};
  e.phase=server.pendingRevival?'MONSTER_TURN':server.phase==='PLAYER_TURN'?'PLAYER_TURN':server.phase==='MONSTER_TURN'?'MONSTER_TURN':(['PLAYER_TURN','MONSTER_TURN'].includes(e.phase)?e.phase:'PLAYER_TURN');
  if(server.phase==='DEFEATED')e.monster.currentHp=0;
  return next;
