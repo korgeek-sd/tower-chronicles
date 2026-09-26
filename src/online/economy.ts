@@ -26,6 +26,10 @@ const errors:RpcErrorMap={
  EXPEDITION_KILL_SEQUENCE_INVALID:'서버 원정 처치 순서가 일치하지 않습니다. 동기화 후 다시 시도하세요.',
  EXPEDITION_MONSTER_INVALID:'서버가 처치 몬스터를 확인하지 못했습니다.',
  EXPEDITION_KILL_RATE_INVALID:'비정상적으로 빠른 처치 요청이 감지되었습니다.',
+ COMBAT_ACTION_SEQUENCE_INVALID:'서버 전투 행동 순서가 일치하지 않습니다.',
+ COMBAT_ACTION_INVALID:'서버가 전투 행동을 확인하지 못했습니다.',
+ COMBAT_ACTION_RATE_INVALID:'비정상적으로 빠른 전투 행동이 감지되었습니다.',
+ EXPEDITION_KILL_WITHOUT_SERVER_ACTION:'서버가 확인한 공격 행동 없이 처치를 인정할 수 없습니다.',
  CRAFT_MATERIAL_SHORTAGE:'서버에 확인된 제작 재료가 부족합니다.',
  CRAFT_BUSY:'현재 다른 제작이 진행 중입니다.',
  CRAFT_QUEUE_FULL:'제작 대기열이 가득 찼습니다.',
@@ -76,6 +80,11 @@ async function remember(record:CloudSaveRecord){
 export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floor:number,payload:GameState){
  const record=await rpc<CloudSaveRecord>('start_online_expedition',{...leaseArgs(lease),p_tower:tower,p_floor:floor,p_client_payload:payload});
  return remember(record);
+}
+
+export type OnlineCombatActionKind='BASIC'|'SKILL'|'POTION'|'FLEE'|'REVIVAL';
+export async function recordOnlineCombatAction(lease:GameplayLease,actionIndex:number,kind:OnlineCombatActionKind,ref?:string){
+ return rpc<{confirmedActions:number}>('record_online_combat_action',{...leaseArgs(lease),p_action_index:actionIndex,p_action_kind:kind,p_action_ref:ref??null});
 }
 
 export async function confirmOnlineExpeditionKill(lease:GameplayLease,monsterId:string,killIndex:number){
