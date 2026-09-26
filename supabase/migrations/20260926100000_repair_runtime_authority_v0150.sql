@@ -34,7 +34,7 @@ create or replace function private.server_after_player_damage(
  p_combat private.online_combat_states,p_actual bigint,p_nonce bigint
 ) returns private.online_combat_states
 language plpgsql security definer set search_path=''
-as $
+as $jobhook$
 declare gain int;heal bigint;counter bigint;
 begin
  if p_actual<=0 then return p_combat;end if;
@@ -61,7 +61,7 @@ begin
   p_combat.monster_hp:=greatest(0,p_combat.monster_hp-counter);
  end if;
  return p_combat;
-end $;
+end $jobhook$;
 revoke all on function private.server_after_player_damage(private.online_combat_states,bigint,bigint)
  from public,anon,authenticated;
 
