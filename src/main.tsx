@@ -235,10 +235,11 @@ function App(){
    else if(kind==='REVIVAL')result=await resolveOnlineRevival(lease,ref==='use');
    else {try{result=await applyOnlineJobSkill(lease,nonce,ref!);}catch(error){if(error instanceof Error&&!error.message.includes('COMBAT_SKILL_INVALID'))throw error;result=await applyOnlineSkill(lease,nonce,ref!);}}
    onlineCombatNonce.current=result.actionNonce??nonce;if(typeof result.confirmedKills==='number')confirmedKillCount.current=result.confirmedKills;if(typeof result.runVersion==='number')onlineRunVersion.current=result.runVersion;
-   setGame(current=>reconcileOnlineCombatState(current,result));setCloudSyncStatus('synced');
+   setCloudSyncStatus('synced');
    if(result.returnAuthorized){await settleOnlineRun('returned');return;}
    if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await settleOnlineRun('dead');return;}
-   if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);}
+   if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
+   setGame(current=>reconcileOnlineCombatState(current,result));
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
  async function restoreServerRun(lease:GameplayLease){
@@ -248,6 +249,7 @@ function App(){
    if(combat?.phase==='DEFEATED'&&!restored.run.pendingEvent&&combat.returnAuthorized!==true){
     const advanced=await advanceOnlineExploration(lease,restored.run.runVersion);onlineRunVersion.current=advanced.runVersion;restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run)return;combat=restored.combat;
    }
+   if(combat?.phase==='PLAYER_DEAD'&&!combat.pendingRevival){await settleOnlineRun('dead');return;}
    confirmedKillCount.current=restored.run.confirmedKills;onlineRunVersion.current=restored.run.runVersion;
    if(combat&&typeof combat.actionNonce==='number')onlineCombatNonce.current=combat.actionNonce;
    setGame(current=>reconcileOnlineExpeditionState(current,restored));setPage('battle');
