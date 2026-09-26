@@ -89,6 +89,25 @@ export const claimAllOnlineMarketStorage=(lease:GameplayLease)=>
 
 const towerIds:Tower[]=['ore','crystal','fang','green'];
 
+export function applyOnlineEconomyToGame(state:GameState,snapshot:OnlineMarketState):GameState{
+ const s=structuredClone(state);
+ s.silver=snapshot.wallet.silver;
+ s.market.gold=snapshot.wallet.gold;
+ towerIds.forEach(t=>{s.materials[t]=s.materials[t].map(()=>0);s.tickets[t]=s.tickets[t].map(()=>0);});
+ s.skillBooks={};
+ s.lootItems={};
+ s.items=[];
+ for(const asset of snapshot.assets){
+  if(asset.itemId.startsWith('gear:')){if(asset.gear)s.items.push(structuredClone(asset.gear));continue;}
+  const [kind,a,b]=asset.itemId.split(':');
+  if(kind==='material'&&towerIds.includes(a as Tower)){const i=Number(b)-1;if(Number.isInteger(i)&&i>=0&&i<s.materials[a as Tower].length)s.materials[a as Tower][i]=asset.quantity;continue;}
+  if(kind==='ticket'&&towerIds.includes(a as Tower)){const i=Number(b)-1;if(Number.isInteger(i)&&i>=0&&i<s.tickets[a as Tower].length)s.tickets[a as Tower][i]=asset.quantity;continue;}
+  if(kind==='skillbook'&&a)s.skillBooks[a]=asset.quantity;
+  if(kind==='other'&&a)s.lootItems[a]=asset.quantity;
+ }
+ return s;
+}
+
 export function applyOnlineMarketSnapshotToGame(state:GameState,snapshot:OnlineMarketState):GameState{
  const s=structuredClone(state);
  s.silver=snapshot.wallet.silver;
