@@ -89,7 +89,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {fled?:boolean;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number}
+export interface OnlineCombatState {fled?:boolean;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number}|null}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -169,13 +169,14 @@ export async function spendOnlineAssociationFee(lease:GameplayLease){
 export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatState):GameState{
  const next=structuredClone(local),e=next.expedition;if(!e)return next;
  e.hp=server.playerHp;
+ if(server.monsterId)e.monster.definitionId=server.monsterId;
  e.monster.currentHp=server.monsterHp;
- if(server.playerMaxHp)e.monster.hp=server.monsterMaxHp??e.monster.hp;
- if(server.phase==='PLAYER_DEAD')e.phase='PLAYER_TURN';
- else if(server.phase==='PLAYER_TURN')e.phase='PLAYER_TURN';
+ if(server.monsterMaxHp)e.monster.hp=server.monsterMaxHp;
+ e.phase=server.phase==='MONSTER_TURN'?'MONSTER_TURN':'PLAYER_TURN';
  if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[]};
  if(!server.pendingRevival)e.pendingRevival=null;
  if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
+ if(server.phase==='DEFEATED')e.monster.currentHp=0;
  return next;
 }
 
