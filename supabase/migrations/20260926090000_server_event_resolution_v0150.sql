@@ -74,3 +74,29 @@ begin
 end $$;
 revoke all on function public.resolve_online_exploration_event(uuid,bigint,text,text,bigint,text) from public,anon;
 grant execute on function public.resolve_online_exploration_event(uuid,bigint,text,text,bigint,text) to authenticated;
+
+create or replace function public.advance_online_exploration(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_expected_version bigint)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;boss text;chance numeric;roll numeric;er numeric;ot numeric;kind text:='MONSTER';profile jsonb;eid text;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;if not found or r.status<>'ACTIVE' then raise exception 'EXPEDITION_SERVER_RUN_MISSING';end if;
+ if r.run_version<>p_expected_version then raise exception 'EXPEDITION_VERSION_CONFLICT';end if;
+ if r.pending_event is not null then return jsonb_build_object('kind','EVENT','event',r.pending_event,'runVersion',r.run_version);end if;
+ select * into c from private.online_combat_states where user_id=u;
+ boss:=private.server_boss_id(r.tower,r.floor);
+ if boss is not null and not r.boss_defeated then chance:=case when r.boss_progress>=20 then 1 else least(1,.03+r.boss_progress*.02) end;roll:=private.server_roll(r.reward_seed,r.encounter_index+1,r.run_version,501);if roll<chance then
+  update private.online_expeditions set pending_event=jsonb_build_object('id','boss_encounter','bossId',boss,'outcomeTicket',private.server_roll(reward_seed,encounter_index+1,run_version,504)),boss_progress=0,run_version=run_version+1 where user_id=u returning * into r;
+  return jsonb_build_object('kind','EVENT','event',r.pending_event,'runVersion',r.run_version);
+ end if;end if;
+ er:=private.server_roll(r.reward_seed,r.encounter_index+1,r.run_version,502);
+ if er<.25 then ot:=private.server_roll(r.reward_seed,r.encounter_index+1,r.run_version,503);eid:=private.server_event_id(r.tower,r.floor,coalesce(c.player_hp,1),coalesce(c.player_max_hp,1),ot);
+  update private.online_expeditions set pending_event=jsonb_build_object('id',eid,'selectionTicket',ot,'outcomeTicket',private.server_roll(reward_seed,encounter_index+1,run_version,504)),run_version=run_version+1 where user_id=u returning * into r;
+  return jsonb_build_object('kind','EVENT','event',r.pending_event,'runVersion',r.run_version);
+ end if;
+ update private.online_expeditions set encounter_index=encounter_index+1,run_version=run_version+1 where user_id=u returning * into r;profile:=private.server_monster_profile(r.tower,r.floor,r.reward_seed,r.encounter_index);
+ return jsonb_build_object('kind','MONSTER','profile',profile,'encounterIndex',r.encounter_index,'bossProgress',r.boss_progress,'runVersion',r.run_version);
+end $$;
+revoke all on function public.advance_online_exploration(uuid,bigint,text,text,bigint) from public,anon;
+grant execute on function public.advance_online_exploration(uuid,bigint,text,text,bigint) to authenticated;
