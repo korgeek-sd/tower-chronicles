@@ -171,3 +171,6 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
  return next;
 }
+
+export interface OnlineExplorationState {kind:'MONSTER'|'BOSS'|'EVENT';profile?:{id:string;hpMultiplier:number;attackMultiplier:number;defenseBonus?:number};event?:{id:string;ticket:number};encounterIndex?:number;bossProgress?:number;runVersion:number}
+export async function advanceOnlineExploration(lease:GameplayLease,expectedVersion:number){return rpc<OnlineExplorationState>('advance_online_exploration',{...leaseArgs(lease),p_expected_version:expectedVersion});}
