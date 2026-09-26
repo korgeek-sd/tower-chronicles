@@ -260,7 +260,6 @@ function App(){
    confirmedKillCount.current=restored.run.confirmedKills;onlineRunVersion.current=restored.run.runVersion;
    if(combat&&typeof combat.actionNonce==='number')onlineCombatNonce.current=combat.actionNonce;
    const candidate=reconcileOnlineExpeditionState(stateRef.current,restored);
-   if(!validSave(candidate)){await applyLatestCloud();setPage('home');setStorageError('서버 전투 상태 복구에 실패했습니다. 거점으로 이동했습니다. 다시 원정 화면을 열어 주세요.');return;}
    stateRef.current=candidate;setGame(candidate);setPage('battle');setStorageError('');
    setCloudSyncStatus('synced');setCloudSyncMessage('서버의 진행 중인 원정을 복원했습니다.');
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');}
