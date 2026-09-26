@@ -41,7 +41,7 @@ begin
  b:=jsonb_set(b,'{healing_supreme}',to_jsonb(greatest(0,coalesce(p_run.potion_supreme,0))),true);
  b:=jsonb_set(b,'{revival}',to_jsonb(greatest(0,coalesce(p_run.revival_count,0))),true);
  p:=jsonb_set(p,'{expedition,bag}',b,true);
- update public.game_saves set payload=p,updated_at=now() where user_id=p_user;
+ update public.game_saves set payload=p,payload_hash=encode(extensions.digest(convert_to(p::text,'UTF8'),'sha256'),'hex'),updated_at=now() where user_id=p_user;
 end $$;
 revoke all on function private.persist_run_bag_to_save(uuid,private.online_expeditions) from public,anon,authenticated;
 
