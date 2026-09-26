@@ -274,10 +274,10 @@ function App(){
  }
  async function restoreServerRun(lease:GameplayLease){
   try{
-   let restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run)return;
+   let restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run){await hydrateAccountWithoutServerRun(lease);return;}
    let combat=restored.combat;
    if(combat?.phase==='DEFEATED'&&!restored.run.pendingEvent&&combat.returnAuthorized!==true){
-    const advanced=await advanceOnlineExploration(lease,restored.run.runVersion);onlineRunVersion.current=advanced.runVersion;restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run)return;combat=restored.combat;
+    const advanced=await advanceOnlineExploration(lease,restored.run.runVersion);onlineRunVersion.current=advanced.runVersion;restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run){await hydrateAccountWithoutServerRun(lease);return;}combat=restored.combat;
    }
    if(combat?.phase==='PLAYER_DEAD'&&!combat.pendingRevival){await settleOnlineRun('dead');return;}
    confirmedKillCount.current=restored.run.confirmedKills;onlineRunVersion.current=restored.run.runVersion;
