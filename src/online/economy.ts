@@ -1,4 +1,7 @@
-import type {GameState,Tower} from '../game/types';
+import type {ActiveEffect,GameState,Tower} from '../game/types';
+import type {PendingExpeditionEvent} from '../game/events/types';
+import {tierOf} from '../game/data/config';
+import {bestiaryEntryById} from '../game/data/bestiary';
 import {getFreshSession} from './auth';
 import {getDeviceId,rememberCloudRecord,type CloudSaveRecord} from './cloudSave';
 import {supabaseConfig} from './config';
@@ -89,7 +92,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {fled?:boolean;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number}|null}
+export interface OnlineCombatState {fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number}|null}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -169,16 +172,23 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  if(typeof server.jobId==='string'||server.jobId===null){e.jobSnapshotId=server.jobId??null;e.jobRuntime.jobId=server.jobId??null;}
  if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
  if(server.jobFlags)e.jobRuntime.flags={...server.jobFlags};
- if(server.playerCooldowns)e.cooldowns=Object.fromEntries(Object.entries(server.playerCooldowns).map(([key,value])=>[key.replace(/^turn:/,''),value]));
+ if(server.playerCooldowns)e.cooldowns={...server.playerCooldowns};
  if(typeof server.playerTurn==='number')e.playerTurn=server.playerTurn;
  if(typeof server.monsterTurn==='number')e.monsterTurn=server.monsterTurn;
- if(Array.isArray(server.playerEffects))e.playerEffects=structuredClone(server.playerEffects) as typeof e.playerEffects;
- if(Array.isArray(server.monsterEffects))e.monsterEffects=structuredClone(server.monsterEffects) as typeof e.monsterEffects;
+ const normalizeEffects=(raw:unknown[]|undefined,target:'player'|'monster'):ActiveEffect[]=>Array.isArray(raw)?raw.flatMap((value,index)=>{const x=value as Record<string,unknown>,effectId=typeof x.effectId==='string'?x.effectId:'';if(!effectId)return [];const remaining=Number(x.remainingDuration??x.duration??0),stacks=Number(x.stackCount??x.stacks??1),sequence=Number(x.applicationSequence??index+1),created=Number(x.createdTurn??0),effect:ActiveEffect={instanceId:typeof x.instanceId==='string'?x.instanceId:`server-${target}-${sequence}`,effectId,sourceActorId:target,targetActorId:target,remainingDuration:Math.max(0,remaining),stackCount:Math.max(1,stacks),applicationSequence:Math.max(1,sequence),createdTurn:Math.max(0,created),scope:x.scope==='EXPEDITION'?'EXPEDITION':'BATTLE'};if(typeof x.currentShield==='number')effect.currentShield=x.currentShield;if(typeof x.currentShieldHits==='number')effect.currentShieldHits=x.currentShieldHits;return [effect];}):[];
+ if(Array.isArray(server.playerEffects))e.playerEffects=normalizeEffects(server.playerEffects,'player');
+ if(Array.isArray(server.monsterEffects))e.monsterEffects=normalizeEffects(server.monsterEffects,'monster');
+ e.effectSequence=Math.max(e.effectSequence,...e.playerEffects.map(x=>x.applicationSequence),...e.monsterEffects.map(x=>x.applicationSequence));
+ if(typeof server.monsterAttack==='number')e.monster.attack=server.monsterAttack;
+ if(typeof server.monsterDefense==='number')e.monster.defense=server.monsterDefense;
+ const entry=server.monsterId?bestiaryEntryById(server.monsterId):undefined;if(entry)e.monster.name=entry.name;
+ if(server.monsterId)e.monsterRuntime={definitionId:server.monsterId,skillCooldowns:{...(server.monsterCooldowns??{})},preparedActionId:server.monsterPreparedAction??null,turnNumber:server.monsterTurn??e.monsterTurn};
+ e.phase=server.phase==='PLAYER_TURN'?'PLAYER_TURN':server.phase==='MONSTER_TURN'?'MONSTER_TURN':'BATTLE_END';
  if(server.phase==='DEFEATED')e.monster.currentHp=0;
  return next;
 }
 
-export interface OnlineExplorationEvent {id:string;bossId?:string;selectionTicket?:number;outcomeTicket?:number}
+export interface OnlineExplorationEvent {id?:string;instanceId:string;eventId:string;bossId:string|null;state:'CHOICE'|'RESULT';choiceId:string|null;outcomeId:string|null;resultText:string;resultLines:string[];next:'NORMAL'|'BOSS';randomValue:number;selectionTicket?:number|null;outcomeTicket?:number|null;expiresAt?:number|null}
 export interface OnlineStronghold {instanceId:string;status:string;tower:Tower;floor:number;version:number;captureStartedAt:string;captureEndsAt:string;reward:{tower:Tower;tier:number;materialAmount:number;silver:number}}
 export interface OnlineExplorationState {kind:'MONSTER'|'BOSS'|'EVENT';profile?:{id:string;hpMultiplier:number;attackMultiplier:number;defenseBonus?:number};event?:OnlineExplorationEvent;encounterIndex?:number;bossProgress?:number;runVersion:number}
 export async function advanceOnlineExploration(lease:GameplayLease,expectedVersion:number){return rpc<OnlineExplorationState>('advance_online_exploration',{...leaseArgs(lease),p_expected_version:expectedVersion});}
@@ -186,5 +196,17 @@ export async function resolveOnlineExplorationEvent(lease:GameplayLease,expected
 export async function claimOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('claim_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
 export async function settleOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{reward:OnlineStronghold['reward'];stronghold:OnlineStronghold;temporaryLoot:unknown;runVersion:number}>('settle_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
 export async function abandonOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('abandon_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
-export interface RestoredOnlineExpedition {active:boolean;run?:{runId:string;tower:Tower;floor:number;confirmedKills:number;encounterIndex:number;bossProgress:number;bossDefeated:boolean;pendingEvent:OnlineExplorationEvent|null;temporaryLoot:unknown;stronghold:OnlineStronghold|null;runVersion:number;potions:Record<string,number>};combat?:Record<string,unknown>|null}
+export interface OnlineTemporaryLoot {silver?:number;material?:number;tickets?:number}
+export interface RestoredOnlineExpedition {active:boolean;run?:{runId:string;tower:Tower;floor:number;confirmedKills:number;encounterIndex:number;bossProgress:number;bossDefeated:boolean;pendingEvent:OnlineExplorationEvent|null;temporaryLoot:OnlineTemporaryLoot;stronghold:OnlineStronghold|null;runVersion:number;potions:Record<string,number>};combat?:Partial<OnlineCombatState>|null}
 export async function restoreOnlineExpedition(lease:GameplayLease){return rpc<RestoredOnlineExpedition>('restore_online_expedition',leaseArgs(lease));}
+export function reconcileOnlineExpeditionState(local:GameState,restored:RestoredOnlineExpedition):GameState{
+ const run=restored.run;if(!restored.active||!run)return local;let next=structuredClone(local),e=next.expedition;if(!e)return next;
+ const combat=restored.combat;if(combat&&typeof combat.playerHp==='number'&&typeof combat.monsterHp==='number'&&typeof combat.monsterId==='string'&&typeof combat.phase==='string')next=reconcileOnlineCombatState(next,{...combat,encounterIndex:combat.encounterIndex??run.encounterIndex,actionNonce:combat.actionNonce??0} as OnlineCombatState);
+ e=next.expedition!;e.tower=run.tower;e.floor=run.floor;e.kills=run.confirmedKills;e.bossTracking.progress=run.bossProgress;e.bossTracking.bossDefeated=run.bossDefeated;
+ const p=run.potions;e.bag.healing_lesser=p.lesser??e.bag.healing_lesser;e.bag.healing_standard=p.standard??e.bag.healing_standard;e.bag.healing_greater=p.greater??e.bag.healing_greater;e.bag.healing_supreme=p.supreme??e.bag.healing_supreme;e.bag.revival=p.revival??e.bag.revival;
+ const pending=run.pendingEvent;if(pending){e.events.pendingEvent=structuredClone(pending) as PendingExpeditionEvent;e.events.phase=pending.state==='RESULT'?'EVENT_RESULT':'EVENT';e.phase='BATTLE_END';e.bossTracking.pendingBossId=pending.bossId??null;}else{e.events.pendingEvent=null;e.events.phase='BATTLE';e.bossTracking.pendingBossId=null;}
+ const activeMonsterId=typeof combat?.monsterId==='string'?combat.monsterId:e.monster.definitionId??'';const entry=activeMonsterId?bestiaryEntryById(activeMonsterId):undefined;e.events.activeBossId=entry?.boss?activeMonsterId:null;
+ const loot=run.temporaryLoot??{};e.loot.silver=Math.max(0,Number(loot.silver??0));for(const t of Object.keys(e.loot.materials) as Tower[])e.loot.materials[t]=e.loot.materials[t].map(()=>0);for(const t of Object.keys(e.loot.tickets) as Tower[])e.loot.tickets[t]=e.loot.tickets[t].map(()=>0);e.loot.skillBooks={};e.loot.items={};e.loot.materials[e.tower][tierOf(e.floor)-1]=Math.max(0,Number(loot.material??0));if(e.floor<e.loot.tickets[e.tower].length)e.loot.tickets[e.tower][e.floor]=Math.max(0,Number(loot.tickets??0));
+ const sh=run.stronghold;if(sh)e.events.stronghold={instanceId:sh.instanceId,status:sh.status as any,ownerUserId:next.market.ownerId,tower:sh.tower,floor:sh.floor,version:sh.version,captureStartedAt:new Date(sh.captureStartedAt).getTime(),captureEndsAt:new Date(sh.captureEndsAt).getTime(),reward:sh.reward,contestedByUserId:null,contestRemainingMs:null,completedAt:null,abandonedAt:null,deletedAt:sh.status==='DELETED'?Date.now():null};else e.events.stronghold=null;
+ return next;
+}
