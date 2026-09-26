@@ -16,6 +16,16 @@ begin
  else
   ids:=array['quartz_carapace_beetle','glassjaw_stalker','refractive_scale_lizard','echo_crystal','vein_clinger','crystal_needle_centipede','whiteglow_burrower','clouded_crystal_beast','translucent_bat','shardback_spider','crystalhorn_goat','lens_eye_watcher','hardening_slime','crystal_scale_serpent','vein_hound','shatter_mole','quartz_spine_predator','fracture_claw_hunter','whitevein_leech','celestial_crystal_brute'];
   hps:=array[1.18,.88,.82,1,.94,.78,1.08,1.2,.72,.8,1.06,.9,1.15,.96,.9,1.14,1.12,1.02,1.08,1.35];atks:=array[.9,1.18,.9,1,.82,.92,1.08,.95,.88,.96,1.14,1.02,.82,1.12,1.2,1.1,1.2,1.24,.94,1.24];
+  if p_floor=1 then ids:=ids[1:5];hps:=hps[1:5];atks:=atks[1:5];
+  elsif p_floor=2 then ids:=ids[1:7];hps:=hps[1:7];atks:=atks[1:7];
+  elsif p_floor=3 then ids:=ids[1:10];hps:=hps[1:10];atks:=atks[1:10];
+  elsif p_floor=4 then ids:=ids[1:12];hps:=hps[1:12];atks:=atks[1:12];
+  elsif p_floor=5 then ids:=ids[1:14];hps:=hps[1:14];atks:=atks[1:14];
+  elsif p_floor=6 then ids:=ids[5:15];hps:=hps[5:15];atks:=atks[5:15];
+  elsif p_floor=7 then ids:=ids[7:17];hps:=hps[7:17];atks:=atks[7:17];
+  elsif p_floor=8 then ids:=ids[9:19];hps:=hps[9:19];atks:=atks[9:19];
+  elsif p_floor=9 then ids:=ids[10:20];hps:=hps[10:20];atks:=atks[10:20];
+  else ids:=ids[11:20];hps:=hps[11:20];atks:=atks[11:20];end if;
  end if;
  idx:=1+mod(abs(hashtextextended(p_seed::text||':'||p_encounter::text,0)),array_length(ids,1));
  id:=ids[idx];hp_mult:=hps[idx];atk_mult:=atks[idx];
