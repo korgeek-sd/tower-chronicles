@@ -149,3 +149,51 @@ begin
 end $$;
 revoke all on function public.restore_online_expedition(uuid,bigint,text,text) from public,anon;
 grant execute on function public.restore_online_expedition(uuid,bigint,text,text) to authenticated;
+
+
+-- Final five-job passive parity for incoming damage, first aid, potion knowledge, rage, and duelist reactions.
+create or replace function private.server_job_received_multiplier(p_combat private.online_combat_states)
+returns numeric language plpgsql immutable set search_path='' as $$
+declare r numeric:=p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0);m numeric:=1;
+begin
+ if p_combat.job_id='contract_mercenary' then m:=m*.92;end if;
+ if p_combat.job_id='berserker' and r<=.30 then m:=m*.85;end if;
+ return m;
+end $$;
+revoke all on function private.server_job_received_multiplier(private.online_combat_states) from public,anon,authenticated;
+
+create or replace function private.server_after_player_damage(p_combat private.online_combat_states,p_actual bigint,p_nonce bigint)
+returns private.online_combat_states language plpgsql security definer set search_path=''
+as $$
+declare gain int;heal bigint;counter bigint;
+begin
+ if p_actual<=0 then return p_combat;end if;
+ if p_combat.job_id='berserker' then gain:=floor((p_actual::numeric/nullif(p_combat.player_max_hp,0))*100);p_combat.job_resource:=least(100,p_combat.job_resource+greatest(0,gain));end if;
+ if p_combat.job_id='field_medic' and not coalesce((p_combat.job_flags->>'first_aid_used')::boolean,false) and p_combat.player_hp>0 and p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0)<=.30 then
+  heal:=round(p_combat.player_max_hp*.15);p_combat.player_hp:=least(p_combat.player_max_hp,p_combat.player_hp+heal);p_combat.job_flags:=p_combat.job_flags||'{"first_aid_used":true}'::jsonb;
+ end if;
+ if p_combat.job_id='duelist' and p_combat.monster_hp>0 and private.server_roll(p_combat.rng_seed,p_combat.encounter_index,p_nonce,p_combat.monster_turn+701)<.20 then
+  counter:=private.combat_damage(private.combat_effective_attack(p_combat),p_combat.monster_defense*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'defense')),.60*p_combat.skill_power,1,greatest(0,1+private.effect_modifier(p_combat.monster_effects,'receivedDamage')));
+  p_combat.monster_hp:=greatest(0,p_combat.monster_hp-counter);
+ end if;
+ return p_combat;
+end $$;
+revoke all on function private.server_after_player_damage(private.online_combat_states,bigint,bigint) from public,anon,authenticated;
+
+-- Potion override: field medic healing bonus and canonical bag deduction.
+create or replace function public.apply_online_potion(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint,p_potion text)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;ratio numeric;heal bigint;col text;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;
+ if not found or r.status<>'ACTIVE' or c.run_id<>r.run_id or c.phase<>'PLAYER_TURN' then raise exception 'COMBAT_PHASE_INVALID';end if;if p_action_nonce<>c.action_nonce+1 then raise exception 'COMBAT_ACTION_SEQUENCE_INVALID';end if;
+ ratio:=case p_potion when 'lesser' then .20 when 'standard' then .35 when 'greater' then .50 when 'supreme' then .75 else null end;if ratio is null then raise exception 'COMBAT_POTION_INVALID';end if;
+ if p_potion='lesser' and r.potion_lesser>0 then r.potion_lesser:=r.potion_lesser-1;elsif p_potion='standard' and r.potion_standard>0 then r.potion_standard:=r.potion_standard-1;elsif p_potion='greater' and r.potion_greater>0 then r.potion_greater:=r.potion_greater-1;elsif p_potion='supreme' and r.potion_supreme>0 then r.potion_supreme:=r.potion_supreme-1;else raise exception 'COMBAT_POTION_EMPTY';end if;
+ if c.job_id='field_medic' then ratio:=ratio*1.2;end if;heal:=round(c.player_max_hp*ratio);c.player_hp:=least(c.player_max_hp,c.player_hp+heal);
+ update private.online_expeditions set potion_lesser=r.potion_lesser,potion_standard=r.potion_standard,potion_greater=r.potion_greater,potion_supreme=r.potion_supreme,run_version=run_version+1 where user_id=u returning * into r;perform private.persist_run_bag_to_save(u,r);
+ update private.online_combat_states set player_hp=c.player_hp where user_id=u returning * into c;
+ return private.finish_server_player_action(u,r,c,p_action_nonce,0)||jsonb_build_object('healing',heal,'jobResource',c.job_resource,'jobFlags',c.job_flags);
+end $$;
+revoke all on function public.apply_online_potion(uuid,bigint,text,text,bigint,text) from public,anon;
+grant execute on function public.apply_online_potion(uuid,bigint,text,text,bigint,text) to authenticated;
