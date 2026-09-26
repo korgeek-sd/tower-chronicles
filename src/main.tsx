@@ -246,7 +246,6 @@ function App(){
    if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await settleOnlineRun('dead');return;}
    if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
    const candidate=reconcileOnlineCombatState(stateRef.current,result);
-   if(!validSave(candidate)){setStorageError('서버 전투 상태를 다시 불러오는 중입니다.');await restoreServerRun(lease);return;}
    stateRef.current=candidate;setStorageError('');setGame(candidate);
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
