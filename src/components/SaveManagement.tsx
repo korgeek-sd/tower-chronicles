@@ -6,17 +6,17 @@ import {Screen} from '../ui/mobile';
 import {onlineConfigured} from '../online/config';
 import {signInWithGoogle,type OnlineSession} from '../online/auth';
 import type {CloudSyncStatus} from '../online/cloudSync';
-import {loadSystemMonitoring,type SystemMonitoring} from '../online/monitoring';
+import {loadQueryMonitoring,loadSystemMonitoring,type QueryDiagnostic,type SystemMonitoring} from '../online/monitoring';
 
 const MAX_IMPORT_BYTES=5*1024*1024;
 
 export function SaveManagement({game,storage,onImported,session,syncStatus,syncRevision,syncMessage,onLogout}:{game:GameState;storage:StoragePort;onImported:(state:GameState)=>void;session:OnlineSession|null;syncStatus:CloudSyncStatus;syncRevision:number|null;syncMessage:string;onLogout:()=>Promise<void>}){
  const input=useRef<HTMLInputElement>(null),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
- const [monitor,setMonitor]=useState<SystemMonitoring|null>(null);
+ const [monitor,setMonitor]=useState<SystemMonitoring|null>(null),[queries,setQueries]=useState<QueryDiagnostic[]>([]);
  useEffect(()=>{
   if(!session){setMonitor(null);return;}
   let disposed=false;
-  const load=async()=>{try{const next=await loadSystemMonitoring();if(!disposed)setMonitor(next);}catch(error){if(!disposed&&error instanceof Error&&error.message!=='MONITORING_FORBIDDEN')setMessage('서버 모니터링 상태를 불러오지 못했습니다.');}};
+  const load=async()=>{try{const [next,queryRows]=await Promise.all([loadSystemMonitoring(),loadQueryMonitoring()]);if(!disposed){setMonitor(next);setQueries(queryRows);}}catch(error){if(!disposed&&error instanceof Error&&error.message!=='MONITORING_FORBIDDEN')setMessage('서버 모니터링 상태를 불러오지 못했습니다.');}};
   void load();
   const id=window.setInterval(()=>void load(),60_000);
   return()=>{disposed=true;window.clearInterval(id);};
@@ -35,7 +35,7 @@ export function SaveManagement({game,storage,onImported,session,syncStatus,syncR
  const metric=(value:number|string|undefined,suffix='')=>value===undefined?'—':Number(value).toLocaleString(undefined,{maximumFractionDigits:1})+suffix;
 
  return <Screen eyebrow="SAVE / CLOUD" title="저장 관리" meta={<span>v{APP_VERSION}</span>}>
-  <div style={{height:'100%',display:'grid',gridTemplateRows:monitor?'1.05fr .95fr .7fr auto':'1.25fr 1fr auto',gap:'6px'}}>
+  <div style={{height:'100%',display:'grid',gridTemplateRows:monitor?'1fr .82fr .72fr .62fr auto':'1.25fr 1fr auto',gap:'6px'}}>
    <section className="tc-panel strong" style={{display:'grid',alignContent:'center',gap:'7px'}}>
     <div><small className="tc-kicker">CLOUD SYNC</small><h2 style={{margin:'3px 0 4px',fontSize:'13px'}}>{session?'Google 계정 자동 동기화':'클라우드 계정'}</h2><p style={{margin:0,fontSize:'8px',color:'var(--muted)'}}>{!onlineConfigured?'Supabase 공개 설정이 아직 없습니다.':accountLine}</p></div>
     {session?<><div className="tc-floor-risk" role="status"><b>{stateLabel}</b> · {syncMessage}</div><p style={{margin:0,fontSize:'8px',color:'var(--muted)'}}>플레이 변경은 자동 저장되고, 기기 전환·앱 복귀·네트워크 복구 시 서버의 최신 revision을 확인합니다.</p><button className="tc-action secondary" disabled={busy} onClick={()=>void logout()}>로그아웃</button></>:<button className="tc-action" disabled={!onlineConfigured||busy} onClick={()=>signInWithGoogle()}>Google로 계속하기</button>}
@@ -49,6 +49,10 @@ export function SaveManagement({game,storage,onImported,session,syncStatus,syncR
      <div><small>저장/분</small><b style={{display:'block',fontSize:'10px'}}>{metric(latest.save_writes_per_min)}</b></div>
     </div>
     {monitor.activeAlerts.length>0&&<div className="tc-floor-risk"><b>{monitor.activeAlerts.length}개 지표 급증 감지</b> · 최근 15분 기준치와 절대 임계치를 초과했습니다.</div>}
+   </section>}
+   {monitor&&<section className="tc-panel" style={{display:'grid',gap:'3px',overflow:'hidden'}}>
+    <div style={{display:'flex',justifyContent:'space-between'}}><small className="tc-kicker">DB LOAD TOP</small><small style={{fontSize:'7px',color:'var(--muted)'}}>최근 1분 · 실행시간순</small></div>
+    {queries.length===0?<small style={{fontSize:'7px',color:'var(--muted)'}}>진단 데이터 수집 중</small>:queries.slice(0,3).map((q,i)=><div key={String(q.queryid)} style={{display:'grid',gridTemplateColumns:'14px 1fr auto',gap:'4px',fontSize:'7px',alignItems:'center'}}><b>{i+1}</b><span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={q.label}>{q.label}</span><span>{metric(q.calls_per_min)}회 · {metric(q.exec_ms_per_min)}ms</span></div>)}
    </section>}
    <section className="tc-panel" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'5px',alignItems:'center'}}><button className="tc-action secondary" onClick={download}>JSON 내보내기</button><><input ref={input} style={{display:'none'}} type="file" accept="application/json,.json" onChange={event=>void choose(event.target.files?.[0])}/><button className="tc-action danger" onClick={()=>input.current?.click()}>JSON 불러오기</button></></section>
    <div className="tc-floor-risk" role="status">{message||(!onlineConfigured?'다음 단계: .env에 Supabase Project URL과 Publishable Key를 설정하세요.':session?'수동 업로드/복구 없이 Google 계정과 자동 동기화됩니다.':'게스트 플레이는 localStorage에만 저장됩니다.')}</div>
