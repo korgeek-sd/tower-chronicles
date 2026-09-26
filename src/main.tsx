@@ -7,7 +7,7 @@ import {initialState} from './game/engine/state';
 import {enter,requestReturn,abandonStrongholdAndReturn} from './game/engine/expedition';
 import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resolveRevivalDecision} from './game/engine/combat';
 import {settleCrafting} from './game/engine/crafting';
-import {APP_VERSION,createRepository,SAVE_KEY,validSave} from './storage/repository';
+import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
