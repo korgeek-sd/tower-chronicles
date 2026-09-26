@@ -43,6 +43,7 @@ const messageFor=(raw:string)=>{
   MARKET_PRICE_INVALID:'거래 가격이 올바르지 않습니다.',
   MARKET_QUANTITY_INVALID:'거래 수량이 올바르지 않습니다.',
   GEAR_QUANTITY_INVALID:'개별 장비는 한 번에 1개만 거래할 수 있습니다.',
+  GEAR_EQUIPPED:'장착 중인 장비는 거래소에 등록할 수 없습니다.',
  };
  for(const [key,value] of Object.entries(known))if(raw.includes(key))return value;
  try{const parsed=JSON.parse(raw) as {message?:string};if(parsed.message)return parsed.message;}catch{}
