@@ -55,6 +55,12 @@ const errors:RpcErrorMap={
  RESOURCE_STRONGHOLD_NOT_ACTIVE:'진행 중인 자원거점 점령이 없습니다.',
  RESOURCE_STRONGHOLD_NOT_READY:'아직 자원거점 점령 시간이 끝나지 않았습니다.',
  RESOURCE_STRONGHOLD_ACTIVE:'자원거점 점령을 완료하거나 포기한 뒤 귀환할 수 있습니다.',
+ EXPEDITION_RETURN_NOT_AUTHORIZED:'서버가 안전 귀환을 확인하지 못했습니다.',
+ EXPEDITION_DEATH_NOT_CONFIRMED:'서버가 원정 사망을 확인하지 못했습니다.',
+ EXPEDITION_COMBAT_STATE_MISSING:'서버 전투 상태를 찾지 못했습니다.',
+ JOB_CHANGE_DURING_EXPEDITION:'원정 중에는 직업을 변경할 수 없습니다.',
+ JOB_NOT_OWNED:'서버에 등록된 보유 직업이 아닙니다.',
+ JOB_COMBAT_NOT_READY:'아직 서버 전투가 준비되지 않은 직업입니다.',
 };
 
 const headers=(token:string)=>({
@@ -121,10 +127,13 @@ export async function resolveOnlineRevival(lease:GameplayLease,use:boolean){
  return rpc<OnlineCombatState>('resolve_online_revival',{...leaseArgs(lease),p_use:use});
 }
 
-export async function settleOnlineExpedition(lease:GameplayLease,payload:GameState){
- const outcome=payload.lastExpedition?.outcome;
- if(outcome!=='returned'&&outcome!=='dead')throw Error('원정 종료 결과를 확인할 수 없습니다.');
- const record=await rpc<CloudSaveRecord>('settle_online_expedition_v2',{...leaseArgs(lease),p_outcome:outcome,p_client_payload:payload});
+export async function settleOnlineExpedition(lease:GameplayLease,outcome:'returned'|'dead'){
+ const record=await rpc<CloudSaveRecord>('settle_online_expedition_v2',{...leaseArgs(lease),p_outcome:outcome,p_client_payload:null});
+ return remember(record);
+}
+
+export async function selectOnlineJob(lease:GameplayLease,jobId:string|null){
+ const record=await rpc<CloudSaveRecord>('select_online_job',{...leaseArgs(lease),p_job_id:jobId});
  return remember(record);
 }
 
