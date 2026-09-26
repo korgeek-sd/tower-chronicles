@@ -70,8 +70,8 @@ async function remember(record:CloudSaveRecord){
  return record;
 }
 
-export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floor:number){
- const record=await rpc<CloudSaveRecord>('start_online_expedition',{...leaseArgs(lease),p_tower:tower,p_floor:floor});
+export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floor:number,payload:GameState){
+ const record=await rpc<CloudSaveRecord>('start_online_expedition',{...leaseArgs(lease),p_tower:tower,p_floor:floor,p_client_payload:payload});
  return remember(record);
 }
 
