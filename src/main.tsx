@@ -16,7 +16,7 @@ import {onlineConfigured} from './online/config';
 import {reconcileCloudState,type CloudSyncStatus} from './online/cloudSync';
 import {stableStringify,loadCloudSave,CloudSessionLostError} from './online/cloudSave';
 import {acquireGameSession,forceTakeoverGameSession,heartbeatGameSession,inspectGameSession,releaseGameSession,requestGameSessionTakeover,subscribeGameSessionSignals,GAME_SESSION_HEARTBEAT_MS,GAME_SESSION_TAKEOVER_GRACE_MS,type GameplayLease,type GameSessionPhase,type GameSessionResult,type GameSessionSignal,GameSessionLostError} from './online/gameSession';
-import {applyOnlineBasicAttack,applyOnlineSkill,applyOnlineJobSkill,applyOnlinePotion,applyOnlineFlee,resolveOnlineRevival,beginOnlineCombatState,reconcileOnlineCombatState,startOnlineExpedition,settleOnlineExpedition,restoreOnlineExpedition,resolveOnlineExplorationEvent,claimOnlineResourceStronghold,settleOnlineResourceStronghold,abandonOnlineResourceStronghold,type OnlineCombatState,type OnlineCombatActionKind} from './online/economy';
+import {applyOnlineBasicAttack,applyOnlineSkill,applyOnlineJobSkill,applyOnlinePotion,applyOnlineFlee,resolveOnlineRevival,beginOnlineCombatState,reconcileOnlineCombatState,startOnlineExpedition,settleOnlineExpedition,restoreOnlineExpedition,resolveOnlineExplorationEvent,claimOnlineResourceStronghold,settleOnlineResourceStronghold,abandonOnlineResourceStronghold,type OnlineCombatState} from './online/economy';
 
 import {EventScreen} from './components/events/EventScreen';
 import {resolveEvent,continueEvent,configureEventMode,expireTimedEventChoice} from './game/events/service';
