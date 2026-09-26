@@ -69,3 +69,28 @@ begin
  return '{"kind":"BASIC","id":"basic","multiplier":1}'::jsonb;
 end $$;
 revoke all on function private.server_monster_decision(private.online_combat_states) from public,anon,authenticated;
+
+create or replace function private.resolve_server_monster_turn(p_combat private.online_combat_states)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare d jsonb:=private.server_monster_decision(p_combat);kind text:=d->>'kind';id text:=d->>'id';mult numeric:=coalesce((d->>'multiplier')::numeric,1);cd int:=coalesce((d->>'cooldown')::int,0);raw bigint:=0;absorb numeric:=0;effdef numeric;received numeric:=1;nextcd jsonb;effectid text:=d->>'effect';
+begin
+ select coalesce(jsonb_object_agg(key,to_jsonb(greatest(0,(value#>>'{}')::int-1))),'{}') into nextcd from jsonb_each(p_combat.monster_cooldowns);
+ if cd>0 then nextcd:=nextcd||jsonb_build_object(id,cd);end if;
+ if kind='CHARGE' then p_combat.monster_prepared_action:=id;
+ elsif kind='EFFECT_SELF' then p_combat.monster_effects:=private.apply_server_effect(p_combat.monster_effects,effectid,p_combat.turn_no);
+ elsif kind='EFFECT_TARGET' then p_combat.player_effects:=private.apply_server_effect(p_combat.player_effects,effectid,p_combat.turn_no);
+ else
+  effdef:=p_combat.player_defense*greatest(.05,1+private.effect_modifier(p_combat.player_effects,'defense'));
+  received:=greatest(.05,1+private.effect_modifier(p_combat.player_effects,'receivedDamage'));
+  if p_combat.guard_turns>0 then received:=received*.6;end if;
+  if p_combat.accessory_passive='unyielding' and p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0)<=.35 then received:=received*(1-p_combat.accessory_value);end if;
+  raw:=greatest(1,round((p_combat.monster_attack*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'attack'))*mult-effdef)*received)::bigint);
+  absorb:=least(p_combat.player_shield,raw);p_combat.player_shield:=p_combat.player_shield-absorb;raw:=raw-absorb;p_combat.player_hp:=greatest(0,p_combat.player_hp-raw);
+  if effectid is not null and p_combat.player_hp>0 then p_combat.player_effects:=private.apply_server_effect(p_combat.player_effects,effectid,p_combat.turn_no);end if;
+  if coalesce((d->>'prepared')::boolean,false) then p_combat.monster_prepared_action:=null;end if;
+ end if;
+ p_combat.monster_cooldowns:=nextcd;
+ return jsonb_build_object('state',to_jsonb(p_combat),'action',d,'damage',raw,'absorbed',absorb);
+end $$;
+revoke all on function private.resolve_server_monster_turn(private.online_combat_states) from public,anon,authenticated;
