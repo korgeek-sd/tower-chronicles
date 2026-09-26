@@ -21,6 +21,16 @@ alter table private.query_monitor_snapshots enable row level security;
 revoke all on private.query_monitor_snapshots from public,anon,authenticated;
 create index if not exists query_monitor_snapshots_recent_idx on private.query_monitor_snapshots(captured_at desc,calls_per_min desc);
 
+-- Seed the cumulative counters so the first scheduled sample starts from zero instead of lifetime totals.
+insert into private.query_monitor_state(queryid,calls,total_exec_time,updated_at)
+select s.queryid,s.calls,s.total_exec_time,now()
+from extensions.pg_stat_statements s
+join pg_roles r on r.oid=s.userid
+where s.dbid=(select oid from pg_database where datname=current_database())
+ and r.rolname in ('supabase_admin','authenticator','authenticated','supabase_auth_admin','supabase_storage_admin')
+ and s.queryid is not null
+on conflict(queryid) do update set calls=excluded.calls,total_exec_time=excluded.total_exec_time,updated_at=excluded.updated_at;
+
 create or replace function private.query_monitor_label(p_query text)
 returns text language sql immutable set search_path='' as $$
  select case
