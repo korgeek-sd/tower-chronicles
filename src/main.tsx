@@ -16,7 +16,7 @@ import {onlineConfigured} from './online/config';
 import {reconcileCloudState,type CloudSyncStatus} from './online/cloudSync';
 import {stableStringify,loadCloudSave,CloudSessionLostError} from './online/cloudSave';
 import {acquireGameSession,forceTakeoverGameSession,heartbeatGameSession,inspectGameSession,releaseGameSession,requestGameSessionTakeover,subscribeGameSessionSignals,GAME_SESSION_HEARTBEAT_MS,GAME_SESSION_TAKEOVER_GRACE_MS,type GameplayLease,type GameSessionPhase,type GameSessionResult,type GameSessionSignal,GameSessionLostError} from './online/gameSession';
-import {confirmOnlineExpeditionKill,recordOnlineCombatAction,startOnlineExpedition,settleOnlineExpedition,type OnlineCombatActionKind} from './online/economy';
+import {applyOnlineBasicAttack,applyOnlineSkill,applyOnlineJobSkill,applyOnlinePotion,applyOnlineFlee,resolveOnlineRevival,beginOnlineCombatState,reconcileOnlineCombatState,startOnlineExpedition,settleOnlineExpedition,type OnlineCombatState,type OnlineCombatActionKind} from './online/economy';
 
 import {EventScreen} from './components/events/EventScreen';
 import {resolveEvent,continueEvent,configureEventMode,expireTimedEventChoice} from './game/events/service';
@@ -82,14 +82,7 @@ function App(){
 
  useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
  useEffect(()=>{if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
- useEffect(()=>{
-  const lease=gameplayLeaseRef.current,e=game.expedition;
-  if(!onlineSession||gameSessionPhase!=='active'||!lease||!e)return;
-  if(e.kills<=confirmedKillCount.current||confirmingKill.current)return;
-  confirmingKill.current=true;
-  const target=e.kills,monsterId=e.monster.definitionId||e.monster.name;
-  void (async()=>{try{for(let i=confirmedKillCount.current+1;i<=target;i++){const result=await confirmOnlineExpeditionKill(lease,monsterId,i);confirmedKillCount.current=result.confirmedKills;}}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'처치 기록을 서버에서 확인하지 못했습니다.');}finally{confirmingKill.current=false;}})();
- },[game.expedition?.kills,onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
+
  useEffect(()=>{
   const lease=gameplayLeaseRef.current,receipt=game.lastExpedition;
   if(!onlineSession||gameSessionPhase!=='active'||!lease||game.expedition||!receipt)return;
@@ -205,10 +198,18 @@ function App(){
  function commitOnlineCombatAction(kind:OnlineCombatActionKind,ref:string|undefined,apply:(state:GameState)=>GameState){
   const lease=gameplayLeaseRef.current;
   if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease){setGame(apply);return;}
-  if(recordingAction.current)return;
-  recordingAction.current=true;
-  const index=confirmedActionCount.current+1;
-  void recordOnlineCombatAction(lease,index,kind,ref).then(result=>{confirmedActionCount.current=result.confirmedActions;setGame(apply);setCloudSyncStatus('synced');}).catch(error=>{setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'전투 행동을 서버에서 확인하지 못했습니다.');}).finally(()=>{recordingAction.current=false;});
+  if(recordingAction.current)return;recordingAction.current=true;
+  const nonce=onlineCombatNonce.current+1;
+  void (async()=>{try{
+   let result:OnlineCombatState;
+   if(kind==='BASIC')result=await applyOnlineBasicAttack(lease,nonce);
+   else if(kind==='POTION')result=await applyOnlinePotion(lease,nonce,ref!);
+   else if(kind==='FLEE')result=await applyOnlineFlee(lease,nonce);
+   else if(kind==='REVIVAL')result=await resolveOnlineRevival(lease,ref==='use');
+   else {try{result=await applyOnlineJobSkill(lease,nonce,ref!);}catch(error){if(error instanceof Error&&!error.message.includes('COMBAT_SKILL_INVALID'))throw error;result=await applyOnlineSkill(lease,nonce,ref!);}}
+   onlineCombatNonce.current=result.actionNonce??nonce;if(typeof result.confirmedKills==='number')confirmedKillCount.current=result.confirmedKills;
+   setGame(current=>reconcileOnlineCombatState(apply(current),result));setCloudSyncStatus('synced');
+  }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
  async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);await signOutOnline();setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
@@ -223,7 +224,7 @@ function App(){
    {storageError&&<div className="error" role="alert">{storageError}</div>}
    {page==='home'&&<HomeScreen game={game} onMove={move}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
-   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;confirmedActionCount.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);setPage('battle');}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
+   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;confirmedActionCount.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;setGame(s=>reconcileOnlineCombatState(s,combat));setPage('battle');}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
    {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>commitEvent(s=>resolveEvent(s,instance,choice))} onContinue={instance=>commitEvent(s=>continueEvent(s,instance))} onRevival={use=>setGame(s=>resolveRevivalDecision(s,use))}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>setGame(s=>abandonStrongholdAndReturn(s))}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
    {page==='inventory'&&<InventoryScreen game={game} setGame={setGame}/>}
    {page==='equipment'&&<EquipmentScreen game={game} setGame={setGame} onSkills={()=>setPage('skills')}/>}
