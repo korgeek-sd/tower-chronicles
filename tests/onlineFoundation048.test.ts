@@ -9,8 +9,8 @@ import {GAME_SESSION_HEARTBEAT_MS,GAME_SESSION_TAKEOVER_GRACE_MS,GAME_SESSION_TT
 
 const b64=(value:string)=>Buffer.from(value).toString('base64url');
 
-test('RELEASE 0.1.49: app version and online public config are explicit',()=>{
- assert.equal(APP_VERSION,'0.1.49');
+test('RELEASE 0.1.50: app version and online public config are explicit',()=>{
+ assert.equal(APP_VERSION,'0.1.50');
  assert.deepEqual(readSupabaseConfig({
   VITE_SUPABASE_URL:'https://project-ref.supabase.co/',
   VITE_SUPABASE_PUBLISHABLE_KEY:'public-key',
