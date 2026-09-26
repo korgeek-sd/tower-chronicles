@@ -221,7 +221,7 @@ function App(){
    if(combat&&typeof combat.actionNonce==='number')onlineCombatNonce.current=combat.actionNonce;
    if(combat&&typeof combat.playerHp==='number'&&typeof combat.monsterHp==='number'&&typeof combat.monsterId==='string'&&typeof combat.phase==='string'){
     const snapshot={...combat,encounterIndex:restored.run.encounterIndex,actionNonce:combat.actionNonce??0} as OnlineCombatState;
-    setGame(current=>reconcileOnlineCombatState(current,snapshot));setPage('battle');
+    setGame(current=>{const next=reconcileOnlineCombatState(current,snapshot),e=next.expedition;if(e){const p=restored.run!.potions;e.bag.healing_lesser=p.lesser??e.bag.healing_lesser;e.bag.healing_standard=p.standard??e.bag.healing_standard;e.bag.healing_greater=p.greater??e.bag.healing_greater;e.bag.healing_supreme=p.supreme??e.bag.healing_supreme;e.bag.revival=p.revival??e.bag.revival;e.kills=restored.run!.confirmedKills;e.bossTracking.progress=restored.run!.bossProgress;e.bossTracking.bossDefeated=restored.run!.bossDefeated;}return next;});setPage('battle');
    }
    setCloudSyncStatus('synced');setCloudSyncMessage('서버의 진행 중인 원정을 복원했습니다.');
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');}
