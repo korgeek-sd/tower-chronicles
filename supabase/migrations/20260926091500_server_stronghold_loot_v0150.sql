@@ -345,3 +345,51 @@ returns jsonb language sql immutable set search_path='' as $$
  from jsonb_array_elements(coalesce(p_effects,'[]'::jsonb))x
 $$;
 revoke all on function private.effect_tick(jsonb,bigint) from public,anon,authenticated;
+
+
+-- Final authority hardening: online runs cannot use an unsupported client-authored job,
+-- and exploration selection keeps repeat-window/active-stronghold exclusions.
+create or replace function private.require_server_combat_job(p_payload jsonb)
+returns text language plpgsql immutable set search_path=''
+as $$
+declare j text:=private.server_job_id(p_payload);
+begin
+ if j is null then raise exception 'COMBAT_JOB_UNSUPPORTED';end if;
+ return j;
+end $$;
+revoke all on function private.require_server_combat_job(jsonb) from public,anon,authenticated;
+
+create or replace function private.server_event_id(p_tower text,p_floor int,p_hp bigint,p_max_hp bigint,p_ticket numeric,p_recent text[],p_stronghold jsonb)
+returns text language plpgsql immutable set search_path=''
+as $$
+declare ids text[]:=array[]::text[];weights numeric[]:=array[]::numeric[];total numeric:=0;v numeric;i int;blocked boolean:=coalesce(p_stronghold->>'status','') in('ACTIVE','CONTESTED');
+begin
+ if p_max_hp>0 and p_hp::numeric/p_max_hp<.8 and not ('common_rest'=any(coalesce(p_recent,'{}'))) then ids:=ids||'common_rest';weights:=weights||1;end if;
+ if not ('common_cache'=any(coalesce(p_recent,'{}'))) then ids:=ids||'common_cache';weights:=weights||1;end if;
+ if not (('resource_gather_'||p_tower)=any(coalesce(p_recent,'{}'))) then ids:=ids||('resource_gather_'||p_tower);weights:=weights||1;end if;
+ if not ('common_risk'=any(coalesce(p_recent,'{}'))) then ids:=ids||'common_risk';weights:=weights||1;end if;
+ if not ('common_remedy'=any(coalesce(p_recent,'{}'))) then ids:=ids||'common_remedy';weights:=weights||1;end if;
+ if p_floor between 3 and 10 and not blocked and not ('resource_stronghold'=any(coalesce(p_recent,'{}'))) then ids:=ids||'resource_stronghold';weights:=weights||.65;end if;
+ if coalesce(array_length(ids,1),0)=0 then return null;end if;select sum(x) into total from unnest(weights)x;v:=p_ticket*total;
+ for i in 1..array_length(ids,1) loop if v<weights[i] then return ids[i];end if;v:=v-weights[i];end loop;return ids[array_length(ids,1)];
+end $$;
+revoke all on function private.server_event_id(text,int,bigint,bigint,numeric,text[],jsonb) from public,anon,authenticated;
+
+-- Reject unsupported jobs before a canonical combat state can be used.
+create or replace function public.begin_online_combat_state_v2(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;s public.game_saves%rowtype;r private.online_expeditions%rowtype;result jsonb;power numeric;passive jsonb;j text;c private.online_combat_states%rowtype;fresh boolean:=false;initial jsonb;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into s from public.game_saves where user_id=u;if not found then raise exception 'CLOUD_SAVE_REQUIRED';end if;j:=private.require_server_combat_job(s.payload);
+ select * into c from private.online_combat_states where user_id=u;fresh:=not found or c.run_id is distinct from (select run_id from private.online_expeditions where user_id=u) or c.phase in('DEFEATED','PLAYER_DEAD');
+ result:=public.begin_online_combat_state(p_lease_id,p_generation,p_client_instance_id,p_device_id,null,null,null);
+ select * into r from private.online_expeditions where user_id=u for update;if not found then raise exception 'EXPEDITION_SERVER_RUN_MISSING';end if;r:=private.ensure_run_consumables(u,r);
+ power:=private.combat_skill_power(s.payload);passive:=private.combat_accessory_passive(s.payload);select * into c from private.online_combat_states where user_id=u for update;
+ if fresh then initial:=private.server_initial_monster_effects(c.monster_id,c.monster_turn);c.monster_effects:=initial;c.monster_shield:=case c.monster_id when 'sanctuary_talon_bishop' then 60 else 0 end;c.monster_shield_hits:=0;end if;
+ update private.online_combat_states set skill_power=power,revival_count=r.revival_count,potion_lesser=r.potion_lesser,potion_standard=r.potion_standard,potion_greater=r.potion_greater,potion_supreme=r.potion_supreme,accessory_passive=passive->>'kind',accessory_value=coalesce((passive->>'value')::numeric,0),job_id=j,job_resource=case when j='berserker' then c.job_resource else 0 end,monster_effects=c.monster_effects,monster_shield=c.monster_shield,monster_shield_hits=c.monster_shield_hits,state_version=state_version+1 where user_id=u returning * into c;
+ return result||jsonb_build_object('jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,'stateVersion',c.state_version,'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'playerShield',c.player_shield,'monsterShield',c.monster_shield,'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,'playerCooldowns',c.cooldowns,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'revivalCount',c.revival_count,'potions',jsonb_build_object('healing_lesser',c.potion_lesser,'healing_standard',c.potion_standard,'healing_greater',c.potion_greater,'healing_supreme',c.potion_supreme));
+end $$;
+revoke all on function public.begin_online_combat_state_v2(uuid,bigint,text,text) from public,anon;
+grant execute on function public.begin_online_combat_state_v2(uuid,bigint,text,text) to authenticated;
