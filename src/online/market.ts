@@ -1,4 +1,5 @@
 import type {GameState,Item,MarketOrder,MarketStorageEntry,MarketTrade,Tower} from '../game/types';
+import {towerIds} from '../game/data/config';
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
@@ -86,8 +87,6 @@ export const claimOnlineMarketStorage=(lease:GameplayLease,storageId:string)=>
 
 export const claimAllOnlineMarketStorage=(lease:GameplayLease)=>
  rpc<OnlineMarketState>('claim_all_online_market_storage',leaseArgs(lease));
-
-const towerIds:Tower[]=['ore','crystal','fang','green'];
 
 export function applyOnlineEconomyToGame(state:GameState,snapshot:OnlineMarketState):GameState{
  const s=structuredClone(state);
