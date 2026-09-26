@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[preview-v0.1.49]') && 'codex/v0.1.49-server-market-foundation' || github.event_name == 'push' && contains(github.event.head_commit.message, '[preview-v0.1.48]') && 'codex/v0.1.48-online-foundation' || github.event_name == 'push' && contains(github.event.head_commit.message, '[preview-mobile-ui]') && 'codex/mobile-ui-rebuild-v0.1.45' || github.sha }}
+          ref: ${{ github.sha }}
 
       - name: Use Node.js 22.20
         uses: actions/setup-node@v4
