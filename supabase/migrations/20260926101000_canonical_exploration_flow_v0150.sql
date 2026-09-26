@@ -1,6 +1,29 @@
 -- v0.1.50 canonical exploration continuation.
 -- A server-confirmed battle result is the only source for the next encounter/event.
 
+-- Normalize any active pre-migration event record so reconnecting clients never receive a sparse legacy shape.
+update private.online_expeditions r
+set pending_event=jsonb_build_object(
+ 'instanceId',coalesce(r.pending_event->>'instanceId','server-event-'||r.run_id::text||'-'||r.run_version::text),
+ 'eventId',coalesce(r.pending_event->>'eventId',r.pending_event->>'id'),
+ 'id',coalesce(r.pending_event->>'eventId',r.pending_event->>'id'),
+ 'bossId',r.pending_event->'bossId',
+ 'state',coalesce(r.pending_event->>'state','CHOICE'),
+ 'choiceId',r.pending_event->'choiceId',
+ 'outcomeId',r.pending_event->'outcomeId',
+ 'resultText',coalesce(r.pending_event->>'resultText',''),
+ 'resultLines',coalesce(r.pending_event->'resultLines','[]'::jsonb),
+ 'next',coalesce(r.pending_event->>'next','NORMAL'),
+ 'randomValue',coalesce((r.pending_event->>'randomValue')::numeric,(r.pending_event->>'outcomeTicket')::numeric,(r.pending_event->>'ticket')::numeric,0),
+ 'selectionTicket',coalesce((r.pending_event->>'selectionTicket')::numeric,(r.pending_event->>'ticket')::numeric),
+ 'outcomeTicket',coalesce((r.pending_event->>'outcomeTicket')::numeric,(r.pending_event->>'ticket')::numeric),
+ 'expiresAt',case when coalesce(r.pending_event->>'eventId',r.pending_event->>'id')='resource_stronghold'
+                  then coalesce((r.pending_event->>'expiresAt')::bigint,round(extract(epoch from (clock_timestamp()+interval '30 seconds'))*1000)::bigint)
+                  else null end
+)
+where r.pending_event is not null and (not (r.pending_event ? 'eventId') or not (r.pending_event ? 'state') or not (r.pending_event ? 'instanceId'));
+
+
 create or replace function private.server_start_encounter(
  p_user uuid,
  p_run private.online_expeditions,
