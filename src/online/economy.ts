@@ -158,3 +158,16 @@ export async function spendOnlineAssociationFee(lease:GameplayLease){
  await remember(result.record);
  return result.record;
 }
+
+export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatState):GameState{
+ const next=structuredClone(local),e=next.expedition;if(!e)return next;
+ e.hp=server.playerHp;
+ e.monster.currentHp=server.monsterHp;
+ if(server.playerMaxHp)e.monster.hp=server.monsterMaxHp??e.monster.hp;
+ if(server.phase==='PLAYER_DEAD')e.phase='PLAYER_TURN';
+ else if(server.phase==='PLAYER_TURN')e.phase='PLAYER_TURN';
+ if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[]};
+ if(!server.pendingRevival)e.pendingRevival=null;
+ if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
+ return next;
+}
