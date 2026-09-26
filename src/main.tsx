@@ -113,8 +113,16 @@ function App(){
   if(blocked.current){setStorageError('저장 데이터를 읽지 못해 자동 저장을 중단했습니다.');return;}
   const snapshot=stableStringify(game);
   if(lastPersistedGame.current===snapshot)return;
-  lastPersistedGame.current=snapshot;
-  try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');}catch{setStorageError('저장 공간을 사용할 수 없습니다.');return;}
+  try{
+   createRepository(gameStorage).save(game);
+   lastPersistedGame.current=snapshot;
+   setStorageError('');
+   setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');
+  }catch(error){
+   const message=error instanceof Error?error.message:'';
+   setStorageError(message.includes('유효하지 않은 게임 상태')?'전투 상태를 저장 형식으로 변환하지 못했습니다. 최신 상태를 다시 동기화해 주세요.':'저장 공간을 사용할 수 없습니다.');
+   return;
+  }
   if(!combatFixtureName&&onlineConfigured&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!serverEconomyBusy.current&&!game.expedition){
    if(cloudTimer.current!==null)window.clearTimeout(cloudTimer.current);
    cloudTimer.current=window.setTimeout(()=>{cloudTimer.current=null;void runCloudSync();},750);
@@ -227,10 +235,11 @@ function App(){
    else if(kind==='REVIVAL')result=await resolveOnlineRevival(lease,ref==='use');
    else {try{result=await applyOnlineJobSkill(lease,nonce,ref!);}catch(error){if(error instanceof Error&&!error.message.includes('COMBAT_SKILL_INVALID'))throw error;result=await applyOnlineSkill(lease,nonce,ref!);}}
    onlineCombatNonce.current=result.actionNonce??nonce;if(typeof result.confirmedKills==='number')confirmedKillCount.current=result.confirmedKills;if(typeof result.runVersion==='number')onlineRunVersion.current=result.runVersion;
-   setGame(current=>reconcileOnlineCombatState(current,result));setCloudSyncStatus('synced');
+   setCloudSyncStatus('synced');
    if(result.returnAuthorized){await settleOnlineRun('returned');return;}
    if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await settleOnlineRun('dead');return;}
-   if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);}
+   if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
+   setGame(current=>reconcileOnlineCombatState(current,result));
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
  async function restoreServerRun(lease:GameplayLease){
@@ -240,6 +249,7 @@ function App(){
    if(combat?.phase==='DEFEATED'&&!restored.run.pendingEvent&&combat.returnAuthorized!==true){
     const advanced=await advanceOnlineExploration(lease,restored.run.runVersion);onlineRunVersion.current=advanced.runVersion;restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run)return;combat=restored.combat;
    }
+   if(combat?.phase==='PLAYER_DEAD'&&!combat.pendingRevival){await settleOnlineRun('dead');return;}
    confirmedKillCount.current=restored.run.confirmedKills;onlineRunVersion.current=restored.run.runVersion;
    if(combat&&typeof combat.actionNonce==='number')onlineCombatNonce.current=combat.actionNonce;
    setGame(current=>reconcileOnlineExpeditionState(current,restored));setPage('battle');
