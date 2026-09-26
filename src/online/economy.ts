@@ -198,7 +198,7 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  if(typeof server.monsterDefense==='number')e.monster.defense=server.monsterDefense;
  const entry=server.monsterId?bestiaryEntryById(server.monsterId):undefined;if(entry)e.monster.name=entry.name;
  if(server.monsterId)e.monsterRuntime={definitionId:server.monsterId,skillCooldowns:{...(server.monsterCooldowns??{})},preparedActionId:server.monsterPreparedAction??null,turnNumber:server.monsterTurn??e.monsterTurn};
- e.phase=server.phase==='PLAYER_TURN'?'PLAYER_TURN':server.phase==='MONSTER_TURN'?'MONSTER_TURN':'BATTLE_END';
+ e.phase=server.pendingRevival?'MONSTER_TURN':server.phase==='PLAYER_TURN'?'PLAYER_TURN':server.phase==='MONSTER_TURN'?'MONSTER_TURN':(['PLAYER_TURN','MONSTER_TURN'].includes(e.phase)?e.phase:'PLAYER_TURN');
  if(server.phase==='DEFEATED')e.monster.currentHp=0;
  return next;
 }
