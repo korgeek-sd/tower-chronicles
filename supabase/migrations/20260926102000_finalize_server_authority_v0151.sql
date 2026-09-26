@@ -50,11 +50,11 @@ begin
   l:=coalesce(p->'loadout','{}'::jsonb);
   p:=jsonb_set(p,'{potions}',b,true);
   p:=jsonb_set(p,'{loadout}',jsonb_build_object(
-    'healing_lesser',least(coalesce((l->>'healing_lesser')::integer,0),coalesce((b->>'healing_lesser')::integer,0)),
-    'healing_standard',least(coalesce((l->>'healing_standard')::integer,0),coalesce((b->>'healing_standard')::integer,0)),
-    'healing_greater',least(coalesce((l->>'healing_greater')::integer,0),coalesce((b->>'healing_greater')::integer,0)),
-    'healing_supreme',least(coalesce((l->>'healing_supreme')::integer,0),coalesce((b->>'healing_supreme')::integer,0)),
-    'revival',least(1,coalesce((l->>'revival')::integer,0),coalesce((b->>'revival')::integer,0))
+    'healing_lesser',least(greatest(0,coalesce((l->>'healing_lesser')::integer,0)),coalesce((b->>'healing_lesser')::integer,0)),
+    'healing_standard',least(greatest(0,coalesce((l->>'healing_standard')::integer,0)),coalesce((b->>'healing_standard')::integer,0)),
+    'healing_greater',least(greatest(0,coalesce((l->>'healing_greater')::integer,0)),coalesce((b->>'healing_greater')::integer,0)),
+    'healing_supreme',least(greatest(0,coalesce((l->>'healing_supreme')::integer,0)),coalesce((b->>'healing_supreme')::integer,0)),
+    'revival',least(1,greatest(0,coalesce((l->>'revival')::integer,0)),coalesce((b->>'revival')::integer,0))
   ),true);
   p:=jsonb_set(p,'{ownedJobIds}',owned,true);
   p:=jsonb_set(p,'{currentJobId}',case when current_job is null then 'null'::jsonb else to_jsonb(current_job) end,true);
@@ -125,11 +125,11 @@ begin
   if not found then raise exception 'CLOUD_SAVE_REQUIRED';end if;
   b:=private.server_consumables_json(p_user);
   l:=coalesce(s.payload->'loadout','{}'::jsonb);
-  q_lesser:=least(coalesce((l->>'healing_lesser')::int,0),coalesce((b->>'healing_lesser')::int,0));
-  q_standard:=least(coalesce((l->>'healing_standard')::int,0),coalesce((b->>'healing_standard')::int,0));
-  q_greater:=least(coalesce((l->>'healing_greater')::int,0),coalesce((b->>'healing_greater')::int,0));
-  q_supreme:=least(coalesce((l->>'healing_supreme')::int,0),coalesce((b->>'healing_supreme')::int,0));
-  q_revival:=least(1,coalesce((l->>'revival')::int,0),coalesce((b->>'revival')::int,0));
+  q_lesser:=least(greatest(0,coalesce((l->>'healing_lesser')::int,0)),coalesce((b->>'healing_lesser')::int,0));
+  q_standard:=least(greatest(0,coalesce((l->>'healing_standard')::int,0)),coalesce((b->>'healing_standard')::int,0));
+  q_greater:=least(greatest(0,coalesce((l->>'healing_greater')::int,0)),coalesce((b->>'healing_greater')::int,0));
+  q_supreme:=least(greatest(0,coalesce((l->>'healing_supreme')::int,0)),coalesce((b->>'healing_supreme')::int,0));
+  q_revival:=least(1,greatest(0,coalesce((l->>'revival')::int,0)),coalesce((b->>'revival')::int,0));
 
   update private.player_consumables set quantity=quantity-q_lesser,updated_at=now()
     where user_id=p_user and item_id='healing_lesser';
