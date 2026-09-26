@@ -23,6 +23,8 @@ const errors:RpcErrorMap={
  EXPEDITION_ALREADY_ACTIVE:'이미 진행 중인 서버 원정이 있습니다.',
  EXPEDITION_SERVER_RUN_MISSING:'서버 원정 기록을 찾지 못했습니다.',
  EXPEDITION_LOOT_EXCEEDS_SERVER_CAP:'원정 보상 검증에 실패했습니다.',
+ EXPEDITION_KILL_SEQUENCE_INVALID:'서버 원정 처치 순서가 일치하지 않습니다. 동기화 후 다시 시도하세요.',
+ EXPEDITION_MONSTER_INVALID:'서버가 처치 몬스터를 확인하지 못했습니다.',
  CRAFT_MATERIAL_SHORTAGE:'서버에 확인된 제작 재료가 부족합니다.',
  CRAFT_BUSY:'현재 다른 제작이 진행 중입니다.',
  CRAFT_QUEUE_FULL:'제작 대기열이 가득 찼습니다.',
@@ -75,8 +77,14 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
+export async function confirmOnlineExpeditionKill(lease:GameplayLease,monsterId:string,killIndex:number){
+ return rpc<{confirmedKills:number}>('confirm_online_expedition_kill',{...leaseArgs(lease),p_monster_id:monsterId,p_client_kill_index:killIndex});
+}
+
 export async function settleOnlineExpedition(lease:GameplayLease,payload:GameState){
- const record=await rpc<CloudSaveRecord>('settle_online_expedition',{...leaseArgs(lease),p_client_payload:payload});
+ const outcome=payload.lastExpedition?.outcome;
+ if(outcome!=='returned'&&outcome!=='dead')throw Error('원정 종료 결과를 확인할 수 없습니다.');
+ const record=await rpc<CloudSaveRecord>('settle_online_expedition_v2',{...leaseArgs(lease),p_outcome:outcome,p_client_payload:payload});
  return remember(record);
 }
 
