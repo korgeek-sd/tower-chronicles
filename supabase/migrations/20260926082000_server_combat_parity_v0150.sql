@@ -108,3 +108,72 @@ begin
  update private.online_combat_states set monster_hp=p_combat.monster_hp,player_hp=p_combat.player_hp,player_shield=p_combat.player_shield,monster_shield=p_combat.monster_shield,player_shield_hits=p_combat.player_shield_hits,monster_shield_hits=p_combat.monster_shield_hits,player_effects=p_combat.player_effects,monster_effects=p_combat.monster_effects,player_turn=p_combat.player_turn,monster_turn=p_combat.monster_turn,turn_no=turn_no+1,phase=phase,pending_revival=p_combat.pending_revival,action_nonce=p_nonce,updated_at=now() where user_id=p_user;
  return jsonb_build_object('damage',direct_damage,'absorbed',monster_absorb,'healing',heal,'retaliation',ret,'periodicPlayer',player_delta,'periodicMonster',monster_delta,'monsterHp',p_combat.monster_hp,'playerHp',p_combat.player_hp,'playerShield',p_combat.player_shield,'monsterShield',p_combat.monster_shield,'phase',phase,'pendingRevival',p_combat.pending_revival,'confirmedKills',coalesce(kill_no,p_run.confirmed_kills),'actionNonce',p_nonce);
 end $$;
+
+
+-- Override the foundation monster resolver with parity damage math and actor turn counters.
+create or replace function private.resolve_server_monster_turn(p_combat private.online_combat_states)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare d jsonb:=private.server_monster_decision(p_combat);kind text:=d->>'kind';id text:=d->>'id';mult numeric:=coalesce((d->>'multiplier')::numeric,1);cd int:=coalesce((d->>'cooldown')::int,0);raw bigint:=0;absorbed numeric:=0;def numeric;received numeric:=1;nextcd jsonb;effectid text:=d->>'effect';
+begin
+ p_combat.monster_turn:=p_combat.monster_turn+1;
+ select coalesce(jsonb_object_agg(key,to_jsonb(greatest(0,(value#>>'{}')::int-1))),'{}') into nextcd from jsonb_each(p_combat.monster_cooldowns);
+ if cd>0 then nextcd:=nextcd||jsonb_build_object(id,cd);end if;
+ if kind='CHARGE' then p_combat.monster_prepared_action:=id;
+ elsif kind='EFFECT_SELF' then p_combat.monster_effects:=private.apply_server_effect(p_combat.monster_effects,effectid,p_combat.monster_turn);
+ elsif kind='EFFECT_TARGET' then p_combat.player_effects:=private.apply_server_effect(p_combat.player_effects,effectid,p_combat.player_turn);
+ else
+  def:=p_combat.player_defense*greatest(.05,1+private.effect_modifier(p_combat.player_effects,'defense'));
+  received:=greatest(0,1+private.effect_modifier(p_combat.player_effects,'receivedDamage'));
+  if p_combat.accessory_passive='unyielding' and p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0)<=.35 then received:=received*(1-p_combat.accessory_value);end if;
+  raw:=private.combat_damage(p_combat.monster_attack*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'attack')),def,mult,1,received);
+  if p_combat.player_shield_hits>0 and raw>0 then p_combat.player_shield_hits:=p_combat.player_shield_hits-1;absorbed:=raw;raw:=0;
+  else absorbed:=least(p_combat.player_shield,raw);p_combat.player_shield:=p_combat.player_shield-absorbed;raw:=raw-absorbed;end if;
+  p_combat.player_hp:=greatest(0,p_combat.player_hp-raw);
+  if effectid is not null and p_combat.player_hp>0 then p_combat.player_effects:=private.apply_server_effect(p_combat.player_effects,effectid,p_combat.player_turn);end if;
+  if coalesce((d->>'prepared')::boolean,false) then p_combat.monster_prepared_action:=null;end if;
+ end if;
+ p_combat.monster_cooldowns:=nextcd;
+ return jsonb_build_object('state',to_jsonb(p_combat),'action',d,'damage',raw,'absorbed',absorbed);
+end $$;
+
+create or replace function private.finish_server_player_action(p_user uuid,p_run private.online_expeditions,p_combat private.online_combat_states,p_nonce bigint,p_damage bigint)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare direct_damage bigint:=p_damage;monster_absorb numeric:=0;player_absorb numeric:=0;step_absorb numeric:=0;heal bigint:=0;player_delta bigint:=0;monster_delta bigint:=0;ret bigint:=0;kill_no bigint;phase text:='PLAYER_TURN';turn_result jsonb;monster_action jsonb;
+begin
+ if p_combat.monster_shield_hits>0 and direct_damage>0 then p_combat.monster_shield_hits:=p_combat.monster_shield_hits-1;monster_absorb:=direct_damage;direct_damage:=0;
+ else monster_absorb:=least(p_combat.monster_shield,direct_damage);p_combat.monster_shield:=p_combat.monster_shield-monster_absorb;direct_damage:=direct_damage-monster_absorb;end if;
+ p_combat.monster_hp:=greatest(0,p_combat.monster_hp-direct_damage);
+ if p_combat.accessory_passive='vampire' and direct_damage>0 then heal:=floor(direct_damage*p_combat.accessory_value);p_combat.player_hp:=least(p_combat.player_max_hp,p_combat.player_hp+heal);end if;
+
+ if p_combat.monster_hp>0 then
+  player_delta:=private.effect_periodic_delta(p_combat.player_effects,p_combat.player_max_hp,p_combat.player_turn);
+  if player_delta<0 and p_combat.player_shield_hits>0 then p_combat.player_shield_hits:=p_combat.player_shield_hits-1;player_absorb:=-player_delta;player_delta:=0;
+  elsif player_delta<0 and p_combat.player_shield>0 then step_absorb:=least(p_combat.player_shield,-player_delta);player_absorb:=step_absorb;p_combat.player_shield:=p_combat.player_shield-step_absorb;player_delta:=player_delta+step_absorb;end if;
+  p_combat.player_hp:=greatest(0,least(p_combat.player_max_hp,p_combat.player_hp+player_delta));
+  p_combat.player_effects:=private.effect_tick(p_combat.player_effects,p_combat.player_turn);
+ end if;
+
+ if p_combat.monster_hp>0 and p_combat.player_hp>0 then
+  turn_result:=private.resolve_server_monster_turn(p_combat);
+  select * into p_combat from jsonb_populate_record(null::private.online_combat_states,turn_result->'state');
+  monster_action:=turn_result->'action';ret:=coalesce((turn_result->>'damage')::bigint,0);player_absorb:=player_absorb+coalesce((turn_result->>'absorbed')::numeric,0);
+  monster_delta:=private.effect_periodic_delta(p_combat.monster_effects,p_combat.monster_max_hp,p_combat.monster_turn);
+  if monster_delta<0 and p_combat.monster_shield_hits>0 then p_combat.monster_shield_hits:=p_combat.monster_shield_hits-1;monster_absorb:=monster_absorb-monster_delta;monster_delta:=0;
+  elsif monster_delta<0 and p_combat.monster_shield>0 then step_absorb:=least(p_combat.monster_shield,-monster_delta);monster_absorb:=monster_absorb+step_absorb;p_combat.monster_shield:=p_combat.monster_shield-step_absorb;monster_delta:=monster_delta+step_absorb;end if;
+  p_combat.monster_hp:=greatest(0,least(p_combat.monster_max_hp,p_combat.monster_hp+monster_delta));
+  p_combat.monster_effects:=private.effect_tick(p_combat.monster_effects,p_combat.monster_turn);
+ end if;
+
+ if p_combat.monster_hp=0 then
+  kill_no:=p_run.confirmed_kills+1;
+  insert into private.online_expedition_kills(user_id,run_id,kill_index,monster_id) values(p_user,p_run.run_id,kill_no,p_combat.monster_id) on conflict do nothing;
+  update private.online_expeditions set confirmed_kills=greatest(confirmed_kills,kill_no),last_confirmed_kill_at=now(),boss_progress=case when private.server_boss_id(tower,floor)=p_combat.monster_id then boss_progress else boss_progress+1 end,boss_defeated=case when private.server_boss_id(tower,floor)=p_combat.monster_id then true else boss_defeated end,run_version=run_version+1 where user_id=p_user;
+  phase:='DEFEATED';
+ elsif p_combat.player_hp=0 then phase:='PLAYER_DEAD';p_combat.pending_revival:=p_combat.revival_count>0;
+ else p_combat.player_turn:=p_combat.player_turn+1;phase:='PLAYER_TURN';end if;
+
+ update private.online_combat_states set monster_hp=p_combat.monster_hp,player_hp=p_combat.player_hp,player_shield=p_combat.player_shield,monster_shield=p_combat.monster_shield,player_shield_hits=p_combat.player_shield_hits,monster_shield_hits=p_combat.monster_shield_hits,player_effects=p_combat.player_effects,monster_effects=p_combat.monster_effects,monster_cooldowns=p_combat.monster_cooldowns,monster_prepared_action=p_combat.monster_prepared_action,player_turn=p_combat.player_turn,monster_turn=p_combat.monster_turn,turn_no=turn_no+1,phase=phase,pending_revival=p_combat.pending_revival,action_nonce=p_nonce,updated_at=now() where user_id=p_user;
+ return jsonb_build_object('damage',direct_damage,'absorbed',monster_absorb,'healing',heal,'monsterAction',monster_action,'retaliation',ret,'playerAbsorbed',player_absorb,'periodicPlayer',player_delta,'periodicMonster',monster_delta,'monsterHp',p_combat.monster_hp,'playerHp',p_combat.player_hp,'playerShield',p_combat.player_shield,'monsterShield',p_combat.monster_shield,'phase',phase,'pendingRevival',p_combat.pending_revival,'confirmedKills',coalesce(kill_no,p_run.confirmed_kills),'actionNonce',p_nonce);
+end $$;
