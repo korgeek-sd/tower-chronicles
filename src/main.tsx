@@ -174,8 +174,8 @@ function App(){
  async function takeOverHere(){if(takeoverTimer.current!==null)window.clearTimeout(takeoverTimer.current);setGameSessionPhase('taking-over');setGameSessionMessage('기존 기기에 마지막 저장을 요청하고 있습니다.');try{const result=await requestGameSessionTakeover();applyGameSessionResult(result);if(result.status==='ACTIVE')return;takeoverTimer.current=window.setTimeout(()=>{takeoverTimer.current=null;void (async()=>{try{activateGameplay(await forceTakeoverGameSession());}catch{await retryGameSession();}})();},GAME_SESSION_TAKEOVER_GRACE_MS+400);}catch(error){setGameSessionPhase('error');setGameSessionMessage(error instanceof Error?error.message:'기기 전환을 시작하지 못했습니다.');}}
  async function runCloudSync(){
   const lease=gameplayLeaseRef.current;
-  if(stateRef.current.expedition){await restoreServerRun(lease!);return;}
   if(combatFixtureName||!onlineConfigured||!getStoredSession()||gameSessionPhaseRef.current!=='active'||!lease)return;
+  if(stateRef.current.expedition){await restoreServerRun(lease);return;}
   if(cloudBusy.current){cloudQueued.current=true;return;}
   cloudBusy.current=true;setCloudSyncStatus('syncing');
   try{
