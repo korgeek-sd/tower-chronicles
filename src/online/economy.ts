@@ -82,9 +82,9 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number}
+export interface OnlineCombatState {pendingRevival?:boolean;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number}
 export async function beginOnlineCombatState(lease:GameplayLease){
- return rpc<OnlineCombatState>('begin_online_combat_state',{...leaseArgs(lease),p_monster_id:null,p_player_hp:null,p_player_max_hp:null});
+ return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
 export async function applyOnlineBasicAttack(lease:GameplayLease,actionNonce:number){
  return rpc<OnlineCombatState>('apply_online_basic_attack',{...leaseArgs(lease),p_action_nonce:actionNonce,p_attack:null});
@@ -94,6 +94,10 @@ export async function applyOnlineSkill(lease:GameplayLease,actionNonce:number,sk
 }
 export async function applyOnlinePotion(lease:GameplayLease,actionNonce:number,potion:string){
  return rpc<OnlineCombatState>('apply_online_potion',{...leaseArgs(lease),p_action_nonce:actionNonce,p_potion:potion});
+}
+
+export async function resolveOnlineRevival(lease:GameplayLease,use:boolean){
+ return rpc<OnlineCombatState>('resolve_online_revival',{...leaseArgs(lease),p_use:use});
 }
 
 export type OnlineCombatActionKind='BASIC'|'SKILL'|'POTION'|'FLEE'|'REVIVAL';
