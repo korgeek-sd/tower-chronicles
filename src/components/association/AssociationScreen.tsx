@@ -2,14 +2,25 @@ import React,{useState} from 'react';
 import type {AssociationPolicy,GameState} from '../../game/types';
 import {ASSOCIATION_CREATION_FEE_SILVER,createAssociation,disbandAssociation,leaveAssociation,updateAssociation} from '../../game/association/service';
 import {Pager,Screen,Segments} from '../../ui/mobile';
+import type {GameplayLease} from '../../online/gameSession';
+import {applyServerEconomyRecord,spendOnlineAssociationFee} from '../../online/economy';
 
 type Tab='overview'|'members'|'activity'|'manage';
 const tabs=[['overview','개요'],['members','조합원'],['activity','기록'],['manage','관리']] as const;
 const PAGE_SIZE=5;
-export function AssociationScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
- const [name,setName]=useState(''),[description,setDescription]=useState(''),[policy,setPolicy]=useState<AssociationPolicy>('APPROVAL'),[tab,setTab]=useState<Tab>('overview'),[page,setPage]=useState(0);
+export function AssociationScreen({game,setGame,onlineLease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null}){
+ const [name,setName]=useState(''),[description,setDescription]=useState(''),[policy,setPolicy]=useState<AssociationPolicy>('APPROVAL'),[tab,setTab]=useState<Tab>('overview'),[page,setPage]=useState(0),[busy,setBusy]=useState(false);
+ const register=async()=>{
+  const next=createAssociation(game,{name,description,joinPolicy:policy});
+  if(next.association.currentId===game.association.currentId){setGame(next);return;}
+  if(!onlineLease){setGame(next);return;}
+  setBusy(true);
+  try{const record=await spendOnlineAssociationFee(onlineLease);setGame(applyServerEconomyRecord(next,record));}
+  catch(error){setGame({...game,notice:error instanceof Error?error.message:'서버 조합 등록금 처리에 실패했습니다.'});}
+  finally{setBusy(false);}
+ };
  const current=game.association.associations.find(a=>a.associationId===game.association.currentId&&a.status==='ACTIVE'),qualified=game.market.traderCertified;
- if(!current)return <Screen eyebrow="NOVAR REGISTRY" title="원정단 등록" meta={<span>{game.silver.toLocaleString()} S</span>}><div className="tc-assoc"><div className="tc-floor-risk">{qualified?'창설 자격 확인됨':'10층 보스 처치 후 안전 귀환이 필요합니다.'} · 등록금 {ASSOCIATION_CREATION_FEE_SILVER.toLocaleString()} S</div><section className="tc-panel strong"><div className="tc-form"><label>원정단명<input value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="2~20자"/></label><label>소개<textarea value={description} maxLength={120} onChange={e=>setDescription(e.target.value)} placeholder="원정단 소개"/></label><label>가입 방식<select value={policy} onChange={e=>setPolicy(e.target.value as AssociationPolicy)}><option value="APPROVAL">승인 가입</option><option value="OPEN">자유 가입</option></select></label></div></section><div/><button className="tc-action" disabled={!qualified||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2} onClick={()=>setGame(s=>createAssociation(s,{name,description,joinPolicy:policy}))}>원정단 등록</button></div></Screen>;
+ if(!current)return <Screen eyebrow="NOVAR REGISTRY" title="원정단 등록" meta={<span>{game.silver.toLocaleString()} S</span>}><div className="tc-assoc"><div className="tc-floor-risk">{qualified?'창설 자격 확인됨':'10층 보스 처치 후 안전 귀환이 필요합니다.'} · 등록금 {ASSOCIATION_CREATION_FEE_SILVER.toLocaleString()} S</div><section className="tc-panel strong"><div className="tc-form"><label>원정단명<input value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="2~20자"/></label><label>소개<textarea value={description} maxLength={120} onChange={e=>setDescription(e.target.value)} placeholder="원정단 소개"/></label><label>가입 방식<select value={policy} onChange={e=>setPolicy(e.target.value as AssociationPolicy)}><option value="APPROVAL">승인 가입</option><option value="OPEN">자유 가입</option></select></label></div></section><div/><button className="tc-action" disabled={!qualified||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void register()}>{busy?'서버 등록 중':'원정단 등록'}</button></div></Screen>;
  const leader=current.leaderId===game.market.ownerId,visibleTabs:readonly (readonly [Tab,string])[]=leader?tabs:tabs.filter(([id])=>id!=='manage'),source=tab==='members'?current.members:tab==='activity'?current.activityLog:[],pages=Math.max(1,Math.ceil(source.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=source.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
  return <Screen eyebrow="NOVAR REGISTRY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>}>
   <div className="tc-assoc">
