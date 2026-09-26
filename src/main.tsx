@@ -14,6 +14,7 @@ import {registerGameTools} from './webmcp';
 import {consumeOAuthRedirect,getStoredSession,signOutOnline,type OnlineSession} from './online/auth';
 import {onlineConfigured} from './online/config';
 import {reconcileCloudState,subscribeCloudSaveRealtime,type CloudSyncStatus} from './online/cloudSync';
+import {stableStringify} from './online/cloudSave';
 
 import {EventScreen} from './components/events/EventScreen';
 import {resolveEvent,continueEvent,configureEventMode,expireTimedEventChoice} from './game/events/service';
@@ -63,7 +64,7 @@ function App(){
  const [cloudSyncStatus,setCloudSyncStatus]=useState<CloudSyncStatus>(onlineSession?'syncing':'local');
  const [cloudRevision,setCloudRevision]=useState<number|null>(null);
  const [cloudSyncMessage,setCloudSyncMessage]=useState(onlineSession?'클라우드 상태 확인 중':'게스트 저장');
- const cloudTimer=useRef<number|null>(null),cloudBusy=useRef(false),cloudQueued=useRef(false);
+ const cloudTimer=useRef<number|null>(null),cloudBusy=useRef(false),cloudQueued=useRef(false),lastPersistedGame=useRef('');
  useEffect(()=>{const before=getStoredSession();const session=consumeOAuthRedirect();setOnlineSession(session);if(session&&!before)setGame(s=>({...s,notice:'Google 로그인 완료 · 진행 상황이 자동으로 동기화됩니다.'}));},[]);
 
  useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
@@ -74,6 +75,9 @@ function App(){
  ),[]);
  useEffect(()=>{
   if(blocked.current){setStorageError('저장 데이터를 읽지 못해 자동 저장을 중단했습니다.');return;}
+  const snapshot=stableStringify(game);
+  if(lastPersistedGame.current===snapshot)return;
+  lastPersistedGame.current=snapshot;
   try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');}catch{setStorageError('저장 공간을 사용할 수 없습니다.');return;}
   if(!combatFixtureName&&onlineConfigured&&onlineSession){
    if(cloudTimer.current!==null)window.clearTimeout(cloudTimer.current);
