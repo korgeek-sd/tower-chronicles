@@ -2,6 +2,7 @@ import {APP_VERSION} from '../storage/repository';
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
+import {setWebsocketPresence} from './monitoring';
 
 export const GAME_SESSION_HEARTBEAT_MS=20_000;
 export const GAME_SESSION_TTL_MS=90_000;
@@ -150,7 +151,7 @@ type RealtimeStatus='connecting'|'subscribed'|'error';
 export function subscribeGameSessionSignals(onSignal:(signal:GameSessionSignal)=>void,onStatus:(status:RealtimeStatus)=>void=()=>{}):()=>void{
  const config=supabaseConfig;
  if(!config||typeof WebSocket==='undefined')return()=>{};
- let disposed=false,socket:WebSocket|null=null,heartbeat:number|null=null,tokenTimer:number|null=null,reconnectTimer:number|null=null,reconnectAttempt=0,ref=0,currentToken='';
+ let disposed=false,socket:WebSocket|null=null,heartbeat:number|null=null,tokenTimer:number|null=null,presenceTimer:number|null=null,reconnectTimer:number|null=null,reconnectAttempt=0,ref=0,currentToken='',presenceOnline=false;
  let topic='',joinRef='';
  const nextRef=()=>String(++ref);
  const send=(join:string|null,messageRef:string|null,eventTopic:string,event:string,payload:unknown)=>{
@@ -159,6 +160,7 @@ export function subscribeGameSessionSignals(onSignal:(signal:GameSessionSignal)=
  const clearTimers=()=>{
   if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}
   if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}
+  if(presenceTimer!==null){window.clearInterval(presenceTimer);presenceTimer=null;}
   if(reconnectTimer!==null){window.clearTimeout(reconnectTimer);reconnectTimer=null;}
  };
  const scheduleReconnect=()=>{
@@ -186,6 +188,9 @@ export function subscribeGameSessionSignals(onSignal:(signal:GameSessionSignal)=
 
   socket.addEventListener('open',()=>{
    reconnectAttempt=0;
+   presenceOnline=true;
+   void setWebsocketPresence('session',getClientInstanceId(),platformLabel(),true).catch(()=>{});
+   presenceTimer=window.setInterval(()=>{void setWebsocketPresence('session',getClientInstanceId(),platformLabel(),true).catch(()=>{});},240_000);
    send(joinRef,joinRef,topic,'phx_join',{
     config:{broadcast:{ack:false,self:false},presence:{enabled:false},postgres_changes:[],private:true},
     access_token:session.accessToken,
@@ -223,8 +228,20 @@ export function subscribeGameSessionSignals(onSignal:(signal:GameSessionSignal)=
    }catch{}
   });
   socket.addEventListener('error',()=>onStatus('error'));
-  socket.addEventListener('close',()=>{socket=null;if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}scheduleReconnect();});
+  socket.addEventListener('close',()=>{
+   socket=null;
+   if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}
+   if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}
+   if(presenceTimer!==null){window.clearInterval(presenceTimer);presenceTimer=null;}
+   if(presenceOnline){presenceOnline=false;void setWebsocketPresence('session',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
+   scheduleReconnect();
+  });
  };
  void connect();
- return()=>{disposed=true;clearTimers();if(socket?.readyState===WebSocket.OPEN)send(joinRef,nextRef(),topic,'phx_leave',{});socket?.close();socket=null;};
+ return()=>{
+  disposed=true;clearTimers();
+  if(presenceOnline){presenceOnline=false;void setWebsocketPresence('session',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
+  if(socket?.readyState===WebSocket.OPEN)send(joinRef,nextRef(),topic,'phx_leave',{});
+  socket?.close();socket=null;
+ };
 }

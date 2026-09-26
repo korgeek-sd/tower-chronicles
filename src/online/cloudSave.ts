@@ -99,8 +99,9 @@ export async function saveCloudState(payload:GameState,baseRevision:number,lease
  const rows=await response.json() as Array<{revision:number;updated_at:string}>;
  const result=rows[0];
  if(!result)throw Error('클라우드 저장 결과를 확인하지 못했습니다.');
- const record={revision:result.revision,saveSchema:payload.version,appVersion:APP_VERSION,payload,payloadHash,updatedAt:result.updated_at};
- const meta:CloudMeta={userId:session.userId,revision:record.revision,payloadHash,updatedAt:record.updatedAt};
+ const record=await loadCloudSave();
+ if(!record||record.revision!==result.revision)throw Error('서버 권위 저장 결과를 다시 읽지 못했습니다.');
+ const meta:CloudMeta={userId:session.userId,revision:record.revision,payloadHash:record.payloadHash,updatedAt:record.updatedAt};
  localStorage.setItem(CLOUD_META_KEY,JSON.stringify(meta));
  return record;
 }
