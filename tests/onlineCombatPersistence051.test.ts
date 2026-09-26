@@ -65,3 +65,19 @@ test('ONLINE COMBAT SAVE 04: terminal kill snapshots never create an invalid BAT
  assert.equal(next.expedition!.monster.currentHp,0);
  assert.equal(validSave(next),true);
 });
+
+
+test('ONLINE COMBAT SAVE 05: zero turns and malformed cooldown counters are normalized before persistence',()=>{
+ const state=activeRun();
+ const next=reconcileOnlineCombatState(state,snapshot(state,{
+  playerTurn:0,
+  monsterTurn:0,
+  playerCooldowns:{skill:-2.7,other:3.8},
+  monsterCooldowns:{slam:-1.2,charge:4.9},
+ }));
+ assert.equal(next.expedition!.playerTurn,1);
+ assert.equal(next.expedition!.monsterTurn,0);
+ assert.deepEqual(next.expedition!.cooldowns,{skill:0,other:3});
+ assert.deepEqual(next.expedition!.monsterRuntime?.skillCooldowns,{slam:0,charge:4});
+ assert.equal(validSave(next),true);
+});
