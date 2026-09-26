@@ -113,6 +113,12 @@ function App(){
   if(blocked.current){setStorageError('저장 데이터를 읽지 못해 자동 저장을 중단했습니다.');return;}
   const snapshot=stableStringify(game);
   if(lastPersistedGame.current===snapshot)return;
+  if(!combatFixtureName&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&game.expedition){
+   lastPersistedGame.current=snapshot;
+   setStorageError('');
+   setSaved('서버 원정');
+   return;
+  }
   try{
    createRepository(gameStorage).save(game);
    lastPersistedGame.current=snapshot;
@@ -120,11 +126,7 @@ function App(){
    setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');
   }catch(error){
    const message=error instanceof Error?error.message:'';
-   if(message.includes('유효하지 않은 게임 상태')&&onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current&&!saveRecoveryBusy.current){
-    setStorageError('서버 전투 상태를 다시 불러오는 중입니다.');
-    saveRecoveryBusy.current=true;
-    void restoreServerRun(gameplayLeaseRef.current).finally(()=>{saveRecoveryBusy.current=false;});
-   }else setStorageError(message.includes('유효하지 않은 게임 상태')?'전투 상태 저장 검증에 실패했습니다. 서버 상태 복구를 눌러 주세요.':'저장 공간을 사용할 수 없습니다.');
+   setStorageError(message.includes('유효하지 않은 게임 상태')?'저장 데이터 검증에 실패했습니다.':'저장 공간을 사용할 수 없습니다.');
    return;
   }
   if(!combatFixtureName&&onlineConfigured&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!serverEconomyBusy.current&&!game.expedition){
