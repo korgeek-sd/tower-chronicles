@@ -113,8 +113,16 @@ function App(){
   if(blocked.current){setStorageError('저장 데이터를 읽지 못해 자동 저장을 중단했습니다.');return;}
   const snapshot=stableStringify(game);
   if(lastPersistedGame.current===snapshot)return;
-  lastPersistedGame.current=snapshot;
-  try{createRepository(gameStorage).save(game);setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');}catch{setStorageError('저장 공간을 사용할 수 없습니다.');return;}
+  try{
+   createRepository(gameStorage).save(game);
+   lastPersistedGame.current=snapshot;
+   setStorageError('');
+   setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');
+  }catch(error){
+   const message=error instanceof Error?error.message:'';
+   setStorageError(message.includes('유효하지 않은 게임 상태')?'전투 상태를 저장 형식으로 변환하지 못했습니다. 최신 상태를 다시 동기화해 주세요.':'저장 공간을 사용할 수 없습니다.');
+   return;
+  }
   if(!combatFixtureName&&onlineConfigured&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!serverEconomyBusy.current&&!game.expedition){
    if(cloudTimer.current!==null)window.clearTimeout(cloudTimer.current);
    cloudTimer.current=window.setTimeout(()=>{cloudTimer.current=null;void runCloudSync();},750);
