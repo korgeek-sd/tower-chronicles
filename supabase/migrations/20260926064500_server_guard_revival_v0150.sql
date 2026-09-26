@@ -73,3 +73,20 @@ begin
 end $$;
 revoke all on function public.resolve_online_revival(uuid,bigint,text,text,boolean) from public,anon;
 grant execute on function public.resolve_online_revival(uuid,bigint,text,text,boolean) to authenticated;
+
+create or replace function public.begin_online_combat_state_v2(
+ p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text
+) returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare v_user uuid;v_save public.game_saves%rowtype;v_result jsonb;v_bag jsonb;v_power numeric;
+begin
+ v_result:=public.begin_online_combat_state(p_lease_id,p_generation,p_client_instance_id,p_device_id,null,null,null);
+ v_user:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into v_save from public.game_saves where user_id=v_user;
+ if not found then raise exception 'CLOUD_SAVE_REQUIRED';end if;
+ v_bag:=coalesce(v_save.payload->'expedition'->'bag','{}'::jsonb);v_power:=private.combat_skill_power(v_save.payload);
+ update private.online_combat_states set skill_power=v_power,revival_count=greatest(0,least(1,coalesce((v_bag->>'revival')::int,0))) where user_id=v_user;
+ return v_result;
+end $$;
+revoke all on function public.begin_online_combat_state_v2(uuid,bigint,text,text) from public,anon;
+grant execute on function public.begin_online_combat_state_v2(uuid,bigint,text,text) to authenticated;
