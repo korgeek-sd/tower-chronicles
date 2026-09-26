@@ -26,6 +26,14 @@ export interface MonitorAlert {
  last_seen_at:string|null;
  occurrences:number;
 }
+export interface QueryDiagnostic {
+ captured_at:string;
+ queryid:number|string;
+ label:string;
+ calls_per_min:number|string;
+ exec_ms_per_min:number|string;
+ mean_exec_ms:number|string;
+}
 export interface SystemMonitoring {
  latest:MonitorSnapshot|null;
  history:MonitorSnapshot[];
@@ -66,3 +74,4 @@ export const setWebsocketPresence=(
 });
 
 export const loadSystemMonitoring=()=>rpc<SystemMonitoring>('get_system_monitoring');
+export const loadQueryMonitoring=()=>rpc<QueryDiagnostic[]>('get_query_monitoring');
