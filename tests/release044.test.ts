@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {APP_VERSION} from '../src/storage/repository.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {PLAYABLE_TOWERS} from '../src/game/data/config.ts';
 import {RED_NORMAL_POOL,RED_BOSS_SLOTS} from '../src/game/data/redFang.ts';
@@ -8,10 +7,10 @@ import {RED_NORMAL_DEFINITIONS} from '../src/game/data/redCombat.ts';
 import {bestiaryEntriesForTower,bestiaryEntryById} from '../src/game/data/bestiary.ts';
 import {monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
 
-test('RELEASE 0.1.44: app metadata, save schema and playable towers are aligned',()=>{
- assert.equal(APP_VERSION,'0.1.44');
+test('RELEASE 0.1.44: save schema and Red Fang-era playable towers remain compatible',()=>{
  assert.equal(initialState().version,22);
- assert.deepEqual(PLAYABLE_TOWERS,['ore','leather','gem']);
+ assert.deepEqual(PLAYABLE_TOWERS.slice(0,3),['ore','leather','gem']);
+ assert.equal(PLAYABLE_TOWERS.includes('leather'),true);
 });
 
 test('RELEASE 0.1.44: Red Fang exposes five regulars and five authored bosses',()=>{

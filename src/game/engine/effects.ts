@@ -38,6 +38,11 @@ export const EFFECTS:Record<string,EffectDefinition>={
  field_medic_regen:{id:'field_medic_regen',name:'지혈 재생',description:'턴당 최대 HP 5%를 회복합니다.',category:'BUFF',behavior:'PERIODIC_HEAL',tags:['HOT','REGEN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:.05}},
  field_medic_analgesic:{id:'field_medic_analgesic',name:'진통제',description:'받는 피해가 30% 감소합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.3}},
  duelist_counter_stance:{id:'duelist_counter_stance',name:'받아치기 태세',description:'다음 직접 공격을 반격 준비합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:2,stackingPolicy:'REFRESH_DURATION',payload:{stat:'receivedDamage',multiplier:-.4}},
+ kaleon_regen:{id:'kaleon_regen',name:'녹빛 재생',description:'비정상적인 조직 재생으로 턴 종료 시 최대 HP의 7%를 회복합니다.',category:'BUFF',behavior:'PERIODIC_HEAL',tags:['HOT','REGEN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:.07}},
+ kaleon_blight:{id:'kaleon_blight',name:'녹병',description:'녹화 오염이 턴 종료 시 피해를 줍니다.',category:'DEBUFF',behavior:'PERIODIC_DAMAGE',tags:['DOT','POISON'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:7}},
+ kaleon_overgrowth:{id:'kaleon_overgrowth',name:'과잉 증식',description:'증식 조직이 몸을 덮어 방어력이 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:.3}},
+ kaleon_transfer_mark:{id:'kaleon_transfer_mark',name:'전이 표식',description:'고통의 전이 경로가 누적됩니다.',category:'DEBUFF',behavior:'STAT_MODIFIER',tags:['STAT_DOWN'],defaultDuration:5,stackingPolicy:'STACK',maxStacks:3,payload:{stat:'defense',multiplier:-.05}},
+ kaleon_saint_ward:{id:'kaleon_saint_ward',name:'수용자의 장벽',description:'칼레온이 오염을 억누르는 조직 장벽을 전개합니다.',category:'BUFF',behavior:'SHIELD',tags:['SHIELD'],defaultDuration:3,stackingPolicy:'REPLACE',shieldAmount:90,scope:'BATTLE'},
  berserker_blood_boost:{id:'berserker_blood_boost',name:'피의 대가',description:'공격 피해가 25% 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'attack',multiplier:.25}},
 };
 export type EffectActor='player'|'monster';

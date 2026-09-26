@@ -16,11 +16,12 @@ import {monsterCombatIntel} from './combatIntel';
 import {loadPrefs,savePrefs,SPEEDS} from './prefs';
 import type {BattlePrefs} from './prefs';
 import {Glyph} from '../../ui/mobile';
+import {strongholdRemainingMs} from '../../game/events/resourceStronghold';
 
-type Props={game:GameState;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void};
+type Props={game:GameState;now?:number;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void;onAbandonStronghold?:()=>void};
 const glyph:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
 
-export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival}:Props){
+export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
  const [panel,setPanel]=useState<'menu'|'items'|'enemy'|null>(null);
  const playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e),buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
@@ -30,6 +31,9 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,
  const cycleSpeed=()=>updatePrefs({...prefs,speed:SPEEDS[(speedIndex+1)%SPEEDS.length]});
  const bossFloor=!!bossIdFor(e.tower,e.floor),trace=bossFloor?Math.round(e.bossTracking.progress/EVENT_BALANCE.bossMaxProgress*100):0;
  const intent=intel.intent.kind!=='NONE'?intel.intent:null;
+ const stronghold=e.events.stronghold?.status==='ACTIVE'?e.events.stronghold:null;
+ const strongholdMs=stronghold?strongholdRemainingMs(stronghold,now??Date.now()):0;
+ const strongholdTime=String(Math.floor(strongholdMs/60_000)).padStart(2,'0')+':'+String(Math.floor(strongholdMs%60_000/1000)).padStart(2,'0');
 
  const skillCards=skillIds.map((id,i)=>{
   const skill=SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
@@ -76,7 +80,7 @@ export function BattleScreen({game,onBasicAttack,onSkill,onPotion,onFlee,onHome,
 
   {panel&&<section className="tc-bpanel tc-ref-panel" aria-label="전투 보조 패널">
    <div className="tc-bpanel-head"><h2>{panel==='menu'?'원정 기록':panel==='items'?'원정 포션':'적 전투 정보'}</h2><button onClick={()=>setPanel(null)}>×</button></div>
-   {panel==='menu'&&<><div className="tc-stat-grid"><div className="tc-stat"><small>Silver</small><b>{e.loot.silver.toLocaleString()}</b></div><div className="tc-stat"><small>처치</small><b>{e.kills}</b></div><div className="tc-stat"><small>공격</small><b>{Math.round(st.attack)}</b></div><div className="tc-stat"><small>방어</small><b>{Math.round(st.defense)}</b></div></div><div className="tc-blog">{game.logs.slice(-5).map((line,i)=><div key={i}>{line}</div>)}{Array.from({length:Math.max(0,5-Math.min(5,game.logs.length))},(_,i)=><div key={'l'+i}/>)}</div><div className="tc-bprefs"><button onClick={onHome}>거점</button><button onClick={cycleSpeed}>속도 ×{prefs.speed}</button><button onClick={()=>updatePrefs({...prefs,damageNumbers:!prefs.damageNumbers})}>피해 {prefs.damageNumbers?'ON':'OFF'}</button><button onClick={()=>setPanel('enemy')}>적 정보</button></div></>}
+   {panel==='menu'&&<><div className="tc-stat-grid"><div className="tc-stat"><small>Silver</small><b>{e.loot.silver.toLocaleString()}</b></div><div className="tc-stat"><small>처치</small><b>{e.kills}</b></div><div className="tc-stat"><small>공격</small><b>{Math.round(st.attack)}</b></div><div className="tc-stat"><small>방어</small><b>{Math.round(st.defense)}</b></div></div>{stronghold&&<div className="tc-floor-risk"><b>자원거점 점령 중 · {strongholdTime}</b><br/>포기하면 거점 보상은 사라지고 현재 원정 전리품만 안전 귀환합니다.<br/><button className="tc-action danger slim" disabled={!playerTurn||!onAbandonStronghold} onClick={()=>{if(onAbandonStronghold&&window.confirm('자원거점을 포기하고 현재 전리품을 가지고 귀환하시겠습니까?'))onAbandonStronghold();}}>거점을 포기하고 귀환</button></div>}<div className="tc-blog">{game.logs.slice(-5).map((line,i)=><div key={i}>{line}</div>)}{Array.from({length:Math.max(0,5-Math.min(5,game.logs.length))},(_,i)=><div key={'l'+i}/>)}</div><div className="tc-bprefs"><button onClick={onHome}>거점</button><button onClick={cycleSpeed}>속도 ×{prefs.speed}</button><button onClick={()=>updatePrefs({...prefs,damageNumbers:!prefs.damageNumbers})}>피해 {prefs.damageNumbers?'ON':'OFF'}</button><button onClick={()=>setPanel('enemy')}>적 정보</button></div></>}
    {panel==='items'&&<><div className="tc-floor-risk">회생 포션 ×{e.bag.revival} · 치명상 시 별도 선택</div><div className="tc-job-list">{generalPotionIds.map(p=><article className="tc-job" key={p}><div><b>{POTIONS[p].name}</b><small>{POTIONS[p].description}</small></div><button disabled={!canUsePotion(game,p)} onClick={()=>{setPanel(null);onPotion(p);}}>{e.bag[p]}개</button></article>)}</div><div/></>}
    {panel==='enemy'&&<><div className="tc-floor-risk">확정된 준비 행동과 현재 효과만 표시합니다.</div><div className="tc-skill-list">{intel.effects.slice(0,2).map(effect=><article key={effect.id}><strong>{effect.name}</strong><p>{effect.description}</p></article>)}{intel.skills.slice(0,3).map(skill=><article key={skill.id}><strong>{skill.name}</strong><p>{skill.description}</p><small>{skill.ready?'사용 가능':'대기 '+skill.cooldownRemaining+'턴'}</small></article>)}</div><button className="tc-action secondary" onClick={()=>setPanel(null)}>전투로 돌아가기</button></>}
   </section>}

@@ -25,13 +25,7 @@ test('v0.1.31: a live v21 expedition and receipt validate without changing their
  assert.ok(validSave(state));
 });
 
-test('v0.1.41+: Iron and Crystal remain playable while Caleon stays locked',()=>{
- assert.equal(PLAYABLE_TOWERS.includes('ore'),true);
- assert.equal(PLAYABLE_TOWERS.includes('gem'),true);
- assert.equal(PLAYABLE_TOWERS.includes('kaleon'),false);
-});
-
-test('v0.1.44: Red Fang Sanctuary is exposed by the playable tower registry',()=>{
- assert.deepEqual(PLAYABLE_TOWERS,['ore','leather','gem']);
- assert.equal(PLAYABLE_TOWERS.includes('leather'),true);
+test('v0.1.45: all four authored towers are exposed by the playable tower registry',()=>{
+ assert.deepEqual(PLAYABLE_TOWERS,['ore','leather','gem','kaleon']);
+ for(const tower of PLAYABLE_TOWERS)assert.equal(PLAYABLE_TOWERS.includes(tower),true);
 });

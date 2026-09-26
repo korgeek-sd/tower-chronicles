@@ -2,6 +2,7 @@ import type {Tower} from '../types';
 import {IRON_NORMAL_POOL,IRON_T1_MONSTER_BY_ID,IRON_BOSS_SLOTS,IRON_T1_FLOORS} from './ironSpire';
 import {RED_NORMAL_POOL,RED_T1_MONSTER_BY_ID,RED_BOSS_SLOTS,RED_T1_FLOORS} from './redFang';
 import {CRYSTAL_NORMAL_POOL,CRYSTAL_T1_MONSTER_BY_ID,CRYSTAL_BOSS_SLOTS,CRYSTAL_T1_FLOORS} from './crystalTower';
+import {KALEON_NORMAL_POOL,KALEON_T1_MONSTER_BY_ID,KALEON_BOSS_SLOTS,KALEON_T1_FLOORS} from './kaleon';
 
 export interface BestiaryEntry {
   id:string;
@@ -48,6 +49,8 @@ export const BESTIARY_ENTRIES:BestiaryEntry[]=[
   ...bossEntries('leather',RED_BOSS_SLOTS as unknown as Record<number,{name:string;bossId:string}>),
   ...normalEntries('gem',CRYSTAL_NORMAL_POOL,CRYSTAL_T1_MONSTER_BY_ID,CRYSTAL_T1_FLOORS),
   ...bossEntries('gem',CRYSTAL_BOSS_SLOTS as unknown as Record<number,{name:string;bossId:string}>),
+  ...normalEntries('kaleon',KALEON_NORMAL_POOL,KALEON_T1_MONSTER_BY_ID,KALEON_T1_FLOORS),
+  ...bossEntries('kaleon',KALEON_BOSS_SLOTS as unknown as Record<number,{name:string;bossId:string}>),
 ];
 
 const BY_ID=new Map(BESTIARY_ENTRIES.map(entry=>[entry.id,entry]));
