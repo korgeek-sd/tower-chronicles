@@ -41,7 +41,9 @@ export async function reconcileCloudState(local:GameState,lease:CloudGameplayLea
 
  try{
   const saved=await saveCloudState(local,remote?.revision??0,lease);
-  return {action:'pushed',state:local,record:saved};
+  const authoritative=await hashPayload(saved.payload);
+  const same=authoritative===localHash&&saved.payloadHash===localHash;
+  return {action:same?'pushed':'pulled',state:same?local:saved.payload,record:saved};
  }catch(error){
   if(!(error instanceof CloudConflictError))throw error;
   remote=await loadCloudSave();
