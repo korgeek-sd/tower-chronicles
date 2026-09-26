@@ -94,3 +94,24 @@ begin
  return jsonb_build_object('state',to_jsonb(p_combat),'action',d,'damage',raw,'absorbed',absorb);
 end $$;
 revoke all on function private.resolve_server_monster_turn(private.online_combat_states) from public,anon,authenticated;
+
+create or replace function private.finish_server_player_action(p_user uuid,p_run private.online_expeditions,p_combat private.online_combat_states,p_nonce bigint,p_damage bigint)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare v_kill bigint;v_heal bigint:=0;v_absorb numeric;v_turn jsonb;v_state private.online_combat_states%rowtype;v_action jsonb;v_ret bigint;v_player_delta bigint;v_monster_delta bigint;v_phase text;
+begin
+ v_absorb:=least(p_combat.monster_shield,p_damage);p_combat.monster_shield:=p_combat.monster_shield-v_absorb;p_damage:=p_damage-v_absorb;p_combat.monster_hp:=greatest(0,p_combat.monster_hp-p_damage);
+ if p_combat.accessory_passive='vampire' and p_damage>0 then v_heal:=floor(p_damage*p_combat.accessory_value);p_combat.player_hp:=least(p_combat.player_max_hp,p_combat.player_hp+v_heal);end if;
+ if p_combat.monster_hp=0 then
+  v_kill:=p_run.confirmed_kills+1;insert into private.online_expedition_kills(user_id,run_id,kill_index,monster_id) values(p_user,p_run.run_id,v_kill,p_combat.monster_id);
+  update private.online_expeditions set confirmed_kills=v_kill,last_confirmed_kill_at=now() where user_id=p_user;
+  update private.online_combat_states set monster_hp=0,monster_shield=p_combat.monster_shield,player_hp=p_combat.player_hp,phase='DEFEATED',action_nonce=p_nonce,updated_at=now() where user_id=p_user;
+  return jsonb_build_object('damage',p_damage,'absorbed',v_absorb,'healing',v_heal,'monsterHp',0,'playerHp',p_combat.player_hp,'phase','DEFEATED','confirmedKills',v_kill,'actionNonce',p_nonce);
+ end if;
+ v_turn:=private.resolve_server_monster_turn(p_combat);select * into v_state from jsonb_populate_record(null::private.online_combat_states,v_turn->'state');v_action:=v_turn->'action';v_ret:=coalesce((v_turn->>'damage')::bigint,0);
+ v_player_delta:=private.effect_periodic_delta(v_state.player_effects,v_state.player_max_hp);v_monster_delta:=private.effect_periodic_delta(v_state.monster_effects,v_state.monster_max_hp);
+ v_state.player_hp:=greatest(0,least(v_state.player_max_hp,v_state.player_hp+v_player_delta));v_state.monster_hp:=greatest(0,least(v_state.monster_max_hp,v_state.monster_hp+v_monster_delta));v_state.player_effects:=private.effect_tick(v_state.player_effects);v_state.monster_effects:=private.effect_tick(v_state.monster_effects);
+ if v_state.player_hp=0 and v_state.revival_count>0 then v_phase:='PLAYER_DEAD';v_state.pending_revival:=true;else v_phase:=case when v_state.player_hp=0 then 'PLAYER_DEAD' else 'PLAYER_TURN' end;end if;
+ update private.online_combat_states set monster_hp=v_state.monster_hp,player_hp=v_state.player_hp,player_shield=v_state.player_shield,monster_shield=v_state.monster_shield,player_effects=v_state.player_effects,monster_effects=v_state.monster_effects,monster_cooldowns=v_state.monster_cooldowns,monster_prepared_action=v_state.monster_prepared_action,turn_no=turn_no+1,guard_turns=greatest(0,guard_turns-1),phase=v_phase,pending_revival=v_state.pending_revival,action_nonce=p_nonce,updated_at=now() where user_id=p_user;
+ return jsonb_build_object('damage',p_damage,'healing',v_heal,'monsterAction',v_action,'retaliation',v_ret,'periodicPlayer',v_player_delta,'periodicMonster',v_monster_delta,'monsterHp',v_state.monster_hp,'playerHp',v_state.player_hp,'playerShield',v_state.player_shield,'monsterShield',v_state.monster_shield,'phase',v_phase,'pendingRevival',v_state.pending_revival,'confirmedKills',p_run.confirmed_kills,'actionNonce',p_nonce);
+end $$;
