@@ -195,7 +195,7 @@ function App(){
    {page==='craft'&&<WorkshopScreen game={game} setGame={setGame} now={now} onEnhancement={()=>setPage('enhancement')} onMastery={()=>setPage('mastery')}/>}
    {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onBack={()=>setPage('craft')}/>}
    {page==='mastery'&&<MasteryScreen game={game}/>}
-   {page==='market'&&<MarketScreen game={game} setGame={setGame}/>}
+   {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='association'&&<AssociationScreen game={game} setGame={setGame}/>}
    {page==='jobs'&&<JobsScreen game={game} setGame={setGame}/>}
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
