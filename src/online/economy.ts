@@ -86,8 +86,14 @@ export interface OnlineCombatState {encounterIndex:number;monsterId:string;playe
 export async function beginOnlineCombatState(lease:GameplayLease,monsterId:string,playerHp:number,playerMaxHp:number){
  return rpc<OnlineCombatState>('begin_online_combat_state',{...leaseArgs(lease),p_monster_id:monsterId,p_player_hp:playerHp,p_player_max_hp:playerMaxHp});
 }
-export async function applyOnlineBasicAttack(lease:GameplayLease,actionNonce:number,attack:number){
- return rpc<OnlineCombatState>('apply_online_basic_attack',{...leaseArgs(lease),p_action_nonce:actionNonce,p_attack:attack});
+export async function applyOnlineBasicAttack(lease:GameplayLease,actionNonce:number){
+ return rpc<OnlineCombatState>('apply_online_basic_attack',{...leaseArgs(lease),p_action_nonce:actionNonce,p_attack:null});
+}
+export async function applyOnlineSkill(lease:GameplayLease,actionNonce:number,skillId:string){
+ return rpc<OnlineCombatState>('apply_online_skill',{...leaseArgs(lease),p_action_nonce:actionNonce,p_skill_id:skillId});
+}
+export async function applyOnlinePotion(lease:GameplayLease,actionNonce:number,potion:string){
+ return rpc<OnlineCombatState>('apply_online_potion',{...leaseArgs(lease),p_action_nonce:actionNonce,p_potion:potion});
 }
 
 export type OnlineCombatActionKind='BASIC'|'SKILL'|'POTION'|'FLEE'|'REVIVAL';
