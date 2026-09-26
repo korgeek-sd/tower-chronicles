@@ -68,7 +68,7 @@ function App(){
  const [cloudRevision,setCloudRevision]=useState<number|null>(null);
  const [cloudSyncMessage,setCloudSyncMessage]=useState(onlineSession?'클라우드 상태 확인 중':'게스트 저장');
  const cloudTimer=useRef<number|null>(null),cloudBusy=useRef(false),cloudQueued=useRef(false),lastPersistedGame=useRef('');
- const serverEconomyBusy=useRef(false),settledReceiptKey=useRef(''),confirmedKillCount=useRef(0),confirmingKill=useRef(false),confirmedActionCount=useRef(0),recordingAction=useRef(false);
+ const serverEconomyBusy=useRef(false),settledReceiptKey=useRef(''),confirmedKillCount=useRef(0),recordingAction=useRef(false),onlineCombatNonce=useRef(0);
  const initialGate:GameSessionPhase=onlineSession?'acquiring':'guest';
  const [gameSessionPhase,setGameSessionPhase]=useState<GameSessionPhase>(initialGate);
  const [gameplayLease,setGameplayLease]=useState<GameplayLease|null>(null);
