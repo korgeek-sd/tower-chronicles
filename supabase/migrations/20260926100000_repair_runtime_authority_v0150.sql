@@ -29,6 +29,42 @@ revoke all on function private.expedition_ticket_drop(bigint,bigint) from public
 alter table private.online_combat_states
  add column if not exists return_authorized boolean not null default false;
 
+
+create or replace function private.server_after_player_damage(
+ p_combat private.online_combat_states,p_actual bigint,p_nonce bigint
+) returns private.online_combat_states
+language plpgsql security definer set search_path=''
+as $
+declare gain int;heal bigint;counter bigint;
+begin
+ if p_actual<=0 then return p_combat;end if;
+ if p_combat.job_id='berserker' then
+  gain:=floor((p_actual::numeric/nullif(p_combat.player_max_hp,0))*100);
+  p_combat.job_resource:=least(100,p_combat.job_resource+greatest(0,gain));
+ end if;
+ if p_combat.job_id='field_medic'
+    and not coalesce((p_combat.job_flags->>'first_aid_used')::boolean,false)
+    and p_combat.player_hp>0
+    and p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0)<=.30 then
+  heal:=round(p_combat.player_max_hp*.15);
+  p_combat.player_hp:=least(p_combat.player_max_hp,p_combat.player_hp+heal);
+  p_combat.job_flags:=p_combat.job_flags||'{"first_aid_used":true}'::jsonb;
+ end if;
+ if p_combat.job_id='duelist' and p_combat.monster_hp>0
+    and private.server_roll(p_combat.rng_seed,p_combat.encounter_index,p_nonce,(p_combat.monster_turn+701)::int)<.20 then
+  counter:=private.combat_damage(
+    private.combat_effective_attack(p_combat),
+    p_combat.monster_defense*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'defense')),
+    .60*p_combat.skill_power,1,
+    greatest(0,1+private.effect_modifier(p_combat.monster_effects,'receivedDamage'))
+  );
+  p_combat.monster_hp:=greatest(0,p_combat.monster_hp-counter);
+ end if;
+ return p_combat;
+end $;
+revoke all on function private.server_after_player_damage(private.online_combat_states,bigint,bigint)
+ from public,anon,authenticated;
+
 create or replace function private.server_apply_monster_hit(
  p_combat private.online_combat_states,
  p_multiplier numeric,
