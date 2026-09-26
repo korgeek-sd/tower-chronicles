@@ -7,6 +7,8 @@ import {
 import {marketChart,marketStats} from '../../game/market/marketStatistics';
 import {demoTradesFor,marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
+import type {GameplayLease} from '../../online/gameSession';
+import {ServerMarketScreen} from './ServerMarketScreen';
 
 type Tab='buy'|'sell'|'orders'|'storage'|'trades';
 type Sort='name'|'priceLow'|'priceHigh';
@@ -21,7 +23,12 @@ const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'mat
 const itemTier=(id:string,gearTier?:number)=>{if(gearTier)return gearTier;const m=/^.+:[^:]+:(\d+)$/.exec(id);return m?Number(m[1]):0;};
 const storageGlyph=(id:string)=>id.startsWith('gear:')?'equipment':id.startsWith('material:')?'materials':id.startsWith('skillbook:')?'skillbooks':id.startsWith('ticket:')?'tickets':'other';
 
-export function MarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
+export function MarketScreen({game,setGame,onlineLease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null}){
+ if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease}/>;
+ return <LocalMarketScreen game={game} setGame={setGame}/>;
+}
+
+function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
  const [tab,setTab]=useState<Tab>('buy'),[category,setCategory]=useState<Category>('all'),[tier,setTier]=useState(0),[query,setQuery]=useState(''),[sort,setSort]=useState<Sort>('name'),[selected,setSelected]=useState<string|null>(null),[side,setSide]=useState<'BUY'|'SELL'>('BUY'),[price,setPrice]=useState(''),[qty,setQty]=useState(''),[confirm,setConfirm]=useState(false),[canceling,setCanceling]=useState<MarketOrder|null>(null),[page,setPage]=useState(0);
  const catalog=useMemo(()=>marketCatalog(game),[game]);
 
