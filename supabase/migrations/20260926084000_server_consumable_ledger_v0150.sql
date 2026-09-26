@@ -93,3 +93,21 @@ begin
 end $$;
 revoke all on function public.resolve_online_revival(uuid,bigint,text,text,boolean) from public,anon;
 grant execute on function public.resolve_online_revival(uuid,bigint,text,text,boolean) to authenticated;
+
+
+create or replace function public.begin_online_combat_state_v2(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;s public.game_saves%rowtype;r private.online_expeditions%rowtype;result jsonb;power numeric;passive jsonb;j text;
+begin
+ result:=public.begin_online_combat_state(p_lease_id,p_generation,p_client_instance_id,p_device_id,null,null,null);
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;if not found then raise exception 'EXPEDITION_SERVER_RUN_MISSING';end if;r:=private.ensure_run_consumables(u,r);
+ select * into s from public.game_saves where user_id=u;if not found then raise exception 'CLOUD_SAVE_REQUIRED';end if;
+ power:=private.combat_skill_power(s.payload);passive:=private.combat_accessory_passive(s.payload);j:=private.server_job_id(s.payload);
+ update private.online_combat_states set skill_power=power,revival_count=r.revival_count,potion_lesser=r.potion_lesser,potion_standard=r.potion_standard,potion_greater=r.potion_greater,potion_supreme=r.potion_supreme,
+ accessory_passive=passive->>'kind',accessory_value=coalesce((passive->>'value')::numeric,0),job_id=j,job_resource=case when j='berserker' then job_resource else 0 end,state_version=state_version+1 where user_id=u;
+ return result||(select jsonb_build_object('jobId',job_id,'jobResource',job_resource,'stateVersion',state_version,'playerEffects',player_effects,'monsterEffects',monster_effects,'playerShield',player_shield,'monsterShield',monster_shield,'revivalCount',revival_count,'potions',jsonb_build_object('healing_lesser',potion_lesser,'healing_standard',potion_standard,'healing_greater',potion_greater,'healing_supreme',potion_supreme)) from private.online_combat_states where user_id=u);
+end $$;
+revoke all on function public.begin_online_combat_state_v2(uuid,bigint,text,text) from public,anon;
+grant execute on function public.begin_online_combat_state_v2(uuid,bigint,text,text) to authenticated;
