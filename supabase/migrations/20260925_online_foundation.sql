@@ -80,7 +80,7 @@ begin
 
     insert into public.game_save_versions(user_id,revision,save_schema,app_version,payload,payload_hash,device_id,created_at)
     values(v_current.user_id,v_current.revision,v_current.save_schema,v_current.app_version,v_current.payload,v_current.payload_hash,v_current.device_id,v_current.updated_at)
-    on conflict(user_id,revision) do nothing;
+    on conflict on constraint game_save_versions_user_id_revision_key do nothing;
 
     update public.game_saves
     set revision=v_current.revision+1,
