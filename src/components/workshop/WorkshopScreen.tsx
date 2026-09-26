@@ -28,6 +28,8 @@ export function WorkshopScreen({game,setGame,now,onlineLease,onEnhancement,onMas
   setBusy(true);
   try{
    const result=await startOnlineCraft(onlineLease,{jobId:created.jobId,kind,tier,quantity});
+   const authoritativeJob=next.crafting.jobs.find(job=>job.jobId===created.jobId);
+   if(authoritativeJob){authoritativeJob.consumedMaterials=result.materialCost;if(authoritativeJob.status==='CRAFTING'){authoritativeJob.completesAt=result.readyAt;authoritativeJob.startedAt=result.readyAt-authoritativeJob.durationMs;}}
    setGame(applyServerEconomyRecord(next,result.record));
   }catch(error){setGame({...game,notice:error instanceof Error?error.message:'서버 제작을 시작하지 못했습니다.'});}
   finally{setBusy(false);}
