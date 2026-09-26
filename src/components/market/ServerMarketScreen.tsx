@@ -34,13 +34,22 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  };
 
  useEffect(()=>{
-  let disposed=false;
+  let disposed=false,subscribedOnce=false;
   void(async()=>{try{const next=await loadOnlineMarketState();if(!disposed)applySnapshot(next);}catch(e){if(!disposed)setError(e instanceof Error?e.message:'온라인 거래소를 불러오지 못했습니다.');}})();
-  const unsubscribe=subscribeOnlineMarketRealtime(()=>{if(!disposed)void refresh();},setLive);
-  const id=window.setInterval(()=>{if(!document.hidden&&!disposed)void refresh();},15_000);
+  const unsubscribe=subscribeOnlineMarketRealtime(
+   ()=>{if(!disposed)void refresh();},
+   status=>{
+    if(disposed)return;
+    setLive(status);
+    if(status==='subscribed'){
+     if(subscribedOnce)void refresh();
+     subscribedOnce=true;
+    }
+   }
+  );
   const resume=()=>{if(!document.hidden&&!disposed)void refresh();};
   document.addEventListener('visibilitychange',resume);
-  return()=>{disposed=true;unsubscribe();window.clearInterval(id);document.removeEventListener('visibilitychange',resume);};
+  return()=>{disposed=true;unsubscribe();document.removeEventListener('visibilitychange',resume);};
  },[lease.leaseId,lease.generation]);
 
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
