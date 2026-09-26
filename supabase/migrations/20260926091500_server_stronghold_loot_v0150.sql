@@ -106,3 +106,46 @@ begin
  update private.online_combat_states set monster_hp=p_combat.monster_hp,player_hp=p_combat.player_hp,player_shield=p_combat.player_shield,monster_shield=p_combat.monster_shield,player_shield_hits=p_combat.player_shield_hits,monster_shield_hits=p_combat.monster_shield_hits,player_effects=p_combat.player_effects,monster_effects=p_combat.monster_effects,monster_cooldowns=p_combat.monster_cooldowns,monster_prepared_action=p_combat.monster_prepared_action,monster_reactive_action=p_combat.monster_reactive_action,player_turn=p_combat.player_turn,monster_turn=p_combat.monster_turn,turn_no=turn_no+1,phase=phase,pending_revival=p_combat.pending_revival,action_nonce=p_nonce,updated_at=now() where user_id=p_user;
  return jsonb_build_object('damage',direct_damage,'absorbed',monster_absorb,'healing',heal,'monsterReaction',case when reaction_id is null then null else jsonb_build_object('id',reaction_id,'damage',reactive_damage) end,'monsterAction',monster_action,'retaliation',ret,'playerAbsorbed',player_absorb,'periodicPlayer',player_delta,'periodicMonster',monster_delta,'monsterHp',p_combat.monster_hp,'playerHp',p_combat.player_hp,'playerShield',p_combat.player_shield,'monsterShield',p_combat.monster_shield,'phase',phase,'pendingRevival',p_combat.pending_revival,'confirmedKills',coalesce(kill_no,p_run.confirmed_kills),'drop',drop,'actionNonce',p_nonce);
 end $$;
+
+
+-- Settlement consumes only canonical temporary loot; confirmed_kills is no longer recomputed into rewards.
+create or replace function public.settle_online_expedition_v2(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_outcome text,p_client_payload jsonb)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;r private.online_expeditions%rowtype;payload jsonb;gross bigint:=0;share bigint:=0;net bigint:=0;mat bigint:=0;tickets bigint:=0;asset text;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;
+ if not found then return private.cloud_record_json(u);end if;
+ if r.status in('RETURNED','DEAD') then return private.cloud_record_json(u);end if;
+ if p_outcome not in('returned','dead') then raise exception 'EXPEDITION_RECEIPT_INVALID';end if;
+ if jsonb_typeof(p_client_payload->'expedition') is distinct from 'null' then raise exception 'EXPEDITION_SETTLEMENT_PAYLOAD_INVALID';end if;
+ if r.stronghold is not null and r.stronghold->>'status' in('ACTIVE','CONTESTED') then raise exception 'RESOURCE_STRONGHOLD_ACTIVE';end if;
+ if p_outcome='returned' then
+  gross:=coalesce((r.temporary_loot->>'silver')::bigint,0);mat:=coalesce((r.temporary_loot->>'material')::bigint,0);tickets:=coalesce((r.temporary_loot->>'tickets')::bigint,0);
+  share:=floor(gross*r.revenue_share_rate/100.0);net:=gross-share;
+  update private.player_wallets set silver=silver+net,updated_at=now() where user_id=u;
+  if mat>0 then asset:='material:'||r.tower||':'||(case when r.floor<=3 then 1 when r.floor<=6 then 2 else 3 end)::text;insert into private.market_assets(user_id,item_id,quantity,updated_at) values(u,asset,mat,now()) on conflict(user_id,item_id) do update set quantity=private.market_assets.quantity+excluded.quantity,updated_at=now();end if;
+  if tickets>0 and r.floor<10 then insert into private.market_assets(user_id,item_id,quantity,updated_at) values(u,'ticket:'||r.tower||':'||(r.floor+1)::text,tickets,now()) on conflict(user_id,item_id) do update set quantity=private.market_assets.quantity+excluded.quantity,updated_at=now();end if;
+  update private.online_expeditions set status='RETURNED',settled_at=now(),temporary_loot='{"silver":0,"material":0,"tickets":0}'::jsonb,run_version=run_version+1 where user_id=u;
+ else update private.online_expeditions set status='DEAD',settled_at=now(),temporary_loot='{"silver":0,"material":0,"tickets":0}'::jsonb,run_version=run_version+1 where user_id=u;end if;
+ payload:=jsonb_set(p_client_payload,'{lastExpedition,kills}',to_jsonb(r.confirmed_kills),true);perform private.persist_client_payload_with_server_economy(u,payload,'0.1.50');
+ return private.cloud_record_json(u);
+end $$;
+revoke all on function public.settle_online_expedition_v2(uuid,bigint,text,text,text,jsonb) from public,anon;
+grant execute on function public.settle_online_expedition_v2(uuid,bigint,text,text,text,jsonb) to authenticated;
+
+create or replace function public.restore_online_expedition(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u;
+ if not found or r.status<>'ACTIVE' then return jsonb_build_object('active',false);end if;
+ select * into c from private.online_combat_states where user_id=u;
+ return jsonb_build_object('active',true,'run',jsonb_build_object('runId',r.run_id,'tower',r.tower,'floor',r.floor,'confirmedKills',r.confirmed_kills,'encounterIndex',r.encounter_index,'bossProgress',r.boss_progress,'bossDefeated',r.boss_defeated,'pendingEvent',r.pending_event,'temporaryLoot',r.temporary_loot,'stronghold',r.stronghold,'runVersion',r.run_version,'potions',jsonb_build_object('lesser',r.potion_lesser,'standard',r.potion_standard,'greater',r.potion_greater,'supreme',r.potion_supreme,'revival',r.revival_count)),
+ 'combat',case when c.user_id is null then null else jsonb_build_object('monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,'monsterReactiveAction',c.monster_reactive_action,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce) end);
+end $$;
+revoke all on function public.restore_online_expedition(uuid,bigint,text,text) from public,anon;
+grant execute on function public.restore_online_expedition(uuid,bigint,text,text) to authenticated;
