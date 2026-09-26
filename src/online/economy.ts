@@ -113,15 +113,6 @@ export async function resolveOnlineRevival(lease:GameplayLease,use:boolean){
  return rpc<OnlineCombatState>('resolve_online_revival',{...leaseArgs(lease),p_use:use});
 }
 
-export type OnlineCombatActionKind='BASIC'|'SKILL'|'POTION'|'FLEE'|'REVIVAL';
-export async function recordOnlineCombatAction(lease:GameplayLease,actionIndex:number,kind:OnlineCombatActionKind,ref?:string){
- return rpc<{confirmedActions:number}>('record_online_combat_action',{...leaseArgs(lease),p_action_index:actionIndex,p_action_kind:kind,p_action_ref:ref??null});
-}
-
-export async function confirmOnlineExpeditionKill(lease:GameplayLease,monsterId:string,killIndex:number){
- return rpc<{confirmedKills:number}>('confirm_online_expedition_kill',{...leaseArgs(lease),p_monster_id:monsterId,p_client_kill_index:killIndex});
-}
-
 export async function settleOnlineExpedition(lease:GameplayLease,payload:GameState){
  const outcome=payload.lastExpedition?.outcome;
  if(outcome!=='returned'&&outcome!=='dead')throw Error('원정 종료 결과를 확인할 수 없습니다.');
