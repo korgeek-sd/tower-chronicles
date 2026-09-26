@@ -202,6 +202,14 @@ function App(){
    if(cloudQueued.current&&gameSessionPhaseRef.current==='active'){cloudQueued.current=false;void runCloudSync();}else cloudQueued.current=false;
   }
  }
+ function commitOnlineCombatAction(kind:OnlineCombatActionKind,ref:string|undefined,apply:(state:GameState)=>GameState){
+  const lease=gameplayLeaseRef.current;
+  if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease){setGame(apply);return;}
+  if(recordingAction.current)return;
+  recordingAction.current=true;
+  const index=confirmedActionCount.current+1;
+  void recordOnlineCombatAction(lease,index,kind,ref).then(result=>{confirmedActionCount.current=result.confirmedActions;setGame(apply);setCloudSyncStatus('synced');}).catch(error=>{setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'전투 행동을 서버에서 확인하지 못했습니다.');}).finally(()=>{recordingAction.current=false;});
+ }
  async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);await signOutOnline();setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
