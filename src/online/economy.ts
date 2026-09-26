@@ -4,6 +4,18 @@ import {getDeviceId,rememberCloudRecord,type CloudSaveRecord} from './cloudSave'
 import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
 
+export function applyServerEconomyRecord(local:GameState,record:CloudSaveRecord):GameState{
+ const next=structuredClone(local),server=record.payload;
+ next.silver=server.silver;
+ next.market.gold=server.market.gold;
+ next.materials=structuredClone(server.materials);
+ next.tickets=structuredClone(server.tickets);
+ next.skillBooks=structuredClone(server.skillBooks);
+ next.lootItems=structuredClone(server.lootItems);
+ next.items=structuredClone(server.items);
+ return next;
+}
+
 type RpcErrorMap=Record<string,string>;
 const errors:RpcErrorMap={
  GAME_SESSION_LOST:'다른 기기에서 플레이가 시작되어 서버 경제 작업 권한이 종료되었습니다.',
