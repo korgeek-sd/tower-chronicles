@@ -81,33 +81,29 @@ function App(){
  useEffect(()=>{const before=getStoredSession();const session=consumeOAuthRedirect();setOnlineSession(session);if(session&&!before)setGame(s=>({...s,notice:'Google 로그인 완료 · 진행 상황이 자동으로 동기화됩니다.'}));},[]);
 
  useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
+ useEffect(()=>{if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
  useEffect(()=>{
-  if(wasExpedition.current&&!game.expedition&&game.lastExpedition){
-   setPage('battle');
-   const lease=gameplayLeaseRef.current;
-   if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){
-    const receipt=game.lastExpedition,key=[receipt.outcome,receipt.tower,receipt.floor,receipt.time,receipt.kills,receipt.loot.silver].join(':');
-    if(settledReceiptKey.current!==key){
-     settledReceiptKey.current=key;
-     serverEconomyBusy.current=true;
-     if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}
-     void (async()=>{
-      try{
-       const record=await settleOnlineExpedition(lease,stateRef.current);
-       createRepository(gameStorage).save(record.payload);
-       stateRef.current=record.payload;
-       flushSync(()=>setGame(record.payload));
-       setCloudRevision(record.revision);setSaved('서버 정산');setCloudSyncStatus('synced');setCloudSyncMessage('원정 보상을 서버에서 정산했습니다.');
-      }catch(error){
-       setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'원정 서버 정산에 실패했습니다.');
-       await applyLatestCloud();
-      }finally{serverEconomyBusy.current=false;}
-     })();
-    }
-   }
-  }
-  wasExpedition.current=!!game.expedition;
- },[game.expedition,game.lastExpedition,onlineSession?.userId]);
+  const lease=gameplayLeaseRef.current,receipt=game.lastExpedition;
+  if(!onlineSession||gameSessionPhase!=='active'||!lease||game.expedition||!receipt)return;
+  const key=[receipt.outcome,receipt.tower,receipt.floor,receipt.time,receipt.kills,receipt.loot.silver].join(':');
+  if(settledReceiptKey.current===key)return;
+  settledReceiptKey.current=key;
+  serverEconomyBusy.current=true;
+  if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}
+  void (async()=>{
+   try{
+    const record=await settleOnlineExpedition(lease,stateRef.current);
+    createRepository(gameStorage).save(record.payload);
+    stateRef.current=record.payload;
+    flushSync(()=>setGame(record.payload));
+    setCloudRevision(record.revision);setSaved('서버 정산');setCloudSyncStatus('synced');setCloudSyncMessage('원정 보상을 서버에서 정산했습니다.');
+   }catch(error){
+    settledReceiptKey.current='';
+    setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'원정 서버 정산에 실패했습니다.');
+    await applyLatestCloud();
+   }finally{serverEconomyBusy.current=false;}
+  })();
+ },[game.expedition,game.lastExpedition,onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
  useEffect(()=>registerGameTools(
   ()=>({silver:stateRef.current.silver,materials:stateRef.current.materials,expedition:stateRef.current.expedition?{tower:stateRef.current.expedition.tower,floor:stateRef.current.expedition.floor,kills:stateRef.current.expedition.kills,loot:stateRef.current.expedition.loot}:null}),
   async()=>{if(getStoredSession()&&gameSessionPhaseRef.current!=='active')throw Error('다른 기기에서 플레이 중입니다.');if(!stateRef.current.expedition)throw Error('진행 중인 원정이 없습니다.');const next=requestReturn(stateRef.current);flushSync(()=>{setGame(next);setPage('battle');});return {status:next.expedition?'return_requested':'returned',silver:next.silver};}
@@ -215,7 +211,7 @@ function App(){
    {storageError&&<div className="error" role="alert">{storageError}</div>}
    {page==='home'&&<HomeScreen game={game} onMove={move}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
-   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor);setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권을 서버에서 확인했습니다.');setGame(next);setPage('battle');}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
+   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);setPage('battle');}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
    {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>commitEvent(s=>resolveEvent(s,instance,choice))} onContinue={instance=>commitEvent(s=>continueEvent(s,instance))} onRevival={use=>setGame(s=>resolveRevivalDecision(s,use))}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>setGame(basicAttack)} onSkill={id=>setGame(s=>useBattleSkill(s,id))} onPotion={p=>setGame(s=>useBattlePotion(s,p))} onFlee={()=>setGame(flee)} onRevival={use=>setGame(s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>setGame(s=>abandonStrongholdAndReturn(s))}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
    {page==='inventory'&&<InventoryScreen game={game} setGame={setGame}/>}
    {page==='equipment'&&<EquipmentScreen game={game} setGame={setGame} onSkills={()=>setPage('skills')}/>}
