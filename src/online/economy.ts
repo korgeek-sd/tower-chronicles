@@ -40,6 +40,13 @@ const errors:RpcErrorMap={
  ENHANCE_MATERIAL_SHORTAGE:'서버에 확인된 강화 재료가 부족합니다.',
  ENHANCE_ITEM_NOT_FOUND:'서버에 등록된 강화 장비를 찾지 못했습니다.',
  ASSOCIATION_SILVER_SHORTAGE:'서버 지갑의 조합 등록금이 부족합니다.',
+ EXPEDITION_VERSION_CONFLICT:'서버 원정 상태가 변경되었습니다. 최신 상태를 다시 불러옵니다.',
+ EXPEDITION_EVENT_MISSING:'서버 이벤트 기록을 찾지 못했습니다.',
+ EXPEDITION_EVENT_CHOICE_INVALID:'선택할 수 없는 이벤트 행동입니다.',
+ RESOURCE_STRONGHOLD_ALREADY_ACTIVE:'이미 점령 중인 자원거점이 있습니다.',
+ RESOURCE_STRONGHOLD_NOT_ACTIVE:'진행 중인 자원거점 점령이 없습니다.',
+ RESOURCE_STRONGHOLD_NOT_READY:'아직 자원거점 점령 시간이 끝나지 않았습니다.',
+ RESOURCE_STRONGHOLD_ACTIVE:'자원거점 점령을 완료하거나 포기한 뒤 귀환할 수 있습니다.',
 };
 
 const headers=(token:string)=>({
@@ -172,5 +179,13 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  return next;
 }
 
-export interface OnlineExplorationState {kind:'MONSTER'|'BOSS'|'EVENT';profile?:{id:string;hpMultiplier:number;attackMultiplier:number;defenseBonus?:number};event?:{id:string;ticket:number};encounterIndex?:number;bossProgress?:number;runVersion:number}
+export interface OnlineExplorationEvent {id:string;bossId?:string;selectionTicket?:number;outcomeTicket?:number}
+export interface OnlineStronghold {instanceId:string;status:string;tower:Tower;floor:number;version:number;captureStartedAt:string;captureEndsAt:string;reward:{tower:Tower;tier:number;materialAmount:number;silver:number}}
+export interface OnlineExplorationState {kind:'MONSTER'|'BOSS'|'EVENT';profile?:{id:string;hpMultiplier:number;attackMultiplier:number;defenseBonus?:number};event?:OnlineExplorationEvent;encounterIndex?:number;bossProgress?:number;runVersion:number}
 export async function advanceOnlineExploration(lease:GameplayLease,expectedVersion:number){return rpc<OnlineExplorationState>('advance_online_exploration',{...leaseArgs(lease),p_expected_version:expectedVersion});}
+export async function resolveOnlineExplorationEvent(lease:GameplayLease,expectedVersion:number,choice:string){return rpc<{eventId:string;choiceId:string;outcomeId?:string|null;playerHp?:number;temporaryLoot?:unknown;next?:'NORMAL'|'BOSS';bossId?:string|null;pendingRevival?:boolean;runVersion:number}>('resolve_online_exploration_event',{...leaseArgs(lease),p_expected_version:expectedVersion,p_choice:choice});}
+export async function claimOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('claim_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
+export async function settleOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{reward:OnlineStronghold['reward'];stronghold:OnlineStronghold;temporaryLoot:unknown;runVersion:number}>('settle_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
+export async function abandonOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('abandon_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
+export interface RestoredOnlineExpedition {active:boolean;run?:{runId:string;tower:Tower;floor:number;confirmedKills:number;encounterIndex:number;bossProgress:number;bossDefeated:boolean;pendingEvent:OnlineExplorationEvent|null;temporaryLoot:unknown;stronghold:OnlineStronghold|null;runVersion:number;potions:Record<string,number>};combat?:Record<string,unknown>|null}
+export async function restoreOnlineExpedition(lease:GameplayLease){return rpc<RestoredOnlineExpedition>('restore_online_expedition',leaseArgs(lease));}
