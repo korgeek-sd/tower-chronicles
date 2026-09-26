@@ -4,17 +4,31 @@ import {enhanceEquipment} from '../../game/engine/enhancement';
 import {itemName} from '../../game/engine/state';
 import {enhancementAttemptView,enhancementPreviewRows} from './presentation';
 import {Glyph,Pager,Screen} from '../../ui/mobile';
+import type {GameplayLease} from '../../online/gameSession';
+import {enhanceOnlineEquipment,type ServerEnhancementOutcome} from '../../online/economy';
 
 const PAGE_SIZE=5;
 const pct=(n:number)=>Math.round(n*100)+'%';
 const iconFor=(item:Item)=>item.kind==='armor'?'armor':item.kind==='boots'?'boots':['sword','bow','dagger','staff'].includes(item.kind)?item.kind:'accessory';
 
-export function EnhancementScreen({game,setGame,onBack}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onBack:()=>void}){
- const [selectedId,setSelectedId]=useState<string|null>(null),[confirm,setConfirm]=useState(false),[page,setPage]=useState(0);
+export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onBack:()=>void}){
+ const [selectedId,setSelectedId]=useState<string|null>(null),[confirm,setConfirm]=useState(false),[page,setPage]=useState(0),[busy,setBusy]=useState(false);
  const items=useMemo(()=>game.items.slice().sort((a,b)=>Number(Object.values(game.equipped).includes(b.id))-Number(Object.values(game.equipped).includes(a.id))||b.tier-a.tier||b.enhancement-a.enhancement||a.id.localeCompare(b.id)),[game.items,game.equipped]);
  const pages=Math.max(1,Math.ceil(items.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),selected=items.find(i=>i.id===selectedId)??shown[0]??null;
  useEffect(()=>{if(selectedId&&!game.items.some(item=>item.id===selectedId)){setSelectedId(null);setConfirm(false);}},[game.items,selectedId]);
  const view=selected?enhancementAttemptView(game,selected):null,q=view?.quote??null,rows=selected?enhancementPreviewRows(selected):[];
+ const enhanceNotice=(outcome:ServerEnhancementOutcome,name:string)=>outcome==='SUCCESS'?`강화 성공! ${name}`:outcome==='FAIL_KEEP'?`강화 실패. ${name}의 강화 단계가 유지됩니다.`:outcome==='FAIL_DOWNGRADE'?`강화 실패. ${name}의 강화 단계가 하락했습니다.`:`강화 실패. ${name} 장비가 파괴되었습니다.`;
+ const confirmEnhancement=async()=>{
+  if(!selected)return;
+  if(!onlineLease){setGame(s=>enhanceEquipment(s,selected.id));setConfirm(false);return;}
+  setBusy(true);
+  try{
+   const result=await enhanceOnlineEquipment(onlineLease,selected.id);
+   setGame({...result.record.payload,notice:enhanceNotice(result.outcome,itemName(selected))});
+   setConfirm(false);
+  }catch(error){setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));setConfirm(false);}
+  finally{setBusy(false);}
+ };
  return <Screen eyebrow="WORKSHOP / ENHANCEMENT" title="장비 강화" meta={<button className="tc-action secondary slim" onClick={onBack}>제작으로</button>}>
   <div className="tc-enhance">
    <div className="tc-enhance-body">
@@ -24,6 +38,6 @@ export function EnhancementScreen({game,setGame,onBack}:{game:GameState;setGame:
    <Pager page={safe} count={pages} onChange={setPage}/>
    <div className="tc-floor-risk">성공·유지·하락·파괴 확률과 비용은 기존 강화 엔진 값을 그대로 표시합니다.</div>
   </div>
-  {confirm&&selected&&q&&view&&<div className="tc-modalback" onClick={()=>setConfirm(false)}><section className="tc-modal" role="dialog" aria-modal="true" onClick={e=>e.stopPropagation()}><h2>강화 진행 확인</h2><p><b>{itemName(selected)}</b><br/>+{q.current} → +{q.target}</p><div className="tc-rates"><span>성공<b>{pct(q.successRate)}</b></span><span>유지<b>{pct(q.failKeepRate)}</b></span><span>하락<b>{pct(q.failDowngradeRate)}</b></span><span className="destroy">파괴<b>{pct(q.failDestroyRate)}</b></span></div><p>{q.silverCost.toLocaleString()} Silver · {view.materialName} {q.materialCost}개가 결과와 관계없이 소모됩니다.</p><div className="tc-modal-actions"><button className="tc-action secondary" onClick={()=>setConfirm(false)}>취소</button><button className="tc-action danger" disabled={!view.canAttempt} onClick={()=>{setGame(s=>enhanceEquipment(s,selected.id));setConfirm(false);}}>강화 진행</button></div></section></div>}
+  {confirm&&selected&&q&&view&&<div className="tc-modalback" onClick={()=>setConfirm(false)}><section className="tc-modal" role="dialog" aria-modal="true" onClick={e=>e.stopPropagation()}><h2>강화 진행 확인</h2><p><b>{itemName(selected)}</b><br/>+{q.current} → +{q.target}</p><div className="tc-rates"><span>성공<b>{pct(q.successRate)}</b></span><span>유지<b>{pct(q.failKeepRate)}</b></span><span>하락<b>{pct(q.failDowngradeRate)}</b></span><span className="destroy">파괴<b>{pct(q.failDestroyRate)}</b></span></div><p>{q.silverCost.toLocaleString()} Silver · {view.materialName} {q.materialCost}개가 결과와 관계없이 소모됩니다.</p><div className="tc-modal-actions"><button className="tc-action secondary" onClick={()=>setConfirm(false)}>취소</button><button className="tc-action danger" disabled={!view.canAttempt||busy} onClick={()=>void confirmEnhancement()}>{busy?'서버 판정 중':'강화 진행'}</button></div></section></div>}
  </Screen>;
 }

@@ -37,6 +37,9 @@ jobs:
         run: npm test
 
       - name: Build
+        env:
+          VITE_SUPABASE_URL: https://zecdhceihrdwdkdykxhx.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_bjJQ-qJg2eB6w88-QHS-vg_68OVgFK7
         run: npm run build
 
       - name: Configure Pages
