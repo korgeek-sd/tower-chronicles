@@ -5,6 +5,7 @@ import {readSupabaseConfig} from '../src/online/config.ts';
 import {decodeJwtPayload} from '../src/online/auth.ts';
 import {stableStringify} from '../src/online/cloudSave.ts';
 import {decideCloudSync} from '../src/online/cloudSync.ts';
+import {GAME_SESSION_HEARTBEAT_MS,GAME_SESSION_TAKEOVER_GRACE_MS,GAME_SESSION_TTL_MS,getClientInstanceId,platformLabel} from '../src/online/gameSession.ts';
 
 const b64=(value:string)=>Buffer.from(value).toString('base64url');
 
@@ -38,4 +39,18 @@ test('ONLINE 03: automatic cloud sync chooses push, pull and noop without manual
  assert.equal(decideCloudSync('local',remote,null,'user-1'),'pull');
  assert.equal(decideCloudSync('local',remote,{userId:'user-1',revision:2,payloadHash:'remote',updatedAt:''},'user-1'),'push');
  assert.equal(decideCloudSync('local',{...remote,revision:3},{userId:'user-1',revision:2,payloadHash:'remote',updatedAt:''},'user-1'),'pull');
+});
+
+
+test('ONLINE 04: active gameplay lease uses conservative heartbeat, TTL and takeover windows',()=>{
+ assert.equal(GAME_SESSION_HEARTBEAT_MS,20_000);
+ assert.equal(GAME_SESSION_TTL_MS,90_000);
+ assert.equal(GAME_SESSION_TAKEOVER_GRACE_MS,3_000);
+ assert.equal(platformLabel('Mozilla/5.0 (Linux; Android 16)'), 'Android');
+ assert.equal(platformLabel('Mozilla/5.0 (Windows NT 10.0)'), 'Windows');
+ const map=new Map<string,string>();
+ const storage={getItem:(k:string)=>map.get(k)??null,setItem:(k:string,v:string)=>{map.set(k,v);},removeItem:(k:string)=>{map.delete(k);},clear:()=>map.clear(),key:(i:number)=>Array.from(map.keys())[i]??null,get length(){return map.size;}} as Storage;
+ const first=getClientInstanceId(storage),second=getClientInstanceId(storage);
+ assert.equal(first,second);
+ assert.ok(first.length>10);
 });

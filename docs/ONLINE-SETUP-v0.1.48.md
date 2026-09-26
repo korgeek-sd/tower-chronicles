@@ -59,3 +59,18 @@ There are no manual “device → cloud” or “cloud → device” controls.
 7. If two devices actively change the same account at the same time, the device that observes a newer server revision pulls that authoritative revision instead of creating a fork.
 
 JSON export/import remains as an emergency/manual backup feature. When signed in, an imported valid save is automatically synchronized to the Google account.
+
+
+## 6. Single active gameplay session
+
+Google authentication and gameplay ownership are separate concepts. Multiple devices may remain signed in, but only one device/client instance can mutate game state at a time.
+
+- Server lease: 90 seconds
+- Heartbeat: every 20 seconds
+- Graceful takeover window: 3 seconds
+- A per-user generation fencing token increments whenever ownership changes.
+- The save RPC requires the current lease ID, generation, device ID, client instance ID, and matching Supabase Auth session.
+- Stale devices receive `GAME_SESSION_LOST` and cannot save over the current player.
+- Takeover changes are broadcast through a private Realtime channel containing only sanitized status fields. Lease IDs, Auth session IDs, device IDs, and client instance IDs remain in the private database schema.
+- On takeover, the old device blocks gameplay, flushes its latest cloud save, and releases the lease. If it does not respond within the grace period, the new device force-takes the lease by incrementing generation.
+- A locked client cannot progress combat timers, crafting settlement, timed expedition choices, imports, or cloud writes.

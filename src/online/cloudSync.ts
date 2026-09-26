@@ -1,7 +1,7 @@
 import type {GameState} from '../game/types';
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
-import {CloudConflictError,hashPayload,loadCloudSave,readCloudMeta,rememberCloudRecord,saveCloudState,type CloudMeta,type CloudSaveRecord} from './cloudSave';
+import {CloudConflictError,hashPayload,loadCloudSave,readCloudMeta,rememberCloudRecord,saveCloudState,type CloudGameplayLease,type CloudMeta,type CloudSaveRecord} from './cloudSave';
 
 export type CloudSyncStatus='local'|'syncing'|'synced'|'error';
 export type CloudSyncAction='pushed'|'pulled'|'noop'|'signed-out';
@@ -21,7 +21,7 @@ export function decideCloudSync(localHash:string,remote:CloudSaveRecord|null,met
  return 'push';
 }
 
-export async function reconcileCloudState(local:GameState):Promise<CloudSyncResult>{
+export async function reconcileCloudState(local:GameState,lease:CloudGameplayLease):Promise<CloudSyncResult>{
  const session=await getFreshSession();
  if(!session)return {action:'signed-out',state:local,record:null};
  const localHash=await hashPayload(local);
@@ -40,7 +40,7 @@ export async function reconcileCloudState(local:GameState):Promise<CloudSyncResu
  }
 
  try{
-  const saved=await saveCloudState(local,remote?.revision??0);
+  const saved=await saveCloudState(local,remote?.revision??0,lease);
   return {action:'pushed',state:local,record:saved};
  }catch(error){
   if(!(error instanceof CloudConflictError))throw error;

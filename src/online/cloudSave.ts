@@ -16,6 +16,11 @@ export interface CloudSaveRecord {
 }
 
 export interface CloudMeta {userId:string;revision:number;payloadHash:string;updatedAt:string}
+export interface CloudGameplayLease {leaseId:string;generation:number;clientInstanceId:string}
+
+export class CloudSessionLostError extends Error {
+ constructor(){super('다른 기기에서 플레이가 시작되어 이 기기의 저장 권한이 종료되었습니다.');this.name='CloudSessionLostError';}
+}
 
 export class CloudConflictError extends Error {
  constructor(public serverRevision:number|null){super('다른 기기에서 더 최근의 클라우드 저장이 발견되었습니다.');this.name='CloudConflictError';}
@@ -64,7 +69,7 @@ export async function loadCloudSave():Promise<CloudSaveRecord|null>{
  return {revision:row.revision,saveSchema:row.save_schema,appVersion:row.app_version,payload:row.payload,payloadHash:row.payload_hash,updatedAt:row.updated_at};
 }
 
-export async function saveCloudState(payload:GameState,baseRevision:number):Promise<CloudSaveRecord>{
+export async function saveCloudState(payload:GameState,baseRevision:number,lease:CloudGameplayLease):Promise<CloudSaveRecord>{
  if(!validSave(payload))throw Error('유효하지 않은 게임 상태는 클라우드에 저장할 수 없습니다.');
  if(!supabaseConfig)throw Error('Supabase 공개 설정이 필요합니다.');
  const session=await getFreshSession();
@@ -73,6 +78,9 @@ export async function saveCloudState(payload:GameState,baseRevision:number):Prom
  const response=await fetch(supabaseConfig.url+'/rest/v1/rpc/save_game_state',{
   method:'POST',headers:headers(session.accessToken),
   body:JSON.stringify({
+   p_lease_id:lease.leaseId,
+   p_generation:lease.generation,
+   p_client_instance_id:lease.clientInstanceId,
    p_base_revision:baseRevision,
    p_save_schema:payload.version,
    p_app_version:APP_VERSION,
@@ -84,6 +92,7 @@ export async function saveCloudState(payload:GameState,baseRevision:number):Prom
  if(response.status===409)throw new CloudConflictError(null);
  if(!response.ok){
   const text=await response.text();
+  if(text.includes('GAME_SESSION_LOST'))throw new CloudSessionLostError();
   if(text.includes('SAVE_CONFLICT'))throw new CloudConflictError(null);
   throw Error('클라우드 저장에 실패했습니다.');
  }
