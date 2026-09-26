@@ -60,7 +60,7 @@ grant execute on function public.apply_online_basic_attack(uuid,bigint,text,text
 create or replace function private.finish_server_player_action(p_user uuid,p_run private.online_expeditions,p_combat private.online_combat_states,p_nonce bigint,p_damage bigint)
 returns jsonb language plpgsql security definer set search_path=''
 as $$
-declare direct_damage bigint:=p_damage;monster_absorb numeric:=0;player_absorb numeric:=0;heal bigint:=0;player_delta bigint:=0;monster_delta bigint:=0;ret bigint:=0;received numeric:=1;player_def numeric;kill_no bigint;phase text:='PLAYER_TURN';
+declare direct_damage bigint:=p_damage;monster_absorb numeric:=0;player_absorb numeric:=0;step_absorb numeric:=0;heal bigint:=0;player_delta bigint:=0;monster_delta bigint:=0;ret bigint:=0;received numeric:=1;player_def numeric;kill_no bigint;phase text:='PLAYER_TURN';
 begin
  -- Resolve the complete player action first. Hit-count shields consume one hit at the packet boundary.
  if p_combat.monster_shield_hits>0 and direct_damage>0 then
@@ -87,12 +87,12 @@ begin
   player_def:=p_combat.player_defense*greatest(.05,1+private.effect_modifier(p_combat.player_effects,'defense'));
   ret:=private.combat_damage(p_combat.monster_attack*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'attack')),player_def,1,1,received);
   if p_combat.player_shield_hits>0 then p_combat.player_shield_hits:=p_combat.player_shield_hits-1;player_absorb:=player_absorb+ret;ret:=0;
-  else player_absorb:=player_absorb+least(p_combat.player_shield,ret);p_combat.player_shield:=greatest(0,p_combat.player_shield-ret);ret:=greatest(0,ret-player_absorb);end if;
+  else step_absorb:=least(p_combat.player_shield,ret);player_absorb:=player_absorb+step_absorb;p_combat.player_shield:=p_combat.player_shield-step_absorb;ret:=ret-step_absorb;end if;
   p_combat.player_hp:=greatest(0,p_combat.player_hp-ret);
 
   monster_delta:=private.effect_periodic_delta(p_combat.monster_effects,p_combat.monster_max_hp,p_combat.monster_turn);
   if monster_delta<0 and p_combat.monster_shield_hits>0 then p_combat.monster_shield_hits:=p_combat.monster_shield_hits-1;monster_delta:=0;
-  elsif monster_delta<0 and p_combat.monster_shield>0 then monster_absorb:=monster_absorb+least(p_combat.monster_shield,-monster_delta);p_combat.monster_shield:=greatest(0,p_combat.monster_shield+monster_delta);monster_delta:=least(0,monster_delta+monster_absorb);end if;
+  elsif monster_delta<0 and p_combat.monster_shield>0 then step_absorb:=least(p_combat.monster_shield,-monster_delta);monster_absorb:=monster_absorb+step_absorb;p_combat.monster_shield:=p_combat.monster_shield-step_absorb;monster_delta:=monster_delta+step_absorb;end if;
   p_combat.monster_hp:=greatest(0,least(p_combat.monster_max_hp,p_combat.monster_hp+monster_delta));
   p_combat.monster_effects:=private.effect_tick(p_combat.monster_effects,p_combat.monster_turn);
  end if;
