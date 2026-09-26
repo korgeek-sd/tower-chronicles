@@ -7,7 +7,7 @@ import {initialState} from './game/engine/state';
 import {enter,requestReturn,abandonStrongholdAndReturn} from './game/engine/expedition';
 import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resolveRevivalDecision} from './game/engine/combat';
 import {settleCrafting} from './game/engine/crafting';
-import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
+import {APP_VERSION,createRepository,SAVE_KEY,validSave} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
@@ -68,7 +68,7 @@ function App(){
  const [cloudRevision,setCloudRevision]=useState<number|null>(null);
  const [cloudSyncMessage,setCloudSyncMessage]=useState(onlineSession?'클라우드 상태 확인 중':'게스트 저장');
  const cloudTimer=useRef<number|null>(null),cloudBusy=useRef(false),cloudQueued=useRef(false),lastPersistedGame=useRef('');
- const serverEconomyBusy=useRef(false),settledReceiptKey=useRef(''),confirmedKillCount=useRef(0),onlineRunVersion=useRef(0),recordingAction=useRef(false),onlineCombatNonce=useRef(0),eventTimeoutHandled=useRef('');
+ const serverEconomyBusy=useRef(false),settledReceiptKey=useRef(''),confirmedKillCount=useRef(0),onlineRunVersion=useRef(0),recordingAction=useRef(false),onlineCombatNonce=useRef(0),eventTimeoutHandled=useRef(''),saveRecoveryBusy=useRef(false);
  const initialGate:GameSessionPhase=onlineSession?'acquiring':'guest';
  const [gameSessionPhase,setGameSessionPhase]=useState<GameSessionPhase>(initialGate);
  const [gameplayLease,setGameplayLease]=useState<GameplayLease|null>(null);
@@ -120,7 +120,11 @@ function App(){
    setSaved(combatFixtureName?'QA':onlineSession?'동기화 대기':'저장');
   }catch(error){
    const message=error instanceof Error?error.message:'';
-   setStorageError(message.includes('유효하지 않은 게임 상태')?'전투 상태를 저장 형식으로 변환하지 못했습니다. 최신 상태를 다시 동기화해 주세요.':'저장 공간을 사용할 수 없습니다.');
+   if(message.includes('유효하지 않은 게임 상태')&&onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current&&!saveRecoveryBusy.current){
+    setStorageError('서버 전투 상태를 다시 불러오는 중입니다.');
+    saveRecoveryBusy.current=true;
+    void restoreServerRun(gameplayLeaseRef.current).finally(()=>{saveRecoveryBusy.current=false;});
+   }else setStorageError(message.includes('유효하지 않은 게임 상태')?'전투 상태 저장 검증에 실패했습니다. 서버 상태 복구를 눌러 주세요.':'저장 공간을 사용할 수 없습니다.');
    return;
   }
   if(!combatFixtureName&&onlineConfigured&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!serverEconomyBusy.current&&!game.expedition){
@@ -239,7 +243,9 @@ function App(){
    if(result.returnAuthorized){await settleOnlineRun('returned');return;}
    if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await settleOnlineRun('dead');return;}
    if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
-   setGame(current=>reconcileOnlineCombatState(current,result));
+   const candidate=reconcileOnlineCombatState(stateRef.current,result);
+   if(!validSave(candidate)){setStorageError('서버 전투 상태를 다시 불러오는 중입니다.');await restoreServerRun(lease);return;}
+   stateRef.current=candidate;setStorageError('');setGame(candidate);
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
  async function restoreServerRun(lease:GameplayLease){
@@ -252,7 +258,9 @@ function App(){
    if(combat?.phase==='PLAYER_DEAD'&&!combat.pendingRevival){await settleOnlineRun('dead');return;}
    confirmedKillCount.current=restored.run.confirmedKills;onlineRunVersion.current=restored.run.runVersion;
    if(combat&&typeof combat.actionNonce==='number')onlineCombatNonce.current=combat.actionNonce;
-   setGame(current=>reconcileOnlineExpeditionState(current,restored));setPage('battle');
+   const candidate=reconcileOnlineExpeditionState(stateRef.current,restored);
+   if(!validSave(candidate)){await applyLatestCloud();setPage('home');setStorageError('서버 전투 상태 복구에 실패했습니다. 거점으로 이동했습니다. 다시 원정 화면을 열어 주세요.');return;}
+   stateRef.current=candidate;setGame(candidate);setPage('battle');setStorageError('');
    setCloudSyncStatus('synced');setCloudSyncMessage('서버의 진행 중인 원정을 복원했습니다.');
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');}
  }
@@ -267,10 +275,10 @@ function App(){
    <button className="tc-premium" onClick={()=>move('premium')}><b>황금기록자</b><small>{goldenActive?remainingGoldenTime(game.goldenRecorder.expiresAt,now):'미등록'}</small></button>
   </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'NOVAR 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
   <main className="tc-main">
-   {storageError&&<div className="error" role="alert">{storageError}</div>}
+   {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {page==='home'&&<HomeScreen game={game} onMove={move}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
-   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;setGame(s=>reconcileOnlineCombatState(s,combat));setPage('battle');}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
+   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;{const candidate=reconcileOnlineCombatState(stateRef.current,combat);if(!validSave(candidate)){setStorageError('서버 전투 상태를 다시 불러오는 중입니다.');await restoreServerRun(lease);return;}stateRef.current=candidate;setGame(candidate);setStorageError('');setPage('battle');}}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
    {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>void commitOnlineEventChoice(instance,choice)} onContinue={instance=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)void continueOnlineExplorationNow();else commitEvent(s=>continueEvent(s,instance));}} onRevival={use=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use));else setGame(s=>resolveRevivalDecision(s,use));}}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>void abandonOnlineStrongholdNow()}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
    {page==='inventory'&&<InventoryScreen game={game} setGame={setGame}/>}
    {page==='equipment'&&<EquipmentScreen game={game} setGame={setGame} onSkills={()=>setPage('skills')}/>}
