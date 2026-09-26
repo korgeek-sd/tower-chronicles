@@ -2,6 +2,7 @@ import type {ActiveEffect,GameState,Tower} from '../game/types';
 import type {PendingExpeditionEvent} from '../game/events/types';
 import {tierOf} from '../game/data/config';
 import {bestiaryEntryById} from '../game/data/bestiary';
+import {EFFECTS} from '../game/engine/effects';
 import {getFreshSession} from './auth';
 import {getDeviceId,rememberCloudRecord,type CloudSaveRecord} from './cloudSave';
 import {supabaseConfig} from './config';
@@ -181,7 +182,7 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  e.monster.currentHp=server.monsterHp;
  if(server.monsterMaxHp)e.monster.hp=server.monsterMaxHp;
  e.phase=server.phase==='MONSTER_TURN'?'MONSTER_TURN':'PLAYER_TURN';
- if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[]};
+ if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[{kind:'AFTER_MONSTER_ACTION'}]};
  if(!server.pendingRevival)e.pendingRevival=null;
  if(typeof server.jobId==='string'||server.jobId===null){e.jobSnapshotId=server.jobId??null;e.jobRuntime.jobId=server.jobId??null;}
  if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
@@ -189,7 +190,7 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  if(server.playerCooldowns)e.cooldowns={...server.playerCooldowns};
  if(typeof server.playerTurn==='number')e.playerTurn=server.playerTurn;
  if(typeof server.monsterTurn==='number')e.monsterTurn=server.monsterTurn;
- const normalizeEffects=(raw:unknown[]|undefined,target:'player'|'monster'):ActiveEffect[]=>Array.isArray(raw)?raw.flatMap((value,index)=>{const x=value as Record<string,unknown>,effectId=typeof x.effectId==='string'?x.effectId:'';if(!effectId)return [];const remaining=Number(x.remainingDuration??x.duration??0),stacks=Number(x.stackCount??x.stacks??1),sequence=Number(x.applicationSequence??index+1),created=Number(x.createdTurn??0),effect:ActiveEffect={instanceId:typeof x.instanceId==='string'?x.instanceId:`server-${target}-${sequence}`,effectId,sourceActorId:target,targetActorId:target,remainingDuration:Math.max(0,remaining),stackCount:Math.max(1,stacks),applicationSequence:Math.max(1,sequence),createdTurn:Math.max(0,created),scope:x.scope==='EXPEDITION'?'EXPEDITION':'BATTLE'};if(typeof x.currentShield==='number')effect.currentShield=x.currentShield;if(typeof x.currentShieldHits==='number')effect.currentShieldHits=x.currentShieldHits;return [effect];}):[];
+ const normalizeEffects=(raw:unknown[]|undefined,target:'player'|'monster'):ActiveEffect[]=>Array.isArray(raw)?raw.flatMap((value,index)=>{const x=value as Record<string,unknown>,effectId=typeof x.effectId==='string'?x.effectId:'',definition=EFFECTS[effectId];if(!effectId||!definition)return [];const remaining=Math.max(0,Math.trunc(Number(x.remainingDuration??x.duration??0))),stacks=Math.max(1,Math.trunc(Number(x.stackCount??x.stacks??1))),sequence=Math.max(1,Math.trunc(Number(x.applicationSequence??index+1))),created=Math.max(0,Math.trunc(Number(x.createdTurn??0))),source=x.sourceActorId==='player'||x.sourceActorId==='monster'?x.sourceActorId:target,effect:ActiveEffect={instanceId:typeof x.instanceId==='string'?x.instanceId:`server-${target}-${sequence}`,effectId,sourceActorId:source,targetActorId:target,remainingDuration:remaining,stackCount:stacks,applicationSequence:sequence,createdTurn:created,scope:x.scope==='EXPEDITION'?'EXPEDITION':'BATTLE'};if(definition.behavior==='SHIELD'){if(definition.shieldHits){const hits=Math.min(definition.shieldHits,Math.trunc(Number(x.currentShieldHits??0)));if(hits<=0)return [];effect.currentShieldHits=hits;}else if(definition.shieldAmount){const shield=Math.min(definition.shieldAmount,Number(x.currentShield??0));if(!Number.isFinite(shield)||shield<=0)return [];effect.currentShield=shield;}else return [];}return [effect];}):[];
  if(Array.isArray(server.playerEffects))e.playerEffects=normalizeEffects(server.playerEffects,'player');
  if(Array.isArray(server.monsterEffects))e.monsterEffects=normalizeEffects(server.monsterEffects,'monster');
  e.effectSequence=Math.max(e.effectSequence,...e.playerEffects.map(x=>x.applicationSequence),...e.monsterEffects.map(x=>x.applicationSequence));
