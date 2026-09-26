@@ -65,3 +65,45 @@ begin
  return result;
 end $$;
 revoke all on function private.apply_server_effect(jsonb,text,bigint) from public,anon,authenticated;
+
+
+create or replace function private.sync_server_shield(p_combat private.online_combat_states,p_actor text,p_effect_id text)
+returns private.online_combat_states language plpgsql immutable set search_path=''
+as $$
+declare d jsonb:=private.effect_definition(p_effect_id);
+begin
+ if d->>'behavior'<>'SHIELD' then return p_combat;end if;
+ if p_actor='player' then p_combat.player_shield:=coalesce((d->>'shieldAmount')::numeric,0);p_combat.player_shield_hits:=coalesce((d->>'shieldHits')::int,0);
+ else p_combat.monster_shield:=coalesce((d->>'shieldAmount')::numeric,0);p_combat.monster_shield_hits:=coalesce((d->>'shieldHits')::int,0);end if;
+ return p_combat;
+end $$;
+revoke all on function private.sync_server_shield(private.online_combat_states,text,text) from public,anon,authenticated;
+
+create or replace function private.resolve_server_monster_turn(p_combat private.online_combat_states)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare d jsonb:=private.server_monster_decision(p_combat);kind text:=d->>'kind';id text:=d->>'id';mult numeric:=coalesce((d->>'multiplier')::numeric,1);hits int:=greatest(1,coalesce((d->>'hits')::int,1));cd int:=coalesce((d->>'cooldown')::int,0);raw bigint:=0;one bigint;absorbed numeric:=0;step_absorb numeric;def numeric;received numeric:=1;nextcd jsonb;effectid text:=d->>'effect';i int;
+begin
+ p_combat.monster_turn:=p_combat.monster_turn+1;
+ select coalesce(jsonb_object_agg(key,to_jsonb(greatest(0,(value#>>'{}')::int-1))),'{}') into nextcd from jsonb_each(p_combat.monster_cooldowns);
+ if cd>0 then nextcd:=nextcd||jsonb_build_object(id,cd);end if;
+ if kind='CHARGE' then p_combat.monster_prepared_action:=id;
+ elsif kind='REACTIVE_PREPARE' then p_combat.monster_reactive_action:=d->>'reaction';
+ elsif kind='EFFECT_SELF' then p_combat.monster_effects:=private.apply_server_effect(p_combat.monster_effects,effectid,p_combat.monster_turn);p_combat:=private.sync_server_shield(p_combat,'monster',effectid);
+ elsif kind='EFFECT_TARGET' then p_combat.player_effects:=private.apply_server_effect(p_combat.player_effects,effectid,p_combat.player_turn);p_combat:=private.sync_server_shield(p_combat,'player',effectid);
+ else
+  def:=p_combat.player_defense*greatest(.05,1+private.effect_modifier(p_combat.player_effects,'defense'));received:=greatest(0,1+private.effect_modifier(p_combat.player_effects,'receivedDamage'));
+  if p_combat.accessory_passive='unyielding' and p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0)<=.35 then received:=received*(1-p_combat.accessory_value);end if;
+  for i in 1..hits loop
+   exit when p_combat.player_hp<=0;
+   one:=private.combat_damage(p_combat.monster_attack*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'attack')),def,mult,1,received);
+   if p_combat.player_shield_hits>0 then p_combat.player_shield_hits:=p_combat.player_shield_hits-1;absorbed:=absorbed+one;one:=0;
+   else step_absorb:=least(p_combat.player_shield,one);absorbed:=absorbed+step_absorb;p_combat.player_shield:=p_combat.player_shield-step_absorb;one:=one-step_absorb;end if;
+   p_combat.player_hp:=greatest(0,p_combat.player_hp-one);raw:=raw+one;
+  end loop;
+  if effectid is not null and p_combat.player_hp>0 then p_combat.player_effects:=private.apply_server_effect(p_combat.player_effects,effectid,p_combat.player_turn);p_combat:=private.sync_server_shield(p_combat,'player',effectid);end if;
+  if coalesce((d->>'prepared')::boolean,false) then p_combat.monster_prepared_action:=null;end if;
+ end if;
+ p_combat.monster_cooldowns:=nextcd;
+ return jsonb_build_object('state',to_jsonb(p_combat),'action',d,'damage',raw,'absorbed',absorbed);
+end $$;
