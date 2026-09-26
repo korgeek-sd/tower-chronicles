@@ -13,7 +13,7 @@ import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
 import {consumeOAuthRedirect,getStoredSession,signOutOnline,type OnlineSession} from './online/auth';
 import {onlineConfigured} from './online/config';
-import {reconcileCloudState,subscribeCloudSaveRealtime,type CloudSyncStatus} from './online/cloudSync';
+import {reconcileCloudState,type CloudSyncStatus} from './online/cloudSync';
 import {stableStringify,loadCloudSave,CloudSessionLostError} from './online/cloudSave';
 import {acquireGameSession,forceTakeoverGameSession,heartbeatGameSession,inspectGameSession,releaseGameSession,requestGameSessionTakeover,subscribeGameSessionSignals,GAME_SESSION_HEARTBEAT_MS,GAME_SESSION_TAKEOVER_GRACE_MS,type GameplayLease,type GameSessionPhase,type GameSessionResult,type GameSessionSignal,GameSessionLostError} from './online/gameSession';
 import {startOnlineExpedition,settleOnlineExpedition} from './online/economy';
@@ -147,15 +147,11 @@ function App(){
  useEffect(()=>{
   if(combatFixtureName||!onlineConfigured||!onlineSession||gameSessionPhase!=='active'||!gameplayLease){if(!onlineSession){setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');}return;}
   void runCloudSync();
-  const unsubscribe=subscribeCloudSaveRealtime(
-   ()=>void runCloudSync(),
-   status=>{if(status==='connecting'){setCloudSyncStatus('syncing');setCloudSyncMessage('실시간 동기화 연결 중');}else if(status==='subscribed'){setCloudSyncStatus(current=>current==='error'?'syncing':current);setCloudSyncMessage(current=>current.includes('오류')?'실시간 연결 복구됨':current);}else{setCloudSyncStatus('error');setCloudSyncMessage('실시간 연결이 끊겨 재연결 중입니다.');}}
-  );
   const resume=()=>{if(!document.hidden)void runCloudSync();};
   const online=()=>void runCloudSync();
   document.addEventListener('visibilitychange',resume);
   window.addEventListener('online',online);
-  return()=>{unsubscribe();document.removeEventListener('visibilitychange',resume);window.removeEventListener('online',online);};
+  return()=>{document.removeEventListener('visibilitychange',resume);window.removeEventListener('online',online);};
  },[onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
  useEffect(()=>{const settle=()=>{if(document.hidden)return;const tick=Date.now();setNow(tick);if(!gameplayWritable)return;setGame(state=>{const activeCraft=state.crafting.jobs.find(job=>job.status==='CRAFTING'),queuedCraft=state.crafting.jobs.some(job=>job.status==='QUEUED'),craftDue=(!activeCraft&&queuedCraft)||(activeCraft?.completesAt!==null&&activeCraft?.completesAt!==undefined&&tick>=activeCraft.completesAt);const crafted=craftDue?settleCrafting(state,tick):state;return expireTimedEventChoice(settleStronghold(crafted,tick),tick);});};const id=setInterval(settle,1000);document.addEventListener('visibilitychange',settle);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',settle);};},[]);
  useEffect(()=>{if(!gameplayWritable||game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[gameplayWritable,game.expedition?.phase,game.expedition?.pendingRevival]);
