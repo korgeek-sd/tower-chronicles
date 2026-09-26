@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {initialState} from '../src/game/engine/state.ts';
 import {enter} from '../src/game/engine/expedition.ts';
 import {validSave} from '../src/storage/repository.ts';
-import {reconcileOnlineCombatState,type OnlineCombatState} from '../src/online/economy.ts';
+import {reconcileOnlineCombatState,reconcileOnlineExpeditionState,type OnlineCombatState,type RestoredOnlineExpedition} from '../src/online/economy.ts';
 
 function activeRun(){
  const state=enter(initialState(),'ore',1);
@@ -79,5 +79,52 @@ test('ONLINE COMBAT SAVE 05: zero turns and malformed cooldown counters are norm
  assert.equal(next.expedition!.monsterTurn,0);
  assert.deepEqual(next.expedition!.cooldowns,{skill:0,other:3});
  assert.deepEqual(next.expedition!.monsterRuntime?.skillCooldowns,{slam:0,charge:4});
+ assert.equal(validSave(next),true);
+});
+
+
+test('ONLINE COMBAT SAVE 06: canonical server event after a kill clears defeated combat runtime and stays in expedition',()=>{
+ const state=activeRun();
+ state.expedition!.reactivePrepared.monster={definitionId:'test',prepareSkillId:'prepare',reactionSkillId:'react',trigger:'DIRECT_HIT_RECEIVED'};
+ state.expedition!.monsterRuntime={definitionId:'goblin_miner',skillCooldowns:{slam:2},preparedActionId:'slam',turnNumber:3};
+ const restored:RestoredOnlineExpedition={
+  active:true,
+  run:{
+   runId:'11111111-1111-4111-8111-111111111111',
+   tower:'ore',
+   floor:1,
+   confirmedKills:1,
+   encounterIndex:1,
+   bossProgress:0,
+   bossDefeated:false,
+   pendingEvent:{
+    instanceId:'server-event-11111111-1111-4111-8111-111111111111-2',
+    eventId:'common_cache',
+    bossId:null,
+    state:'CHOICE',
+    choiceId:null,
+    outcomeId:null,
+    resultText:'',
+    resultLines:[],
+    next:'NORMAL',
+    randomValue:.25,
+    expiresAt:null,
+   },
+   temporaryLoot:{silver:12,material:1,tickets:0},
+   stronghold:null,
+   runVersion:2,
+   potions:{lesser:state.expedition!.bag.healing_lesser,standard:state.expedition!.bag.healing_standard,greater:state.expedition!.bag.healing_greater,supreme:state.expedition!.bag.healing_supreme,revival:state.expedition!.bag.revival},
+  },
+  combat:{...snapshot(state,{monsterHp:0,phase:'DEFEATED'}),monsterCooldowns:{slam:2},monsterPreparedAction:'slam'},
+ };
+ const next=reconcileOnlineExpeditionState(state,restored);
+ assert.ok(next.expedition);
+ assert.equal(next.expedition!.events.phase,'EVENT');
+ assert.equal(next.expedition!.phase,'BATTLE_END');
+ assert.equal(next.expedition!.events.pendingEvent?.instanceId,'server-event-11111111-1111-4111-8111-111111111111-2');
+ assert.equal(next.expedition!.monsterRuntime,null);
+ assert.deepEqual(next.expedition!.reactivePrepared,{player:null,monster:null});
+ assert.equal(next.expedition!.events.activeBossId,null);
+ assert.equal(next.expedition!.bossTracking.pendingBossId,null);
  assert.equal(validSave(next),true);
 });
