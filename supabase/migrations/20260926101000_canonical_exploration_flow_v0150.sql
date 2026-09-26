@@ -106,6 +106,7 @@ begin
  if r.run_version<>p_expected_version then raise exception 'EXPEDITION_VERSION_CONFLICT';end if;
  r:=private.ensure_run_consumables(u,r);
  select * into c from private.online_combat_states where user_id=u for update;
+ if c.user_id is not null and (coalesce(c.pending_revival,false) or c.player_hp<=0) then raise exception 'EXPEDITION_REVIVAL_REQUIRED';end if;
 
  if r.pending_event is not null then
    e:=r.pending_event;
@@ -390,3 +391,62 @@ begin
 end $$;
 revoke all on function public.restore_online_expedition(uuid,bigint,text,text) from public,anon;
 grant execute on function public.restore_online_expedition(uuid,bigint,text,text) to authenticated;
+
+
+-- Canonical first encounter creation. The legacy begin RPC is no longer needed by clients.
+create or replace function public.begin_online_combat_state_v2(
+ p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text
+) returns jsonb
+language plpgsql security definer set search_path=''
+as $$
+declare
+ u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;
+ prior private.online_combat_states%rowtype;profile jsonb;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;
+ if not found or r.status<>'ACTIVE' then raise exception 'EXPEDITION_SERVER_RUN_MISSING';end if;
+ r:=private.ensure_run_consumables(u,r);
+ select * into c from private.online_combat_states where user_id=u for update;
+
+ if c.user_id is not null and c.run_id=r.run_id then
+   if c.phase='DEFEATED' then raise exception 'EXPEDITION_CONTINUE_REQUIRED';end if;
+   return jsonb_build_object(
+    'encounterIndex',c.encounter_index,'monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,
+    'monsterAttack',c.monster_attack,'monsterDefense',c.monster_defense,
+    'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,
+    'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,
+    'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'playerCooldowns',c.cooldowns,
+    'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,
+    'monsterReactiveAction',c.monster_reactive_action,'jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,
+    'stateVersion',c.state_version,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,
+    'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce,'returnAuthorized',c.return_authorized,
+    'confirmedKills',r.confirmed_kills,'runVersion',r.run_version
+   );
+ end if;
+
+ prior:=null::private.online_combat_states;
+ if r.pending_event is not null then raise exception 'EXPEDITION_EVENT_PENDING';end if;
+ if r.encounter_index<1 then
+   update private.online_expeditions set encounter_index=1,run_version=run_version+1 where user_id=u returning * into r;
+ end if;
+ profile:=private.server_monster_profile(r.tower,r.floor,r.reward_seed,r.encounter_index);
+ c:=private.server_start_encounter(u,r,profile,prior);
+ return jsonb_build_object(
+   'encounterIndex',c.encounter_index,'monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,
+   'monsterAttack',c.monster_attack,'monsterDefense',c.monster_defense,
+   'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,
+   'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,
+   'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'playerCooldowns',c.cooldowns,
+   'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,
+   'monsterReactiveAction',c.monster_reactive_action,'jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,
+   'stateVersion',c.state_version,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,
+   'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce,'returnAuthorized',c.return_authorized,
+   'confirmedKills',r.confirmed_kills,'runVersion',r.run_version
+ );
+end $$;
+revoke all on function public.begin_online_combat_state_v2(uuid,bigint,text,text) from public,anon;
+grant execute on function public.begin_online_combat_state_v2(uuid,bigint,text,text) to authenticated;
+
+-- No client should construct its own monster/player combat snapshot anymore.
+revoke execute on function public.begin_online_combat_state(uuid,bigint,text,text,text,bigint,bigint) from authenticated;
