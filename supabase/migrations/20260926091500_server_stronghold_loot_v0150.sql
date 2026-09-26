@@ -145,7 +145,7 @@ begin
  if not found or r.status<>'ACTIVE' then return jsonb_build_object('active',false);end if;
  select * into c from private.online_combat_states where user_id=u;
  return jsonb_build_object('active',true,'run',jsonb_build_object('runId',r.run_id,'tower',r.tower,'floor',r.floor,'confirmedKills',r.confirmed_kills,'encounterIndex',r.encounter_index,'bossProgress',r.boss_progress,'bossDefeated',r.boss_defeated,'pendingEvent',r.pending_event,'temporaryLoot',r.temporary_loot,'stronghold',r.stronghold,'runVersion',r.run_version,'potions',jsonb_build_object('lesser',r.potion_lesser,'standard',r.potion_standard,'greater',r.potion_greater,'supreme',r.potion_supreme,'revival',r.revival_count)),
- 'combat',case when c.user_id is null then null else jsonb_build_object('monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,'monsterReactiveAction',c.monster_reactive_action,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce) end);
+ 'combat',case when c.user_id is null then null else jsonb_build_object('monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,'monsterReactiveAction',c.monster_reactive_action,'jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,'playerCooldowns',c.cooldowns,'stateVersion',c.state_version,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce) end);
 end $$;
 revoke all on function public.restore_online_expedition(uuid,bigint,text,text) from public,anon;
 grant execute on function public.restore_online_expedition(uuid,bigint,text,text) to authenticated;
@@ -197,3 +197,48 @@ begin
 end $$;
 revoke all on function public.apply_online_potion(uuid,bigint,text,text,bigint,text) from public,anon;
 grant execute on function public.apply_online_potion(uuid,bigint,text,text,bigint,text) to authenticated;
+
+
+-- Resolve player multihit packets one hit at a time so hit shields and reactive attacks
+-- observe the same boundaries as the local combat engine.
+create or replace function private.server_apply_player_hit(p_combat private.online_combat_states,p_raw bigint,p_nonce bigint,p_hit_index int)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare hp_damage bigint:=greatest(0,p_raw);absorbed bigint:=0;reaction bigint:=0;reaction_id text;
+begin
+ if hp_damage>0 and p_combat.monster_shield_hits>0 then
+  p_combat.monster_shield_hits:=p_combat.monster_shield_hits-1;absorbed:=hp_damage;hp_damage:=0;
+ elsif hp_damage>0 and p_combat.monster_shield>0 then
+  absorbed:=least(p_combat.monster_shield,hp_damage);p_combat.monster_shield:=p_combat.monster_shield-absorbed;hp_damage:=hp_damage-absorbed;
+ end if;
+ p_combat.monster_hp:=greatest(0,p_combat.monster_hp-hp_damage);
+ if p_combat.accessory_passive='vampire' and hp_damage>0 then p_combat.player_hp:=least(p_combat.player_max_hp,p_combat.player_hp+floor(hp_damage*p_combat.accessory_value));end if;
+ if hp_damage>0 and p_combat.monster_hp>0 and p_combat.monster_reactive_action is not null then
+  reaction_id:=p_combat.monster_reactive_action;p_combat.monster_reactive_action:=null;
+  reaction:=private.combat_damage(p_combat.monster_attack*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'attack')),p_combat.player_defense*greatest(.05,1+private.effect_modifier(p_combat.player_effects,'defense')),private.server_reactive_multiplier(reaction_id),1,greatest(0,1+private.effect_modifier(p_combat.player_effects,'receivedDamage'))*private.server_job_received_multiplier(p_combat));
+  if p_combat.player_shield_hits>0 then p_combat.player_shield_hits:=p_combat.player_shield_hits-1;reaction:=0;
+  elsif p_combat.player_shield>0 then absorbed:=absorbed+least(p_combat.player_shield,reaction);reaction:=reaction-least(p_combat.player_shield,reaction);p_combat.player_shield:=greatest(0,p_combat.player_shield+reaction-private.combat_damage(p_combat.monster_attack*greatest(.05,1+private.effect_modifier(p_combat.monster_effects,'attack')),p_combat.player_defense*greatest(.05,1+private.effect_modifier(p_combat.player_effects,'defense')),private.server_reactive_multiplier(reaction_id),1,greatest(0,1+private.effect_modifier(p_combat.player_effects,'receivedDamage'))*private.server_job_received_multiplier(p_combat)));end if;
+  p_combat.player_hp:=greatest(0,p_combat.player_hp-reaction);p_combat:=private.server_after_player_damage(p_combat,reaction,p_nonce*100+p_hit_index);
+ end if;
+ return jsonb_build_object('state',to_jsonb(p_combat),'hpDamage',hp_damage,'absorbed',absorbed,'reactionDamage',reaction,'reactionId',reaction_id);
+end $$;
+revoke all on function private.server_apply_player_hit(private.online_combat_states,bigint,bigint,int) from public,anon,authenticated;
+
+create or replace function public.apply_online_basic_attack(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint,p_attack numeric default null)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;i int;mult numeric;crit numeric;raw bigint;def numeric;step jsonb;total bigint:=0;absorbed bigint:=0;reaction bigint:=0;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;
+ if not found or r.status<>'ACTIVE' or c.run_id<>r.run_id then raise exception 'COMBAT_SERVER_STATE_MISSING';end if;if c.phase<>'PLAYER_TURN' then raise exception 'COMBAT_PHASE_INVALID';end if;if p_action_nonce<>c.action_nonce+1 then raise exception 'COMBAT_ACTION_SEQUENCE_INVALID';end if;
+ def:=c.monster_defense*greatest(.05,1+private.effect_modifier(c.monster_effects,'defense'));
+ for i in 1..greatest(1,c.basic_hits) loop
+  exit when c.monster_hp<=0 or c.player_hp<=0;
+  mult:=case when c.basic_hits=2 then .55 else 1 end;crit:=case when private.server_roll(c.rng_seed,c.encounter_index,p_action_nonce,i)<c.crit_chance then c.crit_damage else 1 end;
+  raw:=private.combat_damage(private.combat_effective_attack(c),def,mult*private.server_job_damage_multiplier(c,'BASIC'),crit,greatest(0,1+private.effect_modifier(c.monster_effects,'receivedDamage')));
+  step:=private.server_apply_player_hit(c,raw,p_action_nonce,i);select * into c from jsonb_populate_record(null::private.online_combat_states,step->'state');total:=total+coalesce((step->>'hpDamage')::bigint,0);absorbed:=absorbed+coalesce((step->>'absorbed')::bigint,0);reaction:=reaction+coalesce((step->>'reactionDamage')::bigint,0);
+ end loop;
+ return private.finish_server_player_action(u,r,c,p_action_nonce,0)||jsonb_build_object('damage',total,'absorbed',absorbed,'hitReactionDamage',reaction,'jobResource',c.job_resource,'jobFlags',c.job_flags);
+end $$;
+revoke all on function public.apply_online_basic_attack(uuid,bigint,text,text,bigint,numeric) from public,anon;
+grant execute on function public.apply_online_basic_attack(uuid,bigint,text,text,bigint,numeric) to authenticated;
