@@ -187,7 +187,7 @@ as $$
 declare
  direct_damage bigint:=greatest(0,p_damage);monster_absorb numeric:=0;player_absorb numeric:=0;step_absorb numeric:=0;
  heal bigint:=0;player_delta bigint:=0;monster_delta bigint:=0;ret bigint:=0;reactive_damage bigint:=0;
- kill_no bigint;inserted_kill bigint;phase text:='PLAYER_TURN';turn_result jsonb;monster_action jsonb;
+ kill_no bigint;inserted_kill bigint;next_phase text:='PLAYER_TURN';turn_result jsonb;monster_action jsonb;
  reaction_id text;drop jsonb;tl jsonb;boss boolean:=false;step jsonb;
 begin
  -- Legacy single-hit skill path. Basic/job multihits already use server_apply_player_hit.
@@ -263,11 +263,11 @@ begin
    else
      select * into p_run from private.online_expeditions where user_id=p_user;
    end if;
-   phase:='DEFEATED';
+   next_phase:='DEFEATED';
  elsif p_combat.player_hp=0 then
-   phase:='PLAYER_DEAD';p_combat.pending_revival:=p_combat.revival_count>0;
+   next_phase:='PLAYER_DEAD';p_combat.pending_revival:=p_combat.revival_count>0;
  else
-   p_combat.player_turn:=p_combat.player_turn+1;phase:='PLAYER_TURN';
+   p_combat.player_turn:=p_combat.player_turn+1;next_phase:='PLAYER_TURN';
  end if;
 
  update private.online_combat_states set
@@ -278,7 +278,7 @@ begin
    monster_cooldowns=p_combat.monster_cooldowns,monster_prepared_action=p_combat.monster_prepared_action,
    monster_reactive_action=p_combat.monster_reactive_action,player_turn=p_combat.player_turn,monster_turn=p_combat.monster_turn,
    job_resource=p_combat.job_resource,job_flags=p_combat.job_flags,
-   turn_no=turn_no+1,phase=phase,pending_revival=p_combat.pending_revival,
+   turn_no=turn_no+1,phase=next_phase,pending_revival=p_combat.pending_revival,
    action_nonce=p_nonce,return_authorized=false,state_version=state_version+1,updated_at=now()
  where user_id=p_user returning * into p_combat;
 
@@ -296,7 +296,7 @@ begin
    'monsterPreparedAction',p_combat.monster_prepared_action,'monsterReactiveAction',p_combat.monster_reactive_action,
    'jobId',p_combat.job_id,'jobResource',p_combat.job_resource,'jobFlags',p_combat.job_flags,
    'playerTurn',p_combat.player_turn,'monsterTurn',p_combat.monster_turn,'turnNo',p_combat.turn_no,
-   'phase',phase,'pendingRevival',p_combat.pending_revival,
+   'phase',next_phase,'pendingRevival',p_combat.pending_revival,
    'confirmedKills',coalesce(kill_no,p_run.confirmed_kills),'drop',drop,
    'actionNonce',p_nonce,'stateVersion',p_combat.state_version,'runVersion',p_run.run_version
  );
