@@ -89,7 +89,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {fled?:boolean;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number}|null}
+export interface OnlineCombatState {fled?:boolean;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number}|null}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -166,7 +166,14 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  e.phase=server.phase==='MONSTER_TURN'?'MONSTER_TURN':'PLAYER_TURN';
  if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[]};
  if(!server.pendingRevival)e.pendingRevival=null;
+ if(typeof server.jobId==='string'||server.jobId===null){e.jobSnapshotId=server.jobId??null;e.jobRuntime.jobId=server.jobId??null;}
  if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
+ if(server.jobFlags)e.jobRuntime.flags={...server.jobFlags};
+ if(server.playerCooldowns)e.cooldowns=Object.fromEntries(Object.entries(server.playerCooldowns).map(([key,value])=>[key.replace(/^turn:/,''),value]));
+ if(typeof server.playerTurn==='number')e.playerTurn=server.playerTurn;
+ if(typeof server.monsterTurn==='number')e.monsterTurn=server.monsterTurn;
+ if(Array.isArray(server.playerEffects))e.playerEffects=structuredClone(server.playerEffects) as typeof e.playerEffects;
+ if(Array.isArray(server.monsterEffects))e.monsterEffects=structuredClone(server.monsterEffects) as typeof e.monsterEffects;
  if(server.phase==='DEFEATED')e.monster.currentHp=0;
  return next;
 }
