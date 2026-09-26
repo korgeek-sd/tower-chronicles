@@ -82,7 +82,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number}
+export interface OnlineCombatState {fled?:boolean;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -91,6 +91,12 @@ export async function applyOnlineBasicAttack(lease:GameplayLease,actionNonce:num
 }
 export async function applyOnlineSkill(lease:GameplayLease,actionNonce:number,skillId:string){
  return rpc<OnlineCombatState>('apply_online_skill',{...leaseArgs(lease),p_action_nonce:actionNonce,p_skill_id:skillId});
+}
+export async function applyOnlineJobSkill(lease:GameplayLease,actionNonce:number,skillId:string){
+ return rpc<OnlineCombatState>('apply_online_job_skill',{...leaseArgs(lease),p_action_nonce:actionNonce,p_skill_id:skillId});
+}
+export async function applyOnlineFlee(lease:GameplayLease,actionNonce:number){
+ return rpc<OnlineCombatState>('apply_online_flee',{...leaseArgs(lease),p_action_nonce:actionNonce});
 }
 export async function applyOnlinePotion(lease:GameplayLease,actionNonce:number,potion:string){
  return rpc<OnlineCombatState>('apply_online_potion',{...leaseArgs(lease),p_action_nonce:actionNonce,p_potion:potion});
