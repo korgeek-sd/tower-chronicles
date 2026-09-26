@@ -71,3 +71,22 @@ begin
  for v_hit in 1..v_combat.basic_hits loop v_mult:=case when v_combat.basic_hits=2 then .55 else 1 end;v_crit:=private.server_roll(v_combat.rng_seed,v_combat.encounter_index,p_action_nonce,v_hit)<v_combat.crit_chance;v_damage:=v_damage+greatest(1,round(v_attack*v_mult*(case when v_crit then v_combat.crit_damage else 1 end)-v_combat.monster_defense)::bigint);end loop;
  return private.finish_server_player_action(v_user,v_run,v_combat,p_action_nonce,v_damage);
 end $$;
+
+create or replace function public.apply_online_skill(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint,p_skill_id text)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare v_user uuid;v_run private.online_expeditions%rowtype;v_combat private.online_combat_states%rowtype;v_mult numeric;v_cd int;v_left int;v_damage bigint;v_attack numeric;
+begin
+ v_user:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);select * into v_run from private.online_expeditions where user_id=v_user for update;select * into v_combat from private.online_combat_states where user_id=v_user for update;
+ if not found or v_run.status<>'ACTIVE' or v_combat.run_id<>v_run.run_id or v_combat.phase<>'PLAYER_TURN' then raise exception 'COMBAT_PHASE_INVALID';end if;if p_action_nonce<>v_combat.action_nonce+1 then raise exception 'COMBAT_ACTION_SEQUENCE_INVALID';end if;
+ select x.mult,x.cd into v_mult,v_cd from (values('heavy'::text,2::numeric,6),('execute',3,8),('guard',0,10),('quick',0,12))x(id,mult,cd) where x.id=p_skill_id;if not found then raise exception 'COMBAT_SKILL_INVALID';end if;
+ v_left:=coalesce((v_combat.cooldowns->>p_skill_id)::int,0);if v_left>0 then raise exception 'COMBAT_SKILL_COOLDOWN';end if;
+ if p_skill_id='execute' and v_combat.monster_hp::numeric/v_combat.monster_max_hp>.35 then raise exception 'COMBAT_SKILL_CONDITION';end if;if p_skill_id='guard' and v_combat.player_hp::numeric/v_combat.player_max_hp>.7 then raise exception 'COMBAT_SKILL_CONDITION';end if;
+ update private.online_combat_states set cooldowns=(select coalesce(jsonb_object_agg(key,to_jsonb(greatest(0,(value#>>'{}')::int-1))),'{}') from jsonb_each(v_combat.cooldowns))||jsonb_build_object(p_skill_id,v_cd),guard_turns=case when p_skill_id='guard' then 4 else guard_turns end where user_id=v_user returning * into v_combat;
+ if p_skill_id in('guard','quick') then update private.online_combat_states set action_nonce=p_action_nonce,turn_no=turn_no+1,updated_at=now() where user_id=v_user;return jsonb_build_object('damage',0,'monsterHp',v_combat.monster_hp,'playerHp',v_combat.player_hp,'phase','PLAYER_TURN','confirmedKills',v_run.confirmed_kills,'actionNonce',p_action_nonce);end if;
+ v_attack:=private.combat_effective_attack(v_combat);v_damage:=greatest(1,round(v_attack*v_mult*v_combat.skill_power-v_combat.monster_defense)::bigint);return private.finish_server_player_action(v_user,v_run,v_combat,p_action_nonce,v_damage);
+end $$;
+revoke all on function public.apply_online_basic_attack(uuid,bigint,text,text,bigint,numeric) from public,anon;
+grant execute on function public.apply_online_basic_attack(uuid,bigint,text,text,bigint,numeric) to authenticated;
+revoke all on function public.apply_online_skill(uuid,bigint,text,text,bigint,text) from public,anon;
+grant execute on function public.apply_online_skill(uuid,bigint,text,text,bigint,text) to authenticated;
