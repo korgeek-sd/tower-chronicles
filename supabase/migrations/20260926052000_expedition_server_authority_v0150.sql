@@ -2,7 +2,8 @@
 -- The client may report battle progress, but can no longer choose the economic reward.
 alter table private.online_expeditions
  add column if not exists confirmed_kills bigint not null default 0,
- add column if not exists reward_seed bigint not null default floor(random()*2147483647)::bigint;
+ add column if not exists reward_seed bigint not null default floor(random()*2147483647)::bigint,
+ add column if not exists last_confirmed_kill_at timestamptz;
 
 create table if not exists private.online_expedition_kills(
  user_id uuid not null references auth.users(id) on delete cascade,
@@ -26,7 +27,7 @@ create or replace function public.confirm_online_expedition_kill(
 ) returns jsonb
 language plpgsql security definer set search_path=''
 as $$
-declare v_user uuid;v_run private.online_expeditions%rowtype;v_next bigint;
+declare v_user uuid;v_run private.online_expeditions%rowtype;v_next bigint;v_min_interval interval;
 begin
  v_user:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
  select * into v_run from private.online_expeditions where user_id=v_user for update;
@@ -38,9 +39,12 @@ begin
    raise exception 'EXPEDITION_KILL_SEQUENCE_INVALID';
  end if;
  if p_monster_id is null or length(p_monster_id)<1 or length(p_monster_id)>100 then raise exception 'EXPEDITION_MONSTER_INVALID';end if;
+ -- Defense in depth until combat actions themselves are moved to the server: impossible kill-rate bursts are rejected.
+ v_min_interval:=make_interval(secs=>greatest(1.0,2.2-(v_run.floor*0.08)));
+ if v_run.last_confirmed_kill_at is not null and now()-v_run.last_confirmed_kill_at<v_min_interval then raise exception 'EXPEDITION_KILL_RATE_INVALID';end if;
  insert into private.online_expedition_kills(user_id,run_id,kill_index,monster_id)
  values(v_user,v_run.run_id,v_next,p_monster_id);
- update private.online_expeditions set confirmed_kills=v_next where user_id=v_user;
+ update private.online_expeditions set confirmed_kills=v_next,last_confirmed_kill_at=now() where user_id=v_user;
  return jsonb_build_object('confirmedKills',v_next);
 end $$;
 revoke all on function public.confirm_online_expedition_kill(uuid,bigint,text,text,text,bigint) from public,anon;
