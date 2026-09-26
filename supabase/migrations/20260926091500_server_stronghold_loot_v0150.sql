@@ -305,3 +305,43 @@ begin
 end $$;
 revoke all on function public.begin_online_combat_state_v2(uuid,bigint,text,text) from public,anon;
 grant execute on function public.begin_online_combat_state_v2(uuid,bigint,text,text) to authenticated;
+
+
+-- Generalized local-compatible effect application semantics.
+create or replace function private.apply_server_effect(p_effects jsonb,p_id text,p_turn bigint)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare d jsonb:=private.effect_definition(p_id);old jsonb;policy text;stacks int:=1;seq bigint;a jsonb;result jsonb;
+begin
+ if d is null then return coalesce(p_effects,'[]'::jsonb);end if;policy:=coalesce(d->>'policy','REFRESH_DURATION');
+ if d->>'behavior'='SHIELD' then p_effects:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(coalesce(p_effects,'[]'))x where coalesce(private.effect_definition(x->>'effectId')->>'behavior','')<>'SHIELD');end if;
+ select x into old from jsonb_array_elements(coalesce(p_effects,'[]'))x where x->>'effectId'=p_id limit 1;
+ if old is not null and policy='IGNORE_IF_ACTIVE' then return p_effects;end if;
+ if old is not null and policy='STACK' then stacks:=least(coalesce((d->>'maxStacks')::int,99),coalesce((old->>'stacks')::int,1)+1);end if;
+ select coalesce(max(coalesce((x->>'applicationSequence')::bigint,0)),0)+1 into seq from jsonb_array_elements(coalesce(p_effects,'[]'))x;
+ if old is not null and policy<>'REPLACE' then seq:=coalesce((old->>'applicationSequence')::bigint,seq);end if;
+ a:=jsonb_build_object('instanceId',coalesce(old->>'instanceId','server-effect-'||seq),'effectId',p_id,'sourceActorId',coalesce(old->>'sourceActorId','server'),'targetActorId',coalesce(old->>'targetActorId','server'),'remainingDuration',(d->>'duration')::int,'duration',(d->>'duration')::int,'stackCount',stacks,'stacks',stacks,'createdTurn',p_turn,'applicationSequence',seq,'scope','BATTLE','behavior',d->>'behavior')||
+ case when d ? 'stat' then jsonb_build_object('stat',d->>'stat','multiplier',(d->>'multiplier')::numeric) else '{}'::jsonb end||
+ case when d ? 'amount' then jsonb_build_object('amount',(d->>'amount')::numeric) else '{}'::jsonb end||
+ case when d ? 'shieldAmount' then jsonb_build_object('currentShield',(d->>'shieldAmount')::numeric) else '{}'::jsonb end||
+ case when d ? 'shieldHits' then jsonb_build_object('currentShieldHits',(d->>'shieldHits')::int) else '{}'::jsonb end;
+ result:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(coalesce(p_effects,'[]'))x where x->>'effectId'<>p_id)||jsonb_build_array(a);
+ if p_id='fracture' and stacks>=3 then result:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(result)x where x->>'effectId' not in('fracture','iron_armor'));result:=private.apply_server_effect(result,'exposed_core',p_turn);end if;
+ return result;
+end $$;
+revoke all on function private.apply_server_effect(jsonb,text,bigint) from public,anon,authenticated;
+
+create or replace function private.effect_periodic_delta(p_effects jsonb,p_max_hp bigint,p_turn bigint)
+returns bigint language sql immutable set search_path='' as $$
+ select coalesce(round(sum(case x->>'behavior' when 'PERIODIC_DAMAGE' then -coalesce((x->>'amount')::numeric,0)*greatest(1,coalesce((x->>'stacks')::int,(x->>'stackCount')::int,1)) when 'PERIODIC_HEAL' then p_max_hp*coalesce((x->>'amount')::numeric,0)*greatest(1,coalesce((x->>'stacks')::int,(x->>'stackCount')::int,1)) else 0 end)),0)::bigint
+ from jsonb_array_elements(coalesce(p_effects,'[]'::jsonb))x where coalesce((x->>'duration')::int,(x->>'remainingDuration')::int,0)>0 and coalesce((x->>'createdTurn')::bigint,-1)<>p_turn
+$$;
+revoke all on function private.effect_periodic_delta(jsonb,bigint,bigint) from public,anon,authenticated;
+
+create or replace function private.effect_tick(p_effects jsonb,p_turn bigint)
+returns jsonb language sql immutable set search_path='' as $$
+ select coalesce(jsonb_agg(case when coalesce((x->>'createdTurn')::bigint,-1)=p_turn then x else jsonb_set(jsonb_set(x,'{duration}',to_jsonb(coalesce((x->>'duration')::int,(x->>'remainingDuration')::int,1)-1),true),'{remainingDuration}',to_jsonb(coalesce((x->>'duration')::int,(x->>'remainingDuration')::int,1)-1),true) end)
+ filter(where coalesce((x->>'createdTurn')::bigint,-1)=p_turn or coalesce((x->>'duration')::int,(x->>'remainingDuration')::int,1)-1>0),'[]'::jsonb)
+ from jsonb_array_elements(coalesce(p_effects,'[]'::jsonb))x
+$$;
+revoke all on function private.effect_tick(jsonb,bigint) from public,anon,authenticated;
