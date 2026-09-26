@@ -3,7 +3,8 @@ import {towerIds} from '../game/data/config';
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
-import type {GameplayLease} from './gameSession';
+import {getClientInstanceId,platformLabel,type GameplayLease} from './gameSession';
+import {setWebsocketPresence} from './monitoring';
 
 export interface OnlineMarketWallet {silver:number;gold:number;revision:number}
 export interface OnlineMarketAsset {itemId:string;quantity:number;gear:Item|null}
@@ -155,7 +156,7 @@ type RealtimeStatus='connecting'|'subscribed'|'error';
 export function subscribeOnlineMarketRealtime(onChange:(itemId:string|null)=>void,onStatus:(status:RealtimeStatus)=>void=()=>{}):()=>void{
  const config=supabaseConfig;
  if(!config||typeof WebSocket==='undefined')return()=>{};
- let disposed=false,socket:WebSocket|null=null,heartbeat:number|null=null,tokenTimer:number|null=null,reconnectTimer:number|null=null,reconnectAttempt=0,ref=0,currentToken='';
+ let disposed=false,socket:WebSocket|null=null,heartbeat:number|null=null,tokenTimer:number|null=null,presenceTimer:number|null=null,reconnectTimer:number|null=null,reconnectAttempt=0,ref=0,currentToken='',presenceOnline=false;
  let joinRef='';
  const topic='realtime:market';
  const nextRef=()=>String(++ref);
@@ -165,6 +166,7 @@ export function subscribeOnlineMarketRealtime(onChange:(itemId:string|null)=>voi
  const clearTimers=()=>{
   if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}
   if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}
+  if(presenceTimer!==null){window.clearInterval(presenceTimer);presenceTimer=null;}
   if(reconnectTimer!==null){window.clearTimeout(reconnectTimer);reconnectTimer=null;}
  };
  const scheduleReconnect=()=>{
@@ -186,6 +188,9 @@ export function subscribeOnlineMarketRealtime(onChange:(itemId:string|null)=>voi
   socket=new WebSocket(wsUrl.toString());
   socket.addEventListener('open',()=>{
    reconnectAttempt=0;
+   presenceOnline=true;
+   void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),true).catch(()=>{});
+   presenceTimer=window.setInterval(()=>{void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),true).catch(()=>{});},240_000);
    send(joinRef,joinRef,topic,'phx_join',{
     config:{broadcast:{ack:false,self:false},presence:{enabled:false},postgres_changes:[],private:true},
     access_token:session.accessToken,
@@ -212,8 +217,20 @@ export function subscribeOnlineMarketRealtime(onChange:(itemId:string|null)=>voi
    }catch{}
   });
   socket.addEventListener('error',()=>onStatus('error'));
-  socket.addEventListener('close',()=>{socket=null;if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}scheduleReconnect();});
+  socket.addEventListener('close',()=>{
+   socket=null;
+   if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}
+   if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}
+   if(presenceTimer!==null){window.clearInterval(presenceTimer);presenceTimer=null;}
+   if(presenceOnline){presenceOnline=false;void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
+   scheduleReconnect();
+  });
  };
  void connect();
- return()=>{disposed=true;clearTimers();if(socket?.readyState===WebSocket.OPEN)send(joinRef,nextRef(),topic,'phx_leave',{});socket?.close();socket=null;};
+ return()=>{
+  disposed=true;clearTimers();
+  if(presenceOnline){presenceOnline=false;void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
+  if(socket?.readyState===WebSocket.OPEN)send(joinRef,nextRef(),topic,'phx_leave',{});
+  socket?.close();socket=null;
+ };
 }
