@@ -4,7 +4,7 @@ import {itemSlot,itemName} from './state';
 import {getGoldenRecorderBenefits,isGoldenRecorderActive} from '../premium/goldenRecorder';
 export const GOLDEN_RECORDER_CRAFT_QUEUE_LIMIT=3;
 export const CRAFT_DURATION_MS=30_000;
-export function fieldFor(kind:string):Field{return potionIds.includes(kind as Potion)?'alchemy':itemSlot(kind)==='weapon'?'weapon':itemSlot(kind)==='accessory'?'accessory':'armor';}
+export function fieldFor(kind:string):Field{return potionIds.includes(kind as Potion)?'alchemy':itemSlot(kind)==='weapon'?'weapon':['ring','necklace'].includes(itemSlot(kind))?'accessory':'armor';}
 export const materialFor=(field:Field):Tower=>({weapon:'ore',armor:'leather',accessory:'gem',alchemy:'kaleon'} as const)[field];
 export const discount=(crafts:number)=>Math.min(CONFIG.maxDiscount,Math.max(0,crafts)*CONFIG.discountPerCraft);
 export const cost=(s:GameState,field:Field,tier:number,now=Date.now())=>Math.max(1,Math.ceil(CONFIG.craftCost*tier*(1-discount(s.mastery[field].crafts)-getGoldenRecorderBenefits(s,now).craftingMaterialReductionBonus)));
