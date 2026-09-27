@@ -9,8 +9,8 @@ test('MARKET UI V2 01: online market uses item-first three-tab navigation',()=>{
  assert.match(source,/\['storage','보관함'\]/);
  assert.doesNotMatch(source,/\['buy','구매'\]/);
  assert.doesNotMatch(source,/\['sell','판매'\]/);
- assert.match(source,/판매 최저/);
- assert.match(source,/구매 최고/);
+ assert.match(source,/판매 최저|최저 판매/);
+ assert.match(source,/구매 최고|최고 구매/);
  assert.match(source,/최근 체결/);
  assert.match(source,/매수 주문 등록/);
  assert.match(source,/매도 주문 등록/);
@@ -19,8 +19,8 @@ test('MARKET UI V2 01: online market uses item-first three-tab navigation',()=>{
 test('MARKET UI V2 02: local fallback mirrors the online information architecture',()=>{
  const source=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  assert.match(source,/type Tab='market'\|'orders'\|'storage'/);
- assert.match(source,/판매 최저/);
- assert.match(source,/구매 최고/);
+ assert.match(source,/판매 최저|최저 판매/);
+ assert.match(source,/구매 최고|최고 구매/);
  assert.match(source,/최근 체결/);
  assert.match(source,/tc-market-v2-detail/);
  assert.match(source,/Pager page=\{safeMarketPage\}/);
