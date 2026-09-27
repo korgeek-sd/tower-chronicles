@@ -16,20 +16,31 @@ import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'association'|'settings'|'bestiary';
 
 export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
- const st=stats(game,game.expedition?.equipment),weapon=WEAPONS[weaponOf(game,game.expedition?.equipment)],job=jobById(game.currentJobId);
+ const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
+ const highestReturn=Math.max(...towerIds.map(t=>game.exploration.highestReturned[t]));
  const quick=[
-  {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'조우 기록',action:()=>onMove('bestiary')},
-  {id:'jobs-list',glyph:'jobs',title:'직능목록',subtitle:'보유·전투 키트',action:()=>onOpenJobs('list')},
-  {id:'settings',glyph:'settings',title:'저장',subtitle:'백업 관리',action:()=>onMove('settings')},
-  {id:'jobs-register',glyph:'jobs',title:'직능등록',subtitle:'100G · 10+1',action:()=>onOpenJobs('register')},
-  {id:'skills',glyph:'skills',title:'스킬',subtitle:'3개 구성',action:()=>onMove('skills')},
-  {id:'mastery',glyph:'craft',title:'숙련',subtitle:'제작 자격',action:()=>onMove('mastery')},
+  {id:'jobs-register',glyph:'registration',title:'직능등록',subtitle:'100G · 10+1',action:()=>onOpenJobs('register')},
+  {id:'jobs-list',glyph:'jobs',title:'직능목록',subtitle:`보유 직능 ${game.ownedJobIds.length}종`,action:()=>onOpenJobs('list')},
+  {id:'skills',glyph:'skills',title:'스킬',subtitle:'전투 기술 구성',action:()=>onMove('skills')},
+  {id:'mastery',glyph:'craft',title:'제작 숙련',subtitle:'분야별 성장 기록',action:()=>onMove('mastery')},
+  {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'발견한 생물',action:()=>onMove('bestiary')},
+  {id:'settings',glyph:'settings',title:'계정 · 저장',subtitle:'연결과 저장 상태',action:()=>onMove('settings')},
  ];
- return <Screen eyebrow="NOVAR / BASE CAMP" title="탑의 기록" meta={<span>{job?.displayName??'무직능'}</span>}>
-  <div className="tc-home">
-   <section className="tc-dossier"><div className="tc-dossier-top"><small>ACTIVE EXPLORER DOSSIER</small><span className="tc-dossier-symbol">{weapon.icon}</span></div><h2>{weapon.name}을 든 모험가</h2><p>{weapon.description}</p><div className="tc-stat-grid"><Stat label="HP" value={Math.round(st.hp)}/><Stat label="공격" value={Math.round(st.attack)}/><Stat label="방어" value={Math.round(st.defense)}/><Stat label="공속" value={st.speed.toFixed(2)}/></div><button className="tc-action" onClick={()=>onMove('towers')}>{game.expedition?'원정으로 돌아가기':'원정 준비'}</button></section>
-   <div className="tc-cycle"><div><b>01</b><strong>원정</strong><small>재료 확보</small></div><div><b>02</b><strong>제작</strong><small>장비 생산</small></div><div><b>03</b><strong>성장</strong><small>더 높은 층</small></div></div>
-   <div className="tc-quick">{quick.map(item=><button key={item.id} onClick={item.action}><Glyph name={item.glyph}/><b>{item.title}</b><small>{item.subtitle}</small></button>)}</div>
+ return <Screen title="노바르 거점" className="tc-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
+  <div className="tc-camp">
+   <section className="tc-camp-dossier" aria-label="모험가 기록">
+    <div className="tc-camp-profile">
+     <div className="tc-camp-crest" aria-hidden="true"><Glyph name={weaponId}/></div>
+     <div className="tc-camp-identity"><small>{job?'현재 직능':'직능 미선택'}{job&&<span>{job.rarity}</span>}</small><h2>{job?.displayName??'모험가'}</h2><p>{weapon.description}</p></div>
+    </div>
+    <div className="tc-camp-weapon"><div><small>장착 무기</small><b>{equippedWeapon?itemName(equippedWeapon):'미장착'}</b></div><button onClick={()=>onMove('equipment')}>장비 확인 <span aria-hidden="true">›</span></button></div>
+    <dl className="tc-camp-stats"><div><dt>최대 체력</dt><dd>{Math.round(st.hp)}</dd></div><div><dt>공격</dt><dd>{Math.round(st.attack)}</dd></div><div><dt>방어</dt><dd>{Math.round(st.defense)}</dd></div><div><dt>공격속도</dt><dd>{st.speed.toFixed(2)}</dd></div></dl>
+   </section>
+   <section className="tc-camp-expedition" aria-label="원정">
+    <div className="tc-camp-route"><Glyph name="towers"/><div><small>{game.expedition?'진행 중인 원정':'탐험 기록'}</small><b>{game.expedition?`${TOWERS[game.expedition.tower].name} · ${game.expedition.floor}층`:highestReturn?`최고 ${highestReturn}층에서 안전 귀환`:'첫 원정을 앞두고'}</b></div></div>
+    <button className="tc-camp-depart" onClick={()=>onMove('towers')}><span>{game.expedition?'원정으로 돌아가기':'원정 준비'}</span><span aria-hidden="true">→</span></button>
+   </section>
+   <nav className="tc-camp-links" aria-label="거점 시설">{quick.map(item=><button key={item.id} onClick={item.action}><Glyph name={item.glyph}/><span><b>{item.title}</b><small>{item.subtitle}</small></span><i aria-hidden="true">›</i></button>)}</nav>
   </div>
  </Screen>;
 }
