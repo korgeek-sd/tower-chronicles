@@ -28,7 +28,7 @@ test('MARKET UI V4 02: item detail is separated from the real buy and sell ticke
   assert.match(source,/tc-market-v2-book tc-market-v4-book/);
  }
  assert.match(online,/placeOnlineMarketOrder\(lease/);
- assert.match(local,/placeOrder\(state/);
+ assert.match(local,/placeOrder\((?:state|game)/);
 });
 
 test('MARKET UI V4 03: detail chart uses real trade time ranges and holding summary',()=>{
