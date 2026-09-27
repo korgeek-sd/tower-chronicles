@@ -158,8 +158,8 @@ export function subscribeOnlineGoldExchangeRealtime(onChange:()=>void,onStatus:(
   socket.addEventListener('open',()=>{
    reconnectAttempt=0;
    presenceOnline=true;
-   void setWebsocketPresence('gold-exchange',getClientInstanceId(),platformLabel(),true).catch(()=>{});
-   presenceTimer=window.setInterval(()=>{void setWebsocketPresence('gold-exchange',getClientInstanceId(),platformLabel(),true).catch(()=>{});},240_000);
+   void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),true).catch(()=>{});
+   presenceTimer=window.setInterval(()=>{void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),true).catch(()=>{});},240_000);
    send(joinRef,joinRef,topic,'phx_join',{config:{broadcast:{ack:false,self:false},presence:{enabled:false},postgres_changes:[],private:true},access_token:session.accessToken});
    heartbeat=window.setInterval(()=>send(null,nextRef(),'phoenix','heartbeat',{}),20_000);
    tokenTimer=window.setInterval(()=>{void(async()=>{
@@ -185,14 +185,14 @@ export function subscribeOnlineGoldExchangeRealtime(onChange:()=>void,onStatus:(
    if(heartbeat!==null){window.clearInterval(heartbeat);heartbeat=null;}
    if(tokenTimer!==null){window.clearInterval(tokenTimer);tokenTimer=null;}
    if(presenceTimer!==null){window.clearInterval(presenceTimer);presenceTimer=null;}
-   if(presenceOnline){presenceOnline=false;void setWebsocketPresence('gold-exchange',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
+   if(presenceOnline){presenceOnline=false;void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
    scheduleReconnect();
   });
  };
  void connect();
  return()=>{
   disposed=true;clearTimers();
-  if(presenceOnline){presenceOnline=false;void setWebsocketPresence('gold-exchange',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
+  if(presenceOnline){presenceOnline=false;void setWebsocketPresence('market',getClientInstanceId(),platformLabel(),false).catch(()=>{});}
   if(socket?.readyState===WebSocket.OPEN)send(joinRef,nextRef(),topic,'phx_leave',{});
   socket?.close();socket=null;
  };
