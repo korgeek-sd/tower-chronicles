@@ -10,6 +10,8 @@ test('JOB REGISTRATION UI 01: mobile job screen exposes registration and list ta
  assert.match(source,/1,000 Gold · 총 11개/);
  assert.match(source,/SR 집중 열람/);
  assert.match(source,/SSR 집중 열람/);
+ assert.match(source,/직능기록/);
+ assert.match(source,/확률정보/);
 });
 
 test('JOB REGISTRATION UI 02: registration UI calls only server registration RPC wrappers',()=>{
@@ -17,6 +19,8 @@ test('JOB REGISTRATION UI 02: registration UI calls only server registration RPC
  assert.match(source,/registerOnlineJob\(onlineLease,paidRolls\)/);
  assert.match(source,/getOnlineJobRegistrationState\(onlineLease\)/);
  assert.match(source,/setOnlineJobRegistrationPickups\(onlineLease,next\)/);
+ assert.match(source,/exchangeOnlineJobResidualRecord\(onlineLease,jobId\)/);
+ assert.match(source,/exchangeOnlineJobResidualRecommendation\(onlineLease\)/);
  assert.doesNotMatch(source,/Math\.random\(/);
 });
 
@@ -63,4 +67,27 @@ test('JOB REGISTRATION UI 06: pixel archive skin is CSS-only and preserves compa
  assert.match(css,/\.tc-reg-mini:after/);
  assert.match(css,/Preserve the one-screen mobile contract after the decorative skin overrides/);
  assert.match(css,/@media\(max-height:620px\)\{[\s\S]*\.tc-reg-vault-icon\{width:54px;height:38px\}/);
+});
+
+
+test('JOB REGISTRATION UI 07: records view exposes server quotas and recommendation conversion',()=>{
+ const source=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ assert.match(source,/협회 추천장 \+1/);
+ assert.match(source,/잔여 기록/);
+ assert.match(source,/stageLabel\(count\)/);
+ assert.match(source,/exchangeUsage/);
+ assert.match(css,/\.tc-reg-records\{/);
+ assert.match(css,/\.tc-reg-record-list\{/);
+ assert.match(css,/\.tc-reg-recommend\{/);
+});
+
+test('JOB REGISTRATION UI 08: probability view documents pickup and reset rules without client RNG',()=>{
+ const source=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
+ assert.match(source,/픽업 직능 2\.5%/);
+ assert.match(source,/픽업 직능 0\.5%/);
+ assert.match(source,/10\/30\/60 성장 기준/);
+ assert.match(source,/매주 월요일 00:00/);
+ assert.match(source,/매월 1일 00:00\(KST\)/);
+ assert.doesNotMatch(source,/Math\.random\(/);
 });
