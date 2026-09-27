@@ -20,6 +20,7 @@ import {
  type OnlineAssociationSealState,
 } from '../../online/seal';
 import {Screen} from '../../ui/mobile';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
 
@@ -35,6 +36,7 @@ export function SealScreen({
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
  const [lastStep,setLastStep]=useState<number|null>(null);
+ const feel=useGameFeel();
 
  useEffect(()=>{
   if(!onlineLease){
@@ -69,16 +71,18 @@ export function SealScreen({
 
  async function roll(){
   if(!onlineLease||!canRoll)return;
+  feel.play('seal.roll.start');
   setBusy(true);setMessage('');setLastStep(null);
   try{
    const result=await rollOnlineAssociationSeal(onlineLease);
    setState(result.state);
    setLastStep(result.step);
+   feel.play('seal.roll.result',{step:result.step});
    const text='+'+result.step+' 단계 · '+result.beforeLevel+' → '+result.afterLevel;
    setMessage(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL?'최고 인장을 완성했습니다.':text);
    if(onServerRecord)onServerRecord(result.record,'협회 인장 주조 결과를 서버에 저장했습니다.');
    else setGame(result.record.payload);
-  }catch(error){setMessage(error instanceof Error?error.message:'협회 인장 주조에 실패했습니다.');}
+  }catch(error){feel.play('ui.error');setMessage(error instanceof Error?error.message:'협회 인장 주조에 실패했습니다.');}
   finally{setBusy(false);}
  }
 
@@ -89,10 +93,11 @@ export function SealScreen({
   try{
    const result=await resetOnlineAssociationSeal(onlineLease);
    setState(result.state);
+   feel.play('seal.reset');
    setMessage('재주조 완료 · 누적 '+result.state.resetCount+'회');
    if(onServerRecord)onServerRecord(result.record,'협회 인장 재주조를 서버에 저장했습니다.');
    else setGame(result.record.payload);
-  }catch(error){setMessage(error instanceof Error?error.message:'협회 인장 재주조에 실패했습니다.');}
+  }catch(error){feel.play('ui.error');setMessage(error instanceof Error?error.message:'협회 인장 재주조에 실패했습니다.');}
   finally{setBusy(false);}
  }
 
@@ -159,11 +164,11 @@ export function SealScreen({
    </section>
 
    <div className="tc-seal-actions">
-    <button className="tc-seal-roll" disabled={!canRoll} onClick={()=>void roll()}>
+    <button className="tc-seal-roll tc-feel-press" data-game-feel="press" disabled={!canRoll} onClick={()=>void roll()}>
      <span>{busy?'주조 중…':completed?'최고 단계 달성':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'20회 주조 완료':'인장 주조'}</span>
      <small>{ASSOCIATION_SEAL_ROLL_COST.toLocaleString()} Gold</small>
     </button>
-    <button className="tc-seal-reset" disabled={!canReset} onClick={()=>void reset()}>
+    <button className="tc-seal-reset tc-feel-press" data-game-feel="press" disabled={!canReset} onClick={()=>void reset()}>
      <span>재주조</span>
      <small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold · 언제든지 재주조</small>
     </button>
