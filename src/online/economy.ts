@@ -71,6 +71,15 @@ const errors:RpcErrorMap={
  JOB_REGISTRATION_REQUEST_CONFLICT:'같은 직능등록 요청이 다른 조건으로 다시 전송되었습니다.',
  JOB_PICKUP_INVALID:'선택한 픽업 직능이 유효하지 않습니다.',
  JOB_REGISTRATION_POOL_EMPTY:'등록 가능한 직능이 없습니다.',
+ JOB_RECORD_EXCHANGE_REQUEST_REQUIRED:'직능 기록 교환 요청 식별자가 없습니다.',
+ JOB_RECORD_EXCHANGE_REQUEST_CONFLICT:'같은 기록 교환 요청이 다른 직능으로 다시 전송되었습니다.',
+ JOB_RECORD_EXCHANGE_DURING_EXPEDITION:'원정 중에는 잔여 기록을 교환할 수 없습니다.',
+ JOB_RECORD_MAXED:'이미 ★★★에 도달한 직능입니다.',
+ JOB_RESIDUAL_SHORTAGE:'잔여 기록이 부족합니다.',
+ JOB_RECORD_EXCHANGE_LIMIT:'해당 등급의 이번 교환 한도를 모두 사용했습니다.',
+ JOB_RECOMMENDATION_REQUEST_REQUIRED:'협회 추천장 교환 요청 식별자가 없습니다.',
+ JOB_RECOMMENDATION_DURING_EXPEDITION:'원정 중에는 협회 추천장으로 교환할 수 없습니다.',
+ JOB_RECOMMENDATION_WEEKLY_LIMIT:'이번 주 협회 추천장 교환 한도를 모두 사용했습니다.',
 };
 
 const headers=(token:string)=>({
@@ -154,11 +163,21 @@ export interface OnlineJobRecordProgress {
  stars:0|1|2|3;
  unlocked:boolean;
 }
+export interface OnlineJobExchangeQuota {
+ cost:number;
+ used:number;
+ limit:number;
+ period:'WEEK'|'MONTH';
+ periodStart:string;
+}
 export interface OnlineJobRegistrationState {
  gold:number;
  residualRecords:number;
+ associationRecommendations:number;
  pickups:{sr:string|null;ssr:string|null};
  records:OnlineJobRecordProgress[];
+ exchangeUsage:Record<JobRarity,OnlineJobExchangeQuota>;
+ recommendationExchange:OnlineJobExchangeQuota;
 }
 export interface OnlineJobRegistrationResultEntry extends OnlineJobRecordProgress {
  index:number;
@@ -202,6 +221,47 @@ export async function registerOnlineJob(
  });
  await remember(result.record);
  return result;
+}
+
+export interface OnlineJobRecordExchangeResult {
+ requestId:string;
+ result:OnlineJobRecordProgress&{
+  newlyUnlocked:boolean;
+  residualGained:number;
+  residualCost:number;
+  exchangePeriodStart:string;
+ };
+ state:OnlineJobRegistrationState;
+ record:CloudSaveRecord;
+ replayed:boolean;
+}
+
+export async function exchangeOnlineJobResidualRecord(
+ lease:GameplayLease,
+ jobId:string,
+ requestId:string=crypto.randomUUID(),
+){
+ const result=await rpc<OnlineJobRecordExchangeResult>('exchange_job_residual_record',{
+  ...leaseArgs(lease),p_request_id:requestId,p_job_id:jobId,
+ });
+ await remember(result.record);
+ return result;
+}
+
+export interface OnlineJobRecommendationExchangeResult {
+ requestId:string;
+ recommendationBalance:number;
+ state:OnlineJobRegistrationState;
+ replayed:boolean;
+}
+
+export async function exchangeOnlineJobResidualRecommendation(
+ lease:GameplayLease,
+ requestId:string=crypto.randomUUID(),
+){
+ return rpc<OnlineJobRecommendationExchangeResult>('exchange_job_residual_recommendation',{
+  ...leaseArgs(lease),p_request_id:requestId,
+ });
 }
 
 export async function startOnlineCraft(lease:GameplayLease,input:{jobId:string;kind:string;tier:number;quantity:number}){
