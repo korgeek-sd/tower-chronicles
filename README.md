@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.55
+# 탑의 기록 v0.1.56
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.55`
+- 앱 버전: `0.1.56`
 - 저장 스키마: `v22`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,20 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.56 — 거래소 UI V3 · Figma 레퍼런스 보정
+
+Figma Community의 Crypto Trading App UI Kit의 실제 Market / Coin page / Buy / Sell 프레임을 분석해 거래소의 정보 위계와 입력 흐름을 2차 보정했습니다.
+
+- 시장 목록을 카드형 시세 리스트로 정리
+- 실제 최근 체결가를 이용한 미니 가격 추이선 추가
+- 상세 화면 상단에 최근 체결가와 변동률을 크게 표시
+- 최저 판매가 / 최고 구매가를 보조 시세로 정리
+- 주문장 기능과 서버 권위 지정가 주문 로직은 그대로 유지
+- 수량 입력에 10 / 25 / 50 / 75 / MAX 비율 프리셋 추가
+- 최근 체결 추이의 저가 / 고가 / 현재가 표시
+- 700px / 620px 이하와 360px 이하 모바일 압축 규칙 보강
+- Figma의 암호화폐 이미지/아이콘 에셋은 가져오지 않고 기존 Glyph와 CSS만 사용
 
 ## v0.1.55 — 거래소 UI V2
 
