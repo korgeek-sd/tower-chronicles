@@ -3,7 +3,7 @@
 Date: 2026-09-28
 Target repository: `korgeek-sd/tower-chronicles`
 Starting point: main / v0.1.63
-Status: Approved design
+Status: Draft for written review
 
 ## 1. Goal
 
@@ -197,7 +197,7 @@ Grade base costs:
 Enhancement stage factors are:
 `1.0, 1.5, 2.2, 3.2, 4.5, 6.5, 9.5, 14, 21, 32`
 
-Silver cost is `grade base cost * stage factor`, rounded to an integer using one shared rule on client and server.
+Silver cost is `grade base cost * stage factor`, rounded to the nearest positive integer on both client and server.
 
 ## 10. Enhancement Stone
 
@@ -274,13 +274,16 @@ Equipment drop chance is evaluated per defeated monster. If equipment drops, ite
 
 Weights change item identity only, not grade.
 
-- 고블린 광부: gloves 22%, boots 18%, sword 18%, each other item 7%
-- 고블린 운반꾼: armor and necklace receive elevated weight
-- 고블린 감독관: ring, helmet, and sword receive elevated weight
-- 동굴쥐: boots and necklace receive elevated weight
-- 광산박쥐: bow and staff receive elevated weight
+Use these integer identity weights and normalize them at roll time. Item order is:
+`sword, bow, staff, helmet, armor, gloves, boots, necklace, ring`.
 
-For monster rows whose exact percentages are not separately listed above, use a deterministic weighted table where named favored items have equal elevated weight and remaining items share the remainder equally. Keep the weights in data, not combat code.
+- 고블린 광부: `18, 7, 7, 7, 7, 22, 18, 7, 7`
+- 고블린 운반꾼: `8, 8, 8, 8, 21, 8, 8, 21, 10`
+- 고블린 감독관: `18, 7, 7, 18, 7, 7, 7, 7, 22`
+- 동굴쥐: `7, 7, 7, 7, 7, 7, 26, 26, 6`
+- 광산박쥐: `7, 26, 26, 7, 7, 7, 7, 7, 6`
+
+Each row sums to 100 and is interpreted directly as percentage weight. Keep the weights in data, not combat code.
 
 ### Boss equipment
 
