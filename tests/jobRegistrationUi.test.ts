@@ -30,3 +30,21 @@ test('JOB REGISTRATION UI 03: rebuilt gacha UI stays asset-free and viewport-con
  assert.match(css,/\.tc-registration\{height:100%;min-height:0;display:grid/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
+
+
+test('JOB REGISTRATION UI 04: mobile controls keep usable touch targets',()=>{
+ const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-job-hub>\.tc-segments button\{min-height:42px/);
+ assert.match(css,/\.tc-reg-pickups select\{[^}]*height:42px;min-height:42px/);
+ assert.match(css,/\.tc-reg-draw\{[^}]*min-height:48px;height:52px/);
+ assert.match(css,/\.tc-reg-result-foot>\.tc-action\{[^}]*min-height:44px;height:44px/);
+});
+
+test('JOB REGISTRATION UI 05: 10+1 result grid favors readable three-card rows and stays clipped to the viewport',()=>{
+ const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-reg-result\{height:100%;min-height:0;overflow:hidden\}/);
+ assert.match(css,/\.tc-reg-result-grid\{[^}]*grid-template-columns:repeat\(6,minmax\(0,1fr\)\);grid-template-rows:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.tc-reg-mini\{[^}]*grid-column:span 2/);
+ assert.match(css,/\.tc-reg-mini:nth-child\(10\)\{grid-column:2\/span 2\}/);
+ assert.match(css,/@media\(max-height:620px\)/);
+});
