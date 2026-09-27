@@ -8,7 +8,7 @@ import type {CloudSaveRecord} from '../online/cloudSave';
 import {Pager,Screen,Segments} from '../ui/mobile';
 
 const PAGE_SIZE=5;
-type JobTab='register'|'list';
+export type JobTab='register'|'list';
 
 const RATE_LABELS:[JobRarity,string][]=[
  ['C','51%'],['B','30%'],['A','13%'],['SR','5%'],['SSR','1%'],
@@ -17,15 +17,16 @@ const RATE_LABELS:[JobRarity,string][]=[
 function jobName(id:string|null){return jobById(id)?.displayName??'미지정';}
 
 export function JobsScreen({
- game,setGame,onSelectJob,onlineLease,onServerRecord,
+ game,setGame,onSelectJob,onlineLease,onServerRecord,initialTab='register',
 }:{
  game:GameState;
  setGame:React.Dispatch<React.SetStateAction<GameState>>;
  onSelectJob?:(jobId:string)=>void;
  onlineLease?:GameplayLease|null;
  onServerRecord?:(record:CloudSaveRecord,message:string)=>void;
+ initialTab?:JobTab;
 }){
- const [tab,setTab]=useState<JobTab>('register');
+ const [tab,setTab]=useState<JobTab>(initialTab);
  const [rarity,setRarity]=useState<(typeof JOB_RARITIES)[number]>(JOB_RARITIES[0]);
  const [page,setPage]=useState(0);
  const [registration,setRegistration]=useState<OnlineJobRegistrationState|null>(null);
