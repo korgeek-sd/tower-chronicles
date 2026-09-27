@@ -95,6 +95,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  const asks=aggregateOrderBookByPrice(book.sells).sort((a,b)=>a.price-b.price).slice(0,4);
  const bids=aggregateOrderBookByPrice(book.buys).sort((a,b)=>b.price-a.price).slice(0,4);
  const maxDepth=Math.max(1,...asks.map(x=>x.quantity),...bids.map(x=>x.quantity));
+ const valid=!!snapshot&&!!item&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
  const open=getMyOpenOrders(view);
  const storage=snapshot?.storage??[];
  const trades=snapshot?.trades??[];
