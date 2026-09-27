@@ -40,6 +40,8 @@ import {
 import {Glyph} from './ui/mobile';
 import {isGoldenRecorderActive,remainingGoldenTime} from './game/premium/goldenRecorder';
 import './mobile-game.css';
+import './gameFeel/game-feel.css';
+import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
 
 configureEventMode(new URLSearchParams(location.search).get('events')==='test'?'test':'production');
 
@@ -336,4 +338,4 @@ function App(){
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }
-createRoot(document.getElementById('root')!).render(<App/>);
+createRoot(document.getElementById('root')!).render(<GameFeelProvider><App/></GameFeelProvider>);

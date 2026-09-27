@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import type {GameState,Potion} from '../../game/types';
 import {EVENT_BALANCE} from '../../game/events/selector';
 import {TOWERS,POTIONS,generalPotionIds,WEAPONS,SKILLS} from '../../game/data/config';
@@ -17,12 +17,28 @@ import {loadPrefs,savePrefs,SPEEDS} from './prefs';
 import type {BattlePrefs} from './prefs';
 import {Glyph} from '../../ui/mobile';
 import {strongholdRemainingMs} from '../../game/events/resourceStronghold';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 
 type Props={game:GameState;now?:number;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void;onAbandonStronghold?:()=>void};
 const glyph:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
 
 export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
+ const feel=useGameFeel();
+ const lastFeelEvent=useRef(0),lastHp=useRef(e.hp);
+ useEffect(()=>{
+  const fresh=(game.combatEvents??[]).filter(event=>event.id>lastFeelEvent.current);
+  for(const event of fresh){
+   if(event.absorbedByShield>0)feel.play('combat.guard');
+   if(event.hpDamage<=0)continue;
+   if(event.target==='monster')feel.play(event.critical?'combat.critical-hit':'combat.basic-hit');
+   else feel.play('combat.player-damaged',{intensity:event.critical?'strong':'normal'});
+  }
+  if(fresh.length)lastFeelEvent.current=fresh.at(-1)!.id;
+  if(e.hp>lastHp.current)feel.play('combat.heal');
+  if(e.hp<=0&&lastHp.current>0)feel.play('combat.death');
+  lastHp.current=e.hp;
+ },[game.combatEvents,e.hp,feel]);
  const [panel,setPanel]=useState<'menu'|'items'|'enemy'|null>(null);
  const playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e),buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const [prefs,setPrefs]=useState<BattlePrefs>(loadPrefs);
@@ -59,7 +75,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
    <button className="tc-ref-menu" onClick={()=>setPanel(panel==='menu'?null:'menu')} aria-label="전투 메뉴" aria-expanded={panel==='menu'}><i/><i/><i/></button>
   </header>
 
-  <button className="tc-ref-flee" disabled={!playerTurn} onClick={onFlee} aria-label="귀환 시도"><Glyph name="tickets"/><small>귀환</small></button>
+  <button className="tc-ref-flee tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={onFlee} aria-label="귀환 시도"><Glyph name="tickets"/><small>귀환</small></button>
 
   {intent&&<div className="tc-ref-intent" role="alert"><b>{intent.kind==='CHARGE'?'강공격 준비':'반격 준비'}</b><span>{intent.skillName}</span></div>}
 
@@ -71,7 +87,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
   </div>
 
   <div className="tc-ref-actions">
-   <button className="tc-ref-card" disabled={!playerTurn} onClick={onBasicAttack}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
+   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={onBasicAttack}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
    {skillCards}
    <button className="tc-ref-card" disabled={!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>아이템</strong><small>포션</small></button>
   </div>
