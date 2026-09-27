@@ -12,6 +12,7 @@ import {ServerMarketScreen} from './ServerMarketScreen';
 type Tab='market'|'orders'|'storage';
 type Category='all'|'equipment'|'materials'|'skillbooks'|'tickets'|'other';
 type Side='BUY'|'SELL';
+type Trend={points:string;delta:number|null;last:number|null;low:number|null;high:number|null;count:number};
 const PAGE_SIZE=5;
 const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']] as const;
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['skillbooks','스킬북'],['tickets','입장권'],['other','기타']];
@@ -19,6 +20,28 @@ const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const levels=(orders:MarketOrder[],desc=false)=>aggregateOrderBookByPrice(orders).sort((a,b)=>desc?b.price-a.price:a.price-b.price).slice(0,4);
 const pageSlice=<T,>(rows:T[],page:number)=>rows.slice(page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE);
+const sparkPoints=(values:number[])=>{
+ if(values.length<2)return '';
+ const min=Math.min(...values),max=Math.max(...values),span=max-min||1;
+ return values.map((value,index)=>{
+  const x=values.length===1?50:index/(values.length-1)*100;
+  const y=21-(value-min)/span*16;
+  return x.toFixed(2)+','+y.toFixed(2);
+ }).join(' ');
+};
+const makeTrend=(values:number[]):Trend=>{
+ const first=values[0]??null,last=values.at(-1)??null;
+ return {
+  points:sparkPoints(values),
+  delta:first&&last!==null?((last-first)/first)*100:null,
+  last,
+  low:values.length?Math.min(...values):null,
+  high:values.length?Math.max(...values):null,
+  count:values.length,
+ };
+};
+const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
+const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
 export function MarketScreen({game,setGame,onlineLease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null}){
  if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease}/>;
@@ -41,8 +64,15 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
  const book=selected?orderBook(game,selected):{sells:[],buys:[]};
  const asks=levels(book.sells),bids=levels(book.buys,true);
  const maxDepth=Math.max(1,...asks.map(x=>x.quantity),...bids.map(x=>x.quantity));
- const preview=selected?marketTradesForPreview(game.market.trades,selected,Date.now()):{trades:game.market.trades,demo:false};
- const recentTrades=selected?preview.trades.filter(t=>t.itemId===selected).slice().sort((a,b)=>b.executedAt-a.executedAt).slice(0,3):[];
+ const trendByItem=useMemo(()=>{
+  const now=Date.now(),result=new Map<string,Trend>();
+  for(const entry of catalog){
+   const preview=marketTradesForPreview(game.market.trades,entry.id,now);
+   const values=preview.trades.filter(t=>t.itemId===entry.id).slice().sort((a,b)=>a.executedAt-b.executedAt).slice(-8).map(t=>t.price);
+   result.set(entry.id,makeTrend(values));
+  }
+  return result;
+ },[game.market.trades,catalog]);
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN;
  const valid=!!item&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!game.expedition&&(side==='BUY'?game.silver>=p*q:item.available>=q);
 
@@ -53,15 +83,21 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
  const storageSilver=getMarketStorageSilver(game),storageItems=getMarketStorageItemCount(game);
 
  const choose=(id:string)=>{
-  const sample=marketTradesForPreview(game.market.trades,id,Date.now()).trades.filter(t=>t.itemId===id).sort((a,b)=>b.executedAt-a.executedAt)[0];
   setSelected(id);setSide('BUY');setQty('1');
-  setPrice(String(getBestAsk(game,id)??getBestBid(game,id)??sample?.price??''));
+  setPrice(String(getBestAsk(game,id)??getBestBid(game,id)??trendByItem.get(id)?.last??''));
  };
 
  const switchSide=(next:Side)=>{
   setSide(next);
   if(!selected)return;
-  setPrice(String((next==='BUY'?getBestAsk(game,selected):getBestBid(game,selected))??''));
+  setPrice(String((next==='BUY'?getBestAsk(game,selected):getBestBid(game,selected))??trendByItem.get(selected)?.last??''));
+ };
+
+ const applyPercent=(percent:number)=>{
+  if(!item||!Number.isSafeInteger(p)||p<=0)return;
+  const max=side==='BUY'?Math.floor(game.silver/p):item.available;
+  const next=max<=0?0:percent===100?max:Math.min(max,Math.max(1,Math.floor(max*percent/100)));
+  setQty(String(next));
  };
 
  const submit=()=>{
@@ -79,13 +115,21 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
 
  if(item){
   const bestAsk=getBestAsk(game,item.id),bestBid=getBestBid(game,item.id);
-  return <Screen eyebrow="SILVER SCALE / ORDER DESK" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>setSelected(null)}>시장</button>}>
-   <div className="tc-market-v2-detail">
-    <section className="tc-market-v2-itemhead">
-     <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
-     <div className="tc-market-v2-itemname"><small>LOCAL ORDER BOOK</small><b>{item.name}</b><span>보유 {item.available}</span></div>
-     <div className="tc-market-v2-quote ask"><small>최저 판매</small><b>{money(bestAsk)}</b></div>
-     <div className="tc-market-v2-quote bid"><small>최고 구매</small><b>{money(bestBid)}</b></div>
+  const trend=trendByItem.get(item.id)??makeTrend([]);
+  const current=trend.last??bestAsk??bestBid;
+  const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(game.silver/p):item.available):0;
+  return <Screen eyebrow="SILVER SCALE / ORDER DESK" title="시장 상세" meta={<button className="tc-action secondary slim" onClick={()=>setSelected(null)}>시장</button>}>
+   <div className="tc-market-v2-detail tc-market-v3-detail">
+    <section className="tc-market-v3-detailhead">
+     <div className="tc-market-v3-identity">
+      <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
+      <div className="tc-market-v2-itemname"><small>LOCAL ORDER BOOK</small><b>{item.name}</b><span>보유 {item.available}</span></div>
+     </div>
+     <div className="tc-market-v3-current"><small>최근 체결가</small><b>{money(current)}</b><span className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</span></div>
+     <div className="tc-market-v3-quotes">
+      <span className="ask"><small>최저 판매</small><b>{money(bestAsk)}</b></span>
+      <span className="bid"><small>최고 구매</small><b>{money(bestBid)}</b></span>
+     </div>
     </section>
 
     <section className="tc-market-v2-book">
@@ -96,17 +140,24 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
      </div>
     </section>
 
-    <section className="tc-market-v2-recent">
-     <header><span>최근 체결</span><small>{preview.demo?'시장 표본':'실제 기록'}</small></header>
-     <div>{recentTrades.map(t=><span key={t.tradeId}><b>{money(t.price)}</b><small>×{t.quantity}</small></span>)}{!recentTrades.length&&<p>아직 체결 기록이 없습니다.</p>}</div>
+    <section className="tc-market-v3-chart">
+     <header><span>최근 체결 추이</span><small>{trend.count?trend.count+'건 기준':'체결 대기'}</small></header>
+     <div className="tc-market-v3-chartbody">
+      <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-label="최근 체결 가격 추이">
+       <line x1="0" y1="21" x2="100" y2="21"/>
+       {trend.points&&<polyline className={trendClass(trend.delta)} points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/>}
+      </svg>
+      <div><span>저가 <b>{money(trend.low)}</b></span><span>고가 <b>{money(trend.high)}</b></span><span>현재 <b>{money(current)}</b></span></div>
+     </div>
     </section>
 
-    <section className="tc-market-v2-ticket">
+    <section className="tc-market-v2-ticket tc-market-v3-ticket">
      <Segments items={[['BUY','매수'],['SELL','매도']] as const} value={side} onChange={switchSide} label="주문 방향"/>
      <div className="tc-market-v2-fields">
       <label><small>가격</small><input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label>
       <label><small>수량</small><input inputMode="numeric" value={qty} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
      </div>
+     <div className="tc-market-v3-presets" aria-label="주문 수량 비율">{[10,25,50,75,100].map(percent=><button key={percent} disabled={maxOrderQty<=0} onClick={()=>applyPercent(percent)}>{percent===100?'MAX':percent+'%'}</button>)}</div>
      <div className="tc-market-v2-total"><span>{side==='BUY'?'예상 예치금':'지정 판매금액'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b></div>
      <button className={'tc-market-v2-submit '+(side==='BUY'?'buy':'sell')} disabled={!valid} onClick={submit}>{side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
     </section>
@@ -115,25 +166,27 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
  }
 
  return <Screen eyebrow="SILVER SCALE / LOCAL" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
-  <div className={"tc-market-v2 tab-"+tab}>
+  <div className={"tc-market-v2 tc-market-v3 tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setPage(0);}} label="거래소 메뉴"/>
 
    {tab==='market'&&<>
-    <section className="tc-market-v2-status">
-     <div><small>시장 상태</small><b>로컬 장부</b></div>
-     <div><small>보유 Silver</small><b>{game.silver.toLocaleString()}</b></div>
+    <section className="tc-market-v2-status tc-market-v3-status">
+     <div className="lead"><small>LOCAL MARKET</small><b>로컬 시장 장부</b><span>저장된 주문과 체결 기록을 기준으로 표시합니다.</span></div>
+     <div><small>보유 SILVER</small><b>{game.silver.toLocaleString()}</b></div>
      <div><small>수령 대기</small><b>{storage.length}건</b></div>
     </section>
-    <div className="tc-market-v2-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setPage(0);}}>{label}</button>)}</div>
-    <div className="tc-market-v2-list">
-     <div className="tc-market-v2-listhead"><span>품목</span><span>판매 최저</span><span>구매 최고</span></div>
-     {shown.map(entry=><button className="tc-market-v2-row" key={entry.id} onClick={()=>choose(entry.id)}>
-      <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
-      <span className="name"><b>{entry.name}</b><small>보유 {entry.available}</small></span>
-      <span className="ask"><small>ASK</small><b>{money(getBestAsk(game,entry.id))}</b></span>
-      <span className="bid"><small>BID</small><b>{money(getBestBid(game,entry.id))}</b></span>
-      <i>›</i>
-     </button>)}
+    <div className="tc-market-v2-cats tc-market-v3-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setPage(0);}}>{label}</button>)}</div>
+    <div className="tc-market-v2-list tc-market-v3-list">
+     {shown.map(entry=>{
+      const ask=getBestAsk(game,entry.id),bid=getBestBid(game,entry.id),trend=trendByItem.get(entry.id)??makeTrend([]);
+      return <button className="tc-market-v2-row tc-market-v3-card" key={entry.id} onClick={()=>choose(entry.id)}>
+       <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
+       <span className="name"><b>{entry.name}</b><small>보유 {entry.available}</small></span>
+       <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
+       <span className="tc-market-v3-rowprice"><b>{money(ask??bid)}</b><small>매도 {money(ask)} · 매수 {money(bid)}</small></span>
+       <i>›</i>
+      </button>;
+     })}
      {!shown.length&&<div className="tc-market-v2-empty">표시할 시장 품목이 없습니다.</div>}
     </div>
     <Pager page={safeMarketPage} count={marketPages} onChange={setPage}/>
