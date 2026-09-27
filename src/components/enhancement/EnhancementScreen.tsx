@@ -6,6 +6,7 @@ import {enhancementAttemptView,enhancementPreviewRows} from './presentation';
 import {Glyph,Pager,Screen} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {enhanceOnlineEquipment,type ServerEnhancementOutcome} from '../../online/economy';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 
 const PAGE_SIZE=5;
 const pct=(n:number)=>Math.round(n*100)+'%';
@@ -13,6 +14,7 @@ const iconFor=(item:Item)=>item.kind==='armor'?'armor':item.kind==='boots'?'boot
 
 export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onBack:()=>void}){
  const [selectedId,setSelectedId]=useState<string|null>(null),[confirm,setConfirm]=useState(false),[page,setPage]=useState(0),[busy,setBusy]=useState(false);
+ const feel=useGameFeel();
  const items=useMemo(()=>game.items.slice().sort((a,b)=>Number(Object.values(game.equipped).includes(b.id))-Number(Object.values(game.equipped).includes(a.id))||b.tier-a.tier||b.enhancement-a.enhancement||a.id.localeCompare(b.id)),[game.items,game.equipped]);
  const pages=Math.max(1,Math.ceil(items.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),selected=items.find(i=>i.id===selectedId)??shown[0]??null;
  useEffect(()=>{if(selectedId&&!game.items.some(item=>item.id===selectedId)){setSelectedId(null);setConfirm(false);}},[game.items,selectedId]);
@@ -20,13 +22,23 @@ export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameSt
  const enhanceNotice=(outcome:ServerEnhancementOutcome,name:string)=>outcome==='SUCCESS'?`강화 성공! ${name}`:outcome==='FAIL_KEEP'?`강화 실패. ${name}의 강화 단계가 유지됩니다.`:outcome==='FAIL_DOWNGRADE'?`강화 실패. ${name}의 강화 단계가 하락했습니다.`:`강화 실패. ${name} 장비가 파괴되었습니다.`;
  const confirmEnhancement=async()=>{
   if(!selected)return;
-  if(!onlineLease){setGame(s=>enhanceEquipment(s,selected.id));setConfirm(false);return;}
+  feel.play('enhancement.attempt');
+  if(!onlineLease){
+   const localResult=enhanceEquipment(game,selected.id);
+   const resolvedItem=localResult.items.find(item=>item.id===selected.id);
+   const localOutcome:ServerEnhancementOutcome=!resolvedItem?'FAIL_DESTROY':resolvedItem.enhancement>selected.enhancement?'SUCCESS':resolvedItem.enhancement<selected.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
+   setGame(localResult);
+   feel.play('enhancement.result',{outcome:localOutcome,target:q?.target});
+   setConfirm(false);
+   return;
+  }
   setBusy(true);
   try{
    const result=await enhanceOnlineEquipment(onlineLease,selected.id);
    setGame({...result.record.payload,notice:enhanceNotice(result.outcome,itemName(selected))});
+   feel.play('enhancement.result',{outcome:result.outcome,target:q?.target});
    setConfirm(false);
-  }catch(error){setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));setConfirm(false);}
+  }catch(error){feel.play('ui.error',{message:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'});setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));setConfirm(false);}
   finally{setBusy(false);}
  };
  return <Screen eyebrow="WORKSHOP / ENHANCEMENT" title="장비 강화" meta={<button className="tc-action secondary slim" onClick={onBack}>제작으로</button>}>
