@@ -2215,3 +2215,55 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-market-v4-detail{grid-template-rows:80px minmax(0,1fr) 50px 40px 48px}
  .tc-market-v4-portfolio{grid-template-columns:1.3fr .9fr .85fr}
 }
+
+
+/* ===== MARKET V5 / safe live demo market ===== */
+.tc-market-demo-toggle{
+ justify-self:end;
+ min-width:54px;
+ height:28px;
+ border:1px solid #3d443d;
+ border-radius:14px;
+ background:#10140f;
+ color:#7c837c;
+ font:700 5.5px ui-monospace,Consolas,monospace;
+ letter-spacing:.05em;
+ padding:0 7px;
+}
+.tc-market-demo-toggle.active{
+ border-color:#8d7954;
+ background:linear-gradient(180deg,#2d271c,#191914);
+ color:#e0cca3;
+ box-shadow:0 0 0 1px #0b0d0a inset,0 0 8px #9b815122;
+}
+.tc-market-v4-card,
+.tc-market-v2-bookcols button,
+.tc-market-v4-chartplot polyline{
+ transition:background-color .18s ease,border-color .18s ease,opacity .18s ease,stroke .22s ease;
+}
+.tc-market-v2-bookcols button i{
+ transition:width .28s ease;
+}
+.tc-market-v3-rowprice b,
+.tc-market-v2-bookcols button span,
+.tc-market-v2-bookcols button small,
+.tc-market-v4-pricehead .tc-market-v3-current b,
+.tc-market-v4-transactions b{
+ transition:color .18s ease,opacity .18s ease;
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-market-v4-card,
+ .tc-market-v2-bookcols button,
+ .tc-market-v4-chartplot polyline,
+ .tc-market-v2-bookcols button i,
+ .tc-market-v3-rowprice b,
+ .tc-market-v2-bookcols button span,
+ .tc-market-v2-bookcols button small,
+ .tc-market-v4-pricehead .tc-market-v3-current b,
+ .tc-market-v4-transactions b{
+  transition:none!important;
+ }
+}
+@media(max-height:620px){
+ .tc-market-demo-toggle{min-width:48px;height:24px;font-size:5px;padding-inline:5px}
+}
