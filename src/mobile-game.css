@@ -1406,3 +1406,378 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-market-v2-quote{padding-inline:3px}
  .tc-market-v2-storagehead{grid-template-columns:1fr 1fr 88px}
 }
+
+
+/* ===== MARKET V3 / Figma trading-reference refinement =====
+   Reference cues: calm card rhythm, underlined filters, compact sparkline,
+   price-first detail hierarchy, percentage presets, strong bottom CTA.
+   Reinterpreted in Tower Chronicles' muted iron/brass visual language. */
+.tc-market-v3.tab-market{grid-template-rows:44px 56px 34px minmax(0,1fr) 30px;gap:6px}
+.tc-market-v3-status{
+ grid-template-columns:minmax(0,1.55fr) .82fr .64fr;
+ border-width:0 0 1px;
+ background:transparent;
+ box-shadow:none;
+}
+.tc-market-v3-status>div{padding:4px 8px;border-right:1px solid #30342e}
+.tc-market-v3-status .lead{padding-left:2px}
+.tc-market-v3-status .lead small{
+ font:5px ui-monospace,Consolas,monospace;
+ letter-spacing:.12em;
+ color:#756b56;
+}
+.tc-market-v3-status .lead b{
+ margin-top:2px;
+ font:700 11px Georgia,"Noto Serif KR",serif;
+ color:#ded5c4;
+}
+.tc-market-v3-status .lead span{
+ display:block;
+ margin-top:2px;
+ font-size:5.5px;
+ color:#747a73;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+.tc-market-v3-cats{
+ gap:0;
+ border-bottom:1px solid #30342e;
+}
+.tc-market-v3-cats button{
+ position:relative;
+ min-height:33px;
+ border:0;
+ border-bottom:2px solid transparent;
+ background:transparent;
+ color:#747a73;
+ font-size:6px;
+}
+.tc-market-v3-cats button.active{
+ border-color:#9a865f;
+ background:transparent;
+ color:#d8c8a7;
+ box-shadow:none;
+}
+.tc-market-v3-cats button.active:after{
+ content:"";
+ position:absolute;
+ left:28%;right:28%;bottom:-2px;
+ height:2px;
+ background:#b09a6d;
+}
+
+.tc-market-v3-list{
+ grid-template-rows:repeat(5,minmax(0,1fr));
+ gap:6px;
+}
+.tc-market-v3-card{
+ grid-template-columns:34px minmax(0,1fr) 58px 104px 8px;
+ gap:7px;
+ padding:5px 7px;
+ border-color:#373b35;
+ border-radius:5px;
+ background:linear-gradient(90deg,#121612,#0d100e 70%);
+ box-shadow:0 2px 4px #0004,inset 0 0 0 1px #080a08;
+}
+.tc-market-v3-card:before{display:none}
+.tc-market-v3-card .tc-market-v2-mini{
+ width:32px;height:32px;
+ border-radius:50%;
+ border-color:#4c5048;
+ background:radial-gradient(circle at 40% 35%,#2a2f27,#111410 70%);
+}
+.tc-market-v3-card .tc-market-v2-mini .tc-glyph{font-size:17px}
+.tc-market-v3-card .name b{font-size:8.5px;color:#ddd6c7}
+.tc-market-v3-card .name small{font-size:5.5px;color:#737973}
+.tc-market-v3-spark{
+ width:58px;height:27px;
+ display:grid;
+ place-items:center;
+ align-self:center;
+}
+.tc-market-v3-spark svg{width:100%;height:100%;overflow:visible}
+.tc-market-v3-spark polyline{
+ stroke:#87988f;
+ stroke-width:1.35;
+ stroke-linecap:round;
+ stroke-linejoin:round;
+}
+.tc-market-v3-spark.down polyline{stroke:#9b746b}
+.tc-market-v3-spark.flat i{
+ display:block;
+ width:74%;height:1px;
+ background:#5d625c;
+}
+.tc-market-v3-rowprice{
+ min-width:0;
+ text-align:right;
+}
+.tc-market-v3-rowprice b,
+.tc-market-v3-rowprice small{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v3-rowprice b{
+ font:700 8.5px ui-monospace,Consolas,monospace;
+ color:#d9d1c0;
+}
+.tc-market-v3-rowprice small{
+ margin-top:3px;
+ font-size:5px;
+ color:#767c75;
+}
+.tc-market-v3-card>i{font-style:normal;color:#7d745f}
+.tc-market-v3-list>.tc-market-v2-empty{grid-row:1/-1}
+
+/* Figma coin-detail hierarchy translated to the order-book screen. */
+.tc-market-v3-detail{
+ grid-template-rows:98px minmax(118px,1fr) 76px 178px;
+ gap:6px;
+}
+.tc-market-v3-detailhead{
+ min-height:0;
+ overflow:hidden;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) 176px;
+ grid-template-rows:42px minmax(0,1fr);
+ column-gap:8px;
+ border-bottom:1px solid #343831;
+ padding:2px 2px 6px;
+}
+.tc-market-v3-identity{
+ grid-column:1/-1;
+ min-width:0;
+ display:grid;
+ grid-template-columns:38px minmax(0,1fr);
+ gap:7px;
+ align-items:center;
+}
+.tc-market-v3-identity .tc-market-v2-icon{
+ width:34px;height:34px;
+ border-radius:50%;
+}
+.tc-market-v3-identity .tc-market-v2-icon .tc-glyph{font-size:19px}
+.tc-market-v3-identity .tc-market-v2-itemname small{font-size:5px}
+.tc-market-v3-identity .tc-market-v2-itemname b{
+ margin-top:2px;
+ font-size:9px;
+}
+.tc-market-v3-identity .tc-market-v2-itemname span{margin-top:2px;font-size:5.5px}
+.tc-market-v3-current{
+ min-width:0;
+ display:grid;
+ grid-template-columns:auto auto;
+ grid-template-rows:auto 1fr;
+ align-content:end;
+ column-gap:7px;
+}
+.tc-market-v3-current small{
+ grid-column:1/-1;
+ font-size:5.5px;
+ color:#777d76;
+}
+.tc-market-v3-current b{
+ align-self:end;
+ font:700 16px/1 ui-monospace,Consolas,monospace;
+ color:#e3dac8;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v3-current span{
+ align-self:end;
+ padding-bottom:1px;
+ font:700 6px ui-monospace,Consolas,monospace;
+ color:#84948c;
+ white-space:nowrap;
+}
+.tc-market-v3-current span.down{color:#9c756d}
+.tc-market-v3-current span.flat{color:#777d76}
+.tc-market-v3-quotes{
+ min-width:0;
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:5px;
+ align-self:end;
+}
+.tc-market-v3-quotes>span{
+ min-width:0;
+ padding:5px 6px;
+ border:1px solid #353a34;
+ background:#0b0e0c;
+}
+.tc-market-v3-quotes small,.tc-market-v3-quotes b{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v3-quotes small{font-size:5px;color:#6f756f}
+.tc-market-v3-quotes b{margin-top:2px;font:700 7px ui-monospace,monospace}
+.tc-market-v3-quotes .ask b{color:#b88a80}
+.tc-market-v3-quotes .bid b{color:#83999c}
+
+.tc-market-v3-chart{
+ min-height:0;
+ overflow:hidden;
+ border:1px solid #373c36;
+ border-radius:4px;
+ background:#0c0f0d;
+ display:grid;
+ grid-template-rows:22px minmax(0,1fr);
+ box-shadow:0 2px 4px #0003;
+}
+.tc-market-v3-chart>header{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ padding:0 7px;
+ border-bottom:1px solid #292e29;
+}
+.tc-market-v3-chart>header span{font-size:6.5px;color:#cbc2b1}
+.tc-market-v3-chart>header small{font-size:5px;color:#747a73}
+.tc-market-v3-chartbody{
+ min-height:0;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) 142px;
+ gap:6px;
+ align-items:center;
+ padding:3px 6px;
+}
+.tc-market-v3-chartbody svg{width:100%;height:37px;overflow:visible}
+.tc-market-v3-chartbody line{stroke:#323731;stroke-width:.7}
+.tc-market-v3-chartbody polyline{
+ stroke:#87988f;
+ stroke-width:1.35;
+ stroke-linecap:round;
+ stroke-linejoin:round;
+}
+.tc-market-v3-chartbody polyline.down{stroke:#9b746b}
+.tc-market-v3-chartbody polyline.flat{stroke:#6e746e}
+.tc-market-v3-chartbody>div{
+ min-width:0;
+ display:grid;
+ gap:2px;
+}
+.tc-market-v3-chartbody span{
+ min-width:0;
+ display:flex;
+ justify-content:space-between;
+ gap:5px;
+ font-size:5px;
+ color:#717770;
+ white-space:nowrap;
+}
+.tc-market-v3-chartbody b{
+ font:700 5.5px ui-monospace,monospace;
+ color:#aaa493;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+.tc-market-v3-ticket{
+ grid-template-rows:31px 39px 25px 20px minmax(42px,1fr);
+ gap:4px;
+ padding:5px;
+}
+.tc-market-v3-ticket>.tc-segments{height:31px;min-height:31px;border-radius:4px}
+.tc-market-v3-ticket>.tc-segments button{min-height:29px;font-size:6.5px}
+.tc-market-v3-ticket>.tc-segments button[aria-selected=true]{
+ background:#24231c;
+ color:#ded0af;
+}
+.tc-market-v3-ticket .tc-market-v2-fields label{
+ border-radius:4px;
+}
+.tc-market-v3-ticket .tc-market-v2-fields input{height:27px}
+.tc-market-v3-presets{
+ min-height:0;
+ display:grid;
+ grid-template-columns:repeat(5,1fr);
+ gap:4px;
+}
+.tc-market-v3-presets button{
+ min-width:0;
+ min-height:24px;
+ border:1px solid #3a3f38;
+ border-radius:12px;
+ background:#10130f;
+ color:#868c85;
+ font:6px ui-monospace,Consolas,monospace;
+ padding:2px;
+}
+.tc-market-v3-presets button:active{
+ border-color:#8a7754;
+ color:#d5c49f;
+}
+.tc-market-v3-presets button:disabled{opacity:.38}
+.tc-market-v3-ticket .tc-market-v2-total{padding-inline:2px}
+.tc-market-v3-ticket .tc-market-v2-submit{
+ border-radius:4px;
+ box-shadow:0 2px 4px #0005;
+ text-transform:none;
+ letter-spacing:.01em;
+}
+.tc-market-v3-ticket .tc-market-v2-submit.buy{
+ border-color:#5d7575;
+ background:linear-gradient(180deg,#23302e,#151d1b);
+ color:#d4dfd9;
+}
+.tc-market-v3-ticket .tc-market-v2-submit.sell{
+ border-color:#76564f;
+ background:linear-gradient(180deg,#2c201c,#1b1513);
+ color:#e0cec8;
+}
+
+/* My orders / settlement borrow the reference kit's elevated card rhythm. */
+.tc-market-v3~*{}
+.tc-market-v2-orders article,
+.tc-market-v2-storage article{
+ border-radius:5px;
+ box-shadow:0 2px 4px #0004,inset 0 0 0 1px #070907;
+}
+.tc-market-v2-storagehead{border-radius:4px}
+
+@media(max-height:700px){
+ .tc-market-v3.tab-market{grid-template-rows:42px 48px 30px minmax(0,1fr) 27px;gap:4px}
+ .tc-market-v3-status .lead b{font-size:9px}.tc-market-v3-status .lead span{font-size:5px}
+ .tc-market-v3-cats button{min-height:29px}
+ .tc-market-v3-list{gap:4px}
+ .tc-market-v3-card{grid-template-columns:30px minmax(0,1fr) 52px 92px 7px;gap:5px;padding:3px 5px}
+ .tc-market-v3-card .tc-market-v2-mini{width:28px;height:28px}.tc-market-v3-card .tc-market-v2-mini .tc-glyph{font-size:15px}
+ .tc-market-v3-spark{width:52px;height:23px}.tc-market-v3-rowprice b{font-size:7.5px}.tc-market-v3-rowprice small{font-size:4.7px}
+ .tc-market-v3-detail{grid-template-rows:84px minmax(105px,1fr) 64px 160px;gap:4px}
+ .tc-market-v3-detailhead{grid-template-columns:minmax(0,1fr) 158px;grid-template-rows:36px minmax(0,1fr)}
+ .tc-market-v3-identity{grid-template-columns:32px minmax(0,1fr)}.tc-market-v3-identity .tc-market-v2-icon{width:29px;height:29px}.tc-market-v3-current b{font-size:13px}
+ .tc-market-v3-chart{grid-template-rows:19px minmax(0,1fr)}.tc-market-v3-chartbody{grid-template-columns:minmax(0,1fr) 126px;padding-block:2px}.tc-market-v3-chartbody svg{height:30px}
+ .tc-market-v3-ticket{grid-template-rows:28px 34px 22px 18px minmax(38px,1fr);gap:3px;padding:4px}
+ .tc-market-v3-ticket>.tc-segments{height:28px;min-height:28px}.tc-market-v3-ticket>.tc-segments button{min-height:26px}
+ .tc-market-v3-ticket .tc-market-v2-fields input{height:24px}.tc-market-v3-presets button{min-height:21px;font-size:5.5px}
+}
+@media(max-height:620px){
+ .tc-market-v3.tab-market{grid-template-rows:39px 43px 27px minmax(0,1fr) 24px;gap:3px}
+ .tc-market-v3-status>div{padding:2px 5px}.tc-market-v3-status .lead b{font-size:8px}.tc-market-v3-status .lead span{display:none}
+ .tc-market-v3-cats button{min-height:26px;font-size:5px}
+ .tc-market-v3-list{gap:3px}
+ .tc-market-v3-card{grid-template-columns:25px minmax(0,1fr) 45px 80px 6px;gap:4px;padding:2px 4px;border-radius:3px}
+ .tc-market-v3-card .tc-market-v2-mini{width:23px;height:23px}.tc-market-v3-card .tc-market-v2-mini .tc-glyph{font-size:12px}
+ .tc-market-v3-card .name b{font-size:7px}.tc-market-v3-card .name small{font-size:4.7px}.tc-market-v3-spark{width:45px;height:20px}.tc-market-v3-rowprice b{font-size:6.5px}.tc-market-v3-rowprice small{font-size:4.2px}
+ .tc-market-v3-detail{grid-template-rows:74px minmax(90px,1fr) 54px 145px;gap:3px}
+ .tc-market-v3-detailhead{grid-template-columns:minmax(0,1fr) 142px;grid-template-rows:31px minmax(0,1fr);column-gap:5px;padding-bottom:3px}
+ .tc-market-v3-identity{grid-template-columns:27px minmax(0,1fr);gap:4px}.tc-market-v3-identity .tc-market-v2-icon{width:24px;height:24px}.tc-market-v3-identity .tc-market-v2-icon .tc-glyph{font-size:14px}.tc-market-v3-identity .tc-market-v2-itemname b{font-size:7.5px}
+ .tc-market-v3-current b{font-size:11px}.tc-market-v3-current span{font-size:5px}.tc-market-v3-quotes{gap:3px}.tc-market-v3-quotes>span{padding:3px 4px}.tc-market-v3-quotes b{font-size:6px}
+ .tc-market-v3-chart{grid-template-rows:17px minmax(0,1fr)}.tc-market-v3-chartbody{grid-template-columns:minmax(0,1fr) 108px;gap:4px;padding:2px 4px}.tc-market-v3-chartbody svg{height:24px}.tc-market-v3-chartbody span{font-size:4.5px}.tc-market-v3-chartbody b{font-size:4.7px}
+ .tc-market-v3-ticket{grid-template-rows:25px 31px 20px 16px minmax(35px,1fr);gap:2px;padding:3px}
+ .tc-market-v3-ticket>.tc-segments{height:25px;min-height:25px}.tc-market-v3-ticket>.tc-segments button{min-height:23px;font-size:5.5px}.tc-market-v3-ticket .tc-market-v2-fields label{grid-template-columns:31px minmax(0,1fr) 13px}.tc-market-v3-ticket .tc-market-v2-fields input{height:21px;font-size:7px}.tc-market-v3-presets{gap:2px}.tc-market-v3-presets button{min-height:19px;font-size:5px}
+}
+@media(max-width:360px){
+ .tc-market-v3-card{grid-template-columns:28px minmax(0,1fr) 48px 84px 6px;gap:4px}
+ .tc-market-v3-spark{width:48px}
+ .tc-market-v3-detailhead{grid-template-columns:minmax(0,1fr) 148px}
+ .tc-market-v3-chartbody{grid-template-columns:minmax(0,1fr) 118px}
+}
