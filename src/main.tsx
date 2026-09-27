@@ -312,7 +312,13 @@ function App(){
    {page==='mastery'&&<MasteryScreen game={game}/>}
    {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='association'&&<AssociationScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
-   {page==='jobs'&&<JobsScreen game={game} setGame={setGame} onSelectJob={onlineSession&&gameSessionPhase==='active'?jobId=>void selectOnlineJobNow(jobId):undefined}/>}
+   {page==='jobs'&&<JobsScreen
+    game={game}
+    setGame={setGame}
+    onSelectJob={onlineSession&&gameSessionPhase==='active'?jobId=>void selectOnlineJobNow(jobId):undefined}
+    onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}
+    onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('직능등록');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
+   />}
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
    {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} 
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
