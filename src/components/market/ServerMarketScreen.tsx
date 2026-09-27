@@ -8,6 +8,8 @@ import {
  loadOnlineMarketState,placeOnlineMarketOrder,subscribeOnlineMarketRealtime,type OnlineMarketState
 } from '../../online/market';
 import {demoMarketView} from './demoLiveMarket';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import type {GameFeelEvent} from '../../gameFeel/types';
 
 type Tab='market'|'orders'|'storage';
 type Side='BUY'|'SELL';
@@ -48,6 +50,7 @@ const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
 export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease}){
+ const feel=useGameFeel();
  const [snapshot,setSnapshot]=useState<OnlineMarketState|null>(null);
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
@@ -157,10 +160,10 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   setQty(String(next));
  };
 
- const act=async(fn:()=>Promise<OnlineMarketState>)=>{
+ const act=async(fn:()=>Promise<OnlineMarketState>,success?:GameFeelEvent)=>{
   setBusy(true);setError('');
-  try{applySnapshot(await fn());}
-  catch(e){setError(e instanceof Error?e.message:'온라인 거래소 요청을 처리하지 못했습니다.');}
+  try{applySnapshot(await fn());if(success)feel.play(success as 'market.order-placed'|'market.order-cancelled');}
+  catch(e){feel.play('ui.error');setError(e instanceof Error?e.message:'온라인 거래소 요청을 처리하지 못했습니다.');}
   finally{setBusy(false);}
  };
 
@@ -193,7 +196,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
      </div>
      <div className="tc-market-v3-presets" aria-label="주문 수량 비율">{[10,25,50,75,100].map(percent=><button key={percent} disabled={busy||maxOrderQty<=0} onClick={()=>applyPercent(percent)}>{percent===100?'MAX':percent+'%'}</button>)}</div>
      <div className="tc-market-v2-total"><span>{side==='BUY'?'예상 예치금':'지정 판매금액'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b></div>
-     <button className={'tc-market-v2-submit '+(side==='BUY'?'buy':'sell')} disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,side,limitPrice:p,quantity:q}))}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
+     <button className={'tc-market-v2-submit '+(side==='BUY'?'buy':'sell')} disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,side,limitPrice:p,quantity:q}),'market.order-placed')}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
     </section>
     {error&&<div className="tc-floor-risk">{error}</div>}
    </div>
@@ -295,7 +298,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
      {shownOrders.map(order=>{const filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
       <span className={'side '+order.side.toLowerCase()}>{order.side==='BUY'?'매수':'매도'}</span>
       <div className="name"><b>{marketItemName(view,order.itemId)}</b><small>{money(order.limitPrice)} · {filled}/{order.originalQuantity} 체결</small><div className="tc-market-v2-progress"><i style={{width:pct+'%'}}/></div></div>
-      <button disabled={busy} onClick={()=>void act(()=>cancelOnlineMarketOrder(lease,order.orderId))}>취소</button>
+      <button disabled={busy} onClick={()=>void act(()=>cancelOnlineMarketOrder(lease,order.orderId),'market.order-cancelled')}>취소</button>
      </article>})}
      {!shownOrders.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
     </div>
