@@ -26,7 +26,7 @@ export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameSt
   if(!onlineLease){
    const localResult=enhanceEquipment(game,selected.id);
    const resolvedItem=localResult.items.find(item=>item.id===selected.id);
-   const localOutcome:ServerEnhancementOutcome=!resolvedItem?'FAIL_DESTROY':resolvedItem.enhancement>selected.enhancement?'SUCCESS':resolvedItem.enhancement<selected.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
+   const localOutcome:ServerEnhancementOutcome=!resolvedItem?'FAIL_DESTROYED':resolvedItem.enhancement>selected.enhancement?'SUCCESS':resolvedItem.enhancement<selected.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
    setGame(localResult);
    feel.play('enhancement.result',{outcome:localOutcome,target:q?.target});
    setConfirm(false);
