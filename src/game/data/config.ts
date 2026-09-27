@@ -1,4 +1,5 @@
 import type {Weapon,Slot,Field,Potion,Tower,GearMasteryKey,GeneralPotion} from '../types';
+import {EQUIPMENT_SLOT_NAMES} from './equipment';
 export const CONFIG={baseHp:180,baseAttack:8,baseDefense:3,baseSpeed:1,starterTickets:20,starterLesser:30,starterStandard:5,logLimit:80,spawnDelay:1.2,ticketChance:.4,bookChance:.07,craftCost:6,masteryRequired:4,discountPerCraft:.02,maxDiscount:.3,generalPotionLimit:30,revivalPotionLimit:1,revivalHealRatio:.3,maxFloor:10,tick:.2};
 export const MARKET_ITEM_TRADE_FEE_RATE=0;
 export interface WeaponDefinition {name:string;icon:string;attack:number;defense:number;speed:number;critChance:number;critDamage:number;basicHitMultipliers:readonly number[];skillPower:number;description:string}
@@ -10,7 +11,7 @@ export const WEAPONS:Record<Weapon,WeaponDefinition>={
 };
 export const TOWERS:Record<Tower,{name:string;material:string;icon:string;color:string;monster:string}>={ore:{name:'철맥의 첨탑',material:'철광석',icon:'◆',color:'#83b4c5',monster:'고블린 광부'},leather:{name:'붉은 송곳니의 성소',material:'가죽',icon:'◈',color:'#c7a17a',monster:'황야 멧돼지'},gem:{name:'천광의 수정탑',material:'보석',icon:'◇',color:'#b0a5e1',monster:'석영등갑충'},kaleon:{name:'칼레온의 녹빛 첨탑',material:'약초',icon:'✣',color:'#85c6a6',monster:'이끼 정령'}};
 export const FIELDS:Record<Field,string>={weapon:'무기 제작',armor:'방어구 제작',accessory:'장신구 제작',alchemy:'연금술'};
-export const SLOTS:Record<Slot,string>={weapon:'무기',armor:'갑옷',boots:'신발',accessory:'장신구'};
+export const SLOTS:Record<Slot,string>=EQUIPMENT_SLOT_NAMES;
 export const GEAR_MASTERY_KEYS:GearMasteryKey[]=['sword','dagger','bow','staff','armor','boots','accessory'];
 export const GEAR_MASTERY_NAMES:Record<GearMasteryKey,string>={sword:'검',dagger:'단검',bow:'활',staff:'지팡이',armor:'갑옷',boots:'신발',accessory:'장신구'};
 export const GEAR_MASTERY_CONFIG={requiredByTargetTier:{2:100,3:250,4:500,5:1000} as Record<number,number>,baseGainByFloorTier:[10,20,35,55,80],endOfTierMultiplier:1.5};
