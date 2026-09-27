@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.62
+# 탑의 기록 v0.1.63
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.62`
+- 앱 버전: `0.1.63`
 - 저장 스키마: `v22`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,20 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.63 — Tower Chronicles Game Feel V2
+
+- 협회 인장 주조 시 중앙 코어가 실제로 수축·반동하며 +1/+2/+3 결과 강도별 연출 적용
+- 3단계 경계를 넘어 새 원형 노드가 활성화될 때 해당 노드 점등 연출 추가
+- 장비 강화 패널 자체에 시도/성공/유지/하락/파괴 결과별 국소 애니메이션 적용
+- 파괴 결과는 강화 패널 흔들림과 균열 오버레이, 성공은 금빛 내부 발광으로 구분
+- 전투 충격파를 전체 화면 중앙이 아니라 실제 플레이어/몬스터 스프라이트 위치에 표시
+- 치명타는 대상 스프라이트에 더 큰 충격파와 짧은 반동 적용
+- 기본 공격뿐 아니라 전투 스킬·아이템 카드에도 공통 press/rebound 적용
+- Silver 거래소와 Gold 거래소에서 실제 내 체결이 새로 들어올 때 partial/filled Game Feel 이벤트 실행
+- 실체결 시 거래 요약·가격 영역을 짧게 점등하며 DEMO 호가 변화에는 반응하지 않음
+- reduced-motion에서는 새 국소 shake/scale/파편 이동을 비활성화
+- 전투·강화·인장 확률, 서버 권위 판정, 저장 스키마, Supabase 스키마는 변경하지 않음
 
 ## v0.1.62 — Tower Chronicles Game Feel V1
 
