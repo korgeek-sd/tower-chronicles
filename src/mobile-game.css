@@ -1781,3 +1781,437 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-market-v3-detailhead{grid-template-columns:minmax(0,1fr) 148px}
  .tc-market-v3-chartbody{grid-template-columns:minmax(0,1fr) 118px}
 }
+
+
+/* ===== MARKET V4 / direct mobile trading-reference adaptation ===== */
+.tc-market-v4-loading{height:100%;display:grid;place-items:center}
+
+.tc-market-v4.tab-market{
+ grid-template-rows:44px 42px 32px minmax(0,1fr) 30px;
+ gap:6px;
+}
+.tc-market-v4.tab-storage{
+ grid-template-rows:44px 116px minmax(0,1fr) 30px;
+ gap:6px;
+}
+
+/* Search field mirrors the reference's strong search-first entry point. */
+.tc-market-v4-search{
+ min-height:0;
+ display:grid;
+ grid-template-columns:24px minmax(0,1fr) 38px;
+ align-items:center;
+ gap:4px;
+ border:1px solid #3a3f38;
+ border-radius:5px;
+ background:#10130f;
+ padding:3px 8px;
+ box-shadow:inset 0 0 0 1px #080a08;
+}
+.tc-market-v4-search>span{
+ font:18px/1 Georgia,serif;
+ color:#827862;
+ transform:translateY(-1px);
+}
+.tc-market-v4-search input{
+ min-width:0;
+ width:100%;
+ height:32px;
+ border:0;
+ outline:0;
+ background:transparent;
+ color:#ddd5c5;
+ font-size:8px;
+}
+.tc-market-v4-search input::placeholder{color:#646a63}
+.tc-market-v4-search small{
+ justify-self:end;
+ font:700 5px ui-monospace,Consolas,monospace;
+ letter-spacing:.08em;
+ color:#777d76;
+}
+.tc-market-v4-search small.live{color:#87978c}
+
+.tc-market-v4-cats{grid-template-columns:repeat(4,1fr)}
+.tc-market-v4-cats button{font-size:6.5px}
+
+.tc-market-v4-list{
+ grid-template-rows:repeat(5,minmax(0,1fr));
+ gap:6px;
+}
+.tc-market-v4-card{
+ grid-template-columns:34px minmax(0,1fr) 62px 94px 8px;
+ min-height:0;
+ padding:5px 7px;
+}
+.tc-market-v4-card .name b{font-size:8.5px}
+.tc-market-v4-card .name small{font-size:5.2px}
+.tc-market-v4-card .tc-market-v3-rowprice small.up{color:#84988c}
+.tc-market-v4-card .tc-market-v3-rowprice small.down{color:#9b746d}
+.tc-market-v4-card .tc-market-v3-rowprice small.flat{color:#6f756f}
+
+/* Detail: identity + large price + large chart + holding row + quote summary + fixed dual CTA. */
+.tc-market-v4-detail{
+ height:100%;
+ min-height:0;
+ overflow:hidden;
+ display:grid;
+ grid-template-rows:86px minmax(0,1fr) 54px 44px 52px;
+ gap:6px;
+}
+.tc-market-v4-pricehead{
+ min-height:0;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto;
+ grid-template-rows:34px minmax(0,1fr);
+ gap:4px 8px;
+ border-bottom:1px solid #353a34;
+ padding:2px 2px 7px;
+}
+.tc-market-v4-identity{
+ grid-column:1/-1;
+ min-width:0;
+ display:grid;
+ grid-template-columns:32px minmax(0,1fr);
+ gap:7px;
+ align-items:center;
+}
+.tc-market-v4-identity .tc-market-v2-icon{
+ width:30px;height:30px;border-radius:50%;
+}
+.tc-market-v4-identity .tc-market-v2-icon .tc-glyph{font-size:17px}
+.tc-market-v4-identity>div{min-width:0}
+.tc-market-v4-identity b,.tc-market-v4-identity small{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v4-identity b{
+ font:700 10px Georgia,"Noto Serif KR",serif;
+ color:#e0d8c8;
+}
+.tc-market-v4-identity small{
+ margin-top:2px;
+ font-size:5.5px;
+ color:#747a73;
+}
+.tc-market-v4-pricehead .tc-market-v3-current{
+ grid-column:1/-1;
+ display:grid;
+ grid-template-columns:auto auto minmax(0,1fr);
+ grid-template-rows:1fr;
+ align-items:end;
+ gap:7px;
+}
+.tc-market-v4-pricehead .tc-market-v3-current small{
+ grid-column:auto;
+ align-self:center;
+ font-size:5.5px;
+}
+.tc-market-v4-pricehead .tc-market-v3-current b{
+ font-size:17px;
+}
+.tc-market-v4-pricehead .tc-market-v3-current span{
+ align-self:center;
+ padding:0;
+ font-size:6px;
+}
+
+.tc-market-v4-chart{
+ min-height:0;
+ overflow:hidden;
+ display:grid;
+ grid-template-rows:minmax(0,1fr) 32px;
+ border:1px solid #343932;
+ border-radius:5px;
+ background:linear-gradient(180deg,#0d100e,#090c0a);
+ box-shadow:0 3px 7px #0004,inset 0 0 0 1px #060806;
+}
+.tc-market-v4-chartplot{
+ position:relative;
+ min-height:0;
+ overflow:hidden;
+ padding:8px 8px 4px;
+}
+.tc-market-v4-chartplot:before,
+.tc-market-v4-chartplot:after{
+ content:"";
+ position:absolute;
+ left:8px;right:8px;
+ height:1px;
+ background:#252a25;
+}
+.tc-market-v4-chartplot:before{top:34%}
+.tc-market-v4-chartplot:after{top:66%}
+.tc-market-v4-chartplot svg{
+ position:relative;
+ z-index:1;
+ width:100%;
+ height:100%;
+ overflow:visible;
+}
+.tc-market-v4-chartplot line{
+ stroke:#30352f;
+ stroke-width:.6;
+}
+.tc-market-v4-chartplot polyline{
+ stroke:#899a90;
+ stroke-width:1.45;
+ stroke-linecap:round;
+ stroke-linejoin:round;
+}
+.tc-market-v4-chartplot polyline.down{stroke:#9e766e}
+.tc-market-v4-chartplot polyline.flat{stroke:#6f766f}
+.tc-market-v4-chartplot>span{
+ position:absolute;
+ z-index:2;
+ right:9px;
+ padding:2px 4px;
+ background:#0b0e0cdd;
+ font:5px ui-monospace,Consolas,monospace;
+ color:#858b84;
+}
+.tc-market-v4-chartplot .high{top:8px}
+.tc-market-v4-chartplot .low{bottom:5px}
+.tc-market-v4-ranges{
+ min-height:0;
+ display:grid;
+ grid-template-columns:repeat(5,1fr);
+ gap:5px;
+ padding:3px 7px 5px;
+ border-top:1px solid #2c312b;
+}
+.tc-market-v4-ranges button{
+ min-width:0;
+ min-height:24px;
+ border:1px solid #343a33;
+ border-radius:12px;
+ background:#10130f;
+ color:#747a73;
+ font:6px ui-monospace,Consolas,monospace;
+}
+.tc-market-v4-ranges button.active{
+ border-color:#8b7956;
+ background:#242017;
+ color:#ddcca7;
+}
+
+.tc-market-v4-holding{
+ min-height:0;
+ display:grid;
+ grid-template-columns:32px minmax(0,1fr) 104px;
+ gap:7px;
+ align-items:center;
+ border:1px solid #373c35;
+ border-radius:5px;
+ background:#111410;
+ padding:5px 7px;
+ box-shadow:0 2px 5px #0003;
+}
+.tc-market-v4-holding .tc-market-v2-mini{width:30px;height:30px;border-radius:50%}
+.tc-market-v4-holding>div{min-width:0}
+.tc-market-v4-holding b,.tc-market-v4-holding small{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v4-holding b{font-size:8px;color:#d8d0c0}
+.tc-market-v4-holding small{margin-top:2px;font-size:5px;color:#747a73}
+.tc-market-v4-holding .value{text-align:right}
+.tc-market-v4-holding .value b{font:700 8px ui-monospace,Consolas,monospace}
+
+.tc-market-v4-transactions{
+ min-height:0;
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:4px;
+}
+.tc-market-v4-transactions>div{
+ min-width:0;
+ border:1px solid #343932;
+ background:#0d100e;
+ display:grid;
+ align-content:center;
+ padding:4px 6px;
+}
+.tc-market-v4-transactions span,.tc-market-v4-transactions b{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v4-transactions span{font-size:5px;color:#717770}
+.tc-market-v4-transactions b{margin-top:2px;font:700 7px ui-monospace,Consolas,monospace;color:#c9c1b0}
+
+.tc-market-v4-ctas{
+ min-height:0;
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:8px;
+ padding-top:2px;
+}
+.tc-market-v4-ctas button{
+ min-height:48px;
+ border:2px solid #596f70;
+ border-radius:4px;
+ background:linear-gradient(180deg,#22302e,#141c1a);
+ color:#d7e0db;
+ font:700 9px Georgia,"Noto Serif KR",serif;
+ box-shadow:0 3px 6px #0005;
+}
+.tc-market-v4-ctas button.sell{
+ border-color:#73534d;
+ background:linear-gradient(180deg,#2c201d,#1a1412);
+ color:#dfceca;
+}
+
+/* Separate trade ticket screen: keeps the real order book after tapping BUY or SELL. */
+.tc-market-v4-trade{
+ height:100%;
+ min-height:0;
+ overflow:hidden;
+ display:grid;
+ grid-template-rows:58px minmax(0,1fr) 156px;
+ gap:6px;
+}
+.tc-market-v4-tradehead{
+ min-height:0;
+ display:grid;
+ grid-template-columns:38px minmax(0,1fr) auto;
+ gap:7px;
+ align-items:center;
+ border-bottom:1px solid #353a34;
+ padding:3px 2px 6px;
+}
+.tc-market-v4-tradehead .tc-market-v2-icon{
+ width:34px;height:34px;border-radius:50%;
+}
+.tc-market-v4-tradehead>div{min-width:0}
+.tc-market-v4-tradehead small,.tc-market-v4-tradehead b,.tc-market-v4-tradehead span{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v4-tradehead small{font-size:5px;color:#747a73}
+.tc-market-v4-tradehead b{margin-top:2px;font-size:9px;color:#ded6c5}
+.tc-market-v4-tradehead span{margin-top:2px;font-size:5px;color:#858b84}
+.tc-market-v4-tradehead strong{
+ font:700 8px ui-monospace,Consolas,monospace;
+ color:#d7c7a4;
+ white-space:nowrap;
+}
+.tc-market-v4-book{min-height:0}
+.tc-market-v4-orderform{
+ min-height:0;
+ overflow:hidden;
+ display:grid;
+ grid-template-rows:42px 26px 24px minmax(42px,1fr);
+ gap:5px;
+ border:1px solid #3c413a;
+ border-radius:5px;
+ background:#10130f;
+ padding:6px;
+ box-shadow:0 2px 5px #0004;
+}
+.tc-market-v4-orderform .tc-market-v2-fields input{height:30px}
+.tc-market-v4-orderform .tc-market-v3-presets button{min-height:24px}
+.tc-market-v4-orderform .tc-market-v2-submit{min-height:42px}
+
+/* Portfolio-inspired settlement card. */
+.tc-market-v4-portfolio{
+ min-height:0;
+ display:grid;
+ grid-template-columns:1.25fr 1fr 1fr;
+ grid-template-rows:34px 38px 32px;
+ gap:4px;
+ border:1px solid #514a3b;
+ border-radius:6px;
+ background:linear-gradient(135deg,#29251c,#171a15 60%,#111410);
+ padding:8px;
+ box-shadow:0 4px 10px #0005,inset 0 0 0 1px #0b0d0a;
+}
+.tc-market-v4-portfolio>div{min-width:0}
+.tc-market-v4-portfolio .title{
+ grid-column:1/3;
+ display:grid;
+ align-content:start;
+}
+.tc-market-v4-portfolio .title small{
+ font:5px ui-monospace,Consolas,monospace;
+ letter-spacing:.12em;
+ color:#8c7f65;
+}
+.tc-market-v4-portfolio .title b{
+ margin-top:2px;
+ font:700 11px Georgia,"Noto Serif KR",serif;
+ color:#e0d4bb;
+}
+.tc-market-v4-portfolio .total{
+ grid-column:1/3;
+}
+.tc-market-v4-portfolio>div:not(.title){
+ display:grid;
+ align-content:center;
+}
+.tc-market-v4-portfolio>div small,.tc-market-v4-portfolio>div b{
+ display:block;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+.tc-market-v4-portfolio>div small{font-size:5px;color:#8a8f87}
+.tc-market-v4-portfolio>div b{margin-top:2px;font:700 9px ui-monospace,Consolas,monospace;color:#d9c9a8}
+.tc-market-v4-portfolio .total b{font-size:13px}
+.tc-market-v4-portfolio>button{
+ grid-column:3;
+ grid-row:1/4;
+ min-height:0;
+ border:1px solid #83704e;
+ border-radius:4px;
+ background:linear-gradient(180deg,#30291d,#1a1914);
+ color:#decda9;
+ font-size:7px;
+}
+.tc-market-v4-storage{gap:5px}
+
+@media(max-height:700px){
+ .tc-market-v4.tab-market{grid-template-rows:40px 37px 28px minmax(0,1fr) 26px;gap:4px}
+ .tc-market-v4.tab-storage{grid-template-rows:40px 96px minmax(0,1fr) 26px;gap:4px}
+ .tc-market-v4-search{grid-template-columns:20px minmax(0,1fr) 34px;padding-block:2px}.tc-market-v4-search input{height:28px}
+ .tc-market-v4-cats button{min-height:27px}
+ .tc-market-v4-list{gap:4px}
+ .tc-market-v4-card{grid-template-columns:30px minmax(0,1fr) 54px 86px 7px;gap:5px;padding:3px 5px}
+ .tc-market-v4-detail{grid-template-rows:74px minmax(0,1fr) 48px 38px 46px;gap:4px}
+ .tc-market-v4-pricehead{grid-template-rows:30px minmax(0,1fr);padding-bottom:4px}.tc-market-v4-pricehead .tc-market-v3-current b{font-size:14px}
+ .tc-market-v4-chart{grid-template-rows:minmax(0,1fr) 28px}.tc-market-v4-ranges button{min-height:21px}
+ .tc-market-v4-holding{grid-template-columns:28px minmax(0,1fr) 90px;padding:3px 5px}.tc-market-v4-holding .tc-market-v2-mini{width:26px;height:26px}
+ .tc-market-v4-ctas button{min-height:42px}
+ .tc-market-v4-trade{grid-template-rows:52px minmax(0,1fr) 142px;gap:4px}
+ .tc-market-v4-orderform{grid-template-rows:38px 23px 21px minmax(38px,1fr);gap:3px;padding:4px}
+ .tc-market-v4-portfolio{grid-template-rows:28px 32px 26px;padding:6px}.tc-market-v4-portfolio .title b{font-size:9px}.tc-market-v4-portfolio .total b{font-size:11px}
+}
+@media(max-height:620px){
+ .tc-market-v4.tab-market{grid-template-rows:38px 33px 25px minmax(0,1fr) 23px;gap:3px}
+ .tc-market-v4.tab-storage{grid-template-rows:38px 82px minmax(0,1fr) 23px;gap:3px}
+ .tc-market-v4-search{grid-template-columns:18px minmax(0,1fr) 30px;padding-inline:6px}.tc-market-v4-search>span{font-size:14px}.tc-market-v4-search input{height:24px;font-size:7px}
+ .tc-market-v4-cats button{min-height:24px;font-size:5.5px}
+ .tc-market-v4-list{gap:3px}
+ .tc-market-v4-card{grid-template-columns:25px minmax(0,1fr) 46px 74px 6px;gap:4px;padding:2px 4px}.tc-market-v4-card .tc-market-v2-mini{width:23px;height:23px}.tc-market-v4-card .name b{font-size:7px}.tc-market-v4-card .name small{font-size:4.5px}.tc-market-v4-card .tc-market-v3-rowprice b{font-size:6.5px}.tc-market-v4-card .tc-market-v3-rowprice small{font-size:4.2px}
+ .tc-market-v4-detail{grid-template-rows:64px minmax(0,1fr) 42px 34px 42px;gap:3px}
+ .tc-market-v4-identity{grid-template-columns:27px minmax(0,1fr);gap:4px}.tc-market-v4-identity .tc-market-v2-icon{width:24px;height:24px}.tc-market-v4-pricehead{grid-template-rows:26px minmax(0,1fr);padding-bottom:3px}.tc-market-v4-pricehead .tc-market-v3-current b{font-size:12px}.tc-market-v4-pricehead .tc-market-v3-current small,.tc-market-v4-pricehead .tc-market-v3-current span{font-size:5px}
+ .tc-market-v4-chart{grid-template-rows:minmax(0,1fr) 24px}.tc-market-v4-chartplot{padding:5px 5px 3px}.tc-market-v4-ranges{gap:3px;padding:2px 5px 3px}.tc-market-v4-ranges button{min-height:18px;font-size:5px}
+ .tc-market-v4-holding{grid-template-columns:25px minmax(0,1fr) 78px;gap:4px;padding:2px 4px}.tc-market-v4-holding .tc-market-v2-mini{width:22px;height:22px}.tc-market-v4-holding b{font-size:6.5px}.tc-market-v4-holding small{font-size:4.5px}
+ .tc-market-v4-transactions{gap:2px}.tc-market-v4-transactions>div{padding:2px 4px}.tc-market-v4-transactions span{font-size:4.5px}.tc-market-v4-transactions b{font-size:5.8px}
+ .tc-market-v4-ctas{gap:5px}.tc-market-v4-ctas button{min-height:38px;font-size:7.5px}
+ .tc-market-v4-trade{grid-template-rows:46px minmax(0,1fr) 126px;gap:3px}.tc-market-v4-tradehead{grid-template-columns:31px minmax(0,1fr) auto;gap:4px}.tc-market-v4-tradehead .tc-market-v2-icon{width:28px;height:28px}.tc-market-v4-tradehead b{font-size:7px}.tc-market-v4-tradehead strong{font-size:6.5px}
+ .tc-market-v4-orderform{grid-template-rows:33px 20px 18px minmax(34px,1fr);gap:2px;padding:3px}.tc-market-v4-orderform .tc-market-v2-fields input{height:23px}.tc-market-v4-orderform .tc-market-v3-presets button{min-height:18px}
+ .tc-market-v4-portfolio{grid-template-rows:22px 28px 22px;padding:4px;gap:2px}.tc-market-v4-portfolio .title small{font-size:4px}.tc-market-v4-portfolio .title b{font-size:8px}.tc-market-v4-portfolio>div small{font-size:4.2px}.tc-market-v4-portfolio>div b{font-size:7px}.tc-market-v4-portfolio .total b{font-size:9px}.tc-market-v4-portfolio>button{font-size:6px}
+}
+@media(max-width:360px){
+ .tc-market-v4-card{grid-template-columns:28px minmax(0,1fr) 48px 76px 6px;gap:4px}
+ .tc-market-v4-detail{grid-template-rows:80px minmax(0,1fr) 50px 40px 48px}
+ .tc-market-v4-portfolio{grid-template-columns:1.3fr .9fr .85fr}
+}
