@@ -7,9 +7,11 @@ import {Glyph,Pager,Screen} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {enhanceOnlineEquipment,type ServerEnhancementOutcome} from '../../online/economy';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import type {EnhancementFeelOutcome} from '../../gameFeel/types';
 
 const PAGE_SIZE=5;
 const pct=(n:number)=>Math.round(n*100)+'%';
+const feelOutcome=(outcome:ServerEnhancementOutcome):EnhancementFeelOutcome=>outcome==='FAIL_DESTROYED'?'FAIL_DESTROY':outcome;
 const iconFor=(item:Item)=>item.kind==='armor'?'armor':item.kind==='boots'?'boots':['sword','bow','dagger','staff'].includes(item.kind)?item.kind:'accessory';
 
 export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onBack:()=>void}){
@@ -28,8 +30,8 @@ export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameSt
     const before=current.items.find(item=>item.id===selected.id);
     const next=enhanceEquipment(current,selected.id);
     const after=next.items.find(item=>item.id===selected.id);
-    const outcome:ServerEnhancementOutcome=!after?'FAIL_DESTROY':!before?'FAIL_KEEP':after.enhancement>before.enhancement?'SUCCESS':after.enhancement<before.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
-    feel.play('enhancement.result',{outcome});
+    const outcome:ServerEnhancementOutcome=!after?'FAIL_DESTROYED':!before?'FAIL_KEEP':after.enhancement>before.enhancement?'SUCCESS':after.enhancement<before.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
+    feel.play('enhancement.result',{outcome:feelOutcome(outcome)});
     return next;
    });
    setConfirm(false);return;
@@ -38,7 +40,7 @@ export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameSt
   try{
    const result=await enhanceOnlineEquipment(onlineLease,selected.id);
    setGame({...result.record.payload,notice:enhanceNotice(result.outcome,itemName(selected))});
-   feel.play('enhancement.result',{outcome:result.outcome});
+   feel.play('enhancement.result',{outcome:feelOutcome(result.outcome)});
    setConfirm(false);
   }catch(error){feel.play('ui.error');setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));setConfirm(false);}
   finally{setBusy(false);}
