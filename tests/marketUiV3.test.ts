@@ -24,7 +24,7 @@ test('MARKET UI V3 02: detail order ticket exposes percentage presets without cl
   assert.match(source,/tc-market-v3-ticket|tc-market-v4-orderform/);
  }
  assert.match(online,/placeOnlineMarketOrder\(lease/);
- assert.match(local,/placeOrder\(state/);
+ assert.match(local,/placeOrder\((?:state|game)/);
  assert.doesNotMatch(online,/Math\.random\(/);
 });
 
