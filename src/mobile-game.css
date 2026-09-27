@@ -746,3 +746,25 @@ button:disabled{cursor:not-allowed;opacity:.38}
  border-width:2px;
  box-shadow:inset 0 0 0 1px #090b09,0 2px 0 #050606;
 }
+
+
+/* Preserve the one-screen mobile contract after the decorative skin overrides. */
+@media(max-height:700px){
+ .tc-reg-vault-icon{width:66px;height:46px}
+ .tc-reg-vault-icon:before{top:-11px;height:15px}
+ .tc-reg-actions{gap:4px}
+ .tc-reg-draw{height:48px;min-height:46px;padding:5px 7px 5px 10px}
+ .tc-reg-result-grid{gap:3px}
+}
+@media(max-height:620px){
+ .tc-reg-vault-icon{width:54px;height:38px}
+ .tc-reg-vault-icon:before{top:-9px;height:12px}
+ .tc-reg-draw{height:44px;min-height:42px;padding:4px 6px 4px 9px}
+ .tc-reg-result-grid{gap:2px}
+ .tc-reg-mini{border-width:1px}
+}
+@media(max-width:360px){
+ .tc-reg-actions{gap:4px}
+ .tc-reg-draw{padding-inline:8px 5px}
+ .tc-reg-result-grid{gap:3px}
+}
