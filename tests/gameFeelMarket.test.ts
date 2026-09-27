@@ -56,8 +56,8 @@ test('GAME FEEL MARKET 06: local market feedback comes from the actual returned 
  const source=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  assert.match(source,/useGameFeel/);
  assert.match(source,/const next=placeOrder\(game,/);
- assert.match(source,/order\.status==='PARTIAL'/);
- assert.match(source,/order\.status==='FILLED'/);
+ assert.match(source,/order\?\.status==='PARTIAL'/);
+ assert.match(source,/order\?\.status==='FILLED'/);
  assert.match(source,/market\.order-cancelled/);
 });
 
