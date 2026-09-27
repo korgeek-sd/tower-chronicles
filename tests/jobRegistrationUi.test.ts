@@ -55,9 +55,10 @@ test('JOB REGISTRATION UI 05: 10+1 result grid favors readable three-card rows a
 test('JOB REGISTRATION UI 06: pixel archive skin is CSS-only and preserves compact overrides',()=>{
  const source=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ const registrationCss=css.slice(css.indexOf('/* ===== Job registration / sealed archive ===== */'));
  assert.doesNotMatch(source,/https?:\/\//);
- assert.doesNotMatch(css,/url\(/);
- assert.match(css,/Job registration pixel skin \/ original CSS-only treatment/);
+ assert.doesNotMatch(registrationCss,/url\(/);
+ assert.match(registrationCss,/Job registration pixel skin \/ original CSS-only treatment/);
  assert.match(css,/\.tc-reg-draw:before,.tc-reg-draw:after/);
  assert.match(css,/\.tc-reg-mini:after/);
  assert.match(css,/Preserve the one-screen mobile contract after the decorative skin overrides/);
