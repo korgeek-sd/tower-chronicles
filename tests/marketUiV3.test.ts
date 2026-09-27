@@ -21,7 +21,7 @@ test('MARKET UI V3 02: detail order ticket exposes percentage presets without cl
   assert.match(source,/\[10,25,50,75,100\]/);
   assert.match(source,/tc-market-v3-presets/);
   assert.match(source,/percent===100\?'MAX'/);
-  assert.match(source,/tc-market-v3-ticket/);
+  assert.match(source,/tc-market-v3-ticket|tc-market-v4-orderform/);
  }
  assert.match(online,/placeOnlineMarketOrder\(lease/);
  assert.match(local,/placeOrder\(state/);
