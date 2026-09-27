@@ -191,7 +191,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   const current=selectedDemo?.last??trendByItem.get(item.id)?.last??bestAsk??bestBid;
   const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available):0;
   return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
-   <div className="tc-market-v4-trade">
+   <div className={'tc-market-v4-trade'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-tradehead">
      <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
      <div><small>{categoryLabel(item.category)}</small><b>{item.name}</b><span>최근 체결 {money(current)}</span></div>
@@ -234,7 +234,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
   return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>setSelected(null)}>시장</button>}>
-   <div className="tc-market-v2-detail tc-market-v4-detail">
+   <div className={'tc-market-v2-detail tc-market-v4-detail'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">
       <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
