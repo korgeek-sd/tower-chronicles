@@ -36,6 +36,7 @@ export function SealScreen({
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
  const [lastStep,setLastStep]=useState<number|null>(null);
+ const [litNode,setLitNode]=useState<number|null>(null);
  const feel=useGameFeel();
 
  useEffect(()=>{
@@ -72,11 +73,13 @@ export function SealScreen({
  async function roll(){
   if(!onlineLease||!canRoll)return;
   feel.play('seal.roll.start');
-  setBusy(true);setMessage('');setLastStep(null);
+  setBusy(true);setMessage('');setLastStep(null);setLitNode(null);setLitNode(null);
   try{
    const result=await rollOnlineAssociationSeal(onlineLease);
    setState(result.state);
    setLastStep(result.step);
+   const beforeNodes=Math.min(10,Math.ceil(result.beforeLevel/3)),afterNodes=Math.min(10,Math.ceil(result.afterLevel/3));
+   setLitNode(afterNodes>beforeNodes?afterNodes-1:null);
    feel.play('seal.roll.result',{step:result.step});
    const text='+'+result.step+' 단계 · '+result.beforeLevel+' → '+result.afterLevel;
    setMessage(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL?'최고 인장을 완성했습니다.':text);
@@ -116,10 +119,10 @@ export function SealScreen({
   <div className={'tc-seal'+(busy?' is-working':'')+(completed?' is-complete':'')}>
    <div className="tc-seal-stage">
     <section className="tc-seal-altar" aria-label="협회 인장 주조 제단">
-     <div className="tc-seal-wheel">
+     <div className={'tc-seal-wheel '+(busy?'is-casting ':'')+(lastStep?'tc-seal-result-'+lastStep:'')}>
       <div className="tc-seal-rune-ring" aria-hidden="true"/>
       {nodeIndexes.map(index=><i
-       className={'tc-seal-node '+(index<activeNodes?'active':'')}
+       className={'tc-seal-node '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
        style={{'--i':index} as React.CSSProperties}
        key={index}
        aria-hidden="true"
