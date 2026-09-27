@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import type {GameState,Potion} from '../../game/types';
 import {EVENT_BALANCE} from '../../game/events/selector';
 import {TOWERS,POTIONS,generalPotionIds,WEAPONS,SKILLS} from '../../game/data/config';
@@ -17,12 +17,18 @@ import {loadPrefs,savePrefs,SPEEDS} from './prefs';
 import type {BattlePrefs} from './prefs';
 import {Glyph} from '../../ui/mobile';
 import {strongholdRemainingMs} from '../../game/events/resourceStronghold';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import {combatFeelForEvent} from '../../gameFeel/combatAdapter';
 
 type Props={game:GameState;now?:number;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void;onAbandonStronghold?:()=>void};
 const glyph:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
 
 export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
+ const feel=useGameFeel();
+ const lastFeelEventId=useRef(game.combatEvents?.at(-1)?.id??0);
+ const previousPlayerHp=useRef(e.hp);
+ const previousMonsterHp=useRef(e.monster.currentHp);
  const [panel,setPanel]=useState<'menu'|'items'|'enemy'|null>(null);
  const playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e),buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const [prefs,setPrefs]=useState<BattlePrefs>(loadPrefs);
@@ -34,6 +40,26 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
  const stronghold=e.events.stronghold?.status==='ACTIVE'?e.events.stronghold:null;
  const strongholdMs=stronghold?strongholdRemainingMs(stronghold,now??Date.now()):0;
  const strongholdTime=String(Math.floor(strongholdMs/60_000)).padStart(2,'0')+':'+String(Math.floor(strongholdMs%60_000/1000)).padStart(2,'0');
+
+ useEffect(()=>{
+  const events=game.combatEvents??[];
+  const latestId=events.at(-1)?.id??0;
+  if(latestId<lastFeelEventId.current){lastFeelEventId.current=latestId;return;}
+  for(const event of events.filter(event=>event.id>lastFeelEventId.current)){
+   for(const emission of combatFeelForEvent(event,st.hp)){
+    if(emission.event==='combat.player-damaged')feel.play('combat.player-damaged',emission.payload);
+    else feel.play(emission.event);
+   }
+   lastFeelEventId.current=Math.max(lastFeelEventId.current,event.id);
+  }
+ },[game.combatEvents,st.hp,feel]);
+
+ useEffect(()=>{
+  if(e.hp>previousPlayerHp.current)feel.play('combat.heal');
+  if((e.hp<=0&&previousPlayerHp.current>0)||(e.monster.currentHp<=0&&previousMonsterHp.current>0))feel.play('combat.death');
+  previousPlayerHp.current=e.hp;
+  previousMonsterHp.current=e.monster.currentHp;
+ },[e.hp,e.monster.currentHp,feel]);
 
  const skillCards=skillIds.map((id,i)=>{
   const skill=SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;

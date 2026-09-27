@@ -8,6 +8,7 @@ import {marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {ServerMarketScreen} from './ServerMarketScreen';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 
 type Tab='market'|'orders'|'storage';
 type Category='all'|'equipment'|'materials'|'other';
@@ -54,6 +55,7 @@ export function MarketScreen({game,setGame,onlineLease}:{game:GameState;setGame:
 }
 
 function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
+ const feel=useGameFeel();
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
  const [query,setQuery]=useState('');
@@ -111,15 +113,30 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
 
  const submit=()=>{
   if(!selected||!valid)return;
-  setGame(state=>{
-   const next=placeOrder(state,{itemId:selected,side,limitPrice:p,quantity:q});
+  try{
+   const next=placeOrder(game,{itemId:selected,side,limitPrice:p,quantity:q});
    const order=next.market.orders.at(-1);
    if(order){
     const filled=order.originalQuantity-order.remainingQuantity;
     next.notice=filled?(order.remainingQuantity?filled+'개 체결 · '+order.remainingQuantity+'개 대기':filled+'개 전량 체결'):(side==='BUY'?'매수 지정가 주문을 등록했습니다.':'매도 지정가 주문을 등록했습니다.');
    }
-   return next;
-  });
+   setGame(next);
+   feel.play('market.order-placed');
+   if(order?.status==='PARTIAL')feel.play('market.trade-partial');
+   if(order?.status==='FILLED')feel.play('market.trade-filled');
+  }catch(error){
+   feel.play('ui.error',{message:error instanceof Error?error.message:'거래 주문을 처리하지 못했습니다.'});
+  }
+ };
+
+ const cancelLocalOrder=(orderId:string)=>{
+  try{
+   const next=cancelOrder(game,orderId);
+   setGame(next);
+   feel.play('market.order-cancelled');
+  }catch(error){
+   feel.play('ui.error',{message:error instanceof Error?error.message:'거래 주문을 취소하지 못했습니다.'});
+  }
  };
 
  if(item&&tradeSide){
@@ -245,7 +262,7 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
      {shownOrders.map(order=>{const filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
       <span className={'side '+order.side.toLowerCase()}>{order.side==='BUY'?'매수':'매도'}</span>
       <div className="name"><b>{marketItemName(game,order.itemId)}</b><small>{money(order.limitPrice)} · {filled}/{order.originalQuantity} 체결</small><div className="tc-market-v2-progress"><i style={{width:pct+'%'}}/></div></div>
-      <button onClick={()=>setGame(state=>cancelOrder(state,order.orderId))}>취소</button>
+      <button onClick={()=>cancelLocalOrder(order.orderId)}>취소</button>
      </article>})}
      {!shownOrders.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
     </div>
