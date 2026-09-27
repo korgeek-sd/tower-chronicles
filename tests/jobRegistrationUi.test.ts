@@ -47,4 +47,6 @@ test('JOB REGISTRATION UI 05: 10+1 result grid favors readable three-card rows a
  assert.match(css,/\.tc-reg-mini\{[^}]*grid-column:span 2/);
  assert.match(css,/\.tc-reg-mini:nth-child\(10\)\{grid-column:2\/span 2\}/);
  assert.match(css,/@media\(max-height:620px\)/);
+ assert.match(css,/\.tc-job-hub\{grid-template-rows:44px minmax\(0,1fr\)\}/);
+ assert.match(css,/\.tc-reg-result-multi\{grid-template-rows:32px minmax\(0,1fr\) 46px/);
 });
