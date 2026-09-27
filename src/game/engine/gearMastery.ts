@@ -13,8 +13,9 @@ export const masteryPercent=(s:GameState,key:GearMasteryKey)=>s.gearMastery[key]
 export function awardEquippedMastery(s:GameState){
   const e=s.expedition;if(!e)return [];
   const gain=masteryGainForFloor(e.floor),changes:string[]=[],unlocks:string[]=[];
-  for(const slot of ['weapon','armor','boots','accessory'] as Slot[]){
-    const item=s.items.find(i=>i.id===e.equipment[slot]);
+  for(const slot of ['weapon','armor','boots','accessory'] as const){
+    const itemId=slot==='accessory'?(e.equipment.accessory??e.equipment.ring):e.equipment[slot];
+    const item=s.items.find(i=>i.id===itemId);
     if(!item)continue;
     const key=masteryKeyOf(item),m=s.gearMastery[key];
     // Enhancement never participates: only item.tier is compared.
