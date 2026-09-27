@@ -1,0 +1,50 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {JOB_CATALOG,JOB_RARITIES} from '../src/game/jobs/catalog.ts';
+import {
+ JOB_PICKUP_RATE,
+ JOB_RECORD_THRESHOLDS,
+ JOB_REGISTRATION_COST_GOLD,
+ JOB_REGISTRATION_RATES,
+ JOB_RESIDUAL_VALUE,
+ jobRegistrationGoldCost,
+ jobRegistrationResultCount,
+} from '../src/game/jobs/registration.ts';
+
+test('JOB REGISTRATION V1 01: rarity rates are C51 B30 A13 SR5 SSR1',()=>{
+ assert.deepEqual(JOB_REGISTRATION_RATES,{C:.51,B:.30,A:.13,SR:.05,SSR:.01});
+ assert.equal(Object.values(JOB_REGISTRATION_RATES).reduce((sum,value)=>sum+value,0),1);
+});
+
+test('JOB REGISTRATION V1 02: 1 pull costs 100G and 10 paid pulls cost 1000G for 11 results',()=>{
+ assert.equal(JOB_REGISTRATION_COST_GOLD.single,100);
+ assert.equal(JOB_REGISTRATION_COST_GOLD.ten,1000);
+ assert.equal(jobRegistrationGoldCost(1),100);
+ assert.equal(jobRegistrationGoldCost(10),1000);
+ assert.equal(jobRegistrationResultCount(1),1);
+ assert.equal(jobRegistrationResultCount(10),11);
+});
+
+test('JOB REGISTRATION V1 03: progression, residual values, and pickup rate match the spec',()=>{
+ assert.deepEqual(JOB_RECORD_THRESHOLDS,{unlock:10,star2:30,star3:60});
+ assert.deepEqual(JOB_RESIDUAL_VALUE,{C:1,B:2,A:4,SR:8,SSR:16});
+ assert.equal(JOB_PICKUP_RATE,.5);
+});
+
+test('JOB REGISTRATION V1 04: current server pool has five jobs in every rarity',()=>{
+ for(const rarity of JOB_RARITIES)assert.equal(JOB_CATALOG.filter(job=>job.rarity===rarity).length,5);
+ assert.equal(JOB_CATALOG.length,25);
+});
+
+test('JOB REGISTRATION V1 05: migration keeps RNG and payment server-authoritative with no pity path',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20260927001016_job_registration_v1.sql',import.meta.url),'utf8');
+ assert.match(sql,/if r<0\.51 then return 'C'/);
+ assert.match(sql,/if r<0\.81 then return 'B'/);
+ assert.match(sql,/if r<0\.94 then return 'A'/);
+ assert.match(sql,/if r<0\.99 then return 'SR'/);
+ assert.match(sql,/v_cost:=p_paid_rolls\*100/);
+ assert.match(sql,/p_paid_rolls=10 then 11 else 1/);
+ assert.match(sql,/job_registration_secure_unit\(\)<0\.5/);
+ assert.doesNotMatch(sql,/pity|천장/i);
+});
