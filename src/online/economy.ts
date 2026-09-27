@@ -1,4 +1,6 @@
 import type {ActiveEffect,GameState,Tower} from '../game/types';
+import type {JobRarity} from '../game/jobs/catalog';
+import type {JobRegistrationPaidRolls} from '../game/jobs/registration';
 import type {PendingExpeditionEvent} from '../game/events/types';
 import {tierOf} from '../game/data/config';
 import {bestiaryEntryById} from '../game/data/bestiary';
@@ -62,6 +64,13 @@ const errors:RpcErrorMap={
  JOB_CHANGE_DURING_EXPEDITION:'원정 중에는 직업을 변경할 수 없습니다.',
  JOB_NOT_OWNED:'서버에 등록된 보유 직업이 아닙니다.',
  JOB_COMBAT_NOT_READY:'아직 서버 전투가 준비되지 않은 직업입니다.',
+ JOB_REGISTRATION_GOLD_SHORTAGE:'직능등록에 필요한 Gold가 부족합니다.',
+ JOB_REGISTRATION_MODE_INVALID:'지원하지 않는 직능등록 방식입니다.',
+ JOB_REGISTRATION_DURING_EXPEDITION:'원정 중에는 직능등록을 진행할 수 없습니다.',
+ JOB_REGISTRATION_REQUEST_REQUIRED:'직능등록 요청 식별자가 없습니다.',
+ JOB_REGISTRATION_REQUEST_CONFLICT:'같은 직능등록 요청이 다른 조건으로 다시 전송되었습니다.',
+ JOB_PICKUP_INVALID:'선택한 픽업 직능이 유효하지 않습니다.',
+ JOB_REGISTRATION_POOL_EMPTY:'등록 가능한 직능이 없습니다.',
 };
 
 const headers=(token:string)=>({
@@ -136,6 +145,63 @@ export async function settleOnlineExpedition(lease:GameplayLease,outcome:'return
 export async function selectOnlineJob(lease:GameplayLease,jobId:string|null){
  const record=await rpc<CloudSaveRecord>('select_online_job',{...leaseArgs(lease),p_job_id:jobId});
  return remember(record);
+}
+
+export interface OnlineJobRecordProgress {
+ jobId:string;
+ rarity:JobRarity;
+ recordCount:number;
+ stars:0|1|2|3;
+ unlocked:boolean;
+}
+export interface OnlineJobRegistrationState {
+ gold:number;
+ residualRecords:number;
+ pickups:{sr:string|null;ssr:string|null};
+ records:OnlineJobRecordProgress[];
+}
+export interface OnlineJobRegistrationResultEntry extends OnlineJobRecordProgress {
+ index:number;
+ newlyUnlocked:boolean;
+ residualGained:number;
+ pickup:boolean;
+}
+export interface OnlineJobRegistrationResult {
+ requestId:string;
+ paidRolls:JobRegistrationPaidRolls;
+ resultCount:number;
+ goldCost:number;
+ goldBefore:number;
+ goldAfter:number;
+ results:OnlineJobRegistrationResultEntry[];
+ state:OnlineJobRegistrationState;
+ record:CloudSaveRecord;
+ replayed:boolean;
+}
+
+export async function getOnlineJobRegistrationState(lease:GameplayLease){
+ return rpc<OnlineJobRegistrationState>('get_job_registration_state',leaseArgs(lease));
+}
+
+export async function setOnlineJobRegistrationPickups(
+ lease:GameplayLease,
+ pickups:{sr:string|null;ssr:string|null},
+){
+ return rpc<OnlineJobRegistrationState>('set_job_registration_pickups',{
+  ...leaseArgs(lease),p_sr_job_id:pickups.sr,p_ssr_job_id:pickups.ssr,
+ });
+}
+
+export async function registerOnlineJob(
+ lease:GameplayLease,
+ paidRolls:JobRegistrationPaidRolls,
+ requestId:string=crypto.randomUUID(),
+){
+ const result=await rpc<OnlineJobRegistrationResult>('register_online_job',{
+  ...leaseArgs(lease),p_request_id:requestId,p_paid_rolls:paidRolls,
+ });
+ await remember(result.record);
+ return result;
 }
 
 export async function startOnlineCraft(lease:GameplayLease,input:{jobId:string;kind:string;tier:number;quantity:number}){
