@@ -34,7 +34,8 @@ test('ASSOCIATION SEAL 03: UI exposes server-only probabilities and costs with n
  assert.match(ui,/ASSOCIATION_SEAL_ROLL_COST/);
  assert.match(ui,/ASSOCIATION_SEAL_RESET_COST/);
  assert.match(ui,/SERVER ONLY/);
- assert.match(ui,/20회 완료 후/);
+ assert.match(ui,/언제든지 재주조/);
+ assert.doesNotMatch(ui,/canReset=.*rolls>=ASSOCIATION_SEAL_MAX_ROLLS/);
  assert.doesNotMatch(ui,/Math\.random\(/);
 });
 
@@ -46,7 +47,6 @@ test('ASSOCIATION SEAL 04: server owns RNG, Gold deduction, limits and idempoten
  assert.match(sql,/set gold=gold-300/);
  assert.match(sql,/set gold=gold-3000/);
  assert.match(sql,/rolls_used>=20/);
- assert.match(sql,/rolls_used<20/);
  assert.match(sql,/SEAL_ROLL_DURING_EXPEDITION/);
  assert.match(sql,/require_active_game_session/);
  assert.match(sql,/p_request_id/);
@@ -73,4 +73,14 @@ test('ASSOCIATION SEAL 06: camp shortcut and app route are connected',()=>{
  assert.match(main,/import \{SealScreen\}/);
  assert.match(main,/page==='seal'/);
  assert.match(main,/<SealScreen game=\{game\}/);
+});
+
+
+test('ASSOCIATION SEAL 07: reset is allowed before all 20 rolls are spent',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20260927121000_association_seal_reset_anytime_v0161.sql',import.meta.url),'utf8');
+ assert.match(sql,/before_rolls between 0 and 20/);
+ assert.match(sql,/set gold=gold-3000/);
+ assert.match(sql,/set level=0,rolls_used=0,reset_count=reset_count\+1/);
+ assert.doesNotMatch(sql,/rolls_used<20/);
+ assert.doesNotMatch(sql,/SEAL_RESET_NOT_READY/);
 });

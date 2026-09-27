@@ -46,7 +46,6 @@ const errors:Record<string,string>={
  SEAL_RESET_REQUEST_REQUIRED:'인장 재주조 요청 식별자가 없습니다.',
  SEAL_COMPLETED:'이미 협회 인장 30단계를 완성했습니다.',
  SEAL_ROLL_LIMIT:'이번 인장의 주조 20회를 모두 사용했습니다.',
- SEAL_RESET_NOT_READY:'20회 주조를 마친 인장만 재주조할 수 있습니다.',
  SEAL_GOLD_SHORTAGE:'인장 주조에 필요한 Gold가 부족합니다.',
  SEAL_REQUEST_CONFLICT:'같은 인장 요청이 다른 조건으로 다시 전송되었습니다.',
 };

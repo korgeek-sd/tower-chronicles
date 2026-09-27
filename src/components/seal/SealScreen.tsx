@@ -63,7 +63,7 @@ export function SealScreen({
  const nextReward=associationSealReward(nextMilestone);
  const completed=level>=ASSOCIATION_SEAL_MAX_LEVEL;
  const canRoll=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&rolls<ASSOCIATION_SEAL_MAX_ROLLS&&gold>=ASSOCIATION_SEAL_ROLL_COST;
- const canReset=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&rolls>=ASSOCIATION_SEAL_MAX_ROLLS&&gold>=ASSOCIATION_SEAL_RESET_COST;
+ const canReset=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&gold>=ASSOCIATION_SEAL_RESET_COST;
  const activeNodes=Math.min(10,Math.ceil(level/3));
  const nodeIndexes=useMemo(()=>Array.from({length:10},(_,index)=>index),[]);
 
@@ -165,12 +165,12 @@ export function SealScreen({
     </button>
     <button className="tc-seal-reset" disabled={!canReset} onClick={()=>void reset()}>
      <span>재주조</span>
-     <small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold · 20회 완료 후</small>
+     <small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold · 언제든지 재주조</small>
     </button>
    </div>
 
    <div className="tc-seal-note" role="status">
-    <span>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':completed?'30단계 효과가 온라인 전투 능력치에 적용됩니다.':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'현재 인장을 유지하거나 재주조할 수 있습니다.':'주조 결과는 +1 76% · +2 20% · +3 4%입니다.')}</span>
+    <span>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':completed?'30단계 효과가 온라인 전투 능력치에 적용됩니다.':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'현재 인장을 유지하거나 재주조할 수 있습니다.':'재주조는 20회 소진 전에도 언제든지 가능합니다.')}</span>
    </div>
   </div>
  </Screen>;
