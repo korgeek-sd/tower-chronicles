@@ -9,7 +9,7 @@ export const GAME_FEEL_EVENTS=[
 ] as const;
 
 export type GameFeelEvent=typeof GAME_FEEL_EVENTS[number];
-export type EnhancementFeelOutcome='SUCCESS'|'FAIL_KEEP'|'FAIL_DOWNGRADE'|'FAIL_DESTROY';
+export type EnhancementFeelOutcome='SUCCESS'|'FAIL_KEEP'|'FAIL_DOWNGRADE'|'FAIL_DESTROYED';
 
 export interface GameFeelPayloadMap {
  'ui.press':undefined;
