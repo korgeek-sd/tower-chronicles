@@ -21,7 +21,7 @@ export function HomeScreen({game,onMove}:{game:GameState;onMove:(p:AppPage)=>voi
   <div className="tc-home">
    <section className="tc-dossier"><div className="tc-dossier-top"><small>ACTIVE EXPLORER DOSSIER</small><span className="tc-dossier-symbol">{weapon.icon}</span></div><h2>{weapon.name}을 든 모험가</h2><p>{weapon.description}</p><div className="tc-stat-grid"><Stat label="HP" value={Math.round(st.hp)}/><Stat label="공격" value={Math.round(st.attack)}/><Stat label="방어" value={Math.round(st.defense)}/><Stat label="공속" value={st.speed.toFixed(2)}/></div><button className="tc-action" onClick={()=>onMove('towers')}>{game.expedition?'원정으로 돌아가기':'원정 준비'}</button></section>
    <div className="tc-cycle"><div><b>01</b><strong>원정</strong><small>재료 확보</small></div><div><b>02</b><strong>제작</strong><small>장비 생산</small></div><div><b>03</b><strong>성장</strong><small>더 높은 층</small></div></div>
-   <div className="tc-quick">{[['bestiary','bestiary','생물록','조우 기록'],['jobs','jobs','직업','전투 키트'],['settings','settings','저장','백업 관리'],['cosmetics','cosmetics','외형','칭호·표시'],['skills','skills','스킬','3개 구성'],['mastery','craft','숙련','제작 자격']] .map(([p,g,t,s])=><button key={p} onClick={()=>onMove(p as AppPage)}><Glyph name={g}/><b>{t}</b><small>{s}</small></button>)}</div>
+   <div className="tc-quick">{[['bestiary','bestiary','생물록','조우 기록'],['jobs','jobs','직능','등록·전투 키트'],['settings','settings','저장','백업 관리'],['cosmetics','cosmetics','외형','칭호·표시'],['skills','skills','스킬','3개 구성'],['mastery','craft','숙련','제작 자격']] .map(([p,g,t,s])=><button key={p} onClick={()=>onMove(p as AppPage)}><Glyph name={g}/><b>{t}</b><small>{s}</small></button>)}</div>
   </div>
  </Screen>;
 }
