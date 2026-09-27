@@ -13,7 +13,7 @@ import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 
-export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'association'|'settings'|'bestiary';
+export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'gold-exchange'|'association'|'settings'|'bestiary';
 
 export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -21,7 +21,7 @@ export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:Ap
  const quick=[
   {id:'jobs-register',glyph:'registration',title:'직능등록',subtitle:'100G · 10+1',action:()=>onOpenJobs('register')},
   {id:'jobs-list',glyph:'jobs',title:'직능목록',subtitle:`보유 직능 ${game.ownedJobIds.length}종`,action:()=>onOpenJobs('list')},
-  {id:'skills',glyph:'skills',title:'스킬',subtitle:'전투 기술 구성',action:()=>onMove('skills')},
+  {id:'gold-exchange',glyph:'market',title:'골드 거래소',subtitle:'Gold ↔ Silver',action:()=>onMove('gold-exchange')},
   {id:'mastery',glyph:'craft',title:'제작 숙련',subtitle:'분야별 성장 기록',action:()=>onMove('mastery')},
   {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'발견한 생물',action:()=>onMove('bestiary')},
   {id:'settings',glyph:'settings',title:'계정 · 저장',subtitle:'연결과 저장 상태',action:()=>onMove('settings')},

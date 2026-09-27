@@ -24,6 +24,7 @@ import {settleStronghold} from './game/events/resourceStronghold';
 import {InventoryScreen} from './components/inventory/InventoryScreen';
 import {BattleScreen} from './components/battle/BattleScreen';
 import {MarketScreen} from './components/market/MarketScreen';
+import {GoldExchangeScreen} from './components/market/GoldExchangeScreen';
 import {AssociationScreen} from './components/association/AssociationScreen';
 import {JobsScreen,type JobTab} from './components/JobsScreen';
 import {SaveManagement} from './components/SaveManagement';
@@ -313,6 +314,7 @@ function App(){
    {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onBack={()=>setPage('craft')}/>}
    {page==='mastery'&&<MasteryScreen game={game}/>}
    {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
+   {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='association'&&<AssociationScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='jobs'&&<JobsScreen
     game={game}
