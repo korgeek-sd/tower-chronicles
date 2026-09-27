@@ -27,7 +27,7 @@ test('JOB REGISTRATION UI 03: rebuilt gacha UI stays asset-free and viewport-con
  assert.equal(source.includes('<img'),false);
  assert.match(source,/tc-reg-vault-icon/);
  assert.match(source,/tc-reg-record-icon/);
- assert.match(css,/\.tc-registration\{height:100%;min-height:0;display:grid/);
+ assert.match(css,/\.tc-registration\{height:100%;min-height:0;[^}]*display:grid/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
