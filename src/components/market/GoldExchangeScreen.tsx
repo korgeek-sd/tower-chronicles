@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
 import {
@@ -12,6 +12,8 @@ import {
  type OnlineGoldExchangeState,
 } from '../../online/goldExchange';
 import {Pager,Screen,Segments} from '../../ui/mobile';
+import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import {marketFeelForTransition} from '../../gameFeel/marketAdapter';
 
 type Tab='market'|'orders'|'trades';
 const PAGE_SIZE=6;
@@ -47,6 +49,8 @@ export function GoldExchangeScreen({
  setGame:React.Dispatch<React.SetStateAction<GameState>>;
  onlineLease?:GameplayLease|null;
 }){
+ const feel=useGameFeel();
+ const stateRef=useRef<OnlineGoldExchangeState|null>(null);
  const [tab,setTab]=useState<Tab>('market');
  const [state,setState]=useState<OnlineGoldExchangeState|null>(null);
  const [side,setSide]=useState<GoldExchangeSide>('BUY_GOLD');
@@ -58,8 +62,11 @@ export function GoldExchangeScreen({
  const [live,setLive]=useState<'connecting'|'subscribed'|'error'>('connecting');
 
  const apply=(next:OnlineGoldExchangeState)=>{
+  const previous=stateRef.current;
+  stateRef.current=next;
   setState(next);
   setGame(current=>applyOnlineGoldExchangeWallet(current,next));
+  if(previous)for(const event of marketFeelForTransition(previous,next))feel.play(event);
  };
 
  const refresh=async()=>{
@@ -130,16 +137,17 @@ export function GoldExchangeScreen({
   try{
    const next=await placeOnlineGoldExchangeOrder(onlineLease,{side,priceSilverPerGold:p,goldQuantity:q});
    apply(next);
+   feel.play('market.order-placed');
    setMessage(side==='BUY_GOLD'?'Gold 매수 주문을 등록했습니다.':'Gold 매도 주문을 등록했습니다.');
-  }catch(error){setMessage(error instanceof Error?error.message:'골드 거래 주문을 처리하지 못했습니다.');}
+  }catch(error){const text=error instanceof Error?error.message:'골드 거래 주문을 처리하지 못했습니다.';feel.play('ui.error',{message:text});setMessage(text);}
   finally{setBusy(false);}
  };
 
  const cancel=async(orderId:string)=>{
   if(!onlineLease||busy)return;
   setBusy(true);setMessage('');
-  try{apply(await cancelOnlineGoldExchangeOrder(onlineLease,orderId));setMessage('남은 주문을 취소하고 에스크로를 반환했습니다.');}
-  catch(error){setMessage(error instanceof Error?error.message:'골드 거래 주문을 취소하지 못했습니다.');}
+  try{apply(await cancelOnlineGoldExchangeOrder(onlineLease,orderId));feel.play('market.order-cancelled');setMessage('남은 주문을 취소하고 에스크로를 반환했습니다.');}
+  catch(error){const text=error instanceof Error?error.message:'골드 거래 주문을 취소하지 못했습니다.';feel.play('ui.error',{message:text});setMessage(text);}
   finally{setBusy(false);}
  };
 
