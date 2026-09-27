@@ -141,7 +141,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  }
 
  return <Screen eyebrow="SILVER SCALE / ONLINE" title="은저울 거래소" meta={<span>{snapshot.wallet.silver.toLocaleString()} S</span>}>
-  <div className="tc-market-v2">
+  <div className={"tc-market-v2 tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setPage(0);setError('');}} label="온라인 거래소 메뉴"/>
 
    {tab==='market'&&<>
