@@ -2,7 +2,7 @@ import type {EnhancementFeelOutcome,GameFeelPayloadMap,GameFeelRecipe} from '../
 
 const outcomeOf=(payload:GameFeelPayloadMap['enhancement.result']|undefined):EnhancementFeelOutcome|null=>{
  const outcome=(payload as {outcome?:unknown}|undefined)?.outcome;
- return outcome==='SUCCESS'||outcome==='FAIL_KEEP'||outcome==='FAIL_DOWNGRADE'||outcome==='FAIL_DESTROY'?outcome:null;
+ return outcome==='SUCCESS'||outcome==='FAIL_KEEP'||outcome==='FAIL_DOWNGRADE'||outcome==='FAIL_DESTROYED'?outcome:null;
 };
 
 export function enhancementRecipe(
@@ -36,7 +36,7 @@ export function enhancementRecipe(
    {type:'haptic',intensity:'strong'},
   ],
  };
- if(outcome==='FAIL_DESTROY')return {
+ if(outcome==='FAIL_DESTROYED')return {
   event,intensity:'exceptional',duration:720,
   commands:[
    {type:'flash',duration:280,tone:'negative',target:'screen'},
