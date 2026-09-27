@@ -43,4 +43,8 @@ test('HOME GOLD EXCHANGE 04: base camp replaces the skill shortcut with Gold Exc
  const equipment=source.slice(source.indexOf('export function EquipmentScreen'),source.indexOf('export function SkillsScreen'));
  assert.match(equipment,/onSkills/);
  assert.match(equipment,/>스킬</);
+ const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+ assert.match(main,/import \{GoldExchangeScreen\}/);
+ assert.match(main,/page==='gold-exchange'/);
+ assert.match(main,/<GoldExchangeScreen game=\{game\}/);
 });
