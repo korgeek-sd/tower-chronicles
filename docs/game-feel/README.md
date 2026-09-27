@@ -38,6 +38,12 @@ Honor `prefers-reduced-motion: reduce`. Remove shake, traveling particles, and l
 
 Keep feedback ephemeral and bounded. No idle requestAnimationFrame loop, no unbounded particle creation, no network calls, and no third-party animation dependency in V1. Prefer transform and opacity.
 
+## Object-targeted feedback
+
+V2 keeps semantic recipes global but lets each screen attach a short local class to the object that actually changed. Use this only for presentation: seal cores/nodes, enhancement panels, combat sprites, and trade summary regions may animate after the authoritative result is known. Local classes must not compute results or replace the semantic `feel.play()` event.
+
+Prefer the object that changed over a full-screen shake. A critical hit belongs on the target sprite; an enhancement failure belongs on the equipment panel; a market fill belongs on the real trade summary. DEMO-only or speculative data must never trigger authoritative-result feedback.
+
 ## Domain recipes
 
 ### Association Seal
