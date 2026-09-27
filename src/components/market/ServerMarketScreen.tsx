@@ -202,13 +202,15 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
  if(item){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
+  const displayAsk=selectedDemo?.asks[0]?.price??bestAsk;
+  const displayBid=selectedDemo?.bids[0]?.price??bestBid;
   const cutoff=rangeMs(range);
   const now=Date.now();
   const scoped=trades.filter(t=>t.itemId===item.id&&(!cutoff||t.executedAt>=now-cutoff)).slice().sort((a,b)=>a.executedAt-b.executedAt);
   const values=demoMode&&selectedDemo?selectedDemo.series:scoped.slice(-32).map(t=>t.price);
   const trend=makeTrend(values,64);
   const fallback=trendByItem.get(item.id)??makeTrend([]);
-  const current=trend.last??fallback.last??bestAsk??bestBid;
+  const current=trend.last??fallback.last??displayAsk??displayBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
   return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>setSelected(null)}>시장</button>}>
@@ -241,8 +243,8 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
     <section className="tc-market-v4-transactions">
      <div><span>{demoMode?'DEMO 체결':'최근 체결'}</span><b>{demoMode&&selectedDemo?selectedDemo.series.length:scoped.length||trades.filter(t=>t.itemId===item.id).length}건</b></div>
-     <div><span>최저 판매</span><b>{money(bestAsk)}</b></div>
-     <div><span>최고 구매</span><b>{money(bestBid)}</b></div>
+     <div><span>최저 판매</span><b>{money(displayAsk)}</b></div>
+     <div><span>최고 구매</span><b>{money(displayBid)}</b></div>
     </section>
 
     <div className="tc-market-v4-ctas">
@@ -261,7 +263,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
     <div className="tc-market-v4-search">
      <span aria-hidden="true">⌕</span>
      <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
-     <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':'LIVE'}</button>
+     <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button>
     </div>
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setPage(0);}}>{label}</button>)}</div>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
