@@ -28,7 +28,7 @@ test('GAME FEEL CORE 03: enhancement outcomes resolve to distinct presentation r
  const success=resolveGameFeelRecipe('enhancement.result',{outcome:'SUCCESS'});
  const keep=resolveGameFeelRecipe('enhancement.result',{outcome:'FAIL_KEEP'});
  const down=resolveGameFeelRecipe('enhancement.result',{outcome:'FAIL_DOWNGRADE'});
- const destroyed=resolveGameFeelRecipe('enhancement.result',{outcome:'FAIL_DESTROY'});
+ const destroyed=resolveGameFeelRecipe('enhancement.result',{outcome:'FAIL_DESTROYED'});
  assert.equal(success.intensity,'strong');
  assert.equal(keep.intensity,'subtle');
  assert.equal(down.intensity,'strong');
