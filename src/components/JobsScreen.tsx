@@ -115,7 +115,7 @@ export function JobsScreen({
      <button className="tc-reg-draw ten" disabled={!canRegister||gold<1000} onClick={()=>void draw(10)}><span>10+1 등록</span><small>1,000 Gold · 총 11개</small></button>
     </div>
 
-    <div className="tc-reg-note">{message||(!onlineLease?'Google 로그인 후 활성 플레이 세션에서 이용할 수 있습니다.':'모든 결과는 서버에서 독립 판정됩니다. 픽업 실패 보정은 없습니다.')}<small>외부 UI 이미지 에셋 없이 서버 판정 결과만 표시합니다.</small></div>
+    <div className="tc-reg-note" role="status"><span>{message||(!onlineLease?'Google 로그인 후 활성 플레이 세션에서 이용할 수 있습니다.':'모든 결과는 서버에서 독립 판정됩니다. 픽업 실패 보정은 없습니다.')}</span><small>외부 UI 이미지 에셋 없이 서버 판정 결과만 표시합니다.</small></div>
    </div>}
   </div>
  </Screen>;
@@ -139,7 +139,7 @@ function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult
  }
  return <div className="tc-reg-result tc-reg-result-multi" key={result.requestId}>
   <div className="tc-reg-result-head"><div><small>JOB RECORD BATCH</small><b>10+1 판독 완료</b></div><span>{result.goldAfter.toLocaleString()} Gold</span></div>
-  <div className="tc-reg-result-grid">{result.results.map((entry,index)=>{const job=jobById(entry.jobId);return <article className={'tc-reg-mini rarity-'+entry.rarity.toLowerCase()} key={index} style={{'--i':index} as React.CSSProperties}>
+  <div className="tc-reg-result-grid" aria-label="10+1 직능등록 결과">{result.results.map((entry,index)=>{const job=jobById(entry.jobId);return <article className={'tc-reg-mini rarity-'+entry.rarity.toLowerCase()} key={index} style={{'--i':index} as React.CSSProperties}>
    <div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>
    <strong>{entry.rarity}</strong>
    <b>{job?.displayName??entry.jobId}</b>
