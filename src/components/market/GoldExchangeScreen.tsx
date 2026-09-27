@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
 import {
@@ -58,6 +58,8 @@ export function GoldExchangeScreen({
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
  const [live,setLive]=useState<'connecting'|'subscribed'|'error'>('connecting');
+ const [tradePulse,setTradePulse]=useState(false);
+ const seenTradeIds=useRef<Set<string>|null>(null),tradePulseTimer=useRef<number|null>(null);
 
  const apply=(next:OnlineGoldExchangeState)=>{
   setState(next);
@@ -86,6 +88,21 @@ export function GoldExchangeScreen({
   document.addEventListener('visibilitychange',resume);
   return()=>{disposed=true;unsubscribe();document.removeEventListener('visibilitychange',resume);};
  },[onlineLease?.leaseId,onlineLease?.generation]);
+ useEffect(()=>{seenTradeIds.current=null;},[onlineLease?.leaseId,onlineLease?.generation]);
+ useEffect(()=>{
+  if(!state)return;
+  const ids=new Set(state.trades.map(trade=>trade.tradeId));
+  if(seenTradeIds.current===null){seenTradeIds.current=ids;return;}
+  const fresh=state.trades.filter(trade=>!seenTradeIds.current!.has(trade.tradeId)&&(trade.buyerMine||trade.sellerMine));
+  seenTradeIds.current=ids;
+  if(!fresh.length)return;
+  const partial=fresh.some(trade=>state.orders.some(order=>order.mine&&order.status==='PARTIAL'&&(order.orderId===trade.buyOrderId||order.orderId===trade.sellOrderId)));
+  feel.play(partial?'market.trade-partial':'market.trade-filled');
+  if(tradePulseTimer.current!==null)window.clearTimeout(tradePulseTimer.current);
+  setTradePulse(true);
+  tradePulseTimer.current=window.setTimeout(()=>{setTradePulse(false);tradePulseTimer.current=null;},520);
+ },[state,feel]);
+ useEffect(()=>()=>{if(tradePulseTimer.current!==null)window.clearTimeout(tradePulseTimer.current);},[]);
 
  const orders=state?.orders??[];
  const trades=state?.trades??[];
@@ -158,7 +175,7 @@ export function GoldExchangeScreen({
  }
 
  return <Screen eyebrow="NOVAR CURRENCY EXCHANGE" title="골드 거래소" meta={<span className={live==='subscribed'?'tc-goldx-live active':'tc-goldx-live'}>{live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</span>}>
-  <div className={'tc-goldx tab-'+tab}>
+  <div className={'tc-goldx tab-'+tab+(tradePulse?' tc-market-trade-pulse':'')}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setPage(0);setMessage('');}} label="골드 거래소 메뉴"/>
 
    {tab==='market'&&<>
@@ -189,7 +206,7 @@ export function GoldExchangeScreen({
       <span><small>{side==='BUY_GOLD'?'매수 수수료':'판매 수수료'}</small><b>{side==='BUY_GOLD'?'없음':`${(feeBps/100).toFixed(0)}% · ${money(sellFee)} S`}</b></span>
       <span><small>{side==='BUY_GOLD'?'체결 시 수령':'예상 실수령'}</small><b>{side==='BUY_GOLD'?money(q||0)+' G':money(sellNet)+' S'}</b></span>
      </div>
-     <button className={side==='BUY_GOLD'?'buy':'sell'} disabled={!canSubmit} onClick={()=>void submit()}>{busy?'처리 중':side==='BUY_GOLD'?'Gold 매수 주문':'Gold 매도 주문'}</button>
+     <button className={(side==='BUY_GOLD'?'buy':'sell')+' tc-feel-press'} data-game-feel="press" disabled={!canSubmit} onClick={()=>void submit()}>{busy?'처리 중':side==='BUY_GOLD'?'Gold 매수 주문':'Gold 매도 주문'}</button>
      <p>{game.expedition?'원정 중에는 주문할 수 없습니다.':message||`즉시 정산 · 등록 수수료 없음 · 판매 체결 수수료 ${(feeBps/100).toFixed(0)}%`}</p>
     </section>
    </>}
@@ -200,7 +217,7 @@ export function GoldExchangeScreen({
      {shownOrders.map(order=>{const filled=order.originalGoldQuantity-order.remainingGoldQuantity,pctFilled=order.originalGoldQuantity?filled/order.originalGoldQuantity*100:0;return <article key={order.orderId}>
       <span className={'side '+(order.side==='BUY_GOLD'?'buy':'sell')}>{order.side==='BUY_GOLD'?'매수':'매도'}</span>
       <div><b>{money(order.priceSilverPerGold)} S / G</b><small>{filled}/{order.originalGoldQuantity} G 체결 · 잔량 {order.remainingGoldQuantity} G</small><i><em style={{width:pctFilled+'%'}}/></i></div>
-      <button disabled={busy} onClick={()=>void cancel(order.orderId)}>취소</button>
+      <button className="tc-feel-press" data-game-feel="press" disabled={busy} onClick={()=>void cancel(order.orderId)}>취소</button>
      </article>})}
      {!shownOrders.length&&<div className="tc-goldx-empty">진행 중인 Gold 주문이 없습니다.</div>}
     </div>
