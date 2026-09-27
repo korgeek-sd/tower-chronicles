@@ -216,7 +216,7 @@ begin
     v_user,p_request_id,v_step,v_seal.level,v_after,300
   );
 
-  perform private.persist_client_payload_with_server_economy(v_user,v_save.payload,'0.1.59');
+  perform private.persist_client_payload_with_server_economy(v_user,v_save.payload,'0.1.60');
 
   return jsonb_build_object(
     'requestId',p_request_id,
