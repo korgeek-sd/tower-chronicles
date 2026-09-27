@@ -115,7 +115,7 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
  }
 
  return <Screen eyebrow="SILVER SCALE / LOCAL" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
-  <div className="tc-market-v2">
+  <div className={"tc-market-v2 tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setPage(0);}} label="거래소 메뉴"/>
 
    {tab==='market'&&<>
