@@ -1,15 +1,29 @@
-# 탑의 기록 v0.1.44
+# 탑의 기록 v0.1.54
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.44`
+- 앱 버전: `0.1.54`
 - 저장 스키마: `v22`
 - 기술: React 19, TypeScript, Vite
-- 저장: 브라우저 `localStorage`
+- 저장: 브라우저 local cache + Supabase revisioned cloud save
 - 현재 실제 플레이 가능 탑: `철맥의 첨탑`, `붉은 송곳니의 성소`, `천광의 수정탑`
 - 메인 저장 키: `tower-record-v1`
 
-실제 동작이 문서와 충돌할 경우 production code와 자동 테스트가 우선입니다. 최신 개발 상태는 `GPT-HANDOFF-v0.1.44.md`를 확인합니다.
+실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.54 — 직능등록 V1 완료
+
+- 서버 권위 직능등록 RNG: C 51% / B 30% / A 13% / SR 5% / SSR 1%
+- 1회 100 Gold, 10+1 1,000 Gold
+- SR/SSR 집중 열람 50:50, 천장·실패 보정 없음
+- 직능 기록 10 해금 / 30 ★★ / 60 ★★★
+- ★★★ 초과 기록은 등급별 잔여 기록으로 변환
+- 잔여 기록 → 원하는 직능 기록 +1 교환
+  - C 5 / B 10 / A 20 / SR 50 / SSR 160
+  - 등급 공용 한도: C 10/주, B 8/주, A 5/주, SR 2/주, SSR 1/월
+- 잔여 기록 30 → 협회 추천장 1장, 주 3회
+- 주간 초기화는 월요일 00:00 KST, SSR 월간 초기화는 매월 1일 00:00 KST
+- 직능등록 화면에 등록 / 직능기록 / 확률정보 탭 제공
 
 ## v0.1.44 — 붉은 송곳니의 성소 개방 + 일반 몬스터 전투 패스
 
@@ -94,7 +108,10 @@ boss id `white_crystal_armor_behemoth`와 전투 데이터는 변경하지 않�
 - 탐사 생물록 45종 + 영구 진행도
 - 장비 제작 / 강화 / 장비 숙련도 / 인벤토리 / 프리셋
 - 회복 포션 4종 + 선택형 회생 포션
-- 로컬 거래소 / 조합 prototype
+- 온라인 거래소 / 로컬 조합 prototype
+- Google 로그인 / revisioned cloud save / active session lock
+- 서버 권위 경제 / 거래소 / 원정 / 전투 / 탐사 / 제작 / 강화
+- 서버 권위 직능등록 / 기록 성장 / 잔여 기록 교환 / 협회 추천장 변환
 - JSON save export/import와 migration
 - 데이터 기반 직업 전투 framework와 일부 COMBAT_READY 직업
 
@@ -103,10 +120,8 @@ boss id `white_crystal_armor_behemoth`와 전투 데이터는 변경하지 않�
 - 칼레온의 녹빛 첨탑 실제 몬스터 콘텐츠 및 입장 개방
 - production 일반 랜덤 이벤트
 - 실제 서버 PvP
-- 온라인 서버 / 로그인 / DB / authoritative economy
 - Gold Exchange
 - 원정단 점령전
-- 직능 등록 / 확률형 등록 서버 RNG
 - 전체 직업의 실제 combat kit
 - 천광 일부 전용 몬스터/보스 스프라이트 보강
 
@@ -114,7 +129,7 @@ boss id `white_crystal_armor_behemoth`와 전투 데이터는 변경하지 않�
 
 현재 저장 스키마는 `v22`입니다.
 
-v0.1.44는 새로운 persisted field를 추가하지 않습니다. Red Fang은 이미 존재하던 tower/ticket/progress/bestiary 구조와 monster ids를 사용하므로 migration은 없습니다.
+v0.1.54는 클라이언트 저장 스키마를 변경하지 않습니다. 직능 기록·잔여 기록·추천장·교환 한도는 Supabase private schema의 서버 권위 데이터로 저장됩니다.
 
 ## 개발 명령
 

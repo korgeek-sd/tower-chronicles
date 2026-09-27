@@ -4,7 +4,11 @@ import {readFileSync} from 'node:fs';
 import {JOB_CATALOG,JOB_RARITIES} from '../src/game/jobs/catalog.ts';
 import {
  JOB_PICKUP_RATE,
+ JOB_RECORD_EXCHANGE_COST,
+ JOB_RECORD_EXCHANGE_LIMIT,
  JOB_RECORD_THRESHOLDS,
+ JOB_RECOMMENDATION_COST,
+ JOB_RECOMMENDATION_WEEKLY_LIMIT,
  JOB_REGISTRATION_COST_GOLD,
  JOB_REGISTRATION_RATES,
  JOB_RESIDUAL_VALUE,
@@ -47,4 +51,25 @@ test('JOB REGISTRATION V1 05: migration keeps RNG and payment server-authoritati
  assert.match(sql,/p_paid_rolls=10 then 11 else 1/);
  assert.match(sql,/job_registration_secure_unit\(\)<0\.5/);
  assert.doesNotMatch(sql,/pity|천장/i);
+});
+
+
+test('JOB REGISTRATION V1 06: residual record exchange costs and shared quotas match the final spec',()=>{
+ assert.deepEqual(JOB_RECORD_EXCHANGE_COST,{C:5,B:10,A:20,SR:50,SSR:160});
+ assert.deepEqual(JOB_RECORD_EXCHANGE_LIMIT,{C:10,B:8,A:5,SR:2,SSR:1});
+ assert.equal(JOB_RECOMMENDATION_COST,30);
+ assert.equal(JOB_RECOMMENDATION_WEEKLY_LIMIT,3);
+});
+
+test('JOB REGISTRATION V1 07: completion migration keeps exchange server-authoritative and idempotent',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20260927080946_complete_job_registration_v1.sql',import.meta.url),'utf8');
+ assert.match(sql,/exchange_job_residual_record/);
+ assert.match(sql,/exchange_job_residual_recommendation/);
+ assert.match(sql,/JOB_RECORD_EXCHANGE_LIMIT/);
+ assert.match(sql,/JOB_RECOMMENDATION_WEEKLY_LIMIT/);
+ assert.match(sql,/primary key\(user_id,request_id\)/);
+ assert.match(sql,/Asia\/Seoul/);
+ assert.match(sql,/when 'SSR' then 160/);
+ assert.match(sql,/when 'SSR' then 1/);
+ assert.match(sql,/if v_record_count>=60 then raise exception 'JOB_RECORD_MAXED'/);
 });

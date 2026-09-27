@@ -32,4 +32,22 @@ export const JOB_RESIDUAL_VALUE:Readonly<Record<JobRarity,number>>={
  SSR:16,
 };
 
+export const JOB_RECORD_EXCHANGE_COST:Readonly<Record<JobRarity,number>>={
+ C:5,
+ B:10,
+ A:20,
+ SR:50,
+ SSR:160,
+};
+
+export const JOB_RECORD_EXCHANGE_LIMIT:Readonly<Record<JobRarity,number>>={
+ C:10,
+ B:8,
+ A:5,
+ SR:2,
+ SSR:1,
+};
+
+export const JOB_RECOMMENDATION_COST=30;
+export const JOB_RECOMMENDATION_WEEKLY_LIMIT=3;
 export const JOB_PICKUP_RATE=0.5;
