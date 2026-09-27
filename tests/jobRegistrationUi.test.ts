@@ -20,13 +20,13 @@ test('JOB REGISTRATION UI 02: registration UI calls only server registration RPC
  assert.doesNotMatch(source,/Math\.random\(/);
 });
 
-test('JOB REGISTRATION UI 03: third-party game icons keep attribution',()=>{
- const credits=readFileSync(new URL('../THIRD_PARTY_ASSETS.md',import.meta.url),'utf8');
- const locked=readFileSync(new URL('../public/assets/ui/job-registration/locked-chest.svg',import.meta.url),'utf8');
- const scroll=readFileSync(new URL('../public/assets/ui/job-registration/scroll-quill.svg',import.meta.url),'utf8');
- assert.match(credits,/Lorc/);
- assert.match(credits,/Delapouite/);
- assert.match(credits,/CC BY 3\.0/);
- assert.match(locked,/viewBox="0 0 512 512"/);
- assert.match(scroll,/viewBox="0 0 512 512"/);
+test('JOB REGISTRATION UI 03: rebuilt gacha UI stays asset-free and viewport-contained',()=>{
+ const source=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ assert.equal(source.includes('assets/ui'),false);
+ assert.equal(source.includes('<img'),false);
+ assert.match(source,/tc-reg-vault-icon/);
+ assert.match(source,/tc-reg-record-icon/);
+ assert.match(css,/\.tc-registration\{height:100%;min-height:0;display:grid/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
