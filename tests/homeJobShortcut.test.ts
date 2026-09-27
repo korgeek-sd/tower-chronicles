@@ -16,7 +16,7 @@ test('HOME JOB SHORTCUT 02: existing job shortcut opens the job list instead of 
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
  assert.match(home,/title:'직능목록'/);
- assert.match(home,/subtitle:'보유·전투 키트'/);
+ assert.match(home,/game\.ownedJobIds\.length/);
  assert.match(home,/onOpenJobs\('list'\)/);
 });
 

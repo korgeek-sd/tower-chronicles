@@ -80,13 +80,13 @@ export function JobsScreen({
   finally{setBusy(false);}
  }
 
- return <Screen eyebrow="NOVAR ARCHIVE / JOB RECORD" title="직능" meta={<span>{tab==='register'?'직능등록':current?.displayName??'미선택'}</span>}>
+ return <Screen title="직능 기록실" meta={<span>{tab==='register'?'직능등록':current?.displayName??'미선택'}</span>}>
   <div className="tc-job-hub">
    <Segments items={[['register','직능등록'],['list','직능목록']] as const} value={tab} onChange={value=>{setTab(value);setResult(null);setMessage('');}} label="직능 메뉴"/>
    {tab==='list'?<div className="tc-jobs tc-job-list-mode">
-    <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능은 패시브 2개와 액티브 3개의 고정 전투 키트입니다.'}</div>
+    <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능마다 고유한 패시브 2개와 액티브 3개를 사용합니다.'}</div>
     <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);}} label="직능 등급"/>
-    <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className="tc-job" key={job.id}><div><b>{job.displayName}</b><small>{job.combatKit?'전투 키트 준비됨':'전투 키트 미구현'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
+    <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className="tc-job" key={job.id}><div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
    </div>:result?<RegistrationResult result={result} onClose={()=>setResult(null)}/>:<div className="tc-registration">
     <section className="tc-reg-pickups" aria-label="집중 열람 직능">
@@ -97,7 +97,7 @@ export function JobsScreen({
     <section className={'tc-reg-vault'+(busy?' is-working':'')} aria-live="polite">
      <div className="tc-reg-vault-lines" aria-hidden="true"/>
      <div className="tc-reg-vault-icon" aria-hidden="true"><i/><i/><span/></div>
-     <small>SEALED JOB RECORD</small>
+     <small>노바르 기록실</small>
      <h2>봉인 직능기록함</h2>
      <p>{busy?'기록을 판독하고 있습니다.':'Gold를 지불해 봉인된 직능기록을 열람합니다.'}</p>
      <div className="tc-reg-focus"><span>SR</span><b>{jobName(registration?.pickups.sr??null)}</b><i/><span>SSR</span><b>{jobName(registration?.pickups.ssr??null)}</b></div>
@@ -116,7 +116,7 @@ export function JobsScreen({
      <button className="tc-reg-draw ten" disabled={!canRegister||gold<1000} onClick={()=>void draw(10)}><span>10+1 등록</span><small>1,000 Gold · 총 11개</small></button>
     </div>
 
-    <div className="tc-reg-note" role="status"><span>{message||(!onlineLease?'Google 로그인 후 활성 플레이 세션에서 이용할 수 있습니다.':'모든 결과는 서버에서 독립 판정됩니다. 픽업 실패 보정은 없습니다.')}</span><small>외부 UI 이미지 에셋 없이 서버 판정 결과만 표시합니다.</small></div>
+    <div className="tc-reg-note" role="status"><span>{message||(!onlineLease?'Google 로그인 후 이용할 수 있습니다.':'중복 기록은 직능 성장에 사용됩니다. 픽업 실패 보정은 없습니다.')}</span></div>
    </div>}
   </div>
  </Screen>;
@@ -139,7 +139,7 @@ function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult
   </div>;
  }
  return <div className="tc-reg-result tc-reg-result-multi" key={result.requestId}>
-  <div className="tc-reg-result-head"><div><small>JOB RECORD BATCH</small><b>10+1 판독 완료</b></div><span>{result.goldAfter.toLocaleString()} Gold</span></div>
+  <div className="tc-reg-result-head"><div><small>직능등록 결과</small><b>10+1 판독 완료</b></div><span>{result.goldAfter.toLocaleString()} Gold</span></div>
   <div className="tc-reg-result-grid" aria-label="10+1 직능등록 결과">{result.results.map((entry,index)=>{const job=jobById(entry.jobId);return <article className={'tc-reg-mini rarity-'+entry.rarity.toLowerCase()} key={index} style={{'--i':index} as React.CSSProperties}>
    <div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>
    <strong>{entry.rarity}</strong>

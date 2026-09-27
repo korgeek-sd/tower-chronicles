@@ -298,7 +298,7 @@ function App(){
    <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
    <div className="tc-wallet"><span className="tc-coin"><i/><b>{game.silver.toLocaleString()}</b><small>Silver</small></span><span className="tc-coin gold"><i/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></span></div>
    <button className="tc-premium" onClick={()=>move('premium')}><b>황금기록자</b><small>{goldenActive?remainingGoldenTime(game.goldenRecorder.expiresAt,now):'미등록'}</small></button>
-  </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'NOVAR 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
+  </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
   <main className="tc-main">
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
