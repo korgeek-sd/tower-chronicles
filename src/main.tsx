@@ -314,6 +314,7 @@ function App(){
    {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onBack={()=>setPage('craft')}/>}
    {page==='mastery'&&<MasteryScreen game={game}/>}
    {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
+   {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='association'&&<AssociationScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='jobs'&&<JobsScreen
     game={game}
