@@ -7,6 +7,7 @@ import {
  applyOnlineEconomyToGame,applyOnlineMarketSnapshotToGame,cancelOnlineMarketOrder,claimAllOnlineMarketStorage,claimOnlineMarketStorage,
  loadOnlineMarketState,placeOnlineMarketOrder,subscribeOnlineMarketRealtime,type OnlineMarketState
 } from '../../online/market';
+import {demoMarketView} from './demoLiveMarket';
 
 type Tab='market'|'orders'|'storage';
 type Side='BUY'|'SELL';
@@ -60,6 +61,8 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState('');
  const [live,setLive]=useState<'connecting'|'subscribed'|'error'>('connecting');
+ const [demoMode,setDemoMode]=useState(true);
+ const [demoTick,setDemoTick]=useState(0);
 
  const applySnapshot=(next:OnlineMarketState)=>{
   setSnapshot(next);
@@ -90,6 +93,12 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   return()=>{disposed=true;unsubscribe();document.removeEventListener('visibilitychange',resume);};
  },[lease.leaseId,lease.generation]);
 
+ useEffect(()=>{
+  if(!demoMode)return;
+  const timer=window.setInterval(()=>setDemoTick(tick=>tick+1),900);
+  return()=>window.clearInterval(timer);
+ },[demoMode]);
+
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
  const catalog=useMemo(()=>marketCatalog(view),[view]);
  const normalizedQuery=query.trim().toLowerCase();
@@ -101,10 +110,13 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  const side:Side=tradeSide??'BUY';
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN;
  const book=selected?orderBook(view,selected):{sells:[],buys:[]};
- const asks=aggregateOrderBookByPrice(book.sells).sort((a,b)=>a.price-b.price).slice(0,4);
- const bids=aggregateOrderBookByPrice(book.buys).sort((a,b)=>b.price-a.price).slice(0,4);
+ const actualAsks=aggregateOrderBookByPrice(book.sells).sort((a,b)=>a.price-b.price).slice(0,4);
+ const actualBids=aggregateOrderBookByPrice(book.buys).sort((a,b)=>b.price-a.price).slice(0,4);
+ const selectedDemo=selected&&demoMode?demoMarketView(selected,getBestAsk(view,selected)??getBestBid(view,selected),demoTick):null;
+ const asks=selectedDemo?.asks??actualAsks;
+ const bids=selectedDemo?.bids??actualBids;
  const maxDepth=Math.max(1,...asks.map(x=>x.quantity),...bids.map(x=>x.quantity));
- const valid=!!snapshot&&!!item&&!!tradeSide&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
+ const valid=!!snapshot&&!!item&&!!tradeSide&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
  const open=getMyOpenOrders(view);
  const storage=snapshot?.storage??[];
  const trades=snapshot?.trades??[];
@@ -135,7 +147,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  const openTrade=(next:Side)=>{
   if(!selected)return;
   setTradeSide(next);setQty('1');setError('');
-  setPrice(String((next==='BUY'?getBestAsk(view,selected):getBestBid(view,selected))??trendByItem.get(selected)?.last??''));
+  setPrice(String((next==='BUY'?(selectedDemo?.asks[0]?.price??getBestAsk(view,selected)):(selectedDemo?.bids[0]?.price??getBestBid(view,selected)))??trendByItem.get(selected)?.last??''));
  };
 
  const applyPercent=(percent:number)=>{
@@ -156,7 +168,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
  if(item&&tradeSide){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
-  const current=trendByItem.get(item.id)?.last??bestAsk??bestBid;
+  const current=selectedDemo?.last??trendByItem.get(item.id)?.last??bestAsk??bestBid;
   const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available):0;
   return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
    <div className="tc-market-v4-trade">
@@ -167,7 +179,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
     </section>
 
     <section className="tc-market-v2-book tc-market-v4-book">
-     <header><span>실시간 주문장</span><small>가격 / 잔량</small></header>
+     <header><span>실시간 주문장</span><small>{demoMode?'DEMO · 실제 주문 미반영':'가격 / 잔량'}</small></header>
      <div className="tc-market-v2-bookcols">
       <div className="sell"><b>판매</b>{asks.map(x=><button key={x.price} onClick={()=>setPrice(String(x.price))}><i style={{width:(x.quantity/maxDepth*100)+'%'}}/><span>{money(x.price)}</span><small>{x.quantity}</small></button>)}{!asks.length&&<em>판매 주문 없음</em>}</div>
       <div className="buy"><b>구매</b>{bids.map(x=><button key={x.price} onClick={()=>setPrice(String(x.price))}><i style={{width:(x.quantity/maxDepth*100)+'%'}}/><span>{money(x.price)}</span><small>{x.quantity}</small></button>)}{!bids.length&&<em>구매 주문 없음</em>}</div>
@@ -181,7 +193,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
      </div>
      <div className="tc-market-v3-presets" aria-label="주문 수량 비율">{[10,25,50,75,100].map(percent=><button key={percent} disabled={busy||maxOrderQty<=0} onClick={()=>applyPercent(percent)}>{percent===100?'MAX':percent+'%'}</button>)}</div>
      <div className="tc-market-v2-total"><span>{side==='BUY'?'예상 예치금':'지정 판매금액'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b></div>
-     <button className={'tc-market-v2-submit '+(side==='BUY'?'buy':'sell')} disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,side,limitPrice:p,quantity:q}))}>{busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
+     <button className={'tc-market-v2-submit '+(side==='BUY'?'buy':'sell')} disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,side,limitPrice:p,quantity:q}))}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
     </section>
     {error&&<div className="tc-floor-risk">{error}</div>}
    </div>
@@ -193,7 +205,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   const cutoff=rangeMs(range);
   const now=Date.now();
   const scoped=trades.filter(t=>t.itemId===item.id&&(!cutoff||t.executedAt>=now-cutoff)).slice().sort((a,b)=>a.executedAt-b.executedAt);
-  const values=scoped.slice(-32).map(t=>t.price);
+  const values=demoMode&&selectedDemo?selectedDemo.series:scoped.slice(-32).map(t=>t.price);
   const trend=makeTrend(values,64);
   const fallback=trendByItem.get(item.id)??makeTrend([]);
   const current=trend.last??fallback.last??bestAsk??bestBid;
@@ -228,7 +240,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
     </section>
 
     <section className="tc-market-v4-transactions">
-     <div><span>최근 체결</span><b>{scoped.length||trades.filter(t=>t.itemId===item.id).length}건</b></div>
+     <div><span>{demoMode?'DEMO 체결':'최근 체결'}</span><b>{demoMode&&selectedDemo?selectedDemo.series.length:scoped.length||trades.filter(t=>t.itemId===item.id).length}건</b></div>
      <div><span>최저 판매</span><b>{money(bestAsk)}</b></div>
      <div><span>최고 구매</span><b>{money(bestBid)}</b></div>
     </section>
@@ -249,17 +261,20 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
     <div className="tc-market-v4-search">
      <span aria-hidden="true">⌕</span>
      <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
-     <small className={live==='subscribed'?'live':''}>{live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</small>
+     <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':'LIVE'}</button>
     </div>
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setPage(0);}}>{label}</button>)}</div>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
-      const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),trend=trendByItem.get(entry.id)??makeTrend([]);
+      const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);
+      const demo=demoMode?demoMarketView(entry.id,ask??bid??realTrend.last,demoTick):null;
+      const trend=demo?makeTrend(demo.series):realTrend;
+      const displayPrice=demo?.last??ask??bid;
       return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
        <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
-       <span className="name"><b>{entry.name}</b><small>{categoryLabel(entry.category)} · 보유 {entry.available}</small></span>
+       <span className="name"><b>{entry.name}</b><small>{demoMode?'DEMO · ':''}{categoryLabel(entry.category)} · 보유 {entry.available}</small></span>
        <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
-       <span className="tc-market-v3-rowprice"><b>{money(ask??bid)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>
+       <span className="tc-market-v3-rowprice"><b>{money(displayPrice)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>
        <i>›</i>
       </button>;
      })}
