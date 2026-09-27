@@ -10,7 +10,7 @@ import {Glyph,Pager,Screen} from '../../ui/mobile';
 import {InventoryDetailSheet} from './InventoryDetailSheet';
 
 const PAGE_SIZE=8;
-const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',armor:'armor',boots:'boots',accessory:'accessory'};
+const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',helmet:'armor',armor:'armor',gloves:'armor',boots:'boots',necklace:'accessory',ring:'accessory'};
 
 export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
  const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false);
