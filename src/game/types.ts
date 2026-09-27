@@ -1,6 +1,20 @@
 import type {ExpeditionEvents} from './events/types';
 export type Weapon = 'sword'|'dagger'|'bow'|'staff';
-export type Slot = 'weapon'|'armor'|'boots'|'accessory';
+export type EquipmentKind =
+  | 'association_supply_iron_sword'
+  | 'outer_guard_longbow'
+  | 'archive_standard_arcane_staff'
+  | 'expedition_iron_helmet'
+  | 'return_corps_plate_armor'
+  | 'mining_detail_reinforced_gloves'
+  | 'survey_corps_dust_boots'
+  | 'association_registration_tag'
+  | 'expedition_merit_ring';
+export type EquipmentGrade = 'common'|'uncommon'|'rare'|'heroic'|'legendary';
+export type EquipmentEnhancementLevel = 0|1|2|3|4|5|6|7|8|9|10;
+export type Slot = 'weapon'|'helmet'|'armor'|'gloves'|'boots'|'necklace'|'ring';
+export type LegacySlot = 'weapon'|'armor'|'boots'|'accessory';
+export type EquipmentLoadout = Record<Slot,string|null> & {accessory?:string|null};
 export type Field = 'weapon'|'armor'|'accessory'|'alchemy';
 export type PotionId = 'healing_lesser'|'healing_standard'|'healing_greater'|'healing_supreme'|'revival';
 export type Potion = PotionId;
@@ -11,10 +25,11 @@ export type EnhancementLevel = 0|1|2|3;
 export type EnhancementOutcome = 'SUCCESS'|'FAIL_KEEP'|'FAIL_DOWNGRADE'|'FAIL_DESTROYED';
 export type Bag = Record<Potion,number>;
 export interface Item {id:string; kind:string; tier:number; enhancement:EnhancementLevel}
+export interface EquipmentItem {id:string;kind:EquipmentKind;grade:EquipmentGrade;enhancement:EquipmentEnhancementLevel}
 export interface Stats {hp:number;attack:number;defense:number;speed:number;skillPower:number;critChance?:number;critDamage?:number;attackHits?:number}
 export interface Monster extends Stats {name:string;currentHp:number;definitionId?:string}
 export interface BossTracking {progress:number;pendingBossId:string|null;encounterReason:'early'|'max'|null;bossDefeated:boolean}
-export interface ExpeditionPreset {name:string;equipment:Record<Slot,string|null>;skills:[string|null,string|null,string|null];potions:Bag;threshold:number}
+export interface ExpeditionPreset {name:string;equipment:EquipmentLoadout;skills:[string|null,string|null,string|null];potions:Bag;threshold:number}
 export interface GoldenRecorder {expiresAt:number|null}
 export type MarketSide='BUY'|'SELL';
 export type MarketOrderStatus='OPEN'|'PARTIAL'|'FILLED'|'CANCELLED';
@@ -44,8 +59,8 @@ export type CombatContinuationStep={kind:'DIRECT_HITS';attacker:CombatActor;rema
 export interface PendingRevivalDecision {source:'DIRECT_HIT'|'PERIODIC_DAMAGE'|'EVENT_DAMAGE';steps:CombatContinuationStep[]}
 export interface ReactivePreparedRuntime {definitionId:string;prepareSkillId:string;reactionSkillId:string;trigger:'DIRECT_HIT_RECEIVED'}
 export type ReactivePreparedByActor=Record<CombatActor,ReactivePreparedRuntime|null>;
-export interface Expedition {events:ExpeditionEvents;tower:Tower;floor:number;hp:number;monster:Monster;monsterRuntime:MonsterBattleRuntime|null;reactivePrepared:ReactivePreparedByActor;bag:Bag;time:number;playerTimer:number;enemyTimer:number;spawnAt:number;cooldowns:Record<string,number>;buffs:Record<string,number>;playerEffects:ActiveEffect[];monsterEffects:ActiveEffect[];preparedEffects:ActiveEffect[];effectSequence:number;jobSnapshotId:string|null;jobRuntime:BattleJobRuntime;kills:number;loot:ExpeditionLoot;equipment:Record<Slot,string|null>;returnRequested:boolean;bossTracking:BossTracking;phase:BattlePhase;playerTurn:number;monsterTurn:number;pendingFlee:boolean;pendingRevival:PendingRevivalDecision|null;revenueShareSnapshot?:{associationId:string|null;rate:number}}
-export interface GameState {version:22;bestiary:BestiaryState;ownedJobIds:string[];currentJobId:string|null;exploration:{unlockedTier:Record<Tower,number>;highestReturned:Record<Tower,number>};crafting:CraftingState;association:AssociationState;market:MarketState;goldenRecorder:GoldenRecorder;expeditionPresets:(ExpeditionPreset|null)[];cosmetics:Cosmetics;gearMastery:Record<GearMasteryKey,GearMastery>;skillBooks:Record<string,number>;lootItems:Record<string,number>;lastExpedition:ExpeditionResult|null;silver:number;materials:Record<Tower,number[]>;items:Item[];equipped:Record<Slot,string|null>;learned:string[];skills:[string|null,string|null,string|null];potions:Bag;loadout:Bag;threshold:number;mastery:Record<Field,Mastery>;tickets:Record<Tower,number[]>;progress:Record<Tower,number>;expedition:Expedition|null;logs:string[];combatEvents?:CombatEvent[];combatEventSequence?:number;notice:string;nextId:number}
+export interface Expedition {events:ExpeditionEvents;tower:Tower;floor:number;hp:number;monster:Monster;monsterRuntime:MonsterBattleRuntime|null;reactivePrepared:ReactivePreparedByActor;bag:Bag;time:number;playerTimer:number;enemyTimer:number;spawnAt:number;cooldowns:Record<string,number>;buffs:Record<string,number>;playerEffects:ActiveEffect[];monsterEffects:ActiveEffect[];preparedEffects:ActiveEffect[];effectSequence:number;jobSnapshotId:string|null;jobRuntime:BattleJobRuntime;kills:number;loot:ExpeditionLoot;equipment:EquipmentLoadout;returnRequested:boolean;bossTracking:BossTracking;phase:BattlePhase;playerTurn:number;monsterTurn:number;pendingFlee:boolean;pendingRevival:PendingRevivalDecision|null;revenueShareSnapshot?:{associationId:string|null;rate:number}}
+export interface GameState {version:22;bestiary:BestiaryState;ownedJobIds:string[];currentJobId:string|null;exploration:{unlockedTier:Record<Tower,number>;highestReturned:Record<Tower,number>};crafting:CraftingState;association:AssociationState;market:MarketState;goldenRecorder:GoldenRecorder;expeditionPresets:(ExpeditionPreset|null)[];cosmetics:Cosmetics;gearMastery:Record<GearMasteryKey,GearMastery>;skillBooks:Record<string,number>;lootItems:Record<string,number>;lastExpedition:ExpeditionResult|null;silver:number;materials:Record<Tower,number[]>;items:Item[];equipped:EquipmentLoadout;learned:string[];skills:[string|null,string|null,string|null];potions:Bag;loadout:Bag;threshold:number;mastery:Record<Field,Mastery>;tickets:Record<Tower,number[]>;progress:Record<Tower,number>;expedition:Expedition|null;logs:string[];combatEvents?:CombatEvent[];combatEventSequence?:number;notice:string;nextId:number}
 
 
 
