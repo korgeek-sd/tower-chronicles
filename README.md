@@ -5,7 +5,7 @@
 - 앱 버전: `0.1.54`
 - 저장 스키마: `v22`
 - 기술: React 19, TypeScript, Vite
-- 저장: 브라우저 `localStorage`
+- 저장: 브라우저 local cache + Supabase revisioned cloud save
 - 현재 실제 플레이 가능 탑: `철맥의 첨탑`, `붉은 송곳니의 성소`, `천광의 수정탑`
 - 메인 저장 키: `tower-record-v1`
 
@@ -108,7 +108,10 @@ boss id `white_crystal_armor_behemoth`와 전투 데이터는 변경하지 않�
 - 탐사 생물록 45종 + 영구 진행도
 - 장비 제작 / 강화 / 장비 숙련도 / 인벤토리 / 프리셋
 - 회복 포션 4종 + 선택형 회생 포션
-- 로컬 거래소 / 조합 prototype
+- 온라인 거래소 / 로컬 조합 prototype
+- Google 로그인 / revisioned cloud save / active session lock
+- 서버 권위 경제 / 거래소 / 원정 / 전투 / 탐사 / 제작 / 강화
+- 서버 권위 직능등록 / 기록 성장 / 잔여 기록 교환 / 협회 추천장 변환
 - JSON save export/import와 migration
 - 데이터 기반 직업 전투 framework와 일부 COMBAT_READY 직업
 
@@ -117,9 +120,6 @@ boss id `white_crystal_armor_behemoth`와 전투 데이터는 변경하지 않�
 - 칼레온의 녹빛 첨탑 실제 몬스터 콘텐츠 및 입장 개방
 - production 일반 랜덤 이벤트
 - 실제 서버 PvP
-- Google 로그인 / revisioned cloud save / active session lock
-- 서버 권위 경제 / 거래소 / 원정 / 전투 / 탐사 / 제작 / 강화
-- 서버 권위 직능등록 / 기록 성장 / 잔여 기록 교환 / 협회 추천장 변환
 - Gold Exchange
 - 원정단 점령전
 - 전체 직업의 실제 combat kit
@@ -129,7 +129,7 @@ boss id `white_crystal_armor_behemoth`와 전투 데이터는 변경하지 않�
 
 현재 저장 스키마는 `v22`입니다.
 
-v0.1.44는 새로운 persisted field를 추가하지 않습니다. Red Fang은 이미 존재하던 tower/ticket/progress/bestiary 구조와 monster ids를 사용하므로 migration은 없습니다.
+v0.1.54는 클라이언트 저장 스키마를 변경하지 않습니다. 직능 기록·잔여 기록·추천장·교환 한도는 Supabase private schema의 서버 권위 데이터로 저장됩니다.
 
 ## 개발 명령
 
