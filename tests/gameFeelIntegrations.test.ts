@@ -44,5 +44,6 @@ test('GAME FEEL SEAL 05: busy state exposes the reusable pending class',()=>{
 test('GAME FEEL SEAL 06: visible result/status copy remains in the DOM',()=>{
  const source=seal();
  assert.match(source,/role="status"/);
- assert.match(source,/\+1 76%/);
+ assert.match(source,/ASSOCIATION_SEAL_PROBABILITIES\.map/);
+ assert.match(source,/<b>\+\{item\.step\}<\/b><strong>\{item\.rate\}%<\/strong>/);
 });
