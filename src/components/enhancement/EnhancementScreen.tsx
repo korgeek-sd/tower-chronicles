@@ -52,7 +52,7 @@ export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameSt
    const result=await enhanceOnlineEquipment(onlineLease,selected.id);
    setGame({...result.record.payload,notice:enhanceNotice(result.outcome,itemName(selected))});
    const mapped=feelOutcome(result.outcome);
-   feel.play('enhancement.result',{outcome:mapped});
+   feel.play('enhancement.result',{outcome:feelOutcome(result.outcome)});
    triggerEnhanceFx(mapped==='SUCCESS'?'success':mapped==='FAIL_KEEP'?'keep':mapped==='FAIL_DOWNGRADE'?'downgrade':'destroy');
    setConfirm(false);
   }catch(error){feel.play('ui.error');setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));setConfirm(false);}
