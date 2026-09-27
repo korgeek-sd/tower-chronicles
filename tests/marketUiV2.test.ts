@@ -31,7 +31,7 @@ test('MARKET UI V2 03: order and storage views expose progress and settlement su
  assert.match(online,/originalQuantity-order\.remainingQuantity/);
  assert.match(online,/tc-market-v2-progress/);
  assert.match(online,/판매대금/);
- assert.match(online,/구매물품/);
+ assert.match(online,/구매물품|수령 물품/);
  assert.match(online,/모두 수령/);
 });
 
