@@ -3,6 +3,7 @@ import {upgradeEvents} from '../game/events/service';
 import type {GameState,ExpeditionLoot,Tower,MarketOrder,MarketStorageEntry,MarketTrade} from '../game/types';
 import {initialState,initialGearMastery,initialMarketState,initialAssociationState,initialCraftingState} from '../game/engine/state';
 import {towerIds,potionIds,WEAPONS,EQUIPMENT,PASSIVES,GEAR_MASTERY_KEYS} from '../game/data/config';
+import {EQUIPMENT_SLOTS} from '../game/data/equipment';
 import {COSMETICS_CATALOG,appearanceById,titleById,type CosmeticsCatalog} from '../game/data/cosmetics';
 import {initialCosmetics} from '../game/engine/cosmetics';
 import {bossById,bossIdFor,initialBossTracking} from '../game/engine/bossTracking';
@@ -50,7 +51,13 @@ function historicalLoot(x:unknown,currency:'gold'|'silver'='gold'):boolean {
   return obj(x)&&(currency!=='silver'||!('gold' in x))&&count(x[currency])&&matrix(x.materials,5)&&matrix(x.tickets,50)&&record(x.skillBooks)&&record(x.items);
 }
 export function validLoot(x:unknown):x is ExpeditionLoot {return historicalLoot(x,'silver');}
-function validEquipment(x:unknown){return obj(x)&&['weapon','armor','boots','accessory'].every(k=>x[k]===null||typeof x[k]==='string');}
+function validEquipment(x:unknown){
+  if(!obj(x))return false;
+  const validValue=(k:string)=>x[k]===null||typeof x[k]==='string';
+  const current=EQUIPMENT_SLOTS.every(validValue);
+  const legacy=['weapon','armor','boots','accessory'].every(validValue);
+  return current||legacy;
+}
 const validItem=(i:unknown)=>obj(i)&&typeof i.id==='string'&&typeof i.kind==='string'&&(i.kind in WEAPONS||i.kind in EQUIPMENT||i.kind in PASSIVES)&&count(i.tier)&&i.tier>=1&&i.tier<=5&&[0,1,2,3].includes(i.enhancement as number);
 const historicalBossMatches=(pending:string,towerId:Tower,floorNumber:number)=>pending===bossIdFor(towerId,floorNumber)||(towerId==='ore'&&floorNumber===10&&pending==='mining_ogre');
 function validBossTracking(x:unknown,towerId:Tower,floorNumber:number):boolean {if(!obj(x)||!count(x.progress)||x.progress>100||typeof x.bossDefeated!=='boolean')return false;const pending=x.pendingBossId,reason=x.encounterReason;if(pending===null){if(reason!==null)return false;}else if(typeof pending!=='string'||!bossById(pending)?.boss||!historicalBossMatches(pending,towerId,floorNumber)||!['early','max'].includes(reason as string)||(reason==='max'&&x.progress!==100)||(reason==='early'&&x.progress>=100))return false;if(!bossIdFor(towerId,floorNumber)&&(x.progress!==0||pending!==null||x.bossDefeated))return false;if(x.bossDefeated&&pending!==null)return false;return true;}
