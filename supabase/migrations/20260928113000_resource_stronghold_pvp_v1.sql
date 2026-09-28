@@ -154,6 +154,11 @@ begin
  else
   update private.resource_strongholds set status='ACTIVE',active_contest_id=null,version=version+1,updated_at=p_now
    where stronghold_id=v_sh.stronghold_id returning * into v_sh;
+  update private.online_expeditions set stronghold=private.resource_stronghold_json(v_sh),run_version=run_version+1
+   where user_id=v_contest.owner_user_id and run_id=v_contest.owner_run_id;
+  update private.online_expeditions set
+   stronghold=coalesce(stronghold,'{}'::jsonb)||jsonb_build_object('status','DELETED','deletedAt',p_now,'version',coalesce((stronghold->>'version')::bigint,1)+1),
+   run_version=run_version+1 where user_id=v_contest.challenger_user_id and run_id=v_contest.challenger_run_id;
  end if;
  update private.resource_stronghold_contests set status='RESOLVED',winner_user_id=p_winner,resolved_at=p_now
   where contest_id=v_contest.contest_id returning * into v_contest;
@@ -172,8 +177,11 @@ create or replace function public.get_resource_stronghold_state(
 returns jsonb language plpgsql security definer set search_path=''
 as $$
 declare v_user uuid;v_sh private.resource_strongholds%rowtype;v_contest private.resource_stronghold_contests%rowtype;
+ v_run private.online_expeditions%rowtype;
 begin
  v_user:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into v_run from private.online_expeditions where user_id=v_user and status='ACTIVE';
+ if not found or v_run.tower<>p_tower or v_run.floor<>p_floor then raise exception 'RESOURCE_STRONGHOLD_SLOT_INVALID';end if;
  select * into v_sh from private.resource_strongholds where tower=p_tower and floor=p_floor and status in('ACTIVE','CONTESTED') limit 1;
  if not found then return jsonb_build_object('role','NONE','stronghold',null,'contest',null,'serverNow',clock_timestamp());end if;
  if v_sh.active_contest_id is not null then select * into v_contest from private.resource_stronghold_contests where contest_id=v_sh.active_contest_id;end if;
@@ -249,6 +257,8 @@ begin
  returning * into v_contest;
  update private.resource_strongholds set status='CONTESTED',active_contest_id=v_contest.contest_id,version=version+1,updated_at=v_now
   where stronghold_id=v_sh.stronghold_id returning * into v_sh;
+ update private.online_expeditions set stronghold=private.resource_stronghold_json(v_sh),run_version=run_version+1
+  where (user_id=v_sh.owner_user_id and run_id=v_sh.owner_run_id) or (user_id=v_user and run_id=v_run.run_id);
  update private.resource_stronghold_requests set status='SELECTED',
   result=jsonb_build_object('role','CHALLENGER','stronghold',private.resource_stronghold_json(v_sh),'contest',to_jsonb(v_contest)) where request_id=p_request_id;
  perform realtime.send(jsonb_build_object('strongholdId',v_sh.stronghold_id,'contestId',v_contest.contest_id),
