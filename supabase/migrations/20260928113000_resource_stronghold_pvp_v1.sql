@@ -190,6 +190,7 @@ as $$
 declare v_user uuid;v_run private.online_expeditions%rowtype;v_sh private.resource_strongholds%rowtype;
  v_request private.resource_stronghold_requests%rowtype;v_first uuid;v_now timestamptz:=clock_timestamp();
  v_remaining_ms bigint;v_decision_end timestamptz;v_contest private.resource_stronghold_contests%rowtype;v_stats jsonb;
+ v_event jsonb;v_expires bigint;
 begin
  v_user:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
  if p_request_id is null then raise exception 'RESOURCE_STRONGHOLD_REQUEST_REQUIRED';end if;
@@ -208,6 +209,11 @@ begin
   where tower=p_tower and floor=p_floor and status='ACTIVE' and capture_ends_at<=v_now;
  select * into v_sh from private.resource_strongholds where tower=p_tower and floor=p_floor and status in('ACTIVE','CONTESTED') for update;
  if not found then
+  v_event:=v_run.pending_event;
+  if v_event is null or coalesce(v_event->>'eventId',v_event->>'id')<>'resource_stronghold' or coalesce(v_event->>'state','CHOICE')<>'CHOICE'
+   then raise exception 'RESOURCE_STRONGHOLD_EVENT_MISSING';end if;
+  v_expires:=coalesce((v_event->>'expiresAt')::bigint,0);
+  if v_expires>0 and floor(extract(epoch from v_now)*1000)::bigint>=v_expires then raise exception 'RESOURCE_STRONGHOLD_DECISION_EXPIRED';end if;
   insert into private.resource_strongholds(tower,floor,owner_user_id,owner_run_id,status,capture_ends_at,reward)
    values(p_tower,p_floor,v_user,v_run.run_id,'ACTIVE',v_now+interval '15 minutes',private.stronghold_reward(p_tower,p_floor))
    returning * into v_sh;
@@ -263,6 +269,7 @@ begin
  if not found or v_contest.status<>'PENDING' then raise exception 'RESOURCE_STRONGHOLD_CONTEST_MISSING';end if;
  if v_contest.owner_user_id<>v_user then raise exception 'RESOURCE_STRONGHOLD_OWNER_REQUIRED';end if;
  if p_response not in('DEFEND','ABANDON') then raise exception 'RESOURCE_STRONGHOLD_RESPONSE_INVALID';end if;
+ if clock_timestamp()>=v_contest.decision_ends_at then raise exception 'RESOURCE_STRONGHOLD_DECISION_EXPIRED';end if;
  if p_response='ABANDON' then return private.finish_resource_stronghold_contest(p_contest_id,v_contest.challenger_user_id,clock_timestamp());end if;
  update private.resource_stronghold_contests set owner_response='DEFEND',status='FIGHTING',started_at=clock_timestamp()
   where contest_id=p_contest_id returning * into v_contest;
@@ -283,7 +290,7 @@ begin
  if not found or v_contest.status not in('PENDING','FIGHTING') then raise exception 'RESOURCE_STRONGHOLD_CONTEST_MISSING';end if;
  if v_user not in(v_contest.owner_user_id,v_contest.challenger_user_id) then raise exception 'RESOURCE_STRONGHOLD_CONTEST_MEMBER_REQUIRED';end if;
  if v_contest.status='PENDING' and clock_timestamp()>=v_contest.decision_ends_at then
-  v_contest.status:='FIGHTING';v_contest.owner_response:='DEFEND';v_contest.started_at:=clock_timestamp();
+  v_contest.status:='FIGHTING';v_contest.owner_response:='DEFEND';v_contest.started_at:=clock_timestamp();v_contest.current_actor:=v_contest.challenger_user_id;
  end if;
  if v_contest.status<>'FIGHTING' then raise exception 'RESOURCE_STRONGHOLD_DECISION_PENDING';end if;
  if v_contest.current_actor<>v_user then raise exception 'RESOURCE_STRONGHOLD_NOT_YOUR_TURN';end if;
