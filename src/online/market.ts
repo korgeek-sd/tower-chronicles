@@ -11,14 +11,14 @@ export type OnlineMarketGear=Item|EquipmentItem;
 export interface OnlineMarketAsset {itemId:string;quantity:number;gear:OnlineMarketGear|null}
 export interface OnlineMarketOrder {
  orderId:string;itemId:string;side:'BUY'|'SELL';limitPrice:number;originalQuantity:number;remainingQuantity:number;
- status:'OPEN'|'PARTIAL'|'FILLED'|'CANCELLED';gear:Item|null;createdAt:number;mine:boolean;
+ status:'OPEN'|'PARTIAL'|'FILLED'|'CANCELLED';gear:OnlineMarketGear|null;createdAt:number;mine:boolean;
 }
 export interface OnlineMarketTrade {
  tradeId:string;itemId:string;price:number;quantity:number;buyOrderId:string;sellOrderId:string;
  executedAt:number;buyerMine:boolean;sellerMine:boolean;
 }
 export interface OnlineMarketStorage {
- storageId:string;tradeId:string;side:'BUY'|'SELL';itemId:string;quantity:number;silver:number;gear:Item|null;createdAt:number;
+ storageId:string;tradeId:string;side:'BUY'|'SELL';itemId:string;quantity:number;silver:number;gear:OnlineMarketGear|null;createdAt:number;
 }
 export interface OnlineEquipmentMarketPolicy {
  registrationFeeBps:number;
@@ -123,10 +123,10 @@ const leaseArgs=(lease:GameplayLease)=>({
 
 export const loadOnlineMarketState=()=>rpc<OnlineMarketState>('get_online_market_state');
 
-export const placeOnlineMarketOrder=(lease:GameplayLease,input:{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number})=>
+export const placeOnlineMarketOrder=(lease:GameplayLease,input:{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number;assetItemId?:string})=>
  rpc<OnlineMarketState>('place_online_market_order',{
   ...leaseArgs(lease),
-  p_item_id:input.itemId,
+  p_item_id:input.assetItemId??input.itemId,
   p_side:input.side,
   p_limit_price:input.limitPrice,
   p_quantity:input.quantity,
