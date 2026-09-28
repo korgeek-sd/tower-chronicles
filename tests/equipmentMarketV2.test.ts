@@ -28,7 +28,7 @@ test('V2 MARKET 03: seller fee is 5%, buyer pays only list price, proceeds go to
  assert.match(sql,/v_seller_net:=v_listing\.list_price-v_seller_fee/);
  assert.match(sql,/silver=silver-v_listing\.list_price/);
  assert.match(sql,/private\.market_storage/);
- assert.match(sql,/side,'SELL'/);
+ assert.match(sql,/values\(v_listing\.seller_id,v_trade_id,'SELL'/);
 });
 
 test('V2 MARKET 04: listing escrow removes exact equipment_v2 instance and cancellation or expiry restores it',()=>{
