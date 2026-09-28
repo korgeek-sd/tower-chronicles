@@ -6,6 +6,8 @@ import {IRON_T1_MONSTER_BY_ID,ironFloorContent} from '../data/ironSpire';
 import {RED_T1_MONSTER_BY_ID,redFloorContent} from '../data/redFang';
 import {CRYSTAL_T1_MONSTER_BY_ID,crystalFloorContent} from '../data/crystalTower';
 import {KALEON_T1_MONSTER_BY_ID,kaleonFloorContent} from '../data/kaleon';
+import {rollIronEquipmentDrop} from '../data/equipmentDrops';
+import {EQUIPMENT_DEFINITIONS} from '../data/equipment';
 
 export function monsterFor(tower:Tower,floor:number,rng:()=>number=()=>0):Monster {
   const baseHp=COMBAT.monsterHp+(floor-1)*COMBAT.hpPerFloor;
@@ -33,5 +35,15 @@ export function reward(s:GameState,rng:()=>number=Math.random){
   if(e.floor<CONFIG.maxFloor&&rng()<CONFIG.ticketChance){
     e.loot.tickets[e.tower][e.floor]++;
     log(s,(e.floor+1)+'층 입장권 획득 · 안전 귀환 후 보관');
+  }
+  if(e.tower==='ore'){
+    const boss=e.events.activeBossId!==null;
+    const drop=rollIronEquipmentDrop(e.floor,e.monster.definitionId??'',boss,rng);
+    if(drop){
+      const item={id:'equipment-'+(++s.nextId),...drop};
+      (e.loot.equipment??=[]).push(item);
+      const gradeName={common:'일반',uncommon:'고급',rare:'희귀',heroic:'영웅',legendary:'전설'}[item.grade];
+      log(s,gradeName+' '+EQUIPMENT_DEFINITIONS[item.kind].name+' +0 획득 · 안전 귀환 후 보관');
+    }
   }
 }
