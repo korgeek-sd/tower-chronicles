@@ -117,3 +117,57 @@ export function ironEquipmentWeightsForFloor(
     selected.map(([kind,weight])=>[kind,weight/total*100]),
   ) as Partial<Record<EquipmentKind,number>>;
 }
+
+
+function unit(value:number){
+  if(!Number.isFinite(value))return 0;
+  return Math.max(0,Math.min(.999999999999,value));
+}
+
+function pickByWeights<T extends string>(entries:readonly (readonly [T,number])[],roll:number):T|null {
+  const total=entries.reduce((sum,[,weight])=>sum+Math.max(0,weight),0);
+  if(total<=0)return null;
+  let point=unit(roll)*total;
+  for(const [value,weight] of entries){
+    point-=Math.max(0,weight);
+    if(point<0)return value;
+  }
+  return entries.at(-1)?.[0]??null;
+}
+
+function pickGrade(weights:EquipmentGradeWeights,roll:number):EquipmentGrade|null {
+  return pickByWeights(
+    (['common','uncommon','rare','heroic','legendary'] as const).map(grade=>[grade,weights[grade]] as const),
+    roll,
+  );
+}
+
+export interface RolledEquipmentDrop {
+  kind:EquipmentKind;
+  grade:EquipmentGrade;
+  enhancement:0;
+}
+
+export function rollIronEquipmentDrop(
+  floor:number,
+  monsterId:string,
+  boss:boolean,
+  rng:()=>number=Math.random,
+):RolledEquipmentDrop|null {
+  const table=boss?IRON_BOSS_EQUIPMENT_DROPS[floor]:ironEquipmentFloorDrop(floor);
+  if(!table||unit(rng())>=table.equipmentChance)return null;
+
+  let kind:EquipmentKind|null=null;
+  if(boss){
+    kind=table.itemPool[Math.min(table.itemPool.length-1,Math.floor(unit(rng())*table.itemPool.length))]??null;
+  }else if(monsterId in IRON_MONSTER_EQUIPMENT_WEIGHTS){
+    const normalized=ironEquipmentWeightsForFloor(floor,monsterId as IronNormalMonsterId);
+    kind=pickByWeights(
+      table.itemPool.map(item=>[item,normalized[item]??0] as const),
+      rng(),
+    );
+  }
+  if(!kind)return null;
+  const grade=pickGrade(table.gradeWeights,rng());
+  return grade?{kind,grade,enhancement:0}:null;
+}
