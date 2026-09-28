@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.66
+# 탑의 기록 v0.1.67
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.66`
+- 앱 버전: `0.1.67`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -11,7 +11,7 @@
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
 
-## v0.1.66 — 서버 원정단 · 다인 점령전 연동
+## v0.1.67 — 서버 원정단 · 다인 점령전 연동
 
 - 원정단을 계정별 로컬 저장이 아닌 Supabase 서버 권위 멤버십으로 전환
 - 여러 Google 계정이 하나의 원정단에 가입하고 동일 원정단 ID로 점령전에 참가
