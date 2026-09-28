@@ -17,13 +17,14 @@ test('SERVER STONE DROP 02: bosses 6F through 10F guarantee 3 4 5 7 10 stones',(
  assert.match(sql,/when 10 then 10/);
 });
 
-test('SERVER STONE DROP 03: kill loot accumulates stones in temporary loot and safe return persists them',()=>{
+test('SERVER STONE DROP 03: restore exposes temporary stones and only ACTIVE to RETURNED settlement persists them',()=>{
  assert.match(sql,/enhancementStones/);
  assert.match(sql,/temporary_loot/);
+ assert.match(sql,/restore_online_expedition/);
  assert.match(sql,/other:enhancement_stone/);
- assert.match(sql,/settle_online_expedition_v2/);
- assert.match(sql,/p_outcome='returned'/);
- assert.match(sql,/p_outcome='dead'/);
+ assert.match(sql,/create trigger[\s\S]*enhancement_stone/i);
+ assert.match(sql,/old\.status='ACTIVE'/);
+ assert.match(sql,/new\.status='RETURNED'/);
 });
 
 test('SERVER STONE DROP 04: stone roll uses independent deterministic server RNG channels',()=>{
