@@ -8,7 +8,7 @@ import {bestiaryEntriesForTower,bestiaryEntryById} from '../src/game/data/bestia
 import {monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
 
 test('RELEASE 0.1.44: save schema and Red Fang-era playable towers remain compatible',()=>{
- assert.equal(initialState().version,22);
+ assert.equal(initialState().version,23);
  assert.deepEqual(PLAYABLE_TOWERS.slice(0,3),['ore','leather','gem']);
  assert.equal(PLAYABLE_TOWERS.includes('leather'),true);
 });
