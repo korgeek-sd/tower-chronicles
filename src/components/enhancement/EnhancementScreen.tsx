@@ -20,7 +20,7 @@ const feelOutcome=(outcome:ServerEnhancementOutcome):EnhancementFeelOutcome=>out
 
 function iconFor(item:EquipmentItem){
  const definition=EQUIPMENT_DEFINITIONS[item.kind];
- if(definition.weaponFamily)return definition.weaponFamily;
+ if('weaponFamily' in definition&&definition.weaponFamily)return definition.weaponFamily;
  const slot=equipmentItemSlot(item);
  return slot==='helmet'||slot==='armor'||slot==='gloves'?'armor':
   slot==='boots'?'boots':
