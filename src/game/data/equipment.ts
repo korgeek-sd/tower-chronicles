@@ -102,7 +102,7 @@ export const EQUIPMENT_DEFINITIONS={
     kind:'expedition_iron_helmet',
     name:'원정대 철제 투구',
     slot:'helmet',
-    baseStats:{},
+    baseStats:{hp:20,defense:5},
     description:'일반 원정대에서 널리 쓰이는 실전형 철제 투구.',
   },
   return_corps_plate_armor:{
@@ -116,28 +116,28 @@ export const EQUIPMENT_DEFINITIONS={
     kind:'mining_detail_reinforced_gloves',
     name:'채굴반 강화 장갑',
     slot:'gloves',
-    baseStats:{},
+    baseStats:{attack:3,defense:2},
     description:'채굴과 잔해 작업, 근접 전투를 함께 버티도록 보강한 장갑.',
   },
   survey_corps_dust_boots:{
     kind:'survey_corps_dust_boots',
     name:'탐사대 방진 장화',
     slot:'boots',
-    baseStats:{hp:15},
+    baseStats:{hp:15,defense:3},
     description:'먼지와 잔해가 많은 탑 내부 탐사를 위한 장화.',
   },
   association_registration_tag:{
     kind:'association_registration_tag',
     name:'협회 등록 인식패',
     slot:'necklace',
-    baseStats:{},
+    baseStats:{attack:2,hp:25},
     description:'탐사자의 협회 등록 정보를 나타내는 목걸이형 인식패.',
   },
   expedition_merit_ring:{
     kind:'expedition_merit_ring',
     name:'원정 공적 반지',
     slot:'ring',
-    baseStats:{},
+    baseStats:{attack:4,critChance:.03},
     description:'원정 실적을 인정받은 탐사자에게 수여되는 공적 반지.',
   },
 } as const satisfies Record<EquipmentKind,EquipmentDefinition>;
@@ -201,4 +201,16 @@ export function equipmentItemName(item:EquipmentItem):string {
 
 export function equipmentItemSlot(item:EquipmentItem):Slot {
   return equipmentDefinition(item.kind).slot;
+}
+
+
+export const V2_STARTER_EQUIPMENT_ID='starter-v2';
+
+export function createV2StarterEquipment():EquipmentItem {
+  return {
+    id:V2_STARTER_EQUIPMENT_ID,
+    kind:'association_supply_iron_sword',
+    grade:'common',
+    enhancement:0,
+  };
 }
