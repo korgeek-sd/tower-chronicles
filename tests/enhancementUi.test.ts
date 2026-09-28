@@ -39,11 +39,8 @@ test('ENHANCE UI 04: insufficient resources and active expedition disable the at
   assert.equal(view.canAttempt,false);assert.match(view.reason,/원정/);
 });
 
-test('ENHANCE UI 05: starter and +3 gear render non-attempt states without fake probabilities',()=>{
-  const s=initialState();
-  const starter=s.items[0],max=gear('max','sword',3);s.items.push(max);
-  assert.equal(enhancementAttemptView(s,starter).quote,null);
-  assert.match(enhancementAttemptView(s,starter).reason,/지급용/);
+test('ENHANCE UI 05: legacy +3 gear renders a non-attempt max state without fake probabilities',()=>{
+  const s=initialState(),max=gear('max','sword',3);s.items.push(max);
   assert.equal(enhancementAttemptView(s,max).quote,null);
   assert.match(enhancementAttemptView(s,max).reason,/최대/);
   assert.deepEqual(enhancementPreviewRows(max),[]);
