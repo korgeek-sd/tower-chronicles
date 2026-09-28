@@ -26,7 +26,7 @@ function equipmentFacts(s:GameState,item:Item){
 }
 function modernEquipmentIcon(item:EquipmentItem){
  const definition=EQUIPMENT_DEFINITIONS[item.kind];
- return definition.weaponFamily??(definition.slot==='helmet'||definition.slot==='gloves'?'armor':definition.slot==='necklace'||definition.slot==='ring'?'accessory':definition.slot);
+ return ('weaponFamily' in definition?definition.weaponFamily:undefined)??(definition.slot==='helmet'||definition.slot==='gloves'?'armor':definition.slot==='necklace'||definition.slot==='ring'?'accessory':definition.slot);
 }
 function modernEquipmentFacts(item:EquipmentItem){
  const definition=EQUIPMENT_DEFINITIONS[item.kind],value=equipmentItemStats(item),facts=[
