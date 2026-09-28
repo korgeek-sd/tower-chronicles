@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EQUIPMENT_DEFINITIONS,V2_STARTER_EQUIPMENT_ID,createV2StarterEquipment} from '../src/game/data/equipment.ts';
 import {initialState} from '../src/game/engine/state.ts';
+import {enter} from '../src/game/engine/expedition.ts';
 import {migrateV22,validSave} from '../src/storage/repository.ts';
 import {startCraft} from '../src/game/engine/crafting.ts';
 
@@ -60,10 +61,10 @@ test('V2 CUTOVER 03: v22 migration wipes legacy equipment but preserves progress
 });
 
 test('V2 CUTOVER 04: migration resets preset and active-expedition equipment references without touching loot',()=>{
- const source:any=initialState();
+ const source:any=enter(initialState(),'ore',1);
  source.version=22;
- source.expeditionPresets[0]={name:'legacy',equipment:{weapon:'starter',armor:null,boots:null,accessory:null},skills:[...source.skills],potions:{...source.loadout},threshold:70};
- source.expedition={equipment:{weapon:'starter',armor:null,boots:null,accessory:null},loot:{equipment:[{id:'drop-1',kind:'expedition_merit_ring',grade:'rare',enhancement:0}]}};
+ source.expeditionPresets[0]={name:'legacy',equipment:{...source.equipped},skills:[...source.skills],potions:{...source.loadout},threshold:70};
+ source.expedition.loot.equipment=[{id:'drop-1',kind:'expedition_merit_ring',grade:'rare',enhancement:0}];
  const next=migrateV22(source);
  assert.equal(next.expeditionPresets[0]?.equipment.weapon,V2_STARTER_EQUIPMENT_ID);
  assert.equal(next.expedition?.equipment.weapon,V2_STARTER_EQUIPMENT_ID);
