@@ -19,7 +19,7 @@ test('TC-04/05 부분 체결은 양쪽 상태와 잔량을 정확히 남긴다',
 test('TC-07/08 지정가 보호는 교차하지 않는 주문을 체결하지 않는다',()=>{let s=state();resting(s,'SELL','A',101,10,1);assert.equal(buy(s,100,5).market.trades.length,0);s=state();resting(s,'BUY','A',99,10,1);assert.equal(sell(s,100,5).market.trades.length,0);});
 test('TC-09/10/11 자기 주문은 건너뛰고 뒤의 유효 주문을 체결한다',()=>{const s=state();resting(s,'SELL','local-player',90,5,1);resting(s,'SELL','A',95,3,2);resting(s,'SELL','B',100,10,3);const n=buy(s,100,5);assert.deepEqual(n.market.trades.map(t=>[t.sellerId,t.quantity]),[['A',3],['B',2]]);assert.equal(n.market.orders[0].remainingQuantity,5);});
 test('TC-13 가격 개선과 부분 체결 취소는 예약 Silver를 정확히 반환한다',()=>{const s=state();resting(s,'SELL','A',90,4,1);let n=buy(s,100,10);assert.equal(n.silver,9_040);const order=n.market.orders.find(o=>o.ownerId==='local-player')!;n=cancelOrder(n,order.orderId);assert.equal(n.silver,9_640);assert.equal(order.status,'PARTIAL');assert.equal(n.market.orders.find(o=>o.orderId===order.orderId)!.status,'CANCELLED');});
-test('v8 저장은 기존 재산을 보존하고 빈 거래소 데이터로 현재 v21까지 이전한다',()=>{const old:any=withHistoricalTickets(initialState());old.version=8;delete old.market;old.silver=321;const raw=JSON.stringify(old),mem=new Map<string,string>([[SAVE_KEY,raw]]),repo=createRepository({getItem:k=>mem.get(k)??null,setItem:(k,v)=>mem.set(k,v)});const n=repo.load();assert.equal(n.version,22);assert.equal(n.silver,321);assert.deepEqual(n.market.orders,[]);assert.equal(mem.get(MARKET_BACKUP_KEY),raw);});
+test('v8 저장은 기존 재산을 보존하고 빈 거래소 데이터로 현재 v21까지 이전한다',()=>{const old:any=withHistoricalTickets(initialState());old.version=8;delete old.market;old.silver=321;const raw=JSON.stringify(old),mem=new Map<string,string>([[SAVE_KEY,raw]]),repo=createRepository({getItem:k=>mem.get(k)??null,setItem:(k,v)=>mem.set(k,v)});const n=repo.load();assert.equal(n.version,23);assert.equal(n.silver,321);assert.deepEqual(n.market.orders,[]);assert.equal(mem.get(MARKET_BACKUP_KEY),raw);});
 
 
 test('TRADE STORAGE 01 구매 체결품은 거래 보관함에 대기하고 수령할 때 영구 보관함으로 이동한다',()=>{
@@ -53,5 +53,5 @@ test('TRADE STORAGE 03 모두 수령은 아이템과 판매대금을 한 번에 
 test('TRADE STORAGE 04 기존 v22 거래소 저장은 storage 필드가 없어도 유효하다',()=>{
  const s:any=state();delete s.market.storage;delete s.market.nextStorageId;
  let raw=JSON.stringify(s);const repo=createRepository({getItem:k=>k===SAVE_KEY?raw:null,setItem:(_,v)=>{raw=v;}});
- const loaded=repo.load();assert.equal(loaded.version,22);assert.deepEqual(getMarketStorage(loaded),[]);
+ const loaded=repo.load();assert.equal(loaded.version,23);assert.deepEqual(getMarketStorage(loaded),[]);
 });
