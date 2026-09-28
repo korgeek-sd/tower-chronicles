@@ -1,10 +1,9 @@
 import React,{useMemo,useState} from 'react';
-import type {Field,GameState,Slot,Tower,Potion} from '../../game/types';
-import {CONFIG,FIELDS,GEAR_MASTERY_NAMES,PASSIVES,POTIONS,SLOTS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
+import type {GameState,Slot,Tower,Potion} from '../../game/types';
+import {CONFIG,GEAR_MASTERY_NAMES,PASSIVES,POTIONS,SLOTS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
 import {equip,equippedItem,itemName,itemSlot,masteryKeyOf,stats,weaponOf} from '../../game/engine/state';
 import {monsterFor} from '../../game/engine/drops';
 import {masteryPercent,masteryRequired} from '../../game/engine/gearMastery';
-import {discount} from '../../game/engine/crafting';
 import {APPEARANCES,TITLES,appearanceById,titleById} from '../../game/data/cosmetics';
 import {selectAppearance,selectTitle} from '../../game/engine/cosmetics';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
@@ -13,7 +12,7 @@ import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
 
-export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -85,12 +84,6 @@ export function SkillsScreen({game,setGame}:{game:GameState;setGame:React.Dispat
    <div className="tc-work-grid">{shown.map(sk=><article className="tc-recipe" key={sk.id}><Glyph name="skills"/><div><h2>{sk.name}</h2><p>{sk.description}</p><small>{game.learned.includes(sk.id)?'습득 완료':'스킬북 필요'} · 대기 {sk.cooldown}턴 · {sk.weapons.includes(weapon)?'현재 무기 사용 가능':'무기 불일치'}</small></div></article>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-recipe" key={'s'+i}/>)}</div>
    <Pager page={safe} count={pages} onChange={setPage}/>
   </div>
- </Screen>;
-}
-
-export function MasteryScreen({game}:{game:GameState}){
- return <Screen eyebrow="WORKSHOP CERTIFICATION" title="제작 숙련도" meta={<span>분야별 독립</span>}>
-  <div style={{height:'100%',display:'grid',gridTemplateColumns:'1fr 1fr',gridTemplateRows:'1fr 1fr',gap:'5px'}}>{(Object.keys(FIELDS) as Field[]).map(f=>{const m=game.mastery[f],pct=m.unlocked===5?100:m.progress/CONFIG.masteryRequired*100;return <section className="tc-panel strong" key={f} style={{display:'grid',alignContent:'center',gap:'6px'}}><div className="tc-panel-title"><b>{FIELDS[f]}</b><small>T{m.unlocked}</small></div><Meter value={pct} max={100}/><div className="tc-stat-grid" style={{gridTemplateColumns:'1fr 1fr'}}><Stat label="진척" value={m.unlocked===5?'MAX':m.progress+'/'+CONFIG.masteryRequired}/><Stat label="절감" value={Math.round(discount(m.crafts)*100)+'%'}/></div><small style={{fontSize:'7px',color:'var(--muted)'}}>총 제작 {m.crafts}회 · 현재 최고 티어 제작만 다음 자격 진척</small></section>;})}</div>
  </Screen>;
 }
 
