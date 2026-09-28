@@ -5,7 +5,7 @@ import {PLAYABLE_TOWERS} from '../src/game/data/config.ts';
 import {BESTIARY_ENTRIES,bestiaryCountForTower} from '../src/game/data/bestiary.ts';
 
 test('RELEASE 0.1.42: save schema and original playable towers remain compatible',()=>{
- assert.equal(initialState().version,22);
+ assert.equal(initialState().version,23);
  assert.equal(PLAYABLE_TOWERS.includes('ore'),true);
  assert.equal(PLAYABLE_TOWERS.includes('gem'),true);
 });
