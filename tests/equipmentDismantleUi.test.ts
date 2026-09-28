@@ -22,7 +22,7 @@ test('DISMANTLE UI 02: equipment details expose a destructive two-step dismantle
 });
 
 test('DISMANTLE UI 03: starter equipped and expedition states disable dismantling in the client',()=>{
- assert.match(inventory,/starter-v2/);
+ assert.match(inventory,/V2_STARTER_EQUIPMENT_ID/);
  assert.match(inventory,/item\.equipped/);
  assert.match(inventory,/game\.expedition/);
 });
