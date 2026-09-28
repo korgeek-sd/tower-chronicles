@@ -56,13 +56,13 @@ test('ENHANCE COMPAT 04: buying escrowed +3 gear keeps exact enhancement state t
 test('ENHANCE COMPAT 05: enhanced gear escrow survives save/load with schema v22 unchanged',()=>{
   const s=initialState();s.items.push(enhanced('saved-gear','boots',1,2));
   const listed=placeOrder(s,{itemId:'gear:saved-gear',side:'SELL',limitPrice:300,quantity:1,createdAt:1000});
-  assert.equal(listed.version,22);
+  assert.equal(listed.version,23);
   assert.equal(validSave(listed),true);
   let raw='';
   const repo=createRepository({getItem:()=>raw||null,setItem:(_,value)=>{raw=value;}});
   repo.save(listed);
   const loaded=repo.load();
-  assert.equal(loaded.version,22);
+  assert.equal(loaded.version,23);
   assert.deepEqual(loaded.market.orders.at(-1)!.gear,enhanced('saved-gear','boots',1,2));
 });
 
