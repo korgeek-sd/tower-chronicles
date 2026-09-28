@@ -20,7 +20,7 @@ test('IRON EQUIPMENT REWARD 01: 1F miner can drop weighted starter-pool equipmen
   assert.equal(drops[0].kind,'association_supply_iron_sword');
   assert.equal(drops[0].grade,'common');
   assert.equal(drops[0].enhancement,0);
-  assert.equal((s.equipmentItems??[]).length,0);
+  assert.equal(s.equipmentItems.length,1);
 });
 
 test('IRON EQUIPMENT REWARD 02: failed floor equipment roll creates no equipment',()=>{
@@ -52,9 +52,9 @@ test('IRON EQUIPMENT REWARD 05: safe return commits equipment exactly once',()=>
   reward(s,()=>.99,sequence(.01,.10,.10));
   const item=s.expedition!.loot.equipment![0];
   const returned=leave(s);
-  assert.deepEqual(returned.equipmentItems,[item]);
+  assert.deepEqual(returned.equipmentItems.map(x=>x.id),['starter-v2',item.id]);
   assert.equal(returned.expedition,null);
-  assert.deepEqual(leave(returned).equipmentItems,[item]);
+  assert.deepEqual(leave(returned).equipmentItems.map(x=>x.id),['starter-v2',item.id]);
 });
 
 test('IRON EQUIPMENT REWARD 06: death preserves receipt but does not grant temporary equipment',()=>{
@@ -63,7 +63,7 @@ test('IRON EQUIPMENT REWARD 06: death preserves receipt but does not grant tempo
   reward(s,()=>.99,sequence(.01,.10,.10));
   const item=s.expedition!.loot.equipment![0];
   const dead=leave(s,true);
-  assert.deepEqual(dead.equipmentItems,[]);
+  assert.deepEqual(dead.equipmentItems.map(x=>x.id),['starter-v2']);
   assert.deepEqual(dead.lastExpedition!.loot.equipment,[item]);
 });
 
