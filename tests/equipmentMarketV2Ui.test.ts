@@ -11,7 +11,7 @@ test('V2 MARKET UI 01: equipment category uses dedicated fixed-price panel',()=>
  assert.match(server,/category==='equipment'/);
  assert.match(panel,/즉시 구매/);
  assert.match(panel,/판매 등록/);
- assert.doesNotMatch(panel,/입찰|BID/);
+ assert.match(panel,/입찰 없음/);\n assert.doesNotMatch(panel,/placeBid|bidPrice|bidAmount|입찰하기/);
 });
 
 test('V2 MARKET UI 02: buy list supports kind grade and enhancement filters',()=>{
