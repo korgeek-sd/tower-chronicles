@@ -320,7 +320,12 @@ function App(){
    {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='seal'&&<SealScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('협회 인장');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
-   {page==='association'&&<AssociationScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
+   {page==='association'&&<AssociationScreen
+    game={game}
+    setGame={setGame}
+    onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}
+    onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('원정단');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
+   />}
    {page==='occupation'&&<OccupationScreen onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='jobs'&&<JobsScreen
     game={game}
