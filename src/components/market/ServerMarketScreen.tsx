@@ -442,40 +442,46 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
      <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button>
     </div>
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
-    {category==='equipment'?<EquipmentMarketPanel game={game} snapshot={snapshot} lease={lease} onSnapshot={applySnapshot}/>:<>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
-      const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);
-      const demo=demoMode?demoMarketView(entry.id,ask??bid??realTrend.last,demoTick):null;
+      const equipment=!!entry.equipmentMarketKey;
+      const ask=equipment?entry.bestListing?.price??null:getBestAsk(view,entry.id);
+      const bid=equipment?null:getBestBid(view,entry.id);
+      const realTrend=equipment?(equipmentTrendByKey.get(entry.equipmentMarketKey!)??makeTrend([])):(trendByItem.get(entry.id)??makeTrend([]));
+      const demo=!equipment&&demoMode?demoMarketView(entry.id,ask??bid??realTrend.last,demoTick):null;
       const trend=demo?makeTrend(demo.series):realTrend;
-      const displayPrice=demo?.last??ask??bid;
+      const displayPrice=demo?.last??ask??bid??trend.last;
+      const sub=equipment?('장비 · 보유 '+entry.available+' · 매물 '+(entry.listingCount??0)):(demoMode?'DEMO · ':'')+categoryLabel(entry.category)+' · 보유 '+entry.available;
       return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
        <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
-       <span className="name"><b>{entry.name}</b><small>{demoMode?'DEMO · ':''}{categoryLabel(entry.category)} · 보유 {entry.available}</small></span>
+       <span className="name"><b>{entry.name}</b><small>{sub}</small></span>
        <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
-       <span className="tc-market-v3-rowprice"><b>{money(displayPrice)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>
+       <span className="tc-market-v3-rowprice"><b>{money(displayPrice)}</b><small className={trendClass(trend.delta)}>{equipment?(entry.listingCount?'즉시 구매':'매물 없음'):trendLabel(trend.delta)}</small></span>
        <i>›</i>
       </button>;
      })}
      {!shown.length&&<div className="tc-market-v2-empty">검색 조건에 맞는 품목이 없습니다.</div>}
     </div>
     <Pager page={safeMarketPage} count={marketPages} onChange={setPage}/>
-    </>}
    </>}
 
    {tab==='orders'&&<>
     <section className="tc-market-v2-status compact">
-     <div><small>진행 주문</small><b>{open.length}건</b></div>
+     <div><small>진행 주문</small><b>{orderRows.length}건</b></div>
      <div><small>매수</small><b>{open.filter(x=>x.side==='BUY').length}</b></div>
-     <div><small>매도</small><b>{open.filter(x=>x.side==='SELL').length}</b></div>
+     <div><small>매도</small><b>{open.filter(x=>x.side==='SELL').length+myEquipmentListings.length}</b></div>
     </section>
     <div className="tc-market-v2-orders">
-     {shownOrders.map(order=>{const filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
+     {shownOrderRows.map(row=>row.kind==='order'?(()=>{const order=row.order,filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
       <span className={'side '+order.side.toLowerCase()}>{order.side==='BUY'?'매수':'매도'}</span>
       <div className="name"><b>{marketItemName(view,order.itemId)}</b><small>{money(order.limitPrice)} · {filled}/{order.originalQuantity} 체결</small><div className="tc-market-v2-progress"><i style={{width:pct+'%'}}/></div></div>
       <button className="tc-feel-press" data-game-feel="press" disabled={busy} onClick={()=>void act(()=>cancelOnlineMarketOrder(lease,order.orderId),'market.order-cancelled')}>취소</button>
-     </article>})}
-     {!shownOrders.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
+     </article>})():<article key={row.listing.listingId}>
+      <span className="side sell">매도</span>
+      <div className="name"><b>{equipmentItemName(row.listing.gear)}</b><small>{money(row.listing.price)} · 정가 즉시구매 · 72시간 등록</small><div className="tc-market-v2-progress"><i style={{width:'100%'}}/></div></div>
+      <button className="tc-feel-press" data-game-feel="press" disabled={busy||!!game.expedition} onClick={()=>void act(()=>cancelOnlineEquipmentListing(lease,row.listing.listingId),'market.order-cancelled')}>취소</button>
+     </article>)}
+     {!shownOrderRows.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
     </div>
     <Pager page={safeOrderPage} count={orderPages} onChange={setPage}/>
    </>}
