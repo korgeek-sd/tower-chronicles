@@ -12,20 +12,38 @@ test('UI REBUILD 01: runtime shell imports only the new mobile stylesheet',()=>{
  }
 });
 
-test('UI REBUILD 02: approved UI images are routed through the central asset registry',()=>{
- const registry=read('src/ui/assets.ts'),main=read('src/main.tsx'),core=read('src/components/mobile/CoreScreens.tsx');
- assert.match(registry,/navigation-relic/);assert.equal(registry.includes('shop/gold/gold_stack_'),true);
- assert.match(main,/navigationAssetFor/);assert.match(core,/shopGoldAssetFor/);
- assert.equal(main.includes('assets/ui/navigation-relic/'),false);assert.equal(core.includes('assets/shop/gold/'),false);
- const css=read('src/mobile-game.css');assert.equal(css.includes('url('),false,'mobile CSS must not load decorative backgrounds directly');
+test('UI REBUILD 02: active mobile UI uses no decorative or legacy UI image assets',()=>{
+ const active=[
+  'src/main.tsx',
+  'src/components/mobile/CoreScreens.tsx',
+  'src/components/inventory/InventoryScreen.tsx',
+  'src/components/inventory/InventoryDetailSheet.tsx',
+  'src/components/workshop/WorkshopScreen.tsx',
+  'src/components/enhancement/EnhancementScreen.tsx',
+  'src/components/market/MarketScreen.tsx',
+  'src/components/association/AssociationScreen.tsx',
+  'src/components/events/EventScreen.tsx',
+  'src/components/JobsScreen.tsx',
+ ];
+ for(const path of active){
+  const source=read(path);
+  assert.equal(source.includes('assets/ui'),false,path+' references a UI asset');
+  assert.equal(source.includes('assets/backgrounds'),false,path+' references a background asset');
+  assert.equal(source.includes('eventAsset('),false,path+' references an event-art asset');
+ }
+ const css=read('src/mobile-game.css');
+ assert.equal(css.includes('url('),false,'mobile CSS must not load images');
 });
 
-test('UI REBUILD 03: image tags are limited to authored game art and approved asset slots',()=>{
- const battle=read('src/components/battle/BattleScene.tsx'),bestiary=read('src/components/bestiary/BestiaryScreen.tsx');
- const main=read('src/main.tsx'),core=read('src/components/mobile/CoreScreens.tsx');
- assert.match(battle,/playerGraphicFor/);assert.match(battle,/graphicFor/);assert.match(bestiary,/graphicFor/);
- assert.match(main,/<img className="tc-nav-icon"/);assert.match(core,/<img className="tc-shop-art"/);
- for(const path of ['src/components/events/EventScreen.tsx','src/components/inventory/InventoryDetailSheet.tsx'])assert.equal(read(path).includes('<img'),false,path+' has no approved asset slot yet');
+test('UI REBUILD 03: the only active image tags belong to character or monster rendering',()=>{
+ const battle=read('src/components/battle/BattleScene.tsx');
+ const bestiary=read('src/components/bestiary/BestiaryScreen.tsx');
+ assert.match(battle,/playerGraphicFor/);
+ assert.match(battle,/graphicFor/);
+ assert.match(bestiary,/graphicFor/);
+ for(const path of ['src/main.tsx','src/components/mobile/CoreScreens.tsx','src/components/events/EventScreen.tsx','src/components/inventory/InventoryDetailSheet.tsx']){
+  assert.equal(read(path).includes('<img'),false,path+' should not render image assets');
+ }
 });
 
 test('UI REBUILD 04: the mobile shell prevents page scrolling and uses viewport-contained regions',()=>{
