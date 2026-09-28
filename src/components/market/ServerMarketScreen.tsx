@@ -166,7 +166,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   return [...rows.values()].sort((a,b)=>a.name.localeCompare(b.name,'ko')||(a.bestListing?.price??Number.MAX_SAFE_INTEGER)-(b.bestListing?.price??Number.MAX_SAFE_INTEGER));
  },[snapshot,view.equipmentItems,view.equipped,view.expedition]);
  const combinedCatalog=useMemo<BrowseItem[]>(()=>[
-  ...catalog.filter(entry=>!entry.modernEquipment) as BrowseItem[],
+  ...(catalog.filter(entry=>!entry.modernEquipment) as BrowseItem[]),
   ...equipmentBrowseRows,
  ],[catalog,equipmentBrowseRows]);
  const normalizedQuery=query.trim().toLowerCase();
@@ -202,7 +202,26 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   });
   return result;
  },[trades]);
- const orderPages=Math.max(1,Math.ceil(open.length/PAGE_SIZE)),safeOrderPage=Math.min(page,orderPages-1),shownOrders=pageSlice(open,safeOrderPage);
+ const equipmentTrendByKey=useMemo(()=>{
+  const grouped=new Map<string,{at:number;price:number}[]>();
+  for(const trade of snapshot.equipmentTrades){
+   const rows=grouped.get(trade.marketKey)??[];
+   rows.push({at:trade.executedAt,price:trade.price});
+   grouped.set(trade.marketKey,rows);
+  }
+  const result=new Map<string,Trend>();
+  grouped.forEach((rows,key)=>{
+   const values=rows.sort((a,b)=>a.at-b.at).slice(-8).map(row=>row.price);
+   result.set(key,makeTrend(values));
+  });
+  return result;
+ },[snapshot.equipmentTrades]);
+ const myEquipmentListings=snapshot.equipmentListings.filter(listing=>listing.mine);
+ const orderRows=[
+  ...open.map(order=>({kind:'order' as const,order})),
+  ...myEquipmentListings.map(listing=>({kind:'equipment' as const,listing})),
+ ];
+ const orderPages=Math.max(1,Math.ceil(orderRows.length/PAGE_SIZE)),safeOrderPage=Math.min(page,orderPages-1),shownOrderRows=pageSlice(orderRows,safeOrderPage);
  const storagePages=Math.max(1,Math.ceil(storage.length/PAGE_SIZE)),safeStoragePage=Math.min(page,storagePages-1),shownStorage=pageSlice(storage,safeStoragePage);
  const storageSilver=storage.reduce((sum,entry)=>sum+(entry.side==='SELL'?entry.silver:0),0);
  const storageItems=storage.reduce((sum,entry)=>sum+(entry.side==='BUY'?entry.quantity:0),0);
