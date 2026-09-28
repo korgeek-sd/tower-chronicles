@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.70
+# 탑의 기록 v0.1.71
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.70`
+- 앱 버전: `0.1.71`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,16 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.71 — Gold 유료상점 V1
+
+- 상점을 Gold 충전 전용 유료상점으로 재구성
+- 장비·소모품·재료·외형 등 게임플레이 상품은 판매하지 않음
+- 6개 Gold 패키지를 2×3 모바일 한 화면 카드로 구성
+- 상품 선택 후 결제 금액을 확인하는 확인창 추가
+- 기존 Game Feel 눌림 피드백 재사용 및 reduced-motion 정책 유지
+- 현재 웹 빌드에서는 결제/Gold 지급 비활성
+- 향후 앱에서 Google Play Billing 검증 흐름과 연결할 수 있도록 SKU 카탈로그 분리
 
 ## v0.1.70 — 온라인 포션 사용 수정
 
