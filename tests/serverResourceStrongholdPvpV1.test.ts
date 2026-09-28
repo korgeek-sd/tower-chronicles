@@ -45,3 +45,9 @@ test('STRONGHOLD PVP SERVER 05: intervention combat uses turn nonce and resolves
 test('STRONGHOLD PVP SERVER 06: every mutation broadcasts a private realtime change',()=>{
  assert.match(sql,/realtime\.send\([\s\S]*'resource_stronghold_changed'[\s\S]*'resource_stronghold'[\s\S]*true\)/i);
 });
+
+test('STRONGHOLD PVP SERVER 07: both expedition runs are locked during contest and released on resolution',()=>{
+ assert.match(sql,/update private\.online_expeditions set stronghold=private\.resource_stronghold_json\(v_sh\),run_version=run_version\+1[\s\S]*user_id=v_sh\.owner_user_id[\s\S]*user_id=v_user/i);
+ assert.match(sql,/v_contest\.challenger_user_id[\s\S]*jsonb_build_object\('status','DELETED'/i);
+ assert.match(sql,/v_run\.tower<>p_tower or v_run\.floor<>p_floor/);
+});
