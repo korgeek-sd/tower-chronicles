@@ -16,7 +16,7 @@ import {applyServerEconomyRecord,dismantleOnlineEquipment} from '../../online/ec
 const PAGE_SIZE=8;
 const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',helmet:'armor',armor:'armor',gloves:'armor',boots:'boots',necklace:'accessory',ring:'accessory'};
 
-export function InventoryScreen({game,setGame,onlineLease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null}){
+export function InventoryScreen({game,setGame,onlineLease,onEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onEnhancement:()=>void}){
  const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const close=useCallback(()=>setSelected(null),[]);
  const items=inventoryView(game),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
@@ -48,7 +48,7 @@ export function InventoryScreen({game,setGame,onlineLease}:{game:GameState;setGa
  function openEquipped(slot:Slot){const view=equippedView(slot);if(view)setSelected(view.key);}
  function comparisonFor(sourceId:string){return equipmentStatComparison(game,sourceId);}
  const signed=(value:number)=>{const rounded=Math.round(value);return rounded>0?'+'+rounded:String(rounded);};
- return <Screen eyebrow="EXPLORER LOADOUT / STORAGE" title="장비 · 보관함" meta={<span>{items.length}종</span>} className="tc-inventory-screen">
+ return <Screen eyebrow="EXPLORER LOADOUT / STORAGE" title="장비 · 보관함" meta={<><span>{items.length}종</span><button className="tc-action secondary slim" onClick={onEnhancement}>강화</button></>} className="tc-inventory-screen">
   <div className="tc-ref-inventory">
    <section className="tc-loadout-stage" aria-label="현재 장착 장비">
     <div className="tc-loadout-vitals"><span><small>공격</small><b>{Math.round(st.attack)}</b></span><span><small>HP</small><b>{Math.round(st.hp)}</b></span><span><small>방어</small><b>{Math.round(st.defense)}</b></span></div>
