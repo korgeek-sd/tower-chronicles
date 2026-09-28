@@ -79,7 +79,7 @@ test('철맥 07: legacy 몬스터 카탈로그는 5 normal + 1 compatibility bos
 
 test('철맥 08: 처치 보상은 원정 임시 Silver·철광석에 적립되고 생환 시 확정된다',()=>{
  const s=enter(initialState(),'ore',1),items=s.items.length;
- reward(s,()=>.99);
+ reward(s,()=>.99,()=>.99,()=>.99);
  assert.equal(s.silver,0);
  assert.equal(s.materials.ore[0],0);
  assert.equal(s.expedition!.loot.silver,13);
