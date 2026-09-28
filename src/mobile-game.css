@@ -2450,3 +2450,16 @@ button:disabled{cursor:not-allowed;opacity:.38}
 .tc-occupation-fronts article{border:1px solid #39413d;background:#0f1412;padding:5px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.tc-occupation-fronts article div{display:grid;grid-template-columns:45px 1fr auto;align-items:center;gap:4px}.tc-occupation-fronts article small{font-size:5px;color:#858e87}.tc-occupation-fronts article b{font-size:7px}.tc-occupation-fronts article span{font:700 7px ui-monospace,Consolas,monospace}.tc-occupation-fronts article button{height:26px;border:1px solid #656249;background:#242218;color:#d9cc9d;font-size:5.5px}.tc-occupation-fronts article button:disabled{opacity:.4}
 .tc-occupation-duel{border:1px solid #5a5542;background:linear-gradient(180deg,#171813,#0b0e0d);padding:6px;display:grid;gap:5px}.tc-occupation-hp{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tc-occupation-hp>div{display:grid;grid-template-columns:auto 1fr auto;gap:4px;align-items:center;font-size:6px}.tc-occupation-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px}.tc-occupation-actions button{height:31px;border:1px solid #766c4d;background:#292516;color:#dfcf9d;font-size:7px}.tc-occupation-actions button:disabled{opacity:.4}
 @media(max-width:360px){.tc-occupation-towers{grid-template-columns:1fr}.tc-occupation-summary{grid-column:auto}.tc-occupation-formrow{grid-template-columns:1fr 1fr}.tc-occupation-formrow button{grid-column:2}}
+
+
+/* ===== Server Association V1 ===== */
+.tc-assoc-online{overflow:auto;align-content:start}
+.tc-assoc-description{font-size:8px;line-height:1.45;margin:0 0 6px;color:var(--soft)}
+.tc-assoc-directory{display:grid;gap:3px;max-height:238px;overflow:auto}
+.tc-assoc-directory article{border:1px solid var(--line);background:#0d100f;padding:6px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center}
+.tc-assoc-directory article b,.tc-assoc-directory article small{display:block}.tc-assoc-directory article b{font-size:8px}.tc-assoc-directory article small{font-size:6px;color:var(--muted);margin-top:1px}.tc-assoc-directory article p{font-size:6.5px;color:var(--soft);margin:4px 0 0;line-height:1.35}
+.tc-assoc-directory article button{height:29px;min-width:58px;border:1px solid var(--line-strong);background:#181b18;color:var(--paper);font-size:6px}.tc-assoc-directory article button:disabled{opacity:.38}
+.tc-assoc-member{gap:7px}.tc-assoc-member-actions{display:flex;gap:3px}.tc-assoc-member-actions button{height:25px;border:1px solid var(--line);background:#171a18;color:var(--paper);font-size:5.5px;padding:0 5px}.tc-assoc-member-actions button:last-child{border-color:#5b403c;color:#d9b5ad}
+.tc-assoc-leader{display:block;font-size:5.5px;color:var(--muted);text-align:right;padding-right:2px}
+.tc-form label>small{display:block;font-size:5.5px;line-height:1.35;color:var(--muted);margin-top:3px}
+@media(max-width:360px){.tc-assoc-directory article{grid-template-columns:1fr}.tc-assoc-directory article button{width:100%}.tc-assoc-member-actions{flex-direction:column}}
