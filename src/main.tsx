@@ -64,6 +64,7 @@ function App(){
  const [strongholdPvp,setStrongholdPvp]=useState<ResourceStrongholdServerState|null>(null);
  const [strongholdPvpBusy,setStrongholdPvpBusy]=useState(false);
  const [strongholdPvpError,setStrongholdPvpError]=useState('');
+ const [strongholdPanelOpen,setStrongholdPanelOpen]=useState(false);
  useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id);},[]);
  const blocked=useRef(false);
  const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
@@ -110,6 +111,11 @@ function App(){
   const unsubscribe=subscribeResourceStrongholdRealtime(()=>void refreshStrongholdPvp());
   return()=>{window.clearInterval(timer);unsubscribe();};
  },[onlineSession?.userId,gameSessionPhase,gameplayLease?.generation,game.expedition?.tower,game.expedition?.floor]);
+ useEffect(()=>{setStrongholdPanelOpen(false);},[game.expedition?.tower,game.expedition?.floor]);
+ useEffect(()=>{
+  const contest=strongholdPvp?.contest;
+  if(contest&&(strongholdPvp?.role==='OWNER'||strongholdPvp?.role==='CHALLENGER'))setStrongholdPanelOpen(true);
+ },[strongholdPvp?.contest?.contest_id,strongholdPvp?.contest?.status,strongholdPvp?.role]);
  async function requestStrongholdPvpNow(){
   const lease=gameplayLeaseRef.current,e=stateRef.current.expedition;if(!lease||!e)return;
   setStrongholdPvpBusy(true);try{setStrongholdPvp(await requestResourceStronghold(lease,e.tower,e.floor));setStrongholdPvpError('');await restoreServerRun(lease);}
@@ -356,12 +362,13 @@ function App(){
    {page==='home'&&<HomeScreen game={game} onMove={move} onOpenJobs={openJobs}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
    {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;{const candidate=reconcileOnlineCombatState(stateRef.current,combat);stateRef.current=candidate;setGame(candidate);setStorageError('');setPage('battle');}}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
-   {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&<ResourceStrongholdPanel
+   {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&strongholdPanelOpen&&<ResourceStrongholdPanel
     state={strongholdPvp} now={now} busy={strongholdPvpBusy} error={strongholdPvpError}
     onRefresh={()=>void refreshStrongholdPvp()} onRequest={()=>void requestStrongholdPvpNow()}
     onRespond={response=>void respondStrongholdPvpNow(response)} onAction={action=>void actStrongholdPvpNow(action)}
-    onAbandon={()=>void abandonStrongholdPvpNow()}
+    onAbandon={()=>void abandonStrongholdPvpNow()} onClose={()=>setStrongholdPanelOpen(false)}
    />}
+   {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&!strongholdPanelOpen&&<button className="tc-stronghold-pvp-entry" onClick={()=>setStrongholdPanelOpen(true)}>자원거점</button>}
    {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>void commitOnlineEventChoice(instance,choice)} onContinue={instance=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)void continueOnlineExplorationNow();else commitEvent(s=>continueEvent(s,instance));}} onRevival={use=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use));else setGame(s=>resolveRevivalDecision(s,use));}}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>void abandonOnlineStrongholdNow()}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
    {page==='inventory'&&<InventoryScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='equipment'&&<EquipmentScreen game={game} setGame={setGame} onSkills={()=>setPage('skills')}/>}
