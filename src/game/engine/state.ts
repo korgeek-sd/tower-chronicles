@@ -1,6 +1,6 @@
-import type {GameState,Bag,Item,Slot,Weapon,Stats,GearMasteryKey,MarketState,AssociationState,CombatEvent,EquipmentKind,EquipmentLoadout} from '../types';
+import type {GameState,Bag,Item,Slot,Weapon,Stats,GearMasteryKey,MarketState,AssociationState,CombatEvent,EquipmentItem,EquipmentKind,EquipmentLoadout} from '../types';
 import {CONFIG,STARTER,TOWERS,WEAPONS,EQUIPMENT,PASSIVES,towerIds,GEAR_MASTERY_KEYS,GEAR_MASTERY_NAMES} from '../data/config';
-import {EQUIPMENT_DEFINITIONS,emptyEquipmentLoadout} from '../data/equipment';
+import {EQUIPMENT_DEFINITIONS,emptyEquipmentLoadout,equipmentItemName,equipmentItemSlot} from '../data/equipment';
 import {initialCosmetics} from './cosmetics';
 import {initialPresets} from './presets';
 import {emptyBestiary} from './bestiary';
@@ -24,7 +24,16 @@ export const equippedItem=(s:GameState,slot:Slot|'accessory',equipment:Equipment
   const id=slot==='accessory'?(equipment.accessory??equipment.ring):equipment[slot];
   return s.items.find(i=>i.id===id);
 };
-export const weaponOf=(s:GameState,equipment=s.equipped):Weapon=>(equippedItem(s,'weapon',equipment)?.kind as Weapon)||'sword';
+export const equipmentItemById=(s:GameState,id:string|null|undefined):EquipmentItem|undefined=>
+  id?(s.equipmentItems??[]).find(item=>item.id===id):undefined;
+export const equippedEquipmentItem=(s:GameState,slot:Slot,equipment:EquipmentLoadout=s.equipped)=>
+  equipmentItemById(s,equipment[slot]);
+export const weaponOf=(s:GameState,equipment=s.equipped):Weapon=>{
+  const modern=equippedEquipmentItem(s,'weapon',equipment);
+  const family=modern?EQUIPMENT_DEFINITIONS[modern.kind].weaponFamily:null;
+  if(family)return family;
+  return (equippedItem(s,'weapon',equipment)?.kind as Weapon)||'sword';
+};
 export function stats(s:GameState,equipment=s.equipped):Stats {return equipmentStats(s,equipment);}
 export function log(s:GameState,message:string){s.logs.push(message);s.logs=s.logs.slice(-CONFIG.logLimit);}
 export function recordCombatEvent(s:GameState,event:Omit<CombatEvent,'id'>){const id=(s.combatEventSequence??0)+1;s.combatEventSequence=id;s.combatEvents=[...(s.combatEvents??[]),{...event,id}].slice(-40);}
@@ -33,7 +42,37 @@ export const masteryKeyOf=(item:Item):GearMasteryKey=>{
   if(item.kind==='armor'||item.kind==='boots')return item.kind;
   return 'accessory';
 };
-export function equip(s:GameState,id:string):GameState {if(s.expedition)return {...s,notice:'원정 중에는 장비를 변경할 수 없습니다.'};const n=structuredClone(s),item=n.items.find(i=>i.id===id);if(item){const key=masteryKeyOf(item),allowed=n.gearMastery[key].unlockedTier;if(item.tier>allowed)return {...n,notice:`T${item.tier} ${GEAR_MASTERY_NAMES[key]}을 장착하려면 ${GEAR_MASTERY_NAMES[key]} 숙련이 더 필요합니다.`};n.equipped[itemSlot(item.kind)]=id;n.notice=`${itemName(item)} 장착 완료`;}return n;}
+export function equip(s:GameState,id:string):GameState {
+  if(s.expedition)return {...s,notice:'원정 중에는 장비를 변경할 수 없습니다.'};
+  const n=structuredClone(s),modern=equipmentItemById(n,id);
+  if(modern){
+    const slot=equipmentItemSlot(modern);
+    n.equipped[slot]=id;
+    if(slot==='ring')delete n.equipped.accessory;
+    n.notice=`${equipmentItemName(modern)} 장착 완료`;
+    return n;
+  }
+  const item=n.items.find(i=>i.id===id);
+  if(item){
+    const key=masteryKeyOf(item),allowed=n.gearMastery[key].unlockedTier;
+    if(item.tier>allowed)return {...n,notice:`T${item.tier} ${GEAR_MASTERY_NAMES[key]}을 장착하려면 ${GEAR_MASTERY_NAMES[key]} 숙련이 더 필요합니다.`};
+    n.equipped[itemSlot(item.kind)]=id;
+    n.notice=`${itemName(item)} 장착 완료`;
+  }
+  return n;
+}
+export function unequip(s:GameState,id:string):GameState {
+  if(s.expedition)return {...s,notice:'원정 중에는 장비를 변경할 수 없습니다.'};
+  const n=structuredClone(s);
+  const modern=equipmentItemById(n,id);
+  const legacy=n.items.find(item=>item.id===id);
+  const slot=modern?equipmentItemSlot(modern):legacy?itemSlot(legacy.kind):null;
+  if(!slot||n.equipped[slot]!==id)return n;
+  n.equipped[slot]=null;
+  if(slot==='ring'&&n.equipped.accessory===id)n.equipped.accessory=null;
+  n.notice=`${modern?equipmentItemName(modern):legacy?itemName(legacy):'장비'} 해제 완료`;
+  return n;
+}
 
 
 
