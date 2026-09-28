@@ -10,7 +10,7 @@ const seconds=(value:string|undefined,now:number)=>value?Math.max(0,Math.ceil((n
 
 export function ResourceStrongholdPanel({state,now,busy,error,onRefresh,onRequest,onRespond,onAction,onAbandon}:Props){
  if(!state)return <aside className="tc-stronghold-pvp"><button disabled={busy} onClick={onRefresh}>거점 상태 확인</button></aside>;
- const sh=state.stronghold,contest=state.contest,decision=seconds(contest?.decision_ends_at,now);
+ const sh=state.stronghold,contest=state.contest,decisionEndsAt=contest?.decision_ends_at,decision=seconds(decisionEndsAt,now);
  return <aside className="tc-stronghold-pvp" aria-label="자원거점 쟁탈">
   <div><strong>자원거점</strong><button disabled={busy} onClick={onRefresh}>새로고침</button></div>
   {!sh?<><p>현재 이 층의 공용 거점은 비어 있습니다.</p><button disabled={busy} onClick={onRequest}>점령</button></>:
