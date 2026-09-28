@@ -32,17 +32,15 @@ test('HOME JOB SHORTCUT 03: app routes the selected home shortcut to the request
 });
 
 
-test('HOME GOLD EXCHANGE 04: base camp replaces the skill shortcut with Gold Exchange only',()=>{
+test('HOME GOLD EXCHANGE 04: base camp keeps Gold Exchange and restores direct skill access',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
  assert.match(home,/title:'골드 거래소'/);
  assert.match(home,/subtitle:'Gold ↔ Silver'/);
  assert.match(home,/onMove\('gold-exchange'\)/);
- assert.doesNotMatch(home,/title:'스킬'/);
- assert.doesNotMatch(home,/onMove\('skills'\)/);
- const equipment=source.slice(source.indexOf('export function EquipmentScreen'),source.indexOf('export function SkillsScreen'));
- assert.match(equipment,/onSkills/);
- assert.match(equipment,/>스킬</);
+ assert.match(home,/title:'전투 스킬'/);
+ assert.match(home,/onMove\('skills'\)/);
+ assert.doesNotMatch(source,/export function EquipmentScreen/);
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
  assert.match(main,/import \{GoldExchangeScreen\}/);
  assert.match(main,/page==='gold-exchange'/);
