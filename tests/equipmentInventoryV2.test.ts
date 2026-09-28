@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialState,equip,unequip,stats} from '../src/game/engine/state.ts';
 import {inventoryView} from '../src/game/inventoryView.ts';
+import {createRepository} from '../src/storage/repository.ts';
 import type {EquipmentItem,EquipmentKind} from '../src/game/types.ts';
 
 const item=(id:string,kind:EquipmentKind,grade:EquipmentItem['grade']='common',enhancement:EquipmentItem['enhancement']=0):EquipmentItem=>({id,kind,grade,enhancement});
@@ -90,4 +91,25 @@ test('V2 INVENTORY 06: grade and enhancement deterministically affect equipped c
  assert.ok(b.hp>a.hp);
  assert.ok(b.defense>a.defense);
  assert.equal(a.speed,b.speed);
+});
+
+
+test('V2 INVENTORY 07: modern inventory and equipped references survive local save reload',()=>{
+ const memory=new Map<string,string>();
+ const repo=createRepository({
+  getItem:key=>memory.get(key)??null,
+  setItem:(key,value)=>void memory.set(key,value),
+ });
+ let s=initialState();
+ s.equipmentItems=[
+  item('saved-weapon','outer_guard_longbow','heroic',4),
+  item('saved-ring','expedition_merit_ring','rare',2),
+ ];
+ s=equip(s,'saved-weapon');
+ s=equip(s,'saved-ring');
+ repo.save(s);
+ const loaded=repo.load();
+ assert.deepEqual(loaded.equipmentItems,s.equipmentItems);
+ assert.equal(loaded.equipped.weapon,'saved-weapon');
+ assert.equal(loaded.equipped.ring,'saved-ring');
 });
