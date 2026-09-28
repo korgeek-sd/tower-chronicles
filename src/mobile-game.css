@@ -2463,3 +2463,11 @@ button:disabled{cursor:not-allowed;opacity:.38}
 .tc-assoc-leader{display:block;font-size:5.5px;color:var(--muted);text-align:right;padding-right:2px}
 .tc-form label>small{display:block;font-size:5.5px;line-height:1.35;color:var(--muted);margin-top:3px}
 @media(max-width:360px){.tc-assoc-directory article{grid-template-columns:1fr}.tc-assoc-directory article button{width:100%}.tc-assoc-member-actions{flex-direction:column}}
+
+/* Resource stronghold is an optional battle overlay, not a full-height sibling screen. */
+.tc-stronghold-pvp{position:absolute;z-index:30;inset:8px;height:auto!important;border:1px solid var(--line-strong);background:#0d100f;padding:10px;box-shadow:0 8px 28px #000a;overflow:auto}
+.tc-stronghold-pvp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.tc-stronghold-pvp-head>div{display:flex;gap:5px}
+.tc-stronghold-pvp button{min-height:34px;border:1px solid var(--line);background:#171a18;padding:5px 9px;font-size:9px}
+.tc-stronghold-pvp-head button:last-child{border-color:var(--brass);color:var(--brass-hi)}
+.tc-stronghold-pvp-entry{position:absolute;z-index:24;right:14px;top:12px;height:34px!important;min-height:34px;border:1px solid var(--brass);background:#171813;color:var(--brass-hi);padding:5px 10px;font-size:9px;box-shadow:0 4px 14px #0008}

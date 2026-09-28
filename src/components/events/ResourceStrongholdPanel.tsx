@@ -4,15 +4,17 @@ import type {ResourceStrongholdServerState} from '../../online/resourceStronghol
 type Props={
  state:ResourceStrongholdServerState|null;now:number;busy:boolean;error?:string;
  onRefresh:()=>void;onRequest:()=>void;onRespond:(response:'DEFEND'|'ABANDON')=>void;
- onAction:(action:'BASIC'|'GUARD')=>void;onAbandon:()=>void;
+ onAction:(action:'BASIC'|'GUARD')=>void;onAbandon:()=>void;onClose:()=>void;
 };
 const seconds=(value:string|undefined,now:number)=>value?Math.max(0,Math.ceil((new Date(value).getTime()-now)/1000)):0;
 
-export function ResourceStrongholdPanel({state,now,busy,error,onRefresh,onRequest,onRespond,onAction,onAbandon}:Props){
- if(!state)return <aside className="tc-stronghold-pvp"><button disabled={busy} onClick={onRefresh}>거점 상태 확인</button></aside>;
+export function ResourceStrongholdPanel({state,now,busy,error,onRefresh,onRequest,onRespond,onAction,onAbandon,onClose}:Props){
+ if(!state)return <aside className="tc-stronghold-pvp" aria-label="자원거점 쟁탈">
+  <div className="tc-stronghold-pvp-head"><strong>자원거점</strong><div><button disabled={busy} onClick={onRefresh}>상태 확인</button><button onClick={onClose}>나가기</button></div></div>
+ </aside>;
  const sh=state.stronghold,contest=state.contest,decisionEndsAt=contest?.decision_ends_at,decision=seconds(decisionEndsAt,now),turn=seconds(contest?.turn_ends_at??undefined,now),actionNonce=contest?.action_nonce??0;
  return <aside className="tc-stronghold-pvp" aria-label="자원거점 쟁탈">
-  <div><strong>자원거점</strong><button disabled={busy} onClick={onRefresh}>새로고침</button></div>
+  <div className="tc-stronghold-pvp-head"><strong>자원거점</strong><div><button disabled={busy} onClick={onRefresh}>새로고침</button><button onClick={onClose}>나가기</button></div></div>
   {!sh?<><p>현재 이 층의 공용 거점은 비어 있습니다.</p><button disabled={busy} onClick={onRequest}>점령</button></>:
    <><p>{sh.status==='CONTESTED'?'쟁탈 진행 중':'점령 진행 중'} · 남은 {seconds(sh.captureEndsAt,now)}초</p>
     {state.role==='OWNER'&&contest?.status==='PENDING'&&<div><p>30초 선택 · {decision}초</p><button disabled={busy} onClick={()=>onRespond('DEFEND')}>방어</button><button disabled={busy} onClick={()=>onRespond('ABANDON')}>포기</button></div>}
