@@ -1,10 +1,11 @@
-import type {GameState,Item,Slot,Stats,Weapon} from '../types';
+import type {EquipmentItem,GameState,Item,Slot,Stats,Weapon} from '../types';
 import {CONFIG,EQUIPMENT,STARTER,WEAPONS} from '../data/config';
 import {
   ACCESSORY_ENHANCEMENT_VALUES,
   ACCESSORY_TRIGGER_VALUES,
   equipmentStatMultiplier,
 } from '../data/enhancement';
+import {EQUIPMENT_DEFINITIONS,EQUIPMENT_SLOTS,equipmentItemStats} from '../data/equipment';
 
 export interface EquipmentContribution {
   hp:number;
@@ -38,23 +39,64 @@ export function equipmentContribution(item:Item|undefined):EquipmentContribution
   return ZERO_CONTRIBUTION;
 }
 
-const equippedItem=(s:GameState,slot:Slot,equipment:Record<Slot,string|null>)=>
+const legacyEquippedItem=(s:GameState,slot:Slot,equipment:Record<Slot,string|null>)=>
   s.items.find(item=>item.id===equipment[slot]);
 
+const modernEquippedItem=(s:GameState,slot:Slot,equipment:Record<Slot,string|null>):EquipmentItem|undefined=>{
+  const id=equipment[slot];
+  return (s.equipmentItems??[]).find(item=>item.id===id);
+};
+
+const modernContribution=(item:EquipmentItem|undefined):EquipmentContribution=>{
+  if(!item)return ZERO_CONTRIBUTION;
+  const value=equipmentItemStats(item);
+  return {hp:value.hp??0,attack:value.attack??0,defense:value.defense??0,speed:0};
+};
+
 export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.equipped):Stats {
-  const weaponItem=equippedItem(s,'weapon',equipment);
-  const weaponKind:Weapon=weaponItem&&weaponItem.kind in WEAPONS?weaponItem.kind as Weapon:'sword';
+  const modernWeapon=modernEquippedItem(s,'weapon',equipment);
+  const legacyWeapon=legacyEquippedItem(s,'weapon',equipment);
+  const modernDefinition=modernWeapon?EQUIPMENT_DEFINITIONS[modernWeapon.kind]:null;
+  const weaponKind:Weapon=modernDefinition?.weaponFamily??(
+    legacyWeapon&&legacyWeapon.kind in WEAPONS?legacyWeapon.kind as Weapon:'sword'
+  );
   const identity=WEAPONS[weaponKind];
-  const weapon=weaponItem?equipmentContribution(weaponItem):{hp:0,attack:identity.attack*.4,defense:identity.defense*.4,speed:0};
-  const armor=equipmentContribution(equippedItem(s,'armor',equipment));
-  const boots=equipmentContribution(equippedItem(s,'boots',equipment));
+  const weapon=modernWeapon
+    ?modernContribution(modernWeapon)
+    :legacyWeapon
+      ?equipmentContribution(legacyWeapon)
+      :{hp:0,attack:identity.attack*.4,defense:identity.defense*.4,speed:0};
+
+  let hp=CONFIG.baseHp+weapon.hp;
+  let attack=CONFIG.baseAttack+weapon.attack;
+  let defense=CONFIG.baseDefense+weapon.defense;
+  let speed=identity.speed;
+  let nonWeaponCrit=0;
+
+  for(const slot of EQUIPMENT_SLOTS){
+    if(slot==='weapon')continue;
+    const modern=modernEquippedItem(s,slot,equipment);
+    if(modern){
+      const contribution=modernContribution(modern),itemStats=equipmentItemStats(modern);
+      hp+=contribution.hp;attack+=contribution.attack;defense+=contribution.defense;
+      nonWeaponCrit+=itemStats.critChance??0;
+      continue;
+    }
+    const legacy=legacyEquippedItem(s,slot,equipment);
+    if(!legacy)continue;
+    const contribution=equipmentContribution(legacy);
+    hp+=contribution.hp;attack+=contribution.attack;defense+=contribution.defense;speed+=contribution.speed;
+  }
+
+  const modernWeaponStats=modernWeapon?equipmentItemStats(modernWeapon):null;
+  const weaponCrit=modernWeaponStats?.critChance??identity.critChance;
   return {
-    hp:CONFIG.baseHp+armor.hp+boots.hp,
-    attack:CONFIG.baseAttack+weapon.attack,
-    defense:CONFIG.baseDefense+weapon.defense+armor.defense,
-    speed:identity.speed+boots.speed,
+    hp,
+    attack,
+    defense,
+    speed,
     skillPower:identity.skillPower,
-    critChance:Math.min(1,Math.max(0,identity.critChance)),
+    critChance:Math.min(1,Math.max(0,weaponCrit+nonWeaponCrit)),
     critDamage:identity.critDamage,
     attackHits:identity.basicHitMultipliers.length,
   };
