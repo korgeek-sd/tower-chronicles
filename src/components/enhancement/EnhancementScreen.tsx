@@ -87,7 +87,7 @@ export function EnhancementScreen({game,setGame,onlineLease,onBack}:{game:GameSt
   }finally{setBusy(false);}
  };
 
- return <Screen eyebrow="WORKSHOP / ENHANCEMENT" title="장비 강화" meta={<button className="tc-action secondary slim" onClick={onBack}>제작으로</button>}>
+ return <Screen eyebrow="EQUIPMENT / ENHANCEMENT" title="장비 강화" meta={<button className="tc-action secondary slim" onClick={onBack}>보관함으로</button>}>
   <div className="tc-enhance">
    <div className="tc-enhance-body">
     <div className="tc-enhance-list">{shown.map(item=><button key={item.id} className="tc-enhance-item" aria-pressed={selected?.id===item.id} onClick={()=>setSelectedId(item.id)}><Glyph name={iconFor(item)}/><b>{equipmentItemName(item)}</b><small>{item.grade==='common'?'일반':item.grade==='uncommon'?'고급':item.grade==='rare'?'희귀':item.grade==='heroic'?'영웅':'전설'} · +{item.enhancement}{Object.values(game.equipped).includes(item.id)?' · 장착':''}</small></button>)}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-enhance-item" key={'e'+i}/>)}</div>
