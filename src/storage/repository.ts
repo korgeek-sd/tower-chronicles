@@ -3,7 +3,7 @@ import {upgradeEvents} from '../game/events/service';
 import type {GameState,ExpeditionLoot,Tower,MarketOrder,MarketStorageEntry,MarketTrade} from '../game/types';
 import {initialState,initialGearMastery,initialMarketState,initialAssociationState,initialCraftingState} from '../game/engine/state';
 import {towerIds,potionIds,WEAPONS,EQUIPMENT,PASSIVES,GEAR_MASTERY_KEYS} from '../game/data/config';
-import {EQUIPMENT_SLOTS} from '../game/data/equipment';
+import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADES,EQUIPMENT_SLOTS,V2_STARTER_EQUIPMENT_ID,createV2StarterEquipment,emptyEquipmentLoadout} from '../game/data/equipment';
 import {COSMETICS_CATALOG,appearanceById,titleById,type CosmeticsCatalog} from '../game/data/cosmetics';
 import {initialCosmetics} from '../game/engine/cosmetics';
 import {bossById,bossIdFor,initialBossTracking} from '../game/engine/bossTracking';
@@ -15,7 +15,7 @@ import {EFFECTS} from '../game/engine/effects';
 import {BESTIARY_ENTRIES,bestiaryEntryById} from '../game/data/bestiary';
 import {emptyBestiary} from '../game/engine/bestiary';
 export interface StoragePort {getItem(key:string):string|null;setItem(key:string,value:string):void}
-export const APP_VERSION='0.1.63';
+export const APP_VERSION='0.1.64';
 export const SAVE_EXPORT_FORMAT='tower-chronicles-save';
 export const SAVE_EXPORT_FORMAT_VERSION=1;
 // Keep the original key so an existing file/browser origin finds its save.
@@ -31,6 +31,7 @@ export const MARKET_BACKUP_KEY='tower-record-v1-before-market-v9';
 export const ASSOCIATION_BACKUP_KEY='tower-record-v1-before-association-v10';
 export const CRAFTING_BACKUP_KEY='tower-record-v1-before-crafting-v11';
 export const BESTIARY_BACKUP_KEY='tower-record-v1-before-bestiary-v22';
+export const EQUIPMENT_V2_BACKUP_KEY='tower-record-v1-before-equipment-v23';
 export const IMPORT_BACKUP_KEY='tower-record-v1-before-manual-import';
 type Obj=Record<string,unknown>;
 const obj=(x:unknown):x is Obj=>!!x&&typeof x==='object'&&!Array.isArray(x);
@@ -159,7 +160,56 @@ function validV22(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean 
  if(!obj(x)||x.version!==22||!validBestiary(x.bestiary))return false;
  return validV21({...x,version:21},catalog);
 }
-export function validSave(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):x is GameState {return validV22(x,catalog);}
+const validEquipmentItemV2=(i:unknown)=>obj(i)
+ &&typeof i.id==='string'&&i.id.length>0
+ &&typeof i.kind==='string'&&i.kind in EQUIPMENT_DEFINITIONS
+ &&typeof i.grade==='string'&&EQUIPMENT_GRADES.includes(i.grade as any)
+ &&count(i.enhancement)&&i.enhancement<=10;
+const validEquipmentV2=(x:unknown)=>{
+ if(!obj(x))return false;
+ if(Object.keys(x).some(key=>!EQUIPMENT_SLOTS.includes(key as any)))return false;
+ return EQUIPMENT_SLOTS.every(key=>x[key]===null||typeof x[key]==='string');
+};
+function validV23(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {
+ if(!obj(x)||x.version!==23||!Array.isArray(x.items)||x.items.length!==0||!Array.isArray(x.equipmentItems)||!x.equipmentItems.every(validEquipmentItemV2)||!validEquipmentV2(x.equipped))return false;
+ return validV22({...x,version:22,items:[]},catalog);
+}
+export function validSave(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):x is GameState {return validV23(x,catalog);}
+const legacyCraftTower=(field:string)=>field==='weapon'?'ore':field==='armor'?'leather':field==='accessory'?'gem':null;
+export function migrateV22(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {
+ if(!validV22(value,catalog))throw Error('v22 저장 데이터를 안전하게 이전할 수 없습니다.');
+ const next:any=structuredClone(value),starter=createV2StarterEquipment(),loadout=emptyEquipmentLoadout(V2_STARTER_EQUIPMENT_ID);
+ next.version=23;
+ next.items=[];
+ next.equipmentItems=[starter];
+ next.equipped={...loadout};
+
+ let refundSilver=0;
+ for(const order of next.market?.orders??[]){
+   if(String(order.itemId).startsWith('gear:')&&order.side==='BUY'&&order.ownerId===next.market.ownerId&&['OPEN','PARTIAL'].includes(order.status)){
+     refundSilver+=Number(order.limitPrice||0)*Number(order.remainingQuantity||0);
+   }
+ }
+ for(const entry of next.market?.storage??[])if(String(entry.itemId).startsWith('gear:')&&entry.side==='SELL')refundSilver+=Number(entry.silver||0);
+ next.market.orders=(next.market?.orders??[]).filter((order:any)=>!String(order.itemId).startsWith('gear:'));
+ if(Array.isArray(next.market?.storage))next.market.storage=next.market.storage.filter((entry:any)=>!String(entry.itemId).startsWith('gear:'));
+
+ for(const job of next.crafting?.jobs??[]){
+   if(job.field==='alchemy'||job.status==='CANCELLED')continue;
+   refundSilver+=Number(job.consumedSilver||0);
+   const towerId=legacyCraftTower(job.field);
+   const tier=Math.max(1,Math.min(5,Number(job.tier||1)));
+   if(towerId&&next.materials?.[towerId])next.materials[towerId][tier-1]+=Number(job.consumedMaterials||0);
+ }
+ next.crafting.jobs=(next.crafting?.jobs??[]).filter((job:any)=>job.field==='alchemy');
+
+ for(const preset of next.expeditionPresets??[])if(preset)preset.equipment={...loadout};
+ if(next.expedition)next.expedition.equipment={...loadout};
+ next.silver+=refundSilver;
+
+ if(!validV23(next,catalog))throw Error('V2 장비 저장 데이터 이전 검증에 실패했습니다.');
+ return next;
+}
 export function migrateV21(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):GameState {
  if(!validV21(value,catalog))throw Error('v21 저장 데이터를 안전하게 이전할 수 없습니다.');
  const next:any=structuredClone(value);
@@ -168,7 +218,7 @@ export function migrateV21(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATA
  const id=next.expedition?.monster?.definitionId;
  if(typeof id==='string'&&bestiaryEntryById(id))next.bestiary.entries[id]={encounters:1,defeats:0};
  if(!validV22(next,catalog))throw Error('탐사 생물록 저장 데이터 이전 검증에 실패했습니다.');
- return next;
+ return migrateV22(next,catalog);
 }
 export const COMBAT_TRIGGERS_BACKUP_KEY='tower-record-v1-before-combat-triggers-v19';
 export const POTION_OVERHAUL_BACKUP_KEY='tower-record-v1-before-potions-v20';
@@ -339,7 +389,8 @@ export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=CO
        if(obj(data)&&data.version===18){const next=migrateV18(data,catalog);if(storage.getItem(COMBAT_TRIGGERS_BACKUP_KEY)===null)storage.setItem(COMBAT_TRIGGERS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
        if(obj(data)&&data.version===19){const next=migrateV19(data,catalog);if(storage.getItem(POTION_OVERHAUL_BACKUP_KEY)===null)storage.setItem(POTION_OVERHAUL_BACKUP_KEY,raw);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
       if(obj(data)&&data.version===20){const next=migrateV20(data,catalog);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);if(storage.getItem(EQUIPMENT_V2_BACKUP_KEY)===null)storage.setItem(EQUIPMENT_V2_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===22){const next=migrateV22(data,catalog);if(storage.getItem(EQUIPMENT_V2_BACKUP_KEY)===null)storage.setItem(EQUIPMENT_V2_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
       if(!validSave(data,catalog))throw Error('지원하지 않거나 손상된 저장 데이터입니다.');
       return data;
     }
