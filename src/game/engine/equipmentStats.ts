@@ -57,7 +57,7 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
   const modernWeapon=modernEquippedItem(s,'weapon',equipment);
   const legacyWeapon=legacyEquippedItem(s,'weapon',equipment);
   const modernDefinition=modernWeapon?EQUIPMENT_DEFINITIONS[modernWeapon.kind]:null;
-  const weaponKind:Weapon=modernDefinition?.weaponFamily??(
+  const weaponKind:Weapon=modernDefinition&&'weaponFamily' in modernDefinition?modernDefinition.weaponFamily:(
     legacyWeapon&&legacyWeapon.kind in WEAPONS?legacyWeapon.kind as Weapon:'sword'
   );
   const identity=WEAPONS[weaponKind];
