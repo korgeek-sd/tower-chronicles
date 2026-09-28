@@ -103,7 +103,7 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
 
 export function ShopScreen({game,now,onPremium}:{game:GameState;now:number;onPremium:()=>void}){
  const active=isGoldenRecorderActive(game,now);
- return <Screen eyebrow="NOVAR SHOP" title="상점" meta={<span>{game.gold.toLocaleString()} Gold</span>}>
+ return <Screen eyebrow="NOVAR SHOP" title="상점" meta={<span>{game.market.gold.toLocaleString()} Gold</span>}>
   <div style={{height:'100%',display:'grid',gridTemplateRows:'auto 1fr',gap:'6px'}}>
    <section className="tc-panel strong" style={{display:'grid',gridTemplateColumns:'38px 1fr auto',gap:'8px',alignItems:'center',padding:'10px'}}>
     <Glyph name="premium"/>
