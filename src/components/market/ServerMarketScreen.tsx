@@ -9,6 +9,7 @@ import {
 } from '../../online/market';
 import {demoMarketView} from './demoLiveMarket';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import {EquipmentMarketPanel} from './EquipmentMarketPanel';
 import type {GameFeelEvent} from '../../gameFeel/types';
 
 type Tab='market'|'orders'|'storage';
@@ -285,7 +286,8 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
      <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
      <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button>
     </div>
-    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setPage(0);}}>{label}</button>)}</div>
+    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
+    {category==='equipment'?<EquipmentMarketPanel game={game} snapshot={snapshot} lease={lease} onSnapshot={applySnapshot}/>:<>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
       const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);
@@ -303,6 +305,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
      {!shown.length&&<div className="tc-market-v2-empty">검색 조건에 맞는 품목이 없습니다.</div>}
     </div>
     <Pager page={safeMarketPage} count={marketPages} onChange={setPage}/>
+    </>}
    </>}
 
    {tab==='orders'&&<>
