@@ -8,7 +8,7 @@ test('EQUIPMENT LOOP 01: legacy equipment screen is not part of active routing',
  const main=read('src/main.tsx'),core=read('src/components/mobile/CoreScreens.tsx');
  assert.doesNotMatch(main,/EquipmentScreen|page==='equipment'/);
  assert.doesNotMatch(core,/export function EquipmentScreen|\|'equipment'/);
- assert.match(core,/장비 확인[\s\S]*onMove\('inventory'\)/);
+ assert.match(core,/onMove\('inventory'\)[\s\S]*장비 확인/);
 });
 
 test('EQUIPMENT LOOP 02: inventory exposes enhancement as the next action in the V2 loop',()=>{
