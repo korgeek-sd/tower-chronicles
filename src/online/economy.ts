@@ -43,6 +43,11 @@ const errors:RpcErrorMap={
  CRAFT_NOT_CANCELLABLE:'취소할 수 없는 제작 작업입니다.',
  CRAFT_NOT_READY:'아직 서버 제작 시간이 끝나지 않았습니다.',
  CRAFT_NOT_CLAIMABLE:'수령할 수 없는 제작 작업입니다.',
+ DISMANTLE_ITEM_NOT_FOUND:'서버에 등록된 분해 장비를 찾지 못했습니다.',
+ DISMANTLE_STARTER_PROTECTED:'협회 보급 장비는 분해할 수 없습니다.',
+ DISMANTLE_EQUIPPED:'장착 해제 후 분해할 수 있습니다.',
+ DISMANTLE_EXPEDITION_BLOCKED:'원정 중에는 장비를 분해할 수 없습니다.',
+ DISMANTLE_GRADE_INVALID:'분해할 수 없는 장비 등급입니다.',
  ENHANCE_SILVER_SHORTAGE:'서버 지갑의 Silver가 부족합니다.',
  ENHANCE_MATERIAL_SHORTAGE:'서버에 확인된 강화 재료가 부족합니다.',
  ENHANCE_ITEM_NOT_FOUND:'서버에 등록된 강화 장비를 찾지 못했습니다.',
@@ -282,6 +287,14 @@ export async function cancelOnlineCraft(lease:GameplayLease,jobId:string){
 export async function claimOnlineCraft(lease:GameplayLease,jobId:string,itemId:string|null){
  const result=await rpc<{record:CloudSaveRecord;itemId:string|null}>('claim_online_craft',{
   ...leaseArgs(lease),p_job_id:jobId,p_item_id:itemId,
+ });
+ await remember(result.record);
+ return result;
+}
+
+export async function dismantleOnlineEquipment(lease:GameplayLease,itemId:string){
+ const result=await rpc<{itemId:string;stones:number;record:CloudSaveRecord}>('dismantle_online_equipment',{
+  ...leaseArgs(lease),p_item_id:itemId,
  });
  await remember(result.record);
  return result;
