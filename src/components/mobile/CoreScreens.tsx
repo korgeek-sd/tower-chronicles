@@ -107,7 +107,7 @@ export function ShopScreen({game}:{game:GameState}){
   <div className="tc-shop">
    <header className="tc-shop-intro">
     <div><small className="tc-kicker">GOLD REQUISITION</small><b>Gold 보급</b></div>
-    <p>게임 내 장비·소모품·재료는 판매하지 않습니다.</p>
+    <p>게임플레이 상품은 판매하지 않습니다.</p>
    </header>
    <div className="tc-shop-grid" aria-label="Gold 충전 상품">
     {GOLD_SHOP_PACKAGES.map((item,index)=><button type="button" className="tc-shop-card tc-feel-press" data-game-feel="press" key={item.sku} onClick={()=>setSelectedSku(item.sku)}>
