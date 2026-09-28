@@ -5,39 +5,32 @@ import {readFileSync} from 'node:fs';
 const server=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
 const online=readFileSync(new URL('../src/online/market.ts',import.meta.url),'utf8');
 
-test('V2 MARKET UI 01: equipment category shares the same list and card UI as other categories',()=>{
- assert.doesNotMatch(server,/EquipmentMarketPanel/);
- assert.match(server,/combinedCatalog/);
- assert.match(server,/tc-market-v2-list tc-market-v3-list tc-market-v4-list/);
- assert.match(server,/tc-market-v2-row tc-market-v3-card tc-market-v4-card/);
+test('V2 MARKET UI 01: equipment uses the exact same live order-book detail UI',()=>{
+ assert.match(server,/tc-market-v2-book tc-market-v4-book/);
+ assert.match(server,/실시간 주문장/);
+ assert.match(server,/BUY · 매수/);
+ assert.match(server,/SELL · 매도/);
+ assert.doesNotMatch(server,/즉시 구매|정가 판매 · 72시간|등록 수수료|판매 수수료 5%/);
 });
 
-test('V2 MARKET UI 02: owned and listed equipment are merged into normal browsing',()=>{
- assert.match(server,/equipmentBrowseRows/);
- assert.match(server,/snapshot\.equipmentListings/);
- assert.match(server,/view\.equipmentItems/);
- assert.match(server,/listingCount/);
- assert.match(server,/bestListing/);
+test('V2 MARKET UI 02: equipment orders use generic placeOnlineMarketOrder',()=>{
+ assert.match(server,/placeOnlineMarketOrder\(lease/);
+ assert.match(server,/assetItemId:equipmentSell/);
+ assert.doesNotMatch(server,/buyOnlineEquipmentListing|listOnlineEquipment|cancelOnlineEquipmentListing/);
 });
 
-test('V2 MARKET UI 03: equipment fixed-price detail shows instant buy and sell fee preview',()=>{
- assert.match(server,/즉시 구매/);
- assert.match(server,/판매 등록/);
- assert.match(server,/등록 수수료/);
- assert.match(server,/판매 수수료 5%/);
- assert.match(server,/예상 정산/);
- assert.doesNotMatch(server,/입찰하기|placeBid|bidAmount/);
+test('V2 MARKET UI 03: one exact equipment instance is selected for a SELL order',()=>{
+ assert.match(server,/equipmentSell/);
+ assert.match(server,/item\.equipmentIds\?\.\[0\]/);
+ assert.match(server,/equipmentSell\?1:q/);
 });
 
-test('V2 MARKET UI 04: starter and equipped equipment are excluded from sellable availability',()=>{
- assert.match(server,/V2_STARTER_EQUIPMENT_ID/);
- assert.match(server,/Object\.values\(view\.equipped\)/);
- assert.match(server,/sellItemId/);
+test('V2 MARKET UI 04: online order and storage gear types support V2 equipment',()=>{
+ assert.match(online,/OnlineMarketGear/);
+ assert.match(online,/gear:OnlineMarketGear\|null/);
+ assert.match(online,/assetItemId\?:string/);
 });
 
-test('V2 MARKET UI 05: online market client exposes list buy cancel and V2 state models',()=>{
- for(const name of ['listOnlineEquipment','buyOnlineEquipmentListing','cancelOnlineEquipmentListing'])assert.match(online,new RegExp(name));
- assert.match(online,/equipmentListings/);
- assert.match(online,/equipmentTrades/);
- assert.match(online,/equipment_v2:/);
+test('V2 MARKET UI 05: equipment no longer depends on fixed-price equipment listing state',()=>{
+ assert.doesNotMatch(server,/equipmentListings|equipmentTrades|bestListing|listingCount|equipmentMarketKey/);
 });
