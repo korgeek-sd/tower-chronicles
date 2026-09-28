@@ -1,4 +1,4 @@
-import type {GameState,Item,MarketOrder,MarketStorageEntry,MarketTrade,Tower} from '../game/types';
+import type {EquipmentGrade,EquipmentItem,EquipmentKind,GameState,Item,MarketOrder,MarketStorageEntry,MarketTrade,Tower} from '../game/types';
 import {towerIds} from '../game/data/config';
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
@@ -7,7 +7,8 @@ import {getClientInstanceId,platformLabel,type GameplayLease} from './gameSessio
 import {setWebsocketPresence} from './monitoring';
 
 export interface OnlineMarketWallet {silver:number;gold:number;revision:number}
-export interface OnlineMarketAsset {itemId:string;quantity:number;gear:Item|null}
+export type OnlineMarketGear=Item|EquipmentItem;
+export interface OnlineMarketAsset {itemId:string;quantity:number;gear:OnlineMarketGear|null}
 export interface OnlineMarketOrder {
  orderId:string;itemId:string;side:'BUY'|'SELL';limitPrice:number;originalQuantity:number;remainingQuantity:number;
  status:'OPEN'|'PARTIAL'|'FILLED'|'CANCELLED';gear:Item|null;createdAt:number;mine:boolean;
@@ -19,12 +20,52 @@ export interface OnlineMarketTrade {
 export interface OnlineMarketStorage {
  storageId:string;tradeId:string;side:'BUY'|'SELL';itemId:string;quantity:number;silver:number;gear:Item|null;createdAt:number;
 }
+export interface OnlineEquipmentMarketPolicy {
+ registrationFeeBps:number;
+ minRegistrationFee:number;
+ maxRegistrationFee:number;
+ sellerFeeBps:number;
+ durationHours:number;
+}
+export interface OnlineEquipmentListing {
+ listingId:string;
+ itemId:string;
+ assetItemId:string;
+ marketKey:string;
+ kind:EquipmentKind;
+ grade:EquipmentGrade;
+ enhancement:EquipmentItem['enhancement'];
+ price:number;
+ registrationFee:number;
+ sellerFeeBps:number;
+ gear:EquipmentItem;
+ createdAt:number;
+ expiresAt:number;
+ mine:boolean;
+}
+export interface OnlineEquipmentTrade {
+ tradeId:string;
+ listingId:string;
+ marketKey:string;
+ kind:EquipmentKind;
+ grade:EquipmentGrade;
+ enhancement:EquipmentItem['enhancement'];
+ price:number;
+ sellerFeeSilver:number;
+ sellerNetSilver:number;
+ executedAt:number;
+ buyerMine:boolean;
+ sellerMine:boolean;
+}
 export interface OnlineMarketState {
  wallet:OnlineMarketWallet;
  assets:OnlineMarketAsset[];
  orders:OnlineMarketOrder[];
  trades:OnlineMarketTrade[];
  storage:OnlineMarketStorage[];
+ equipmentPolicy:OnlineEquipmentMarketPolicy;
+ equipmentListings:OnlineEquipmentListing[];
+ equipmentTrades:OnlineEquipmentTrade[];
 }
 
 const headers=(token:string)=>({
@@ -45,6 +86,16 @@ const messageFor=(raw:string)=>{
   MARKET_QUANTITY_INVALID:'거래 수량이 올바르지 않습니다.',
   GEAR_QUANTITY_INVALID:'개별 장비는 한 번에 1개만 거래할 수 있습니다.',
   GEAR_EQUIPPED:'장착 중인 장비는 거래소에 등록할 수 없습니다.',
+  EQUIPMENT_MARKET_STARTER_PROTECTED:'협회 보급 장비는 거래소에 등록할 수 없습니다.',
+  EQUIPMENT_MARKET_EQUIPPED:'장착 중인 장비는 먼저 장착 해제해 주세요.',
+  EQUIPMENT_MARKET_EXPEDITION_BLOCKED:'원정 중에는 장비 거래소를 이용할 수 없습니다.',
+  EQUIPMENT_MARKET_ITEM_NOT_FOUND:'판매할 장비를 서버에서 찾지 못했습니다.',
+  EQUIPMENT_MARKET_ITEM_INVALID:'거래할 수 없는 장비 데이터입니다.',
+  EQUIPMENT_MARKET_PRICE_INVALID:'판매 가격이 올바르지 않습니다.',
+  EQUIPMENT_MARKET_REGISTRATION_FEE_SHORTAGE:'등록 수수료를 낼 Silver가 부족합니다.',
+  EQUIPMENT_MARKET_LISTING_NOT_CANCELLABLE:'이미 판매되었거나 취소할 수 없는 등록입니다.',
+  EQUIPMENT_MARKET_LISTING_UNAVAILABLE:'이미 판매되었거나 만료된 장비입니다.',
+  EQUIPMENT_MARKET_SELF_BUY:'내가 등록한 장비는 직접 구매할 수 없습니다.',
  };
  for(const [key,value] of Object.entries(known))if(raw.includes(key))return value;
  try{const parsed=JSON.parse(raw) as {message?:string};if(parsed.message)return parsed.message;}catch{}
@@ -90,6 +141,17 @@ export const claimOnlineMarketStorage=(lease:GameplayLease,storageId:string)=>
 export const claimAllOnlineMarketStorage=(lease:GameplayLease)=>
  rpc<OnlineMarketState>('claim_all_online_market_storage',leaseArgs(lease));
 
+export const listOnlineEquipment=(lease:GameplayLease,itemId:string,listPrice:number)=>
+ rpc<OnlineMarketState>('list_online_equipment',{
+  ...leaseArgs(lease),p_item_id:itemId,p_list_price:listPrice,
+ });
+
+export const cancelOnlineEquipmentListing=(lease:GameplayLease,listingId:string)=>
+ rpc<OnlineMarketState>('cancel_online_equipment_listing',{...leaseArgs(lease),p_listing_id:listingId});
+
+export const buyOnlineEquipmentListing=(lease:GameplayLease,listingId:string)=>
+ rpc<OnlineMarketState>('buy_online_equipment_listing',{...leaseArgs(lease),p_listing_id:listingId});
+
 export function applyOnlineEconomyToGame(state:GameState,snapshot:OnlineMarketState):GameState{
  const s=structuredClone(state);
  s.silver=snapshot.wallet.silver;
@@ -98,8 +160,10 @@ export function applyOnlineEconomyToGame(state:GameState,snapshot:OnlineMarketSt
  s.skillBooks={};
  s.lootItems={};
  s.items=[];
+ s.equipmentItems=[];
  for(const asset of snapshot.assets){
-  if(asset.itemId.startsWith('gear:')){if(asset.gear)s.items.push(structuredClone(asset.gear));continue;}
+  if(asset.itemId.startsWith('gear:')){if(asset.gear)s.items.push(structuredClone(asset.gear as Item));continue;}
+  if(asset.itemId.startsWith('equipment_v2:')){if(asset.gear)s.equipmentItems.push(structuredClone(asset.gear as EquipmentItem));continue;}
   const [kind,a,b]=asset.itemId.split(':');
   if(kind==='material'&&towerIds.includes(a as Tower)){const i=Number(b)-1;if(Number.isInteger(i)&&i>=0&&i<s.materials[a as Tower].length)s.materials[a as Tower][i]=asset.quantity;continue;}
   if(kind==='ticket'&&towerIds.includes(a as Tower)){const i=Number(b)-1;if(Number.isInteger(i)&&i>=0&&i<s.tickets[a as Tower].length)s.tickets[a as Tower][i]=asset.quantity;continue;}
@@ -118,9 +182,11 @@ export function applyOnlineMarketSnapshotToGame(state:GameState,snapshot:OnlineM
  s.skillBooks={};
  s.lootItems={};
  s.items=[];
+ s.equipmentItems=[];
 
  for(const asset of snapshot.assets){
-  if(asset.itemId.startsWith('gear:')){if(asset.gear)s.items.push(structuredClone(asset.gear));continue;}
+  if(asset.itemId.startsWith('gear:')){if(asset.gear)s.items.push(structuredClone(asset.gear as Item));continue;}
+  if(asset.itemId.startsWith('equipment_v2:')){if(asset.gear)s.equipmentItems.push(structuredClone(asset.gear as EquipmentItem));continue;}
   const [kind,a,b]=asset.itemId.split(':');
   if(kind==='material'&&towerIds.includes(a as Tower)){const i=Number(b)-1;if(Number.isInteger(i)&&i>=0&&i<s.materials[a as Tower].length)s.materials[a as Tower][i]=asset.quantity;continue;}
   if(kind==='ticket'&&towerIds.includes(a as Tower)){const i=Number(b)-1;if(Number.isInteger(i)&&i>=0&&i<s.tickets[a as Tower].length)s.tickets[a as Tower][i]=asset.quantity;continue;}
