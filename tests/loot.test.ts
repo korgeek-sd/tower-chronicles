@@ -15,11 +15,11 @@ function owned() {
   s.skillBooks={heavy:3};s.lootItems={relic:2};s.tickets.ore[1]=4;
   return s;
 }
-function rewarded() {const s=enter(owned(),'ore',1);reward(s,()=>0);return s;}
+function rewarded() {const s=enter(owned(),'ore',1);reward(s,()=>0,()=>.99,()=>0);return s;}
 function repository(){const mem=new Map<string,string>();const repo=createRepository({getItem:k=>mem.get(k)??null,setItem:(k,v)=>{mem.set(k,v);}});return {repo,mem};}
 test('요청 01: 처치 후 영구 재료는 변하지 않는다',()=>{const s=rewarded();assert.equal(s.materials.ore[0],100);assert.equal(s.materials.gem[2],17);});
 test('요청 02: 처치 후 Silver는 변하지 않는다',()=>{assert.equal(rewarded().silver,10000);});
-test('요청 03: 현재 전투 보상은 Silver·재료·티켓만 expedition.loot에 기록된다',()=>{const s=rewarded(),loot=s.expedition!.loot;assert.equal(loot.silver,13);assert.equal(loot.materials.ore[0],2);assert.equal(loot.tickets.ore[1],1);assert.deepEqual(loot.skillBooks,{});assert.deepEqual(loot.items,{});});
+test('요청 03: 현재 전투 보상은 Silver·재료·티켓·강화석을 expedition.loot에 임시 기록한다',()=>{const s=rewarded(),loot=s.expedition!.loot;assert.equal(loot.silver,13);assert.equal(loot.materials.ore[0],2);assert.equal(loot.tickets.ore[1],1);assert.deepEqual(loot.skillBooks,{});assert.deepEqual(loot.items,{enhancement_stone:1});});
 test('요청 04: 안전 귀환은 여러 티어/탑/종류의 임시 보상을 정확히 합산한다',()=>{const s=rewarded(),e=s.expedition!;e.loot.materials.gem[2]=7;e.loot.materials.ore[1]=48;e.loot.tickets.leather[9]=2;e.loot.skillBooks.heavy=2;e.loot.items.relic=5;const n=leave(s);assert.equal(n.silver,10013);assert.equal(n.materials.ore[0],102);assert.equal(n.materials.ore[1],48);assert.equal(n.materials.gem[2],24);assert.equal(n.tickets.ore[0],19);assert.equal(n.tickets.ore[1],5);assert.equal(n.tickets.leather[9],2);assert.equal(n.skillBooks.heavy,5);assert.equal(n.lootItems.relic,7);assert.equal(n.progress.leather,10);});
 test('요청 05: 귀환 후 활성 원정과 정산 가능한 loot가 제거된다',()=>{const n=leave(rewarded());assert.equal(n.expedition,null);assert.equal(n.lastExpedition!.outcome,'returned');assert.equal(n.lastExpedition!.loot.silver,13);const again=enter(n,'ore',1);assert.deepEqual(again.expedition!.loot,emptyLoot());assert.equal(again.lastExpedition,null);});
 test('요청 06: 사망하면 이번 원정 전리품은 지급되지 않고 삭제된다',()=>{const n=leave(rewarded(),true);assert.equal(n.expedition,null);assert.equal(n.silver,10000);assert.equal(n.materials.ore[0],100);assert.deepEqual(n.skillBooks,{heavy:3});assert.deepEqual(n.lootItems,{relic:2});assert.equal(n.lastExpedition!.outcome,'dead');});
