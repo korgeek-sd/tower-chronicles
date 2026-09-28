@@ -36,7 +36,12 @@ function modernEquipmentFacts(item:EquipmentItem){
  if(value.attack)facts.push(`공격 +${factNumber(value.attack)}`);
  if(value.defense)facts.push(`방어 +${factNumber(value.defense)}`);
  if(value.hp)facts.push(`최대HP +${factNumber(value.hp)}`);
- if(value.critChance)facts.push(`치명타 ${Math.round(value.critChance*100)}%`);
+ if('weaponFamily' in definition&&definition.weaponFamily){
+  const weapon=WEAPONS[definition.weaponFamily];
+  facts.push(`치명타 ${Math.round((value.critChance??weapon.critChance)*100)}%`);
+  facts.push(`기본 공격 ${weapon.basicHitMultipliers.map(mult=>Math.round(mult*100)+'%').join(' + ')}`);
+  facts.push(`공격 스킬 위력 ${Math.round(weapon.skillPower*100)}%`);
+ }else if(value.critChance)facts.push(`치명타 ${Math.round(value.critChance*100)}%`);
  return facts;
 }
 export function inventoryView(s:GameState):InventoryViewItem[]{
