@@ -12,6 +12,7 @@ import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
+import {shopGoldAssetFor} from '../../ui/assets';
 
 export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
@@ -110,8 +111,8 @@ export function ShopScreen({game}:{game:GameState}){
     <p>게임플레이 상품은 판매하지 않습니다.</p>
    </header>
    <div className="tc-shop-grid" aria-label="Gold 충전 상품">
-    {GOLD_SHOP_PACKAGES.map((item,index)=><button type="button" className="tc-shop-card tc-feel-press" data-game-feel="press" key={item.sku} onClick={()=>setSelectedSku(item.sku)}>
-     <span className="tc-shop-mark" aria-hidden="true"><i/><i/><i data-tier={Math.min(3,Math.floor(index/2)+1)}/></span>
+    {GOLD_SHOP_PACKAGES.map(item=><button type="button" className="tc-shop-card tc-feel-press" data-game-feel="press" key={item.sku} onClick={()=>setSelectedSku(item.sku)}>
+     <img className="tc-shop-art" src={shopGoldAssetFor(item.gold)} alt="" aria-hidden="true"/>
      <span className="tc-shop-amount"><b>{item.gold.toLocaleString()}</b><small>GOLD</small></span>
      <strong>{formatKrw(item.priceKrw)}</strong>
     </button>)}
@@ -119,7 +120,7 @@ export function ShopScreen({game}:{game:GameState}){
    <footer className="tc-shop-foot"><span>유료 Gold 충전 전용</span><small>Google Play 결제 연동 후 구매가 활성화됩니다.</small></footer>
    {selected&&<div className="tc-modalback tc-shop-confirm" role="presentation" onClick={()=>setSelectedSku(null)}>
     <section className="tc-modal" role="dialog" aria-modal="true" aria-label="Gold 구매 확인" onClick={e=>e.stopPropagation()}>
-     <div className="tc-shop-confirm-head"><span className="tc-shop-mark" aria-hidden="true"><i/><i/><i/></span><div><small>GOLD REQUISITION</small><h2>{selected.gold.toLocaleString()} Gold</h2></div></div>
+     <div className="tc-shop-confirm-head"><img className="tc-shop-art" src={shopGoldAssetFor(selected.gold)} alt="" aria-hidden="true"/><div><small>GOLD REQUISITION</small><h2>{selected.gold.toLocaleString()} Gold</h2></div></div>
      <div className="tc-shop-confirm-price"><span>결제 금액</span><b>{formatKrw(selected.priceKrw)}</b></div>
      <p>앱에서 Google Play 결제가 연결되면 결제 승인 후 서버 검증을 거쳐 Gold가 지급됩니다. 현재 웹 빌드에서는 Gold가 지급되지 않습니다.</p>
      <div className="tc-modal-actions">
