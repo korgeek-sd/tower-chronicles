@@ -38,10 +38,9 @@ import {EnhancementScreen} from './components/enhancement/EnhancementScreen';
 import {WorkshopScreen} from './components/workshop/WorkshopScreen';
 import {
   HomeScreen,TowersScreen,FloorScreen,EquipmentScreen,SkillsScreen,MasteryScreen,
-  CosmeticsScreen,ShopScreen,PremiumScreen,ExpeditionCompleteScreen,type AppPage
+  CosmeticsScreen,ShopScreen,ExpeditionCompleteScreen,type AppPage
 } from './components/mobile/CoreScreens';
 import {Glyph} from './ui/mobile';
-import {isGoldenRecorderActive,remainingGoldenTime} from './game/premium/goldenRecorder';
 import './mobile-game.css';
 import './gameFeel/game-feel.css';
 import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
@@ -230,7 +229,7 @@ function App(){
  useEffect(()=>{const p=game.expedition?.events.pendingEvent;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!p||p.state!=='CHOICE'||p.eventId!=='resource_stronghold'||typeof p.expiresAt!=='number'||now<p.expiresAt){if(!p||p.instanceId!==eventTimeoutHandled.current)eventTimeoutHandled.current='';return;}if(eventTimeoutHandled.current===p.instanceId)return;eventTimeoutHandled.current=p.instanceId;void commitOnlineEventChoice(p.instanceId,'skip');},[now,game.expedition?.events.pendingEvent?.instanceId,game.expedition?.events.pendingEvent?.state,onlineSession?.userId]);
  useEffect(()=>{if(!gameplayWritable||game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;if(onlineSession&&gameSessionPhaseRef.current==='active')return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[gameplayWritable,game.expedition?.phase,game.expedition?.pendingRevival,onlineSession?.userId]);
 
- const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,goldenActive=isGoldenRecorderActive(game,now),immersive=page==='battle'&&!!exp,visibleNotice=game.notice.startsWith('안전 귀환 ·')?'':game.notice;
+ const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,immersive=page==='battle'&&!!exp,visibleNotice=game.notice.startsWith('안전 귀환 ·')?'':game.notice;
  function move(p:AppPage){if(exp?.pendingRevival)return;if(p==='jobs')setJobsEntryTab('register');setPage(p==='towers'&&exp?'battle':p);}
  function openJobs(tab:JobTab){if(exp?.pendingRevival)return;setJobsEntryTab(tab);setPage('jobs');}
  function acceptImportedSave(next:GameState){if(onlineSession&&gameSessionPhaseRef.current!=='active')return;blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('복구');setPage(next.expedition||next.lastExpedition?'battle':'home');}
@@ -354,14 +353,13 @@ function App(){
   {!immersive&&<><header className="tc-topbar">
    <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
    <div className="tc-wallet"><span className="tc-coin"><i/><b>{game.silver.toLocaleString()}</b><small>Silver</small></span><span className="tc-coin gold"><i/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></span></div>
-   <button className="tc-premium" onClick={()=>move('premium')}><b>황금기록자</b><small>{goldenActive?remainingGoldenTime(game.goldenRecorder.expiresAt,now):'미등록'}</small></button>
   </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
   <main className="tc-main">
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
    {page==='home'&&<HomeScreen game={game} onMove={move} onOpenJobs={openJobs}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
-   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} now={now} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;{const candidate=reconcileOnlineCombatState(stateRef.current,combat);stateRef.current=candidate;setGame(candidate);setStorageError('');setPage('battle');}}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
+   {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;{const candidate=reconcileOnlineCombatState(stateRef.current,combat);stateRef.current=candidate;setGame(candidate);setStorageError('');setPage('battle');}}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
    {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&strongholdPanelOpen&&<ResourceStrongholdPanel
     state={strongholdPvp} now={now} busy={strongholdPvpBusy} error={strongholdPvpError}
     onRefresh={()=>void refreshStrongholdPvp()} onRequest={()=>void requestStrongholdPvpNow()}
@@ -397,11 +395,11 @@ function App(){
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
    {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} 
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
-   {page==='shop'&&<ShopScreen game={game} now={now} onPremium={()=>setPage('premium')}/>}
-   {page==='premium'&&<PremiumScreen game={game} setGame={setGame} now={now}/>}
+   {page==='shop'&&<ShopScreen game={game}/>}
+
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='shop'&&page==='premium')||(p==='home'&&['settings','jobs','bestiary','cosmetics','seal','towers','floor','equipment','skills','craft','mastery','enhancement'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','seal','towers','floor','equipment','skills','craft','mastery','enhancement'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }
