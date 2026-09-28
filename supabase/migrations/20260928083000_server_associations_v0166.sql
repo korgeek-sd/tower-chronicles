@@ -115,7 +115,7 @@ revoke all on function private.server_association_revenue_rate(uuid) from public
 
 create or replace function private.server_association_projection(p_user uuid)
 returns jsonb
-language plpgsql stable security definer set search_path=''
+language plpgsql volatile security definer set search_path=''
 as $$
 declare
   v_member private.online_association_members%rowtype;
@@ -190,7 +190,7 @@ revoke all on function private.server_association_projection(uuid) from public,a
 
 create or replace function private.server_association_payload(p_user uuid,p_payload jsonb)
 returns jsonb
-language plpgsql stable security definer set search_path=''
+language plpgsql volatile security definer set search_path=''
 as $$
 declare
   p jsonb:=p_payload;
@@ -273,7 +273,7 @@ revoke all on function private.association_occupation_locked(uuid) from public,a
 
 create or replace function private.online_association_state_json(p_user uuid)
 returns jsonb
-language plpgsql stable security definer set search_path=''
+language plpgsql volatile security definer set search_path=''
 as $$
 declare
   v_member private.online_association_members%rowtype;
@@ -395,7 +395,7 @@ revoke all on function private.online_association_state_json(uuid) from public,a
 
 create or replace function private.online_association_result(p_user uuid)
 returns jsonb
-language sql stable security definer set search_path=''
+language sql volatile security definer set search_path=''
 as $$
   select jsonb_build_object(
     'state',private.online_association_state_json(p_user),
