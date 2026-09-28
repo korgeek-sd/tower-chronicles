@@ -14,7 +14,7 @@ function sequence(...values:number[]){
 test('IRON EQUIPMENT REWARD 01: 1F miner can drop weighted starter-pool equipment into temporary loot',()=>{
   const s=enter(initialState(),'ore',1);
   s.expedition!.monster.definitionId='goblin_miner';
-  reward(s,sequence(.99,.01,.10,.10));
+  reward(s,()=>.99,sequence(.01,.10,.10));
   const drops=s.expedition!.loot.equipment??[];
   assert.equal(drops.length,1);
   assert.equal(drops[0].kind,'association_supply_iron_sword');
@@ -26,13 +26,13 @@ test('IRON EQUIPMENT REWARD 01: 1F miner can drop weighted starter-pool equipmen
 test('IRON EQUIPMENT REWARD 02: failed floor equipment roll creates no equipment',()=>{
   const s=enter(initialState(),'ore',1);
   s.expedition!.monster.definitionId='goblin_miner';
-  reward(s,sequence(.99,.50));
+  reward(s,()=>.99,sequence(.50));
   assert.deepEqual(s.expedition!.loot.equipment,[]);
 });
 
 test('IRON EQUIPMENT REWARD 03: non-Iron towers do not use the Iron equipment table',()=>{
   const s=enter(initialState(),'leather',1);
-  reward(s,sequence(.99,0,0,0));
+  reward(s,()=>.99,sequence(0,0,0));
   assert.deepEqual(s.expedition!.loot.equipment,[]);
 });
 
@@ -40,7 +40,7 @@ test('IRON EQUIPMENT REWARD 04: 4F bat weighting can select the longbow and rare
   const base=initialState();base.tickets.ore[3]=1;
   const s=enter(base,'ore',4);
   s.expedition!.monster.definitionId='mine_bat';
-  reward(s,sequence(.99,.01,.08,.95));
+  reward(s,()=>.99,sequence(.01,.08,.95));
   const [drop]=s.expedition!.loot.equipment??[];
   assert.equal(drop.kind,'outer_guard_longbow');
   assert.equal(drop.grade,'rare');
@@ -72,7 +72,7 @@ test('IRON EQUIPMENT REWARD 07: Iron boss uses boss equipment chance and all-nin
   let s=enter(base,'ore',6);
   const boss=bossIdFor('ore',6)!;
   s=beginEncounter(s,()=>.5,boss);
-  reward(s,sequence(.99,.01,.99,.99));
+  reward(s,()=>.99,sequence(.01,.99,.99));
   const [drop]=s.expedition!.loot.equipment??[];
   assert.ok(drop);
   assert.equal(drop.grade,'heroic');
