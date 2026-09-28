@@ -33,6 +33,7 @@ test('STONE DROP 04: combat reward stores stones only in expedition temporary lo
   tower:'ore',floor:1,kills:0,
   loot:{silver:0,materials:{ore:[0,0,0,0,0],leather:[0,0,0,0,0],gem:[0,0,0,0,0],kaleon:[0,0,0,0,0]},tickets:{ore:Array(10).fill(0),leather:Array(10).fill(0),gem:Array(10).fill(0),kaleon:Array(10).fill(0)},skillBooks:{},items:{},equipment:[]},
   events:{activeBossId:null},
+  equipment:{...s.equipped},
   monster:{definitionId:'goblin_miner'},
  } as any;
  reward(s,()=>.99,()=>.99,sequence(.01,0));
