@@ -2,18 +2,22 @@ import React,{useCallback,useMemo,useState} from 'react';
 import type {GameState,Slot} from '../../game/types';
 import {inventoryView,selectInventory,categories,categoryNames,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
 import {equip,equipmentStatComparison,stats,unequip} from '../../game/engine/state';
+import {dismantleEquipment,equipmentDismantleYield} from '../../game/engine/equipmentDismantle';
+import {V2_STARTER_EQUIPMENT_ID} from '../../game/data/equipment';
 import {useSkillBook} from '../../game/engine/skills';
 import {registerAppearance} from '../../game/engine/cosmetics';
 import {SKILLS,SLOTS} from '../../game/data/config';
 import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
 import {Glyph,Pager,Screen} from '../../ui/mobile';
 import {InventoryDetailSheet} from './InventoryDetailSheet';
+import type {GameplayLease} from '../../online/gameSession';
+import {applyServerEconomyRecord,dismantleOnlineEquipment} from '../../online/economy';
 
 const PAGE_SIZE=8;
 const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',helmet:'armor',armor:'armor',gloves:'armor',boots:'boots',necklace:'accessory',ring:'accessory'};
 
-export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
- const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false);
+export function InventoryScreen({game,setGame,onlineLease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null}){
+ const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const close=useCallback(()=>setSelected(null),[]);
  const items=inventoryView(game),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
  const categorySet=useMemo(()=>categories,[ ]),st=stats(game),graphic=playerGraphicFor(game.cosmetics.selectedAppearanceId),characterSrc=graphic.image.idle?assetUrl(graphic.image.idle):undefined;
@@ -21,6 +25,23 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
  if(item?.category==='equipment'){action=()=>setGame(s=>item.equipped?unequip(s,item.sourceId):equip(s,item.sourceId));label=game.expedition?'원정 중 변경 불가':item.equipped?'장착 해제':'장착';disabled=!!game.expedition;}
  if(item?.category==='skillbooks'){action=()=>setGame(s=>useSkillBook(s,item.sourceId));label=item.learned?'습득 완료':game.expedition?'원정 중 사용 불가':'사용하여 학습';disabled=!!item.learned||!!game.expedition||!SKILLS.some(s=>s.id===item.sourceId);}
  if(item?.category==='cosmetics'){action=()=>setGame(s=>registerAppearance(s,item.sourceId));label=item.registered?'등록 완료':'외형 등록';disabled=!!item.registered;}
+ const selectedEquipment=item?.category==='equipment'&&item.modern?(game.equipmentItems??[]).find(value=>value.id===item.sourceId):undefined;
+ const dismantleYield=selectedEquipment?equipmentDismantleYield(selectedEquipment):0;
+ const starterProtected=item?.sourceId===V2_STARTER_EQUIPMENT_ID;
+ const dismantleDisabled=busy||!!game.expedition||!!item?.equipped||starterProtected;
+ const dismantleLabel=starterProtected?'보급 장비 분해 불가':`분해 · 강화석 +${dismantleYield}`;
+ const dismantleSelected=async()=>{
+  if(!item||item.category!=='equipment'||!item.modern||!selectedEquipment)return;
+  if(!onlineLease){setGame(s=>dismantleEquipment(s,item.sourceId));setSelected(null);return;}
+  setBusy(true);
+  try{
+   const result=await dismantleOnlineEquipment(onlineLease,item.sourceId);
+   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:`${item.name} 분해 완료 · 강화석 ${result.stones}개 획득`}));
+   setSelected(null);
+  }catch(error){
+   setGame(s=>({...s,notice:error instanceof Error?error.message:'장비 분해에 실패했습니다.'}));
+  }finally{setBusy(false);}
+ };
  const tierVisible=['all','equipment','materials','tickets'].includes(category);
  const statusLabel=category==='equipment'?'장착 중':category==='skillbooks'?'미습득':category==='cosmetics'?'미등록':'';
  function equippedView(slot:Slot){const id=game.equipped[slot];return id?items.find(i=>i.category==='equipment'&&i.sourceId===id):undefined;}
@@ -44,6 +65,6 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet item={item} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }
