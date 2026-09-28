@@ -12,7 +12,6 @@ const ICON_PATHS:Record<string,string>={
  registration:'M5 3h10l4 4v5M15 3v5h4M5 3v18h7M8 8h3M8 12h5m4 2v8m-4-4h8',
  bestiary:'M12 5C9 3 6 3 3 4v16c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Zm0 0v16M6 8h3m-3 4h3m6-4h3m-3 4h3',
  skills:'m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Zm0 6v8m-4-4h8',
- premium:'m12 2 9 10-9 10L3 12Zm0 5 4 5-4 5-4-5Z',
  shop:'M6 8h12l-1 13H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2M9 12h6',
  sword:'m14 3 7-1-1 7-10 10-5-5ZM7 12l5 5M8 17l-5 5m-1-4 4 4M11 12l7-7',
  dagger:'m15 3 6-1-2 7-9 8-4-4ZM5 12l7 7M7 16l-5 6m0-4 4 4',
