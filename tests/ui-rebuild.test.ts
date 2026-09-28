@@ -14,7 +14,7 @@ test('UI REBUILD 01: runtime shell imports only the new mobile stylesheet',()=>{
 
 test('UI REBUILD 02: approved UI images are routed through the central asset registry',()=>{
  const registry=read('src/ui/assets.ts'),main=read('src/main.tsx'),core=read('src/components/mobile/CoreScreens.tsx');
- assert.match(registry,/navigation-relic/);assert.match(registry,/shop\\/gold\\/gold_stack_/);
+ assert.match(registry,/navigation-relic/);assert.equal(registry.includes('shop/gold/gold_stack_'),true);
  assert.match(main,/navigationAssetFor/);assert.match(core,/shopGoldAssetFor/);
  assert.equal(main.includes('assets/ui/navigation-relic/'),false);assert.equal(core.includes('assets/shop/gold/'),false);
  const css=read('src/mobile-game.css');assert.equal(css.includes('url('),false,'mobile CSS must not load decorative backgrounds directly');
