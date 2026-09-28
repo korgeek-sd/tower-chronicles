@@ -51,7 +51,7 @@ test('V2 CUTOVER 03: v22 migration wipes legacy equipment but preserves progress
  assert.equal(next.market.gold,987);
  assert.equal(next.progress.ore,7);
  assert.deepEqual(next.items,[]);
- assert.deepEqual(next.equipmentItems,[createV2StarterEquipment()]);
+ assert.deepEqual(next.equipmentItems,[createV2StarterEquipment(),{id:'existing-v2',kind:'expedition_merit_ring',grade:'rare',enhancement:2}]);
  assert.equal(next.equipped.weapon,V2_STARTER_EQUIPMENT_ID);
  assert.equal(next.market.orders.length,0);
  assert.equal(next.market.storage?.length,0);
