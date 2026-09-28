@@ -2411,3 +2411,23 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-seal-altar-copy{padding-block:3px}.tc-seal-altar-copy span{display:none}
  .tc-seal-status>header{padding:4px}.tc-seal-effects>div{min-height:18px}.tc-seal-next{padding:3px}
 }
+
+
+/* ===== V2 fixed-price equipment market ===== */
+.tc-equipment-market{min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:5px;overflow:hidden}
+.tc-equipment-market-policy{min-height:34px;border:1px solid #343b37;background:#0c100f;padding:5px 7px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tc-equipment-market-policy b{font:700 8px Georgia,"Noto Serif KR",serif;color:#ddd9cb}.tc-equipment-market-policy span{font-size:6px;color:#8e968f;text-align:right}
+.tc-equipment-market-filters{display:grid;grid-template-columns:1.45fr 1fr 1fr;gap:4px}
+.tc-equipment-market-filters select{min-width:0;height:28px;border:1px solid #414943;background:#101514;color:#cdd0c8;font-size:6.5px;padding:0 5px}
+.tc-equipment-market-list{min-height:0;overflow:auto;display:grid;grid-auto-rows:minmax(50px,auto);gap:4px}
+.tc-equipment-market-row{min-width:0;border:1px solid #3a423d;background:linear-gradient(180deg,#171d1b,#0d1110);display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:5px}
+.tc-equipment-market-row .name,.tc-equipment-market-row .price{min-width:0}.tc-equipment-market-row .name b,.tc-equipment-market-row .name small,.tc-equipment-market-row .price b,.tc-equipment-market-row .price small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-equipment-market-row .name b{font-size:7.5px;color:#d7d8d2}.tc-equipment-market-row .name small,.tc-equipment-market-row .price small{font-size:5.5px;color:#858d87}.tc-equipment-market-row .price{text-align:right}.tc-equipment-market-row .price b{font:700 7px ui-monospace,Consolas,monospace;color:#d6c99c}
+.tc-equipment-market-row>button{height:28px;border:1px solid #6c6a55;background:#28251a;color:#ddd0a2;font-size:6px;padding:0 7px}.tc-equipment-market-row>button:disabled{opacity:.45}
+.tc-equipment-sell-grid{min-height:0;display:grid;grid-template-columns:1.2fr .9fr;gap:5px;overflow:hidden}
+.tc-equipment-owned{min-height:0;overflow:auto;display:grid;grid-auto-rows:43px;gap:4px}
+.tc-equipment-owned>button{border:1px solid #3b433e;background:#101513;color:#cbcfc8;display:grid;grid-template-columns:30px minmax(0,1fr);gap:5px;align-items:center;text-align:left;padding:4px}.tc-equipment-owned>button.active{border-color:#8b7a51;background:#1c1a12}.tc-equipment-owned>button:disabled{opacity:.45}
+.tc-equipment-owned>button span{min-width:0}.tc-equipment-owned>button b,.tc-equipment-owned>button small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-equipment-owned>button b{font-size:6.5px}.tc-equipment-owned>button small{font-size:5.5px;color:#828a84}
+.tc-equipment-sell-ticket{min-height:0;border:1px solid #3b433e;background:#0c100f;padding:6px;display:flex;flex-direction:column;gap:5px;overflow:auto}.tc-equipment-sell-ticket h3{margin:0;font:700 8px Georgia,"Noto Serif KR",serif}.tc-equipment-sell-ticket label{display:grid;grid-template-columns:1fr auto;gap:3px;align-items:end}.tc-equipment-sell-ticket label small{grid-column:1/-1;font-size:5.5px;color:#8d958e}.tc-equipment-sell-ticket label input{min-width:0;height:28px;border:1px solid #454d47;background:#121715;color:#e0dfd8;padding:0 5px;font:700 8px ui-monospace}.tc-equipment-sell-ticket label span{font-size:7px;color:#a7ada7}
+.tc-equipment-sell-ticket>div{display:flex;justify-content:space-between;gap:6px;font-size:6px;color:#979f98}.tc-equipment-sell-ticket>div b{color:#d7d4c6}.tc-equipment-sell-ticket>small{font-size:5.5px;line-height:1.35;color:#7d857f}.tc-equipment-sell-ticket>em{font-style:normal;font-size:6px;color:#c7958d}.tc-equipment-sell-ticket>button{margin-top:auto;min-height:32px;border:1px solid #756b4e;background:#272315;color:#dfd09e;font-size:7px}.tc-equipment-sell-ticket>button:disabled{opacity:.45}
+@media(max-width:380px){.tc-equipment-market-row{grid-template-columns:30px minmax(0,1fr) auto}.tc-equipment-market-row .price{grid-column:2}.tc-equipment-market-row>button{grid-column:3;grid-row:1/3}.tc-equipment-sell-grid{grid-template-columns:1fr 1fr}.tc-equipment-market-filters{grid-template-columns:1.35fr 1fr .9fr}}
