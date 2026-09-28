@@ -11,7 +11,7 @@ import {
 import {enhancementQuote} from '../src/game/engine/enhancement.ts';
 
 test('RELEASE 0.1.43: save schema remains compatible with the enhancement release',()=>{
-  assert.equal(initialState().version,22);
+  assert.equal(initialState().version,23);
 });
 
 test('RELEASE 0.1.43: enhancement probability contract is exact',()=>{
