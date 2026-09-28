@@ -9,7 +9,7 @@ import {BESTIARY_BACKUP_KEY,SAVE_KEY,createRepository,migrateV21,validSave} from
 
 test('BESTIARY PROGRESS 01: new v22 saves start empty',()=>{
  const s=initialState();
- assert.equal(s.version,22);
+ assert.equal(s.version,23);
  assert.deepEqual(s.bestiary,{entries:{}});
  assert.ok(validSave(s));
 });
@@ -62,7 +62,7 @@ test('BESTIARY PROGRESS 07: v21 migration creates empty progress and preserves t
  delete live.bestiary;
  const id=live.expedition.monster.definitionId;
  const migrated=migrateV21(live);
- assert.equal(migrated.version,22);
+ assert.equal(migrated.version,23);
  assert.deepEqual(migrated.bestiary.entries[id],{encounters:1,defeats:0});
  assert.ok(validSave(migrated));
 });
@@ -74,7 +74,7 @@ test('BESTIARY PROGRESS 08: repository backs up a v21 save once before migrating
  const raw=JSON.stringify(legacy),map=new Map<string,string>([[SAVE_KEY,raw]]);
  const repo=createRepository({getItem:key=>map.get(key)??null,setItem:(key,value)=>void map.set(key,value)});
  const loaded=repo.load();
- assert.equal(loaded.version,22);
+ assert.equal(loaded.version,23);
  assert.deepEqual(loaded.bestiary,{entries:{}});
  assert.equal(map.get(BESTIARY_BACKUP_KEY),raw);
  const backup=map.get(BESTIARY_BACKUP_KEY);
