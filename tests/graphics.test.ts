@@ -17,7 +17,7 @@ test('그래픽 06: 실제 공격 적중 HP 차이로 hit 이벤트 발생',()=>
 test('그래픽 07: hit 이미지 없음은 idle 유지',()=>{assert.equal(imageState(true,true,false),'idle');assert.equal(imageState(false,true,true),'idle');});
 test('그래픽 08: 피해량 UI 조회는 계산과 저장 상태를 변경하지 않음',()=>{const a=start(),b=basicAttack(a,()=>.99),before=JSON.stringify(b);damageBetween(a.expedition!,b.expedition!);monsterHud(b.expedition!.monster);assert.equal(JSON.stringify(b),before);});
 test('그래픽 09: 귀환 예약은 적의 마지막 행동 뒤 정산',()=>{const s=requestReturn(start());assert.ok(s.expedition);s.expedition!.monster.attack=1;const n=resolveMonsterTurn(s);assert.equal(n.lastExpedition?.outcome,'returned');});
-test('그래픽 10: 처치 시 장비 숙련 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;assert.equal(basicAttack(s,()=>.99).gearMastery.sword.progress,10);});
+test('그래픽 10: V2 장비 처치는 폐기된 티어 장비 숙련을 증가시키지 않는다',()=>{const s=start();s.expedition!.monster.currentHp=1;assert.equal(basicAttack(s,()=>.99).gearMastery.sword.progress,0);});
 test('그래픽 11: 처치 전리품은 기존 임시 보관함에 유지',()=>{const s=start();s.expedition!.monster.currentHp=1;const n=basicAttack(s,()=>.99);assert.equal(n.silver,0);assert.ok(n.expedition!.loot.silver>0);});
 test('그래픽 12: 현재 v21 저장은 그래픽 런타임 UI 상태 없이 왕복',()=>{let raw='';const repo=createRepository({getItem:()=>raw||null,setItem:(_,s)=>{raw=s;}}),s=start();repo.save(s);assert.deepEqual(repo.load(),s);assert.equal(s.version,23);assert.ok(!raw.includes('imageReady'));});
 test('현재 10층 구조는 각 탑에서 단일 배경 tier를 조회한다',()=>{for(const t of ['ore','leather','gem','kaleon'] as const)for(let floor=1;floor<=10;floor++)assert.equal(backgroundFor(t,floor),`assets/backgrounds/${t}/t1.png`);});
