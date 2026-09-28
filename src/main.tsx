@@ -55,7 +55,7 @@ const gameStorage=combatFixtureName?{getItem:(key:string)=>localStorage.getItem(
 
 const nav:[AppPage,string,string][]=[
  ['home','home','거점'],['inventory','inventory','가방'],['market','market','거래소'],
- ['association','association','원정단'],['craft','craft','공방'],['equipment','equipment','장비']
+ ['association','association','원정단'],['equipment','equipment','장비']
 ];
 
 function App(){
@@ -393,7 +393,7 @@ function App(){
    {page==='premium'&&<PremiumScreen game={game} setGame={setGame} now={now}/>}
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='craft'&&(page==='mastery'||page==='enhancement'))||(p==='equipment'&&page==='skills')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','premium','seal'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='equipment'&&page==='skills')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','premium','seal'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }
