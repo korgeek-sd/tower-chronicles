@@ -307,6 +307,7 @@ begin
   end;
 
   return jsonb_build_object(
+    'userId',v_user,
     'window',v_window,
     'identity',v_identity,
     'towers',coalesce((select jsonb_agg(jsonb_build_object(
