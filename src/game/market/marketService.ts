@@ -1,10 +1,11 @@
-import type {GameState,Item,MarketOrder,MarketSide,MarketStorageEntry,MarketTrade,Tower} from '../types';
+import type {EquipmentItem,GameState,Item,MarketOrder,MarketSide,MarketStorageEntry,MarketTrade,Tower} from '../types';
 import type {InventoryCategory} from '../inventoryView';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
+import {V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../data/equipment';
 
-export interface MarketItem {id:string;name:string;available:number;gear?:Item;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string}
+export interface MarketItem {id:string;name:string;available:number;gear?:Item|EquipmentItem;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string;modernEquipment?:boolean}
 export interface OrderInput {itemId:string;side:MarketSide;limitPrice:number;quantity:number;ownerId?:string;createdAt?:number}
 const active=(o:MarketOrder)=>o.status==='OPEN'||o.status==='PARTIAL';
 const validPositive=(n:number)=>Number.isSafeInteger(n)&&n>0;
@@ -20,6 +21,15 @@ function parseStack(itemId:string):{kind:string;tower?:Tower;index?:number;id?:s
 export function marketItems(s:GameState):MarketItem[]{
  const result:MarketItem[]=[];
  s.items.forEach(gear=>result.push({id:'gear:'+gear.id,name:itemName(gear),available:Object.values(s.equipped).includes(gear.id)||s.expedition?0:1,gear,category:'equipment',description:'노바르 제작 장비입니다.'}));
+ s.equipmentItems.forEach(gear=>result.push({
+  id:'equipment_v2:'+gear.id,
+  name:equipmentItemName(gear),
+  available:gear.id===V2_STARTER_EQUIPMENT_ID||Object.values(s.equipped).includes(gear.id)||s.expedition?0:1,
+  gear,
+  modernEquipment:true,
+  category:'equipment',
+  description:gear.id===V2_STARTER_EQUIPMENT_ID?'협회 보급 장비는 거래할 수 없습니다.':'등급과 강화 단계가 고정된 V2 장비입니다.',
+ }));
  towerIds.forEach(t=>s.materials[t].forEach((q,i)=>result.push({id:`material:${t}:${i+1}`,name:`T${i+1} ${TOWERS[t].material}`,available:q,category:'materials',description:'안전 귀환으로 확보한 제작 재료입니다.'})));
  towerIds.forEach(t=>s.tickets[t].forEach((q,i)=>result.push({id:`ticket:${t}:${i+1}`,name:`${TOWERS[t].name} ${i+1}층 입장권`,available:q,category:'tickets',description:'해당 층 입장에 사용하는 입장권입니다.'})));
  Object.entries(s.skillBooks).forEach(([id,q])=>result.push({id:'skillbook:'+id,name:bookName(id),available:q,category:'skillbooks',description:'아직 사용하지 않은 스킬북입니다.'}));
@@ -27,8 +37,9 @@ export function marketItems(s:GameState):MarketItem[]{
  return result;
 }
 const escrowGear=(s:GameState,itemId:string)=>s.market.orders.find(order=>order.itemId===itemId&&order.gear)?.gear;
-function staticItemName(itemId:string,gear?:Item){
- if(gear)return itemName(gear);
+function staticItemName(itemId:string,gear?:Item|EquipmentItem){
+ if(gear)return 'grade' in gear?equipmentItemName(gear):itemName(gear);
+ if(itemId.startsWith('equipment_v2:'))return itemId.slice('equipment_v2:'.length);
  const p=parseStack(itemId);
  if(!p)return itemId;
  if(p.kind==='material')return `T${(p.index??0)+1} ${TOWERS[p.tower!].material}`;
