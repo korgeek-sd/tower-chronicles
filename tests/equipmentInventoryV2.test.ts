@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {initialState,equip,unequip,stats} from '../src/game/engine/state.ts';
+import {initialState,equip,equipmentStatComparison,unequip,stats} from '../src/game/engine/state.ts';
 import {inventoryView} from '../src/game/inventoryView.ts';
 import {createRepository} from '../src/storage/repository.ts';
 import type {EquipmentItem,EquipmentKind} from '../src/game/types.ts';
@@ -112,4 +112,47 @@ test('V2 INVENTORY 07: modern inventory and equipped references survive local sa
  assert.deepEqual(loaded.equipmentItems,s.equipmentItems);
  assert.equal(loaded.equipped.weapon,'saved-weapon');
  assert.equal(loaded.equipped.ring,'saved-ring');
+});
+
+
+test('V2 INVENTORY 08: comparison previews current to equipped stats for an unequipped item',()=>{
+ let s=initialState();
+ s.equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,necklace:null,ring:null};
+ s.equipmentItems=[item('armor-preview','return_corps_plate_armor','rare',3)];
+ const comparison=equipmentStatComparison(s,'armor-preview');
+ assert.ok(comparison);
+ assert.equal(comparison.equipped,false);
+ assert.equal(comparison.slot,'armor');
+ assert.ok(comparison.after.hp>comparison.before.hp);
+ assert.ok(comparison.after.defense>comparison.before.defense);
+ assert.equal(comparison.delta.attack,0);
+});
+
+test('V2 INVENTORY 09: comparison previews replacement against the currently equipped item in the same slot',()=>{
+ let s=initialState();
+ s.equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,necklace:null,ring:null};
+ s.equipmentItems=[
+  item('common-armor','return_corps_plate_armor','common',0),
+  item('legendary-armor','return_corps_plate_armor','legendary',10),
+ ];
+ s=equip(s,'common-armor');
+ const comparison=equipmentStatComparison(s,'legendary-armor');
+ assert.ok(comparison);
+ assert.equal(comparison.equipped,false);
+ assert.ok(comparison.delta.hp>0);
+ assert.ok(comparison.delta.defense>0);
+ assert.equal(comparison.before.attack,comparison.after.attack);
+});
+
+test('V2 INVENTORY 10: equipped item comparison previews stats after unequip',()=>{
+ let s=initialState();
+ s.equipped={weapon:null,helmet:null,armor:null,gloves:null,boots:null,necklace:null,ring:null};
+ s.equipmentItems=[item('boots-preview','survey_corps_dust_boots','heroic',5)];
+ s=equip(s,'boots-preview');
+ const comparison=equipmentStatComparison(s,'boots-preview');
+ assert.ok(comparison);
+ assert.equal(comparison.equipped,true);
+ assert.ok(comparison.delta.hp<0);
+ assert.equal(comparison.delta.attack,0);
+ assert.equal(comparison.delta.defense,0);
 });
