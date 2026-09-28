@@ -1,6 +1,8 @@
-import type {GameState,Item} from '../../game/types';
+import type {EquipmentItem,GameState,Item} from '../../game/types';
 import {TOWERS,WEAPONS} from '../../game/data/config';
 import {enhancementQuote} from '../../game/engine/enhancement';
+import {equipmentEnhancementQuote} from '../../game/engine/equipmentEnhancementV2';
+import {equipmentItemStats,V2_STARTER_EQUIPMENT_ID} from '../../game/data/equipment';
 import {accessoryPassive,equipmentContribution} from '../../game/engine/equipmentStats';
 
 export interface EnhancementPreviewRow {label:string;current:string;next:string}
@@ -45,4 +47,34 @@ export function enhancementAttemptView(game:GameState,item:Item){
     canAttempt:!reason,
     reason,
   };
+}
+
+
+export function equipmentEnhancementPreviewRows(item:EquipmentItem):EnhancementPreviewRow[]{
+ if(item.enhancement>=10)return [];
+ const next={...item,enhancement:(item.enhancement+1) as EquipmentItem['enhancement']};
+ const current=equipmentItemStats(item),target=equipmentItemStats(next),rows:EnhancementPreviewRow[]=[];
+ if((current.hp??0)!==(target.hp??0))rows.push({label:'최대 HP',current:number(current.hp??0),next:number(target.hp??0)});
+ if((current.attack??0)!==(target.attack??0))rows.push({label:'공격',current:number(current.attack??0),next:number(target.attack??0)});
+ if((current.defense??0)!==(target.defense??0))rows.push({label:'방어',current:number(current.defense??0),next:number(target.defense??0)});
+ return rows;
+}
+
+export function equipmentEnhancementAttemptView(game:GameState,item:EquipmentItem){
+ const quote=equipmentEnhancementQuote(game,item.id);
+ if(!quote)return {
+  quote:null,
+  materialName:'강화석',
+  materialOwned:Math.max(0,game.lootItems.enhancement_stone??0),
+  canAttempt:false,
+  reason:item.id===V2_STARTER_EQUIPMENT_ID?'협회 보급 장비는 강화할 수 없습니다.':
+    item.enhancement>=10?'최대 강화 단계입니다.':'강화할 수 없는 장비입니다.',
+ };
+ return {
+  quote,
+  materialName:'강화석',
+  materialOwned:quote.stonesOwned,
+  canAttempt:quote.canAttempt,
+  reason:quote.reason,
+ };
 }
