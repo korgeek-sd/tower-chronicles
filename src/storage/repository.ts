@@ -181,7 +181,9 @@ export function migrateV22(value:unknown,catalog:CosmeticsCatalog=COSMETICS_CATA
  const next:any=structuredClone(value),starter=createV2StarterEquipment(),loadout=emptyEquipmentLoadout(V2_STARTER_EQUIPMENT_ID);
  next.version=23;
  next.items=[];
- next.equipmentItems=[starter];
+ const existingV2=Array.isArray(next.equipmentItems)?next.equipmentItems.filter((item:any)=>validEquipmentItemV2(item)&&item.id!==V2_STARTER_EQUIPMENT_ID):[];
+ const seenV2=new Set<string>();
+ next.equipmentItems=[starter,...existingV2.filter((item:any)=>!seenV2.has(item.id)&&!!seenV2.add(item.id))];
  next.equipped={...loadout};
 
  let refundSilver=0;
