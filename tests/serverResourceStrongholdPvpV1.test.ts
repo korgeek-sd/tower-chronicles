@@ -51,3 +51,7 @@ test('STRONGHOLD PVP SERVER 07: both expedition runs are locked during contest a
  assert.match(sql,/v_contest\.challenger_user_id[\s\S]*jsonb_build_object\('status','DELETED'/i);
  assert.match(sql,/v_run\.tower<>p_tower or v_run\.floor<>p_floor/);
 });
+
+test('STRONGHOLD PVP SERVER 08: authenticated users may receive the private stronghold broadcast topic',()=>{
+ assert.match(sql,/create policy "authenticated can receive resource stronghold broadcasts"[\s\S]*to authenticated[\s\S]*realtime\.topic\(\)='resource_stronghold'/i);
+});
