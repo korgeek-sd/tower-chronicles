@@ -1,29 +1,21 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import type {EquipmentItem,GameState} from '../../game/types';
-import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,marketCatalog,marketItemName,orderBook,type MarketItem} from '../../game/market/marketService';
+import type {GameState} from '../../game/types';
+import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,marketCatalog,marketItemName,orderBook} from '../../game/market/marketService';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {
  applyOnlineEconomyToGame,applyOnlineMarketSnapshotToGame,cancelOnlineMarketOrder,claimAllOnlineMarketStorage,claimOnlineMarketStorage,
- buyOnlineEquipmentListing,cancelOnlineEquipmentListing,listOnlineEquipment,loadOnlineMarketState,placeOnlineMarketOrder,subscribeOnlineMarketRealtime,type OnlineEquipmentListing,type OnlineMarketState
+ loadOnlineMarketState,placeOnlineMarketOrder,subscribeOnlineMarketRealtime,type OnlineMarketState
 } from '../../online/market';
 import {demoMarketView} from './demoLiveMarket';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import type {GameFeelEvent} from '../../gameFeel/types';
-import {V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../../game/data/equipment';
 
 type Tab='market'|'orders'|'storage';
 type Side='BUY'|'SELL';
 type Category='all'|'equipment'|'materials'|'other';
 type RangeKey='1H'|'24H'|'1W'|'1M'|'ALL';
 type Trend={points:string;delta:number|null;last:number|null;low:number|null;high:number|null;count:number};
-type BrowseItem=MarketItem&{
- equipmentMarketKey?:string;
- bestListing?:OnlineEquipmentListing|null;
- listingCount?:number;
- ownedEquipmentIds?:string[];
- equipmentSample?:EquipmentItem;
-};
 const PAGE_SIZE=5;
 const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']] as const;
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['other','기타']];
@@ -56,7 +48,6 @@ const makeTrend=(values:number[],height=24):Trend=>{
 };
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
-const equipmentMarketKey=(item:EquipmentItem)=>'equipment:'+item.kind+':'+item.grade+':+'+item.enhancement;
 
 export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease}){
  const feel=useGameFeel();
@@ -130,61 +121,23 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
  const catalog=useMemo(()=>marketCatalog(view),[view]);
- const equipmentBrowseRows=useMemo<BrowseItem[]>(()=>{
-  if(!snapshot)return [];
-  const rows=new Map<string,BrowseItem>();
-  const ensure=(sample:EquipmentItem,key:string)=>{
-   const existing=rows.get(key);
-   if(existing)return existing;
-   const row:BrowseItem={
-    id:'equipment-market:'+key,
-    name:equipmentItemName(sample),
-    available:0,
-    category:'equipment',
-    description:'등급과 강화 단계가 고정된 V2 장비입니다.',
-    modernEquipment:true,
-    equipmentMarketKey:key,
-    bestListing:null,
-    listingCount:0,
-    ownedEquipmentIds:[],
-    equipmentSample:sample,
-   };
-   rows.set(key,row);
-   return row;
-  };
-  for(const listing of snapshot.equipmentListings){
-   const row=ensure(listing.gear,listing.marketKey);
-   row.listingCount=(row.listingCount??0)+1;
-   if(!row.bestListing||listing.price<row.bestListing.price||(listing.price===row.bestListing.price&&listing.createdAt<row.bestListing.createdAt))row.bestListing=listing;
-  }
-  for(const gear of view.equipmentItems){
-   if(gear.id===V2_STARTER_EQUIPMENT_ID)continue;
-   const key=equipmentMarketKey(gear),row=ensure(gear,key);
-   row.available+=Object.values(view.equipped).includes(gear.id)||view.expedition?0:1;
-   row.ownedEquipmentIds?.push(gear.id);
-  }
-  return [...rows.values()].sort((a,b)=>a.name.localeCompare(b.name,'ko')||(a.bestListing?.price??Number.MAX_SAFE_INTEGER)-(b.bestListing?.price??Number.MAX_SAFE_INTEGER));
- },[snapshot,view.equipmentItems,view.equipped,view.expedition]);
- const combinedCatalog=useMemo<BrowseItem[]>(()=>[
-  ...(catalog.filter(entry=>!entry.modernEquipment) as BrowseItem[]),
-  ...equipmentBrowseRows,
- ],[catalog,equipmentBrowseRows]);
  const normalizedQuery=query.trim().toLowerCase();
- const filtered=useMemo(()=>combinedCatalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[combinedCatalog,category,normalizedQuery]);
+ const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
  const safeMarketPage=Math.min(page,marketPages-1);
  const shown=pageSlice(filtered,safeMarketPage);
- const item=combinedCatalog.find(x=>x.id===selected)??null;
+ const item=catalog.find(x=>x.id===selected)??null;
  const side:Side=tradeSide??'BUY';
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN;
  const book=selected?orderBook(view,selected):{sells:[],buys:[]};
  const actualAsks=aggregateOrderBookByPrice(book.sells).sort((a,b)=>a.price-b.price).slice(0,4);
  const actualBids=aggregateOrderBookByPrice(book.buys).sort((a,b)=>b.price-a.price).slice(0,4);
- const selectedDemo=selected&&demoMode&&!item?.equipmentMarketKey?demoMarketView(selected,getBestAsk(view,selected)??getBestBid(view,selected),demoTick):null;
+ const selectedDemo=selected&&demoMode?demoMarketView(selected,getBestAsk(view,selected)??getBestBid(view,selected),demoTick):null;
  const asks=selectedDemo?.asks??actualAsks;
  const bids=selectedDemo?.bids??actualBids;
  const maxDepth=Math.max(1,...asks.map(x=>x.quantity),...bids.map(x=>x.quantity));
- const valid=!!snapshot&&!!item&&!item.equipmentMarketKey&&!!tradeSide&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
+ const equipmentSell=!!item?.modernEquipment&&side==='SELL';
+ const valid=!!snapshot&&!!item&&!!tradeSide&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:(equipmentSell?q===1&&item.available>=1:item.available>=q));
  const open=getMyOpenOrders(view);
  const storage=snapshot?.storage??[];
  const trades=snapshot?.trades??[];
@@ -202,54 +155,25 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
   });
   return result;
  },[trades]);
- const equipmentTrendByKey=useMemo(()=>{
-  const grouped=new Map<string,{at:number;price:number}[]>();
-  for(const trade of snapshot?.equipmentTrades??[]){
-   const rows=grouped.get(trade.marketKey)??[];
-   rows.push({at:trade.executedAt,price:trade.price});
-   grouped.set(trade.marketKey,rows);
-  }
-  const result=new Map<string,Trend>();
-  grouped.forEach((rows,key)=>{
-   const values=rows.sort((a,b)=>a.at-b.at).slice(-8).map(row=>row.price);
-   result.set(key,makeTrend(values));
-  });
-  return result;
- },[snapshot?.equipmentTrades]);
- const myEquipmentListings=(snapshot?.equipmentListings??[]).filter(listing=>listing.mine);
- const orderRows=[
-  ...open.map(order=>({kind:'order' as const,order})),
-  ...myEquipmentListings.map(listing=>({kind:'equipment' as const,listing})),
- ];
- const orderPages=Math.max(1,Math.ceil(orderRows.length/PAGE_SIZE)),safeOrderPage=Math.min(page,orderPages-1),shownOrderRows=pageSlice(orderRows,safeOrderPage);
+ const orderPages=Math.max(1,Math.ceil(open.length/PAGE_SIZE)),safeOrderPage=Math.min(page,orderPages-1),shownOrders=pageSlice(open,safeOrderPage);
  const storagePages=Math.max(1,Math.ceil(storage.length/PAGE_SIZE)),safeStoragePage=Math.min(page,storagePages-1),shownStorage=pageSlice(storage,safeStoragePage);
  const storageSilver=storage.reduce((sum,entry)=>sum+(entry.side==='SELL'?entry.silver:0),0);
  const storageItems=storage.reduce((sum,entry)=>sum+(entry.side==='BUY'?entry.quantity:0),0);
 
  const choose=(id:string)=>{
-  const chosen=combinedCatalog.find(entry=>entry.id===id);
   setSelected(id);setTradeSide(null);setRange('24H');setQty('1');setError('');
-  if(chosen?.equipmentMarketKey){
-   const trend=equipmentTrendByKey.get(chosen.equipmentMarketKey);
-   setPrice(String(chosen.bestListing?.price??trend?.last??''));
-  }else{
-   setPrice(String(getBestAsk(view,id)??getBestBid(view,id)??trendByItem.get(id)?.last??''));
-  }
+  setPrice(String(getBestAsk(view,id)??getBestBid(view,id)??trendByItem.get(id)?.last??''));
  };
 
  const openTrade=(next:Side)=>{
-  if(!selected||!item)return;
+  if(!selected)return;
   setTradeSide(next);setQty('1');setError('');
-  if(item.equipmentMarketKey){
-   setPrice(String(item.bestListing?.price??equipmentTrendByKey.get(item.equipmentMarketKey)?.last??''));
-   return;
-  }
   setPrice(String((next==='BUY'?(selectedDemo?.asks[0]?.price??getBestAsk(view,selected)):(selectedDemo?.bids[0]?.price??getBestBid(view,selected)))??trendByItem.get(selected)?.last??''));
  };
 
  const applyPercent=(percent:number)=>{
   if(!snapshot||!item||!Number.isSafeInteger(p)||p<=0)return;
-  const max=side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available;
+  const max=side==='BUY'?Math.floor(snapshot.wallet.silver/p):(item.modernEquipment?Math.min(1,item.available):item.available);
   const next=max<=0?0:percent===100?max:Math.min(max,Math.max(1,Math.floor(max*percent/100)));
   setQty(String(next));
  };
@@ -263,42 +187,10 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
  if(!snapshot)return <Screen eyebrow="SILVER SCALE / ONLINE" title="은저울 거래소" meta={<span>서버 연결</span>}><div className="tc-market-v4-loading"><div className="tc-floor-risk">{error||'서버 거래소 상태를 불러오고 있습니다.'}</div></div></Screen>;
 
- if(item?.equipmentMarketKey&&tradeSide==='SELL'){
-  const sellItemId=(item.ownedEquipmentIds??[]).find(id=>id!==V2_STARTER_EQUIPMENT_ID&&!Object.values(view.equipped).includes(id))??null;
-  const sellGear=sellItemId?view.equipmentItems.find(gear=>gear.id===sellItemId)??null:null;
-  const listPrice=/^\d+$/.test(price)?Number(price):NaN;
-  const policy=snapshot.equipmentPolicy;
-  const registrationFee=Number.isSafeInteger(listPrice)&&listPrice>0?Math.min(policy.maxRegistrationFee,Math.max(policy.minRegistrationFee,Math.ceil(listPrice*policy.registrationFeeBps/10000))):0;
-  const sellerFee=Number.isSafeInteger(listPrice)&&listPrice>0?Math.floor(listPrice*policy.sellerFeeBps/10000):0;
-  const sellerNet=Number.isSafeInteger(listPrice)&&listPrice>0?listPrice-sellerFee:0;
-  const canList=!!sellGear&&!game.expedition&&!busy&&Number.isSafeInteger(listPrice)&&listPrice>0&&snapshot.wallet.silver>=registrationFee;
-  return <Screen eyebrow="SILVER SCALE / ORDER" title="장비 판매 등록" meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
-   <div className={'tc-market-v4-trade'+(tradePulse?' tc-market-trade-pulse':'')}>
-    <section className="tc-market-v4-tradehead">
-     <span className="tc-market-v2-icon"><Glyph name="equipment"/></span>
-     <div><small>정가 판매 · 72시간</small><b>{item.name}</b><span>{sellGear?'판매할 장비 1개 선택됨':'장착 해제된 동일 장비가 없습니다.'}</span></div>
-     <strong>{snapshot.wallet.silver.toLocaleString()} S</strong>
-    </section>
-    <section className="tc-market-v4-orderform">
-     <div className="tc-market-v2-fields">
-      <label><small>판매 가격</small><input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label>
-      <label><small>수량</small><input value="1" readOnly/><span>개</span></label>
-     </div>
-     <div className="tc-market-v2-total"><span>등록 수수료</span><b>{money(registrationFee)}</b></div>
-     <div className="tc-market-v2-total"><span>판매 수수료 5%</span><b>{money(sellerFee)}</b></div>
-     <div className="tc-market-v2-total"><span>예상 정산</span><b>{money(sellerNet)}</b></div>
-     <button className="tc-market-v2-submit sell tc-feel-press" data-game-feel="press" disabled={!canList} onClick={()=>sellItemId&&void act(()=>listOnlineEquipment(lease,sellItemId,listPrice),'market.order-placed')}>{busy?'처리 중':'판매 등록'}</button>
-    </section>
-    <div className="tc-floor-risk">등록 수수료는 즉시 차감되며 취소·만료 시 반환되지 않습니다.</div>
-    {error&&<div className="tc-floor-risk">{error}</div>}
-   </div>
-  </Screen>;
- }
-
- if(item&&tradeSide&&!item.equipmentMarketKey){
+ if(item&&tradeSide){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
   const current=selectedDemo?.last??trendByItem.get(item.id)?.last??bestAsk??bestBid;
-  const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available):0;
+  const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):(item.modernEquipment?Math.min(1,item.available):item.available)):0;
   return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
    <div className={'tc-market-v4-trade'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-tradehead">
@@ -318,65 +210,18 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
     <section className="tc-market-v4-orderform">
      <div className="tc-market-v2-fields">
       <label><small>가격</small><input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label>
-      <label><small>수량</small><input inputMode="numeric" value={qty} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
+      <label><small>수량</small><input inputMode="numeric" value={equipmentSell?'1':qty} readOnly={equipmentSell} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
      </div>
      <div className="tc-market-v3-presets" aria-label="주문 수량 비율">{[10,25,50,75,100].map(percent=><button key={percent} disabled={busy||maxOrderQty<=0} onClick={()=>applyPercent(percent)}>{percent===100?'MAX':percent+'%'}</button>)}</div>
      <div className="tc-market-v2-total"><span>{side==='BUY'?'예상 예치금':'지정 판매금액'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b></div>
-     <button className={'tc-market-v2-submit tc-feel-press '+(side==='BUY'?'buy':'sell')} data-game-feel="press" disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,side,limitPrice:p,quantity:q}),'market.order-placed')}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
+     <button className={'tc-market-v2-submit tc-feel-press '+(side==='BUY'?'buy':'sell')} data-game-feel="press" disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,assetItemId:equipmentSell&&item.equipmentIds?.[0]?'equipment_v2:'+item.equipmentIds[0]:undefined,side,limitPrice:p,quantity:equipmentSell?1:q}),'market.order-placed')}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
     </section>
     {error&&<div className="tc-floor-risk">{error}</div>}
    </div>
   </Screen>;
  }
 
- if(item?.equipmentMarketKey){
-  const key=item.equipmentMarketKey;
-  const allListings=snapshot.equipmentListings.filter(listing=>listing.marketKey===key).slice().sort((a,b)=>a.price-b.price||a.createdAt-b.createdAt);
-  const buyListing=allListings.find(listing=>!listing.mine)??null;
-  const scoped=snapshot.equipmentTrades.filter(trade=>trade.marketKey===key).slice().sort((a,b)=>a.executedAt-b.executedAt);
-  const trend=equipmentTrendByKey.get(key)??makeTrend([]);
-  const current=buyListing?.price??item.bestListing?.price??trend.last;
-  const estimated=current===null?null:current*item.available;
-  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>setSelected(null)}>시장</button>}>
-   <div className={'tc-market-v2-detail tc-market-v4-detail'+(tradePulse?' tc-market-trade-pulse':'')}>
-    <section className="tc-market-v4-pricehead">
-     <div className="tc-market-v4-identity">
-      <span className="tc-market-v2-icon"><Glyph name="equipment"/></span>
-      <div><b>{item.name}</b><small>장비 · 보유 {item.available}개 · 매물 {allListings.length}개</small></div>
-     </div>
-     <div className="tc-market-v3-current"><small>최저 판매가</small><b>{money(current)}</b><span className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</span></div>
-    </section>
-    <section className="tc-market-v4-chart">
-     <div className="tc-market-v4-chartplot">
-      <svg viewBox="0 0 100 64" preserveAspectRatio="none" aria-label="최근 장비 체결 가격 추이">
-       <line x1="0" y1="60" x2="100" y2="60"/>
-       {trend.points&&<polyline className={trendClass(trend.delta)} points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/>}
-      </svg>
-      <span className="high">{money(trend.high)}</span>
-      <span className="low">{money(trend.low)}</span>
-     </div>
-     <div className="tc-market-v4-ranges"><button className="active">FIXED PRICE</button></div>
-    </section>
-    <section className="tc-market-v4-holding">
-     <span className="tc-market-v2-mini"><Glyph name="equipment"/></span>
-     <div><b>{item.name}</b><small>내 보유 {item.available}개 · 입찰 없음</small></div>
-     <div className="value"><b>{money(estimated)}</b><small>최저가 기준 평가액</small></div>
-    </section>
-    <section className="tc-market-v4-transactions">
-     <div><span>최근 체결</span><b>{scoped.length}건</b></div>
-     <div><span>최저 판매</span><b>{money(buyListing?.price??item.bestListing?.price??null)}</b></div>
-     <div><span>등록 기간</span><b>72시간</b></div>
-    </section>
-    <div className="tc-market-v4-ctas">
-     <button className="buy" disabled={!buyListing||busy||!!game.expedition||snapshot.wallet.silver<(buyListing?.price??Infinity)} onClick={()=>buyListing&&void act(()=>buyOnlineEquipmentListing(lease,buyListing.listingId),'market.order-placed')}>BUY · 즉시 구매</button>
-     <button className="sell" disabled={item.available<=0||busy||!!game.expedition} onClick={()=>openTrade('SELL')}>SELL · 판매 등록</button>
-    </div>
-    {error&&<div className="tc-floor-risk">{error}</div>}
-   </div>
-  </Screen>;
- }
-
- if(item&&!item.equipmentMarketKey){
+ if(item){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
   const displayAsk=selectedDemo?.asks[0]?.price??bestAsk;
   const displayBid=selectedDemo?.bids[0]?.price??bestBid;
@@ -444,19 +289,16 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
-      const equipment=!!entry.equipmentMarketKey;
-      const ask=equipment?entry.bestListing?.price??null:getBestAsk(view,entry.id);
-      const bid=equipment?null:getBestBid(view,entry.id);
-      const realTrend=equipment?(equipmentTrendByKey.get(entry.equipmentMarketKey!)??makeTrend([])):(trendByItem.get(entry.id)??makeTrend([]));
-      const demo=!equipment&&demoMode?demoMarketView(entry.id,ask??bid??realTrend.last,demoTick):null;
+      const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);
+      const demo=demoMode?demoMarketView(entry.id,ask??bid??realTrend.last,demoTick):null;
       const trend=demo?makeTrend(demo.series):realTrend;
-      const displayPrice=demo?.last??ask??bid??trend.last;
-      const sub=equipment?('장비 · 보유 '+entry.available+' · 매물 '+(entry.listingCount??0)):(demoMode?'DEMO · ':'')+categoryLabel(entry.category)+' · 보유 '+entry.available;
+      const displayPrice=demo?.last??ask??bid;
+      const sub=(demoMode?'DEMO · ':'')+categoryLabel(entry.category)+' · 보유 '+entry.available;
       return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
        <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
        <span className="name"><b>{entry.name}</b><small>{sub}</small></span>
        <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
-       <span className="tc-market-v3-rowprice"><b>{money(displayPrice)}</b><small className={trendClass(trend.delta)}>{equipment?(entry.listingCount?'즉시 구매':'매물 없음'):trendLabel(trend.delta)}</small></span>
+       <span className="tc-market-v3-rowprice"><b>{money(displayPrice)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>
        <i>›</i>
       </button>;
      })}
@@ -467,21 +309,17 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
    {tab==='orders'&&<>
     <section className="tc-market-v2-status compact">
-     <div><small>진행 주문</small><b>{orderRows.length}건</b></div>
+     <div><small>진행 주문</small><b>{open.length}건</b></div>
      <div><small>매수</small><b>{open.filter(x=>x.side==='BUY').length}</b></div>
-     <div><small>매도</small><b>{open.filter(x=>x.side==='SELL').length+myEquipmentListings.length}</b></div>
+     <div><small>매도</small><b>{open.filter(x=>x.side==='SELL').length}</b></div>
     </section>
     <div className="tc-market-v2-orders">
-     {shownOrderRows.map(row=>row.kind==='order'?(()=>{const order=row.order,filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
+     {shownOrders.map(order=>{const filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
       <span className={'side '+order.side.toLowerCase()}>{order.side==='BUY'?'매수':'매도'}</span>
       <div className="name"><b>{marketItemName(view,order.itemId)}</b><small>{money(order.limitPrice)} · {filled}/{order.originalQuantity} 체결</small><div className="tc-market-v2-progress"><i style={{width:pct+'%'}}/></div></div>
       <button className="tc-feel-press" data-game-feel="press" disabled={busy} onClick={()=>void act(()=>cancelOnlineMarketOrder(lease,order.orderId),'market.order-cancelled')}>취소</button>
-     </article>})():<article key={row.listing.listingId}>
-      <span className="side sell">매도</span>
-      <div className="name"><b>{equipmentItemName(row.listing.gear)}</b><small>{money(row.listing.price)} · 정가 즉시구매 · 72시간 등록</small><div className="tc-market-v2-progress"><i style={{width:'100%'}}/></div></div>
-      <button className="tc-feel-press" data-game-feel="press" disabled={busy||!!game.expedition} onClick={()=>void act(()=>cancelOnlineEquipmentListing(lease,row.listing.listingId),'market.order-cancelled')}>취소</button>
-     </article>)}
-     {!shownOrderRows.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
+     </article>})}
+     {!shownOrders.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
     </div>
     <Pager page={safeOrderPage} count={orderPages} onChange={setPage}/>
    </>}
