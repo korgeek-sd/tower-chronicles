@@ -36,6 +36,42 @@ export const weaponOf=(s:GameState,equipment=s.equipped):Weapon=>{
   return (equippedItem(s,'weapon',equipment)?.kind as Weapon)||'sword';
 };
 export function stats(s:GameState,equipment=s.equipped):Stats {return equipmentStats(s,equipment);}
+export interface EquipmentStatComparison {
+  slot:Slot;
+  equipped:boolean;
+  before:Pick<Stats,'attack'|'defense'|'hp'>;
+  after:Pick<Stats,'attack'|'defense'|'hp'>;
+  delta:Pick<Stats,'attack'|'defense'|'hp'>;
+}
+const comparisonStats=(value:Stats)=>({attack:value.attack,defense:value.defense,hp:value.hp});
+export function equipmentStatComparison(s:GameState,id:string):EquipmentStatComparison|null {
+  const modern=equipmentItemById(s,id);
+  const legacy=s.items.find(item=>item.id===id);
+  const slot=modern?equipmentItemSlot(modern):legacy?itemSlot(legacy.kind):null;
+  if(!slot)return null;
+  const equipped=s.equipped[slot]===id;
+  const next:EquipmentLoadout={...s.equipped};
+  if(equipped){
+    next[slot]=null;
+    if(slot==='ring'&&next.accessory===id)next.accessory=null;
+  }else{
+    next[slot]=id;
+    if(slot==='ring')delete next.accessory;
+  }
+  const before=comparisonStats(stats(s));
+  const after=comparisonStats(stats(s,next));
+  return {
+    slot,
+    equipped,
+    before,
+    after,
+    delta:{
+      attack:after.attack-before.attack,
+      defense:after.defense-before.defense,
+      hp:after.hp-before.hp,
+    },
+  };
+}
 export function log(s:GameState,message:string){s.logs.push(message);s.logs=s.logs.slice(-CONFIG.logLimit);}
 export function recordCombatEvent(s:GameState,event:Omit<CombatEvent,'id'>){const id=(s.combatEventSequence??0)+1;s.combatEventSequence=id;s.combatEvents=[...(s.combatEvents??[]),{...event,id}].slice(-40);}
 export const masteryKeyOf=(item:Item):GearMasteryKey=>{
