@@ -11,6 +11,8 @@ const active=(o:MarketOrder)=>o.status==='OPEN'||o.status==='PARTIAL';
 const validPositive=(n:number)=>Number.isSafeInteger(n)&&n>0;
 const status=(remaining:number,original:number):MarketOrder['status']=>remaining===0?'FILLED':remaining===original?'OPEN':'PARTIAL';
 const local=(s:GameState,id:string)=>s.market.ownerId===id;
+const isEquipmentItem=(gear:Item|EquipmentItem):gear is EquipmentItem=>
+ typeof (gear as EquipmentItem).grade==='string'&&typeof (gear as EquipmentItem).enhancement==='number';
 
 function parseStack(itemId:string):{kind:string;tower?:Tower;index?:number;id?:string}|null {
  const [kind,a,b]=itemId.split(':');
@@ -38,7 +40,7 @@ export function marketItems(s:GameState):MarketItem[]{
 }
 const escrowGear=(s:GameState,itemId:string)=>s.market.orders.find(order=>order.itemId===itemId&&order.gear)?.gear;
 function staticItemName(itemId:string,gear?:Item|EquipmentItem){
- if(gear)return 'grade' in gear?equipmentItemName(gear):itemName(gear);
+ if(gear)return isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear);
  if(itemId.startsWith('equipment_v2:'))return itemId.slice('equipment_v2:'.length);
  const p=parseStack(itemId);
  if(!p)return itemId;
