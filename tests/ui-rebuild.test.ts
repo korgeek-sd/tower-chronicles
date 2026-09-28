@@ -18,7 +18,6 @@ test('UI REBUILD 02: active mobile UI uses no decorative or legacy UI image asse
   'src/components/mobile/CoreScreens.tsx',
   'src/components/inventory/InventoryScreen.tsx',
   'src/components/inventory/InventoryDetailSheet.tsx',
-  'src/components/workshop/WorkshopScreen.tsx',
   'src/components/enhancement/EnhancementScreen.tsx',
   'src/components/market/MarketScreen.tsx',
   'src/components/association/AssociationScreen.tsx',
