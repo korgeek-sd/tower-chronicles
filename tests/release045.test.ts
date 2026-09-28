@@ -11,7 +11,7 @@ import {entryStatus} from '../src/game/engine/exploration.ts';
 import {monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
 
 test('RELEASE 0.1.45: save schema and four playable towers remain compatible',()=>{
- assert.equal(initialState().version,22);
+ assert.equal(initialState().version,23);
  assert.deepEqual(PLAYABLE_TOWERS,['ore','leather','gem','kaleon']);
 });
 
