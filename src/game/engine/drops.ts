@@ -6,7 +6,7 @@ import {IRON_T1_MONSTER_BY_ID,ironFloorContent} from '../data/ironSpire';
 import {RED_T1_MONSTER_BY_ID,redFloorContent} from '../data/redFang';
 import {CRYSTAL_T1_MONSTER_BY_ID,crystalFloorContent} from '../data/crystalTower';
 import {KALEON_T1_MONSTER_BY_ID,kaleonFloorContent} from '../data/kaleon';
-import {rollIronEquipmentDrop} from '../data/equipmentDrops';
+import {rollIronEnhancementStoneDrop,rollIronEquipmentDrop} from '../data/equipmentDrops';
 import {EQUIPMENT_DEFINITIONS} from '../data/equipment';
 
 export function monsterFor(tower:Tower,floor:number,rng:()=>number=()=>0):Monster {
@@ -23,7 +23,7 @@ export function monsterFor(tower:Tower,floor:number,rng:()=>number=()=>0):Monste
   return {definitionId:content?.id??tower+':default',name:content?.displayName??TOWERS[tower].monster,hp,currentHp:hp,attack:baseAttack*(content?.attackMultiplier??1),defense:COMBAT.monsterDefense+(floor-1)*COMBAT.defensePerFloor,speed:baseSpeed*(content?.speedMultiplier??1),skillPower:1};
 }
 
-export function reward(s:GameState,rng:()=>number=Math.random,equipmentRng:()=>number=Math.random){
+export function reward(s:GameState,rng:()=>number=Math.random,equipmentRng:()=>number=Math.random,stoneRng:()=>number=Math.random){
   const e=s.expedition;
   if(!e)return;
   const tier=tierOf(e.floor),silver=COMBAT.silverBase+e.floor*COMBAT.silverPerFloor;
@@ -44,6 +44,11 @@ export function reward(s:GameState,rng:()=>number=Math.random,equipmentRng:()=>n
       (e.loot.equipment??=[]).push(item);
       const gradeName={common:'일반',uncommon:'고급',rare:'희귀',heroic:'영웅',legendary:'전설'}[item.grade];
       log(s,gradeName+' '+EQUIPMENT_DEFINITIONS[item.kind].name+' +0 획득 · 안전 귀환 후 보관');
+    }
+    const stones=rollIronEnhancementStoneDrop(e.floor,boss,stoneRng);
+    if(stones>0){
+      e.loot.items.enhancement_stone=(e.loot.items.enhancement_stone??0)+stones;
+      log(s,'강화석 ×'+stones+' 획득 · 안전 귀환 후 보관');
     }
   }
 }
