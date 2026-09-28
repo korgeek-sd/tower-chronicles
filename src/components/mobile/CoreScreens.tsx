@@ -1,19 +1,17 @@
 import React,{useMemo,useState} from 'react';
-import type {Field,GameState,Slot,Tower,Potion} from '../../game/types';
-import {CONFIG,FIELDS,GEAR_MASTERY_NAMES,PASSIVES,POTIONS,SLOTS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
-import {equip,equippedItem,itemName,itemSlot,masteryKeyOf,stats,weaponOf} from '../../game/engine/state';
+import type {GameState,Tower,Potion} from '../../game/types';
+import {CONFIG,POTIONS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
+import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
 import {monsterFor} from '../../game/engine/drops';
-import {masteryPercent,masteryRequired} from '../../game/engine/gearMastery';
-import {discount} from '../../game/engine/crafting';
 import {APPEARANCES,TITLES,appearanceById,titleById} from '../../game/data/cosmetics';
 import {selectAppearance,selectTitle} from '../../game/engine/cosmetics';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
 import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
-import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
+import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
 
-export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -24,6 +22,7 @@ export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:Ap
   {id:'gold-exchange',glyph:'market',title:'골드 거래소',subtitle:'Gold ↔ Silver',action:()=>onMove('gold-exchange')},
   {id:'seal',glyph:'association',title:'협회 인장',subtitle:'20회 주조 · 30단계',action:()=>onMove('seal')},
   {id:'occupation',glyph:'towers',title:'점령전',subtitle:'3전선 · 토 22:00',action:()=>onMove('occupation')},
+  {id:'skills',glyph:'skillbooks',title:'전투 스킬',subtitle:'장착 스킬 관리',action:()=>onMove('skills')},
   {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'발견한 생물',action:()=>onMove('bestiary')},
   {id:'settings',glyph:'settings',title:'계정 · 저장',subtitle:'연결과 저장 상태',action:()=>onMove('settings')},
  ];
@@ -34,7 +33,7 @@ export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:Ap
      <div className="tc-camp-crest" aria-hidden="true"><Glyph name={weaponId}/></div>
      <div className="tc-camp-identity"><small>{job?'현재 직능':'직능 미선택'}{job&&<span>{job.rarity}</span>}</small><h2>{job?.displayName??'모험가'}</h2><p>{weapon.description}</p></div>
     </div>
-    <div className="tc-camp-weapon"><div><small>장착 무기</small><b>{equippedWeapon?itemName(equippedWeapon):'미장착'}</b></div><button onClick={()=>onMove('equipment')}>장비 확인 <span aria-hidden="true">›</span></button></div>
+    <div className="tc-camp-weapon"><div><small>장착 무기</small><b>{equippedWeapon?itemName(equippedWeapon):'미장착'}</b></div><button onClick={()=>onMove('inventory')}>장비 확인 <span aria-hidden="true">›</span></button></div>
     <dl className="tc-camp-stats"><div><dt>최대 체력</dt><dd>{Math.round(st.hp)}</dd></div><div><dt>공격</dt><dd>{Math.round(st.attack)}</dd></div><div><dt>방어</dt><dd>{Math.round(st.defense)}</dd></div><div><dt>공격속도</dt><dd>{st.speed.toFixed(2)}</dd></div></dl>
    </section>
    <section className="tc-camp-expedition" aria-label="원정">
@@ -64,19 +63,6 @@ export function FloorScreen({game,setGame,tower,floor,setFloor,onBack,onEnter}:{
  </Screen>;
 }
 
-export function EquipmentScreen({game,setGame,onSkills}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onSkills:()=>void}){
- const [slot,setSlot]=useState<Slot>('weapon'),[page,setPage]=useState(0),st=stats(game),items=game.items.filter(i=>itemSlot(i.kind)===slot),PAGE=4,pages=Math.max(1,Math.ceil(items.length/PAGE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE,safe*PAGE+PAGE),current=equippedItem(game,slot),key=current?masteryKeyOf(current):null,m=key?game.gearMastery[key]:null,target=m?m.unlockedTier+1:1;
- const slotTabs=(Object.keys(SLOTS) as Slot[]).map(s=>[s,SLOTS[s]] as [Slot,string]);
- return <Screen eyebrow="EXPLORER LOADOUT" title="장비" meta={<button className="tc-action secondary slim" onClick={onSkills}>스킬</button>}>
-  <div style={{height:'100%',display:'grid',gridTemplateRows:'auto auto 1fr auto',gap:'5px'}}>
-   <div className="tc-stat-grid"><Stat label="HP" value={Math.round(st.hp)}/><Stat label="공격" value={Math.round(st.attack)}/><Stat label="방어" value={Math.round(st.defense)}/><Stat label="공속" value={st.speed.toFixed(2)}/></div>
-   <Segments items={slotTabs} value={slot} onChange={v=>{setSlot(v);setPage(0);}} label="장비 부위"/>
-   <div className="tc-job-list">{shown.map(item=><article className="tc-job" key={item.id}><div><b>{itemName(item)}</b><small>T{item.tier} · +{item.enhancement}{game.equipped[slot]===item.id?' · 장착 중':''}{item.kind in PASSIVES?' · '+PASSIVES[item.kind as keyof typeof PASSIVES].name:''}</small></div><button disabled={!!game.expedition||game.equipped[slot]===item.id} onClick={()=>setGame(s=>equip(s,item.id))}>{game.equipped[slot]===item.id?'장착':'교체'}</button></article>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-job" key={'g'+i}/>)}</div>
-   <div><Pager page={safe} count={pages} onChange={setPage}/>{m&&key&&<div className="tc-floor-risk">{GEAR_MASTERY_NAMES[key]} · T{m.unlockedTier} 착용 가능 · {m.unlockedTier>=5?'MAX':m.progress+'/'+masteryRequired(target)}<Meter value={masteryPercent(game,key)} max={100}/></div>}</div>
-  </div>
- </Screen>;
-}
-
 export function SkillsScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
  const [page,setPage]=useState(0),PAGE=3,pages=Math.max(1,Math.ceil(SKILLS.length/PAGE)),safe=Math.min(page,pages-1),shown=SKILLS.slice(safe*PAGE,safe*PAGE+PAGE),weapon=weaponOf(game);
  return <Screen eyebrow="COMBAT KIT" title="스킬 구성" meta={<span>{WEAPONS[weapon].name}</span>}>
@@ -85,12 +71,6 @@ export function SkillsScreen({game,setGame}:{game:GameState;setGame:React.Dispat
    <div className="tc-work-grid">{shown.map(sk=><article className="tc-recipe" key={sk.id}><Glyph name="skills"/><div><h2>{sk.name}</h2><p>{sk.description}</p><small>{game.learned.includes(sk.id)?'습득 완료':'스킬북 필요'} · 대기 {sk.cooldown}턴 · {sk.weapons.includes(weapon)?'현재 무기 사용 가능':'무기 불일치'}</small></div></article>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-recipe" key={'s'+i}/>)}</div>
    <Pager page={safe} count={pages} onChange={setPage}/>
   </div>
- </Screen>;
-}
-
-export function MasteryScreen({game}:{game:GameState}){
- return <Screen eyebrow="WORKSHOP CERTIFICATION" title="제작 숙련도" meta={<span>분야별 독립</span>}>
-  <div style={{height:'100%',display:'grid',gridTemplateColumns:'1fr 1fr',gridTemplateRows:'1fr 1fr',gap:'5px'}}>{(Object.keys(FIELDS) as Field[]).map(f=>{const m=game.mastery[f],pct=m.unlocked===5?100:m.progress/CONFIG.masteryRequired*100;return <section className="tc-panel strong" key={f} style={{display:'grid',alignContent:'center',gap:'6px'}}><div className="tc-panel-title"><b>{FIELDS[f]}</b><small>T{m.unlocked}</small></div><Meter value={pct} max={100}/><div className="tc-stat-grid" style={{gridTemplateColumns:'1fr 1fr'}}><Stat label="진척" value={m.unlocked===5?'MAX':m.progress+'/'+CONFIG.masteryRequired}/><Stat label="절감" value={Math.round(discount(m.crafts)*100)+'%'}/></div><small style={{fontSize:'7px',color:'var(--muted)'}}>총 제작 {m.crafts}회 · 현재 최고 티어 제작만 다음 자격 진척</small></section>;})}</div>
  </Screen>;
 }
 

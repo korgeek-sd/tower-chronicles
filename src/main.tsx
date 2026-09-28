@@ -6,7 +6,6 @@ import {TOWERS} from './game/data/config';
 import {initialState} from './game/engine/state';
 import {enter,requestReturn,abandonStrongholdAndReturn} from './game/engine/expedition';
 import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resolveRevivalDecision} from './game/engine/combat';
-import {settleCrafting} from './game/engine/crafting';
 import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
 import {loadPrefs} from './components/battle/prefs';
@@ -35,9 +34,8 @@ import {SaveManagement} from './components/SaveManagement';
 import {GameSessionGate} from './components/GameSessionGate';
 import {BestiaryScreen} from './components/bestiary/BestiaryScreen';
 import {EnhancementScreen} from './components/enhancement/EnhancementScreen';
-import {WorkshopScreen} from './components/workshop/WorkshopScreen';
 import {
-  HomeScreen,TowersScreen,FloorScreen,EquipmentScreen,SkillsScreen,MasteryScreen,
+  HomeScreen,TowersScreen,FloorScreen,SkillsScreen,
   CosmeticsScreen,ShopScreen,ExpeditionCompleteScreen,type AppPage
 } from './components/mobile/CoreScreens';
 import {Glyph} from './ui/mobile';
@@ -225,7 +223,7 @@ function App(){
   window.addEventListener('online',online);
   return()=>{document.removeEventListener('visibilitychange',resume);window.removeEventListener('online',online);};
  },[onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
- useEffect(()=>{const settle=()=>{if(document.hidden)return;const tick=Date.now();setNow(tick);if(!gameplayWritable)return;const onlineAuthoritative=!!onlineSession&&gameSessionPhaseRef.current==='active'&&!!gameplayLeaseRef.current;if(onlineAuthoritative){const sh=stateRef.current.expedition?.events.stronghold;if(sh?.status==='ACTIVE'&&tick>=sh.captureEndsAt)void settleOnlineStrongholdNow();return;}setGame(state=>{const activeCraft=state.crafting.jobs.find(job=>job.status==='CRAFTING'),queuedCraft=state.crafting.jobs.some(job=>job.status==='QUEUED'),craftDue=(!activeCraft&&queuedCraft)||(activeCraft?.completesAt!==null&&activeCraft?.completesAt!==undefined&&tick>=activeCraft.completesAt);const crafted=craftDue?settleCrafting(state,tick):state;return expireTimedEventChoice(settleStronghold(crafted,tick),tick);});};const id=setInterval(settle,1000);document.addEventListener('visibilitychange',settle);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',settle);};},[]);
+ useEffect(()=>{const settle=()=>{if(document.hidden)return;const tick=Date.now();setNow(tick);if(!gameplayWritable)return;const onlineAuthoritative=!!onlineSession&&gameSessionPhaseRef.current==='active'&&!!gameplayLeaseRef.current;if(onlineAuthoritative){const sh=stateRef.current.expedition?.events.stronghold;if(sh?.status==='ACTIVE'&&tick>=sh.captureEndsAt)void settleOnlineStrongholdNow();return;}setGame(state=>expireTimedEventChoice(settleStronghold(state,tick),tick));};const id=setInterval(settle,1000);document.addEventListener('visibilitychange',settle);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',settle);};},[]);
  useEffect(()=>{const p=game.expedition?.events.pendingEvent;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!p||p.state!=='CHOICE'||p.eventId!=='resource_stronghold'||typeof p.expiresAt!=='number'||now<p.expiresAt){if(!p||p.instanceId!==eventTimeoutHandled.current)eventTimeoutHandled.current='';return;}if(eventTimeoutHandled.current===p.instanceId)return;eventTimeoutHandled.current=p.instanceId;void commitOnlineEventChoice(p.instanceId,'skip');},[now,game.expedition?.events.pendingEvent?.instanceId,game.expedition?.events.pendingEvent?.state,onlineSession?.userId]);
  useEffect(()=>{if(!gameplayWritable||game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;if(onlineSession&&gameSessionPhaseRef.current==='active')return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[gameplayWritable,game.expedition?.phase,game.expedition?.pendingRevival,onlineSession?.userId]);
 
@@ -368,12 +366,9 @@ function App(){
    />}
    {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&!strongholdPanelOpen&&<button className="tc-stronghold-pvp-entry" onClick={()=>setStrongholdPanelOpen(true)}>자원거점</button>}
    {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>void commitOnlineEventChoice(instance,choice)} onContinue={instance=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)void continueOnlineExplorationNow();else commitEvent(s=>continueEvent(s,instance));}} onRevival={use=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use));else setGame(s=>resolveRevivalDecision(s,use));}}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>void abandonOnlineStrongholdNow()}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
-   {page==='inventory'&&<InventoryScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
-   {page==='equipment'&&<EquipmentScreen game={game} setGame={setGame} onSkills={()=>setPage('skills')}/>}
+   {page==='inventory'&&<InventoryScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onEnhancement={()=>setPage('enhancement')}/>}
    {page==='skills'&&<SkillsScreen game={game} setGame={setGame}/>}
-   {page==='craft'&&<WorkshopScreen game={game} setGame={setGame} now={now} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onEnhancement={()=>setPage('enhancement')} onMastery={()=>setPage('mastery')}/>}
-   {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onBack={()=>setPage('craft')}/>}
-   {page==='mastery'&&<MasteryScreen game={game}/>}
+   {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onBack={()=>setPage('inventory')}/>}
    {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='seal'&&<SealScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('협회 인장');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
@@ -399,7 +394,7 @@ function App(){
 
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','seal','towers','floor','equipment','skills','craft','mastery','enhancement'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }

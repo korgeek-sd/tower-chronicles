@@ -39,12 +39,6 @@ const errors:RpcErrorMap={
  COMBAT_POTION_INVALID:'현재 상태에서는 포션을 사용할 수 없습니다.',
  COMBAT_POTION_EMPTY:'원정 가방에 해당 포션이 없습니다.',
  EXPEDITION_KILL_WITHOUT_SERVER_ACTION:'서버가 확인한 공격 행동 없이 처치를 인정할 수 없습니다.',
- CRAFT_MATERIAL_SHORTAGE:'서버에 확인된 제작 재료가 부족합니다.',
- CRAFT_BUSY:'현재 다른 제작이 진행 중입니다.',
- CRAFT_QUEUE_FULL:'제작 대기열이 가득 찼습니다.',
- CRAFT_NOT_CANCELLABLE:'취소할 수 없는 제작 작업입니다.',
- CRAFT_NOT_READY:'아직 서버 제작 시간이 끝나지 않았습니다.',
- CRAFT_NOT_CLAIMABLE:'수령할 수 없는 제작 작업입니다.',
  DISMANTLE_ITEM_NOT_FOUND:'서버에 등록된 분해 장비를 찾지 못했습니다.',
  DISMANTLE_STARTER_PROTECTED:'협회 보급 장비는 분해할 수 없습니다.',
  DISMANTLE_EQUIPPED:'장착 해제 후 분해할 수 있습니다.',
@@ -275,28 +269,6 @@ export async function exchangeOnlineJobResidualRecommendation(
  return rpc<OnlineJobRecommendationExchangeResult>('exchange_job_residual_recommendation',{
   ...leaseArgs(lease),p_request_id:requestId,
  });
-}
-
-export async function startOnlineCraft(lease:GameplayLease,input:{jobId:string;kind:string;tier:number;quantity:number}){
- const result=await rpc<{jobId:string;materialCost:number;readyAt:number;record:CloudSaveRecord}>('start_online_craft',{
-  ...leaseArgs(lease),p_job_id:input.jobId,p_kind:input.kind,p_tier:input.tier,p_quantity:input.quantity,
- });
- await remember(result.record);
- return result;
-}
-
-export async function cancelOnlineCraft(lease:GameplayLease,jobId:string){
- const result=await rpc<{record:CloudSaveRecord}>('cancel_online_craft',{...leaseArgs(lease),p_job_id:jobId});
- await remember(result.record);
- return result;
-}
-
-export async function claimOnlineCraft(lease:GameplayLease,jobId:string,itemId:string|null){
- const result=await rpc<{record:CloudSaveRecord;itemId:string|null}>('claim_online_craft',{
-  ...leaseArgs(lease),p_job_id:jobId,p_item_id:itemId,
- });
- await remember(result.record);
- return result;
 }
 
 export async function dismantleOnlineEquipment(lease:GameplayLease,itemId:string){

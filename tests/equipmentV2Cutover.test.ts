@@ -4,7 +4,6 @@ import {EQUIPMENT_DEFINITIONS,V2_STARTER_EQUIPMENT_ID,createV2StarterEquipment} 
 import {initialState} from '../src/game/engine/state.ts';
 import {enter} from '../src/game/engine/expedition.ts';
 import {migrateV22,validSave} from '../src/storage/repository.ts';
-import {startCraft} from '../src/game/engine/crafting.ts';
 
 test('V2 CUTOVER 01: all nine equipment identities have finalized base stats',()=>{
  assert.deepEqual(EQUIPMENT_DEFINITIONS.association_supply_iron_sword.baseStats,{attack:10,defense:4});
@@ -78,12 +77,3 @@ test('V2 CUTOVER 05: starter factory is deterministic and does not duplicate ids
  });
 });
 
-
-test('V2 CUTOVER 06: legacy equipment crafting cannot create new legacy gear after cutover',()=>{
- const s=initialState();
- s.materials.ore[0]=999;
- const next=startCraft(s,'sword',1,1,0);
- assert.equal(next.crafting.jobs.length,0);
- assert.deepEqual(next.items,[]);
- assert.match(next.notice,/장비 제작.*종료|드랍/);
-});

@@ -1,6 +1,6 @@
-import type {Weapon,Slot,Field,Potion,Tower,GearMasteryKey,GeneralPotion} from '../types';
+import type {Weapon,Slot,Potion,Tower,GearMasteryKey,GeneralPotion} from '../types';
 import {EQUIPMENT_SLOT_NAMES} from './equipment';
-export const CONFIG={baseHp:180,baseAttack:8,baseDefense:3,baseSpeed:1,starterTickets:20,starterLesser:30,starterStandard:5,logLimit:80,spawnDelay:1.2,ticketChance:.4,bookChance:.07,craftCost:6,masteryRequired:4,discountPerCraft:.02,maxDiscount:.3,generalPotionLimit:30,revivalPotionLimit:1,revivalHealRatio:.3,maxFloor:10,tick:.2};
+export const CONFIG={baseHp:180,baseAttack:8,baseDefense:3,baseSpeed:1,starterTickets:20,starterLesser:30,starterStandard:5,logLimit:80,spawnDelay:1.2,ticketChance:.4,bookChance:.07,generalPotionLimit:30,revivalPotionLimit:1,revivalHealRatio:.3,maxFloor:10,tick:.2};
 export const MARKET_ITEM_TRADE_FEE_RATE=0;
 export interface WeaponDefinition {name:string;icon:string;attack:number;defense:number;speed:number;critChance:number;critDamage:number;basicHitMultipliers:readonly number[];skillPower:number;description:string}
 export const WEAPONS:Record<Weapon,WeaponDefinition>={
@@ -10,15 +10,12 @@ export const WEAPONS:Record<Weapon,WeaponDefinition>={
  staff:{name:'지팡이',icon:'✦',attack:6,defense:0,speed:.85,critChance:.05,critDamage:1.5,basicHitMultipliers:[1],skillPower:1.3,description:'공격 스킬 피해가 30% 증가한다.'}
 };
 export const TOWERS:Record<Tower,{name:string;material:string;icon:string;color:string;monster:string}>={ore:{name:'철맥의 첨탑',material:'철광석',icon:'◆',color:'#83b4c5',monster:'고블린 광부'},leather:{name:'붉은 송곳니의 성소',material:'가죽',icon:'◈',color:'#c7a17a',monster:'황야 멧돼지'},gem:{name:'천광의 수정탑',material:'보석',icon:'◇',color:'#b0a5e1',monster:'석영등갑충'},kaleon:{name:'칼레온의 녹빛 첨탑',material:'약초',icon:'✣',color:'#85c6a6',monster:'이끼 정령'}};
-export const FIELDS:Record<Field,string>={weapon:'무기 제작',armor:'방어구 제작',accessory:'장신구 제작',alchemy:'연금술'};
 export const SLOTS:Record<Slot,string>=EQUIPMENT_SLOT_NAMES;
 export const GEAR_MASTERY_KEYS:GearMasteryKey[]=['sword','dagger','bow','staff','armor','boots','accessory'];
 export const GEAR_MASTERY_NAMES:Record<GearMasteryKey,string>={sword:'검',dagger:'단검',bow:'활',staff:'지팡이',armor:'갑옷',boots:'신발',accessory:'장신구'};
 export const GEAR_MASTERY_CONFIG={requiredByTargetTier:{2:100,3:250,4:500,5:1000} as Record<number,number>,baseGainByFloorTier:[10,20,35,55,80],endOfTierMultiplier:1.5};
 export const PASSIVES={vampire:{name:'흡혈',description:'가한 피해의 8% 회복',value:.08,threshold:1},unyielding:{name:'불굴',description:'HP 35% 이하에서 받는 피해 30% 감소',value:.3,threshold:.35},berserker:{name:'광전사',description:'HP 40% 이하에서 공격력 40% 증가',value:.4,threshold:.4}};
 export const EQUIPMENT={armor:{name:'탐험가 갑옷',hp:55,defense:7},boots:{name:'탐험가 신발',hp:15,speed:.1}};
-// Provisional gameplay values, not final balance. Revisit with T2–T5 content.
-export const POTION_CRAFTING={generalBatch:10,revivalBatch:1,revivalProductionEnabled:false};
 export const POTIONS:Record<Potion,{name:string;icon:string;tier:number;healRatio:number;description:string}>={
  healing_lesser:{name:'하급 회복',icon:'♥',tier:1,healRatio:.2,description:'최대 HP의 20%를 즉시 회복 · 행동 1회 소모'},
  healing_standard:{name:'중급 회복',icon:'♥',tier:2,healRatio:.35,description:'최대 HP의 35%를 즉시 회복 · 행동 1회 소모'},
