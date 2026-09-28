@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.72
+# 탑의 기록 v0.1.71
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.72`
+- 앱 버전: `0.1.71`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,14 +10,6 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
-
-## v0.1.72 — 이미지 에셋 적용 1차
-
-- 하단 5개 주요 탭을 기존 relic-style SVG 이미지 에셋으로 전환
-- 상점 Gold 패키지에 3단계 전용 SVG 이미지 적용
-- UI 이미지 경로를 `src/ui/assets.ts`에 중앙화
-- 기존 대형 PNG 네비게이션 에셋은 모바일 용량 문제로 런타임 연결하지 않음
-- 이미지 에셋 허용 범위를 테스트로 고정하고 기존 SVG Glyph 기반 UI는 점진적으로 교체
 
 ## v0.1.71 — Gold 유료상점 V1
 
