@@ -69,6 +69,7 @@ export interface OnlineOccupationDuel {
  winnerUserId:string|null;
 }
 export interface OnlineOccupationState {
+ userId:string;
  window:OnlineOccupationWindow;
  identity:OnlineOccupationIdentity|null;
  towers:OnlineOccupationTower[];
