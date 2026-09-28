@@ -1,7 +1,7 @@
 import React,{useCallback,useMemo,useState} from 'react';
 import type {GameState,Slot} from '../../game/types';
 import {inventoryView,selectInventory,categories,categoryNames,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
-import {equip,stats,unequip} from '../../game/engine/state';
+import {equip,equipmentStatComparison,stats,unequip} from '../../game/engine/state';
 import {useSkillBook} from '../../game/engine/skills';
 import {registerAppearance} from '../../game/engine/cosmetics';
 import {SKILLS,SLOTS} from '../../game/data/config';
@@ -25,12 +25,14 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
  const statusLabel=category==='equipment'?'장착 중':category==='skillbooks'?'미습득':category==='cosmetics'?'미등록':'';
  function equippedView(slot:Slot){const id=game.equipped[slot];return id?items.find(i=>i.category==='equipment'&&i.sourceId===id):undefined;}
  function openEquipped(slot:Slot){const view=equippedView(slot);if(view)setSelected(view.key);}
+ function comparisonFor(sourceId:string){return equipmentStatComparison(game,sourceId);}
+ const signed=(value:number)=>{const rounded=Math.round(value);return rounded>0?'+'+rounded:String(rounded);};
  return <Screen eyebrow="EXPLORER LOADOUT / STORAGE" title="장비 · 보관함" meta={<span>{items.length}종</span>} className="tc-inventory-screen">
   <div className="tc-ref-inventory">
    <section className="tc-loadout-stage" aria-label="현재 장착 장비">
     <div className="tc-loadout-vitals"><span><small>공격</small><b>{Math.round(st.attack)}</b></span><span><small>HP</small><b>{Math.round(st.hp)}</b></span><span><small>방어</small><b>{Math.round(st.defense)}</b></span></div>
     <div className="tc-loadout-character">{characterSrc?<img src={characterSrc} alt="현재 모험가"/>:<Glyph name="jobs"/>}<div className="tc-loadout-ground"/></div>
-    {(Object.keys(SLOTS) as Slot[]).map(slot=>{const equipped=equippedView(slot);return <button key={slot} className={'tc-equip-slot slot-'+slot+(equipped?' filled':'')} onClick={()=>openEquipped(slot)} disabled={!equipped} aria-label={SLOTS[slot]+(equipped?' '+equipped.name:' 비어 있음')}><span className="tc-equip-icon"><Glyph name={equipped?.iconId??SLOT_GLYPH[slot]}/></span><strong>{SLOTS[slot]}</strong><small>{equipped?equipped.name:'비어 있음'}</small>{equipped&&equipped.enhancement!==undefined&&equipped.enhancement>0&&<b>+{equipped.enhancement}</b>}{equipped?.grade&&<i className={'tc-equip-grade grade-'+equipped.grade}>{equipped.grade==='common'?'일반':equipped.grade==='uncommon'?'고급':equipped.grade==='rare'?'희귀':equipped.grade==='heroic'?'영웅':'전설'}</i>}</button>;})}
+    {(Object.keys(SLOTS) as Slot[]).map(slot=>{const equipped=equippedView(slot),comparison=equipped?comparisonFor(equipped.sourceId):null;return <button key={slot} className={'tc-equip-slot slot-'+slot+(equipped?' filled':'')} onClick={()=>openEquipped(slot)} disabled={!equipped} aria-label={SLOTS[slot]+(equipped?' '+equipped.name:' 비어 있음')}><span className="tc-equip-icon"><Glyph name={equipped?.iconId??SLOT_GLYPH[slot]}/></span><strong>{SLOTS[slot]}</strong><small>{equipped?equipped.name:'비어 있음'}</small>{comparison&&<span className="tc-equip-impact">공 {signed(-comparison.delta.attack)} · 방 {signed(-comparison.delta.defense)} · HP {signed(-comparison.delta.hp)}</span>}{equipped&&equipped.enhancement!==undefined&&equipped.enhancement>0&&<b>+{equipped.enhancement}</b>}{equipped?.grade&&<i className={'tc-equip-grade grade-'+equipped.grade}>{equipped.grade==='common'?'일반':equipped.grade==='uncommon'?'고급':equipped.grade==='rare'?'희귀':equipped.grade==='heroic'?'영웅':'전설'}</i>}</button>;})}
     <div className="tc-loadout-caption">현재 장착 장비를 누르면 상세 정보를 확인할 수 있습니다.</div>
    </section>
 
@@ -38,10 +40,10 @@ export function InventoryScreen({game,setGame}:{game:GameState;setGame:React.Dis
     <div className="tc-storage-head"><div><b>영구 보관함</b><small>{categoryNames[category]} · {visible.length}종</small></div><button className={toolsOpen?'active':''} onClick={()=>setToolsOpen(v=>!v)} aria-label="검색과 정렬"><Glyph name="filter"/> 정렬</button></div>
     <div className="tc-storage-categories">{categorySet.map(c=><button key={c} aria-selected={category===c} aria-label={categoryNames[c]} onClick={()=>{setCategory(c);setSelected(null);setFilter({tier:0,status:false});setPage(0);}}><Glyph name={c}/><small>{categoryNames[c]}</small></button>)}</div>
     {toolsOpen&&<div className="tc-storage-tools"><input aria-label="아이템 검색" placeholder="이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/><select aria-label="정렬" value={sort} onChange={e=>setSort(e.target.value as InventorySort)}><option value="default">기본 정렬</option><option value="name">이름순</option><option value="tier">티어 높은순</option><option value="quantity">수량 많은순</option></select>{tierVisible&&<select aria-label="티어 필터" value={filter.tier} onChange={e=>{setFilter({...filter,tier:+e.target.value});setPage(0);}}>{[0,1,2,3,4,5].map(t=><option key={t} value={t}>{t?'T'+t:'전체 티어'}</option>)}</select>}{statusLabel&&<label><input type="checkbox" checked={filter.status} onChange={e=>setFilter({...filter,status:e.target.checked})}/>{statusLabel}</label>}</div>}
-    <div className="tc-storage-grid">{shown.map(i=><button key={i.key} className="tc-storage-item" aria-label={i.name+' · '+i.quantity+'개'} onClick={()=>setSelected(i.key)}><div className="tc-storage-icon"><Glyph name={i.iconId}/>{i.tier&&<span>T{i.tier}</span>}{i.grade&&<span className={'tc-storage-grade grade-'+i.grade}>{i.grade==='common'?'일반':i.grade==='uncommon'?'고급':i.grade==='rare'?'희귀':i.grade==='heroic'?'영웅':'전설'}</span>}</div><strong>{i.name}</strong><small>{i.stack?i.quantity.toLocaleString()+'개':i.equipped?'장착 중':i.enhancement!==undefined?'+'+i.enhancement:'1개'}</small>{i.equipped&&<em>●</em>}</button>)}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-storage-item empty" aria-hidden="true" key={'empty'+i}/>)}</div>
+    <div className="tc-storage-grid">{shown.map(i=>{const comparison=i.category==='equipment'?comparisonFor(i.sourceId):null;return <button key={i.key} className="tc-storage-item" aria-label={i.name+' · '+i.quantity+'개'} onClick={()=>setSelected(i.key)}><div className="tc-storage-icon"><Glyph name={i.iconId}/>{i.tier&&<span>T{i.tier}</span>}{i.grade&&<span className={'tc-storage-grade grade-'+i.grade}>{i.grade==='common'?'일반':i.grade==='uncommon'?'고급':i.grade==='rare'?'희귀':i.grade==='heroic'?'영웅':'전설'}</span>}</div><strong>{i.name}</strong>{comparison&&<span className={'tc-storage-impact '+(i.equipped?'remove':'equip')}>{i.equipped?'해제':'장착'} · 공 {signed(comparison.delta.attack)} · 방 {signed(comparison.delta.defense)} · HP {signed(comparison.delta.hp)}</span>}<small>{i.stack?i.quantity.toLocaleString()+'개':i.equipped?'장착 중':i.enhancement!==undefined?'+'+i.enhancement:'1개'}</small>{i.equipped&&<em>●</em>}</button>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-storage-item empty" aria-hidden="true" key={'empty'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} onClose={close} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet item={item} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} {...{action,label,disabled}}/>}
  </Screen>;
 }
