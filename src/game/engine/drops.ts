@@ -23,7 +23,7 @@ export function monsterFor(tower:Tower,floor:number,rng:()=>number=()=>0):Monste
   return {definitionId:content?.id??tower+':default',name:content?.displayName??TOWERS[tower].monster,hp,currentHp:hp,attack:baseAttack*(content?.attackMultiplier??1),defense:COMBAT.monsterDefense+(floor-1)*COMBAT.defensePerFloor,speed:baseSpeed*(content?.speedMultiplier??1),skillPower:1};
 }
 
-export function reward(s:GameState,rng:()=>number=Math.random){
+export function reward(s:GameState,rng:()=>number=Math.random,equipmentRng:()=>number=Math.random){
   const e=s.expedition;
   if(!e)return;
   const tier=tierOf(e.floor),silver=COMBAT.silverBase+e.floor*COMBAT.silverPerFloor;
@@ -38,7 +38,7 @@ export function reward(s:GameState,rng:()=>number=Math.random){
   }
   if(e.tower==='ore'){
     const boss=e.events.activeBossId!==null;
-    const drop=rollIronEquipmentDrop(e.floor,e.monster.definitionId??'',boss,rng);
+    const drop=rollIronEquipmentDrop(e.floor,e.monster.definitionId??'',boss,equipmentRng);
     if(drop){
       const item={id:'equipment-'+(++s.nextId),...drop};
       (e.loot.equipment??=[]).push(item);
