@@ -150,7 +150,8 @@ export function placeOrder(state:GameState,input:OrderInput):GameState {
  const s=structuredClone(state),ownerId=input.ownerId||s.market.ownerId,now=input.createdAt??Date.now();
  if(s.expedition)return {...s,notice:'원정 중에는 거래소 주문을 등록할 수 없습니다.'};
  if(!validPositive(input.limitPrice)||!validPositive(input.quantity))return {...s,notice:'가격과 수량은 1 이상의 정수여야 합니다.'};
- if((input.itemId.startsWith('gear:')||input.itemId.startsWith('equipment:'))&&input.side==='SELL'&&input.quantity!==1)return {...s,notice:'개별 장비 매도는 한 번에 1개만 주문할 수 있습니다.'};
+ if(input.itemId.startsWith('gear:')&&input.quantity!==1)return {...s,notice:'개별 장비는 한 번에 1개만 주문할 수 있습니다.'};
+ if(input.itemId.startsWith('equipment:')&&input.side==='SELL'&&input.quantity!==1)return {...s,notice:'V2 장비 매도는 한 번에 1개만 주문할 수 있습니다.'};
  try{
   let gear:Item|EquipmentItem|undefined;
   if(input.side==='BUY'){const reserve=input.limitPrice*input.quantity;if(!Number.isSafeInteger(reserve)||s.silver<reserve)throw Error('예약할 Silver가 부족합니다.');s.silver-=reserve;}
