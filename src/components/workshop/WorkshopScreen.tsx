@@ -9,16 +9,16 @@ import type {GameplayLease} from '../../online/gameSession';
 import {applyServerEconomyRecord,cancelOnlineCraft,claimOnlineCraft,startOnlineCraft} from '../../online/economy';
 
 const PAGE_SIZE=3;
-const fields=[['weapon','무기'],['armor','방어구'],['accessory','장신구'],['alchemy','연금술']] as const;
+const fields=[['alchemy','연금술']] as const;
 const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n));
 const left=(ms:number)=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
 function label(job:CraftJob){return potionIds.includes(job.kind as Potion)?POTIONS[job.kind as Potion].name+' ×'+job.quantity:itemName({id:'preview',kind:job.kind,tier:job.tier,enhancement:0});}
 function desc(kind:string,tier:number,field:Field){if(kind in WEAPONS)return WEAPONS[kind as keyof typeof WEAPONS].description;if(kind in PASSIVES)return PASSIVES[kind as keyof typeof PASSIVES].description;if(field==='alchemy')return POTIONS[kind as Potion].description;if(kind==='armor')return 'HP +'+EQUIPMENT.armor.hp*tier+' · 방어 +'+EQUIPMENT.armor.defense*tier;return 'HP +'+EQUIPMENT.boots.hp*tier+' · 공속 +'+(EQUIPMENT.boots.speed*tier).toFixed(1);}
 
 export function WorkshopScreen({game,setGame,now,onlineLease,onEnhancement,onMastery}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;now:number;onlineLease?:GameplayLease|null;onEnhancement:()=>void;onMastery:()=>void}){
- const [field,setField]=useState<Field>('weapon'),[tier,setTier]=useState(1),[page,setPage]=useState(0),[cancelTarget,setCancelTarget]=useState<CraftJob|null>(null),[busy,setBusy]=useState(false);
+ const [field,setField]=useState<Field>('alchemy'),[tier,setTier]=useState(1),[page,setPage]=useState(0),[cancelTarget,setCancelTarget]=useState<CraftJob|null>(null),[busy,setBusy]=useState(false);
  const goldenActive=isGoldenRecorderActive(game,now),golden=getGoldenRecorderBenefits(game,now),active=game.crafting.jobs.find(j=>j.status==='CRAFTING')??null,queued=game.crafting.jobs.filter(j=>j.status==='QUEUED').sort((a,b)=>a.queuedAt-b.queuedAt),completed=game.crafting.jobs.filter(j=>j.status==='COMPLETED_UNCLAIMED');
- const recipes=useMemo(()=>field==='weapon'?Object.keys(WEAPONS):field==='armor'?['armor','boots']:field==='accessory'?Object.keys(PASSIVES):potionIds.filter(p=>p!=='revival'&&POTIONS[p].tier===tier),[field,tier]),pages=Math.max(1,Math.ceil(recipes.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=recipes.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
+ const recipes=useMemo(()=>potionIds.filter(p=>p!=='revival'&&POTIONS[p].tier===tier),[tier]),pages=Math.max(1,Math.ceil(recipes.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=recipes.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
  const mastery=game.mastery[field],material=materialFor(field),materialName=TOWERS[material].material,totalDiscount=discount(mastery.crafts)+golden.craftingMaterialReductionBonus,queueFull=goldenActive&&queued.length>=GOLDEN_RECORDER_CRAFT_QUEUE_LIMIT;
  const progress=active&&active.startedAt!==null&&active.completesAt!==null?clamp((now-active.startedAt)/Math.max(1,active.durationMs),0,1):0;
  const startRecipe=async(kind:string)=>{
