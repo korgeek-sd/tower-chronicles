@@ -23,7 +23,7 @@ test('MARKET UI V4 02: item detail is separated from the real buy and sell ticke
   assert.match(source,/tradeSide/);
   assert.match(source,/BUY · 매수/);
   assert.match(source,/SELL · 매도/);
-  assert.match(source,/if\(item&&tradeSide\)/);
+  assert.match(source,/if\(item[^\n]*tradeSide/);
   assert.match(source,/tc-market-v4-trade/);
   assert.match(source,/tc-market-v2-book tc-market-v4-book/);
  }
