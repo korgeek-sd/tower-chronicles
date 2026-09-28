@@ -72,7 +72,7 @@ test('IRON EQUIPMENT REWARD 07: Iron boss uses boss equipment chance and all-nin
   let s=enter(base,'ore',6);
   const boss=bossIdFor('ore',6)!;
   s=beginEncounter(s,()=>.5,boss);
-  reward(s,sequence(.01,.99,.99));
+  reward(s,sequence(.99,.01,.99,.99));
   const [drop]=s.expedition!.loot.equipment??[];
   assert.ok(drop);
   assert.equal(drop.grade,'heroic');
