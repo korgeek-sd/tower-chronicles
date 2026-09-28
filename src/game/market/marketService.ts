@@ -55,7 +55,7 @@ export function marketCatalog(s:GameState){
  s.market.orders.forEach(order=>{
   if(known.has(order.itemId))return;
   const gear=order.gear??escrowGear(s,order.itemId);
-  known.set(order.itemId,{id:order.itemId,name:gear?('grade' in gear?equipmentItemName(gear):itemName(gear)):marketItemName(s,order.itemId),available:0,gear,category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')||order.itemId.startsWith('equipment_v2:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'강화 단계를 포함한 개별 장비입니다.':'거래소에 등록된 아이템입니다.'});
+  known.set(order.itemId,{id:order.itemId,name:gear?(isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear)):marketItemName(s,order.itemId),available:0,gear,category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')||order.itemId.startsWith('equipment_v2:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'강화 단계를 포함한 개별 장비입니다.':'거래소에 등록된 아이템입니다.'});
  });
  return [...known.values()];
 }
