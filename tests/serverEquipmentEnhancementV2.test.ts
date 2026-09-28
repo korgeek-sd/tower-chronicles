@@ -36,9 +36,9 @@ test('SERVER V2 ENHANCE 04: Silver and stones are deducted before outcome and ev
 
 test('SERVER V2 ENHANCE 05: destruction clears equipped and preset references before persisting authoritative save',()=>{
  assert.match(sql,/FAIL_DESTROYED/);
- assert.match(sql,/\{equipped/);
+ assert.match(sql,/array\['equipped',v_slot\]/);
  assert.match(sql,/expeditionPresets/);
- assert.match(sql,/private\.persist_market_economy_to_save/);
+ assert.match(sql,/private\.persist_client_payload_with_server_economy/);
  assert.match(sql,/private\.cloud_record_json/);
 });
 
