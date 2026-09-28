@@ -8,7 +8,8 @@ select
   sum(greatest(material_cost,0))::bigint,
   now()
 from private.online_craft_jobs
-where greatest(material_cost,0)>0
+where status in ('ACTIVE','QUEUED')
+  and greatest(material_cost,0)>0
 group by user_id,material_tower,tier
 on conflict(user_id,item_id) do update
 set quantity=private.market_assets.quantity+excluded.quantity,
@@ -17,7 +18,7 @@ set quantity=private.market_assets.quantity+excluded.quantity,
 do $$
 declare r record;
 begin
-  for r in select distinct user_id from private.online_craft_jobs loop
+  for r in select distinct user_id from private.online_craft_jobs where status in ('ACTIVE','QUEUED') loop
     perform private.persist_market_economy_to_save(r.user_id);
   end loop;
 end;
