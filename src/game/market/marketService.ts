@@ -3,7 +3,7 @@ import type {InventoryCategory} from '../inventoryView';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
-import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../data/equipment';
+import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,EQUIPMENT_GRADES,V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../data/equipment';
 
 export interface MarketItem {id:string;name:string;available:number;gear?:Item|EquipmentItem;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string;modernEquipment?:boolean;equipmentIds?:string[]}
 export interface OrderInput {itemId:string;side:MarketSide;limitPrice:number;quantity:number;ownerId?:string;createdAt?:number}
@@ -30,24 +30,39 @@ export function marketItems(s:GameState):MarketItem[]{
  const result:MarketItem[]=[];
  s.items.forEach(gear=>result.push({id:'gear:'+gear.id,name:itemName(gear),available:Object.values(s.equipped).includes(gear.id)||s.expedition?0:1,gear,category:'equipment',description:'노바르 제작 장비입니다.'}));
  const groupedEquipment=new Map<string,MarketItem>();
+ for(const kind of Object.keys(EQUIPMENT_DEFINITIONS) as EquipmentItem['kind'][]){
+  for(const grade of EQUIPMENT_GRADES){
+   for(let enhancement=0;enhancement<=10;enhancement++){
+    const sample:EquipmentItem={
+     id:'market-catalog:'+kind+':'+grade+':'+enhancement,
+     kind,
+     grade,
+     enhancement:enhancement as EquipmentItem['enhancement'],
+    };
+    const id=equipmentMarketKey(sample);
+    groupedEquipment.set(id,{
+     id,
+     name:equipmentItemName(sample),
+     available:0,
+     gear:sample,
+     modernEquipment:true,
+     equipmentIds:[],
+     category:'equipment',
+     description:'같은 종류·등급·강화 단계 장비가 하나의 실시간 주문장에서 거래됩니다.',
+    });
+   }
+  }
+ }
  s.equipmentItems.forEach(gear=>{
   if(gear.id===V2_STARTER_EQUIPMENT_ID)return;
   const id=equipmentMarketKey(gear),equipped=Object.values(s.equipped).includes(gear.id),sellable=!equipped&&!s.expedition;
   const existing=groupedEquipment.get(id);
-  if(existing){
-   if(sellable){existing.available+=1;existing.equipmentIds?.push(gear.id);}
-   return;
+  if(!existing)return;
+  if(sellable){
+   existing.available+=1;
+   existing.equipmentIds?.push(gear.id);
+   existing.gear=gear;
   }
-  groupedEquipment.set(id,{
-   id,
-   name:equipmentItemName(gear),
-   available:sellable?1:0,
-   gear,
-   modernEquipment:true,
-   equipmentIds:sellable?[gear.id]:[],
-   category:'equipment',
-   description:'같은 종류·등급·강화 단계 장비가 하나의 실시간 주문장에서 거래됩니다.',
-  });
  });
  result.push(...groupedEquipment.values());
  towerIds.forEach(t=>s.materials[t].forEach((q,i)=>result.push({id:`material:${t}:${i+1}`,name:`T${i+1} ${TOWERS[t].material}`,available:q,category:'materials',description:'안전 귀환으로 확보한 제작 재료입니다.'})));
