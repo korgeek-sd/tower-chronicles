@@ -33,7 +33,7 @@ test('SERVER V2 CUTOVER 03: every saved account gets exactly one deterministic c
 test('SERVER V2 CUTOVER 04: cloud payloads are rewritten to schema 23 and seven-slot starter loadout',()=>{
  assert.match(sql,/\{version\}.*23/s);
  assert.match(sql,/\{items\}.*\[\]/s);
- assert.match(sql,/'equipmentItems'/);
+ assert.match(sql,/\{equipmentItems\}/);
  for(const slot of ['weapon','helmet','armor','gloves','boots','necklace','ring'])assert.match(sql,new RegExp("'"+slot+"'"));
  assert.match(sql,/starter-v2/);
 });
