@@ -30,7 +30,8 @@ export const equippedEquipmentItem=(s:GameState,slot:Slot,equipment:EquipmentLoa
   equipmentItemById(s,equipment[slot]);
 export const weaponOf=(s:GameState,equipment=s.equipped):Weapon=>{
   const modern=equippedEquipmentItem(s,'weapon',equipment);
-  const family=modern?EQUIPMENT_DEFINITIONS[modern.kind].weaponFamily:null;
+  const definition=modern?EQUIPMENT_DEFINITIONS[modern.kind]:null;
+  const family=definition&&'weaponFamily' in definition?definition.weaponFamily:null;
   if(family)return family;
   return (equippedItem(s,'weapon',equipment)?.kind as Weapon)||'sword';
 };
