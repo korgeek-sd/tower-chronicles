@@ -45,7 +45,17 @@ test('SERVER V2 CUTOVER 05: legacy client payloads cannot re-import gear and ser
  assert.match(sql,/EQUIPMENT_CRAFTING_REMOVED/);
 });
 
-test('SERVER V2 CUTOVER 06: privileged migration helpers retain pinned search_path and restricted execution',()=>{
+test('SERVER V2 CUTOVER 06: online combat uses finalized stats from all seven V2 slots including ring crit',()=>{
+ for(const kind of [
+  'expedition_iron_helmet','return_corps_plate_armor','mining_detail_reinforced_gloves',
+  'survey_corps_dust_boots','association_registration_tag','expedition_merit_ring',
+ ])assert.match(sql,new RegExp(kind));
+ for(const base of ['20\\*v_mult','5\\*v_mult','55\\*v_mult','7\\*v_mult','3\\*v_mult','2\\*v_mult','15\\*v_mult','25\\*v_mult','4\\*v_mult'])assert.match(sql,new RegExp(base));
+ assert.match(sql,/v_crit:=v_crit\+\.03/);
+ assert.match(sql,/crit:=coalesce\(\(st->>'critChance'\)::numeric,\.05\)/);
+});
+
+test('SERVER V2 CUTOVER 07: privileged migration helpers retain pinned search_path and restricted execution',()=>{
  assert.match(sql,/security definer set search_path=''/i);
  assert.match(sql,/revoke all on function private\.sync_market_economy_from_latest_save/i);
 });
