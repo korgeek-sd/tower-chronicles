@@ -1,8 +1,9 @@
 {
-  "version": "0.1.32",
+  "version": "0.1.72",
   "source": "D:\\탑의 기록",
   "notes": [
-    "Only verified source files were copied; source assets were not modified.",
+    "First controlled UI image-asset pass: bottom navigation and paid Gold shop use centralized lightweight SVG assets.",
+    "Existing large PNG inventory/navigation assets remain unhooked until optimized for mobile runtime budgets.",
     "Iron Vein backgrounds map floors 1-2, 3-4, 5-6, 7-8, and 9-10 to t1-t5.",
     "No armor, boots, accessory, player, or non-Iron-Vein tower art was present in the source set; existing fallbacks remain active."
   ],
@@ -51,7 +52,8 @@
     "assets/ui/navigation-relic/market.svg",
     "assets/ui/navigation-relic/association.svg",
     "assets/ui/navigation-relic/craft.svg",
-    "assets/ui/navigation-relic/equipment.svg"
+    "assets/ui/navigation-relic/equipment.svg",
+    "assets/ui/navigation-relic/shop.svg"
   ],
   "navigationNew": [
     "assets/ui/navigation-new/home.png",
@@ -93,5 +95,10 @@
     "assets/ui/inventory/skill-execute.svg",
     "assets/ui/inventory/skill-guard.svg",
     "assets/ui/inventory/skill-quick.svg"
+  ],
+  "shopGold": [
+    "assets/shop/gold/gold_stack_1.svg",
+    "assets/shop/gold/gold_stack_2.svg",
+    "assets/shop/gold/gold_stack_3.svg"
   ]
 }
