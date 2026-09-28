@@ -7,13 +7,12 @@ import {masteryPercent,masteryRequired} from '../../game/engine/gearMastery';
 import {discount} from '../../game/engine/crafting';
 import {APPEARANCES,TITLES,appearanceById,titleById} from '../../game/data/cosmetics';
 import {selectAppearance,selectTitle} from '../../game/engine/cosmetics';
-import {applyPreset,canAccessPresetSlot,renamePreset,savePreset} from '../../game/engine/presets';
-import {getGoldenPresetSlotLimit,getGoldenRecorderBenefits,isGoldenRecorderActive,remainingGoldenTime} from '../../game/premium/goldenRecorder';
+import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
 import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 
-export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -52,13 +51,13 @@ export function TowersScreen({game,onSelect}:{game:GameState;onSelect:(tower:Tow
  </Screen>;
 }
 
-export function FloorScreen({game,setGame,tower,floor,setFloor,now,onBack,onEnter}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;tower:Tower;floor:number;setFloor:(n:number)=>void;now:number;onBack:()=>void;onEnter:()=>void}){
- const [tab,setTab]=useState<'bag'|'preset'>('bag'),[presetSlot,setPresetSlot]=useState(1),exp=game.expedition,presetLimit=getGoldenPresetSlotLimit(game,now),preset=game.expeditionPresets[presetSlot-1],open=canAccessPresetSlot(presetSlot,presetLimit),monster=monsterFor(tower,floor),generalCount=generalPotionIds.reduce((n,p)=>n+game.loadout[p],0),valid=!!game.tickets[tower][floor-1]&&generalCount<=CONFIG.generalPotionLimit;
+export function FloorScreen({game,setGame,tower,floor,setFloor,onBack,onEnter}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;tower:Tower;floor:number;setFloor:(n:number)=>void;onBack:()=>void;onEnter:()=>void}){
+ const [tab,setTab]=useState<'bag'|'preset'>('bag'),[presetSlot,setPresetSlot]=useState(1),exp=game.expedition,presetLimit=getPresetSlotLimit(),preset=game.expeditionPresets[presetSlot-1],monster=monsterFor(tower,floor),generalCount=generalPotionIds.reduce((n,p)=>n+game.loadout[p],0),valid=!!game.tickets[tower][floor-1]&&generalCount<=CONFIG.generalPotionLimit;
  function updateBag(p:Potion,value:number){setGame(s=>({...s,loadout:{...s.loadout,[p]:Math.max(0,Math.min(s.potions[p],Math.floor(value)||0))}}));}
  return <Screen eyebrow="EXPEDITION PREP" title={TOWERS[tower].name} meta={<button className="tc-action secondary slim" onClick={onBack}>탑 변경</button>}>
   <div className="tc-floor">
    <div className="tc-floor-hero"><button onClick={()=>setFloor(Math.max(1,floor-1))}>−</button><div className="tc-floor-center"><b>{floor}F</b><small>{floor<=2?'SAFE · PK 불가':floor<=5?'PK 가능':'BOSS 구간'} · 입장권 {game.tickets[tower][floor-1]}장</small><div className="tc-stat-grid"><Stat label="적 HP" value={monster.hp}/><Stat label="공격" value={monster.attack.toFixed(0)}/><Stat label="방어" value={monster.defense.toFixed(0)}/><Stat label="공속" value={monster.speed.toFixed(2)}/></div></div><button onClick={()=>setFloor(Math.min(CONFIG.maxFloor,floor+1))}>+</button></div>
-   <div className="tc-floor-content"><Segments items={[['bag','원정 가방'],['preset','프리셋']] as const} value={tab} onChange={setTab} label="원정 준비"/><div className="tc-floor-tabbody">{tab==='bag'?<div className="tc-potion-list">{potionIds.map(p=><label className="tc-potion-row" key={p}><span><b>{POTIONS[p].name}</b><small>T{POTIONS[p].tier} · 창고 {game.potions[p]}개{p==='revival'?' · 최대 '+CONFIG.revivalPotionLimit:''}</small></span><input type="number" min="0" disabled={!!exp||game.potions[p]===0} max={p==='revival'?Math.min(game.potions[p],CONFIG.revivalPotionLimit):game.potions[p]} value={game.loadout[p]} onChange={e=>updateBag(p,+e.target.value)}/></label>)}</div>:<div className="tc-preset"><select value={presetSlot} onChange={e=>setPresetSlot(+e.target.value)}>{game.expeditionPresets.map((x,i)=><option value={i+1} key={i}>슬롯 {i+1} · {x?.name||'비어 있음'}{canAccessPresetSlot(i+1,presetLimit)?'':' · 잠김'}</option>)}</select><div className="tc-preset-info"><strong>{preset?.name||'비어 있는 프리셋'}</strong><small>{open?(preset?'장비·스킬·포션 구성을 불러오거나 덮어쓸 수 있습니다.':'현재 구성을 저장할 수 있습니다.'):'황금기록자 전용 슬롯 · 데이터는 유지됩니다.'}</small></div><div className="tc-preset-actions"><button disabled={!open||!preset||!!exp} onClick={()=>setGame(s=>applyPreset(s,presetSlot,presetLimit))}>불러오기</button><button disabled={!open||!!exp} onClick={()=>setGame(s=>savePreset(s,presetSlot,preset?.name,presetLimit))}>저장</button><button disabled={!open||!preset||!!exp} onClick={()=>{const name=window.prompt('프리셋 이름',preset?.name);if(name!==null)setGame(s=>renamePreset(s,presetSlot,name,presetLimit));}}>이름</button></div></div>}</div></div>
+   <div className="tc-floor-content"><Segments items={[['bag','원정 가방'],['preset','프리셋']] as const} value={tab} onChange={setTab} label="원정 준비"/><div className="tc-floor-tabbody">{tab==='bag'?<div className="tc-potion-list">{potionIds.map(p=><label className="tc-potion-row" key={p}><span><b>{POTIONS[p].name}</b><small>T{POTIONS[p].tier} · 창고 {game.potions[p]}개{p==='revival'?' · 최대 '+CONFIG.revivalPotionLimit:''}</small></span><input type="number" min="0" disabled={!!exp||game.potions[p]===0} max={p==='revival'?Math.min(game.potions[p],CONFIG.revivalPotionLimit):game.potions[p]} value={game.loadout[p]} onChange={e=>updateBag(p,+e.target.value)}/></label>)}</div>:<div className="tc-preset"><select value={presetSlot} onChange={e=>setPresetSlot(+e.target.value)}>{game.expeditionPresets.map((x,i)=><option value={i+1} key={i}>슬롯 {i+1} · {x?.name||'비어 있음'}</option>)}</select><div className="tc-preset-info"><strong>{preset?.name||'비어 있는 프리셋'}</strong><small>{preset?'장비·스킬·포션 구성을 불러오거나 덮어쓸 수 있습니다.':'현재 구성을 저장할 수 있습니다.'}</small></div><div className="tc-preset-actions"><button disabled={!preset||!!exp} onClick={()=>setGame(s=>applyPreset(s,presetSlot,presetLimit))}>불러오기</button><button disabled={!!exp} onClick={()=>setGame(s=>savePreset(s,presetSlot,preset?.name,presetLimit))}>저장</button><button disabled={!open||!preset||!!exp} onClick={()=>{const name=window.prompt('프리셋 이름',preset?.name);if(name!==null)setGame(s=>renamePreset(s,presetSlot,name,presetLimit));}}>이름</button></div></div>}</div></div>
    <div className="tc-floor-footer"><div className="tc-floor-risk">일반 포션 {generalCount}/{CONFIG.generalPotionLimit}<br/>사망 시 이번 원정 획득물과 남은 원정 포션 소멸</div><button className="tc-floor-enter" disabled={!valid} onClick={onEnter}>{floor}층 입장<small>{TOWERS[tower].material} 수집 · 입장권 1장 사용</small></button></div>
   </div>
  </Screen>;
@@ -101,28 +100,12 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
  </Screen>;
 }
 
-export function ShopScreen({game,now,onPremium}:{game:GameState;now:number;onPremium:()=>void}){
- const active=isGoldenRecorderActive(game,now);
+export function ShopScreen({game}:{game:GameState}){
  return <Screen eyebrow="NOVAR SHOP" title="상점" meta={<span>{game.market.gold.toLocaleString()} Gold</span>}>
-  <div style={{height:'100%',display:'grid',gridTemplateRows:'auto 1fr',gap:'6px'}}>
-   <section className="tc-panel strong" style={{display:'grid',gridTemplateColumns:'38px 1fr auto',gap:'8px',alignItems:'center',padding:'10px'}}>
-    <Glyph name="premium"/>
-    <div><small className="tc-kicker">PREMIUM</small><h2 style={{fontSize:'13px',margin:'3px 0'}}>황금기록자</h2><p style={{fontSize:'8px',color:'var(--muted)',margin:0}}>{active?remainingGoldenTime(game.goldenRecorder.expiresAt,now)+' 남음':'혜택 및 등록 상태 확인'}</p></div>
-    <button className="tc-action slim" onClick={onPremium}>보기</button>
-   </section>
-   <section className="tc-panel" style={{display:'grid',placeItems:'center',alignContent:'center',gap:'8px',textAlign:'center'}}>
-    <Glyph name="shop"/>
-    <b>Gold 상품</b>
-    <small style={{color:'var(--muted)'}}>결제 상품은 구매 시스템 연결 후 이 화면에 추가됩니다.</small>
-   </section>
-  </div>
- </Screen>;
-}
-
-export function PremiumScreen({game,setGame,now}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;now:number}){
- const active=isGoldenRecorderActive(game,now),benefit=getGoldenRecorderBenefits(game,now);
- return <Screen eyebrow="ACCOUNT STATUS" title="황금기록자" meta={<span>{active?'활성':'미등록'}</span>}>
-  <div style={{height:'100%',display:'grid',gridTemplateRows:'1fr auto',gap:'6px'}}><section className="tc-panel strong" style={{display:'grid',alignContent:'center',gap:'8px'}}><small className="tc-kicker">GOLDEN RECORDER</small><h2 style={{font:'700 19px Georgia',margin:0}}>{active?remainingGoldenTime(game.goldenRecorder.expiresAt,now)+' 남음':'등록 혜택 미적용'}</h2><div className="tc-stat-grid"><Stat label="프리셋" value={benefit.presetSlots+'칸'}/><Stat label="제작 절감" value={benefit.craftingMaterialReductionBonus?Math.round(benefit.craftingMaterialReductionBonus*100)+'%':'없음'}/><Stat label="Gold 수수료" value={Math.round(benefit.goldSaleFeeRate*100)+'%'}/><Stat label="만료" value={active?new Date(game.goldenRecorder.expiresAt!).toLocaleDateString('ko-KR'):'—'}/></div><p style={{fontSize:'8px',color:'var(--muted)',margin:0}}>게임 플레이 규칙은 그대로이며 표시된 혜택은 기존 황금기록자 데이터에서 읽습니다.</p></section>{import.meta.env.DEV&&<div className="tc-segments"><button onClick={()=>setGame(s=>({...s,goldenRecorder:{expiresAt:now+3600000}}))}>QA +1H</button><button onClick={()=>setGame(s=>({...s,goldenRecorder:{expiresAt:now+30*86400000}}))}>QA +30D</button><button onClick={()=>setGame(s=>({...s,goldenRecorder:{expiresAt:now}}))}>QA 만료</button></div>}</div>
+  <section className="tc-panel strong" style={{height:'100%',display:'grid',placeItems:'center',alignContent:'center',gap:'10px',textAlign:'center'}}>
+   <Glyph name="shop"/>
+   <div><b>Gold 상품</b><p style={{fontSize:'8px',color:'var(--muted)',margin:'5px 0 0'}}>상품 구성은 구매 시스템 연결 후 이곳에 표시됩니다.</p></div>
+  </section>
  </Screen>;
 }
 
