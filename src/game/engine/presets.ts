@@ -1,10 +1,10 @@
 import type {ExpeditionPreset,GameState,Slot} from '../types';
 import {POTIONS,SKILLS,WEAPONS,PASSIVES,potionIds,generalPotionIds,CONFIG} from '../data/config';
 import {EQUIPMENT_DEFINITIONS,equipmentItemSlot,normalizeEquipmentLoadout} from '../data/equipment';
-export const BASE_PRESET_SLOT_LIMIT=2,PREMIUM_PRESET_SLOT_LIMIT=5,PRESET_NAME_MAX_LENGTH=20;
-export const initialPresets=():(ExpeditionPreset|null)[]=>Array(5).fill(null);
-export const getPresetSlotLimit=(premium=false)=>premium?PREMIUM_PRESET_SLOT_LIMIT:BASE_PRESET_SLOT_LIMIT;
-export const canAccessPresetSlot=(slot:number,limit=getPresetSlotLimit())=>Number.isInteger(slot)&&slot>=1&&slot<=limit&&slot<=PREMIUM_PRESET_SLOT_LIMIT;
+export const PRESET_SLOT_LIMIT=5,PRESET_NAME_MAX_LENGTH=20;
+export const initialPresets=():(ExpeditionPreset|null)[]=>Array(PRESET_SLOT_LIMIT).fill(null);
+export const getPresetSlotLimit=()=>PRESET_SLOT_LIMIT;
+export const canAccessPresetSlot=(slot:number,limit=getPresetSlotLimit())=>Number.isInteger(slot)&&slot>=1&&slot<=limit&&slot<=PRESET_SLOT_LIMIT;
 const slotOf=(kind:string):Slot=>kind in WEAPONS?'weapon':kind==='armor'?'armor':kind==='boots'?'boots':kind in PASSIVES?'ring':'ring';
 const normalizedName=(name:string)=>name.trim().slice(0,PRESET_NAME_MAX_LENGTH);
 export function snapshotPreset(s:GameState,name:string):ExpeditionPreset|null {const clean=normalizedName(name);if(!clean||s.skills.some(id=>id!==null&&(!SKILLS.some(x=>x.id===id)||!s.learned.includes(id))))return null;return {name:clean,equipment:structuredClone(s.equipped),skills:[...s.skills],potions:{...s.loadout},threshold:s.threshold};}
