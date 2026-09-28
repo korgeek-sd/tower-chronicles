@@ -26,7 +26,7 @@ test('V2 MARKET 03: seller fee is 5%, buyer pays only list price, proceeds go to
  assert.match(sql,/seller_fee_bps[^\n]*500/);
  assert.match(sql,/v_seller_fee:=floor\(v_listing\.list_price::numeric\*500\/10000\)/);
  assert.match(sql,/v_seller_net:=v_listing\.list_price-v_seller_fee/);
- assert.match(sql,/silver=v_listing\.list_price/);
+ assert.match(sql,/silver=silver-v_listing\.list_price/);
  assert.match(sql,/private\.market_storage/);
  assert.match(sql,/side,'SELL'/);
 });
