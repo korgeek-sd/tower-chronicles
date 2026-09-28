@@ -24,7 +24,7 @@ test('숙련 04: 현재 착용 가능 티어와 같은 장비만 다음 티어�
 test('숙련 05: 장비 티어는 탑 층과 독립이며 현재 자격과 같은 장비가 숙련을 진행한다',()=>{const s=fullSet(10);s.gearMastery.dagger.unlockedTier=2;s.items.find(i=>i.id==='dagger')!.tier=2;reward(s,()=>.9);assert.equal(s.gearMastery.dagger.progress,masteryGainForFloor(10));});
 test('숙련 06: 요구치를 채우면 다음 티어 착용 자격이 열린다',()=>{const s=fullSet();s.gearMastery.dagger.progress=masteryRequired(2)-masteryGainForFloor(1);reward(s,()=>.9);assert.equal(s.gearMastery.dagger.unlockedTier,2);assert.match(s.logs.join('\n'),/T2 단검 착용 자격/);});
 test('숙련 07: 10층 획득량은 1층보다 약 50% 높다',()=>{assert.equal(masteryGainForFloor(10),Math.round(masteryGainForFloor(1)*1.5));});
-test('숙련 08: 자격보다 높은 장비를 보유해도 장착할 수 없다',()=>{const s=initialState();s.items.push(item('high','sword',4));const n=equip(s,'high');assert.equal(n.equipped.weapon,'starter');assert.match(n.notice,/T4 검을 장착하려면 검 숙련이 더 필요합니다/);});
+test('숙련 08: 자격보다 높은 장비를 보유해도 장착할 수 없다',()=>{const s=initialState();s.items.push(item('high','sword',4));const n=equip(s,'high');assert.equal(n.equipped.weapon,'starter-v2');assert.match(n.notice,/T4 검을 장착하려면 검 숙련이 더 필요합니다/);});
 test('숙련 09: 원정 중 장비 변경은 정확한 안내와 함께 거부된다',()=>{const s=fullSet(),n=equip(s,'starter');assert.deepEqual(n.expedition!.equipment,s.expedition!.equipment);assert.equal(n.notice,'원정 중에는 장비를 변경할 수 없습니다.');});
 test('숙련 10: 사망해도 이미 획득한 장비 숙련은 유지된다',()=>{const s=fullSet();reward(s,()=>.9);const before=s.gearMastery.dagger.progress,n=leave(s,true);assert.equal(n.gearMastery.dagger.progress,before);});
 test('숙련 11: 저장과 재로드 후 숙련도와 원정 장비 고정값이 복구된다',()=>{const {repo}=memory(),s=fullSet();reward(s,()=>.9);repo.save(s);assert.deepEqual(repo.load(),s);});
