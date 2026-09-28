@@ -1,4 +1,4 @@
-import type {ActiveEffect,GameState,Tower} from '../game/types';
+import type {ActiveEffect,EquipmentItem,GameState,Tower} from '../game/types';
 import type {JobRarity} from '../game/jobs/catalog';
 import type {JobRegistrationPaidRolls} from '../game/jobs/registration';
 import type {PendingExpeditionEvent} from '../game/events/types';
@@ -19,6 +19,7 @@ export function applyServerEconomyRecord(local:GameState,record:CloudSaveRecord)
  next.skillBooks=structuredClone(server.skillBooks);
  next.lootItems=structuredClone(server.lootItems);
  next.items=structuredClone(server.items);
+ next.equipmentItems=structuredClone(server.equipmentItems??[]);
  return next;
 }
 
@@ -122,7 +123,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number}|null}
+export interface OnlineCombatState {fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem|null}|null}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -326,6 +327,11 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  if(server.monsterId)e.monsterRuntime={definitionId:server.monsterId,skillCooldowns:Object.fromEntries(Object.entries(server.monsterCooldowns??{}).filter(([,value])=>Number.isFinite(value)).map(([key,value])=>[key,Math.max(0,Math.trunc(Number(value)))])),preparedActionId:server.monsterPreparedAction??null,turnNumber:Math.max(0,Math.trunc(Number(server.monsterTurn??e.monsterTurn)))};
  e.phase=server.pendingRevival?'MONSTER_TURN':server.phase==='PLAYER_TURN'?'PLAYER_TURN':server.phase==='MONSTER_TURN'?'MONSTER_TURN':(['PLAYER_TURN','MONSTER_TURN'].includes(e.phase)?e.phase:'PLAYER_TURN');
  if(server.phase==='DEFEATED')e.monster.currentHp=0;
+ const dropped=server.drop?.equipment;
+ if(dropped){
+   e.loot.equipment??=[];
+   if(!e.loot.equipment.some(item=>item.id===dropped.id))e.loot.equipment.push(structuredClone(dropped));
+ }
  return next;
 }
 
@@ -337,7 +343,7 @@ export async function resolveOnlineExplorationEvent(lease:GameplayLease,expected
 export async function claimOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('claim_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
 export async function settleOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{reward:OnlineStronghold['reward'];stronghold:OnlineStronghold;temporaryLoot:unknown;runVersion:number}>('settle_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
 export async function abandonOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('abandon_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
-export interface OnlineTemporaryLoot {silver?:number;material?:number;tickets?:number}
+export interface OnlineTemporaryLoot {silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem[]}
 export interface RestoredOnlineExpedition {active:boolean;run?:{runId:string;tower:Tower;floor:number;confirmedKills:number;encounterIndex:number;bossProgress:number;bossDefeated:boolean;pendingEvent:OnlineExplorationEvent|null;temporaryLoot:OnlineTemporaryLoot;stronghold:OnlineStronghold|null;runVersion:number;potions:Record<string,number>};combat?:Partial<OnlineCombatState>|null}
 export async function restoreOnlineExpedition(lease:GameplayLease){return rpc<RestoredOnlineExpedition>('restore_online_expedition',leaseArgs(lease));}
 export function reconcileOnlineExpeditionState(local:GameState,restored:RestoredOnlineExpedition):GameState{
@@ -346,7 +352,7 @@ export function reconcileOnlineExpeditionState(local:GameState,restored:Restored
  e=next.expedition!;e.tower=run.tower;e.floor=run.floor;e.kills=run.confirmedKills;e.bossTracking.progress=run.bossProgress;e.bossTracking.bossDefeated=run.bossDefeated;
  const p=run.potions;e.bag.healing_lesser=p.lesser??e.bag.healing_lesser;e.bag.healing_standard=p.standard??e.bag.healing_standard;e.bag.healing_greater=p.greater??e.bag.healing_greater;e.bag.healing_supreme=p.supreme??e.bag.healing_supreme;e.bag.revival=p.revival??e.bag.revival;
  const pending=run.pendingEvent;if(pending){const eventId=pending.eventId??pending.id??'',state=pending.state==='RESULT'?'RESULT':'CHOICE';const normalized:PendingExpeditionEvent={instanceId:pending.instanceId??`server-event-${run.runId}-${run.runVersion}`,eventId,bossId:pending.bossId??null,state,choiceId:pending.choiceId??null,outcomeId:pending.outcomeId??null,resultText:pending.resultText??'',resultLines:Array.isArray(pending.resultLines)?pending.resultLines:[],next:pending.next==='BOSS'?'BOSS':'NORMAL',randomValue:Number(pending.randomValue??pending.outcomeTicket??0),expiresAt:typeof pending.expiresAt==='number'?pending.expiresAt:null};e.events.pendingEvent=normalized;e.events.phase=state==='RESULT'?'EVENT_RESULT':'EVENT';e.phase='BATTLE_END';e.monsterRuntime=null;e.reactivePrepared={player:null,monster:null};e.monsterEffects=[];e.preparedEffects=[];e.playerEffects=e.playerEffects.filter(effect=>effect.scope==='EXPEDITION');e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;e.events.activeBossId=null;}else{e.events.pendingEvent=null;e.events.phase='BATTLE';e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;const activeMonsterId=typeof combat?.monsterId==='string'?combat.monsterId:e.monster.definitionId??'';const entry=activeMonsterId?bestiaryEntryById(activeMonsterId):undefined;e.events.activeBossId=entry?.boss?activeMonsterId:null;}
- const loot=run.temporaryLoot??{};e.loot.silver=Math.max(0,Number(loot.silver??0));for(const t of Object.keys(e.loot.materials) as Tower[])e.loot.materials[t]=e.loot.materials[t].map(()=>0);for(const t of Object.keys(e.loot.tickets) as Tower[])e.loot.tickets[t]=e.loot.tickets[t].map(()=>0);e.loot.skillBooks={};e.loot.items={};e.loot.materials[e.tower][tierOf(e.floor)-1]=Math.max(0,Number(loot.material??0));if(e.floor<e.loot.tickets[e.tower].length)e.loot.tickets[e.tower][e.floor]=Math.max(0,Number(loot.tickets??0));
+ const loot=run.temporaryLoot??{};e.loot.silver=Math.max(0,Number(loot.silver??0));for(const t of Object.keys(e.loot.materials) as Tower[])e.loot.materials[t]=e.loot.materials[t].map(()=>0);for(const t of Object.keys(e.loot.tickets) as Tower[])e.loot.tickets[t]=e.loot.tickets[t].map(()=>0);e.loot.skillBooks={};e.loot.items={};e.loot.equipment=Array.isArray(loot.equipment)?structuredClone(loot.equipment):[];e.loot.materials[e.tower][tierOf(e.floor)-1]=Math.max(0,Number(loot.material??0));if(e.floor<e.loot.tickets[e.tower].length)e.loot.tickets[e.tower][e.floor]=Math.max(0,Number(loot.tickets??0));
  const sh=run.stronghold;if(sh)e.events.stronghold={instanceId:sh.instanceId,status:sh.status as any,ownerUserId:next.market.ownerId,tower:sh.tower,floor:sh.floor,version:sh.version,captureStartedAt:new Date(sh.captureStartedAt).getTime(),captureEndsAt:new Date(sh.captureEndsAt).getTime(),reward:sh.reward,contestedByUserId:null,contestRemainingMs:null,completedAt:null,abandonedAt:null,deletedAt:sh.status==='DELETED'?Date.now():null};else e.events.stronghold=null;
  return next;
 }
