@@ -2,39 +2,37 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-const panel=readFileSync(new URL('../src/components/market/EquipmentMarketPanel.tsx',import.meta.url),'utf8');
 const server=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
 const online=readFileSync(new URL('../src/online/market.ts',import.meta.url),'utf8');
 
-test('V2 MARKET UI 01: equipment category uses dedicated fixed-price panel',()=>{
- assert.match(server,/EquipmentMarketPanel/);
- assert.match(server,/category==='equipment'/);
- assert.match(panel,/즉시 구매/);
- assert.match(panel,/판매 등록/);
- assert.match(panel,/입찰 없음/);
- assert.doesNotMatch(panel,/placeBid|bidPrice|bidAmount|입찰하기/);
+test('V2 MARKET UI 01: equipment category shares the same list and card UI as other categories',()=>{
+ assert.doesNotMatch(server,/EquipmentMarketPanel/);
+ assert.match(server,/combinedCatalog/);
+ assert.match(server,/tc-market-v2-list tc-market-v3-list tc-market-v4-list/);
+ assert.match(server,/tc-market-v2-row tc-market-v3-card tc-market-v4-card/);
 });
 
-test('V2 MARKET UI 02: buy list supports kind grade and enhancement filters',()=>{
- assert.match(panel,/kindFilter/);
- assert.match(panel,/gradeFilter/);
- assert.match(panel,/enhancementFilter/);
- assert.match(panel,/EQUIPMENT_DEFINITIONS/);
- assert.match(panel,/EQUIPMENT_GRADES/);
+test('V2 MARKET UI 02: owned and listed equipment are merged into normal browsing',()=>{
+ assert.match(server,/equipmentBrowseRows/);
+ assert.match(server,/snapshot\.equipmentListings/);
+ assert.match(server,/view\.equipmentItems/);
+ assert.match(server,/listingCount/);
+ assert.match(server,/bestListing/);
 });
 
-test('V2 MARKET UI 03: sell form shows registration fee, seller fee and expected proceeds',()=>{
- assert.match(panel,/등록 수수료/);
- assert.match(panel,/판매 수수료/);
- assert.match(panel,/예상 정산/);
- assert.match(panel,/registrationFee/);
- assert.match(panel,/sellerFee/);
+test('V2 MARKET UI 03: equipment fixed-price detail shows instant buy and sell fee preview',()=>{
+ assert.match(server,/즉시 구매/);
+ assert.match(server,/판매 등록/);
+ assert.match(server,/등록 수수료/);
+ assert.match(server,/판매 수수료 5%/);
+ assert.match(server,/예상 정산/);
+ assert.doesNotMatch(server,/입찰하기|placeBid|bidAmount/);
 });
 
-test('V2 MARKET UI 04: owned equipment listing excludes starter and marks equipped items unavailable',()=>{
- assert.match(panel,/starter-v2/);
- assert.match(panel,/Object\.values\(game\.equipped\)/);
- assert.match(panel,/장착 해제/);
+test('V2 MARKET UI 04: starter and equipped equipment are excluded from sellable availability',()=>{
+ assert.match(server,/V2_STARTER_EQUIPMENT_ID/);
+ assert.match(server,/Object\.values\(view\.equipped\)/);
+ assert.match(server,/sellItemId/);
 });
 
 test('V2 MARKET UI 05: online market client exposes list buy cancel and V2 state models',()=>{
