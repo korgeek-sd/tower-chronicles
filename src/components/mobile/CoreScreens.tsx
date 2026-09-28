@@ -13,7 +13,7 @@ import {jobById} from '../../game/jobs/catalog';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Meter,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 
-export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary';
+export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'equipment'|'craft'|'mastery'|'enhancement'|'skills'|'jobs'|'cosmetics'|'premium'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -98,6 +98,24 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
  const [tab,setTab]=useState<'appearance'|'title'>('appearance'),[page,setPage]=useState(0),PAGE=4,source=tab==='appearance'?APPEARANCES:TITLES.filter(t=>game.cosmetics.unlockedTitleIds.includes(t.id)),pages=Math.max(1,Math.ceil(source.length/PAGE)),safe=Math.min(page,pages-1),shown=source.slice(safe*PAGE,safe*PAGE+PAGE);
  return <Screen eyebrow="EXPLORER PROFILE" title="외형 · 칭호" meta={<span>{appearanceById(game.cosmetics.selectedAppearanceId)?.name||'기본'}</span>}>
   <div style={{height:'100%',display:'grid',gridTemplateRows:'auto 1fr auto',gap:'5px'}}><Segments items={[['appearance','외형'],['title','칭호']] as const} value={tab} onChange={v=>{setTab(v);setPage(0);}} label="프로필 꾸미기"/><div className="tc-job-list">{shown.map((x:any)=>tab==='appearance'?<article className="tc-job" key={x.id}><div><b>{x.name}</b><small>{x.description} · {x.sourceLabel}</small></div><button disabled={!!game.expedition||!game.cosmetics.unlockedAppearanceIds.includes(x.id)||game.cosmetics.selectedAppearanceId===x.id} onClick={()=>setGame(s=>selectAppearance(s,x.id))}>{game.cosmetics.selectedAppearanceId===x.id?'적용':'선택'}</button></article>:<article className="tc-job" key={x.id}><div><b>「{x.name}」</b><small>{x.description}</small></div><button disabled={!!game.expedition||game.cosmetics.selectedTitleId===x.id} onClick={()=>setGame(s=>selectTitle(s,x.id))}>{game.cosmetics.selectedTitleId===x.id?'적용':'선택'}</button></article>)}{Array.from({length:Math.max(0,PAGE-shown.length)},(_,i)=><div className="tc-job" key={'c'+i}/>)}</div><Pager page={safe} count={pages} onChange={setPage}/></div>
+ </Screen>;
+}
+
+export function ShopScreen({game,now,onPremium}:{game:GameState;now:number;onPremium:()=>void}){
+ const active=isGoldenRecorderActive(game,now);
+ return <Screen eyebrow="NOVAR SHOP" title="상점" meta={<span>{game.gold.toLocaleString()} Gold</span>}>
+  <div style={{height:'100%',display:'grid',gridTemplateRows:'auto 1fr',gap:'6px'}}>
+   <section className="tc-panel strong" style={{display:'grid',gridTemplateColumns:'38px 1fr auto',gap:'8px',alignItems:'center',padding:'10px'}}>
+    <Glyph name="premium"/>
+    <div><small className="tc-kicker">PREMIUM</small><h2 style={{fontSize:'13px',margin:'3px 0'}}>황금기록자</h2><p style={{fontSize:'8px',color:'var(--muted)',margin:0}}>{active?remainingGoldenTime(game.goldenRecorder.expiresAt,now)+' 남음':'혜택 및 등록 상태 확인'}</p></div>
+    <button className="tc-action slim" onClick={onPremium}>보기</button>
+   </section>
+   <section className="tc-panel" style={{display:'grid',placeItems:'center',alignContent:'center',gap:'8px',textAlign:'center'}}>
+    <Glyph name="shop"/>
+    <b>Gold 상품</b>
+    <small style={{color:'var(--muted)'}}>결제 상품은 구매 시스템 연결 후 이 화면에 추가됩니다.</small>
+   </section>
+  </div>
  </Screen>;
 }
 
