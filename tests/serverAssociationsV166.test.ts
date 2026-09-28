@@ -39,8 +39,8 @@ test('SERVER ASSOCIATION 05: server projection overwrites client association cla
 test('SERVER ASSOCIATION 06: expedition revenue share is server membership based and credits treasury exactly once',()=>{
  assert.match(sql,/association_id uuid/);
  assert.match(sql,/server_association_revenue_rate/);
- assert.match(sql,/NEW\.revenue_share_rate:=/);
- assert.match(sql,/OLD\.status='ACTIVE'[\s\S]*NEW\.status='RETURNED'/);
+ assert.match(sql,/new\.revenue_share_rate:=/i);
+ assert.match(sql,/old\.status='ACTIVE'[\s\S]*new\.status='RETURNED'/i);
  assert.match(sql,/treasury_silver=treasury_silver\+v_share/);
 });
 
