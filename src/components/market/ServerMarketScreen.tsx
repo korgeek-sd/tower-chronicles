@@ -204,7 +204,7 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
  },[trades]);
  const equipmentTrendByKey=useMemo(()=>{
   const grouped=new Map<string,{at:number;price:number}[]>();
-  for(const trade of snapshot.equipmentTrades){
+  for(const trade of snapshot?.equipmentTrades??[]){
    const rows=grouped.get(trade.marketKey)??[];
    rows.push({at:trade.executedAt,price:trade.price});
    grouped.set(trade.marketKey,rows);
@@ -215,8 +215,8 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
    result.set(key,makeTrend(values));
   });
   return result;
- },[snapshot.equipmentTrades]);
- const myEquipmentListings=snapshot.equipmentListings.filter(listing=>listing.mine);
+ },[snapshot?.equipmentTrades]);
+ const myEquipmentListings=(snapshot?.equipmentListings??[]).filter(listing=>listing.mine);
  const orderRows=[
   ...open.map(order=>({kind:'order' as const,order})),
   ...myEquipmentListings.map(listing=>({kind:'equipment' as const,listing})),
