@@ -3,9 +3,9 @@ import type {InventoryCategory} from '../inventoryView';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
-import {V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../data/equipment';
+import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../data/equipment';
 
-export interface MarketItem {id:string;name:string;available:number;gear?:Item|EquipmentItem;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string;modernEquipment?:boolean}
+export interface MarketItem {id:string;name:string;available:number;gear?:Item|EquipmentItem;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string;modernEquipment?:boolean;equipmentIds?:string[]}
 export interface OrderInput {itemId:string;side:MarketSide;limitPrice:number;quantity:number;ownerId?:string;createdAt?:number}
 const active=(o:MarketOrder)=>o.status==='OPEN'||o.status==='PARTIAL';
 const validPositive=(n:number)=>Number.isSafeInteger(n)&&n>0;
@@ -13,6 +13,12 @@ const status=(remaining:number,original:number):MarketOrder['status']=>remaining
 const local=(s:GameState,id:string)=>s.market.ownerId===id;
 const isEquipmentItem=(gear:Item|EquipmentItem):gear is EquipmentItem=>
  typeof (gear as EquipmentItem).grade==='string'&&typeof (gear as EquipmentItem).enhancement==='number';
+const equipmentMarketKey=(gear:EquipmentItem)=>'equipment:'+gear.kind+':'+gear.grade+':+'+gear.enhancement;
+const equipmentMarketName=(itemId:string)=>{
+ const [,kind,grade,enhancement]=itemId.split(':');
+ const definition=(EQUIPMENT_DEFINITIONS as Record<string,{name:string}>)[kind];
+ return definition?definition.name+' · '+(EQUIPMENT_GRADE_NAMES as Record<string,string>)[grade]+' '+enhancement:itemId;
+};
 
 function parseStack(itemId:string):{kind:string;tower?:Tower;index?:number;id?:string}|null {
  const [kind,a,b]=itemId.split(':');
@@ -23,15 +29,27 @@ function parseStack(itemId:string):{kind:string;tower?:Tower;index?:number;id?:s
 export function marketItems(s:GameState):MarketItem[]{
  const result:MarketItem[]=[];
  s.items.forEach(gear=>result.push({id:'gear:'+gear.id,name:itemName(gear),available:Object.values(s.equipped).includes(gear.id)||s.expedition?0:1,gear,category:'equipment',description:'노바르 제작 장비입니다.'}));
- s.equipmentItems.forEach(gear=>result.push({
-  id:'equipment_v2:'+gear.id,
-  name:equipmentItemName(gear),
-  available:gear.id===V2_STARTER_EQUIPMENT_ID||Object.values(s.equipped).includes(gear.id)||s.expedition?0:1,
-  gear,
-  modernEquipment:true,
-  category:'equipment',
-  description:gear.id===V2_STARTER_EQUIPMENT_ID?'협회 보급 장비는 거래할 수 없습니다.':'등급과 강화 단계가 고정된 V2 장비입니다.',
- }));
+ const groupedEquipment=new Map<string,MarketItem>();
+ s.equipmentItems.forEach(gear=>{
+  if(gear.id===V2_STARTER_EQUIPMENT_ID)return;
+  const id=equipmentMarketKey(gear),equipped=Object.values(s.equipped).includes(gear.id),sellable=!equipped&&!s.expedition;
+  const existing=groupedEquipment.get(id);
+  if(existing){
+   if(sellable){existing.available+=1;existing.equipmentIds?.push(gear.id);}
+   return;
+  }
+  groupedEquipment.set(id,{
+   id,
+   name:equipmentItemName(gear),
+   available:sellable?1:0,
+   gear,
+   modernEquipment:true,
+   equipmentIds:sellable?[gear.id]:[],
+   category:'equipment',
+   description:'같은 종류·등급·강화 단계 장비가 하나의 실시간 주문장에서 거래됩니다.',
+  });
+ });
+ result.push(...groupedEquipment.values());
  towerIds.forEach(t=>s.materials[t].forEach((q,i)=>result.push({id:`material:${t}:${i+1}`,name:`T${i+1} ${TOWERS[t].material}`,available:q,category:'materials',description:'안전 귀환으로 확보한 제작 재료입니다.'})));
  towerIds.forEach(t=>s.tickets[t].forEach((q,i)=>result.push({id:`ticket:${t}:${i+1}`,name:`${TOWERS[t].name} ${i+1}층 입장권`,available:q,category:'tickets',description:'해당 층 입장에 사용하는 입장권입니다.'})));
  Object.entries(s.skillBooks).forEach(([id,q])=>result.push({id:'skillbook:'+id,name:bookName(id),available:q,category:'skillbooks',description:'아직 사용하지 않은 스킬북입니다.'}));
@@ -41,6 +59,7 @@ export function marketItems(s:GameState):MarketItem[]{
 const escrowGear=(s:GameState,itemId:string)=>s.market.orders.find(order=>order.itemId===itemId&&order.gear)?.gear;
 function staticItemName(itemId:string,gear?:Item|EquipmentItem){
  if(gear)return isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear);
+ if(itemId.startsWith('equipment:'))return equipmentMarketName(itemId);
  if(itemId.startsWith('equipment_v2:'))return itemId.slice('equipment_v2:'.length);
  const p=parseStack(itemId);
  if(!p)return itemId;
@@ -49,19 +68,20 @@ function staticItemName(itemId:string,gear?:Item|EquipmentItem){
  if(p.kind==='skillbook')return bookName(p.id!);
  return p.id??itemId;
 }
-export function marketItemName(s:GameState,itemId:string){const own=marketItems(s).find(i=>i.id===itemId);if(own)return own.name;return staticItemName(itemId,escrowGear(s,itemId));}
+export function marketItemName(s:GameState,itemId:string){const own=marketItems(s).find(i=>i.id===itemId);if(own)return own.name;const storageGear=s.market.storage?.find(entry=>entry.itemId===itemId&&entry.gear)?.gear;return staticItemName(itemId,escrowGear(s,itemId)??storageGear);}
 export function marketCatalog(s:GameState){
  const own=marketItems(s),known=new Map(own.map(item=>[item.id,item]));
  s.market.orders.forEach(order=>{
   if(known.has(order.itemId))return;
   const gear=order.gear??escrowGear(s,order.itemId);
-  known.set(order.itemId,{id:order.itemId,name:gear?(isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear)):marketItemName(s,order.itemId),available:0,gear,category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')||order.itemId.startsWith('equipment_v2:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'강화 단계를 포함한 개별 장비입니다.':'거래소에 등록된 아이템입니다.'});
+  known.set(order.itemId,{id:order.itemId,name:gear?(isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear)):marketItemName(s,order.itemId),available:0,gear,category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')||order.itemId.startsWith('equipment:')||order.itemId.startsWith('equipment_v2:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'강화 단계를 포함한 개별 장비입니다.':'거래소에 등록된 아이템입니다.'});
  });
  return [...known.values()];
 }
 function available(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.available||0;}
-function removeItem(s:GameState,itemId:string,quantity:number):Item|undefined {
+function removeItem(s:GameState,itemId:string,quantity:number):Item|EquipmentItem|undefined {
  if(itemId.startsWith('gear:')){const id=itemId.slice(5),index=s.items.findIndex(i=>i.id===id);if(quantity!==1||index<0||Object.values(s.equipped).includes(id)||s.expedition)throw Error('판매할 수 없는 장비입니다.');return s.items.splice(index,1)[0];}
+ if(itemId.startsWith('equipment:')){const market=marketItems(s).find(i=>i.id===itemId),id=market?.equipmentIds?.[0],index=id?s.equipmentItems.findIndex(i=>i.id===id):-1;if(quantity!==1||index<0||s.expedition)throw Error('판매할 수 없는 장비입니다.');return s.equipmentItems.splice(index,1)[0];}
  const p=parseStack(itemId);if(!p||available(s,itemId)<quantity)throw Error('판매할 아이템 수량이 부족합니다.');
  if(p.kind==='material')s.materials[p.tower!][p.index!] -= quantity;
  if(p.kind==='ticket')s.tickets[p.tower!][p.index!] -= quantity;
@@ -69,8 +89,9 @@ function removeItem(s:GameState,itemId:string,quantity:number):Item|undefined {
  if(p.kind==='other')s.lootItems[p.id!] -= quantity;
  return undefined;
 }
-function addItem(s:GameState,itemId:string,quantity:number,gear?:Item){
- if(itemId.startsWith('gear:')){if(gear)s.items.push(structuredClone(gear));return;}
+function addItem(s:GameState,itemId:string,quantity:number,gear?:Item|EquipmentItem){
+ if(itemId.startsWith('gear:')){if(gear&&!isEquipmentItem(gear))s.items.push(structuredClone(gear));return;}
+ if(itemId.startsWith('equipment:')){if(gear&&isEquipmentItem(gear))s.equipmentItems.push(structuredClone(gear));return;}
  const p=parseStack(itemId);if(!p)throw Error('알 수 없는 거래 아이템입니다.');
  if(p.kind==='material')s.materials[p.tower!][p.index!] += quantity;
  if(p.kind==='ticket')s.tickets[p.tower!][p.index!] += quantity;
@@ -88,7 +109,7 @@ export const getMyOpenOrders=(s:GameState)=>s.market.orders.filter(o=>o.ownerId=
 export function aggregateOrderBookByPrice(orders:MarketOrder[]){const totals=new Map<number,number>();orders.forEach(o=>totals.set(o.limitPrice,(totals.get(o.limitPrice)||0)+o.remainingQuantity));return [...totals].map(([price,quantity])=>({price,quantity}));}
 function storageEntries(s:GameState){return s.market.storage??[];}
 function ensureStorage(s:GameState){s.market.storage??=[];s.market.nextStorageId??=1;return s.market.storage;}
-function depositStorage(s:GameState,trade:MarketTrade,side:MarketSide,quantity:number,silver:number,gear?:Item){
+function depositStorage(s:GameState,trade:MarketTrade,side:MarketSide,quantity:number,silver:number,gear?:Item|EquipmentItem){
  const entries=ensureStorage(s),id=s.market.nextStorageId??1;
  const entry:MarketStorageEntry={storageId:'storage-'+id,tradeId:trade.tradeId,side,itemId:trade.itemId,quantity,silver,createdAt:trade.executedAt,gear:gear?structuredClone(gear):undefined};
  s.market.nextStorageId=id+1;entries.push(entry);
@@ -129,9 +150,9 @@ export function placeOrder(state:GameState,input:OrderInput):GameState {
  const s=structuredClone(state),ownerId=input.ownerId||s.market.ownerId,now=input.createdAt??Date.now();
  if(s.expedition)return {...s,notice:'원정 중에는 거래소 주문을 등록할 수 없습니다.'};
  if(!validPositive(input.limitPrice)||!validPositive(input.quantity))return {...s,notice:'가격과 수량은 1 이상의 정수여야 합니다.'};
- if(input.itemId.startsWith('gear:')&&input.quantity!==1)return {...s,notice:'개별 장비는 한 번에 1개만 주문할 수 있습니다.'};
+ if((input.itemId.startsWith('gear:')||input.itemId.startsWith('equipment:'))&&input.side==='SELL'&&input.quantity!==1)return {...s,notice:'개별 장비 매도는 한 번에 1개만 주문할 수 있습니다.'};
  try{
-  let gear:Item|undefined;
+  let gear:Item|EquipmentItem|undefined;
   if(input.side==='BUY'){const reserve=input.limitPrice*input.quantity;if(!Number.isSafeInteger(reserve)||s.silver<reserve)throw Error('예약할 Silver가 부족합니다.');s.silver-=reserve;}
   else gear=removeItem(s,input.itemId,input.quantity);
   const m=s.market,order:MarketOrder={orderId:'order-'+m.nextOrderId++,itemId:input.itemId,side:input.side,limitPrice:input.limitPrice,originalQuantity:input.quantity,remainingQuantity:input.quantity,ownerId,createdAt:now,sequence:m.nextSequence++,status:'OPEN',gear};
