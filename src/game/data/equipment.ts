@@ -2,6 +2,8 @@ import type {
   EquipmentGrade,
   EquipmentKind,
   EquipmentLoadout,
+  EquipmentItem,
+  EquipmentEnhancementLevel,
   Slot,
 } from '../types';
 
@@ -20,6 +22,28 @@ export const EQUIPMENT_GRADE_MULTIPLIERS={
   heroic:1.42,
   legendary:1.60,
 } as const satisfies Record<EquipmentGrade,number>;
+
+export const EQUIPMENT_GRADE_NAMES:Record<EquipmentGrade,string>={
+  common:'일반',
+  uncommon:'고급',
+  rare:'희귀',
+  heroic:'영웅',
+  legendary:'전설',
+};
+
+export const EQUIPMENT_ENHANCEMENT_MULTIPLIERS={
+  0:1,
+  1:1.04,
+  2:1.08,
+  3:1.13,
+  4:1.18,
+  5:1.24,
+  6:1.31,
+  7:1.38,
+  8:1.45,
+  9:1.52,
+  10:1.60,
+} as const satisfies Record<EquipmentEnhancementLevel,number>;
 
 export const EQUIPMENT_SLOTS=[
   'weapon',
@@ -154,4 +178,27 @@ export function normalizeEquipmentLoadout(value:Partial<EquipmentLoadout>|null|u
     necklace:value?.necklace??null,
     ring:value?.ring??value?.accessory??null,
   };
+}
+
+
+export function equipmentItemMultiplier(item:EquipmentItem):number {
+  return EQUIPMENT_GRADE_MULTIPLIERS[item.grade]*EQUIPMENT_ENHANCEMENT_MULTIPLIERS[item.enhancement];
+}
+
+export function equipmentItemStats(item:EquipmentItem):EquipmentBaseStats {
+  const definition=equipmentDefinition(item.kind),multiplier=equipmentItemMultiplier(item),base=definition.baseStats;
+  return {
+    hp:base.hp===undefined?undefined:base.hp*multiplier,
+    attack:base.attack===undefined?undefined:base.attack*multiplier,
+    defense:base.defense===undefined?undefined:base.defense*multiplier,
+    critChance:base.critChance,
+  };
+}
+
+export function equipmentItemName(item:EquipmentItem):string {
+  return `${EQUIPMENT_GRADE_NAMES[item.grade]} ${equipmentDefinition(item.kind).name} +${item.enhancement}`;
+}
+
+export function equipmentItemSlot(item:EquipmentItem):Slot {
+  return equipmentDefinition(item.kind).slot;
 }
