@@ -49,7 +49,7 @@ test('IRON EQUIPMENT REWARD 04: 4F bat weighting can select the longbow and rare
 test('IRON EQUIPMENT REWARD 05: safe return commits equipment exactly once',()=>{
   const s=enter(initialState(),'ore',1);
   s.expedition!.monster.definitionId='goblin_miner';
-  reward(s,sequence(.99,.01,.10,.10));
+  reward(s,()=>.99,sequence(.01,.10,.10));
   const item=s.expedition!.loot.equipment![0];
   const returned=leave(s);
   assert.deepEqual(returned.equipmentItems,[item]);
@@ -60,7 +60,7 @@ test('IRON EQUIPMENT REWARD 05: safe return commits equipment exactly once',()=>
 test('IRON EQUIPMENT REWARD 06: death preserves receipt but does not grant temporary equipment',()=>{
   const s=enter(initialState(),'ore',1);
   s.expedition!.monster.definitionId='goblin_miner';
-  reward(s,sequence(.99,.01,.10,.10));
+  reward(s,()=>.99,sequence(.01,.10,.10));
   const item=s.expedition!.loot.equipment![0];
   const dead=leave(s,true);
   assert.deepEqual(dead.equipmentItems,[]);
