@@ -283,7 +283,7 @@ begin
 
   if p_outcome='returned' then
     if not coalesce(c.return_authorized,false) or c.player_hp<=0 then raise exception 'EXPEDITION_RETURN_NOT_AUTHORIZED';end if;
-  else
+  elsif p_outcome='dead' then
     if c.phase<>'PLAYER_DEAD' or c.player_hp<>0 or coalesce(c.pending_revival,false) then raise exception 'EXPEDITION_DEATH_NOT_CONFIRMED';end if;
   end if;
 
@@ -342,7 +342,7 @@ begin
       temporary_loot='{"silver":0,"material":0,"tickets":0,"equipment":[]}'::jsonb,
       potion_lesser=0,potion_standard=0,potion_greater=0,potion_supreme=0,revival_count=0,run_version=run_version+1
     where user_id=u returning * into r;
-  else
+  elsif p_outcome='dead' then
     update private.online_expeditions set status='DEAD',settled_at=now(),
       temporary_loot='{"silver":0,"material":0,"tickets":0,"equipment":[]}'::jsonb,
       potion_lesser=0,potion_standard=0,potion_greater=0,potion_supreme=0,revival_count=0,run_version=run_version+1
