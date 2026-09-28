@@ -28,7 +28,8 @@ test('CRAFT REMOVAL 04: server migration retires crafting RPCs and clears outsta
  const sql=read(path);
  for(const fn of ['start_online_craft','cancel_online_craft','claim_online_craft'])assert.match(sql,new RegExp('drop function if exists public\\.'+fn,'i'));
  assert.match(sql,/delete from private\.online_craft_jobs/i);
- assert.match(sql,/\{crafting\}/i);\n assert.match(sql,/jsonb_build_object\('jobs','\[\]'::jsonb,'nextJobId',1\)/i);
+ assert.match(sql,/\{crafting\}/i);
+ assert.match(sql,/jsonb_build_object\('jobs','\[\]'::jsonb,'nextJobId',1\)/i);
 });
 
 test('CRAFT REMOVAL 05: materials are no longer described as crafting ingredients in inventory',()=>{
