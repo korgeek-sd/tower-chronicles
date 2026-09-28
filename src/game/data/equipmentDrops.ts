@@ -171,3 +171,29 @@ export function rollIronEquipmentDrop(
   const grade=pickGrade(table.gradeWeights,rng());
   return grade?{kind,grade,enhancement:0}:null;
 }
+
+
+export const IRON_ENHANCEMENT_STONE_CHANCES:Record<number,number>={
+  1:.12,2:.14,3:.16,4:.18,5:.20,6:.22,7:.25,8:.28,9:.32,10:.38,
+};
+
+export const IRON_BOSS_ENHANCEMENT_STONES:Record<number,number>={
+  6:3,7:4,8:5,9:7,10:10,
+};
+
+export function rollIronEnhancementStoneDrop(
+  floor:number,
+  boss:boolean,
+  rng:()=>number=Math.random,
+):number {
+  if(!Number.isInteger(floor)||floor<1||floor>10)return 0;
+  if(boss)return IRON_BOSS_ENHANCEMENT_STONES[floor]??0;
+  const chance=IRON_ENHANCEMENT_STONE_CHANCES[floor]??0;
+  if(unit(rng())>=chance)return 0;
+  const roll=unit(rng());
+  if(floor<=4)return 1;
+  if(floor<=7)return roll<.30?1:2;
+  if(floor===8)return roll<.50?1:2;
+  if(floor===9)return roll<.50?1:roll<.85?2:3;
+  return roll<.40?1:roll<.80?2:3;
+}
