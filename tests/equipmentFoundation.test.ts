@@ -73,7 +73,7 @@ test('EQUIPMENT FOUNDATION 04: weapon slot has exactly three weapon identities a
 test('EQUIPMENT FOUNDATION 05: initial equipment references use exactly seven slots',()=>{
   const s=initialState();
   assert.deepEqual(Object.keys(s.equipped),expectedSlots);
-  assert.equal(s.equipped.weapon,'starter');
+  assert.equal(s.equipped.weapon,'starter-v2');
   for(const slot of expectedSlots.filter(slot=>slot!=='weapon'))assert.equal(s.equipped[slot],null);
 });
 
