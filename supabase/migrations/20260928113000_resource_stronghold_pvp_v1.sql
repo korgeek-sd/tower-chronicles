@@ -1,6 +1,12 @@
 -- v0.1.67 resource stronghold PvP V1.
 -- Shared ownership, serialized requests, intervention combat and one-time loot receipts.
 
+
+drop policy if exists "authenticated can receive resource stronghold broadcasts" on realtime.messages;
+create policy "authenticated can receive resource stronghold broadcasts"
+ on realtime.messages for select to authenticated
+ using(extension='broadcast' and realtime.topic()='resource_stronghold');
+
 create table if not exists private.resource_strongholds (
  stronghold_id uuid primary key default gen_random_uuid(),
  tower text not null check(tower in('ore','fang','gem','kaleon')),
