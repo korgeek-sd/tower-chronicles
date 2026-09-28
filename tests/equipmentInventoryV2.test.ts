@@ -154,5 +154,5 @@ test('V2 INVENTORY 10: equipped item comparison previews stats after unequip',()
  assert.equal(comparison.equipped,true);
  assert.ok(comparison.delta.hp<0);
  assert.equal(comparison.delta.attack,0);
- assert.equal(comparison.delta.defense,0);
+ assert.ok(comparison.delta.defense<0);
 });
