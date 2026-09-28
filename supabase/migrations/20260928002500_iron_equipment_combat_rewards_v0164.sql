@@ -261,7 +261,7 @@ begin
  v_payload:=jsonb_set(v_payload,'{materials}',v_materials,true);v_payload:=jsonb_set(v_payload,'{tickets}',v_tickets,true);
  v_payload:=jsonb_set(v_payload,'{skillBooks}',v_skillbooks,true);v_payload:=jsonb_set(v_payload,'{lootItems}',v_loot_items,true);v_payload:=jsonb_set(v_payload,'{items}',v_items,true);v_payload:=jsonb_set(v_payload,'{equipmentItems}',v_equipment_items,true);
  return v_payload;
-end;$;
+end $;
 revoke all on function private.server_economy_payload(uuid,jsonb) from public,anon,authenticated;
 
 create or replace function public.settle_online_expedition_v2(
