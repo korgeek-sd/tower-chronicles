@@ -51,6 +51,11 @@ const errors:RpcErrorMap={
  ENHANCE_SILVER_SHORTAGE:'서버 지갑의 Silver가 부족합니다.',
  ENHANCE_MATERIAL_SHORTAGE:'서버에 확인된 강화 재료가 부족합니다.',
  ENHANCE_ITEM_NOT_FOUND:'서버에 등록된 강화 장비를 찾지 못했습니다.',
+ ENHANCE_STONE_SHORTAGE:'강화에 필요한 강화석이 부족합니다.',
+ ENHANCE_MAX_LEVEL:'이미 최대 강화 단계입니다.',
+ ENHANCE_STARTER_PROTECTED:'협회 보급 장비는 강화할 수 없습니다.',
+ ENHANCE_EXPEDITION_BLOCKED:'원정 중에는 장비를 강화할 수 없습니다.',
+ ENHANCE_ITEM_INVALID:'강화할 수 없는 장비입니다.',
  ASSOCIATION_SILVER_SHORTAGE:'서버 지갑의 조합 등록금이 부족합니다.',
  EXPEDITION_VERSION_CONFLICT:'서버 원정 상태가 변경되었습니다. 최신 상태를 다시 불러옵니다.',
  EXPEDITION_EVENT_MISSING:'서버 이벤트 기록을 찾지 못했습니다.',
@@ -302,7 +307,7 @@ export async function dismantleOnlineEquipment(lease:GameplayLease,itemId:string
 
 export type ServerEnhancementOutcome='SUCCESS'|'FAIL_KEEP'|'FAIL_DOWNGRADE'|'FAIL_DESTROYED';
 export async function enhanceOnlineEquipment(lease:GameplayLease,itemId:string){
- const result=await rpc<{outcome:ServerEnhancementOutcome;record:CloudSaveRecord}>('enhance_online_equipment',{
+ const result=await rpc<{outcome:ServerEnhancementOutcome;before:number;after:number|null;silverCost:number;stoneCost:number;record:CloudSaveRecord}>('enhance_online_equipment',{
   ...leaseArgs(lease),p_item_id:itemId,
  });
  await remember(result.record);
