@@ -2,8 +2,7 @@ import React,{useMemo,useState} from 'react';
 import type {CraftJob,Field,GameState,Potion} from '../../game/types';
 import {CONFIG,EQUIPMENT,FIELDS,PASSIVES,POTION_CRAFTING,POTIONS,TOWERS,WEAPONS,potionIds} from '../../game/data/config';
 import {itemName} from '../../game/engine/state';
-import {GOLDEN_RECORDER_CRAFT_QUEUE_LIMIT,cancelCraft,claimAllCraft,claimCraft,cost,discount,materialFor,startCraft} from '../../game/engine/crafting';
-import {getGoldenRecorderBenefits,isGoldenRecorderActive} from '../../game/premium/goldenRecorder';
+import {CRAFT_QUEUE_LIMIT,cancelCraft,claimAllCraft,claimCraft,cost,discount,materialFor,startCraft} from '../../game/engine/crafting';
 import {Glyph,Pager,Screen,Segments,Meter} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {applyServerEconomyRecord,cancelOnlineCraft,claimOnlineCraft,startOnlineCraft} from '../../online/economy';
@@ -17,9 +16,9 @@ function desc(kind:string,tier:number,field:Field){if(kind in WEAPONS)return WEA
 
 export function WorkshopScreen({game,setGame,now,onlineLease,onEnhancement,onMastery}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;now:number;onlineLease?:GameplayLease|null;onEnhancement:()=>void;onMastery:()=>void}){
  const [field,setField]=useState<Field>('alchemy'),[tier,setTier]=useState(1),[page,setPage]=useState(0),[cancelTarget,setCancelTarget]=useState<CraftJob|null>(null),[busy,setBusy]=useState(false);
- const goldenActive=isGoldenRecorderActive(game,now),golden=getGoldenRecorderBenefits(game,now),active=game.crafting.jobs.find(j=>j.status==='CRAFTING')??null,queued=game.crafting.jobs.filter(j=>j.status==='QUEUED').sort((a,b)=>a.queuedAt-b.queuedAt),completed=game.crafting.jobs.filter(j=>j.status==='COMPLETED_UNCLAIMED');
+ const active=game.crafting.jobs.find(j=>j.status==='CRAFTING')??null,queued=game.crafting.jobs.filter(j=>j.status==='QUEUED').sort((a,b)=>a.queuedAt-b.queuedAt),completed=game.crafting.jobs.filter(j=>j.status==='COMPLETED_UNCLAIMED');
  const recipes=useMemo(()=>potionIds.filter(p=>p!=='revival'&&POTIONS[p].tier===tier),[tier]),pages=Math.max(1,Math.ceil(recipes.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=recipes.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
- const mastery=game.mastery[field],material=materialFor(field),materialName=TOWERS[material].material,totalDiscount=discount(mastery.crafts)+golden.craftingMaterialReductionBonus,queueFull=goldenActive&&queued.length>=GOLDEN_RECORDER_CRAFT_QUEUE_LIMIT;
+ const mastery=game.mastery[field],material=materialFor(field),materialName=TOWERS[material].material,totalDiscount=discount(mastery.crafts),queueFull=!!active&&queued.length>=CRAFT_QUEUE_LIMIT;
  const progress=active&&active.startedAt!==null&&active.completesAt!==null?clamp((now-active.startedAt)/Math.max(1,active.durationMs),0,1):0;
  const startRecipe=async(kind:string)=>{
   const quantity=field==='alchemy'?POTION_CRAFTING.generalBatch:1,at=Date.now(),next=startCraft(game,kind,tier,quantity,at);
@@ -69,11 +68,11 @@ export function WorkshopScreen({game,setGame,now,onlineLease,onEnhancement,onMas
   <div className="tc-workshop">
    <div className="tc-work-status">{completed.length?<><div><strong>완료품 {completed.length}개</strong><small>{completed.slice(0,2).map(label).join(' · ')}</small></div><button className="tc-action slim" disabled={busy} onClick={()=>void claimAll()}>{busy?'처리 중':'모두 수령'}</button></>:active?<><div><strong>{label(active)}</strong><small>{FIELDS[active.field]} · {materialName} {active.consumedMaterials}개</small><Meter value={progress} max={1}/></div><b>{left((active.completesAt??now)-now)}</b></>:<><div><strong>작업대 대기</strong><small>제작할 품목을 선택하세요.</small></div><Glyph name="craft"/></>}</div>
    <div className="tc-work-ready">{completed.length>0&&<span>개별 수령: {completed.slice(0,2).map(job=><button key={job.jobId} disabled={busy} onClick={()=>void claimJob(job)}>{label(job)}</button>)}</span>}{active&&<button className="tc-action secondary slim" onClick={()=>setCancelTarget(active)}>현재 제작 취소</button>}</div>
-   <div className="tc-work-queue">{queued.slice(0,3).map((job,i)=><button key={job.jobId} onClick={()=>setCancelTarget(job)}>{i+1}. {label(job)}<br/><small>대기 · 취소</small></button>)}{goldenActive&&queued.length<3&&Array.from({length:3-queued.length},(_,i)=><button disabled key={'q'+i}>대기 슬롯</button>)}</div>
+   <div className="tc-work-queue">{queued.slice(0,3).map((job,i)=><button key={job.jobId} onClick={()=>setCancelTarget(job)}>{i+1}. {label(job)}<br/><small>대기 · 취소</small></button>)}{queued.length<CRAFT_QUEUE_LIMIT&&Array.from({length:CRAFT_QUEUE_LIMIT-queued.length},(_,i)=><button disabled key={'q'+i}>대기 슬롯</button>)}</div>
    <div>
     <Segments items={fields} value={field} onChange={v=>{setField(v);setTier(1);setPage(0);}} label="제작 분야"/>
     <div className="tc-segments">{[1,2,3,4,5].map(t=><button key={t} aria-selected={tier===t} disabled={t>mastery.unlocked} onClick={()=>{setTier(t);setPage(0);}}>T{t}</button>)}</div>
-    <div className="tc-work-grid">{shown.map(kind=>{const amount=cost(game,field,tier,now),owned=game.materials[material][tier-1],potion=field==='alchemy',title=potion?POTIONS[kind as Potion].name+' ×'+POTION_CRAFTING.generalBatch:itemName({id:'preview',kind,tier,enhancement:0}),blocked=!!game.expedition||tier>mastery.unlocked||owned<amount||(!goldenActive&&!!active)||queueFull;return <article className="tc-recipe" key={kind}><Glyph name={potion?'potions':kind}/><div><h2>{title}</h2><p>{desc(kind,tier,field)}</p><small>{materialName} {owned} / {amount}</small></div><button disabled={blocked} onClick={()=>void startRecipe(kind)}>{active&&goldenActive?'대기열':'제작'}</button></article>;})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-recipe" aria-hidden="true" key={'r'+i}/>)}</div>
+    <div className="tc-work-grid">{shown.map(kind=>{const amount=cost(game,field,tier,now),owned=game.materials[material][tier-1],potion=field==='alchemy',title=potion?POTIONS[kind as Potion].name+' ×'+POTION_CRAFTING.generalBatch:itemName({id:'preview',kind,tier,enhancement:0}),blocked=!!game.expedition||tier>mastery.unlocked||owned<amount||queueFull;return <article className="tc-recipe" key={kind}><Glyph name={potion?'potions':kind}/><div><h2>{title}</h2><p>{desc(kind,tier,field)}</p><small>{materialName} {owned} / {amount}</small></div><button disabled={blocked} onClick={()=>void startRecipe(kind)}>{active?'대기열':'제작'}</button></article>;})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-recipe" aria-hidden="true" key={'r'+i}/>)}</div>
    </div>
    <div><Pager page={safe} count={pages} onChange={setPage}/><div className="tc-work-foot"><div><small>재료</small><b>{materialName} {game.materials[material][tier-1]}</b></div><div><small>숙련</small><b>{mastery.unlocked<5?mastery.progress+' / '+CONFIG.masteryRequired:'MAX'}</b></div><div><small>절감</small><b>{Math.round(totalDiscount*100)}%</b></div></div></div>
   </div>
