@@ -1,22 +1,29 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import type {GameState} from '../../game/types';
-import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,marketCatalog,marketItemName,orderBook} from '../../game/market/marketService';
+import type {EquipmentItem,GameState} from '../../game/types';
+import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,marketCatalog,marketItemName,orderBook,type MarketItem} from '../../game/market/marketService';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {
  applyOnlineEconomyToGame,applyOnlineMarketSnapshotToGame,cancelOnlineMarketOrder,claimAllOnlineMarketStorage,claimOnlineMarketStorage,
- loadOnlineMarketState,placeOnlineMarketOrder,subscribeOnlineMarketRealtime,type OnlineMarketState
+ buyOnlineEquipmentListing,cancelOnlineEquipmentListing,listOnlineEquipment,loadOnlineMarketState,placeOnlineMarketOrder,subscribeOnlineMarketRealtime,type OnlineEquipmentListing,type OnlineMarketState
 } from '../../online/market';
 import {demoMarketView} from './demoLiveMarket';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
-import {EquipmentMarketPanel} from './EquipmentMarketPanel';
 import type {GameFeelEvent} from '../../gameFeel/types';
+import {V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../../game/data/equipment';
 
 type Tab='market'|'orders'|'storage';
 type Side='BUY'|'SELL';
 type Category='all'|'equipment'|'materials'|'other';
 type RangeKey='1H'|'24H'|'1W'|'1M'|'ALL';
 type Trend={points:string;delta:number|null;last:number|null;low:number|null;high:number|null;count:number};
+type BrowseItem=MarketItem&{
+ equipmentMarketKey?:string;
+ bestListing?:OnlineEquipmentListing|null;
+ listingCount?:number;
+ ownedEquipmentIds?:string[];
+ equipmentSample?:EquipmentItem;
+};
 const PAGE_SIZE=5;
 const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']] as const;
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['other','기타']];
@@ -49,6 +56,7 @@ const makeTrend=(values:number[],height=24):Trend=>{
 };
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
+const equipmentMarketKey=(item:EquipmentItem)=>'equipment:'+item.kind+':'+item.grade+':+'+item.enhancement;
 
 export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease}){
  const feel=useGameFeel();
@@ -122,12 +130,51 @@ export function ServerMarketScreen({game,setGame,lease}:{game:GameState;setGame:
 
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
  const catalog=useMemo(()=>marketCatalog(view),[view]);
+ const equipmentBrowseRows=useMemo<BrowseItem[]>(()=>{
+  if(!snapshot)return [];
+  const rows=new Map<string,BrowseItem>();
+  const ensure=(sample:EquipmentItem,key:string)=>{
+   const existing=rows.get(key);
+   if(existing)return existing;
+   const row:BrowseItem={
+    id:'equipment-market:'+key,
+    name:equipmentItemName(sample),
+    available:0,
+    category:'equipment',
+    description:'등급과 강화 단계가 고정된 V2 장비입니다.',
+    modernEquipment:true,
+    equipmentMarketKey:key,
+    bestListing:null,
+    listingCount:0,
+    ownedEquipmentIds:[],
+    equipmentSample:sample,
+   };
+   rows.set(key,row);
+   return row;
+  };
+  for(const listing of snapshot.equipmentListings){
+   const row=ensure(listing.gear,listing.marketKey);
+   row.listingCount=(row.listingCount??0)+1;
+   if(!row.bestListing||listing.price<row.bestListing.price||(listing.price===row.bestListing.price&&listing.createdAt<row.bestListing.createdAt))row.bestListing=listing;
+  }
+  for(const gear of view.equipmentItems){
+   if(gear.id===V2_STARTER_EQUIPMENT_ID)continue;
+   const key=equipmentMarketKey(gear),row=ensure(gear,key);
+   row.available+=Object.values(view.equipped).includes(gear.id)||view.expedition?0:1;
+   row.ownedEquipmentIds?.push(gear.id);
+  }
+  return [...rows.values()].sort((a,b)=>a.name.localeCompare(b.name,'ko')||(a.bestListing?.price??Number.MAX_SAFE_INTEGER)-(b.bestListing?.price??Number.MAX_SAFE_INTEGER));
+ },[snapshot,view.equipmentItems,view.equipped,view.expedition]);
+ const combinedCatalog=useMemo<BrowseItem[]>(()=>[
+  ...catalog.filter(entry=>!entry.modernEquipment) as BrowseItem[],
+  ...equipmentBrowseRows,
+ ],[catalog,equipmentBrowseRows]);
  const normalizedQuery=query.trim().toLowerCase();
- const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery]);
+ const filtered=useMemo(()=>combinedCatalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[combinedCatalog,category,normalizedQuery]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
  const safeMarketPage=Math.min(page,marketPages-1);
  const shown=pageSlice(filtered,safeMarketPage);
- const item=catalog.find(x=>x.id===selected)??null;
+ const item=combinedCatalog.find(x=>x.id===selected)??null;
  const side:Side=tradeSide??'BUY';
  const p=/^\d+$/.test(price)?Number(price):NaN,q=/^\d+$/.test(qty)?Number(qty):NaN;
  const book=selected?orderBook(view,selected):{sells:[],buys:[]};
