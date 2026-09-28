@@ -15,7 +15,7 @@ export interface ResourceStrongholdServerState {
  };
  contest:null|{
   contest_id:string;status:'PENDING'|'FIGHTING'|'RESOLVED'|'CANCELLED';owner_user_id:string;challenger_user_id:string;
-  decision_ends_at:string;current_actor:string;action_nonce:number;owner_hp:number;challenger_hp:number;
+  decision_ends_at:string;turn_ends_at?:string|null;current_actor:string;action_nonce:number;owner_hp:number;challenger_hp:number;
   winner_user_id?:string|null;
  };
  loot?:{material:number;equipment:unknown;destroyed:boolean};
@@ -49,6 +49,9 @@ async function rpc<T>(name:string,body:Record<string,unknown>):Promise<T>{
 
 export const getResourceStrongholdState=(lease:GameplayLease,tower:Tower,floor:number)=>
  rpc<ResourceStrongholdServerState>('get_resource_stronghold_state',{...leaseArgs(lease),p_tower:tower,p_floor:floor});
+
+export const advanceResourceStrongholdState=(lease:GameplayLease,tower:Tower,floor:number)=>
+ rpc<ResourceStrongholdServerState>('advance_resource_stronghold_state',{...leaseArgs(lease),p_tower:tower,p_floor:floor});
 
 export const requestResourceStronghold=(lease:GameplayLease,tower:Tower,floor:number,requestId=crypto.randomUUID())=>
  rpc<ResourceStrongholdServerState>('request_resource_stronghold',{...leaseArgs(lease),p_tower:tower,p_floor:floor,p_request_id:requestId});
