@@ -2770,3 +2770,84 @@ html,body,#root{
 @media(max-height:700px){.tc-camp-dossier-title small{display:none}.tc-camp-profile{grid-template-columns:50px minmax(0,1fr) 90px}.tc-camp-crest{width:50px;height:58px}.tc-camp-crest .tc-glyph{font-size:28px}.tc-camp-weapon small,.tc-camp-weapon em{display:none}.tc-camp-weapon{min-height:54px;grid-template-rows:1fr}.tc-camp-weapon-icon{grid-row:1}.tc-camp-loot{display:none}.tc-camp-expedition-copy{grid-template-columns:1fr}.tc-camp-links button{min-height:40px}}
 @media(max-width:380px){.tc-camp-profile{grid-template-columns:54px minmax(0,1fr) 92px;gap:7px}.tc-camp-crest{width:54px;height:64px}.tc-camp-weapon{grid-template-columns:30px minmax(0,1fr);padding:4px}.tc-camp-weapon-icon{width:30px;height:30px}.tc-camp-stats>div{padding-inline:4px}.tc-camp-stats>div:first-child{padding-left:4px}.tc-camp-stats dt{font-size:7px}.tc-camp-stats dd{font-size:13px}.tc-camp-loot{grid-template-columns:repeat(4,34px)}.tc-camp-links button{grid-template-columns:31px minmax(0,1fr) 8px;gap:5px;padding-inline:5px}.tc-camp-link-icon{width:28px}}
 
+/* v0.1.79 — NOVAR HUB NARROW PHONE HARDENING / <=380px */
+@media(max-width:380px){
+ .tc-topbar{gap:6px;padding-inline:7px}
+ .tc-brand{gap:6px;min-width:0}
+ .tc-brand-mark{width:25px;height:25px;font-size:12px}
+ .tc-brand b{font-size:13px;white-space:nowrap}
+ .tc-brand small{display:none}
+ .tc-wallet{gap:5px;min-width:0}
+ .tc-coin{gap:0 3px}
+ .tc-coin b{font-size:10px}
+ .tc-coin small{display:none}
+ .tc-statusbar{gap:7px;padding-inline:7px}
+ .tc-statusbar>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-statusbar>span:last-child{max-width:42%;text-align:right}
+ .tc-main{padding-inline:7px}
+ .tc-camp-screen .tc-screen-head{min-width:0}
+ .tc-camp-screen .tc-screen-head>div:first-child{min-width:0;gap:6px}
+ .tc-camp-screen .tc-screen-head h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-status{font-size:9px;max-width:72px;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-dossier{padding-inline:7px}
+ .tc-camp-dossier-title{margin-inline:-7px;grid-template-columns:19px auto minmax(0,1fr);gap:5px;padding-inline:8px}
+ .tc-camp-dossier-title .tc-glyph{font-size:15px}
+ .tc-camp-dossier-title b{font-size:12px;white-space:nowrap}
+ .tc-camp-dossier-title small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:6px}
+ .tc-camp-profile{grid-template-columns:48px minmax(0,1fr) 86px;gap:6px}
+ .tc-camp-crest{width:48px;height:58px}
+ .tc-camp-crest .tc-glyph{font-size:27px}
+ .tc-camp-identity{min-width:0}
+ .tc-camp-identity>small{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:8px}
+ .tc-camp-identity h2{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-identity>p{font-size:8px;line-height:1.3;-webkit-line-clamp:2}
+ .tc-camp-weapon{min-width:0;min-height:58px;grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto 1fr auto;padding:4px;gap:1px 5px}
+ .tc-camp-weapon-icon{width:28px;height:28px}
+ .tc-camp-weapon-icon .tc-glyph{font-size:19px}
+ .tc-camp-weapon small,.tc-camp-weapon em{font-size:6px}
+ .tc-camp-weapon b{min-width:0;font-size:8px;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+ .tc-camp-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+ .tc-camp-stats>div,.tc-camp-stats>div:first-child{min-width:0;margin-left:0;padding:4px 2px}
+ .tc-camp-stats dt{font-size:6.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-stats dd{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-expedition{padding:6px}
+ .tc-camp-expedition-copy{grid-template-columns:minmax(0,1fr);gap:5px}
+ .tc-camp-route{min-width:0}
+ .tc-camp-route>.tc-glyph{font-size:23px}
+ .tc-camp-route>div{min-width:0}
+ .tc-camp-route small{font-size:8px}
+ .tc-camp-route b{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-route p{font-size:7px}
+ .tc-camp-loot{width:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+ .tc-camp-loot>span{grid-template-columns:13px minmax(0,1fr);padding:3px}
+ .tc-camp-loot .tc-glyph{font-size:11px}
+ .tc-camp-loot small{font-size:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .tc-camp-loot b{font-size:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .tc-camp-depart{min-height:46px;grid-template-columns:22px minmax(0,1fr) 16px;gap:6px;padding:6px 10px}
+ .tc-camp-depart>.tc-glyph{font-size:19px}
+ .tc-camp-depart>span:nth-child(2){min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-depart>span:last-child{font-size:20px}
+ .tc-camp-links{gap:3px}
+ .tc-camp-links button{min-width:0;min-height:46px;grid-template-columns:29px minmax(0,1fr) 8px;gap:4px;padding:4px 5px}
+ .tc-camp-link-icon{width:27px;height:32px}
+ .tc-camp-link-icon .tc-glyph{font-size:20px}
+ .tc-camp-links button>span:nth-child(2){min-width:0;overflow:hidden}
+ .tc-camp-links b{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-links small{font-size:6.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .tc-camp-links i{font-size:15px}
+ .tc-nav button{min-height:44px;font-size:9px}
+ .tc-nav .tc-glyph{font-size:18px}
+}
+@media(max-width:340px){
+ .tc-camp-profile{grid-template-columns:44px minmax(0,1fr) 78px;gap:5px}
+ .tc-camp-crest{width:44px;height:54px}
+ .tc-camp-weapon{grid-template-columns:24px minmax(0,1fr)}
+ .tc-camp-weapon-icon{width:24px;height:26px}
+ .tc-camp-stats dt{font-size:6px}
+ .tc-camp-stats dd{font-size:11px}
+ .tc-camp-links button{grid-template-columns:25px minmax(0,1fr) 7px;padding-inline:4px}
+ .tc-camp-link-icon{width:23px}
+ .tc-camp-links b{font-size:8.5px}
+ .tc-camp-links small{font-size:6px}
+}
+

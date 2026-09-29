@@ -30,3 +30,16 @@ test('NOVAR HUB 0.1.78 03: concept styling stays asset-free and compacts on shor
  const section=css.slice(css.indexOf('/* v0.1.78 — NOVAR DOSSIER HUB'));
  assert.equal(/url\s*\(/i.test(section),false);
 });
+
+test('NOVAR HUB 0.1.79 04: narrow-phone rules prevent overlap and preserve touch targets',()=>{
+ const section=css.slice(css.indexOf('/* v0.1.79 — NOVAR HUB NARROW PHONE HARDENING'));
+ assert.match(section,/@media\(max-width:380px\)/);
+ assert.match(section,/\.tc-camp-profile\{grid-template-columns:48px minmax\(0,1fr\) 86px/);
+ assert.match(section,/\.tc-camp-expedition-copy\{grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(section,/\.tc-camp-loot\{width:100%;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(section,/\.tc-camp-links button\{min-width:0;min-height:46px/);
+ assert.match(section,/\.tc-camp-depart\{min-height:46px/);
+ assert.match(section,/\.tc-nav button\{min-height:44px/);
+ assert.match(section,/text-overflow:ellipsis/);
+});
+
