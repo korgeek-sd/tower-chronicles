@@ -333,11 +333,12 @@ function App(){
    else {try{result=await applyOnlineJobSkill(lease,nonce,ref!);}catch(error){if(error instanceof Error&&!error.message.includes('COMBAT_SKILL_INVALID'))throw error;result=await applyOnlineSkill(lease,nonce,ref!);}}
    onlineCombatNonce.current=result.actionNonce??nonce;if(typeof result.confirmedKills==='number')confirmedKillCount.current=result.confirmedKills;if(typeof result.runVersion==='number')onlineRunVersion.current=result.runVersion;
    setCloudSyncStatus('synced');
-   if(result.returnAuthorized){await settleOnlineRun('returned');return;}
-   if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await settleOnlineRun('dead');return;}
-   if(kind!=='FLEE'&&result.phase==='DEFEATED'){const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
-   const candidate=reconcileOnlineCombatState(stateRef.current,result);
-   stateRef.current=candidate;setStorageError('');setGame(candidate);
+   const candidate=reconcileOnlineCombatState(stateRef.current,result,{emitCombatEvents:true});
+   stateRef.current=candidate;setStorageError('');flushSync(()=>setGame(candidate));
+   const showImpact=()=>new Promise<void>(resolve=>window.setTimeout(resolve,260));
+   if(result.returnAuthorized){await showImpact();await settleOnlineRun('returned');return;}
+   if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await showImpact();await settleOnlineRun('dead');return;}
+   if(kind!=='FLEE'&&result.phase==='DEFEATED'){await showImpact();const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
  async function restoreServerRun(lease:GameplayLease){

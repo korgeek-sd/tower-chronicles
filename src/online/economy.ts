@@ -129,7 +129,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {potions?:Partial<Record<'healing_lesser'|'healing_standard'|'healing_greater'|'healing_supreme',number>>;fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem|null;enhancementStones?:number}|null}
+export interface OnlineCombatState {potions?:Partial<Record<'healing_lesser'|'healing_standard'|'healing_greater'|'healing_supreme',number>>;fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;monsterReaction?:{id?:string;damage?:number}|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;playerAbsorbed?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem|null;enhancementStones?:number}|null}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -294,8 +294,24 @@ export async function spendOnlineAssociationFee(lease:GameplayLease){
  return result.record;
 }
 
-export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatState):GameState{
+export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatState,options:{emitCombatEvents?:boolean}={}):GameState{
  const next=structuredClone(local),e=next.expedition;if(!e)return next;
+ const beforePlayerHp=e.hp,beforeMonsterHp=e.monster.currentHp;
+ const visualEvents:{attacker:'player'|'monster';target:'player'|'monster';incomingDamage:number;absorbedByShield:number;hpDamage:number}[]=[];
+ if(options.emitCombatEvents){
+  const monsterAbsorb=Math.max(0,Number(server.absorbed??0)||0);
+  const playerAbsorb=Math.max(0,Number(server.playerAbsorbed??0)||0);
+  const serverPlayerDamage=Math.max(0,Number(server.damage??0)||0);
+  const serverMonsterDamage=Math.max(0,Number(server.retaliation??0)||0);
+  const reactionDamage=Math.max(0,Number(server.monsterReaction?.damage??0)||0);
+  const monsterHpDelta=Math.max(0,beforeMonsterHp-Math.max(0,Number.isFinite(server.monsterHp)?server.monsterHp:beforeMonsterHp));
+  const playerHpDelta=Math.max(0,beforePlayerHp-Math.max(0,Number.isFinite(server.playerHp)?server.playerHp:beforePlayerHp));
+  const playerDamage=serverPlayerDamage||monsterHpDelta;
+  const monsterDamage=serverMonsterDamage||Math.max(0,playerHpDelta-reactionDamage);
+  if(playerDamage>0||monsterAbsorb>0)visualEvents.push({attacker:'player',target:'monster',incomingDamage:playerDamage+monsterAbsorb,absorbedByShield:monsterAbsorb,hpDamage:playerDamage});
+  if(reactionDamage>0)visualEvents.push({attacker:'monster',target:'player',incomingDamage:reactionDamage,absorbedByShield:0,hpDamage:reactionDamage});
+  if(monsterDamage>0||playerAbsorb>0)visualEvents.push({attacker:'monster',target:'player',incomingDamage:monsterDamage+playerAbsorb,absorbedByShield:playerAbsorb,hpDamage:monsterDamage});
+ }
  e.hp=Math.max(0,Number.isFinite(server.playerHp)?server.playerHp:e.hp);
  if(server.potions){for(const potion of ['healing_lesser','healing_standard','healing_greater','healing_supreme'] as const){const value=server.potions[potion];if(Number.isFinite(value))e.bag[potion]=Math.max(0,Math.trunc(Number(value)));}}
  if(server.monsterId)e.monster.definitionId=server.monsterId;
@@ -327,6 +343,12 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  }
  const droppedStones=Math.max(0,Math.trunc(Number(server.drop?.enhancementStones??0)));
  if(droppedStones>0)e.loot.items.enhancement_stone=(e.loot.items.enhancement_stone??0)+droppedStones;
+ if(options.emitCombatEvents&&visualEvents.length){
+  let id=next.combatEventSequence??next.combatEvents?.at(-1)?.id??0;
+  const emitted=visualEvents.map((event,index)=>({...event,id:++id,kind:'DIRECT_DAMAGE' as const,hitIndex:index+1,hitCount:visualEvents.length,critical:false}));
+  next.combatEventSequence=id;
+  next.combatEvents=[...(next.combatEvents??[]),...emitted].slice(-40);
+ }
  return next;
 }
 

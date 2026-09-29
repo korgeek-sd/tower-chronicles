@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.88
+# 탑의 기록 v0.1.89
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.88`
+- 앱 버전: `0.1.89`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,17 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.89 — 온라인 전투 VFX 연결 수정
+
+- 실제 온라인 플레이에서 서버 전투 RPC 결과가 `combatEvents`를 채우지 않아 v0.1.86~0.1.88 전투 VFX가 거의 실행되지 않던 원인을 수정
+- 서버가 확정한 `damage / absorbed / retaliation / playerAbsorbed / monsterReaction` 값으로 클라이언트 표시용 CombatEvent를 생성
+- 표시용 이벤트는 서버 판정을 다시 계산하지 않고 서버가 반환한 피해량만 사용하며 기존 40개 bounded telemetry 규칙을 유지
+- 서버 상태 복원/로그인 동기화에서는 표시 이벤트를 생성하지 않고 실제 행동 응답에서만 생성해 재접속 시 과거 타격이 재생되지 않도록 처리
+- 온라인 원정의 `expedition.time`이 증가하지 않아 HP 변화 fallback이 막히던 조건을 제거하고 같은 encounter의 실제 HP delta만 확인하도록 수정
+- 처치타/사망타도 먼저 화면 상태를 렌더링한 뒤 260ms의 표시 구간을 거쳐 다음 몬스터/정산으로 이동
+- 따라서 온라인 계정에서도 타격마다 대상 shake, Canvas 파티클, 캐릭터 머리 위 데미지 숫자가 실제 서버 결과에 맞춰 표시됨
+- 전투 계산·데미지·치명타 확률·서버 권위 판정·저장 스키마는 변경하지 않음
 
 ## v0.1.88 — 피격 연출 실좌표 보정
 
