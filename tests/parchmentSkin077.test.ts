@@ -16,7 +16,7 @@ test('PARCHMENT SKIN 01: v0.1.77 skin is present and targets the existing shell'
 });
 
 test('PARCHMENT SKIN 02: skin stays visual-only and asset-free',()=>{
- for(const forbidden of [/grid-template/i,/\\bposition\\s*:/i,/\\bwidth\\s*:/i,/\\bheight\\s*:/i,/\\bpadding\\s*:/i,/\\bmargin\\s*:/i,/\\bdisplay\\s*:/i,/\\bgap\\s*:/i,/\\boverflow\\s*:/i,/\\bfont-size\\s*:/i])
+ for(const forbidden of [/grid-template/i,/\bposition\s*:/i,/\bwidth\s*:/i,/\bheight\s*:/i,/\bpadding\s*:/i,/\bmargin\s*:/i,/\bdisplay\s*:/i,/\bgap\s*:/i,/\boverflow\s*:/i,/\bfont-size\s*:/i])
   assert.equal(forbidden.test(skin),false,'layout rule leaked into skin: '+forbidden);
- assert.equal(/url\\s*\\(/i.test(skin),false);
+ assert.equal(/url\s*\(/i.test(skin),false);
 });
