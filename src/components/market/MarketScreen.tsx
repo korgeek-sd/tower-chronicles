@@ -49,12 +49,12 @@ const makeTrend=(values:number[],height=24):Trend=>{
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
-export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void}){
- if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory}/>;
- return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory}/>;
+export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void}){
+ if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement}/>;
+ return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement}/>;
 }
 
-function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void}){
+function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void}){
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
  const [query,setQuery]=useState('');
@@ -65,7 +65,8 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  const [price,setPrice]=useState('');
  const [qty,setQty]=useState('1');
  const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
- useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
+ const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
+ useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
 
  const catalog=useMemo(()=>marketCatalog(game),[game]);
  const normalizedQuery=query.trim().toLowerCase();
@@ -169,7 +170,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
   const current=trend.last??fallback.last??bestAsk??bestBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
-  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):setSelected(null)}>{returnInventoryKey?'‹ 아이템':'시장'}</button>}>
+  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':'시장'}</button>}>
    <div className="tc-market-v2-detail tc-market-v4-detail">
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">

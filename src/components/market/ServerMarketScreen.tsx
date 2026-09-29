@@ -50,7 +50,7 @@ const makeTrend=(values:number[],height=24):Trend=>{
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
-export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,onReturnToInventory}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void}){
+export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void}){
  const feel=useGameFeel();
  const [snapshot,setSnapshot]=useState<OnlineMarketState|null>(null);
  const [tab,setTab]=useState<Tab>('market');
@@ -69,7 +69,8 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const [demoTick,setDemoTick]=useState(0);
  const [tradePulse,setTradePulse]=useState(false);
  const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
- useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setError('');setDemoMode(false);setReturnInventoryKey(intent.inventoryKey??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
+ const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
+ useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setError('');setDemoMode(false);setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
  const seenTradeIds=useRef<Set<string>|null>(null),tradePulseTimer=useRef<number|null>(null);
 
  const applySnapshot=(next:OnlineMarketState)=>{
@@ -237,7 +238,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
   const current=trend.last??fallback.last??displayAsk??displayBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
-  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):setSelected(null)}>{returnInventoryKey?'‹ 아이템':'시장'}</button>}>
+  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':'시장'}</button>}>
    <div className={'tc-market-v2-detail tc-market-v4-detail'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">

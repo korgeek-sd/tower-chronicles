@@ -14,12 +14,15 @@ const local=(s:GameState,id:string)=>s.market.ownerId===id;
 const isEquipmentItem=(gear:Item|EquipmentItem):gear is EquipmentItem=>
  typeof (gear as EquipmentItem).grade==='string'&&typeof (gear as EquipmentItem).enhancement==='number';
 const equipmentMarketKey=(gear:EquipmentItem)=>'equipment:'+gear.kind+':'+gear.grade+':+'+gear.enhancement;
+export function marketItemIdForEquipment(item:EquipmentItem):string|null{
+ return item.id===V2_STARTER_EQUIPMENT_ID?null:equipmentMarketKey(item);
+}
 export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
  if(item.category==='equipment'){
   if(item.modern){
    const gear=(s.equipmentItems??[]).find(value=>value.id===item.sourceId);
    if(!gear||gear.id===V2_STARTER_EQUIPMENT_ID)return null;
-   return equipmentMarketKey(gear);
+   return marketItemIdForEquipment(gear);
   }
   if(item.sourceId==='starter')return null;
   return 'gear:'+item.sourceId;
