@@ -6,6 +6,7 @@ const rows:[JobRarity,string,string][]=[['C','contract_mercenary','계약용병'
 const JOB_VISUAL_ASSETS:Partial<Record<string,string>>={
  contract_mercenary:'assets/characters/jobs/contract_mercenary.webp',
  hunter:'assets/characters/jobs/hunter.webp',
+ reclaimer:'assets/characters/jobs/reclaimer.webp',
 };
 
 const COMBAT_READY_JOBS: Record<string, { combatKit: JobCombatKit; jobResource?: JobResourceDefinition }> = {

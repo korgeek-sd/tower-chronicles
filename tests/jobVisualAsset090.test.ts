@@ -11,14 +11,15 @@ test('JOB ART 0.1.90 01: contract mercenary owns the first real job visual asset
  const job=jobById('contract_mercenary');
  assert.equal(job?.visualAssetKey,'assets/characters/jobs/contract_mercenary.webp');
  assert.equal(jobById('hunter')?.visualAssetKey,'assets/characters/jobs/hunter.webp');
- const path=fileURLToPath(new URL('../public/assets/characters/jobs/contract_mercenary.webp',import.meta.url));
- assert.equal(existsSync(path),true);
- assert.ok(statSync(path).size>5000);
+ assert.equal(jobById('reclaimer')?.visualAssetKey,'assets/characters/jobs/reclaimer.webp');
+ const paths=['contract_mercenary','hunter','reclaimer'].map(id=>fileURLToPath(new URL('../public/assets/characters/jobs/'+id+'.webp',import.meta.url)));
+ for(const path of paths){assert.equal(existsSync(path),true,path);assert.ok(statSync(path).size>5000,path);}
 });
 
 test('JOB ART 0.1.90 02: job art overrides cosmetics only when a visual exists',()=>{
  assert.equal(playerGraphicForJob('contract_mercenary','default').image.idle,'assets/characters/jobs/contract_mercenary.webp');
  assert.equal(playerGraphicForJob('hunter','default').image.idle,'assets/characters/jobs/hunter.webp');
+ assert.equal(playerGraphicForJob('reclaimer','default').image.idle,'assets/characters/jobs/reclaimer.webp');
  assert.equal(playerGraphicForJob(null,'default').image.idle,'assets/player/default.png');
 });
 
