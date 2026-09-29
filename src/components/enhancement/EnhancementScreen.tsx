@@ -18,6 +18,13 @@ import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import type {EnhancementFeelOutcome} from '../../gameFeel/types';
 
 const PAGE_SIZE=5;
+const FORGE_SANDBOX_EQUIPMENT:EquipmentItem[]=[
+ {id:'forge-sandbox-bow-0',kind:'outer_guard_longbow',grade:'rare',enhancement:0},
+ {id:'forge-sandbox-armor-4',kind:'return_corps_plate_armor',grade:'heroic',enhancement:4},
+ {id:'forge-sandbox-ring-7',kind:'expedition_merit_ring',grade:'legendary',enhancement:7},
+ {id:'forge-sandbox-helmet-9',kind:'expedition_iron_helmet',grade:'rare',enhancement:9},
+ {id:'forge-sandbox-gloves-10',kind:'mining_detail_reinforced_gloves',grade:'uncommon',enhancement:10},
+];
 const pct=(n:number)=>Math.round(n*1000)/10+'%';
 const signed=(current:string,next:string)=>{
  const a=Number(current),b=Number(next);
@@ -58,12 +65,26 @@ export function EnhancementScreen({
  useEffect(()=>()=>{if(enhanceFxTimer.current!==null)window.clearTimeout(enhanceFxTimer.current);},[]);
 
  const [selectedId,setSelectedId]=useState<string|null>(null),[confirm,setConfirm]=useState(false),[page,setPage]=useState(0),[busy,setBusy]=useState(false);
- const items=useMemo(()=>game.equipmentItems.slice().sort((a,b)=>
-  Number(Object.values(game.equipped).includes(b.id))-Number(Object.values(game.equipped).includes(a.id))||
+ const [sandboxGame,setSandboxGame]=useState<GameState|null>(null);
+ const activeGame=sandboxGame??game;
+ const startForgeSandbox=()=>{
+  const next=structuredClone(game);
+  next.expedition=null;
+  next.silver=Math.max(next.silver,5_000_000);
+  next.lootItems={...next.lootItems,enhancement_stone:500};
+  next.equipmentItems=FORGE_SANDBOX_EQUIPMENT.map(item=>({...item}));
+  setSandboxGame(next);
+  setSelectedId(FORGE_SANDBOX_EQUIPMENT[0].id);
+  setPage(0);
+  setConfirm(false);
+ };
+ const stopForgeSandbox=()=>{setSandboxGame(null);setSelectedId(null);setPage(0);setConfirm(false);};
+ const items=useMemo(()=>activeGame.equipmentItems.slice().sort((a,b)=>
+  Number(Object.values(activeGame.equipped).includes(b.id))-Number(Object.values(activeGame.equipped).includes(a.id))||
   EQUIPMENT_GRADES.indexOf(b.grade)-EQUIPMENT_GRADES.indexOf(a.grade)||
   b.enhancement-a.enhancement||
   equipmentItemName(a).localeCompare(equipmentItemName(b),'ko')
- ),[game.equipmentItems,game.equipped]);
+ ),[activeGame.equipmentItems,activeGame.equipped]);
  const pages=Math.max(1,Math.ceil(items.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=items.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),selected=items.find(i=>i.id===selectedId)??shown[0]??null;
 
  useEffect(()=>{
@@ -72,11 +93,11 @@ export function EnhancementScreen({
   if(index>=0){setSelectedId(initialSelectedId);setPage(Math.floor(index/PAGE_SIZE));}
   onInitialSelectedConsumed?.();
  },[initialSelectedId]);
- useEffect(()=>{if(selectedId&&!game.equipmentItems.some(item=>item.id===selectedId)){setSelectedId(null);setConfirm(false);}},[game.equipmentItems,selectedId]);
+ useEffect(()=>{if(selectedId&&!activeGame.equipmentItems.some(item=>item.id===selectedId)){setSelectedId(null);setConfirm(false);}},[activeGame.equipmentItems,selectedId]);
 
- const view=selected?equipmentEnhancementAttemptView(game,selected):null,q=view?.quote??null,rows=selected?equipmentEnhancementPreviewRows(selected):[];
- const marketId=selected?marketItemIdForEquipment(selected):null;
- const isEquipped=!!selected&&Object.values(game.equipped).includes(selected.id);
+ const view=selected?equipmentEnhancementAttemptView(activeGame,selected):null,q=view?.quote??null,rows=selected?equipmentEnhancementPreviewRows(selected):[];
+ const marketId=!sandboxGame&&selected?marketItemIdForEquipment(selected):null;
+ const isEquipped=!!selected&&Object.values(activeGame.equipped).includes(selected.id);
  const riskLevel=!q?'none':q.failDestroyRate>0?'destroy':q.failDowngradeRate>0?'downgrade':'safe';
  const enhanceNotice=(outcome:ServerEnhancementOutcome,name:string)=>outcome==='SUCCESS'?'강화 성공! '+name:outcome==='FAIL_KEEP'?'강화 실패. '+name+'의 강화 단계가 유지됩니다.':outcome==='FAIL_DOWNGRADE'?'강화 실패. '+name+'의 강화 단계가 하락했습니다.':'강화 실패. '+name+' 장비가 파괴되었습니다.';
 
@@ -89,6 +110,21 @@ export function EnhancementScreen({
   if(!selected||!q||!view?.canAttempt)return;
   feel.play('enhancement.attempt');
   triggerEnhanceFx('attempt');
+  if(sandboxGame){
+   setSandboxGame(current=>{
+    if(!current)return current;
+    const before=current.equipmentItems.find(item=>item.id===selected.id);
+    const next=enhanceEquipmentV2(current,selected.id);
+    const after=next.equipmentItems.find(item=>item.id===selected.id);
+    const outcome:ServerEnhancementOutcome=!after?'FAIL_DESTROYED':!before?'FAIL_KEEP':after.enhancement>before.enhancement?'SUCCESS':after.enhancement<before.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
+    const mapped=feelOutcome(outcome);
+    feel.play('enhancement.result',{outcome:mapped});
+    triggerEnhanceFx(mapped==='SUCCESS'?'success':mapped==='FAIL_KEEP'?'keep':mapped==='FAIL_DOWNGRADE'?'downgrade':'destroy');
+    return next;
+   });
+   setConfirm(false);
+   return;
+  }
   if(!onlineLease){
    setGame(current=>{
     const before=current.equipmentItems.find(item=>item.id===selected.id);
@@ -121,12 +157,12 @@ export function EnhancementScreen({
   }finally{setBusy(false);}
  };
 
- return <Screen eyebrow="NOVAR FORGE / ENHANCEMENT" title="장비 강화" meta={<button className="tc-action secondary slim tc-forge-back" onClick={onBack}>‹ 보관함</button>} className="tc-enhancement-screen">
+ return <Screen eyebrow="NOVAR FORGE / ENHANCEMENT" title="장비 강화" meta={<>{sandboxGame&&<span className="tc-forge-sandbox-pill">체험 모드</span>}<button className="tc-action secondary slim tc-forge-back" onClick={sandboxGame?stopForgeSandbox:onBack}>{sandboxGame?"체험 종료":"‹ 보관함"}</button></>} className="tc-enhancement-screen">
   <div className="tc-forge">
    <aside className="tc-forge-rail" aria-label="강화 장비 목록">
     <header><div><small>FORGE INVENTORY</small><b>강화 대상</b></div><span>{items.length}종</span></header>
     <div className="tc-forge-list">{shown.map(item=>{
-     const equipped=Object.values(game.equipped).includes(item.id);
+     const equipped=Object.values(activeGame.equipped).includes(item.id);
      return <button key={item.id} className={'tc-forge-item grade-'+item.grade} aria-pressed={selected?.id===item.id} onClick={()=>{setSelectedId(item.id);setConfirm(false);}}>
       <span className="tc-forge-item-icon"><Glyph name={iconFor(item)}/></span>
       <span className="tc-forge-item-copy"><b>{EQUIPMENT_DEFINITIONS[item.kind].name}</b><small>{EQUIPMENT_GRADE_NAMES[item.grade]} · +{item.enhancement}{equipped?' · 장착':''}</small></span>
@@ -170,17 +206,17 @@ export function EnhancementScreen({
       </div>
 
       <div className="tc-forge-costs">
-       <div className={game.silver>=q.silverCost?'enough':'short'}><Glyph name="market"/><span><small>Silver</small><b>{q.silverCost.toLocaleString()} S</b><em>보유 {game.silver.toLocaleString()} S</em></span></div>
+       <div className={activeGame.silver>=q.silverCost?'enough':'short'}><Glyph name="market"/><span><small>Silver</small><b>{q.silverCost.toLocaleString()} S</b><em>보유 {activeGame.silver.toLocaleString()} S</em></span></div>
        <div className={view.materialOwned>=q.stoneCost?'enough':'short'}><Glyph name="materials"/><span><small>강화석</small><b>{q.stoneCost}개</b><em>보유 {view.materialOwned.toLocaleString()}개</em></span></div>
       </div>
 
       <div className="tc-forge-actions">
-       <button className="tc-forge-market tc-feel-press" data-game-feel="press" disabled={!marketId||!onMarket} onClick={openMarket}>시세 · 거래</button>
+       <button className="tc-forge-market tc-feel-press" data-game-feel="press" disabled={!marketId||!onMarket} onClick={openMarket}>{sandboxGame?"체험 중 거래 제외":"시세 · 거래"}</button>
        <button className="tc-forge-submit tc-feel-press" data-game-feel="press" disabled={!view.canAttempt||busy} onClick={()=>setConfirm(true)}><small>비용 확인 완료</small><b>+{q.target} 강화 실행</b></button>
       </div>
       {view.reason&&<div className="tc-forge-reason">{view.reason}</div>}
      </>:<div className="tc-forge-max"><Glyph name="enhancement"/><b>+10 MAX</b><span>최대 강화 단계에 도달했습니다.</span>{marketId&&onMarket&&<button onClick={openMarket}>시세 · 거래</button>}</div>}
-    </>:<div className="tc-forge-empty"><Glyph name="enhancement"/><b>강화할 장비가 없습니다.</b><small>원정에서 장비를 획득한 뒤 다시 확인하세요.</small></div>}
+    </>:<div className="tc-forge-empty"><Glyph name="enhancement"/><b>강화할 장비가 없습니다.</b><small>실제 저장을 건드리지 않고 강화 화면을 시험할 수 있습니다.</small><button className="tc-forge-sandbox-start" onClick={startForgeSandbox}>테스트 장비로 체험</button><em>희귀 +0 · 영웅 +4 · 전설 +7 · 희귀 +9 · 고급 +10 / Silver 500만 · 강화석 500개</em></div>}
    </section>
 
    <div className="tc-forge-footnote"><b>강화 주의</b><span>Silver와 강화석은 결과와 관계없이 소모됩니다. 파괴 결과가 나오면 해당 장비는 영구 삭제됩니다.</span></div>

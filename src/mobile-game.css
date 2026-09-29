@@ -3031,3 +3031,13 @@ html,body,#root{
  .tc-forge-footnote{min-height:27px;padding-block:3px}.tc-forge-footnote span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
 
+/* v0.1.83 QA patch — forge sandbox equipment, never persisted */
+.tc-forge-sandbox-pill{display:inline-flex;align-items:center;min-height:24px;padding:0 7px;border:1px solid #9c6c40;background:#4b241a;color:#efd09b;font:700 6px ui-monospace,monospace;letter-spacing:.04em}
+.tc-forge-empty .tc-forge-sandbox-start{min-height:44px;padding:0 14px;border:1px solid #a27946;background:linear-gradient(180deg,#793229,#4d201b);color:#efd3a0;font:700 8px Georgia,"Noto Serif KR",serif;box-shadow:inset 0 1px rgba(255,226,170,.14)}
+.tc-forge-empty>em{max-width:230px;font:5.2px/1.35 ui-monospace,monospace;color:#756957}
+@media(max-width:380px){
+ .tc-forge-sandbox-pill{min-height:26px;padding-inline:5px;font-size:5.5px}
+ .tc-forge-empty .tc-forge-sandbox-start{min-height:44px}
+ .tc-forge-empty>em{max-width:180px;font-size:4.8px}
+}
+
