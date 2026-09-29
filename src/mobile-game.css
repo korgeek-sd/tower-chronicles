@@ -2957,3 +2957,25 @@ html,body,#root{
  .tc-inventory-v081{grid-template-rows:minmax(190px,42%) minmax(0,58%)}.tc-loadout-ledger{min-height:25px}.tc-inventory-v081 .tc-loadout-vitals{top:35px}.tc-inventory-v081 .tc-loadout-character{height:57%;top:60%}.tc-inventory-v081 .tc-storage-board{grid-template-rows:30px 34px minmax(0,1fr) 29px}.tc-inventory-v081 .tc-storage-categories button{height:34px}.tc-item-record{height:min(520px,86dvh)}
 }
 
+/* v0.1.82 — INVENTORY → MARKET DEEP LINK / exact item-spec trading */
+.tc-item-record{grid-template-rows:47px 100px minmax(0,1fr) 36px auto}
+.tc-item-record .tc-item-modal-actions{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:44px;gap:4px}
+.tc-item-record .tc-item-modal-actions .tc-action{height:44px;min-height:44px}
+.tc-item-record .tc-item-primary{border-color:#a37843;background:linear-gradient(180deg,#7f352c,#57231e);color:#f0d4a0}
+.tc-item-record .tc-item-market{border-color:#9d7a48!important;background:linear-gradient(180deg,#40301f,#24190f)!important;color:#e5c78f!important}
+.tc-item-record .tc-item-market:before{content:"↗";margin-right:5px;color:#c99b58}
+.tc-item-record .tc-item-market:disabled:before{content:"×";color:#8a7560}
+.tc-item-record .tc-item-market:disabled{opacity:.48;filter:grayscale(.45)}
+.tc-market-return{border-color:#8d6d43!important;background:#251b12!important;color:#dcc294!important}
+@media(max-width:380px){
+ .tc-item-record{height:min(620px,86dvh);grid-template-rows:43px 88px minmax(0,1fr) 34px auto}
+ .tc-item-record .tc-item-modal-actions{grid-auto-rows:44px}
+ .tc-item-record .tc-item-modal-actions .tc-action{height:44px;min-height:44px;font-size:7px}
+ .tc-market-return{min-height:34px}
+}
+@media(max-height:700px){
+ .tc-item-record{height:min(560px,88dvh);grid-template-rows:40px 78px minmax(0,1fr) 30px auto}
+ .tc-item-record .tc-item-modal-actions{grid-auto-rows:40px}
+ .tc-item-record .tc-item-modal-actions .tc-action{height:40px;min-height:40px}
+}
+

@@ -1,4 +1,4 @@
-import React,{useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState,MarketOrder} from '../../game/types';
 import {
  aggregateOrderBookByPrice,cancelOrder,claimAllMarketStorage,claimMarketStorage,getBestAsk,getBestBid,getMarketStorage,getMarketStorageItemCount,getMarketStorageSilver,getMyOpenOrders,
@@ -8,6 +8,7 @@ import {marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {ServerMarketScreen} from './ServerMarketScreen';
+import type {MarketIntent} from './marketNavigation';
 
 type Tab='market'|'orders'|'storage';
 type Category='all'|'equipment'|'materials'|'other';
@@ -48,12 +49,12 @@ const makeTrend=(values:number[],height=24):Trend=>{
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
-export function MarketScreen({game,setGame,onlineLease}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null}){
- if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease}/>;
- return <LocalMarketScreen game={game} setGame={setGame}/>;
+export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void}){
+ if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory}/>;
+ return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory}/>;
 }
 
-function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
+function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void}){
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
  const [query,setQuery]=useState('');
@@ -63,6 +64,8 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
  const [range,setRange]=useState<RangeKey>('24H');
  const [price,setPrice]=useState('');
  const [qty,setQty]=useState('1');
+ const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
+ useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
 
  const catalog=useMemo(()=>marketCatalog(game),[game]);
  const normalizedQuery=query.trim().toLowerCase();
@@ -166,7 +169,7 @@ function LocalMarketScreen({game,setGame}:{game:GameState;setGame:React.Dispatch
   const current=trend.last??fallback.last??bestAsk??bestBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
-  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim" onClick={()=>setSelected(null)}>시장</button>}>
+  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):setSelected(null)}>{returnInventoryKey?'‹ 아이템':'시장'}</button>}>
    <div className="tc-market-v2-detail tc-market-v4-detail">
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">

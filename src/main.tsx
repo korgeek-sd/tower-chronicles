@@ -25,6 +25,7 @@ import {settleStronghold} from './game/events/resourceStronghold';
 import {InventoryScreen} from './components/inventory/InventoryScreen';
 import {BattleScreen} from './components/battle/BattleScreen';
 import {MarketScreen} from './components/market/MarketScreen';
+import type {MarketIntent} from './components/market/marketNavigation';
 import {GoldExchangeScreen} from './components/market/GoldExchangeScreen';
 import {SealScreen} from './components/seal/SealScreen';
 import {AssociationScreen} from './components/association/AssociationScreen';
@@ -67,6 +68,8 @@ function App(){
  const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
  const [page,setPage]=useState<AppPage>(game.expedition||game.lastExpedition?'battle':'home');
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
+ const [marketIntent,setMarketIntent]=useState<MarketIntent|null>(null);
+ const [inventoryReturnKey,setInventoryReturnKey]=useState<string|null>(null);
  const [tower,setTower]=useState<Tower>('ore');
  const [floor,setFloor]=useState(1);
  const stateRef=useRef(game);stateRef.current=game;
@@ -229,6 +232,8 @@ function App(){
 
  const exp=game.expedition,eventOpen=!!exp?.events.pendingEvent,immersive=page==='battle'&&!!exp,visibleNotice=game.notice.startsWith('안전 귀환 ·')?'':game.notice;
  function move(p:AppPage){if(exp?.pendingRevival)return;if(p==='jobs')setJobsEntryTab('register');setPage(p==='towers'&&exp?'battle':p);}
+ function openMarketFromInventory(intent:MarketIntent){if(exp?.pendingRevival)return;setMarketIntent(intent);setInventoryReturnKey(null);setPage('market');}
+ function returnToInventory(inventoryKey:string){setMarketIntent(null);setInventoryReturnKey(inventoryKey);setPage('inventory');}
  function openJobs(tab:JobTab){if(exp?.pendingRevival)return;setJobsEntryTab(tab);setPage('jobs');}
  function acceptImportedSave(next:GameState){if(onlineSession&&gameSessionPhaseRef.current!=='active')return;blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('복구');setPage(next.expedition||next.lastExpedition?'battle':'home');}
  function commitEvent(action:(state:GameState)=>GameState){if(blocked.current)throw Error('저장 차단');if(getStoredSession()&&gameSessionPhaseRef.current!=='active')throw Error('다른 기기에서 플레이 중입니다.');const current=stateRef.current,next=action(current);if(next===current)return;createRepository(gameStorage).save(next);stateRef.current=next;flushSync(()=>setGame(next));}
@@ -366,10 +371,10 @@ function App(){
    />}
    {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&!strongholdPanelOpen&&<button className="tc-stronghold-pvp-entry" onClick={()=>setStrongholdPanelOpen(true)}>자원거점</button>}
    {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>void commitOnlineEventChoice(instance,choice)} onContinue={instance=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)void continueOnlineExplorationNow();else commitEvent(s=>continueEvent(s,instance));}} onRevival={use=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use));else setGame(s=>resolveRevivalDecision(s,use));}}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>void abandonOnlineStrongholdNow()}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
-   {page==='inventory'&&<InventoryScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onEnhancement={()=>setPage('enhancement')}/>}
+   {page==='inventory'&&<InventoryScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onEnhancement={()=>setPage('enhancement')} onMarket={openMarketFromInventory} initialSelected={inventoryReturnKey} onInitialSelectedConsumed={()=>setInventoryReturnKey(null)}/>}
    {page==='skills'&&<SkillsScreen game={game} setGame={setGame}/>}
    {page==='enhancement'&&<EnhancementScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onBack={()=>setPage('inventory')}/>}
-   {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
+   {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} intent={marketIntent} onIntentConsumed={()=>setMarketIntent(null)} onReturnToInventory={returnToInventory}/>}
    {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='seal'&&<SealScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('협회 인장');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
    {page==='association'&&<AssociationScreen

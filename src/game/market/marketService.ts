@@ -1,5 +1,5 @@
 import type {EquipmentItem,GameState,Item,MarketOrder,MarketSide,MarketStorageEntry,MarketTrade,Tower} from '../types';
-import type {InventoryCategory} from '../inventoryView';
+import type {InventoryCategory,InventoryViewItem} from '../inventoryView';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
@@ -14,6 +14,25 @@ const local=(s:GameState,id:string)=>s.market.ownerId===id;
 const isEquipmentItem=(gear:Item|EquipmentItem):gear is EquipmentItem=>
  typeof (gear as EquipmentItem).grade==='string'&&typeof (gear as EquipmentItem).enhancement==='number';
 const equipmentMarketKey=(gear:EquipmentItem)=>'equipment:'+gear.kind+':'+gear.grade+':+'+gear.enhancement;
+export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
+ if(item.category==='equipment'){
+  if(item.modern){
+   const gear=(s.equipmentItems??[]).find(value=>value.id===item.sourceId);
+   if(!gear||gear.id===V2_STARTER_EQUIPMENT_ID)return null;
+   return equipmentMarketKey(gear);
+  }
+  if(item.sourceId==='starter')return null;
+  return 'gear:'+item.sourceId;
+ }
+ if(item.category==='materials'||item.category==='tickets'){
+  const [tower,indexText]=item.sourceId.split(':'),index=Number(indexText);
+  if(!towerIds.includes(tower as Tower)||!Number.isInteger(index)||index<0)return null;
+  return (item.category==='materials'?'material':'ticket')+':'+tower+':'+(index+1);
+ }
+ if(item.category==='skillbooks')return 'skillbook:'+item.sourceId;
+ if(item.category==='other')return 'other:'+item.sourceId;
+ return null;
+}
 const equipmentMarketName=(itemId:string)=>{
  const [,kind,grade,enhancement]=itemId.split(':');
  const definition=(EQUIPMENT_DEFINITIONS as Record<string,{name:string}>)[kind];

@@ -1,4 +1,4 @@
-import React,{useCallback,useMemo,useState} from 'react';
+import React,{useCallback,useEffect,useMemo,useState} from 'react';
 import type {GameState,Slot} from '../../game/types';
 import {inventoryView,selectInventory,categories,categoryNames,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
 import {equip,equipmentStatComparison,stats,unequip} from '../../game/engine/state';
@@ -12,14 +12,17 @@ import {Glyph,Pager,Screen} from '../../ui/mobile';
 import {InventoryDetailSheet} from './InventoryDetailSheet';
 import type {GameplayLease} from '../../online/gameSession';
 import {applyServerEconomyRecord,dismantleOnlineEquipment} from '../../online/economy';
+import {marketItemIdForInventory} from '../../game/market/marketService';
+import type {MarketIntent} from '../market/marketNavigation';
 
 const PAGE_SIZE=8;
 const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',helmet:'armor',armor:'armor',gloves:'armor',boots:'boots',necklace:'accessory',ring:'accessory'};
 
-export function InventoryScreen({game,setGame,onlineLease,onEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onEnhancement:()=>void}){
+export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onEnhancement:()=>void;onMarket?:(intent:MarketIntent)=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
  const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const close=useCallback(()=>setSelected(null),[]);
  const items=inventoryView(game),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
+ useEffect(()=>{if(!initialSelected)return;setSelected(initialSelected);onInitialSelectedConsumed?.();},[initialSelected]);
  const categorySet=useMemo(()=>categories,[ ]),st=stats(game),graphic=playerGraphicFor(game.cosmetics.selectedAppearanceId),characterSrc=graphic.image.idle?assetUrl(graphic.image.idle):undefined;
  const equippedCount=(Object.keys(SLOTS) as Slot[]).filter(slot=>!!game.equipped[slot]).length;
  let action:(()=>void)|undefined,label='',disabled=false;
@@ -27,6 +30,11 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement}:{game:G
  if(item?.category==='skillbooks'){action=()=>setGame(s=>useSkillBook(s,item.sourceId));label=item.learned?'습득 완료':game.expedition?'원정 중 사용 불가':'사용하여 학습';disabled=!!item.learned||!!game.expedition||!SKILLS.some(s=>s.id===item.sourceId);}
  if(item?.category==='cosmetics'){action=()=>setGame(s=>registerAppearance(s,item.sourceId));label=item.registered?'등록 완료':'외형 등록';disabled=!!item.registered;}
  const selectedEquipment=item?.category==='equipment'&&item.modern?(game.equipmentItems??[]).find(value=>value.id===item.sourceId):undefined;
+ const marketItemId=item?marketItemIdForInventory(game,item):null;
+ const marketVisible=!!item&&!['potions','cosmetics'].includes(item.category);
+ const marketLabel=marketVisible?(marketItemId?'시세 · 거래':'거래 불가'):undefined;
+ const marketDisabled=marketVisible&&(!marketItemId||!onMarket);
+ const marketAction=marketItemId&&onMarket&&item?()=>onMarket({itemId:marketItemId,inventoryKey:item.key,sourceName:item.name}):undefined;
  const dismantleYield=selectedEquipment?equipmentDismantleYield(selectedEquipment):0;
  const starterProtected=item?.sourceId===V2_STARTER_EQUIPMENT_ID;
  const dismantleDisabled=busy||!!game.expedition||!!item?.equipped||starterProtected;
@@ -67,6 +75,6 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement}:{game:G
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} enhancementAction={item.category==='equipment'&&item.modern?()=>{close();onEnhancement();}:undefined} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet item={item} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} enhancementAction={item.category==='equipment'&&item.modern?()=>{close();onEnhancement();}:undefined} marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }
