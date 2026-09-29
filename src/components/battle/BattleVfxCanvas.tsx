@@ -9,6 +9,7 @@ type Effect={id:number;kind:BattleVfxKind;startedAt:number;duration:number;holdM
 export type BattleVfxHandle={
  cuePlayerAction:(kind:'basic'|'skill',speed:number)=>void;
  playEvent:(event:CombatEvent,speed:number)=>void;
+ playDamage:(target:'player'|'monster',critical:boolean,speed:number)=>void;
  playHeal:(speed:number)=>void;
  playDeath:(speed:number)=>void;
  cancel:()=>void;
@@ -214,11 +215,17 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
   }
  };
 
+ const playDamage=(target:'player'|'monster',critical:boolean,speed:number)=>{
+  const attacker=target==='player'?'monster':'player',from=pointFor(attacker),to=pointFor(target);
+  const kind:BattleVfxKind=target==='player'?'player-damaged':critical?'critical-hit':'basic-hit';
+  push(kind,from,to,speed,Math.floor(battleVfxNow())+(target==='player'?151:173));
+ };
+
  const playHeal=(speed:number)=>{const p=pointFor('player');push('heal',p,p,speed,Math.floor(battleVfxNow())+71);};
  const playDeath=(speed:number)=>{const from=pointFor('monster'),to=pointFor('player');push('death',from,to,speed,Math.floor(battleVfxNow())+101);};
  const cancel=()=>{effectsRef.current=[];const canvas=canvasRef.current;if(canvas){const ctx=canvas.getContext('2d');ctx?.clearRect(0,0,canvas.width,canvas.height);}if(frameRef.current!==null)cancelAnimationFrame(frameRef.current);frameRef.current=null;};
 
- useImperativeHandle(ref,()=>({cuePlayerAction,playEvent,playHeal,playDeath,cancel}));
+ useImperativeHandle(ref,()=>({cuePlayerAction,playEvent,playDamage,playHeal,playDeath,cancel}));
 
  useEffect(()=>{
   reducedRef.current=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

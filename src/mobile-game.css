@@ -3097,3 +3097,88 @@ html,body,#root{
  .tc-battle .floating-number.critical{animation:tcFloat var(--damage-duration) ease-out forwards}
 }
 
+/* v0.1.87 — TARGET HIT REACTION + MAPLE-LIKE DAMAGE POPS */
+.tc-battle .damage-layer{z-index:7}
+.tc-battle .floating-number{
+ left:auto;top:auto;
+ min-width:max-content;
+ transform:translate(-50%,-100%);
+ animation:tcDamagePop var(--damage-duration) cubic-bezier(.13,.78,.22,1) forwards;
+ pointer-events:none;
+ text-align:center;
+ filter:none;
+}
+.tc-battle .floating-number.target-monster{
+ left:calc(72% + (var(--damage-lane) - 1)*13px);
+ top:17%;
+}
+.tc-battle .floating-number.target-player{
+ left:calc(22% + (var(--damage-lane) - 1)*13px);
+ top:41%;
+}
+.tc-battle .tc-damage-digits{display:inline-flex;align-items:flex-end;justify-content:center;gap:0}
+.tc-battle .tc-damage-sign,.tc-battle .tc-damage-digit{
+ display:inline-block;
+ min-width:.54em;
+ margin:0;
+ font:900 24px/.92 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+ font-style:normal;
+ font-variant-numeric:tabular-nums;
+ letter-spacing:-.08em;
+ color:#f1b16f;
+ -webkit-text-stroke:1px #51251f;
+ text-shadow:
+  1px 0 #51251f,-1px 0 #51251f,0 1px #51251f,0 -1px #51251f,
+  0 3px 0 #2b1715,0 5px 5px #000b;
+}
+.tc-battle .tc-damage-sign{min-width:.36em;margin-right:1px}
+.tc-battle .tc-damage-digit{animation:tcDamageDigitPop .24s cubic-bezier(.16,.9,.24,1) both;animation-delay:calc(var(--digit-index)*18ms)}
+.tc-battle .player-damage .tc-damage-sign,.tc-battle .player-damage .tc-damage-digit{color:#e98a78;-webkit-text-stroke-color:#4d1d1b}
+.tc-battle .player-heal .tc-damage-sign,.tc-battle .player-heal .tc-damage-digit{color:#9ad08d;-webkit-text-stroke-color:#274129}
+.tc-battle .monster-shield-float .tc-damage-sign,.tc-battle .monster-shield-float .tc-damage-digit,
+.tc-battle .player-shield-float .tc-damage-sign,.tc-battle .player-shield-float .tc-damage-digit{font-size:19px;color:#a8d0d7;-webkit-text-stroke-color:#27404a}
+.tc-battle .floating-number.critical .tc-damage-sign,.tc-battle .floating-number.critical .tc-damage-digit{
+ font-size:31px;
+ color:#ffd876;
+ -webkit-text-stroke:1.3px #6b351a;
+ text-shadow:
+  1px 0 #6b351a,-1px 0 #6b351a,0 1px #6b351a,0 -1px #6b351a,
+  0 3px 0 #3b1c12,0 0 7px #e6a545aa,0 6px 7px #000c;
+}
+.tc-battle .tc-damage-hit,.tc-battle .tc-damage-shield-label,.tc-battle .floating-number>b{
+ display:block;
+ margin:0 0 2px;
+ font:800 7px/1 ui-monospace,Consolas,monospace;
+ letter-spacing:.08em;
+ text-shadow:0 2px 3px #000;
+}
+.tc-battle .tc-damage-hit{color:#d8c9a7}
+.tc-battle .tc-damage-shield-label{color:#9fc2ca}
+.tc-battle .floating-number>b{margin:3px 0 0;color:#ffe4a1;font-size:7px;letter-spacing:.14em}
+@keyframes tcDamagePop{
+ 0%{opacity:0;transform:translate(-50%,-78%) scale(.72)}
+ 13%{opacity:1;transform:translate(-50%,-108%) scale(1.12)}
+ 26%{transform:translate(-50%,-116%) scale(.98)}
+ 68%{opacity:1;transform:translate(-50%,-138%) scale(1)}
+ 100%{opacity:0;transform:translate(-50%,-172%) scale(.94)}
+}
+@keyframes tcDamageDigitPop{
+ 0%{transform:translateY(6px) scaleY(.72);filter:brightness(1.7)}
+ 55%{transform:translateY(-2px) scaleY(1.08)}
+ 100%{transform:translateY(0) scaleY(1);filter:none}
+}
+@media(max-width:380px){
+ .tc-battle .tc-damage-sign,.tc-battle .tc-damage-digit{font-size:21px}
+ .tc-battle .floating-number.critical .tc-damage-sign,.tc-battle .floating-number.critical .tc-damage-digit{font-size:27px}
+ .tc-battle .floating-number.target-monster{top:18%}
+ .tc-battle .floating-number.target-player{top:42%}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-battle .floating-number{animation:tcDamagePopReduced var(--damage-duration) ease-out forwards}
+ .tc-battle .tc-damage-digit{animation:none}
+}
+@keyframes tcDamagePopReduced{
+ 0%{opacity:1;transform:translate(-50%,-115%)}
+ 100%{opacity:0;transform:translate(-50%,-135%)}
+}
+
