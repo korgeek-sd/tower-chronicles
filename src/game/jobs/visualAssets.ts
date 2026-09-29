@@ -1,0 +1,5 @@
+export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
+ contract_mercenary:'assets/characters/jobs/contract_mercenary.webp',
+ hunter:'assets/characters/jobs/hunter.webp',
+ reclaimer:'assets/characters/jobs/reclaimer.webp',
+};
