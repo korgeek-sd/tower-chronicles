@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.90
+# 탑의 기록 v0.1.91
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.90`
+- 앱 버전: `0.1.91`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,14 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.91 — 사냥꾼 직업 캐릭터 에셋
+
+- 사용자 제공 사냥꾼 이미지를 투명 WebP 게임 에셋으로 최적화해 `public/assets/characters/jobs/hunter.webp`에 등록
+- `hunter` 직업에 전용 `visualAssetKey`를 연결해 계약용병과 동일한 직업 이미지 파이프라인 사용
+- 사냥꾼 선택 시 전투 플레이어, 인벤토리 장비 화면, 거점 모험가 기록, 직능 목록, 직능등록 결과에 사냥꾼 이미지 표시
+- 이미지가 없는 나머지 직업은 기존 기본 모험가 외형으로 계속 폴백
+- 능력치·스킬·가챠 확률·전투 판정·저장 스키마는 변경하지 않음
 
 ## v0.1.90 — 계약용병 직업 캐릭터 에셋
 

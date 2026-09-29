@@ -5,6 +5,7 @@ export type JobDefinition={id:string;displayName:string;rarity:JobRarity;descrip
 const rows:[JobRarity,string,string][]=[['C','contract_mercenary','계약용병'],['C','hunter','사냥꾼'],['C','excavator','굴착인부'],['C','field_medic','야전구호원'],['C','reclaimer','회수업자'],['B','vanguard_explorer','선봉 탐사자'],['B','tracker','추적자'],['B','survivor','생환가'],['B','duelist','결투가'],['B','expedition_medic','탐사 의무관'],['A','executor','집행인'],['A','inquisitor','심문관'],['A','deep_delver','심층 도굴꾼'],['A','bloodfighter','혈전가'],['A','expedition_tactician','원정 전술가'],['SR','berserker','광전사'],['SR','mutagen_doctor','변질의사'],['SR','soulcaster','잔혼술사'],['SR','ascetic_fighter','고행투사'],['SR','field_engineer','현장기술자'],['SSR','dragonblood_knight','용혈기사'],['SSR','sealed_archivist','봉인기록관'],['SSR','corpse_tuner','시체조율사'],['SSR','self_alchemist','자가연성가'],['SSR','black_carriage_gambler','검은수레 승부사']];
 const JOB_VISUAL_ASSETS:Partial<Record<string,string>>={
  contract_mercenary:'assets/characters/jobs/contract_mercenary.webp',
+ hunter:'assets/characters/jobs/hunter.webp',
 };
 
 const COMBAT_READY_JOBS: Record<string, { combatKit: JobCombatKit; jobResource?: JobResourceDefinition }> = {
