@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.85
+# 탑의 기록 v0.1.86
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.85`
+- 앱 버전: `0.1.86`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,20 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.86 — 전투 연출 1차 개편
+
+- 전투 화면 전용 `BattleVfxCanvas`와 타임라인을 추가해 공통 UI pulse 대신 전투 공간 안에서 타격을 렌더링
+- 일반 타격: 짧은 공격 궤적, 30ms visual hitstop, 작은 충격광·링·8개 스파크
+- 치명타: 68ms visual hitstop, 이중 충격 링, 교차 slash, 최대 3px 국소 shake, 20개 황동빛 파편과 전용 치명타 숫자 팝
+- 플레이어 피격: 적갈색 slash·화면 가장자리 vignette·반동 파편으로 몬스터 타격과 색/방향을 분리
+- 보호막: 반원형 방어막 ripple과 양옆으로 튕기는 deflect spark를 별도 결과로 표현
+- 회복: 플레이어 중심 상승 mote와 녹빛 원형 잔광, 사망: 긴 impact hold·붉은 균열·파편·강한 국소 shake 적용
+- 기본 공격/스킬 버튼은 실제 전투 처리를 늦추지 않고 같은 프레임에 클라이언트 anticipation cue와 캐릭터 lunge를 시작
+- 몬스터 직접 공격도 authoritative `CombatEvent`를 기준으로 짧은 접근 동작과 타격 VFX를 재생
+- 전투 속도에 따라 VFX 길이를 줄이되 최대 2배까지만 압축해 고속 전투에서도 판독성 유지
+- Canvas DPR 2 상한, 활성 효과 최대 10개, 비활성 시 requestAnimationFrame 정지, reduced-motion에서는 이동 연출을 억제
+- 전투 계산·데미지·치명타 판정·서버 권위 상태·저장 스키마는 변경하지 않음
 
 ## v0.1.85 — 강화 성공 보상감 VFX 강화
 

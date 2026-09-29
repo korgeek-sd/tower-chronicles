@@ -3057,3 +3057,43 @@ html,body,#root{
 .tc-forge-item:disabled{opacity:.62;cursor:default}
 @media(prefers-reduced-motion: reduce){.tc-forge-vfx-canvas{opacity:.8}}
 
+/* v0.1.86 — BATTLE CANVAS VFX / hit feedback + anticipation + mobile budget */
+.tc-battle .battle-scene{isolation:isolate}
+.tc-battle-vfx-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;display:block;contain:strict}
+.tc-battle .player-placement.tc-combat-player-basic{animation:tcBattlePlayerBasic .17s cubic-bezier(.2,.78,.2,1)}
+.tc-battle .player-placement.tc-combat-player-skill{animation:tcBattlePlayerSkill .24s cubic-bezier(.16,.78,.2,1)}
+.tc-battle .monster-placement.tc-combat-monster-attack{animation:tcBattleMonsterAttack .18s cubic-bezier(.2,.78,.2,1)}
+@keyframes tcBattlePlayerBasic{
+ 0%,100%{transform:translate(-50%,-50%)}
+ 22%{transform:translate(calc(-50% - 3px),calc(-50% + 2px))}
+ 58%{transform:translate(calc(-50% + 13px),calc(-50% - 8px))}
+}
+@keyframes tcBattlePlayerSkill{
+ 0%,100%{transform:translate(-50%,-50%)}
+ 28%{transform:translate(calc(-50% - 5px),calc(-50% + 3px)) scale(.985)}
+ 66%{transform:translate(calc(-50% + 10px),calc(-50% - 7px)) scale(1.02)}
+}
+@keyframes tcBattleMonsterAttack{
+ 0%,100%{transform:translate(-50%,-50%)}
+ 28%{transform:translate(calc(-50% + 3px),calc(-50% - 2px))}
+ 62%{transform:translate(calc(-50% - 11px),calc(-50% + 8px))}
+}
+.tc-battle .fighter-hud .hp>div{transition:width .16s cubic-bezier(.2,.75,.2,1)}
+.tc-battle .floating-number{font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.tc-battle .floating-number.critical{font-size:24px;color:#f1cd79;text-shadow:0 1px #5f3519,0 3px 5px #000;animation:tcBattleCriticalNumber var(--damage-duration) cubic-bezier(.12,.8,.2,1) forwards}
+.tc-battle .floating-number.critical b{margin-top:1px;color:#f2d89d;font-size:8px;letter-spacing:.12em}
+.tc-battle .monster-shield-float,.tc-battle .player-shield-float{font-size:15px;text-shadow:0 0 8px #7eb6c066,0 2px 3px #000}
+@keyframes tcBattleCriticalNumber{
+ 0%{opacity:0;transform:translateY(8px) scale(.68)}
+ 16%{opacity:1;transform:translateY(-2px) scale(1.18)}
+ 34%{transform:translateY(-7px) scale(1)}
+ 100%{opacity:0;transform:translateY(-38px) scale(.94)}
+}
+@media(max-width:380px){
+ .tc-battle .floating-number.critical{font-size:21px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-battle .player-placement.tc-combat-player-basic,.tc-battle .player-placement.tc-combat-player-skill,.tc-battle .monster-placement.tc-combat-monster-attack{animation:none!important}
+ .tc-battle .floating-number.critical{animation:tcFloat var(--damage-duration) ease-out forwards}
+}
+

@@ -28,18 +28,15 @@
 @media(prefers-reduced-motion: reduce){.tc-enhance-feel-attempt,.tc-enhance-feel-success,.tc-enhance-feel-keep,.tc-enhance-feel-downgrade,.tc-enhance-feel-destroy,.tc-enhance-feel-success .tc-forge-sigil{animation:none}}
 
 .tc-battle .player-figure,.tc-battle .monster-figure{position:relative}
-.tc-battle .tc-combat-impact-normal:after,.tc-battle .tc-combat-impact-critical:after{content:"";position:absolute;left:50%;top:50%;width:42%;aspect-ratio:1;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:6}
-.tc-battle .tc-combat-impact-normal:after{border:1px solid #d7c49b99;animation:tcCombatImpact .24s ease-out}
-.tc-battle .tc-combat-impact-critical{animation:tcCombatCritical .3s ease-out}
-.tc-battle .tc-combat-impact-critical:after{border:2px solid #e2b65d;box-shadow:0 0 14px #d79138;animation:tcCombatImpactCritical .3s ease-out}
-@keyframes tcCombatImpact{0%{opacity:1;transform:translate(-50%,-50%) scale(.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.65)}}
-@keyframes tcCombatImpactCritical{0%{opacity:1;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.15)}}
-@keyframes tcCombatCritical{0%,100%{transform:translateX(0)}22%{transform:translateX(-3px)}48%{transform:translateX(4px)}70%{transform:translateX(-2px)}}
+.tc-battle .tc-combat-impact-normal{animation:tcCombatImpactRecoil .18s ease-out}
+.tc-battle .tc-combat-impact-critical{animation:tcCombatCritical .3s cubic-bezier(.2,.75,.2,1)}
+@keyframes tcCombatImpactRecoil{0%,100%{filter:brightness(1)}28%{filter:brightness(1.55)}}
+@keyframes tcCombatCritical{0%,100%{transform:translateX(0);filter:brightness(1)}18%{transform:translateX(-3px);filter:brightness(1.8)}42%{transform:translateX(5px);filter:brightness(1.45)}68%{transform:translateX(-2px);filter:brightness(1.15)}}
 
 .tc-market-trade-pulse .tc-market-v2-status,.tc-market-trade-pulse .tc-market-v4-pricehead,.tc-market-trade-pulse .tc-market-v4-tradehead,.tc-market-trade-pulse .tc-goldx-hero,.tc-market-trade-pulse .tc-goldx-order-summary,.tc-market-trade-pulse .tc-goldx-trade-summary{animation:tcMarketTradePulse .5s ease-out}
 @keyframes tcMarketTradePulse{0%{box-shadow:inset 0 0 0 #b89b6500}38%{box-shadow:inset 0 0 22px #b89b6544;filter:brightness(1.16)}100%{box-shadow:inset 0 0 0 #b89b6500;filter:none}}
 
 @media(prefers-reduced-motion: reduce){
  .tc-seal-wheel.is-casting .tc-seal-core,.tc-seal-wheel.tc-seal-result-1 .tc-seal-core,.tc-seal-wheel.tc-seal-result-2 .tc-seal-core,.tc-seal-wheel.tc-seal-result-3 .tc-seal-core,.tc-seal-node.just-lit,.tc-enhance-feel-attempt,.tc-enhance-feel-success,.tc-enhance-feel-keep,.tc-enhance-feel-downgrade,.tc-enhance-feel-destroy,.tc-battle .tc-combat-impact-critical,.tc-market-trade-pulse .tc-market-v2-status,.tc-market-trade-pulse .tc-market-v4-pricehead,.tc-market-trade-pulse .tc-market-v4-tradehead,.tc-market-trade-pulse .tc-goldx-hero,.tc-market-trade-pulse .tc-goldx-order-summary,.tc-market-trade-pulse .tc-goldx-trade-summary{animation:none!important}
- .tc-enhance-feel-success:after,.tc-enhance-feel-destroy:after,.tc-battle .tc-combat-impact-normal:after,.tc-battle .tc-combat-impact-critical:after{display:none}
+ .tc-enhance-feel-success:after,.tc-enhance-feel-destroy:after{display:none}
 }

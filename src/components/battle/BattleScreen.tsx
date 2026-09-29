@@ -5,7 +5,7 @@ import {TOWERS,POTIONS,generalPotionIds,WEAPONS,SKILLS} from '../../game/data/co
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 import {lootTotals} from '../../game/engine/loot';
 import {stats,weaponOf} from '../../game/engine/state';
-import {BattleScene} from './BattleScene';
+import {BattleScene,type BattleActionCue} from './BattleScene';
 import {titleById} from '../../game/data/cosmetics';
 import {bossIdFor} from '../../game/engine/bossTracking';
 import {skillTurnsLeft} from '../../game/engine/turns';
@@ -27,7 +27,9 @@ const glyph:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense
 export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
  const feel=useGameFeel();
- const lastFeelEvent=useRef(0),lastHp=useRef(e.hp);
+ const lastFeelEvent=useRef(0),lastHp=useRef(e.hp),actionCueSeq=useRef(0);
+ const [actionCue,setActionCue]=useState<BattleActionCue|null>(null);
+ const cuePlayerAction=(kind:BattleActionCue['kind'],action:()=>void)=>{setActionCue({id:++actionCueSeq.current,kind});action();};
  useEffect(()=>{
   const fresh=(game.combatEvents??[]).filter(event=>event.id>lastFeelEvent.current);
   for(const event of fresh){
@@ -69,7 +71,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
 
  const skillCards=skillIds.map((id,i)=>{
   const skill=SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
-  return <button type="button" disabled={!skill||!canUseSkill(game,id||'')} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&onSkill(skill.id)}>
+  return <button type="button" disabled={!skill||!canUseSkill(game,id||'')} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
    <span className="tc-ref-card-art"><Glyph name={glyph[id]??'skills'}/>{turns>0&&<b>{turns}</b>}</span>
    <strong>{skill?.name||'미구현'}</strong>
    <small>{mismatch?'무기 불일치':turns?turns+'턴 대기':'사용 가능'}</small>
@@ -79,7 +81,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
  return <div className="tc-battle tc-battle-reference">
   <div className="tc-battle-ornament top" aria-hidden="true"/>
   <div className="tc-battle-ornament bottom" aria-hidden="true"/>
-  <div className="tc-battle-scene"><BattleScene expedition={e} combatEvents={game.combatEvents??[]} playerMaxHp={st.hp} appearanceId={game.cosmetics.selectedAppearanceId} titleName={titleById(game.cosmetics.selectedTitleId||'')?.name} speed={prefs.speed} showDamage={prefs.damageNumbers}/></div>
+  <div className="tc-battle-scene"><BattleScene expedition={e} combatEvents={game.combatEvents??[]} playerMaxHp={st.hp} appearanceId={game.cosmetics.selectedAppearanceId} titleName={titleById(game.cosmetics.selectedTitleId||'')?.name} speed={prefs.speed} showDamage={prefs.damageNumbers} actionCue={actionCue}/></div>
 
   <header className="tc-ref-top">
    <div className="tc-ref-metrics">
@@ -107,7 +109,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
   </div>
 
   <div className="tc-ref-actions">
-   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={onBasicAttack}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
+   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={()=>cuePlayerAction('basic',onBasicAttack)}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
    {skillCards}
    <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>아이템</strong><small>포션</small></button>
   </div>
