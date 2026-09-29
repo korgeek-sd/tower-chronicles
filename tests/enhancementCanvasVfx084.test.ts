@@ -21,7 +21,8 @@ test('ENHANCEMENT VFX 0.1.84 02: four outcomes have distinct timing and particle
  assert.equal(ENHANCEMENT_ATTEMPT_MIN_MS,220);
  assert.ok(ENHANCEMENT_VFX_SPECS.SUCCESS.particles>ENHANCEMENT_VFX_SPECS.FAIL_KEEP.particles);
  assert.ok(ENHANCEMENT_VFX_SPECS.FAIL_DESTROY.shakePx>ENHANCEMENT_VFX_SPECS.FAIL_DOWNGRADE.shakePx);
- assert.ok(ENHANCEMENT_VFX_SPECS.FAIL_DESTROY.duration>ENHANCEMENT_VFX_SPECS.SUCCESS.duration);
+ assert.ok(ENHANCEMENT_VFX_SPECS.SUCCESS.duration>=1000);
+ assert.ok(ENHANCEMENT_VFX_SPECS.FAIL_DESTROY.duration>=900);
  for(const outcome of ['SUCCESS','FAIL_KEEP','FAIL_DOWNGRADE'])assert.ok(canvas.includes("scene.outcome==='"+outcome+"'"),outcome);
  assert.ok(canvas.includes("'장비 파괴'"));
 });

@@ -36,8 +36,8 @@ function makeParticles(outcome:EnhancementFeelOutcome,count:number,cx:number,cy:
  for(let i=0;i<count;i++){
   const angle=rnd()*TAU;
   if(outcome==='SUCCESS'){
-   const speed=58+rnd()*92;
-   particles.push({kind:'spark',x:cx,y:cy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:0,maxLife:.42+rnd()*.28,size:1.2+rnd()*2.1,rotation:angle,spin:(rnd()-.5)*8,tone:rnd()>.34?'#e7c778':'#9d6d36'});
+   const speed=78+rnd()*118;
+   particles.push({kind:'spark',x:cx,y:cy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:0,maxLife:.5+rnd()*.34,size:1.2+rnd()*2.5,rotation:angle,spin:(rnd()-.5)*10,tone:rnd()>.72?'#fff0b7':rnd()>.3?'#e7c778':'#a87235'});
   }else if(outcome==='FAIL_KEEP'){
    const speed=18+rnd()*35;
    particles.push({kind:'smoke',x:cx+(rnd()-.5)*8,y:cy+(rnd()-.5)*6,vx:Math.cos(angle)*speed*.4,vy:-10-rnd()*18,life:0,maxLife:.3+rnd()*.18,size:2+rnd()*3,rotation:0,spin:0,tone:'#9b8d74'});
@@ -114,9 +114,67 @@ export const EnhancementVfxCanvas=forwardRef<EnhancementVfxHandle,Props>(functio
   }
 
   if(scene.outcome==='SUCCESS'){
-   for(let r=0;r<spec.rings;r++){const t=clamp(progress*1.25-r*.08),rr=18+72*easeOutCubic(t);ctx.globalAlpha=(1-t)*(.8-r*.18);ctx.strokeStyle=r?'#9d743c':'#e3bd6c';ctx.lineWidth=r?1:1.5;ctx.beginPath();ctx.arc(p.x,p.y,rr,0,TAU);ctx.stroke();}
-   ctx.globalAlpha=1-clamp((progress-.48)/.52);ctx.strokeStyle='#d7a957';ctx.lineWidth=1;
-   for(let i=0;i<8;i++){const a=i*TAU/8,inner=15+progress*24,outer=28+progress*58;ctx.beginPath();ctx.moveTo(p.x+Math.cos(a)*inner,p.y+Math.sin(a)*inner);ctx.lineTo(p.x+Math.cos(a)*outer,p.y+Math.sin(a)*outer);ctx.stroke();}
+   const reward=clamp((elapsed-spec.holdMs)/170),linger=1-clamp((progress-.72)/.28),maxBonus=scene.target>=10;
+   ctx.save();
+   ctx.globalCompositeOperation='lighter';
+
+   // Forge-light pillar: a short vertical bloom makes the item feel lifted rather than merely flashed.
+   const beamAlpha=(1-clamp(progress*1.45))*(maxBonus ? .48 : .34);
+   if(beamAlpha>0){
+    const beam=ctx.createLinearGradient(p.x,p.y-105,p.x,p.y+105);
+    beam.addColorStop(0,'rgba(255,228,158,0)');
+    beam.addColorStop(.38,'rgba(247,202,112,'+(beamAlpha*.42)+')');
+    beam.addColorStop(.5,'rgba(255,242,194,'+beamAlpha+')');
+    beam.addColorStop(.62,'rgba(247,202,112,'+(beamAlpha*.34)+')');
+    beam.addColorStop(1,'rgba(255,228,158,0)');
+    ctx.fillStyle=beam;ctx.fillRect(p.x-(maxBonus?24:18),p.y-108,maxBonus?48:36,216);
+   }
+
+   // Three expanding forge rings; +10 gets a slightly wider final seal.
+   for(let r=0;r<spec.rings;r++){
+    const t=clamp(progress*1.12-r*.075),rr=16+(maxBonus?92:80)*easeOutCubic(t)+r*4;
+    ctx.globalAlpha=(1-t)*(.92-r*.16);ctx.strokeStyle=r===0?'#ffe6a4':r===1?'#d7a957':'#9d743c';ctx.lineWidth=r===0?1.8:1;
+    ctx.beginPath();ctx.arc(p.x,p.y,rr,0,TAU);ctx.stroke();
+   }
+
+   // A rotating square/rune seal lingers after the impact.
+   ctx.save();ctx.translate(p.x,p.y);ctx.rotate(progress*.72);
+   const sealSize=28+24*easeOutCubic(reward);
+   ctx.globalAlpha=linger*.38;ctx.strokeStyle=maxBonus?'#ffe6a4':'#d2a85d';ctx.lineWidth=1;
+   ctx.strokeRect(-sealSize/2,-sealSize/2,sealSize,sealSize);
+   ctx.rotate(Math.PI/4-progress*1.28);
+   ctx.globalAlpha=linger*.24;ctx.strokeRect(-sealSize*.38,-sealSize*.38,sealSize*.76,sealSize*.76);
+   ctx.restore();
+
+   // Strong radial rays arrive after the white flash and then recede.
+   const rayCount=maxBonus?18:14,rayFade=1-clamp((progress-.54)/.46);
+   ctx.globalAlpha=rayFade*.78;ctx.strokeStyle=maxBonus?'#ffe7a7':'#d7a957';ctx.lineWidth=maxBonus?1.35:1;
+   for(let i=0;i<rayCount;i++){
+    const a=i*TAU/rayCount+(i%2?progress*.16:-progress*.1),inner=14+progress*27,outer=34+progress*(maxBonus?78:64)+(i%3)*7;
+    ctx.beginPath();ctx.moveTo(p.x+Math.cos(a)*inner,p.y+Math.sin(a)*inner);ctx.lineTo(p.x+Math.cos(a)*outer,p.y+Math.sin(a)*outer);ctx.stroke();
+   }
+
+   // Deterministic four-point glints keep the second half of the success animation alive.
+   const glintRnd=mulberry((Math.floor(scene.startedAt)+scene.target*97)|0),glintCount=maxBonus?9:7;
+   for(let i=0;i<glintCount;i++){
+    const a=glintRnd()*TAU,r=38+glintRnd()*(maxBonus?70:55),delay=115+i*42,life=300+glintRnd()*230;
+    const gt=clamp((elapsed-delay)/life),ga=Math.sin(gt*Math.PI)*(maxBonus ? .95 : .75);
+    if(ga<=0)continue;
+    const gx=p.x+Math.cos(a)*r,gy=p.y+Math.sin(a)*r*.72,gs=(2.2+glintRnd()*3.8)*(1+Math.sin(gt*Math.PI)*.55);
+    ctx.globalAlpha=ga;ctx.strokeStyle=i%3===0?'#fff1bd':'#e3bd6c';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(gx-gs,gy);ctx.lineTo(gx+gs,gy);ctx.moveTo(gx,gy-gs);ctx.lineTo(gx,gy+gs);ctx.stroke();
+   }
+
+   // +10 success receives a final crown arc without changing gameplay logic.
+   if(maxBonus){
+    const crownT=clamp((elapsed-260)/360);
+    if(crownT>0){
+     ctx.globalAlpha=Math.sin(crownT*Math.PI)*.68;ctx.strokeStyle='#ffe9ad';ctx.lineWidth=1.2;
+     ctx.beginPath();ctx.arc(p.x,p.y,58,Math.PI*1.12,Math.PI*1.88);ctx.stroke();
+     for(let i=-2;i<=2;i++){const a=-Math.PI/2+i*.18,rr=58,x=p.x+Math.cos(a)*rr,y=p.y+Math.sin(a)*rr;ctx.fillStyle='#ffe9ad';ctx.fillRect(x-1.2,y-1.2,2.4,2.4);}
+    }
+   }
+   ctx.restore();
   }else if(scene.outcome==='FAIL_KEEP'){
    ctx.globalAlpha=(1-progress)*.55;ctx.strokeStyle='#91846d';ctx.lineWidth=1;ctx.beginPath();ctx.arc(p.x,p.y,18+28*easeOutCubic(progress),0,TAU);ctx.stroke();
   }else if(scene.outcome==='FAIL_DOWNGRADE'){
@@ -142,12 +200,21 @@ export const EnhancementVfxCanvas=forwardRef<EnhancementVfxHandle,Props>(functio
    }
   }
 
-  const labelStart=hold?0:clamp((elapsed-spec.holdMs)/110),labelFade=clamp((spec.duration-elapsed)/180);
+  const labelStart=hold?0:clamp((elapsed-spec.holdMs)/110),labelFade=clamp((spec.duration-elapsed)/220);
   if(labelStart>0){
    const scale=.82+.18*easeOutBack(labelStart);
-   ctx.save();ctx.translate(p.x,p.y+54);ctx.scale(scale,scale);ctx.globalAlpha=Math.min(labelStart,labelFade);ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 12px Georgia, serif';
-   const label=scene.outcome==='SUCCESS'?('+'+scene.target+' 강화 성공'):scene.outcome==='FAIL_KEEP'?('+'+scene.current+' 유지'):scene.outcome==='FAIL_DOWNGRADE'?('+'+scene.target+' 단계 하락'):'장비 파괴';
-   ctx.fillStyle=scene.outcome==='SUCCESS'?'#f0cf88':scene.outcome==='FAIL_KEEP'?'#b7ab95':scene.outcome==='FAIL_DOWNGRADE'?'#c98976':'#e29a82';ctx.shadowColor='rgba(0,0,0,.9)';ctx.shadowBlur=4;ctx.fillText(label,0,0);ctx.restore();
+   ctx.save();ctx.translate(p.x,p.y+55);ctx.scale(scale,scale);ctx.globalAlpha=Math.min(labelStart,labelFade);ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(0,0,0,.92)';ctx.shadowBlur=5;
+   if(scene.outcome==='SUCCESS'){
+    const maxBonus=scene.target>=10;
+    ctx.font='700 6.5px ui-monospace, monospace';ctx.fillStyle=maxBonus?'#ffe9b0':'#cba55f';ctx.fillText(maxBonus?'MAX ENHANCEMENT':'ENHANCEMENT SUCCESS',0,-17);
+    ctx.font='700 '+(maxBonus?'25':'22')+'px Georgia, serif';ctx.fillStyle=maxBonus?'#fff0bd':'#f0cf88';ctx.shadowBlur=8;ctx.fillText('+'+scene.target,0,1);
+    ctx.font='700 8px Georgia, serif';ctx.fillStyle='#dfbd76';ctx.shadowBlur=4;ctx.fillText(maxBonus?'최대 강화 달성':'강화 성공',0,21);
+   }else{
+    ctx.font='700 12px Georgia, serif';
+    const label=scene.outcome==='FAIL_KEEP'?('+'+scene.current+' 유지'):scene.outcome==='FAIL_DOWNGRADE'?('+'+scene.target+' 단계 하락'):'장비 파괴';
+    ctx.fillStyle=scene.outcome==='FAIL_KEEP'?'#b7ab95':scene.outcome==='FAIL_DOWNGRADE'?'#c98976':'#e29a82';ctx.fillText(label,0,0);
+   }
+   ctx.restore();
   }
 
   ctx.restore();frameRef.current=requestAnimationFrame(draw);

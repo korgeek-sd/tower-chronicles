@@ -20,10 +20,12 @@
 .tc-enhance-feel-destroy{animation:tcEnhanceWorkbenchDestroy .42s cubic-bezier(.2,.7,.2,1)}
 @keyframes tcEnhanceWorkbenchCharge{0%{transform:scale(1)}55%{transform:scale(.992)}100%{transform:scale(1)}}
 @keyframes tcEnhanceWorkbenchSuccess{0%,100%{transform:translateY(0)}38%{transform:translateY(-1px)}}
+.tc-enhance-feel-success .tc-forge-sigil{animation:tcForgeSigilReward .7s cubic-bezier(.16,.84,.28,1)}
+@keyframes tcForgeSigilReward{0%{transform:scale(.93);filter:brightness(.82)}18%{transform:scale(1.13);filter:brightness(1.85) drop-shadow(0 0 10px #d7a957)}38%{transform:scale(1.04);filter:brightness(1.32) drop-shadow(0 0 6px #b8843d)}68%{transform:scale(1.015);filter:brightness(1.12)}100%{transform:scale(1);filter:none}}
 @keyframes tcEnhanceWorkbenchKeep{0%,100%{transform:translateY(0)}50%{transform:translateY(1px)}}
 @keyframes tcEnhanceWorkbenchDown{0%,100%{transform:translateY(0)}38%{transform:translateY(2px)}58%{transform:translateY(-1px)}}
 @keyframes tcEnhanceWorkbenchDestroy{0%,100%{transform:translate(0)}18%{transform:translate(-2px,1px)}34%{transform:translate(2px,-1px)}52%{transform:translate(-2px,1px)}70%{transform:translate(1px,0)}}
-@media(prefers-reduced-motion: reduce){.tc-enhance-feel-attempt,.tc-enhance-feel-success,.tc-enhance-feel-keep,.tc-enhance-feel-downgrade,.tc-enhance-feel-destroy{animation:none}}
+@media(prefers-reduced-motion: reduce){.tc-enhance-feel-attempt,.tc-enhance-feel-success,.tc-enhance-feel-keep,.tc-enhance-feel-downgrade,.tc-enhance-feel-destroy,.tc-enhance-feel-success .tc-forge-sigil{animation:none}}
 
 .tc-battle .player-figure,.tc-battle .monster-figure{position:relative}
 .tc-battle .tc-combat-impact-normal:after,.tc-battle .tc-combat-impact-critical:after{content:"";position:absolute;left:50%;top:50%;width:42%;aspect-ratio:1;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:6}

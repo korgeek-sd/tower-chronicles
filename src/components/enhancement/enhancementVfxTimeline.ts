@@ -12,7 +12,7 @@ export type EnhancementVfxSpec={
 };
 
 export const ENHANCEMENT_VFX_SPECS:Record<EnhancementFeelOutcome,EnhancementVfxSpec>={
- SUCCESS:{duration:720,holdMs:55,shakeMs:90,shakePx:1.6,particles:22,rings:2},
+ SUCCESS:{duration:1080,holdMs:68,shakeMs:125,shakePx:2.15,particles:36,rings:3},
  FAIL_KEEP:{duration:420,holdMs:28,shakeMs:55,shakePx:.7,particles:7,rings:1},
  FAIL_DOWNGRADE:{duration:590,holdMs:46,shakeMs:120,shakePx:2.2,particles:14,rings:1},
  FAIL_DESTROY:{duration:920,holdMs:82,shakeMs:210,shakePx:4.8,particles:30,rings:2},

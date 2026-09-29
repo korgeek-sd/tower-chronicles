@@ -64,7 +64,7 @@ export function EnhancementScreen({
  const triggerEnhanceFx=(kind:'attempt'|'success'|'keep'|'downgrade'|'destroy')=>{
   if(enhanceFxTimer.current!==null)window.clearTimeout(enhanceFxTimer.current);
   setEnhanceFx(kind);
-  enhanceFxTimer.current=window.setTimeout(()=>{setEnhanceFx(null);enhanceFxTimer.current=null;},kind==='destroy'?430:280);
+  enhanceFxTimer.current=window.setTimeout(()=>{setEnhanceFx(null);enhanceFxTimer.current=null;},kind==='success'?760:kind==='destroy'?430:280);
  };
  useEffect(()=>()=>{if(enhanceFxTimer.current!==null)window.clearTimeout(enhanceFxTimer.current);vfxRef.current?.cancel();},[]);
 
