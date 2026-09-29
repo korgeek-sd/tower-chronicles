@@ -24,11 +24,12 @@ test('JOB REGISTRATION UI 02: registration UI calls only server registration RPC
  assert.doesNotMatch(source,/Math\.random\(/);
 });
 
-test('JOB REGISTRATION UI 03: rebuilt gacha UI stays asset-free and viewport-contained',()=>{
+test('JOB REGISTRATION UI 03: gacha UI permits job character art but no decorative UI assets',()=>{
  const source=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
  assert.equal(source.includes('assets/ui'),false);
- assert.equal(source.includes('<img'),false);
+ assert.match(source,/tc-reg-job-art/);
+ assert.match(source,/assetUrl\(job\.visualAssetKey\)/);
  assert.match(source,/tc-reg-vault-icon/);
  assert.match(source,/tc-reg-record-icon/);
  assert.match(css,/\.tc-registration\{height:100%;min-height:0;[^}]*display:grid/);
