@@ -1,6 +1,7 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState} from '../game/types';
 import {JOB_CATALOG,JOB_RARITIES,jobById,type JobRarity} from '../game/jobs/catalog';
+import {assetUrl} from '../game/data/graphics';
 import {
  JOB_RECORD_EXCHANGE_COST,
  JOB_RECORD_EXCHANGE_LIMIT,
@@ -136,7 +137,7 @@ export function JobsScreen({
    {tab==='list'?<div className="tc-jobs tc-job-list-mode">
     <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능마다 고유한 패시브 2개와 액티브 3개를 사용합니다.'}</div>
     <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);}} label="직능 등급"/>
-    <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className="tc-job" key={job.id}><div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
+    <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className={'tc-job'+(job.visualAssetKey?' has-art':'')} key={job.id}>{job.visualAssetKey&&<span className="tc-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></span>}<div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
    </div>:result?<RegistrationResult result={result} onClose={()=>setResult(null)}/>:<div className="tc-reg-shell">
     <div className="tc-reg-subnav"><Segments items={[['draw','등록'],['records','직능기록'],['rates','확률정보']] as const} value={registerView} onChange={value=>{setRegisterView(value);setMessage('');}} label="직능등록 세부 메뉴"/></div>
@@ -263,7 +264,7 @@ function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult
   return <div className="tc-reg-result tc-reg-result-single" key={result.requestId}>
    <section className={'tc-reg-reveal rarity-'+entry.rarity.toLowerCase()}>
     <div className="tc-reg-reveal-burst" aria-hidden="true"/>
-    <div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>
+    {job?.visualAssetKey?<div className="tc-reg-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></div>:<div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>}
     <small>직능기록 판독 완료</small>
     <h2>{job?.displayName??entry.jobId}</h2>
     <strong>{entry.rarity}{entry.pickup?' · 집중 열람':''}</strong>
@@ -275,7 +276,7 @@ function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult
  return <div className="tc-reg-result tc-reg-result-multi" key={result.requestId}>
   <div className="tc-reg-result-head"><div><small>직능등록 결과</small><b>10+1 판독 완료</b></div><span>{result.goldAfter.toLocaleString()} Gold</span></div>
   <div className="tc-reg-result-grid" aria-label="10+1 직능등록 결과">{result.results.map((entry,index)=>{const job=jobById(entry.jobId);return <article className={'tc-reg-mini rarity-'+entry.rarity.toLowerCase()} key={index} style={{'--i':index} as React.CSSProperties}>
-   <div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>
+   {job?.visualAssetKey?<div className="tc-reg-mini-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></div>:<div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>}
    <strong>{entry.rarity}</strong>
    <b>{job?.displayName??entry.jobId}</b>
    <small>{entry.newlyUnlocked?'NEW':entry.residualGained>0?'잔여 +'+entry.residualGained:entry.recordCount+'/60'}{entry.pickup?' · PICKUP':''}</small>

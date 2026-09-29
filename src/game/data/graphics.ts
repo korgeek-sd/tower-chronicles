@@ -1,6 +1,7 @@
 import type {Tower,Monster} from '../types';
 import {TOWERS,towerIds} from './config';
 import {APPEARANCES,appearanceById,DEFAULT_APPEARANCE_ID} from './cosmetics';
+import {jobById} from '../jobs/catalog';
 import {IRON_T1_MONSTERS,IRON_BOSS_SLOTS} from './ironSpire';
 import {RED_T1_MONSTERS,RED_BOSS_SLOTS} from './redFang';
 import {CRYSTAL_T1_MONSTERS,CRYSTAL_BOSS_SLOTS} from './crystalTower';
@@ -14,6 +15,12 @@ export interface PlayerGraphic {id:string;image:{idle?:string};display:{scale:nu
 export const SCENE_CONFIG={hitDurationMs:200,damageDurationMs:650,maxDamageLabels:5};
 export const PLAYER_GRAPHIC:PlayerGraphic={id:DEFAULT_APPEARANCE_ID,image:{idle:APPEARANCES[0].imagePath},display:{scale:1.25,offsetX:-1,offsetY:0}};
 export const playerGraphicFor=(appearanceId:string):PlayerGraphic=>{const appearance=appearanceById(appearanceId)??APPEARANCES[0];return {...PLAYER_GRAPHIC,id:appearance.id,image:{idle:appearance.imagePath}};};
+export const playerGraphicForJob=(jobId:string|null,appearanceId:string):PlayerGraphic=>{
+ const job=jobById(jobId);
+ return job?.visualAssetKey
+  ?{id:'job:'+job.id,image:{idle:job.visualAssetKey},display:{scale:1.08,offsetX:0,offsetY:2}}
+  :playerGraphicFor(appearanceId);
+};
 const ids:Record<Tower,string>={ore:'goblin_miner',leather:'wild_boar',gem:'crystal_guardian',kaleon:'moss_spirit'};
 export const MONSTER_GRAPHICS:MonsterGraphic[]=[];
 MONSTER_GRAPHICS.push(...IRON_T1_MONSTERS.map(m=>({id:m.graphicId,tower:'ore' as const,name:m.displayName,image:{idle:`assets/monsters/iron-t1/${m.id}.png`},display:{scale:m.boss?1.18:1,offsetX:0,offsetY:m.id==='mine_bat'?0:18}})));

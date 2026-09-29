@@ -7,7 +7,7 @@ import {V2_STARTER_EQUIPMENT_ID} from '../../game/data/equipment';
 import {useSkillBook} from '../../game/engine/skills';
 import {registerAppearance} from '../../game/engine/cosmetics';
 import {SKILLS,SLOTS} from '../../game/data/config';
-import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
+import {assetUrl,playerGraphicForJob} from '../../game/data/graphics';
 import {Glyph,Pager,Screen} from '../../ui/mobile';
 import {InventoryDetailSheet} from './InventoryDetailSheet';
 import type {GameplayLease} from '../../online/gameSession';
@@ -56,7 +56,7 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket
  const close=useCallback(()=>setSelected(null),[]);
  const items=inventoryView(activeGame),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
  useEffect(()=>{if(!initialSelected)return;setSelected(initialSelected);onInitialSelectedConsumed?.();},[initialSelected]);
- const categorySet=useMemo(()=>categories,[ ]),st=stats(activeGame),graphic=playerGraphicFor(activeGame.cosmetics.selectedAppearanceId),characterSrc=graphic.image.idle?assetUrl(graphic.image.idle):undefined;
+ const categorySet=useMemo(()=>categories,[ ]),st=stats(activeGame),graphic=playerGraphicForJob(activeGame.expedition?.jobSnapshotId??activeGame.currentJobId,activeGame.cosmetics.selectedAppearanceId),characterSrc=graphic.image.idle?assetUrl(graphic.image.idle):undefined;
  const equippedCount=(Object.keys(SLOTS) as Slot[]).filter(slot=>!!activeGame.equipped[slot]).length;
  const noRealEquipment=(game.equipmentItems??[]).length===0;
  let action:(()=>void)|undefined,label='',disabled=false;

@@ -7,6 +7,7 @@ import {APPEARANCES,TITLES,appearanceById,titleById} from '../../game/data/cosme
 import {selectAppearance,selectTitle} from '../../game/engine/cosmetics';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
 import {jobById} from '../../game/jobs/catalog';
+import {assetUrl} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
@@ -35,7 +36,7 @@ export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:Ap
    <section className="tc-camp-dossier" aria-label="모험가 기록">
     <header className="tc-camp-dossier-title"><Glyph name="association"/><b>모험가 기록</b><small>{game.expedition?'EXPEDITION':'NOVAR DOSSIER'}</small></header>
     <div className="tc-camp-profile">
-     <div className="tc-camp-crest" aria-hidden="true"><span/><Glyph name={weaponId}/></div>
+     <div className={'tc-camp-crest'+(job?.visualAssetKey?' has-job-art':'')} aria-hidden="true">{job?.visualAssetKey?<img src={assetUrl(job.visualAssetKey)} alt=""/>:<><span/><Glyph name={weaponId}/></>}</div>
      <div className="tc-camp-identity"><small>{job?'현재 직능':'직능 미선택'}{job&&<span>{job.rarity}</span>}</small><h2>{job?.displayName??'모험가'}</h2><p>{weapon.description}</p></div>
      <button className="tc-camp-weapon tc-feel-press" data-game-feel="press" onClick={()=>onMove('inventory')}><small>장착 무기</small><span className="tc-camp-weapon-icon"><Glyph name={weaponId}/></span><b>{equippedWeapon?itemName(equippedWeapon):'미장착'}</b><em>장비 확인 ›</em></button>
     </div>

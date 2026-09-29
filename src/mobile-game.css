@@ -3214,3 +3214,24 @@ html,body,#root{
  }
 }
 
+/* v0.1.90 — CONTRACT MERCENARY JOB CHARACTER ASSET */
+.tc-job.has-art{grid-template-columns:42px minmax(0,1fr) auto}
+.tc-job.has-art>div{min-width:0}
+.tc-job-art{width:38px;height:38px;display:grid;place-items:center;overflow:hidden;border:1px solid #4e493d;background:radial-gradient(circle at 50% 45%,#292821,#0b0d0c 72%);box-shadow:inset 0 0 0 1px #080908}
+.tc-job-art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 2px #000a)}
+.tc-camp-crest.has-job-art{overflow:hidden;background:radial-gradient(circle at 50% 44%,#333026,#151815 72%)}
+.tc-camp-crest.has-job-art img{width:100%;height:100%;object-fit:contain;object-position:50% 52%;image-rendering:pixelated;filter:drop-shadow(0 5px 4px #000a)}
+.tc-reg-job-art{position:relative;z-index:1;width:122px;height:136px;display:grid;place-items:center;margin-bottom:2px;border-bottom:1px solid color-mix(in srgb,var(--rarity),transparent 48%)}
+.tc-reg-job-art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 8px 6px #000b)}
+.tc-reg-mini-job-art{position:relative;z-index:1;width:42px;height:45px;justify-self:center;display:grid;place-items:center;overflow:hidden}
+.tc-reg-mini-job-art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 2px #000a)}
+.tc-loadout-character img[src*="/characters/jobs/"]{transform:scale(.96);transform-origin:50% 58%}
+@media(max-height:700px){
+ .tc-reg-job-art{width:94px;height:104px}
+ .tc-reg-mini-job-art{width:30px;height:31px}
+}
+@media(max-height:620px){
+ .tc-reg-job-art{width:74px;height:82px}
+ .tc-reg-mini-job-art{width:22px;height:23px}
+}
+

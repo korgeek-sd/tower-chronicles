@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import type {CombatEvent,Expedition} from '../../game/types';
-import {assetUrl,graphicFor,playerGraphicFor,SCENE_CONFIG} from '../../game/data/graphics';
+import {assetUrl,graphicFor,playerGraphicFor,playerGraphicForJob,SCENE_CONFIG} from '../../game/data/graphics';
 import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} from './presentation';
 import {BattleVfxCanvas,type BattleVfxHandle} from './BattleVfxCanvas';
 
@@ -14,8 +14,8 @@ type Impact='normal'|'critical'|null;
 type Motion='basic'|'skill'|'monster'|null;
 export type BattleActionCue={id:number;kind:'basic'|'skill'};
 
-export function PlayerLayer({impact,motion,appearanceId,anchorRef}:{impact:Impact;motion:Motion;appearanceId:string;anchorRef:React.RefObject<HTMLDivElement|null>}){
- const graphic=playerGraphicFor(appearanceId),fallback=playerGraphicFor('default'),ready=useImage(graphic.image.idle),fallbackReady=useImage(fallback.image.idle),d=graphic.display,src=ready?graphic.image.idle:fallbackReady?fallback.image.idle:undefined;
+export function PlayerLayer({impact,motion,jobId,appearanceId,anchorRef}:{impact:Impact;motion:Motion;jobId:string|null;appearanceId:string;anchorRef:React.RefObject<HTMLDivElement|null>}){
+ const graphic=playerGraphicForJob(jobId,appearanceId),fallback=playerGraphicFor(appearanceId),ready=useImage(graphic.image.idle),fallbackReady=useImage(fallback.image.idle),d=graphic.display,src=ready?graphic.image.idle:fallbackReady?fallback.image.idle:undefined;
  const className='player-figure'+(impact?' is-hit tc-combat-impact-'+impact:'')+(impact==='critical'?' is-critical':'');
  const placementClass='player-placement'+(motion==='basic'?' tc-combat-player-basic':motion==='skill'?' tc-combat-player-skill':'');
  return <div ref={anchorRef} className={placementClass} style={{'--player-scale':d.scale,'--player-x':d.offsetX+'%','--player-y':d.offsetY+'%'} as React.CSSProperties}><div className={className}>{src?<img src={assetUrl(src)} alt="모험가"/>:<div className="fighter-placeholder player-placeholder"><span aria-hidden="true">♙</span></div>}</div></div>;
@@ -162,7 +162,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
 
  return <>
   <div ref={stageRef} className={'combat-stage '+(expedition.spawnAt?'defeated':'')}>
-   <PlayerLayer impact={playerImpact} motion={playerMotion} appearanceId={appearanceId} anchorRef={playerAnchor}/>
+   <PlayerLayer impact={playerImpact} motion={playerMotion} jobId={expedition.jobSnapshotId} appearanceId={appearanceId} anchorRef={playerAnchor}/>
    <MonsterLayer expedition={expedition} impact={monsterImpact} motion={monsterMotion} anchorRef={monsterAnchor}/>
    <FloatingLayer events={events}/>
   </div>
