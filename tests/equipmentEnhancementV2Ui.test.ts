@@ -21,7 +21,8 @@ test('V2 ENHANCE UI 02: preview and confirmation show Enhancement Stone cost and
 
 test('V2 ENHANCE UI 03: server result controls game-feel and destroyed selection clears naturally',()=>{
  assert.match(screen,/enhanceOnlineEquipment/);
- assert.match(screen,/outcome:feelOutcome\(result\.outcome\)/);
+ assert.match(screen,/playResult\(result\.outcome,currentLevel/);
+ assert.match(screen,/feel\.play\('enhancement\.result',\{outcome:mapped\}\)/);
  assert.match(screen,/equipmentItems\.some/);
 });
 

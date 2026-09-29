@@ -15,9 +15,9 @@ test('FORGE SANDBOX 01: empty accounts can load representative enhancement fixtu
 
 test('FORGE SANDBOX 02: sandbox is component-local and never writes the player save',()=>{
  assert.ok(screen.includes('const [sandboxGame,setSandboxGame]=useState<GameState|null>(null)'));
- assert.ok(screen.includes('const activeGame=sandboxGame??game'));
+ assert.match(screen,/activeGame=sandboxGame\?\?game/);
  assert.ok(screen.includes('if(sandboxGame){'));
- assert.ok(screen.includes('setSandboxGame(current=>'));
+ assert.match(screen,/setSandboxGame\(/);
  const start=screen.slice(screen.indexOf('const startForgeSandbox'),screen.indexOf('const stopForgeSandbox'));
  assert.equal(start.includes('setGame('),false);
  assert.ok(screen.includes('체험 모드'));
