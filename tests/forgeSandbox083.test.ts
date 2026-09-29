@@ -19,7 +19,7 @@ test('FORGE SANDBOX 02: sandbox is component-local and never writes the player s
  assert.ok(screen.includes('if(sandboxGame){'));
  assert.ok(screen.includes('setSandboxGame(current=>'));
  const start=screen.slice(screen.indexOf('const startForgeSandbox'),screen.indexOf('const stopForgeSandbox'));
- assert.doesNotMatch(start,/setGame(/);
+ assert.equal(start.includes('setGame('),false);
  assert.match(screen,/체험 모드/);
  assert.match(screen,/체험 종료/);
 });
