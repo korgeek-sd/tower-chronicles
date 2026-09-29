@@ -4,10 +4,13 @@ import {readFileSync} from 'node:fs';
 
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 const marker='/* v0.1.77 — PARCHMENT SKIN / visual-only reskin';
-const skin=css.slice(css.indexOf(marker));
+const endMarker='/* END v0.1.77 PARCHMENT SKIN */';
+const start=css.indexOf(marker),end=css.indexOf(endMarker,start);
+const skin=css.slice(start,end);
 
 test('PARCHMENT SKIN 01: v0.1.77 skin is present and targets the existing shell',()=>{
  assert.ok(css.includes(marker));
+ assert.ok(css.includes(endMarker));
  for(const selector of ['.tc-topbar{','.tc-panel{','.tc-nav{','.tc-camp-dossier{','.tc-camp-depart{','.tc-camp-links{'])
   assert.ok(skin.includes(selector),selector+' missing from visual skin');
 });
