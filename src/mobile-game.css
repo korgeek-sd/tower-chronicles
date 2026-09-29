@@ -3041,3 +3041,12 @@ html,body,#root{
  .tc-forge-empty>em{max-width:180px;font-size:4.8px}
 }
 
+/* v0.1.83 QA patch — inventory sandbox equipment, never persisted */
+.tc-inventory-sandbox-entry{position:absolute;z-index:12;left:50%;top:58%;width:min(210px,52%);transform:translate(-50%,-50%);display:grid;justify-items:center;gap:4px;padding:8px;border:1px solid #8b6841;background:#15100ded;box-shadow:0 8px 20px #0009;text-align:center}
+.tc-inventory-sandbox-entry b{font:700 8px Georgia,"Noto Serif KR",serif;color:#dfc89f}.tc-inventory-sandbox-entry span{font-size:5.3px;line-height:1.35;color:#8f806a}.tc-inventory-sandbox-entry button{min-height:40px;padding:0 12px;border:1px solid #a07846;background:linear-gradient(180deg,#793229,#4d201b);color:#efd3a0;font:700 7px Georgia,"Noto Serif KR",serif}
+.tc-inventory-sandbox-exit{border-color:#9c6c40!important;background:#4b241a!important;color:#efd09b!important}
+@media(max-width:380px){
+ .tc-inventory-sandbox-entry{width:min(190px,58%);top:59%;padding:6px}.tc-inventory-sandbox-entry button{min-height:44px}.tc-inventory-sandbox-entry span{font-size:4.8px}
+ .tc-inventory-sandbox-exit{min-height:34px}
+}
+
