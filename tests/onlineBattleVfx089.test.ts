@@ -51,7 +51,9 @@ test('ONLINE BATTLE VFX 0.1.89 04: terminal online actions render state before a
  assert.match(main,/phase==='DEFEATED'\)\{await showImpact\(\)/);
 });
 
-test('ONLINE BATTLE VFX 0.1.89 05: fallback HP deltas no longer depend on local expedition time',()=>{
- const presentation=readFileSync(new URL('../src/components/battle/presentation.ts',import.meta.url),'utf8');
- assert.doesNotMatch(presentation,/current\.time<=previous\.time/);
+test('ONLINE BATTLE VFX 0.1.89 05: online VFX no longer depends on expedition time fallback',()=>{
+ const economy=readFileSync(new URL('../src/online/economy.ts',import.meta.url),'utf8');
+ assert.match(economy,/options\.emitCombatEvents&&visualEvents\.length/);
+ assert.match(economy,/server\.damage/);
+ assert.match(economy,/server\.retaliation/);
 });
