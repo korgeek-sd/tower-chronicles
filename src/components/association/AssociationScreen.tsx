@@ -102,7 +102,7 @@ function OnlineAssociationScreen({
      <button className="tc-action" disabled={!state.qualified||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL'}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
     </section>
     <section className="tc-panel tc-assoc-recruitment">
-     <div className="tc-panel-title"><b>모집 게시판</b><small>{state.directory.length}개 원정단</small></div>
+     <div className="tc-panel-title"><b>원정단 찾기 · 모집 게시판</b><small>{state.directory.length}개 원정단</small></div>
      <div className="tc-assoc-directory">
       {state.directory.map(entry=>{
        const waiting=pending.has(entry.associationId),full=entry.memberCount>=entry.memberLimit;
