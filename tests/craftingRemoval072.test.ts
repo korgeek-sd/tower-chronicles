@@ -13,7 +13,8 @@ test('CRAFT REMOVAL 02: app routing no longer exposes craft or crafting mastery 
  const main=read('src/main.tsx'),core=read('src/components/mobile/CoreScreens.tsx');
  assert.doesNotMatch(main,/WorkshopScreen|settleCrafting|page==='craft'|page==='mastery'/);
  assert.doesNotMatch(core,/\|'craft'|\|'mastery'|MasteryScreen|engine\/crafting|discount\(/);
- assert.match(main,/page==='enhancement'.*onBack=\{\(\)=>setPage\('inventory'\)\}/s);
+ assert.match(main,/page==='enhancement'.*onBack=\{backFromEnhancement\}/s);
+ assert.match(main,/function backFromEnhancement\(\)[\s\S]*setPage\('inventory'\)/);
 });
 
 test('CRAFT REMOVAL 03: client runtime exposes no online crafting RPC wrappers or crafting balance constants',()=>{

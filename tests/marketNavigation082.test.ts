@@ -13,7 +13,9 @@ const css=read('src/mobile-game.css');
 
 test('MARKET LINK 0.1.82 01: inventory resolves exact shared order-book ids',()=>{
  assert.match(service,/marketItemIdForInventory/);
- assert.match(service,/return equipmentMarketKey\(gear\)/);
+ assert.match(service,/marketItemIdForEquipment/);
+ assert.match(service,/return item\.id===V2_STARTER_EQUIPMENT_ID\?null:equipmentMarketKey\(item\)/);
+ assert.match(service,/return marketItemIdForEquipment\(gear\)/);
  assert.match(service,/'material':'ticket'/);
  assert.match(service,/'skillbook:'\+item\.sourceId/);
  assert.match(inventory,/시세 · 거래/);
@@ -32,8 +34,8 @@ test('MARKET LINK 0.1.82 03: local and online market open exact detail and resto
  assert.match(market,/setSelected\(intent\.itemId\)/);
  assert.match(server,/setSelected\(intent\.itemId\)/);
  assert.match(server,/setDemoMode\(false\)/);
- assert.match(market,/returnInventoryKey\?'‹ 아이템':'시장'/);
- assert.match(server,/returnInventoryKey\?'‹ 아이템':'시장'/);
+ assert.match(market,/returnInventoryKey\?'‹ 아이템':returnEnhancementId\?'‹ 강화':'시장'/);
+ assert.match(server,/returnInventoryKey\?'‹ 아이템':returnEnhancementId\?'‹ 강화':'시장'/);
  assert.match(main,/initialSelected=\{inventoryReturnKey\}/);
 });
 
