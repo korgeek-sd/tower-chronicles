@@ -13,9 +13,9 @@ export type BattleVfxSpec={
 export const BATTLE_VFX_SPECS:Record<BattleVfxKind,BattleVfxSpec>={
  'player-basic-cue':{duration:170,holdMs:0,shakePx:0,particles:0},
  'player-skill-cue':{duration:240,holdMs:0,shakePx:0,particles:4},
- 'basic-hit':{duration:330,holdMs:30,shakePx:.8,particles:8},
- 'critical-hit':{duration:560,holdMs:68,shakePx:3.0,particles:20},
- 'player-damaged':{duration:420,holdMs:42,shakePx:1.7,particles:11},
+ 'basic-hit':{duration:360,holdMs:34,shakePx:1.2,particles:14},
+ 'critical-hit':{duration:600,holdMs:72,shakePx:3.6,particles:28},
+ 'player-damaged':{duration:450,holdMs:46,shakePx:2.1,particles:16},
  'guard':{duration:390,holdMs:24,shakePx:.5,particles:10},
  'heal':{duration:620,holdMs:0,shakePx:0,particles:14},
  'death':{duration:860,holdMs:82,shakePx:4.6,particles:26},

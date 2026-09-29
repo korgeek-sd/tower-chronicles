@@ -49,7 +49,7 @@ function particlesFor(kind:BattleVfxKind,count:number,p:Point,seed:number){
   }
   const critical=kind==='critical-hit',incoming=kind==='player-damaged';
   const speed=(critical?72:incoming?48:42)+random()*(critical?105:incoming?65:55);
-  out.push({x:p.x,y:p.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:0,maxLife:(critical?.34:.25)+random()*(critical?.28:.22),size:1+random()*(critical?2.8:1.8),spin:(random()-.5)*8,rotation:a,tone:incoming?(random()>.35?'#b96250':'#754238'):critical?(random()>.3?'#f0cf83':'#ba7b36'):'#d7c49b',kind:critical&&random()>.72?'shard':'spark'});
+  out.push({x:p.x,y:p.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:0,maxLife:(critical?.34:.25)+random()*(critical?.28:.22),size:1.5+random()*(critical?3.2:2.4),spin:(random()-.5)*8,rotation:a,tone:incoming?(random()>.35?'#b96250':'#754238'):critical?(random()>.3?'#f4d58d':'#c2873c'):(random()>.35?'#ead9b3':'#b9915e'),kind:critical&&random()>.72?'shard':'spark'});
  }
  return out;
 }

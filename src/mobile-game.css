@@ -3182,3 +3182,35 @@ html,body,#root{
  100%{opacity:0;transform:translate(-50%,-135%)}
 }
 
+/* v0.1.88 — ACTOR-ANCHORED DAMAGE POP FIX */
+.tc-battle .floating-number.target-monster,
+.tc-battle .floating-number.target-player{
+ left:0;
+ top:0;
+ z-index:9;
+ will-change:transform,opacity;
+ animation:tcDamagePop var(--damage-duration) cubic-bezier(.13,.78,.22,1) forwards;
+}
+.tc-battle .floating-number.target-monster.critical,
+.tc-battle .floating-number.target-player.critical{
+ animation:tcDamagePop var(--damage-duration) cubic-bezier(.1,.82,.2,1) forwards!important;
+}
+.tc-battle .tc-damage-sign:empty{display:none}
+.tc-battle .tc-damage-digits{transform-origin:50% 100%}
+.tc-battle .monster-damage .tc-damage-sign,.tc-battle .monster-damage .tc-damage-digit{
+ color:#f3ad64;
+ -webkit-text-stroke-color:#52241d;
+}
+.tc-battle .player-damage .tc-damage-sign,.tc-battle .player-damage .tc-damage-digit{
+ color:#ef7f70;
+ -webkit-text-stroke-color:#4a1818;
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-battle .floating-number.target-monster.critical,
+ .tc-battle .floating-number.target-player.critical,
+ .tc-battle .floating-number.target-monster,
+ .tc-battle .floating-number.target-player{
+  animation:tcDamagePopReduced var(--damage-duration) ease-out forwards!important;
+ }
+}
+

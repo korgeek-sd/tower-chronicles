@@ -27,7 +27,7 @@ export function MonsterLayer({expedition,impact,motion,anchorRef}:{expedition:Ex
  return <div ref={anchorRef} className={'monster-placement'+(motion==='monster'?' tc-combat-monster-attack':'')} style={{'--monster-scale':display.scale,'--monster-x':display.offsetX+'%','--monster-y':display.offsetY+'%'} as React.CSSProperties}><div className={className}>{state!=='placeholder'&&src?<img src={assetUrl(src)} alt={expedition.monster.name}/>:<div className="fighter-placeholder monster-placeholder"><span aria-hidden="true">♟</span></div>}</div></div>;
 }
 
-type Floating={id:number;kind:'monster-damage'|'player-damage'|'player-heal'|'monster-shield-float'|'player-shield-float';target:'player'|'monster';amount:number;critical?:boolean;hit?:string;lane?:number};
+type Floating={id:number;kind:'monster-damage'|'player-damage'|'player-heal'|'monster-shield-float'|'player-shield-float';target:'player'|'monster';amount:number;x:number;y:number;critical?:boolean;hit?:string;lane?:number};
 
 function DamageDigits({amount,prefix}:{amount:number;prefix:string}){
  const chars=String(Math.max(0,Math.ceil(amount))).split('');
@@ -36,8 +36,8 @@ function DamageDigits({amount,prefix}:{amount:number;prefix:string}){
 
 export function FloatingLayer({events}:{events:Floating[]}){
  return <div className="damage-layer" aria-hidden="true">{events.map(e=>{
-  const shield=e.kind.endsWith('shield-float'),heal=e.kind==='player-heal',prefix=shield?'':heal?'+':'-';
-  return <span key={e.id} className={'floating-number target-'+e.target+' '+e.kind+(e.critical?' critical':'')} style={{'--damage-lane':e.lane??0} as React.CSSProperties}>
+  const shield=e.kind.endsWith('shield-float'),heal=e.kind==='player-heal',prefix=heal?'+':'';
+  return <span key={e.id} className={'floating-number target-'+e.target+' '+e.kind+(e.critical?' critical':'')} style={{left:e.x,top:e.y,'--damage-lane':e.lane??0} as React.CSSProperties}>
    {e.hit&&<small className="tc-damage-hit">{e.hit}</small>}
    {shield&&<small className="tc-damage-shield-label">보호막</small>}
    <DamageDigits amount={e.amount} prefix={prefix}/>
@@ -58,7 +58,7 @@ function CombatHud({expedition,playerMaxHp,titleName}:{expedition:Expedition;pla
 
 function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,speed=1,showDamage=true,actionCue}:{expedition:Expedition;combatEvents:CombatEvent[];playerMaxHp:number;appearanceId:string;titleName?:string;speed?:number;showDamage?:boolean;actionCue?:BattleActionCue|null}){
  const previous=useRef(expedition),previousEventId=useRef(combatEvents.at(-1)?.id??0),seq=useRef(0),timers=useRef<ReturnType<typeof setTimeout>[]>([]);
- const playerAnchor=useRef<HTMLDivElement|null>(null),monsterAnchor=useRef<HTMLDivElement|null>(null),vfxRef=useRef<BattleVfxHandle|null>(null);
+ const stageRef=useRef<HTMLDivElement|null>(null),playerAnchor=useRef<HTMLDivElement|null>(null),monsterAnchor=useRef<HTMLDivElement|null>(null),vfxRef=useRef<BattleVfxHandle|null>(null);
  const hitAnimations=useRef<{player:Animation|null;monster:Animation|null}>({player:null,monster:null});
  const [monsterImpact,setMonsterImpact]=useState<Impact>(null),[playerImpact,setPlayerImpact]=useState<Impact>(null),[events,setEvents]=useState<Floating[]>([]);
  const [playerMotion,setPlayerMotion]=useState<Motion>(null),[monsterMotion,setMonsterMotion]=useState<Motion>(null);
@@ -74,20 +74,35 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   const figure=placement?.querySelector<HTMLElement>(target==='player'?'.player-figure':'.monster-figure');
   if(!figure?.animate)return;
   hitAnimations.current[target]?.cancel();
-  const rate=Math.min(2,Math.max(.75,speed||1)),amp=critical?7:4,duration=Math.round((critical?190:130)/rate);
+  const rate=Math.min(2,Math.max(.75,speed||1)),amp=critical?12:8;
+  const duration=Math.max(critical?170:125,Math.round((critical?240:170)/rate));
+  const direction=target==='player'?-1:1;
   hitAnimations.current[target]=figure.animate([
-   {transform:'translate(0,0)'},
-   {transform:'translate('+(target==='player'?-amp:amp)+'px,-1px)',offset:.2},
-   {transform:'translate('+(target==='player'?amp*.8:-amp*.8)+'px,1px)',offset:.42},
-   {transform:'translate('+(target==='player'?-amp*.45:amp*.45)+'px,0)',offset:.68},
-   {transform:'translate(0,0)'}
-  ],{duration,easing:'cubic-bezier(.2,.72,.2,1)'});
+   {transform:'translate(0,0) scale(1)',filter:'brightness(1)'},
+   {transform:'translate('+(direction*amp)+'px,-2px) scale(.99)',filter:'brightness(1.85)',offset:.16},
+   {transform:'translate('+(-direction*amp*.78)+'px,1px) scale(1.01)',filter:'brightness(1.35)',offset:.36},
+   {transform:'translate('+(direction*amp*.48)+'px,-1px) scale(1)',filter:'brightness(1.18)',offset:.58},
+   {transform:'translate('+(-direction*amp*.22)+'px,0) scale(1)',filter:'brightness(1.06)',offset:.78},
+   {transform:'translate(0,0) scale(1)',filter:'brightness(1)'}
+  ],{duration,easing:'cubic-bezier(.18,.76,.2,1)'});
  };
 
- const addFloating=(item:Floating,delay:number,duration:number)=>{
+ const damagePoint=(target:'player'|'monster',lane=0)=>{
+  const stage=stageRef.current,placement=target==='player'?playerAnchor.current:monsterAnchor.current;
+  if(!stage||!placement)return target==='player'?{x:96,y:330}:{x:280,y:170};
+  const s=stage.getBoundingClientRect(),r=placement.getBoundingClientRect();
+  const laneOffset=lane===1?-14:lane===2?14:0;
+  return{
+   x:r.left-s.left+r.width/2+laneOffset,
+   y:r.top-s.top+Math.max(6,r.height*.08),
+  };
+ };
+
+ const addFloating=(item:Omit<Floating,'x'|'y'>,delay:number,duration:number)=>{
   schedule(()=>{
-   if(showDamage)setEvents(current=>[...current,item].slice(-SCENE_CONFIG.maxDamageLabels));
-   schedule(()=>setEvents(current=>current.filter(value=>value.id!==item.id)),duration);
+   const point=damagePoint(item.target,item.lane??0),resolved:Floating={...item,...point};
+   if(showDamage)setEvents(current=>[...current,resolved].slice(-SCENE_CONFIG.maxDamageLabels));
+   schedule(()=>setEvents(current=>current.filter(value=>value.id!==resolved.id)),duration);
   },delay);
  };
 
@@ -146,7 +161,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
  useEffect(()=>()=>{timers.current.forEach(clearTimeout);hitAnimations.current.player?.cancel();hitAnimations.current.monster?.cancel();vfxRef.current?.cancel();},[]);
 
  return <>
-  <div className={'combat-stage '+(expedition.spawnAt?'defeated':'')}>
+  <div ref={stageRef} className={'combat-stage '+(expedition.spawnAt?'defeated':'')}>
    <PlayerLayer impact={playerImpact} motion={playerMotion} appearanceId={appearanceId} anchorRef={playerAnchor}/>
    <MonsterLayer expedition={expedition} impact={monsterImpact} motion={monsterMotion} anchorRef={monsterAnchor}/>
    <FloatingLayer events={events}/>
