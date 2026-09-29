@@ -14,11 +14,12 @@ test('FORGE SANDBOX 01: empty accounts can load representative enhancement fixtu
 });
 
 test('FORGE SANDBOX 02: sandbox is component-local and never writes the player save',()=>{
- assert.match(screen,/const \\[sandboxGame,setSandboxGame\\]=useState<GameState\\|null>\\(null\\)/);
- assert.match(screen,/const activeGame=sandboxGame\\?\\?game/);
- assert.match(screen,/if\\(sandboxGame\\)\\{[\\s\\S]*setSandboxGame\\(current=>/);
+ assert.ok(screen.includes('const [sandboxGame,setSandboxGame]=useState<GameState|null>(null)'));
+ assert.ok(screen.includes('const activeGame=sandboxGame??game'));
+ assert.ok(screen.includes('if(sandboxGame){'));
+ assert.ok(screen.includes('setSandboxGame(current=>'));
  const start=screen.slice(screen.indexOf('const startForgeSandbox'),screen.indexOf('const stopForgeSandbox'));
- assert.doesNotMatch(start,/setGame\\(/);
+ assert.doesNotMatch(start,/setGame(/);
  assert.match(screen,/체험 모드/);
  assert.match(screen,/체험 종료/);
 });
@@ -33,6 +34,6 @@ test('FORGE SANDBOX 03: sandbox never calls the live market or online enhancemen
 test('FORGE SANDBOX 04: sandbox entry remains touch-safe on narrow phones',()=>{
  const section=css.slice(css.indexOf('/* v0.1.83 QA patch — forge sandbox equipment'));
  assert.match(section,/min-height:44px/);
- assert.match(section,/@media\\(max-width:380px\\)/);
- assert.equal(/url\\s*\\(/i.test(section),false);
+ assert.match(section,/@media(max-width:380px)/);
+ assert.equal(/urls*(/i.test(section),false);
 });

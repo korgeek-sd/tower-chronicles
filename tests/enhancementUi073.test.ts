@@ -30,7 +30,7 @@ test('ENHANCE UI 04: Silver and enhancement stones show cost and owned amount be
  const screen=read('src/components/enhancement/EnhancementScreen.tsx');
  assert.match(screen,/tc-forge-costs/);
  assert.match(screen,/Silver/);
- assert.match(screen,/game\.silver\.toLocaleString\(\)/);
+ assert.match(screen,/activeGame\.silver\.toLocaleString\(\)/);
  assert.match(screen,/view\.materialOwned\.toLocaleString\(\)/);
  assert.match(screen,/보유/);
 });

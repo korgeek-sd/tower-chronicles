@@ -7,7 +7,7 @@ const presentation=readFileSync(new URL('../src/components/enhancement/presentat
 const economy=readFileSync(new URL('../src/online/economy.ts',import.meta.url),'utf8');
 
 test('V2 ENHANCE UI 01: enhancement screen lists equipmentItems rather than legacy items',()=>{
- assert.match(screen,/game\.equipmentItems/);
+ assert.match(screen,/activeGame\.equipmentItems/);
  assert.doesNotMatch(screen,/game\.items\.slice/);
  assert.match(screen,/equipmentItemName/);
 });
