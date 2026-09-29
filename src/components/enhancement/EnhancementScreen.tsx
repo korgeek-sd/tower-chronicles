@@ -16,6 +16,8 @@ import type {GameplayLease} from '../../online/gameSession';
 import {enhanceOnlineEquipment,type ServerEnhancementOutcome} from '../../online/economy';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import type {EnhancementFeelOutcome} from '../../gameFeel/types';
+import {EnhancementVfxCanvas,type EnhancementVfxHandle} from './EnhancementVfxCanvas';
+import {waitForEnhancementAnticipation} from './enhancementVfxTimeline';
 
 const PAGE_SIZE=5;
 const FORGE_SANDBOX_EQUIPMENT:EquipmentItem[]=[
@@ -57,12 +59,14 @@ export function EnhancementScreen({
  const feel=useGameFeel();
  const [enhanceFx,setEnhanceFx]=useState<'attempt'|'success'|'keep'|'downgrade'|'destroy'|null>(null);
  const enhanceFxTimer=useRef<number|null>(null);
+ const vfxRef=useRef<EnhancementVfxHandle|null>(null);
+ const sigilRef=useRef<HTMLDivElement|null>(null);
  const triggerEnhanceFx=(kind:'attempt'|'success'|'keep'|'downgrade'|'destroy')=>{
   if(enhanceFxTimer.current!==null)window.clearTimeout(enhanceFxTimer.current);
   setEnhanceFx(kind);
-  enhanceFxTimer.current=window.setTimeout(()=>{setEnhanceFx(null);enhanceFxTimer.current=null;},kind==='destroy'?760:560);
+  enhanceFxTimer.current=window.setTimeout(()=>{setEnhanceFx(null);enhanceFxTimer.current=null;},kind==='destroy'?430:280);
  };
- useEffect(()=>()=>{if(enhanceFxTimer.current!==null)window.clearTimeout(enhanceFxTimer.current);},[]);
+ useEffect(()=>()=>{if(enhanceFxTimer.current!==null)window.clearTimeout(enhanceFxTimer.current);vfxRef.current?.cancel();},[]);
 
  const [selectedId,setSelectedId]=useState<string|null>(null),[confirm,setConfirm]=useState(false),[page,setPage]=useState(0),[busy,setBusy]=useState(false);
  const [sandboxGame,setSandboxGame]=useState<GameState|null>(null);
@@ -106,64 +110,71 @@ export function EnhancementScreen({
   onMarket({itemId:marketId,enhancementItemId:selected.id,sourceName:equipmentItemName(selected)});
  };
 
- const confirmEnhancement=async()=>{
-  if(!selected||!q||!view?.canAttempt)return;
-  feel.play('enhancement.attempt');
-  triggerEnhanceFx('attempt');
-  if(sandboxGame){
-   setSandboxGame(current=>{
-    if(!current)return current;
-    const before=current.equipmentItems.find(item=>item.id===selected.id);
-    const next=enhanceEquipmentV2(current,selected.id);
-    const after=next.equipmentItems.find(item=>item.id===selected.id);
-    const outcome:ServerEnhancementOutcome=!after?'FAIL_DESTROYED':!before?'FAIL_KEEP':after.enhancement>before.enhancement?'SUCCESS':after.enhancement<before.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
-    const mapped=feelOutcome(outcome);
-    feel.play('enhancement.result',{outcome:mapped});
-    triggerEnhanceFx(mapped==='SUCCESS'?'success':mapped==='FAIL_KEEP'?'keep':mapped==='FAIL_DOWNGRADE'?'downgrade':'destroy');
-    return next;
-   });
-   setConfirm(false);
-   return;
-  }
-  if(!onlineLease){
-   setGame(current=>{
-    const before=current.equipmentItems.find(item=>item.id===selected.id);
-    const next=enhanceEquipmentV2(current,selected.id);
-    const after=next.equipmentItems.find(item=>item.id===selected.id);
-    const outcome:ServerEnhancementOutcome=!after?'FAIL_DESTROYED':!before?'FAIL_KEEP':after.enhancement>before.enhancement?'SUCCESS':after.enhancement<before.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
-    const mapped=feelOutcome(outcome);
-    feel.play('enhancement.result',{outcome:mapped});
-    triggerEnhanceFx(mapped==='SUCCESS'?'success':mapped==='FAIL_KEEP'?'keep':mapped==='FAIL_DOWNGRADE'?'downgrade':'destroy');
-    return next;
-   });
-   setConfirm(false);
-   return;
-  }
-
-  setBusy(true);
-  try{
-   const result=await enhanceOnlineEquipment(onlineLease,selected.id);
-   const after=result.record.payload.equipmentItems.find(item=>item.id===selected.id);
-   const displayName=after?equipmentItemName(after):equipmentItemName(selected);
-   setGame({...result.record.payload,notice:enhanceNotice(result.outcome,displayName)});
-   const mapped=feelOutcome(result.outcome);
-   feel.play('enhancement.result',{outcome:feelOutcome(result.outcome)});
-   triggerEnhanceFx(mapped==='SUCCESS'?'success':mapped==='FAIL_KEEP'?'keep':mapped==='FAIL_DOWNGRADE'?'downgrade':'destroy');
-   setConfirm(false);
-  }catch(error){
-   feel.play('ui.error');
-   setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));
-   setConfirm(false);
-  }finally{setBusy(false);}
+ const playResult=(outcome:ServerEnhancementOutcome,current:number,next:number)=>{
+  const mapped=feelOutcome(outcome);
+  feel.play('enhancement.result',{outcome:mapped});
+  triggerEnhanceFx(mapped==='SUCCESS'?'success':mapped==='FAIL_KEEP'?'keep':mapped==='FAIL_DOWNGRADE'?'downgrade':'destroy');
+  vfxRef.current?.playResult(mapped,current,next);
  };
 
+ const localOutcome=(before:EquipmentItem|undefined,after:EquipmentItem|undefined):ServerEnhancementOutcome=>
+  !after?'FAIL_DESTROYED':!before?'FAIL_KEEP':after.enhancement>before.enhancement?'SUCCESS':after.enhancement<before.enhancement?'FAIL_DOWNGRADE':'FAIL_KEEP';
+
+ const confirmEnhancement=async()=>{
+  if(!selected||!q||!view?.canAttempt||busy)return;
+  const selectedItemId=selected.id,currentLevel=q.current;
+  feel.play('enhancement.attempt');
+  triggerEnhanceFx('attempt');
+  const startedAt=vfxRef.current?.playAttempt()??performance.now();
+  setConfirm(false);
+  setBusy(true);
+
+  if(sandboxGame){
+   try{
+    await waitForEnhancementAnticipation(startedAt);
+    const before=sandboxGame.equipmentItems.find(item=>item.id===selectedItemId);
+    const next=enhanceEquipmentV2(sandboxGame,selectedItemId);
+    const after=next.equipmentItems.find(item=>item.id===selectedItemId);
+    const outcome=localOutcome(before,after);
+    setSandboxGame(next);
+    playResult(outcome,currentLevel,after?.enhancement??currentLevel);
+   }finally{setBusy(false);}
+   return;
+  }
+
+  if(!onlineLease){
+   try{
+    await waitForEnhancementAnticipation(startedAt);
+    const before=game.equipmentItems.find(item=>item.id===selectedItemId);
+    const next=enhanceEquipmentV2(game,selectedItemId);
+    const after=next.equipmentItems.find(item=>item.id===selectedItemId);
+    const outcome=localOutcome(before,after);
+    setGame(next);
+    playResult(outcome,currentLevel,after?.enhancement??currentLevel);
+   }finally{setBusy(false);}
+   return;
+  }
+
+  try{
+   const request=enhanceOnlineEquipment(onlineLease,selectedItemId);
+   const [result]=await Promise.all([request,waitForEnhancementAnticipation(startedAt)]);
+   const after=result.record.payload.equipmentItems.find(item=>item.id===selectedItemId);
+   const displayName=after?equipmentItemName(after):equipmentItemName(selected);
+   setGame({...result.record.payload,notice:enhanceNotice(result.outcome,displayName)});
+   playResult(result.outcome,currentLevel,after?.enhancement??currentLevel);
+  }catch(error){
+   vfxRef.current?.cancel();
+   feel.play('ui.error');
+   setGame(s=>({...s,notice:error instanceof Error?error.message:'서버 강화 요청에 실패했습니다.'}));
+  }finally{setBusy(false);}
+ };
  return <Screen eyebrow="NOVAR FORGE / ENHANCEMENT" title="장비 강화" meta={<>{sandboxGame&&<span className="tc-forge-sandbox-pill">체험 모드</span>}<button className="tc-action secondary slim tc-forge-back" onClick={sandboxGame?stopForgeSandbox:onBack}>{sandboxGame?"체험 종료":"‹ 보관함"}</button></>} className="tc-enhancement-screen">
   <div className="tc-forge">
    <aside className="tc-forge-rail" aria-label="강화 장비 목록">
     <header><div><small>FORGE INVENTORY</small><b>강화 대상</b></div><span>{items.length}종</span></header>
     <div className="tc-forge-list">{shown.map(item=>{
      const equipped=Object.values(activeGame.equipped).includes(item.id);
-     return <button key={item.id} className={'tc-forge-item grade-'+item.grade} aria-pressed={selected?.id===item.id} onClick={()=>{setSelectedId(item.id);setConfirm(false);}}>
+     return <button key={item.id} disabled={busy} className={'tc-forge-item grade-'+item.grade} aria-pressed={selected?.id===item.id} onClick={()=>{setSelectedId(item.id);setConfirm(false);}}>
       <span className="tc-forge-item-icon"><Glyph name={iconFor(item)}/></span>
       <span className="tc-forge-item-copy"><b>{EQUIPMENT_DEFINITIONS[item.kind].name}</b><small>{EQUIPMENT_GRADE_NAMES[item.grade]} · +{item.enhancement}{equipped?' · 장착':''}</small></span>
       <strong>+{item.enhancement}</strong>
@@ -172,7 +183,7 @@ export function EnhancementScreen({
     <Pager page={safe} count={pages} onChange={p=>{setPage(p);setSelectedId(null);setConfirm(false);}}/>
    </aside>
 
-   <section className={'tc-forge-workbench '+(enhanceFx?'tc-enhance-feel-'+enhanceFx:'')}>
+   <section className={'tc-forge-workbench '+(enhanceFx?'tc-enhance-feel-'+enhanceFx:'')}><EnhancementVfxCanvas ref={vfxRef} anchorRef={sigilRef}/>
     {selected&&view?<>
      <header className="tc-forge-title">
       <div><small>ENHANCEMENT RECORD</small><b>{EQUIPMENT_DEFINITIONS[selected.kind].name}</b><span>{EQUIPMENT_GRADE_NAMES[selected.grade]}{isEquipped?' · 현재 장착':''}</span></div>
@@ -180,7 +191,7 @@ export function EnhancementScreen({
      </header>
 
      <div className="tc-forge-focus">
-      <div className={'tc-forge-sigil grade-'+selected.grade}><Glyph name={iconFor(selected)}/><span>+{selected.enhancement}</span></div>
+      <div ref={sigilRef} className={'tc-forge-sigil grade-'+selected.grade}><Glyph name={iconFor(selected)}/><span>+{selected.enhancement}</span></div>
       <div className="tc-forge-level">
        <small>강화 단계</small>
        <div><b>+{q?.current??selected.enhancement}</b>{q?<><i>→</i><strong>+{q.target}</strong></>:<em>MAX</em>}</div>
@@ -211,7 +222,7 @@ export function EnhancementScreen({
       </div>
 
       <div className="tc-forge-actions">
-       <button className="tc-forge-market tc-feel-press" data-game-feel="press" disabled={!marketId||!onMarket} onClick={openMarket}>{sandboxGame?"체험 중 거래 제외":"시세 · 거래"}</button>
+       <button className="tc-forge-market tc-feel-press" data-game-feel="press" disabled={busy||!marketId||!onMarket} onClick={openMarket}>{sandboxGame?"체험 중 거래 제외":"시세 · 거래"}</button>
        <button className="tc-forge-submit tc-feel-press" data-game-feel="press" disabled={!view.canAttempt||busy} onClick={()=>setConfirm(true)}><small>비용 확인 완료</small><b>+{q.target} 강화 실행</b></button>
       </div>
       {view.reason&&<div className="tc-forge-reason">{view.reason}</div>}

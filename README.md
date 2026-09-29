@@ -1,8 +1,8 @@
-# 탑의 기록 v0.1.83
+# 탑의 기록 v0.1.84
 
 《탑의 기록》(Tower Chronicles)은 네 개의 고대 탑을 중심으로 성장한 자유상업도시 노바르를 배경으로 하는 모바일 세로형 다크 판타지 수동 턴제 RPG 프로토타입입니다.
 
-- 앱 버전: `0.1.83`
+- 앱 버전: `0.1.84`
 - 저장 스키마: `v23`
 - 기술: React 19, TypeScript, Vite
 - 저장: 브라우저 local cache + Supabase revisioned cloud save
@@ -10,6 +10,18 @@
 - 메인 저장 키: `tower-record-v1`
 
 실제 동작이 문서와 충돌할 경우 production code, Supabase production schema와 자동 테스트가 우선입니다.
+
+## v0.1.84 — 강화 전용 Canvas VFX + 타임라인
+
+- 강화 작업대 위에 전용 Canvas VFX 레이어를 추가하고 기존 전체 화면 플래시 중심 연출을 제거
+- 강화 실행 직후 최소 220ms 동안 황동빛 링과 입자가 장비 문양으로 수렴하는 anticipation 연출 적용
+- 성공은 금빛 방사 스파크·이중 충격파·강화 단계 팝업, 유지는 낮은 강도의 먼지·단일 링으로 표현
+- 하락은 적갈색 하향 엠버·방향 화살표·중간 충격, 파괴는 impact hold 뒤 파편·연기·균열·강한 국소 셰이크 적용
+- 서버 강화 요청은 anticipation과 병렬 처리하며 서버 결과가 빨라도 최소 연출 구간 이후에 결과 공개
+- Canvas DPR은 2로 제한하고 결과별 파티클을 최대 30개로 제한하며 비활성 시 requestAnimationFrame을 정지
+- prefers-reduced-motion에서는 이동 파티클·셰이크를 제거하고 핵심 결과만 표시
+- 공통 Game Feel 강화 이벤트는 햅틱만 담당하고 시각 효과는 강화 Canvas가 단일 소유
+- 강화 확률·비용·서버 RNG·장비 상태 판정은 변경하지 않음
 
 ## v0.1.83 — 노바르 강화소 UI 개편
 

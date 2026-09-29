@@ -13,21 +13,17 @@
 @keyframes tcSealNodeIgnite{0%{transform:translate(-50%,-50%) rotate(calc(var(--i)*36deg)) translateY(calc(var(--seal-radius)*-1)) rotate(calc(var(--i)*-36deg)) scale(.7);filter:brightness(.5)}45%{box-shadow:0 0 0 3px #f1d08588,0 0 24px #ef9b35;filter:brightness(1.8)}100%{filter:none}}
 
 .tc-enhance-preview{position:relative;overflow:hidden}
-.tc-enhance-feel-attempt{animation:tcEnhanceAttempt .26s ease-out}
-.tc-enhance-feel-success{animation:tcEnhanceSuccess .52s ease-out}
-.tc-enhance-feel-keep{animation:tcEnhanceKeep .34s ease-out}
-.tc-enhance-feel-downgrade{animation:tcEnhanceDowngrade .46s ease-out}
-.tc-enhance-feel-destroy{animation:tcEnhanceDestroy .7s ease-out}
-.tc-enhance-feel-success:after,.tc-enhance-feel-destroy:after{content:"";position:absolute;inset:-30%;pointer-events:none;opacity:0}
-.tc-enhance-feel-success:after{background:radial-gradient(circle,#dfbd7044 0 12%,transparent 45%);animation:tcEnhanceSweep .48s ease-out}
-.tc-enhance-feel-destroy:after{background:repeating-linear-gradient(58deg,transparent 0 17px,#9e4c4238 18px 19px,transparent 20px 34px);animation:tcEnhanceCrack .66s ease-out}
-@keyframes tcEnhanceAttempt{0%{transform:scale(1)}45%{transform:scale(.985);filter:brightness(.88)}100%{transform:scale(1)}}
-@keyframes tcEnhanceSuccess{0%{box-shadow:inset 0 0 0 #d5ad6000}40%{box-shadow:inset 0 0 32px #d5ad6052;border-color:#b78a47}100%{box-shadow:inset 0 0 0 #d5ad6000}}
-@keyframes tcEnhanceKeep{0%,100%{filter:none}45%{filter:brightness(.86)}}
-@keyframes tcEnhanceDowngrade{0%,100%{transform:translateY(0)}25%{transform:translateY(-2px)}55%{transform:translateY(4px);filter:brightness(.82)}}
-@keyframes tcEnhanceDestroy{0%{transform:translate(0);filter:none}18%{transform:translate(-3px,1px)}36%{transform:translate(3px,-1px);filter:brightness(.72)}58%{transform:translate(-2px,2px);filter:brightness(.48)}100%{transform:translate(0);filter:none}}
-@keyframes tcEnhanceSweep{0%{opacity:0;transform:scale(.45)}45%{opacity:1}100%{opacity:0;transform:scale(1.25)}}
-@keyframes tcEnhanceCrack{0%{opacity:0;transform:scale(.7)}35%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
+.tc-enhance-feel-attempt{animation:tcEnhanceWorkbenchCharge .22s cubic-bezier(.2,.8,.2,1)}
+.tc-enhance-feel-success{animation:tcEnhanceWorkbenchSuccess .26s cubic-bezier(.2,.8,.2,1)}
+.tc-enhance-feel-keep{animation:tcEnhanceWorkbenchKeep .2s ease-out}
+.tc-enhance-feel-downgrade{animation:tcEnhanceWorkbenchDown .3s cubic-bezier(.2,.7,.2,1)}
+.tc-enhance-feel-destroy{animation:tcEnhanceWorkbenchDestroy .42s cubic-bezier(.2,.7,.2,1)}
+@keyframes tcEnhanceWorkbenchCharge{0%{transform:scale(1)}55%{transform:scale(.992)}100%{transform:scale(1)}}
+@keyframes tcEnhanceWorkbenchSuccess{0%,100%{transform:translateY(0)}38%{transform:translateY(-1px)}}
+@keyframes tcEnhanceWorkbenchKeep{0%,100%{transform:translateY(0)}50%{transform:translateY(1px)}}
+@keyframes tcEnhanceWorkbenchDown{0%,100%{transform:translateY(0)}38%{transform:translateY(2px)}58%{transform:translateY(-1px)}}
+@keyframes tcEnhanceWorkbenchDestroy{0%,100%{transform:translate(0)}18%{transform:translate(-2px,1px)}34%{transform:translate(2px,-1px)}52%{transform:translate(-2px,1px)}70%{transform:translate(1px,0)}}
+@media(prefers-reduced-motion: reduce){.tc-enhance-feel-attempt,.tc-enhance-feel-success,.tc-enhance-feel-keep,.tc-enhance-feel-downgrade,.tc-enhance-feel-destroy{animation:none}}
 
 .tc-battle .player-figure,.tc-battle .monster-figure{position:relative}
 .tc-battle .tc-combat-impact-normal:after,.tc-battle .tc-combat-impact-critical:after{content:"";position:absolute;left:50%;top:50%;width:42%;aspect-ratio:1;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);z-index:6}

@@ -3050,3 +3050,10 @@ html,body,#root{
  .tc-inventory-sandbox-exit{min-height:34px}
 }
 
+/* v0.1.84 — ENHANCEMENT CANVAS VFX / dedicated timeline renderer */
+.tc-forge-workbench{isolation:isolate}
+.tc-forge-vfx-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;display:block}
+.tc-forge-workbench>.tc-forge-title,.tc-forge-workbench>.tc-forge-focus,.tc-forge-workbench>.tc-forge-stats,.tc-forge-workbench>.tc-forge-risk,.tc-forge-workbench>.tc-forge-costs,.tc-forge-workbench>.tc-forge-actions,.tc-forge-workbench>.tc-forge-reason,.tc-forge-workbench>.tc-forge-max,.tc-forge-workbench>.tc-forge-empty{position:relative;z-index:2}
+.tc-forge-item:disabled{opacity:.62;cursor:default}
+@media(prefers-reduced-motion: reduce){.tc-forge-vfx-canvas{opacity:.8}}
+
