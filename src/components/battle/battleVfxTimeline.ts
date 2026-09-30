@@ -36,3 +36,13 @@ export function battleVfxTiming(kind:BattleVfxKind,speed:number){
   particles:spec.particles,
  };
 }
+
+// Fast white contact flash, slower coloured expansion; visual time only.
+export function battleImpactEnvelope(elapsedMs:number,critical:boolean){
+ const t=Math.max(0,elapsedMs),attack=Math.min(1,t/45);
+ return {
+  core:attack*Math.max(0,1-Math.max(0,t-45)/115),
+  flame:attack*Math.max(0,1-Math.max(0,t-65)/(critical?490:310)),
+  radius:(critical?38:20)+(critical?64:32)*(1-Math.pow(1-Math.min(1,t/240),3)),
+ };
+}

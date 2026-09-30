@@ -1,6 +1,6 @@
 import React,{forwardRef,useEffect,useImperativeHandle,useRef} from 'react';
 import type {CombatEvent} from '../../game/types';
-import {BATTLE_VFX_SPECS,battleVfxNow,battleVfxTiming,type BattleVfxKind} from './battleVfxTimeline';
+import {battleImpactEnvelope,battleVfxNow,battleVfxTiming,type BattleVfxKind} from './battleVfxTimeline';
 
 type Particle={x:number;y:number;vx:number;vy:number;life:number;maxLife:number;size:number;spin:number;rotation:number;tone:string;kind:'spark'|'dust'|'shard'|'mote'};
 type Point={x:number;y:number};
@@ -49,7 +49,7 @@ function particlesFor(kind:BattleVfxKind,count:number,p:Point,seed:number){
   }
   const critical=kind==='critical-hit',incoming=kind==='player-damaged';
   const speed=(critical?72:incoming?48:42)+random()*(critical?105:incoming?65:55);
-  out.push({x:p.x,y:p.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:0,maxLife:(critical?.34:.25)+random()*(critical?.28:.22),size:1.5+random()*(critical?3.2:2.4),spin:(random()-.5)*8,rotation:a,tone:incoming?(random()>.35?'#b96250':'#754238'):critical?(random()>.3?'#f4d58d':'#c2873c'):(random()>.35?'#ead9b3':'#b9915e'),kind:critical&&random()>.72?'shard':'spark'});
+  out.push({x:p.x,y:p.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:0,maxLife:(critical?.34:.25)+random()*(critical?.28:.22),size:1.5+random()*(critical?3.2:2.4),spin:(random()-.5)*8,rotation:a,tone:incoming?(random()>.35?'#b96250':'#754238'):critical?(random()>.3?'#f4d58d':'#c2873c'):(random()>.35?'#bdefff':'#438cd8'),kind:critical&&random()>.72?'shard':'mote'});
  }
  return out;
 }
@@ -67,7 +67,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
   const canvas=canvasRef.current,el=actor==='player'?playerRef.current:monsterRef.current;
   if(!canvas||!el)return actor==='player'?{x:sizeRef.current.w*.28,y:sizeRef.current.h*.62}:{x:sizeRef.current.w*.72,y:sizeRef.current.h*.35};
   const c=canvas.getBoundingClientRect(),r=el.getBoundingClientRect();
-  return{x:r.left-c.left+r.width/2,y:r.top-c.top+r.height/2};
+  return{x:r.left-c.left+r.width/2,y:r.top-c.top+r.height*.48};
  };
 
  const ensureFrame=()=>{if(frameRef.current===null)frameRef.current=requestAnimationFrame(draw);};
@@ -108,7 +108,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
    const elapsed=now-effect.startedAt;
    if(elapsed>=effect.duration)continue;
    survivors.push(effect);
-   const t=clamp(elapsed/effect.duration),hold=elapsed<effect.holdMs,impactT=clamp((elapsed-effect.holdMs)/Math.max(1,effect.duration-effect.holdMs));
+   const t=clamp(elapsed/effect.duration),hold=false,impactT=clamp((elapsed-effect.holdMs)/Math.max(1,effect.duration-effect.holdMs));
    const critical=effect.kind==='critical-hit',negative=effect.kind==='player-damaged'||effect.kind==='death';
    const shake=!reducedRef.current&&effect.shakePx>0&&elapsed<Math.min(effect.duration,critical?150:effect.kind==='death'?240:110);
    const shakeFade=shake?1-elapsed/Math.min(effect.duration,critical?150:effect.kind==='death'?240:110):0;
@@ -150,36 +150,37 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
     ctx.restore();continue;
    }
 
-   // Directional attack streak anchors the hit to the attacker rather than feeling like a UI popup.
-   const dx=effect.to.x-effect.from.x,dy=effect.to.y-effect.from.y;
-   if(t<.28){
-    const travel=clamp(t/.28);ctx.globalAlpha=(1-travel)*(critical?.85:.5);
-    ctx.strokeStyle=negative?'#8e493e':critical?'#f4d58d':'#c8b48a';ctx.lineWidth=critical?2.4:1.2;
-    ctx.beginPath();ctx.moveTo(effect.from.x+dx*.25,effect.from.y+dy*.25);ctx.lineTo(effect.from.x+dx*(.55+.42*travel),effect.from.y+dy*(.55+.42*travel));ctx.stroke();
-   }
-
-   // Visual hitstop: the impact mark holds still while particles wait.
-   const flash=hold?1-elapsed/Math.max(1,effect.holdMs):Math.max(0,.42-impactT*1.8);
-   if(flash>0){
-    const radius=(critical?42:negative?34:28)+(critical?42:26)*easeOutCubic(impactT);
-    const g=ctx.createRadialGradient(effect.to.x,effect.to.y,0,effect.to.x,effect.to.y,radius);
-    const rgb=negative?'184,82,65':critical?'247,213,143':'221,203,164';
-    g.addColorStop(0,'rgba('+rgb+','+(flash*.72)+')');g.addColorStop(.32,'rgba('+rgb+','+(flash*.24)+')');g.addColorStop(1,'rgba('+rgb+',0)');
-    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-   }
-
-   const slashFade=1-clamp((impactT-.56)/.44),slash=critical?30:22;
-   ctx.save();ctx.translate(effect.to.x,effect.to.y);ctx.rotate(negative?-.62:.72);
-   ctx.globalAlpha=slashFade*(critical?.96:.75);ctx.strokeStyle=negative?'#c46c58':critical?'#fff0ba':'#e0caa0';ctx.lineWidth=critical?2.2:1.4;
-   ctx.beginPath();ctx.moveTo(-slash,0);ctx.lineTo(slash,0);ctx.stroke();
-   if(critical){ctx.rotate(Math.PI/2);ctx.globalAlpha*=.82;ctx.beginPath();ctx.moveTo(-slash*.75,0);ctx.lineTo(slash*.75,0);ctx.stroke();}
-   ctx.restore();
-
-   const ringFade=1-clamp((impactT-.45)/.55);
-   ctx.globalAlpha=ringFade*(critical?.78:.42);ctx.strokeStyle=negative?'#9d5144':critical?'#e7bd66':'#b9a47d';ctx.lineWidth=critical?1.7:1;
-   ctx.beginPath();ctx.arc(effect.to.x,effect.to.y,12+(critical?66:42)*easeOutCubic(impactT),0,TAU);ctx.stroke();
-   if(critical){
-    ctx.globalAlpha=ringFade*.38;ctx.beginPath();ctx.arc(effect.to.x,effect.to.y,18+82*easeOutCubic(impactT),0,TAU);ctx.stroke();
+   // Contact-centred burst: white ignition, coloured body, radial fragments.
+   // Playback speed changes visual time, never the authoritative battle clock.
+   const burst=battleImpactEnvelope(elapsed*(critical?600:negative?450:360)/effect.duration,critical);
+   const cx=effect.to.x,cy=effect.to.y;
+   if(reducedRef.current){
+    ctx.globalAlpha=Math.min(.25,burst.core);ctx.fillStyle='#fff4df';
+    ctx.fillRect(cx-8,cy-8,16,16);
+   }else{
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    const rgb=critical?'255,92,24':negative?'235,80,55':'72,169,255';
+    const glow=ctx.createRadialGradient(cx,cy,0,cx,cy,burst.radius);
+    glow.addColorStop(0,'rgba(255,255,235,'+burst.core+')');
+    glow.addColorStop(.2,'rgba('+rgb+','+burst.flame*.8+')');
+    glow.addColorStop(.65,'rgba('+rgb+','+burst.flame*.3+')');
+    glow.addColorStop(1,'rgba('+rgb+',0)');
+    ctx.fillStyle=glow;ctx.fillRect(cx-burst.radius,cy-burst.radius,burst.radius*2,burst.radius*2);
+    ctx.globalAlpha=burst.flame*.9;
+    for(let i=0;i<(critical?12:8);i++){
+     const angle=i*TAU/(critical?12:8)+effect.id*.31;
+     const inner=burst.radius*.18,outer=burst.radius*(i%2?.85:1.2);
+     ctx.fillStyle=critical?(i%2?'#ff4b24':'#ffb740'):'#89d9ff';
+     ctx.beginPath();
+     ctx.moveTo(cx+Math.cos(angle-.055)*inner,cy+Math.sin(angle-.055)*inner);
+     ctx.lineTo(cx+Math.cos(angle)*outer,cy+Math.sin(angle)*outer);
+     ctx.lineTo(cx+Math.cos(angle+.055)*inner,cy+Math.sin(angle+.055)*inner);
+     ctx.closePath();ctx.fill();
+    }
+    ctx.globalAlpha=burst.core;ctx.fillStyle='#fffdeb';
+    const coreSize=(critical?24:12)*(1+burst.core);
+    ctx.fillRect(cx-coreSize/2,cy-coreSize/2,coreSize,coreSize);
+    ctx.restore();
    }
 
    if(effect.kind==='player-damaged'){

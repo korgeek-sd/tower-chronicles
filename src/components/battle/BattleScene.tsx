@@ -74,12 +74,12 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   const figure=placement?.querySelector<HTMLElement>(target==='player'?'.player-figure':'.monster-figure');
   if(!figure?.animate)return;
   hitAnimations.current[target]?.cancel();
-  const rate=Math.min(2,Math.max(.75,speed||1)),amp=critical?12:8;
+  const rate=Math.min(2,Math.max(.75,speed||1)),amp=critical?7:4;
   const duration=Math.max(critical?170:125,Math.round((critical?240:170)/rate));
   const direction=target==='player'?-1:1;
   hitAnimations.current[target]=figure.animate([
    {transform:'translate(0,0) scale(1)',filter:'brightness(1)'},
-   {transform:'translate('+(direction*amp)+'px,-2px) scale(.99)',filter:'brightness(1.85)',offset:.16},
+   {transform:'translate('+(direction*amp)+'px,-2px) scale(.99)',filter:'brightness(3.5) saturate(.25)',offset:.16},
    {transform:'translate('+(-direction*amp*.78)+'px,1px) scale(1.01)',filter:'brightness(1.35)',offset:.36},
    {transform:'translate('+(direction*amp*.48)+'px,-1px) scale(1)',filter:'brightness(1.18)',offset:.58},
    {transform:'translate('+(-direction*amp*.22)+'px,0) scale(1)',filter:'brightness(1.06)',offset:.78},
