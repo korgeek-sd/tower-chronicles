@@ -5,6 +5,7 @@ import {TOWERS,POTIONS,generalPotionIds,WEAPONS,SKILLS} from '../../game/data/co
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 import {lootTotals} from '../../game/engine/loot';
 import {stats,weaponOf} from '../../game/engine/state';
+import {combatAudioEnabled,setCombatAudioEnabled,unlockCombatAudio} from './combatAudio';
 import {BattleScene,type BattleActionCue} from './BattleScene';
 import {titleById} from '../../game/data/cosmetics';
 import {bossIdFor} from '../../game/engine/bossTracking';
@@ -28,6 +29,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
  const feel=useGameFeel();
  const lastFeelEvent=useRef(0),lastHp=useRef(e.hp),actionCueSeq=useRef(0);
+ const [soundEnabled,setSoundEnabled]=useState(combatAudioEnabled);
  const [actionCue,setActionCue]=useState<BattleActionCue|null>(null);
  const cuePlayerAction=(kind:BattleActionCue['kind'],action:()=>void)=>{setActionCue({id:++actionCueSeq.current,kind});action();};
  useEffect(()=>{
@@ -78,10 +80,10 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
   </button>;
  });
 
- return <div className="tc-battle tc-battle-reference">
+ return <div className="tc-battle tc-battle-reference" onPointerDownCapture={unlockCombatAudio} onKeyDownCapture={unlockCombatAudio}>
   <div className="tc-battle-ornament top" aria-hidden="true"/>
   <div className="tc-battle-ornament bottom" aria-hidden="true"/>
-  <div className="tc-battle-scene"><BattleScene expedition={e} combatEvents={game.combatEvents??[]} playerMaxHp={st.hp} appearanceId={game.cosmetics.selectedAppearanceId} titleName={titleById(game.cosmetics.selectedTitleId||'')?.name} speed={prefs.speed} showDamage={prefs.damageNumbers} actionCue={actionCue}/></div>
+  <div className="tc-battle-scene"><BattleScene expedition={e} combatEvents={game.combatEvents??[]} playerMaxHp={st.hp} appearanceId={game.cosmetics.selectedAppearanceId} titleName={titleById(game.cosmetics.selectedTitleId||'')?.name} speed={prefs.speed} showDamage={prefs.damageNumbers} weapon={weapon} actionCue={actionCue}/></div>
 
   <header className="tc-ref-top">
    <div className="tc-ref-metrics">
@@ -118,7 +120,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
 
   {panel&&<section className="tc-bpanel tc-ref-panel" aria-label="전투 보조 패널">
    <div className="tc-bpanel-head"><h2>{panel==='menu'?'원정 기록':panel==='items'?'원정 포션':panel==='loot'?'원정 전리품':'적 전투 정보'}</h2><button onClick={()=>setPanel(null)}>×</button></div>
-   {panel==='menu'&&<><div className="tc-stat-grid"><div className="tc-stat"><small>Silver</small><b>{e.loot.silver.toLocaleString()}</b></div><div className="tc-stat"><small>처치</small><b>{e.kills}</b></div><div className="tc-stat"><small>공격</small><b>{Math.round(st.attack)}</b></div><div className="tc-stat"><small>방어</small><b>{Math.round(st.defense)}</b></div></div>{stronghold&&<div className="tc-floor-risk"><b>자원거점 점령 중 · {strongholdTime}</b><br/>포기하면 거점 보상은 사라지고 현재 원정 전리품만 안전 귀환합니다.<br/><button className="tc-action danger slim" disabled={!playerTurn||!onAbandonStronghold} onClick={()=>{if(onAbandonStronghold&&window.confirm('자원거점을 포기하고 현재 전리품을 가지고 귀환하시겠습니까?'))onAbandonStronghold();}}>거점을 포기하고 귀환</button></div>}<div className="tc-blog">{game.logs.slice(-5).map((line,i)=><div key={i}>{line}</div>)}{Array.from({length:Math.max(0,5-Math.min(5,game.logs.length))},(_,i)=><div key={'l'+i}/>)}</div><div className="tc-bprefs"><button onClick={onHome}>거점</button><button onClick={cycleSpeed}>속도 ×{prefs.speed}</button><button onClick={()=>updatePrefs({...prefs,damageNumbers:!prefs.damageNumbers})}>피해 {prefs.damageNumbers?'ON':'OFF'}</button><button onClick={()=>setPanel('enemy')}>적 정보</button></div></>}
+   {panel==='menu'&&<><div className="tc-stat-grid"><div className="tc-stat"><small>Silver</small><b>{e.loot.silver.toLocaleString()}</b></div><div className="tc-stat"><small>처치</small><b>{e.kills}</b></div><div className="tc-stat"><small>공격</small><b>{Math.round(st.attack)}</b></div><div className="tc-stat"><small>방어</small><b>{Math.round(st.defense)}</b></div></div>{stronghold&&<div className="tc-floor-risk"><b>자원거점 점령 중 · {strongholdTime}</b><br/>포기하면 거점 보상은 사라지고 현재 원정 전리품만 안전 귀환합니다.<br/><button className="tc-action danger slim" disabled={!playerTurn||!onAbandonStronghold} onClick={()=>{if(onAbandonStronghold&&window.confirm('자원거점을 포기하고 현재 전리품을 가지고 귀환하시겠습니까?'))onAbandonStronghold();}}>거점을 포기하고 귀환</button></div>}<div className="tc-blog">{game.logs.slice(-5).map((line,i)=><div key={i}>{line}</div>)}{Array.from({length:Math.max(0,5-Math.min(5,game.logs.length))},(_,i)=><div key={'l'+i}/>)}</div><div className="tc-bprefs"><button onClick={onHome}>거점</button><button aria-pressed={soundEnabled} onClick={()=>{const next=!soundEnabled;setSoundEnabled(next);setCombatAudioEnabled(next);if(next)unlockCombatAudio();}}>타격음 {soundEnabled?'ON':'OFF'}</button><button onClick={cycleSpeed}>속도 ×{prefs.speed}</button><button onClick={()=>updatePrefs({...prefs,damageNumbers:!prefs.damageNumbers})}>피해 {prefs.damageNumbers?'ON':'OFF'}</button><button onClick={()=>setPanel('enemy')}>적 정보</button></div></>}
    {panel==='items'&&<><div className="tc-floor-risk">회생 포션 ×{e.bag.revival} · 치명상 시 별도 선택</div><div className="tc-job-list">{generalPotionIds.map(p=><article className="tc-job" key={p}><div><b>{POTIONS[p].name}</b><small>{POTIONS[p].description}</small></div><button className="tc-feel-press" data-game-feel="press" disabled={!canUsePotion(game,p)} onClick={()=>{setPanel(null);onPotion(p);}}>{e.bag[p]}개</button></article>)}</div><div/></>}
    {panel==='loot'&&<div className="tc-loot-panel-body"><div className="tc-loot-temporary"><b>안전 귀환 전 임시 보관</b><span>아직 내 재산이 아닙니다. 사망하면 이번 원정 전리품을 잃습니다.</span></div><div className="tc-loot-summary-grid"><div><small>Silver</small><b>{e.loot.silver.toLocaleString()}</b></div><div><small>재료</small><b>{lootSummary.materials}</b></div><div><small>장비</small><b>{lootSummary.equipment}</b></div><div><small>강화석</small><b>{enhancementStones}</b></div></div><div className="tc-loot-equipment-list">{equipmentLoot.length?equipmentLoot.slice(-4).reverse().map(item=><article className={'tc-loot-equipment-card grade-'+item.grade} key={item.id}><span>{EQUIPMENT_GRADE_NAMES[item.grade]}</span><div><b>{EQUIPMENT_DEFINITIONS[item.kind].name}</b><small>+{item.enhancement} · 안전 귀환 시 보관함 저장</small></div></article>):<div className="tc-loot-empty">아직 획득한 장비가 없습니다.</div>}</div><div className="tc-loot-panel-foot"><span>입장권 {lootSummary.tickets} · 스킬북 {lootSummary.skillBooks}</span><button className="tc-action secondary" onClick={()=>setPanel(null)}>전투로 돌아가기</button></div></div>}
    {panel==='enemy'&&<><div className="tc-floor-risk">확정된 준비 행동과 현재 효과만 표시합니다.</div><div className="tc-skill-list">{intel.effects.slice(0,2).map(effect=><article key={effect.id}><strong>{effect.name}</strong><p>{effect.description}</p></article>)}{intel.skills.slice(0,3).map(skill=><article key={skill.id}><strong>{skill.name}</strong><p>{skill.description}</p><small>{skill.ready?'사용 가능':'대기 '+skill.cooldownRemaining+'턴'}</small></article>)}</div><button className="tc-action secondary" onClick={()=>setPanel(null)}>전투로 돌아가기</button></>}

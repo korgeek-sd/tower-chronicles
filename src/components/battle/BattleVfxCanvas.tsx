@@ -1,10 +1,10 @@
 import React,{forwardRef,useEffect,useImperativeHandle,useRef} from 'react';
-import type {CombatEvent} from '../../game/types';
-import {battleImpactEnvelope,battleVfxNow,battleVfxTiming,type BattleVfxKind} from './battleVfxTimeline';
+import type {CombatEvent,Weapon} from '../../game/types';
+import {criticalVisualHold,battleImpactEnvelope,battleVfxNow,battleVfxTiming,type BattleVfxKind} from './battleVfxTimeline';
 
 type Particle={x:number;y:number;vx:number;vy:number;life:number;maxLife:number;size:number;spin:number;rotation:number;tone:string;kind:'spark'|'dust'|'shard'|'mote'};
 type Point={x:number;y:number};
-type Effect={id:number;kind:BattleVfxKind;startedAt:number;duration:number;holdMs:number;shakePx:number;from:Point;to:Point;particles:Particle[];critical?:boolean};
+type Effect={id:number;kind:BattleVfxKind;startedAt:number;duration:number;holdMs:number;shakePx:number;weapon:Weapon;from:Point;to:Point;particles:Particle[];critical?:boolean};
 
 export type BattleVfxHandle={
  cuePlayerAction:(kind:'basic'|'skill',speed:number)=>void;
@@ -18,6 +18,7 @@ export type BattleVfxHandle={
 type Props={
  playerRef:React.RefObject<HTMLElement|null>;
  monsterRef:React.RefObject<HTMLElement|null>;
+ weapon?:Weapon;
 };
 
 const TAU=Math.PI*2;
@@ -54,7 +55,7 @@ function particlesFor(kind:BattleVfxKind,count:number,p:Point,seed:number){
  return out;
 }
 
-export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVfxCanvas({playerRef,monsterRef},ref){
+export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVfxCanvas({playerRef,monsterRef,weapon='sword'},ref){
  const canvasRef=useRef<HTMLCanvasElement|null>(null);
  const effectsRef=useRef<Effect[]>([]);
  const frameRef=useRef<number|null>(null);
@@ -74,7 +75,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
 
  const push=(kind:BattleVfxKind,from:Point,to:Point,speed:number,seed:number)=>{
   const timing=battleVfxTiming(kind,speed),count=reducedRef.current?0:timing.particles;
-  const effect:Effect={id:++seqRef.current,kind,startedAt:battleVfxNow(),duration:timing.duration,holdMs:timing.holdMs,shakePx:timing.shakePx,from,to,particles:particlesFor(kind,count,to,seed)};
+  const effect:Effect={id:++seqRef.current,kind,startedAt:battleVfxNow(),duration:timing.duration,holdMs:timing.holdMs,shakePx:timing.shakePx,weapon:kind==='player-damaged'||kind==='death'?'sword':weapon,from,to,particles:particlesFor(kind,count,to,seed)};
   effectsRef.current=[...effectsRef.current,effect].slice(-10);
   lastRef.current=battleVfxNow();
   ensureFrame();
@@ -96,6 +97,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
   ctx.restore();
  };
 
+ const speedFor=(effect:Effect)=>effect.kind==='critical-hit'?600/effect.duration:1;
  const draw=()=>{
   frameRef.current=null;
   const canvas=canvasRef.current;if(!canvas)return;
@@ -108,7 +110,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
    const elapsed=now-effect.startedAt;
    if(elapsed>=effect.duration)continue;
    survivors.push(effect);
-   const t=clamp(elapsed/effect.duration),hold=false,impactT=clamp((elapsed-effect.holdMs)/Math.max(1,effect.duration-effect.holdMs));
+   const t=clamp(elapsed/effect.duration),hold=elapsed<criticalVisualHold(effect.kind==='critical-hit',speedFor(effect),reducedRef.current);
    const critical=effect.kind==='critical-hit',negative=effect.kind==='player-damaged'||effect.kind==='death';
    const shake=!reducedRef.current&&effect.shakePx>0&&elapsed<Math.min(effect.duration,critical?150:effect.kind==='death'?240:110);
    const shakeFade=shake?1-elapsed/Math.min(effect.duration,critical?150:effect.kind==='death'?240:110):0;
@@ -152,13 +154,42 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
 
    // Contact-centred burst: white ignition, coloured body, radial fragments.
    // Playback speed changes visual time, never the authoritative battle clock.
-   const burst=battleImpactEnvelope(elapsed*(critical?600:negative?450:360)/effect.duration,critical);
+   const visualHold=criticalVisualHold(critical,speedFor(effect),reducedRef.current);
+   const visualElapsed=hold?45:Math.max(0,elapsed-visualHold)*(critical?600:negative?450:360)/effect.duration+(critical?45:0);
+   const burst=battleImpactEnvelope(visualElapsed,critical);
    const cx=effect.to.x,cy=effect.to.y;
    if(reducedRef.current){
     ctx.globalAlpha=Math.min(.25,burst.core);ctx.fillStyle='#fff4df';
     ctx.fillRect(cx-8,cy-8,16,16);
    }else{
     ctx.save();ctx.globalCompositeOperation='lighter';
+    // Weapon signature belongs to the confirmed hit; it never schedules damage.
+    if(t<.4){
+     ctx.globalAlpha=(1-t/.4)*.8;ctx.lineWidth=effect.weapon==='dagger'?2:3;
+     ctx.strokeStyle=effect.weapon==='staff'?'#94b9ff':'#e6e9db';
+     ctx.beginPath();
+     if(effect.weapon==='sword'||effect.weapon==='dagger'){
+      const reach=effect.weapon==='dagger'?23:45;
+      ctx.moveTo(cx-reach,cy+reach*.55);
+      ctx.quadraticCurveTo(cx+reach*.1,cy-reach*.65,cx+reach,cy-reach*.35);
+     }else{
+      ctx.moveTo(effect.from.x,effect.from.y);
+      ctx.lineTo(cx,cy);
+     }
+     ctx.stroke();
+     if(effect.weapon==='bow'){
+      const angle=Math.atan2(cy-effect.from.y,cx-effect.from.x);
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
+      ctx.beginPath();ctx.moveTo(-12,-6);ctx.lineTo(0,0);ctx.lineTo(-12,6);ctx.stroke();ctx.restore();
+     }else if(effect.weapon==='staff'){
+      const dx=cx-effect.from.x,dy=cy-effect.from.y;
+      for(let i=1;i<7;i++){
+       const x=effect.from.x+dx*i/7,y=effect.from.y+dy*i/7;
+       ctx.fillStyle='#bad4ff';ctx.fillRect(x-2,y-2,4,4);
+      }
+     }
+    }
+
     const rgb=critical?'255,92,24':negative?'235,80,55':'72,169,255';
     const glow=ctx.createRadialGradient(cx,cy,0,cx,cy,burst.radius);
     glow.addColorStop(0,'rgba(255,255,235,'+burst.core+')');

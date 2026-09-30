@@ -46,3 +46,7 @@ export function battleImpactEnvelope(elapsedMs:number,critical:boolean){
   radius:(critical?38:20)+(critical?64:32)*(1-Math.pow(1-Math.min(1,t/240),3)),
  };
 }
+
+export function criticalVisualHold(critical:boolean,speed:number,reducedMotion:boolean){
+ return critical&&!reducedMotion?Math.round(55/battleVisualRate(speed)):0;
+}

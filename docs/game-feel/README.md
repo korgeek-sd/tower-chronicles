@@ -74,3 +74,8 @@ Market feedback stays subtle/normal. Order placement/cancellation and trade stat
 ## Failure isolation
 
 `feel.play()` is presentation only. If visual or haptic feedback fails, the transaction, battle resolution, save application, and navigation continue normally.
+
+### Combat sound and weapon signatures
+Combat impact sound uses bounded Web Audio synthesis after confirmed damage or shield absorption. Unlock audio on a player gesture; blocked/unsupported audio remains silent and cannot block actions. The battle menu persists a separate sound toggle outside the game save. Stop active voices when leaving an encounter.
+
+Critical hits hold only target presentation and impact particles for 55ms at normal playback speed, scaled with playback speed and disabled for reduced motion. Inputs, RPCs, HP, and turn timing continue normally. Equipped sword/dagger, bow, and staff select local slash, arrow, and energy trails; weapon signatures never schedule damage.

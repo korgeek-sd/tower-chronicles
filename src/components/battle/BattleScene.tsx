@@ -1,7 +1,9 @@
 import React,{useEffect,useRef,useState} from 'react';
-import type {CombatEvent,Expedition} from '../../game/types';
+import type {CombatEvent,Expedition,Weapon} from '../../game/types';
 import {assetUrl,graphicFor,playerGraphicFor,playerGraphicForJob,SCENE_CONFIG} from '../../game/data/graphics';
 import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} from './presentation';
+import {criticalVisualHold} from './battleVfxTimeline';
+import {playCombatImpact,stopCombatAudio} from './combatAudio';
 import {BattleVfxCanvas,type BattleVfxHandle} from './BattleVfxCanvas';
 
 function useImage(path?:string){
@@ -56,7 +58,7 @@ function CombatHud({expedition,playerMaxHp,titleName}:{expedition:Expedition;pla
  </div>;
 }
 
-function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,speed=1,showDamage=true,actionCue}:{expedition:Expedition;combatEvents:CombatEvent[];playerMaxHp:number;appearanceId:string;titleName?:string;speed?:number;showDamage?:boolean;actionCue?:BattleActionCue|null}){
+function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,speed=1,showDamage=true,weapon='sword',actionCue}:{expedition:Expedition;combatEvents:CombatEvent[];playerMaxHp:number;appearanceId:string;titleName?:string;speed?:number;showDamage?:boolean;weapon?:Weapon;actionCue?:BattleActionCue|null}){
  const previous=useRef(expedition),previousEventId=useRef(combatEvents.at(-1)?.id??0),seq=useRef(0),timers=useRef<ReturnType<typeof setTimeout>[]>([]);
  const stageRef=useRef<HTMLDivElement|null>(null),playerAnchor=useRef<HTMLDivElement|null>(null),monsterAnchor=useRef<HTMLDivElement|null>(null),vfxRef=useRef<BattleVfxHandle|null>(null);
  const hitAnimations=useRef<{player:Animation|null;monster:Animation|null}>({player:null,monster:null});
@@ -75,14 +77,16 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   if(!figure?.animate)return;
   hitAnimations.current[target]?.cancel();
   const rate=Math.min(2,Math.max(.75,speed||1)),amp=critical?7:4;
-  const duration=Math.max(critical?170:125,Math.round((critical?240:170)/rate));
+  const hold=criticalVisualHold(critical,speed,false);
+  const motionDuration=Math.max(critical?170:125,Math.round((critical?240:170)/rate)),duration=motionDuration+hold;
   const direction=target==='player'?-1:1;
   hitAnimations.current[target]=figure.animate([
-   {transform:'translate(0,0) scale(1)',filter:'brightness(1)'},
-   {transform:'translate('+(direction*amp)+'px,-2px) scale(.99)',filter:'brightness(3.5) saturate(.25)',offset:.16},
-   {transform:'translate('+(-direction*amp*.78)+'px,1px) scale(1.01)',filter:'brightness(1.35)',offset:.36},
-   {transform:'translate('+(direction*amp*.48)+'px,-1px) scale(1)',filter:'brightness(1.18)',offset:.58},
-   {transform:'translate('+(-direction*amp*.22)+'px,0) scale(1)',filter:'brightness(1.06)',offset:.78},
+   {transform:'translate(0,0) scale(1)',filter:'brightness(3.5) saturate(.25)'},
+   {transform:'translate(0,0) scale(1)',filter:'brightness(3.5) saturate(.25)',offset:hold/duration},
+   {transform:'translate('+(direction*amp)+'px,-2px) scale(.99)',filter:'brightness(3.5) saturate(.25)',offset:(hold+motionDuration*.16)/duration},
+   {transform:'translate('+(-direction*amp*.78)+'px,1px) scale(1.01)',filter:'brightness(1.35)',offset:(hold+motionDuration*.36)/duration},
+   {transform:'translate('+(direction*amp*.48)+'px,-1px) scale(1)',filter:'brightness(1.18)',offset:(hold+motionDuration*.58)/duration},
+   {transform:'translate('+(-direction*amp*.22)+'px,0) scale(1)',filter:'brightness(1.06)',offset:(hold+motionDuration*.78)/duration},
    {transform:'translate(0,0) scale(1)',filter:'brightness(1)'}
   ],{duration,easing:'cubic-bezier(.18,.76,.2,1)'});
  };
@@ -124,6 +128,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
    const delay=event.hitCount>1?Math.max(0,event.hitIndex-1)*hitGap:0,hit=event.hitCount>1?event.hitIndex+'타':undefined,lane=(event.hitIndex-1)%3;
    schedule(()=>{
     vfxRef.current?.playEvent(event,speed);
+    if(event.hpDamage>0||event.absorbedByShield>0)playCombatImpact(event.attacker==='player'?(weapon??'sword'):'sword',event.critical,event.hpDamage===0);
     if(event.hpDamage>0)shakeTarget(event.target,event.critical);
    },delay);
    if(event.absorbedByShield>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-shield-float':'player-shield-float',target:event.target,amount:event.absorbedByShield,critical:event.critical&&event.hpDamage===0,hit,lane},delay,dmgMs);
@@ -158,7 +163,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   const pulse=seq.current;
   if(touchedMonster||touchedPlayer)schedule(()=>{if(seq.current===pulse){setMonsterImpact(null);setPlayerImpact(null);}},hitMs+Math.max(0,direct.length-1)*hitGap);
  },[expedition,combatEvents,speed,showDamage]);
- useEffect(()=>()=>{timers.current.forEach(clearTimeout);hitAnimations.current.player?.cancel();hitAnimations.current.monster?.cancel();vfxRef.current?.cancel();},[]);
+ useEffect(()=>()=>{timers.current.forEach(clearTimeout);hitAnimations.current.player?.cancel();hitAnimations.current.monster?.cancel();vfxRef.current?.cancel();stopCombatAudio();},[]);
 
  return <>
   <div ref={stageRef} className={'combat-stage '+(expedition.spawnAt?'defeated':'')}>
@@ -166,11 +171,11 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
    <MonsterLayer expedition={expedition} impact={monsterImpact} motion={monsterMotion} anchorRef={monsterAnchor}/>
    <FloatingLayer events={events}/>
   </div>
-  <BattleVfxCanvas ref={vfxRef} playerRef={playerAnchor} monsterRef={monsterAnchor}/>
+  <BattleVfxCanvas ref={vfxRef} playerRef={playerAnchor} monsterRef={monsterAnchor} weapon={weapon}/>
   <CombatHud expedition={expedition} playerMaxHp={playerMaxHp} titleName={titleName}/>
  </>;
 }
 
-export function BattleScene({expedition,combatEvents,playerMaxHp,appearanceId,titleName,speed=1,showDamage=true,actionCue}:{expedition:Expedition;combatEvents:CombatEvent[];playerMaxHp:number;appearanceId:string;titleName?:string;speed?:number;showDamage?:boolean;actionCue?:BattleActionCue|null}){
- return <section className="battle-scene" aria-label="전투 그래픽" style={{'--hit-duration':Math.round(SCENE_CONFIG.hitDurationMs/(speed>0?speed:1))+'ms','--damage-duration':Math.round(SCENE_CONFIG.damageDurationMs/(speed>0?speed:1))+'ms'} as React.CSSProperties}><Encounter key={encounterKey(expedition)} expedition={expedition} combatEvents={combatEvents} playerMaxHp={playerMaxHp} appearanceId={appearanceId} titleName={titleName} speed={speed} showDamage={showDamage} actionCue={actionCue}/></section>;
+export function BattleScene({expedition,combatEvents,playerMaxHp,appearanceId,titleName,speed=1,showDamage=true,weapon='sword',actionCue}:{expedition:Expedition;combatEvents:CombatEvent[];playerMaxHp:number;appearanceId:string;titleName?:string;speed?:number;showDamage?:boolean;weapon?:Weapon;actionCue?:BattleActionCue|null}){
+ return <section className="battle-scene" aria-label="전투 그래픽" style={{'--hit-duration':Math.round(SCENE_CONFIG.hitDurationMs/(speed>0?speed:1))+'ms','--damage-duration':Math.round(SCENE_CONFIG.damageDurationMs/(speed>0?speed:1))+'ms'} as React.CSSProperties}><Encounter key={encounterKey(expedition)} expedition={expedition} combatEvents={combatEvents} playerMaxHp={playerMaxHp} appearanceId={appearanceId} titleName={titleName} speed={speed} showDamage={showDamage} weapon={weapon} actionCue={actionCue}/></section>;
 }
