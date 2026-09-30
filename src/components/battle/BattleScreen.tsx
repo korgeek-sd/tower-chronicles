@@ -6,6 +6,7 @@ import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equip
 import {lootTotals} from '../../game/engine/loot';
 import {stats,weaponOf} from '../../game/engine/state';
 import {combatAudioEnabled,setCombatAudioEnabled,unlockCombatAudio} from './combatAudio';
+import {playerRecoveryDelay} from './battleVfxTimeline';
 import {BattleScene,type BattleActionCue} from './BattleScene';
 import {titleById} from '../../game/data/cosmetics';
 import {bossIdFor} from '../../game/engine/bossTracking';
@@ -31,7 +32,9 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
  const lastFeelEvent=useRef(0),lastHp=useRef(e.hp),actionCueSeq=useRef(0);
  const [soundEnabled,setSoundEnabled]=useState(combatAudioEnabled);
  const [actionCue,setActionCue]=useState<BattleActionCue|null>(null);
- const cuePlayerAction=(kind:BattleActionCue['kind'],action:()=>void)=>{setActionCue({id:++actionCueSeq.current,kind});action();};
+ const recoveryEventId=useRef(game.combatEvents?.at(-1)?.id??0),recoveryTimer=useRef<ReturnType<typeof setTimeout>|null>(null),recoveringRef=useRef(false);
+ const [recovering,setRecovering]=useState(false);
+ const cuePlayerAction=(kind:BattleActionCue['kind'],action:()=>void)=>{if(recoveringRef.current)return;setActionCue({id:++actionCueSeq.current,kind});action();};
  useEffect(()=>{
   const fresh=(game.combatEvents??[]).filter(event=>event.id>lastFeelEvent.current);
   for(const event of fresh){
@@ -62,6 +65,16 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
  useEffect(()=>()=>{if(dropToastTimer.current!==null)window.clearTimeout(dropToastTimer.current);},[]);
  const playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e),buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const [prefs,setPrefs]=useState<BattlePrefs>(loadPrefs);
+ useEffect(()=>{
+  const fresh=(game.combatEvents??[]).filter(event=>event.id>recoveryEventId.current);
+  recoveryEventId.current=game.combatEvents?.at(-1)?.id??recoveryEventId.current;
+  const delay=playerRecoveryDelay(fresh,prefs.speed);
+  if(!delay)return;
+  if(recoveryTimer.current!==null)clearTimeout(recoveryTimer.current);
+  recoveringRef.current=true;setRecovering(true);
+  recoveryTimer.current=setTimeout(()=>{recoveringRef.current=false;setRecovering(false);recoveryTimer.current=null;},delay);
+ },[game.combatEvents,prefs.speed]);
+ useEffect(()=>()=>{if(recoveryTimer.current!==null)clearTimeout(recoveryTimer.current);},[]);
  const updatePrefs=(next:BattlePrefs)=>{setPrefs(next);savePrefs(next);};
  const speedIndex=Math.max(0,SPEEDS.findIndex(v=>v===prefs.speed));
  const cycleSpeed=()=>updatePrefs({...prefs,speed:SPEEDS[(speedIndex+1)%SPEEDS.length]});
@@ -73,7 +86,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
 
  const skillCards=skillIds.map((id,i)=>{
   const skill=SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
-  return <button type="button" disabled={!skill||!canUseSkill(game,id||'')} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
+  return <button type="button" disabled={recovering||!skill||!canUseSkill(game,id||'')} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
    <span className="tc-ref-card-art"><Glyph name={glyph[id]??'skills'}/>{turns>0&&<b>{turns}</b>}</span>
    <strong>{skill?.name||'미구현'}</strong>
    <small>{mismatch?'무기 불일치':turns?turns+'턴 대기':'사용 가능'}</small>
@@ -95,7 +108,7 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
    <button className="tc-ref-menu" onClick={()=>setPanel(panel==='menu'?null:'menu')} aria-label="전투 메뉴" aria-expanded={panel==='menu'}><i/><i/><i/></button>
   </header>
 
-  <button className="tc-ref-flee tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={onFlee} aria-label="귀환 시도"><Glyph name="tickets"/><small>귀환</small></button>
+  <button className="tc-ref-flee tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={onFlee} aria-label="귀환 시도"><Glyph name="tickets"/><small>귀환</small></button>
 
   <button className="tc-ref-loot-entry tc-feel-press" data-game-feel="press" onClick={()=>setPanel('loot')} aria-label="원정 전리품 보기"><span>전리품</span><b>{lootSummary.equipment}</b><small>장비 · 재료 {lootSummary.materials}</small></button>
 
@@ -111,9 +124,9 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
   </div>
 
   <div className="tc-ref-actions">
-   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={()=>cuePlayerAction('basic',onBasicAttack)}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
+   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>cuePlayerAction('basic',onBasicAttack)}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
    {skillCards}
-   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>아이템</strong><small>포션</small></button>
+   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>아이템</strong><small>포션</small></button>
   </div>
 
   <div className="tc-ref-turn">{e.phase==='PLAYER_TURN'?'행동을 선택하세요':e.phase==='MONSTER_TURN'?'적이 행동합니다':'전투 결과 처리 중'}</div>

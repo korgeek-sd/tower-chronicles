@@ -57,3 +57,10 @@ export function counterattackDelay(events:readonly {attacker:'player'|'monster';
  const rate=battleVisualRate(speed),lastHit=Math.max(...events.filter(e=>e.attacker==='player').map(e=>Math.max(0,e.hitIndex-1)));
  return Math.round(700/rate)+lastHit*Math.round(78/rate);
 }
+
+export function playerRecoveryDelay(events:readonly {attacker:'player'|'monster';hitIndex:number}[],speed:number){
+ const enemy=events.filter(e=>e.attacker==='monster');
+ if(!enemy.length)return 0;
+ const rate=battleVisualRate(speed),lastHit=Math.max(...enemy.map(e=>Math.max(0,e.hitIndex-1)));
+ return counterattackDelay(events,speed)+lastHit*Math.round(78/rate)+Math.round(700/rate);
+}
