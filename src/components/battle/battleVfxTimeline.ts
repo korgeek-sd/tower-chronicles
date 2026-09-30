@@ -50,3 +50,10 @@ export function battleImpactEnvelope(elapsedMs:number,critical:boolean){
 export function criticalVisualHold(critical:boolean,speed:number,reducedMotion:boolean){
  return critical&&!reducedMotion?Math.round(55/battleVisualRate(speed)):0;
 }
+
+// Keep retaliation readable when the server returns both sides in one response.
+export function counterattackDelay(events:readonly {attacker:'player'|'monster';hitIndex:number}[],speed:number){
+ if(!events.some(e=>e.attacker==='player')||!events.some(e=>e.attacker==='monster'))return 0;
+ const rate=battleVisualRate(speed),lastHit=Math.max(...events.filter(e=>e.attacker==='player').map(e=>Math.max(0,e.hitIndex-1)));
+ return Math.round(700/rate)+lastHit*Math.round(78/rate);
+}

@@ -9,6 +9,7 @@ import {enter,requestReturn,abandonStrongholdAndReturn} from './game/engine/expe
 import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resolveRevivalDecision} from './game/engine/combat';
 import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
+import {counterattackDelay} from './components/battle/battleVfxTimeline';
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
 import {consumeOAuthRedirect,getStoredSession,signOutOnline,type OnlineSession} from './online/auth';
@@ -334,7 +335,9 @@ function App(){
    onlineCombatNonce.current=result.actionNonce??nonce;if(typeof result.confirmedKills==='number')confirmedKillCount.current=result.confirmedKills;if(typeof result.runVersion==='number')onlineRunVersion.current=result.runVersion;
    setCloudSyncStatus('synced');
    const candidate=reconcileOnlineCombatState(stateRef.current,result,{emitCombatEvents:true});
+   const retaliationDelay=counterattackDelay((candidate.combatEvents??[]).filter(event=>event.id>(stateRef.current.combatEvents?.at(-1)?.id??0)),loadPrefs().speed);
    stateRef.current=candidate;setStorageError('');flushSync(()=>setGame(candidate));
+   if(retaliationDelay)await new Promise<void>(resolve=>window.setTimeout(resolve,retaliationDelay+260));
    const showImpact=()=>new Promise<void>(resolve=>window.setTimeout(resolve,260));
    if(result.returnAuthorized){await showImpact();await settleOnlineRun('returned');return;}
    if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await showImpact();await settleOnlineRun('dead');return;}
