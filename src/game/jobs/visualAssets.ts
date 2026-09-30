@@ -8,4 +8,5 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  tracker:'assets/characters/jobs/tracker.webp',
  expedition_medic:'assets/characters/jobs/expedition_medic.webp',
  redeemer:'assets/characters/jobs/redeemer.webp',
+ lantern_keeper:'assets/characters/jobs/lantern_keeper.webp',
 };
