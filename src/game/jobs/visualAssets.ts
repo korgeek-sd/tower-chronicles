@@ -7,4 +7,5 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  vanguard_explorer:'assets/characters/jobs/vanguard_explorer.webp',
  tracker:'assets/characters/jobs/tracker.webp',
  expedition_medic:'assets/characters/jobs/expedition_medic.webp',
+ redeemer:'assets/characters/jobs/redeemer.webp',
 };
