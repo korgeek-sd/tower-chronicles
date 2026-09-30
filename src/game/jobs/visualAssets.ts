@@ -4,4 +4,5 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  excavator:'assets/characters/jobs/excavator.webp',
  field_medic:'assets/characters/jobs/field_medic.webp',
  reclaimer:'assets/characters/jobs/reclaimer.webp',
+ vanguard_explorer:'assets/characters/jobs/vanguard_explorer.webp',
 };
