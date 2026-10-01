@@ -3248,7 +3248,7 @@ html,body,#root{
  .tc-monster-defeated .monster-figure{animation:none;opacity:.45}
 }
 
-.tc-nickname-gate{min-height:100dvh;display:grid;place-items:center;padding:20px;background:#10120f;color:#d9d2c0;font-family:inherit}
+.tc-nickname-gate{height:100dvh;min-height:0;overflow:auto;display:grid;place-items:safe center;padding:20px;background:#10120f;color:#d9d2c0;font-family:inherit}
 .tc-nickname-gate>section{width:min(100%,380px);padding:28px 22px;border:1px solid #61533b;background:#191b16;box-shadow:0 10px 40px #0005}
 .tc-nickname-gate h1{font-size:22px;margin:16px 0 24px;line-height:1.45}
 .tc-nickname-gate p{font-size:14px;line-height:1.6}
