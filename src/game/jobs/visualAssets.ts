@@ -14,4 +14,6 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  expedition_archivist:'assets/characters/jobs/expedition_archivist.webp',
  expedition_tactician:'assets/characters/jobs/expedition_tactician.webp',
  ascetic_priest:'assets/characters/jobs/ascetic_priest.webp',
+ life_stitcher:'assets/characters/jobs/life_stitcher.webp',
+ subjugation_officer:'assets/characters/jobs/subjugation_officer.webp',
 };
