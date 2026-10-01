@@ -1,3 +1,4 @@
+import './job-registration-results.css';
 import {createPortal} from 'react-dom';
 import {SsrRegistrationReveal} from './SsrRegistrationReveal';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
@@ -101,15 +102,15 @@ export function JobsScreen({
  }
 
  async function draw(paidRolls:1|10){
-  if(!onlineLease||busy)return;
-  setBusy(true);setMessage('');
+  if(!onlineLease||busy||ticketBusy.current)return;
+  ticketBusy.current=true;setBusy(true);setMessage('');
   try{
    const next=await registerOnlineJob(onlineLease,paidRolls);
    setRegistration(next.state);setResult(next);
    if(onServerRecord)onServerRecord(next.record,paidRolls===10?'10+1 직능등록 결과를 서버에 반영했습니다.':'직능등록 결과를 서버에 반영했습니다.');
    else setGame(next.record.payload);
   }catch(error){setMessage(error instanceof Error?error.message:'직능등록 요청을 처리하지 못했습니다.');}
-  finally{setBusy(false);}
+  finally{ticketBusy.current=false;setBusy(false);}
  }
 
  async function drawWithTickets(rolls:1|10){
@@ -158,7 +159,7 @@ export function JobsScreen({
     <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);}} label="직능 등급"/>
     <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className={'tc-job'+(job.visualAssetKey?' has-art':'')} key={job.id}>{job.visualAssetKey&&<span className="tc-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></span>}<div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
-   </div>:result?<RegistrationResult key={result.requestId} result={result} onClose={()=>setResult(null)}/>:<div className="tc-reg-shell">
+   </div>:result?<RegistrationResult key={result.requestId} result={result} onClose={()=>setResult(null)} onRepeat={()=>void (result.ticketCost?drawWithTickets(10):draw(10))} repeatDisabled={!canRegister||(result.ticketCost?drawTickets<10:gold<1000)} busy={busy} message={message}/>:<div className="tc-reg-shell">
     <div className="tc-reg-subnav"><Segments items={[['draw','등록'],['records','직능기록'],['rates','확률정보']] as const} value={registerView} onChange={value=>{setRegisterView(value);setMessage('');}} label="직능등록 세부 메뉴"/></div>
     {registerView==='draw'?<div className="tc-registration">
      <section className="tc-reg-pickups" aria-label="집중 열람 직능">
@@ -277,7 +278,7 @@ function JobRateInfo(){
  </div>;
 }
 
-function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult;onClose:()=>void}){
+function RegistrationResult({result,onClose,onRepeat,repeatDisabled,busy,message}:{result:OnlineJobRegistrationResult;onClose:()=>void;onRepeat:()=>void;repeatDisabled:boolean;busy:boolean;message:string}){
  const [revealed,setRevealed]=useState(false);
  const ssrs=result.results.filter(entry=>entry.rarity==='SSR');
  if(!revealed&&ssrs.length)return createPortal(<SsrRegistrationReveal entries={ssrs} onFinish={()=>setRevealed(true)}/>,document.body);
@@ -304,6 +305,6 @@ function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult
    <b>{job?.displayName??entry.jobId}</b>
    <small>{entry.newlyUnlocked?'NEW':entry.residualGained>0?'잔여 +'+entry.residualGained:entry.recordCount+'/60'}{entry.pickup?' · PICKUP':''}</small>
   </article>;})}</div>
-  <div className="tc-reg-result-foot"><span>{result.ticketCost?result.ticketCost+'개 뽑기권 · '+result.resultCount+'회 독립 판정':'1,000 Gold · 11회 독립 판정'}</span><button className="tc-action" onClick={onClose}>확인</button></div>
+  <div className="tc-reg-result-foot tc-reg-repeat-foot"><span role="status" title={message}>{message||(result.ticketCost?'다시 뽑기: 뽑기권 10개':'다시 뽑기: 1,000 Gold · 10+1회')}</span><button className="tc-action" disabled={busy} onClick={onClose}>확인</button><button className="tc-action" disabled={repeatDisabled} onClick={onRepeat}>{busy?'처리 중…':result.ticketCost?'10회 다시 뽑기':'10+1 다시 뽑기'}</button></div>
  </div>;
 }
