@@ -1,3 +1,5 @@
+import {createPortal} from 'react-dom';
+import {SsrRegistrationReveal} from './SsrRegistrationReveal';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../game/types';
 import {JOB_CATALOG,JOB_RARITIES,jobById,type JobRarity} from '../game/jobs/catalog';
@@ -156,7 +158,7 @@ export function JobsScreen({
     <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);}} label="직능 등급"/>
     <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className={'tc-job'+(job.visualAssetKey?' has-art':'')} key={job.id}>{job.visualAssetKey&&<span className="tc-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></span>}<div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
-   </div>:result?<RegistrationResult result={result} onClose={()=>setResult(null)}/>:<div className="tc-reg-shell">
+   </div>:result?<RegistrationResult key={result.requestId} result={result} onClose={()=>setResult(null)}/>:<div className="tc-reg-shell">
     <div className="tc-reg-subnav"><Segments items={[['draw','등록'],['records','직능기록'],['rates','확률정보']] as const} value={registerView} onChange={value=>{setRegisterView(value);setMessage('');}} label="직능등록 세부 메뉴"/></div>
     {registerView==='draw'?<div className="tc-registration">
      <section className="tc-reg-pickups" aria-label="집중 열람 직능">
@@ -276,6 +278,9 @@ function JobRateInfo(){
 }
 
 function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult;onClose:()=>void}){
+ const [revealed,setRevealed]=useState(false);
+ const ssrs=result.results.filter(entry=>entry.rarity==='SSR');
+ if(!revealed&&ssrs.length)return createPortal(<SsrRegistrationReveal entries={ssrs} onFinish={()=>setRevealed(true)}/>,document.body);
  const single=result.results.length===1;
  if(single){
   const entry=result.results[0],job=jobById(entry.jobId);
