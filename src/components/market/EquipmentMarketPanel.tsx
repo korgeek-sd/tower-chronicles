@@ -96,7 +96,7 @@ export function EquipmentMarketPanel({
   {mode==='buy'&&<>
    <section className="tc-equipment-market-policy">
     <b>정가 즉시구매</b>
-    <span>입찰 없음 · 구매자 수수료 없음 · 등록 72시간</span>
+    <span>입찰 없음 · 구매자 수수료 없음 · 등록 30일</span>
    </section>
    <div className="tc-equipment-market-filters">
     <select aria-label="장비 종류" value={kindFilter} onChange={e=>setKindFilter(e.target.value as KindFilter)}>
@@ -146,7 +146,7 @@ export function EquipmentMarketPanel({
       <div><span>예상 정산</span><b>{money(expectedNet)}</b></div>
       <small>등록 수수료는 즉시 차감되며 취소·만료 시 반환되지 않습니다.</small>
       {sellEquipped&&<em>장착 해제 후 등록할 수 있습니다.</em>}
-      <button disabled={!canList} onClick={list}>{busy?'등록 처리 중':'72시간 판매 등록'}</button>
+      <button disabled={!canList} onClick={list}>{busy?'등록 처리 중':'30일 판매 등록'}</button>
      </>:<p>판매할 장비를 선택하세요.</p>}
     </section>
    </div>
@@ -155,7 +155,7 @@ export function EquipmentMarketPanel({
   {mode==='mine'&&<>
    <section className="tc-equipment-market-policy">
     <b>내 등록</b>
-    <span>취소·만료 시 동일 장비가 그대로 반환됩니다. 등록 수수료는 반환되지 않습니다.</span>
+    <span>취소·만료 시 장비는 우편으로 반환됩니다. 등록 수수료는 반환되지 않습니다.</span>
    </section>
    <div className="tc-equipment-market-list">
     {myListings.map(listing=><article key={listing.listingId} className="tc-equipment-market-row">

@@ -19,10 +19,11 @@ test('V2 MARKET UI 02: equipment orders use generic placeOnlineMarketOrder',()=>
  assert.doesNotMatch(server,/buyOnlineEquipmentListing|listOnlineEquipment|cancelOnlineEquipmentListing/);
 });
 
-test('V2 MARKET UI 03: one exact equipment instance is selected for a SELL order',()=>{
+test('V2 MARKET UI 03: equivalent equipment instances can be sold in the requested quantity',()=>{
  assert.match(server,/equipmentSell/);
  assert.match(server,/item\.equipmentIds\?\.\[0\]/);
- assert.match(server,/equipmentSell\?1:q/);
+ assert.match(server,/quantity:q/);
+ assert.doesNotMatch(server,/equipmentSell\?1:q/);
 });
 
 test('V2 MARKET UI 04: online order and storage gear types support V2 equipment',()=>{

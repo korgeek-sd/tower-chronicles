@@ -141,7 +141,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const bids=selectedDemo?.bids??actualBids;
  const maxDepth=Math.max(1,...asks.map(x=>x.quantity),...bids.map(x=>x.quantity));
  const equipmentSell=!!item?.modernEquipment&&side==='SELL';
- const valid=!!snapshot&&!!item&&!!tradeSide&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:(equipmentSell?q===1&&item.available>=1:item.available>=q));
+ const valid=!!snapshot&&!!item&&!!tradeSide&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
  const open=getMyOpenOrders(view);
  const storage=snapshot?.storage??[];
  const trades=snapshot?.trades??[];
@@ -177,7 +177,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
 
  const applyPercent=(percent:number)=>{
   if(!snapshot||!item||!Number.isSafeInteger(p)||p<=0)return;
-  const max=side==='BUY'?Math.floor(snapshot.wallet.silver/p):(item.modernEquipment?Math.min(1,item.available):item.available);
+  const max=side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available;
   const next=max<=0?0:percent===100?max:Math.min(max,Math.max(1,Math.floor(max*percent/100)));
   setQty(String(next));
  };
@@ -194,7 +194,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  if(item&&tradeSide){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
   const current=selectedDemo?.last??trendByItem.get(item.id)?.last??bestAsk??bestBid;
-  const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):(item.modernEquipment?Math.min(1,item.available):item.available)):0;
+  const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available):0;
   return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
    <div className={'tc-market-v4-trade'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-tradehead">
@@ -214,11 +214,11 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
     <section className="tc-market-v4-orderform">
      <div className="tc-market-v2-fields">
       <label><small>가격</small><input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label>
-      <label><small>수량</small><input inputMode="numeric" value={equipmentSell?'1':qty} readOnly={equipmentSell} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
+      <label><small>수량</small><input inputMode="numeric" value={qty} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
      </div>
      <div className="tc-market-v3-presets" aria-label="주문 수량 비율">{[10,25,50,75,100].map(percent=><button key={percent} disabled={busy||maxOrderQty<=0} onClick={()=>applyPercent(percent)}>{percent===100?'MAX':percent+'%'}</button>)}</div>
      <div className="tc-market-v2-total"><span>{side==='BUY'?'예상 예치금':'지정 판매금액'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b></div>
-     <button className={'tc-market-v2-submit tc-feel-press '+(side==='BUY'?'buy':'sell')} data-game-feel="press" disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,assetItemId:equipmentSell&&item.equipmentIds?.[0]?'equipment_v2:'+item.equipmentIds[0]:undefined,side,limitPrice:p,quantity:equipmentSell?1:q}),'market.order-placed')}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
+     <button className={'tc-market-v2-submit tc-feel-press '+(side==='BUY'?'buy':'sell')} data-game-feel="press" disabled={!valid} onClick={()=>void act(()=>placeOnlineMarketOrder(lease,{itemId:item.id,assetItemId:equipmentSell&&item.equipmentIds?.[0]?'equipment_v2:'+item.equipmentIds[0]:undefined,side,limitPrice:p,quantity:q}),'market.order-placed')}>{demoMode?'DEMO 시연 중 · 실제 주문 비활성':busy?'처리 중':side==='BUY'?'매수 주문 등록':'매도 주문 등록'}</button>
     </section>
     {error&&<div className="tc-floor-risk">{error}</div>}
    </div>
@@ -312,6 +312,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
    </>}
 
    {tab==='orders'&&<>
+    <p className="tc-floor-risk">주문은 등록 후 30일에 만료됩니다. 미판매 아이템은 우편함으로 반환됩니다.</p>
     <section className="tc-market-v2-status compact">
      <div><small>진행 주문</small><b>{open.length}건</b></div>
      <div><small>매수</small><b>{open.filter(x=>x.side==='BUY').length}</b></div>
@@ -320,7 +321,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
     <div className="tc-market-v2-orders">
      {shownOrders.map(order=>{const filled=order.originalQuantity-order.remainingQuantity,pct=order.originalQuantity?filled/order.originalQuantity*100:0;return <article key={order.orderId}>
       <span className={'side '+order.side.toLowerCase()}>{order.side==='BUY'?'매수':'매도'}</span>
-      <div className="name"><b>{marketItemName(view,order.itemId)}</b><small>{money(order.limitPrice)} · {filled}/{order.originalQuantity} 체결</small><div className="tc-market-v2-progress"><i style={{width:pct+'%'}}/></div></div>
+      <div className="name"><b>{marketItemName(view,order.itemId)}</b><small>{money(order.limitPrice)} · {filled}/{order.originalQuantity} 체결 · {Math.max(0,Math.ceil(((snapshot.orders.find(o=>o.orderId===order.orderId)?.expiresAt??order.createdAt+30*86400000)-Date.now())/86400000))}일 남음</small><div className="tc-market-v2-progress"><i style={{width:pct+'%'}}/></div></div>
       <button className="tc-feel-press" data-game-feel="press" disabled={busy} onClick={()=>void act(()=>cancelOnlineMarketOrder(lease,order.orderId),'market.order-cancelled')}>취소</button>
      </article>})}
      {!shownOrders.length&&<div className="tc-market-v2-empty">진행 중인 주문이 없습니다.</div>}
@@ -330,7 +331,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
 
    {tab==='storage'&&<>
     <section className="tc-market-v4-portfolio">
-     <div className="title"><small>TRADE STORAGE</small><b>거래 정산</b></div>
+     <div className="title"><small>TRADE STORAGE</small><b>거래 정산 · 기존 미수령</b></div><p>새 거래는 즉시 지급·정산됩니다. 취소·만료된 판매 아이템은 우편함에서 수령하세요.</p>
      <div className="total"><small>보유 Silver</small><b>{snapshot.wallet.silver.toLocaleString()} S</b></div>
      <div><small>수령 대금</small><b>{money(storageSilver)}</b></div>
      <div><small>수령 물품</small><b>{storageItems}개</b></div>

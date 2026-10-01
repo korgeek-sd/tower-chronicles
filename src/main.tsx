@@ -1,3 +1,5 @@
+import {MailDialog} from './components/MailDialog';
+import {loadGameMail} from './online/mail';
 import {SaveManagement} from './components/SaveManagement';
 import React,{useEffect,useRef,useState} from 'react';
 import {WorldChat} from './components/WorldChat';
@@ -75,6 +77,7 @@ function App(){
  const blocked=useRef(false);
  const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
  const [settingsOpen,setSettingsOpen]=useState(false);
+ const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
  const [page,setPage]=useState<AppPage>(game.expedition||game.lastExpedition?'battle':'home');
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
  const [marketIntent,setMarketIntent]=useState<MarketIntent|null>(null);
@@ -105,6 +108,14 @@ function App(){
  const gameplayLeaseRef=useRef<GameplayLease|null>(null),gameSessionPhaseRef=useRef<GameSessionPhase>(initialGate),handoffBusy=useRef(false),takeoverTimer=useRef<number|null>(null);
  gameplayLeaseRef.current=gameplayLease;gameSessionPhaseRef.current=gameSessionPhase;
  const gameplayWritable=profileReady&&(!onlineSession||gameSessionPhase==='active');
+ useEffect(()=>{setMailOpen(false);setMailUnread(0);},[onlineSession?.userId]);
+ useEffect(()=>{
+  if(!onlineSession||gameSessionPhase!=='active')return;
+  let active=true,busy=false;const userId=onlineSession.userId;
+  const refresh=async()=>{if(busy||document.hidden)return;busy=true;try{const r=await loadGameMail(userId);if(active&&getStoredSession()?.userId===userId)setMailUnread(r.mails.filter(m=>!m.read||!!m.attachment&&!m.claimed).length);}catch{}finally{busy=false;}};
+  void refresh();const id=setInterval(()=>void refresh(),60000);window.addEventListener('focus',refresh);
+  return()=>{active=false;clearInterval(id);window.removeEventListener('focus',refresh);};
+ },[onlineSession?.userId,gameSessionPhase]);
  async function refreshStrongholdPvp(){
   const lease=gameplayLeaseRef.current,e=stateRef.current.expedition;
   if(!lease||gameSessionPhaseRef.current!=='active'||!e){setStrongholdPvp(null);return;}
@@ -387,9 +398,11 @@ function App(){
   {!immersive&&<><header className="tc-topbar">
    <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
    <div className="tc-wallet"><span className="tc-coin"><i/><b>{game.silver.toLocaleString()}</b><small>Silver</small></span><span className="tc-coin gold"><i/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></span></div>
-   <button className="tc-settings-open" aria-label="설정 열기" onClick={()=>setSettingsOpen(true)}>⚙</button>
+   <div className="tc-header-actions"><button className="tc-mail-open" aria-label={mailUnread?'미확인 우편 있음 · 우편함 열기':'우편함 열기'} onClick={()=>setMailOpen(true)}>✉{mailUnread>0&&<i/>}</button><button className="tc-settings-open" aria-label="설정 열기" onClick={()=>setSettingsOpen(true)}>⚙</button></div>
   </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
   {immersive&&<button className="tc-settings-open tc-settings-floating" aria-label="설정 열기" onClick={()=>setSettingsOpen(true)}>⚙</button>}
+  {immersive&&<button className="tc-mail-open tc-mail-floating" aria-label="우편함 열기" onClick={()=>setMailOpen(true)}>✉{mailUnread>0&&<i/>}</button>}
+  {mailOpen&&<MailDialog key={onlineSession?.userId??'guest'} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} game={game} setGame={setGame} onClose={()=>setMailOpen(false)} onUnread={setMailUnread}/>}
   <main className="tc-main">
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}

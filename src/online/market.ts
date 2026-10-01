@@ -11,7 +11,7 @@ export type OnlineMarketGear=Item|EquipmentItem;
 export interface OnlineMarketAsset {itemId:string;quantity:number;gear:OnlineMarketGear|null}
 export interface OnlineMarketOrder {
  orderId:string;itemId:string;side:'BUY'|'SELL';limitPrice:number;originalQuantity:number;remainingQuantity:number;
- status:'OPEN'|'PARTIAL'|'FILLED'|'CANCELLED';gear:OnlineMarketGear|null;createdAt:number;mine:boolean;
+ expiresAt?:number;status:'OPEN'|'PARTIAL'|'FILLED'|'CANCELLED';gear:OnlineMarketGear|null;createdAt:number;mine:boolean;
 }
 export interface OnlineMarketTrade {
  tradeId:string;itemId:string;price:number;quantity:number;buyOrderId:string;sellOrderId:string;
