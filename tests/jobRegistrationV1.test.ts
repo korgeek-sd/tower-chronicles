@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
 import {JOB_CATALOG,JOB_RARITIES} from '../src/game/jobs/catalog.ts';
 import {
  JOB_PICKUP_RATE,
@@ -15,6 +15,14 @@ import {
  jobRegistrationGoldCost,
  jobRegistrationResultCount,
 } from '../src/game/jobs/registration.ts';
+
+const EXPANSION_JOB_IDS=[
+ 'green_crown_pilgrim','porter','guide',
+ 'relic_collector','monster_dismantler','expedition_archivist',
+ 'ascetic_priest','life_stitcher','subjugation_officer','rescuer','quartermaster','coroner','stair_scout',
+ 'green_crown_martyr','unity_apostle','deep_rescue_officer','boss_tracker','return_guardian','green_crown_inquisitor',
+ 'false_saint_proxy','hundred_battle_returnee',
+] as const;
 
 test('JOB REGISTRATION V1 01: rarity rates are C51 B30 A13 SR5 SSR1',()=>{
  assert.deepEqual(JOB_REGISTRATION_RATES,{C:.51,B:.30,A:.13,SR:.05,SSR:.01});
@@ -36,10 +44,10 @@ test('JOB REGISTRATION V1 03: progression, residual values, and pickup rate matc
  assert.equal(JOB_PICKUP_RATE,.5);
 });
 
-test('JOB REGISTRATION V1 04: current server pool includes seven B jobs and five in other rarities',()=>{
- const expected={C:5,B:7,A:5,SR:5,SSR:5} as const;
+test('JOB REGISTRATION V1 04: server pool exposes the planned 48 jobs by rarity',()=>{
+ const expected={C:8,B:10,A:12,SR:11,SSR:7} as const;
  for(const rarity of JOB_RARITIES)assert.equal(JOB_CATALOG.filter(job=>job.rarity===rarity).length,expected[rarity]);
- assert.equal(JOB_CATALOG.length,27);
+ assert.equal(JOB_CATALOG.length,48);
 });
 
 test('JOB REGISTRATION V1 05: migration keeps RNG and payment server-authoritative with no pity path',()=>{
@@ -53,7 +61,6 @@ test('JOB REGISTRATION V1 05: migration keeps RNG and payment server-authoritati
  assert.match(sql,/job_registration_secure_unit\(\)<0\.5/);
  assert.doesNotMatch(sql,/pity|천장/i);
 });
-
 
 test('JOB REGISTRATION V1 06: residual record exchange costs and shared quotas match the final spec',()=>{
  assert.deepEqual(JOB_RECORD_EXCHANGE_COST,{C:5,B:10,A:20,SR:50,SSR:160});
@@ -73,4 +80,11 @@ test('JOB REGISTRATION V1 07: completion migration keeps exchange server-authori
  assert.match(sql,/when 'SSR' then 160/);
  assert.match(sql,/when 'SSR' then 1/);
  assert.match(sql,/if v_record_count>=60 then raise exception 'JOB_RECORD_MAXED'/);
+});
+
+test('JOB REGISTRATION V1 08: expansion migration registers all 21 planned catalog-only jobs',()=>{
+ const migration=new URL('../supabase/migrations/20261001135500_expand_job_catalog_to_48.sql',import.meta.url);
+ assert.equal(existsSync(migration),true);
+ const sql=readFileSync(migration,'utf8');
+ for(const jobId of EXPANSION_JOB_IDS)assert.match(sql,new RegExp(`'${jobId}'`));
 });
