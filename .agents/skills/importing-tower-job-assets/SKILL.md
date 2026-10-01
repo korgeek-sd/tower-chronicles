@@ -16,9 +16,9 @@ A job-image import is **not complete until the repository commit exists**. Prepa
 3. Optimize it as a transparent WebP and store it at `public/assets/characters/jobs/<job_id>.webp`.
 4. Add or update exactly one entry in `src/game/jobs/visualAssets.ts`.
 5. If the user already identified the job, do not ask for confirmation; proceed immediately.
-6. Commit the asset and registry change to GitHub as part of the same task.
-7. Batch multiple supplied jobs into one commit when possible.
-8. Run the normal CI/build/Pages checks and report completion only after the commit exists. Report CI/Pages as success, failed, in progress, or unavailable.
+6. Batch multiple supplied jobs into one registry edit and commit when possible.
+7. Run the focused local checks below once, then commit all supplied assets and registry changes together. Let GitHub CI run the full suite and build.
+8. Confirm the remote commit and files, check CI/Pages once, and report the commit SHA immediately. Do not wait or poll for CI/Pages completion for a pure asset import. Report queued/running workflows as in progress.
 
 ## Definition of done
 Only say **registered**, **applied**, or **complete** when all required repository changes are committed.
@@ -60,13 +60,23 @@ Keep the established Tower Chronicles job-asset contract: one full-body characte
 Prefer the established compact in-game asset size and WebP optimization used by the current job assets rather than storing the original high-resolution upload unchanged.
 
 ## Verification
+For a pure import or replacement into the existing pipeline:
+1. Resolve all supplied job names in one catalog read, convert the images in one batch, and update the registry once. Reuse existing repository access, tooling, and image conversion settings.
+2. Inspect each converted image for preservation of the supplied design, correct orientation, readable framing, and transparency. If an upload lacks transparency, resolve its background deliberately; do not assume a WebP conversion removes it.
+3. Run `git diff --check` and the existing focused asset tests once:
+   ```bash
+   node --import ./tests/register.mjs --test tests/jobVisualAsset*.test.ts
+   ```
+4. If both pass and the diff contains only the supplied assets and registry changes, commit immediately. Full local `npm test`, typecheck, and build are not required for this path; GitHub CI owns those checks. If CI is unavailable, run the full local build once before committing and report CI/Pages as unavailable.
+5. If focused tests fail, fix the asset or mapping and rerun the affected checks. If generic rendering code, catalog definitions, dependencies, or unrelated behavior must change, leave this fast path and run checks appropriate to that broader change.
+
 The generic job visual test checks every registry entry, canonical path, asset existence/size, catalog exposure, and player graphic resolution. A new job must not require a new test case.
 
 After committing:
 1. Confirm the asset exists at the canonical repository path.
 2. Confirm the registry contains the new job ID.
 3. Confirm the commit SHA is on the intended branch.
-4. Check CI and GitHub Pages when those workflows are present.
+4. Query CI and GitHub Pages once for that commit SHA. Report the observed status. A queued or running workflow does not block the committed-registration report. Only say deployed when Pages succeeded for that SHA. If the user explicitly asks to finish deployment or investigate a failed workflow, continue until that separate goal is resolved.
 
 ## Completion response
 Keep the completion report short and factual:
@@ -75,6 +85,8 @@ Keep the completion report short and factual:
 - commit SHA
 - CI status
 - Pages status
+
+For pending workflows, use the equivalent of: `커밋 완료 · <SHA> / CI: 진행 중 / 배포: 진행 중`. Keep committed registration and successful deployment distinct.
 
 ## Common mistakes
 | Mistake | Fix |
