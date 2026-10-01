@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../game/types';
 import {JOB_CATALOG,JOB_RARITIES,jobById,type JobRarity} from '../game/jobs/catalog';
 import {assetUrl} from '../game/data/graphics';
@@ -19,6 +19,8 @@ import {
  type OnlineJobRegistrationResult,
  type OnlineJobRegistrationState,
 } from '../online/economy';
+import {registerOnlineJobWithTickets} from '../online/associationShop';
+import {pendingGrowthRequest,completeGrowthRequest} from '../online/associationPendingRequests';
 import type {GameplayLease} from '../online/gameSession';
 import type {CloudSaveRecord} from '../online/cloudSave';
 import {Pager,Screen,Segments} from '../ui/mobile';
@@ -69,6 +71,8 @@ export function JobsScreen({
  const ssrJobs=JOB_CATALOG.filter(job=>job.rarity==='SSR');
  const recordJobs=JOB_CATALOG.filter(job=>job.rarity===recordRarity);
  const gold=registration?.gold??game.market.gold;
+ const ticketBusy=useRef(false);
+ const drawTickets=game.lootItems.job_draw_ticket??0;
  const canRegister=!!onlineLease&&!game.expedition&&!busy;
 
  useEffect(()=>{
@@ -104,6 +108,19 @@ export function JobsScreen({
    else setGame(next.record.payload);
   }catch(error){setMessage(error instanceof Error?error.message:'직능등록 요청을 처리하지 못했습니다.');}
   finally{setBusy(false);}
+ }
+
+ async function drawWithTickets(rolls:1|10){
+  if(!onlineLease||busy||ticketBusy.current)return;
+  ticketBusy.current=true;setBusy(true);setMessage('');
+  const requestKey=onlineLease.leaseId+':DRAW:'+rolls;
+  try{
+   const id=pendingGrowthRequest(requestKey);
+   const next=await registerOnlineJobWithTickets(onlineLease,rolls,id);
+   completeGrowthRequest(requestKey);setRegistration(next.state);setResult(next);
+   if(onServerRecord)onServerRecord(next.record,'직능 뽑기권 사용 결과를 반영했습니다.');else setGame(next.record.payload);
+  }catch(error){setMessage(error instanceof Error?error.message:'뽑기권을 사용하지 못했습니다.');}
+  finally{ticketBusy.current=false;setBusy(false);}
  }
 
  async function exchangeRecord(jobId:string){
@@ -162,6 +179,7 @@ export function JobsScreen({
       <div><small>협회 추천장</small><b>{(registration?.associationRecommendations??0).toLocaleString()}</b></div>
      </div>
 
+     <div className="tc-reg-ticket-actions"><span>직능 뽑기권 {drawTickets.toLocaleString()}개</span><button disabled={!canRegister||drawTickets<1} onClick={()=>void drawWithTickets(1)}>1개 사용</button><button disabled={!canRegister||drawTickets<10} onClick={()=>void drawWithTickets(10)}>10개 사용</button></div>
      <div className="tc-reg-rates" aria-label="직능등록 확률">{RATE_LABELS.map(([r,label])=><span key={r} className={'rarity-'+r.toLowerCase()}><b>{r}</b>{label}</span>)}</div>
 
      <div className="tc-reg-actions">
@@ -270,17 +288,17 @@ function RegistrationResult({result,onClose}:{result:OnlineJobRegistrationResult
     <strong>{entry.rarity}{entry.pickup?' · 집중 열람':''}</strong>
     <p>{entry.newlyUnlocked?'신규 직능 해금':entry.residualGained>0?'★★★ 초과 · 잔여 기록 +'+entry.residualGained:'직능 기록 +1 · '+entry.recordCount+'/60'}</p>
    </section>
-   <div className="tc-reg-result-foot"><span>{result.goldCost.toLocaleString()} Gold 사용 · 잔액 {result.goldAfter.toLocaleString()} Gold</span><button className="tc-action" onClick={onClose}>기록함으로</button></div>
+   <div className="tc-reg-result-foot"><span>{result.ticketCost?result.ticketCost+'개 뽑기권 사용':result.goldCost.toLocaleString()+' Gold 사용'} · 잔액 {result.goldAfter.toLocaleString()} Gold</span><button className="tc-action" onClick={onClose}>기록함으로</button></div>
   </div>;
  }
  return <div className="tc-reg-result tc-reg-result-multi" key={result.requestId}>
-  <div className="tc-reg-result-head"><div><small>직능등록 결과</small><b>10+1 판독 완료</b></div><span>{result.goldAfter.toLocaleString()} Gold</span></div>
-  <div className="tc-reg-result-grid" aria-label="10+1 직능등록 결과">{result.results.map((entry,index)=>{const job=jobById(entry.jobId);return <article className={'tc-reg-mini rarity-'+entry.rarity.toLowerCase()} key={index} style={{'--i':index} as React.CSSProperties}>
+  <div className="tc-reg-result-head"><div><small>직능등록 결과</small><b>{result.ticketCost?result.resultCount+'회 판독 완료':'10+1 판독 완료'}</b></div><span>{result.goldAfter.toLocaleString()} Gold</span></div>
+  <div className="tc-reg-result-grid" aria-label={result.ticketCost?'뽑기권 직능등록 결과':'10+1 직능등록 결과'}>{result.results.map((entry,index)=>{const job=jobById(entry.jobId);return <article className={'tc-reg-mini rarity-'+entry.rarity.toLowerCase()} key={index} style={{'--i':index} as React.CSSProperties}>
    {job?.visualAssetKey?<div className="tc-reg-mini-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></div>:<div className="tc-reg-record-icon" aria-hidden="true"><i/><i/></div>}
    <strong>{entry.rarity}</strong>
    <b>{job?.displayName??entry.jobId}</b>
    <small>{entry.newlyUnlocked?'NEW':entry.residualGained>0?'잔여 +'+entry.residualGained:entry.recordCount+'/60'}{entry.pickup?' · PICKUP':''}</small>
   </article>;})}</div>
-  <div className="tc-reg-result-foot"><span>1,000 Gold · 11회 독립 판정</span><button className="tc-action" onClick={onClose}>확인</button></div>
+  <div className="tc-reg-result-foot"><span>{result.ticketCost?result.ticketCost+'개 뽑기권 · '+result.resultCount+'회 독립 판정':'1,000 Gold · 11회 독립 판정'}</span><button className="tc-action" onClick={onClose}>확인</button></div>
  </div>;
 }

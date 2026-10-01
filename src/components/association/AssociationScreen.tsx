@@ -16,11 +16,12 @@ import {
 import {getOccupationState,type OnlineOccupationState} from '../../online/occupation';
 import {TOWERS} from '../../game/data/config';
 import './hq.css';
+import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 
 type LocalTab='overview'|'members'|'activity'|'manage';
 const localTabs=[['overview','본부'],['members','단원'],['activity','기록'],['manage','관리']] as const;
-type ServerTab='overview'|'members'|'applications'|'activity'|'manage';
-const serverTabs=[['overview','본부'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
+type ServerTab='shop'|'overview'|'members'|'applications'|'activity'|'manage';
+const serverTabs=[['overview','본부'],['shop','상점'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
 const PAGE_SIZE=5;
 
 export function AssociationScreen({
@@ -142,7 +143,9 @@ function OnlineAssociationScreen({
   <div className="tc-assoc tc-assoc-online tc-assoc-hq">
    <section className="tc-assoc-banner"><span className="tc-assoc-banner-seal"><Glyph name="association"/></span><div className="tc-assoc-banner-copy"><small>{current.recordNumber}</small><b>{current.name}</b><p>{current.description||'등록된 소개가 없습니다.'}</p></div><div className="tc-assoc-banner-meta"><span><small>단장</small><b>{memberLabel(current.leaderUserId)}</b></span><span><small>단원</small><b>{current.members.length}/{current.memberLimit}</b></span></div></section>
    <Segments items={visibleTabs} value={visibleTabs.some(([id])=>id===tab)?tab:'overview'} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
+   {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='overview'&&<section className="tc-assoc-overview">
+    <AssociationSupplyPanel key={current.associationId+'growth'} lease={lease} mode="growth" refreshKey={current.activity[0]?.activityId} expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>
     <div className="tc-assoc-notice-board"><header><Glyph name="jobs"/><b>원정단 공지</b><small>{current.noticeUpdatedAt?new Date(current.noticeUpdatedAt).toLocaleDateString('ko-KR'):'NOTICE'}</small></header><p className={fullNotice?'':'tc-hq-notice-preview'}>{current.notice||'등록된 공지가 없습니다.'}</p>{current.notice&&<button onClick={()=>setFullNotice(v=>!v)}>{fullNotice?'접기':'공지 전문'}</button>}</div>
     <div className="tc-hq-economy"><span>금고 <b>{current.treasurySilver.toLocaleString()} S</b></span><span>귀환 수익 분담 <b>{current.revenueShareRatePercent}%</b></span></div>
     <button className="tc-hq-occupation" onClick={onOccupation}><Glyph name="towers"/><div><b>점령전 본부</b><small>{occupation?({BIDDING:'입찰 진행 중',LOCKED:'전투 준비',BATTLE:'점령전 진행 중',SETTLED:'전투 종료'}[occupation.window.phase]):'점령 현황 확인 · 입찰 · 전선 참여'}</small><small>{occupation?.towers.filter(t=>t.ownerGroupKey===occupation.identity?.groupKey&&!!t.ownerGroupKey).map(t=>TOWERS[t.tower].name).join(' · ')||'점령한 탑 없음'}</small></div><span>입장 ›</span></button>

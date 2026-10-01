@@ -90,7 +90,7 @@ export function marketItems(s:GameState):MarketItem[]{
  towerIds.forEach(t=>s.materials[t].forEach((q,i)=>result.push({id:`material:${t}:${i+1}`,name:`T${i+1} ${TOWERS[t].material}`,available:q,category:'materials',description:'안전 귀환으로 확보한 제작 재료입니다.'})));
  towerIds.forEach(t=>s.tickets[t].forEach((q,i)=>result.push({id:`ticket:${t}:${i+1}`,name:`${TOWERS[t].name} ${i+1}층 입장권`,available:q,category:'tickets',description:'해당 층 입장에 사용하는 입장권입니다.'})));
  Object.entries(s.skillBooks).forEach(([id,q])=>result.push({id:'skillbook:'+id,name:bookName(id),available:q,category:'skillbooks',description:'아직 사용하지 않은 스킬북입니다.'}));
- Object.entries(s.lootItems).forEach(([id,q])=>result.push({id:'other:'+id,name:id,available:q,category:'other',description:'원정에서 보관한 거래 가능 아이템입니다.'}));
+ Object.entries(s.lootItems).forEach(([id,q])=>result.push({id:'other:'+id,name:id==='job_draw_ticket'?'직능 뽑기권':id,available:q,category:'other',description:'원정에서 보관한 거래 가능 아이템입니다.'}));
  return result;
 }
 const escrowGear=(s:GameState,itemId:string)=>s.market.orders.find(order=>order.itemId===itemId&&order.gear)?.gear;

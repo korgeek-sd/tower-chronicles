@@ -193,6 +193,7 @@ export interface OnlineJobRegistrationResultEntry extends OnlineJobRecordProgres
  pickup:boolean;
 }
 export interface OnlineJobRegistrationResult {
+ ticketCost?:number;
  requestId:string;
  paidRolls:JobRegistrationPaidRolls;
  resultCount:number;
