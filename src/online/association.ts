@@ -43,6 +43,7 @@ export interface OnlineAssociationCurrent {
  activity:OnlineAssociationActivity[];
 }
 export interface OnlineAssociationDirectoryEntry {
+ revenueShareRatePercent:number;
  associationId:string;
  recordNumber:string;
  name:string;

@@ -9,3 +9,4 @@
 @media(max-height:480px){.tc-chat-panel{height:100dvh}.tc-chat-panel header{padding:6px 12px}.tc-chat-panel form{padding:6px 12px}.tc-chat-panel form>small{display:none}}
 /* Keep the entry above the combat action bar and clear of the loot/menu controls. */
 .tc-battle-mode>.tc-chat-entry,.tc-event-mode>.tc-chat-entry{top:calc(28dvh + env(safe-area-inset-top));bottom:auto}
+.tc-chat-channels{display:flex;gap:5px;padding:7px 12px;border-bottom:1px solid #373c30}.tc-chat-channels button{min-height:36px;padding:0 12px;border:1px solid #5d634c;background:#171d15;color:#b4b99f;font-size:11px}.tc-chat-channels button[aria-pressed=true]{background:#39432b;color:#e1d7b8;border-color:#87916c}

@@ -1,19 +1,24 @@
 import {useEffect,useRef,useState} from 'react';
-import {loadChatMessages,sendChatMessage,subscribeChatMessages,mergeChatMessages,validateChatBody,type ChatMessage,type ChatStatus} from '../online/chat';
+import {loadChatAssociation,type ChatAssociation,loadChatMessages,sendChatMessage,subscribeChatMessages,mergeChatMessages,validateChatBody,type ChatMessage,type ChatStatus} from '../online/chat';
 import './world-chat.css';
 export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname?:string;enabled:boolean}){
  const [open,setOpen]=useState(false),[messages,setMessages]=useState<ChatMessage[]>([]),[status,setStatus]=useState<ChatStatus>('connecting');
  const [draft,setDraft]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[unread,setUnread]=useState(0),[loading,setLoading]=useState(false),[retry,setRetry]=useState(0),[cooldown,setCooldown]=useState(false);
+ const [association,setAssociation]=useState<ChatAssociation|null>(null),[channel,setChannel]=useState<'world'|'association'>('world');
+ const associationId=channel==='association'?association?.id??null:null;
+ const channelName=channel==='association'?'원정단 채팅':'전체 채팅';
+ useEffect(()=>{if(!enabled)return;let disposed=false;const check=()=>void loadChatAssociation().then(a=>{if(!disposed){setAssociation(a);if(!a)setChannel('world');}}).catch(()=>{});check();const timer=open?setInterval(check,30000):null;return()=>{disposed=true;if(timer)clearInterval(timer);};},[enabled,open]);
+ useEffect(()=>{const show=()=>{setOpen(true);void loadChatAssociation().then(a=>{setAssociation(a);if(a)setChannel('association');}).catch(()=>{});};window.addEventListener('tower-open-association-chat',show);return()=>window.removeEventListener('tower-open-association-chat',show);},[]);
  const [viewport,setViewport]=useState<{height:number;top:number}|null>(null);
  const openRef=useRef(open),busyRef=useRef(false),scroller=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),entry=useRef<HTMLButtonElement>(null);
  const request=useRef<{body:string;id:string}|null>(null),cooldownTimer=useRef<ReturnType<typeof setTimeout>|null>(null),nearBottom=useRef(true),loadGeneration=useRef(0);
  openRef.current=open;
  useEffect(()=>{
   if(!enabled||!userId)return;
-  let disposed=false;
+  let disposed=false;setMessages([]);setStatus('connecting');setDraft('');request.current=null;
   const load=async()=>{
    const generation=++loadGeneration.current;setLoading(true);
-   try{const history=await loadChatMessages();if(!disposed&&generation===loadGeneration.current){setMessages(old=>mergeChatMessages(old,history));setError('');}}
+   try{const history=await loadChatMessages(associationId);if(!disposed&&generation===loadGeneration.current){setMessages(old=>mergeChatMessages(old,history));setError('');}}
    catch(e){if(!disposed&&generation===loadGeneration.current)setError(e instanceof Error?e.message:'채팅을 불러오지 못했습니다.');}
    finally{if(!disposed&&generation===loadGeneration.current)setLoading(false);}
   };
@@ -22,11 +27,11 @@ export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname
    if(disposed)return;
    setMessages(old=>mergeChatMessages(old,[message]));
    if(!openRef.current&&message.userId!==userId)setUnread(n=>Math.min(99,n+1));
-  },next=>{if(disposed)return;setStatus(next);if(next==='subscribed')void load();});
+  },next=>{if(disposed)return;setStatus(next);if(next==='subscribed')void load();},associationId);
   const resume=()=>{if(document.visibilityState==='visible')void load();};
   document.addEventListener('visibilitychange',resume);
   return()=>{disposed=true;++loadGeneration.current;stop();document.removeEventListener('visibilitychange',resume);};
- },[userId,enabled,retry]);
+ },[userId,enabled,retry,associationId]);
  useEffect(()=>{if(!open||!window.visualViewport)return;const v=window.visualViewport;const update=()=>setViewport({height:v.height,top:v.offsetTop});update();v.addEventListener('resize',update);v.addEventListener('scroll',update);return()=>{v.removeEventListener('resize',update);v.removeEventListener('scroll',update);setViewport(null);};},[open]);
  useEffect(()=>()=>{if(cooldownTimer.current)clearTimeout(cooldownTimer.current);},[]);
  useEffect(()=>{if(open){nearBottom.current=true;setUnread(0);input.current?.focus();scroller.current?.scrollTo({top:scroller.current.scrollHeight});}},[open]);
@@ -38,7 +43,7 @@ export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname
   if(request.current?.body!==body)request.current={body,id:crypto.randomUUID()};
   busyRef.current=true;setBusy(true);setError('');
   try{
-   const message=await sendChatMessage(body,request.current.id);
+   const message=await sendChatMessage(body,request.current.id,associationId);
    nearBottom.current=true;setMessages(old=>mergeChatMessages(old,[message]));setDraft('');request.current=null;setCooldown(true);
    cooldownTimer.current=setTimeout(()=>{setCooldown(false);cooldownTimer.current=null;},2000);
   }catch(e){setError(e instanceof Error?e.message:'전송하지 못했습니다.');}
@@ -50,7 +55,8 @@ export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname
    if(e.key==='Escape')close();
    if(e.key==='Tab'){const items=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled)'));const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
   }}>
-   <header><div><small>NOVAR</small><h2 id="tc-chat-title">전체 채팅</h2></div><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'접속 대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'재연결 중'}</span><button autoFocus={!enabled} aria-label="채팅 닫기" onClick={close}>×</button></header>
+   <header><div><small>NOVAR</small><h2 id="tc-chat-title">{channelName}</h2></div><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'접속 대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'재연결 중'}</span><button autoFocus={!enabled} aria-label="채팅 닫기" onClick={close}>×</button></header>
+   {enabled&&<div className="tc-chat-channels"><button aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단 미가입'}</button></div>}
    {!enabled?<div className="tc-chat-empty">{userId?'플레이 세션이 연결되면 채팅을 이용할 수 있습니다.':'Google 로그인 후 닉네임을 정하면 채팅에 참여할 수 있습니다.'}</div>:<>
     <div className="tc-chat-log" ref={scroller} role="log" aria-label="전체 채팅 메시지" aria-live="polite" aria-relevant="additions" onScroll={()=>{const el=scroller.current;if(el)nearBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<60;}}>
      {loading&&messages.length===0?<p className="tc-chat-empty">기록을 불러오는 중…</p>:messages.length===0?<p className="tc-chat-empty">노바르의 탐험가들에게 첫 인사를 남겨보세요.</p>:messages.map(m=><article key={m.id} className={m.userId===userId?'mine':''}><div><b>{m.nickname}</b>{m.userId===userId&&<small>나</small>}<time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</time></div><p>{m.body}</p></article>)}

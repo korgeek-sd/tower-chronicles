@@ -6,7 +6,7 @@ const screen=readFileSync(new URL('../src/components/association/AssociationScre
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 
 test('ASSOCIATION HQ 0.1.80 01: association identity and headquarters replace the dashboard feel',()=>{
- for(const token of ['NOVAR EXPEDITION COMPANY','tc-assoc-banner','tc-assoc-banner-seal','tc-assoc-notice-board','tc-assoc-summary'])
+ for(const token of ['NOVAR EXPEDITION COMPANY','tc-assoc-banner','tc-assoc-banner-seal','tc-assoc-notice-board','tc-hq-economy'])
   assert.match(screen,new RegExp(token));
  assert.match(screen,/\['overview','본부'\]/);
 });

@@ -405,6 +405,7 @@ function App(){
    {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='seal'&&<SealScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('협회 인장');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
    {page==='association'&&<AssociationScreen
+    onOccupation={()=>setPage('occupation')}
     game={game}
     setGame={setGame}
     onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}

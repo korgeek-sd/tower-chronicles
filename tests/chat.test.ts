@@ -56,3 +56,10 @@ test('realtime waits for WAL ready, accepts confirmed inserts, ignores broadcast
   ws.emit([join[0],null,join[2],'postgres_changes',{data:{type:'INSERT',table:'game_chat_messages',record:row}}]);assert.equal(received.length,1);
  }finally{stop();Object.assign(globalThis,original);}
 });
+test('association channel filters history and transmits only its requested channel id',async()=>{
+ const calls:{url:string;body:any}[]=[];const guild='12345678-1234-1234-1234-123456789012';
+ const api=createChatApi({url:'https://example.supabase.co',publishableKey:'public'},async()=>session,async(url,init)=>{calls.push({url:String(url),body:init?.body?JSON.parse(String(init.body)):null});return new Response(JSON.stringify([{...row,association_id:guild}]),{status:200});},guild);
+ await api.load();assert.match(calls[0].url,/association_id=eq\./);
+ assert.equal((await api.send('안녕하세요','request-one')).associationId,guild);
+ assert.deepEqual(calls[1].body,{body:'안녕하세요',client_id:'request-one',association_id:guild});
+});
