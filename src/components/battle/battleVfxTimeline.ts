@@ -55,12 +55,27 @@ export function criticalVisualHold(critical:boolean,speed:number,reducedMotion:b
 export function counterattackDelay(events:readonly {attacker:'player'|'monster';hitIndex:number}[],speed:number){
  if(!events.some(e=>e.attacker==='player')||!events.some(e=>e.attacker==='monster'))return 0;
  const rate=battleVisualRate(speed),lastHit=Math.max(...events.filter(e=>e.attacker==='player').map(e=>Math.max(0,e.hitIndex-1)));
- return Math.round(700/rate)+lastHit*Math.round(78/rate);
+ return attackWindup(speed)+Math.round(700/rate)+lastHit*Math.round(78/rate);
 }
 
 export function playerRecoveryDelay(events:readonly {attacker:'player'|'monster';hitIndex:number}[],speed:number){
  const enemy=events.filter(e=>e.attacker==='monster');
  if(!enemy.length)return 0;
  const rate=battleVisualRate(speed),lastHit=Math.max(...enemy.map(e=>Math.max(0,e.hitIndex-1)));
- return counterattackDelay(events,speed)+lastHit*Math.round(78/rate)+Math.round(700/rate);
+ return (counterattackDelay(events,speed)||attackWindup(speed))+lastHit*Math.round(78/rate)+Math.round(700/rate);
+}
+
+export const attackWindup=(speed:number)=>Math.round(120/battleVisualRate(speed));
+
+export function recoilFrames(target:'player'|'monster',critical:boolean,speed:number,reducedMotion=false){
+ const hold=criticalVisualHold(critical,speed,reducedMotion),motion=Math.round((critical?280:190)/battleVisualRate(speed)),duration=motion+hold;
+ const push=(target==='player'?-1:1)*(critical?12:7);
+ const rest={transform:'translate(0,0) scale(1)',filter:'brightness(1)'};
+ return {duration,frames:reducedMotion?[]:[
+  {...rest,filter:'brightness(2.2) saturate(.45)'},
+  {...rest,filter:'brightness(2.2) saturate(.45)',offset:hold/duration},
+  {transform:`translate(${push}px,-2px) scale(.97,1.025)`,filter:'brightness(1.6)',offset:(hold+motion*.22)/duration},
+  {transform:`translate(${push*.45}px,0) scale(1.015,.99)`,filter:'brightness(1.12)',offset:(hold+motion*.65)/duration},
+  rest,
+ ]};
 }

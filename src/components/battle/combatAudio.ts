@@ -27,7 +27,7 @@ export function unlockCombatAudio(){
 export function stopCombatAudio(){for(const voice of voices)voice.stop();voices.clear();}
 
 /** Short deterministic synthesis: no download, network, or gameplay state mutation. */
-export function playCombatImpact(weapon:Weapon,critical:boolean,guard:boolean){
+export function playCombatImpact(weapon:Weapon,critical:boolean,guard:boolean,finishing=false){
  const ctx=context;
  if(!enabled||!ctx||ctx.state!=='running')return;
  try{
@@ -39,16 +39,16 @@ export function playCombatImpact(weapon:Weapon,critical:boolean,guard:boolean){
    for(let i=0;i<data.length;i++){seed=(Math.imul(seed,1664525)+1013904223)|0;data[i]=(seed>>>0)/2147483648-1;}
    noiseBuffers.set(ctx,buffer);
   }
-  const now=ctx.currentTime,life=critical?.19:guard?.12:.09;
+  const now=ctx.currentTime,life=finishing?.24:critical?.19:guard?.12:.09;
   const noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain(),tone=ctx.createOscillator(),body=ctx.createGain();
   noise.buffer=buffer;filter.type=guard?'highpass':'bandpass';
   filter.frequency.value=guard?2600:weapon==='bow'?1800:weapon==='staff'?900:1100;
   filter.Q.value=guard?1:weapon==='staff'?3:.7;
-  gain.gain.setValueAtTime(.001,now);gain.gain.linearRampToValueAtTime(critical?.19:.1,now+.003);gain.gain.exponentialRampToValueAtTime(.001,now+life);
+  gain.gain.setValueAtTime(.001,now);gain.gain.linearRampToValueAtTime(finishing?.2:critical?.19:.1,now+.003);gain.gain.exponentialRampToValueAtTime(.001,now+life);
   tone.type=guard?'triangle':weapon==='staff'?'sine':'triangle';
-  tone.frequency.setValueAtTime(guard?1300:weapon==='staff'?440:critical?125:190,now);
+  tone.frequency.setValueAtTime(guard?1300:weapon==='staff'?440:finishing?95:critical?125:190,now);
   tone.frequency.exponentialRampToValueAtTime(guard?700:weapon==='staff'?160:65,now+life);
-  body.gain.setValueAtTime(critical?.09:.035,now);body.gain.exponentialRampToValueAtTime(.001,now+life);
+  body.gain.setValueAtTime(finishing?.12:critical?.09:.035,now);body.gain.exponentialRampToValueAtTime(.001,now+life);
   noise.connect(filter);filter.connect(gain);gain.connect(ctx.destination);tone.connect(body);body.connect(ctx.destination);
   let stopped=false;
   const voice={stop:()=>{if(stopped)return;stopped=true;try{noise.stop();tone.stop();}catch{}noise.disconnect();filter.disconnect();gain.disconnect();tone.disconnect();body.disconnect();voices.delete(voice);}};

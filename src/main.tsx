@@ -338,7 +338,7 @@ function App(){
    const retaliationDelay=playerRecoveryDelay((candidate.combatEvents??[]).filter(event=>event.id>(stateRef.current.combatEvents?.at(-1)?.id??0)),loadPrefs().speed);
    stateRef.current=candidate;setStorageError('');flushSync(()=>setGame(candidate));
    if(retaliationDelay)await new Promise<void>(resolve=>window.setTimeout(resolve,retaliationDelay));
-   const showImpact=()=>new Promise<void>(resolve=>window.setTimeout(resolve,260));
+   const showImpact=()=>new Promise<void>(resolve=>window.setTimeout(resolve,500));
    if(result.returnAuthorized){await showImpact();await settleOnlineRun('returned');return;}
    if(result.phase==='PLAYER_DEAD'&&!result.pendingRevival){await showImpact();await settleOnlineRun('dead');return;}
    if(kind!=='FLEE'&&result.phase==='DEFEATED'){await showImpact();const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}

@@ -3060,23 +3060,24 @@ html,body,#root{
 /* v0.1.86 — BATTLE CANVAS VFX / hit feedback + anticipation + mobile budget */
 .tc-battle .battle-scene{isolation:isolate}
 .tc-battle-vfx-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;display:block;contain:strict}
-.tc-battle .player-placement.tc-combat-player-basic{animation:tcBattlePlayerBasic .17s cubic-bezier(.2,.78,.2,1)}
-.tc-battle .player-placement.tc-combat-player-skill{animation:tcBattlePlayerSkill .24s cubic-bezier(.16,.78,.2,1)}
-.tc-battle .monster-placement.tc-combat-monster-attack{animation:tcBattleMonsterAttack .18s cubic-bezier(.2,.78,.2,1)}
+.tc-battle .player-placement.tc-combat-player-basic{animation:tcBattlePlayerBasic var(--action-duration,.32s) cubic-bezier(.2,.78,.2,1)}
+.tc-battle .player-placement.tc-combat-player-skill{animation:tcBattlePlayerSkill var(--action-duration,.32s) cubic-bezier(.16,.78,.2,1)}
+.tc-battle .monster-placement.tc-combat-monster-attack{animation:tcBattleMonsterAttack var(--action-duration,.32s) cubic-bezier(.2,.78,.2,1)}
 @keyframes tcBattlePlayerBasic{
  0%,100%{transform:translate(-50%,-50%)}
- 22%{transform:translate(calc(-50% - 3px),calc(-50% + 2px))}
- 58%{transform:translate(calc(-50% + 13px),calc(-50% - 8px))}
+ 30%{transform:translate(calc(-50% - 5px),calc(-50% + 3px)) scale(.985)}
+ 38%{transform:translate(calc(-50% + 14px),calc(-50% - 8px)) scale(1.015)}
+ 60%{transform:translate(calc(-50% + 8px),calc(-50% - 4px))}
 }
 @keyframes tcBattlePlayerSkill{
  0%,100%{transform:translate(-50%,-50%)}
- 28%{transform:translate(calc(-50% - 5px),calc(-50% + 3px)) scale(.985)}
- 66%{transform:translate(calc(-50% + 10px),calc(-50% - 7px)) scale(1.02)}
+ 30%{transform:translate(calc(-50% - 5px),calc(-50% + 3px)) scale(.985)}
+ 38%{transform:translate(calc(-50% + 10px),calc(-50% - 7px)) scale(1.02)}
 }
 @keyframes tcBattleMonsterAttack{
  0%,100%{transform:translate(-50%,-50%)}
- 28%{transform:translate(calc(-50% + 3px),calc(-50% - 2px))}
- 62%{transform:translate(calc(-50% - 11px),calc(-50% + 8px))}
+ 30%{transform:translate(calc(-50% + 5px),calc(-50% - 2px))}
+ 38%{transform:translate(calc(-50% - 11px),calc(-50% + 8px))}
 }
 .tc-battle .fighter-hud .hp>div{transition:width .16s cubic-bezier(.2,.75,.2,1)}
 .tc-battle .floating-number{font-variant-numeric:tabular-nums;letter-spacing:-.03em}
@@ -3235,3 +3236,14 @@ html,body,#root{
  .tc-reg-mini-job-art{width:22px;height:23px}
 }
 
+
+/* Damage trails stay inside the HP track; only large impacts receive a finish accent. */
+.tc-battle .fighter-hud .hp{position:relative!important}
+.tc-battle .fighter-hud .hp>div{position:relative;z-index:1;transition:width .06s ease-out}
+.tc-battle .fighter-hud .hp>.tc-hp-loss{display:block;position:absolute;left:1px;top:1px;bottom:1px;max-width:calc(100% - 2px);border-radius:5px;background:#bfa36a;transition:width .32s ease-out .16s;pointer-events:none}
+.tc-monster-defeated .monster-figure{animation:tcMonsterDefeat .32s ease-out forwards}
+@keyframes tcMonsterDefeat{0%{opacity:1;filter:brightness(1.6)}35%{opacity:.85;filter:brightness(1)}100%{opacity:0;filter:brightness(.6)}}
+@media(prefers-reduced-motion:reduce){
+ .tc-battle .fighter-hud .hp>.tc-hp-loss{transition:none}
+ .tc-monster-defeated .monster-figure{animation:none;opacity:.45}
+}

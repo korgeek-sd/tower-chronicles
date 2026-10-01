@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {CombatEvent,Expedition,Weapon} from '../../game/types';
 import {assetUrl,graphicFor,playerGraphicFor,playerGraphicForJob,SCENE_CONFIG} from '../../game/data/graphics';
 import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} from './presentation';
-import {counterattackDelay,criticalVisualHold} from './battleVfxTimeline';
+import {attackWindup,counterattackDelay,recoilFrames} from './battleVfxTimeline';
 import {playCombatImpact,stopCombatAudio} from './combatAudio';
 import {BattleVfxCanvas,type BattleVfxHandle} from './BattleVfxCanvas';
 
@@ -50,11 +50,18 @@ export function FloatingLayer({events}:{events:Floating[]}){
 
 function StatusPips({count}:{count:number}){return <div className="tc-hud-pips" aria-hidden="true">{[0,1,2,3].map(i=><i key={i} className={i<count?'active':''}/>)}</div>;}
 
+function HpTrack({percent,enemy=false,name,current,max}:{percent:number;enemy?:boolean;name:string;current:number;max:number}){
+ return <div className={'hp'+(enemy?' enemy':'')} role="progressbar" aria-label={name+' HP'} aria-valuenow={Math.max(0,current)} aria-valuemin={0} aria-valuemax={max}>
+  <i className="tc-hp-loss" style={{width:percent+'%'}}/>
+  <div style={{width:percent+'%'}}/>
+ </div>;
+}
+
 function CombatHud({expedition,playerMaxHp,titleName}:{expedition:Expedition;playerMaxHp:number;titleName?:string}){
  const monster=monsterHud(expedition.monster),playerPercent=Math.max(0,Math.min(100,expedition.hp/playerMaxHp*100)),playerPips=Math.min(4,expedition.playerEffects.length+(expedition.reactivePrepared.player?1:0)),monsterPips=Math.min(4,expedition.monsterEffects.length+(expedition.reactivePrepared.monster?1:0));
  return <div className="combat-hud">
-  <div className="fighter-hud monster-hud"><strong>{monster.name}</strong><span>{Math.ceil(monster.current)} / {monster.max}</span><div className="hp enemy" role="progressbar" aria-label={monster.name+' HP'} aria-valuenow={monster.current} aria-valuemin={0} aria-valuemax={monster.max}><div style={{width:monster.percent+'%'}}/></div><StatusPips count={monsterPips}/><small className="tc-hud-level">Lv {expedition.floor}</small></div>
-  <div className="fighter-hud player-hud"><strong>{titleName&&<small className="title-tag">「{titleName}」</small>}모험가</strong><span>{Math.ceil(expedition.hp)} / {playerMaxHp}</span><div className="hp" role="progressbar" aria-label="플레이어 HP" aria-valuenow={Math.max(0,expedition.hp)} aria-valuemin={0} aria-valuemax={playerMaxHp}><div style={{width:playerPercent+'%'}}/></div><StatusPips count={playerPips}/><small className="tc-hud-level">Lv {expedition.playerTurn}</small></div>
+  <div className="fighter-hud monster-hud"><strong>{monster.name}</strong><span>{Math.ceil(monster.current)} / {monster.max}</span><HpTrack percent={monster.percent} enemy name={monster.name} current={monster.current} max={monster.max}/><StatusPips count={monsterPips}/><small className="tc-hud-level">Lv {expedition.floor}</small></div>
+  <div className="fighter-hud player-hud"><strong>{titleName&&<small className="title-tag">「{titleName}」</small>}모험가</strong><span>{Math.ceil(expedition.hp)} / {playerMaxHp}</span><HpTrack percent={playerPercent} name="플레이어" current={expedition.hp} max={playerMaxHp}/><StatusPips count={playerPips}/><small className="tc-hud-level">Lv {expedition.playerTurn}</small></div>
  </div>;
 }
 
@@ -63,7 +70,8 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
  const stageRef=useRef<HTMLDivElement|null>(null),playerAnchor=useRef<HTMLDivElement|null>(null),monsterAnchor=useRef<HTMLDivElement|null>(null),vfxRef=useRef<BattleVfxHandle|null>(null);
  const hitAnimations=useRef<{player:Animation|null;monster:Animation|null}>({player:null,monster:null});
  const [monsterImpact,setMonsterImpact]=useState<Impact>(null),[playerImpact,setPlayerImpact]=useState<Impact>(null),[events,setEvents]=useState<Floating[]>([]);
- const [displayHp,setDisplayHp]=useState(expedition.hp);
+ const [displayHp,setDisplayHp]=useState(expedition.hp),[displayMonsterHp,setDisplayMonsterHp]=useState(expedition.monster.currentHp);
+ const [monsterDefeated,setMonsterDefeated]=useState(false);
  const [playerMotion,setPlayerMotion]=useState<Motion>(null),[monsterMotion,setMonsterMotion]=useState<Motion>(null);
 
  const schedule=(fn:()=>void,ms:number)=>{
@@ -77,19 +85,8 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   const figure=placement?.querySelector<HTMLElement>(target==='player'?'.player-figure':'.monster-figure');
   if(!figure?.animate)return;
   hitAnimations.current[target]?.cancel();
-  const rate=Math.min(2,Math.max(.75,speed||1)),amp=critical?7:4;
-  const hold=criticalVisualHold(critical,speed,false);
-  const motionDuration=Math.max(critical?170:125,Math.round((critical?240:170)/rate)),duration=motionDuration+hold;
-  const direction=target==='player'?-1:1;
-  hitAnimations.current[target]=figure.animate([
-   {transform:'translate(0,0) scale(1)',filter:'brightness(3.5) saturate(.25)'},
-   {transform:'translate(0,0) scale(1)',filter:'brightness(3.5) saturate(.25)',offset:hold/duration},
-   {transform:'translate('+(direction*amp)+'px,-2px) scale(.99)',filter:'brightness(3.5) saturate(.25)',offset:(hold+motionDuration*.16)/duration},
-   {transform:'translate('+(-direction*amp*.78)+'px,1px) scale(1.01)',filter:'brightness(1.35)',offset:(hold+motionDuration*.36)/duration},
-   {transform:'translate('+(direction*amp*.48)+'px,-1px) scale(1)',filter:'brightness(1.18)',offset:(hold+motionDuration*.58)/duration},
-   {transform:'translate('+(-direction*amp*.22)+'px,0) scale(1)',filter:'brightness(1.06)',offset:(hold+motionDuration*.78)/duration},
-   {transform:'translate(0,0) scale(1)',filter:'brightness(1)'}
-  ],{duration,easing:'cubic-bezier(.18,.76,.2,1)'});
+  const recoil=recoilFrames(target,critical,speed);
+  hitAnimations.current[target]=figure.animate(recoil.frames,{duration:recoil.duration,easing:'cubic-bezier(.18,.76,.2,1)'});
  };
 
  const damagePoint=(target:'player'|'monster',lane=0)=>{
@@ -113,17 +110,23 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
 
  useEffect(()=>{
   if(!actionCue)return;
-  const rate=Math.min(2,Math.max(.75,speed||1)),duration=Math.round((actionCue.kind==='skill'?240:170)/rate);
-  setPlayerMotion(actionCue.kind);
   vfxRef.current?.cuePlayerAction(actionCue.kind,speed);
-  schedule(()=>setPlayerMotion(null),duration);
  },[actionCue?.id,speed]);
 
  useEffect(()=>{
   const before=previous.current,monsterDamage=damageBetween(before,expedition),playerEvent=playerVitalBetween(before,expedition),direct=combatEvents.filter(event=>event.id>previousEventId.current);
   previous.current=expedition;previousEventId.current=combatEvents.at(-1)?.id??previousEventId.current;
   const rate=Math.min(2,Math.max(.75,speed||1)),hitMs=Math.round(SCENE_CONFIG.hitDurationMs/rate),dmgMs=Math.round(SCENE_CONFIG.damageDurationMs/rate),hitGap=Math.round(78/rate);
-  const retaliationDelay=counterattackDelay(direct,speed);
+  const windup=attackWindup(speed),hasPlayerHit=direct.some(e=>e.attacker==='player'),hasMonsterHit=direct.some(e=>e.attacker==='monster');
+  const lastPlayerHit=windup+Math.max(0,...direct.filter(e=>e.attacker==='player').map(e=>e.hitIndex-1))*hitGap;
+  const retaliationDelay=hasMonsterHit?(counterattackDelay(direct,speed)||windup):0;
+  if(hasPlayerHit){
+   setDisplayMonsterHp(expedition.monster.currentHp+direct.filter(e=>e.attacker==='player'&&e.target==='monster').reduce((sum,e)=>sum+e.hpDamage,0));
+   schedule(()=>setDisplayMonsterHp(expedition.monster.currentHp),lastPlayerHit);
+   setPlayerMotion(actionCue?.kind??'basic');
+   schedule(()=>setPlayerMotion(null),Math.round(320/rate));
+  }else setDisplayMonsterHp(expedition.monster.currentHp);
+  if(expedition.monster.currentHp<=0&&before.monster.currentHp>0)schedule(()=>setMonsterDefeated(true),hasPlayerHit?lastPlayerHit:0);
   if(retaliationDelay){
    setDisplayHp(expedition.hp+direct.filter(e=>e.attacker==='monster'&&e.target==='player').reduce((sum,e)=>sum+e.hpDamage,0));
    schedule(()=>setDisplayHp(expedition.hp),retaliationDelay);
@@ -131,10 +134,10 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   let touchedMonster=false,touchedPlayer=false,monsterCritical=false,playerCritical=false;
 
   for(const event of direct){
-   const delay=(event.attacker==='monster'?retaliationDelay:0)+(event.hitCount>1?Math.max(0,event.hitIndex-1)*hitGap:0),hit=event.hitCount>1?event.hitIndex+'타':undefined,lane=(event.hitIndex-1)%3;
+   const delay=(event.attacker==='monster'?retaliationDelay:windup)+(event.hitCount>1?Math.max(0,event.hitIndex-1)*hitGap:0),hit=event.hitCount>1?event.hitIndex+'타':undefined,lane=(event.hitIndex-1)%3;
    schedule(()=>{
     vfxRef.current?.playEvent(event,speed);
-    if(event.hpDamage>0||event.absorbedByShield>0)playCombatImpact(event.attacker==='player'?(weapon??'sword'):'sword',event.critical,event.hpDamage===0);
+    if(event.hpDamage>0||event.absorbedByShield>0)playCombatImpact(event.attacker==='player'?(weapon??'sword'):'sword',event.critical,event.hpDamage===0,event.target==='monster'&&expedition.monster.currentHp<=0&&event.hitIndex===event.hitCount);
     if(event.hpDamage>0)shakeTarget(event.target,event.critical);
    },delay);
    if(event.absorbedByShield>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-shield-float':'player-shield-float',target:event.target,amount:event.absorbedByShield,critical:event.critical&&event.hpDamage===0,hit,lane},delay,dmgMs);
@@ -159,27 +162,27 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   }
   if(expedition.hp<=0&&before.hp>0)schedule(()=>vfxRef.current?.playDeath(speed),retaliationDelay);
 
-  if(touchedMonster)setMonsterImpact(monsterCritical?'critical':'normal');
+  if(touchedMonster)schedule(()=>setMonsterImpact(monsterCritical?'critical':'normal'),hasPlayerHit?windup:0);
   if(touchedPlayer)schedule(()=>setPlayerImpact(playerCritical?'critical':'normal'),retaliationDelay);
   if(direct.some(event=>event.attacker==='monster')){
-   schedule(()=>setMonsterMotion('monster'),retaliationDelay);
-   schedule(()=>setMonsterMotion(null),retaliationDelay+Math.round(180/rate));
+   schedule(()=>setMonsterMotion('monster'),Math.max(0,retaliationDelay-windup));
+   schedule(()=>setMonsterMotion(null),Math.max(0,retaliationDelay-windup)+Math.round(320/rate));
   }
 
   const pulse=seq.current;
-  if(touchedMonster)schedule(()=>{if(seq.current===pulse)setMonsterImpact(null);},hitMs+Math.max(0,...direct.filter(e=>e.target==='monster').map(e=>e.hitIndex-1))*hitGap);
+  if(touchedMonster)schedule(()=>{if(seq.current===pulse)setMonsterImpact(null);},(hasPlayerHit?windup:0)+hitMs+Math.max(0,...direct.filter(e=>e.target==='monster').map(e=>e.hitIndex-1))*hitGap);
   if(touchedPlayer)schedule(()=>{if(seq.current===pulse)setPlayerImpact(null);},retaliationDelay+hitMs+Math.max(0,...direct.filter(e=>e.target==='player').map(e=>e.hitIndex-1))*hitGap);
  },[expedition,combatEvents,speed,showDamage]);
  useEffect(()=>()=>{timers.current.forEach(clearTimeout);hitAnimations.current.player?.cancel();hitAnimations.current.monster?.cancel();vfxRef.current?.cancel();stopCombatAudio();},[]);
 
  return <>
-  <div ref={stageRef} className={'combat-stage '+(expedition.spawnAt?'defeated':'')}>
+  <div ref={stageRef} className={'combat-stage'+(monsterDefeated?' tc-monster-defeated':'')} style={{'--action-duration':Math.round(320/Math.min(2,Math.max(.75,speed||1)))+'ms'} as React.CSSProperties}>
    <PlayerLayer impact={playerImpact} motion={playerMotion} jobId={expedition.jobSnapshotId} appearanceId={appearanceId} anchorRef={playerAnchor}/>
    <MonsterLayer expedition={expedition} impact={monsterImpact} motion={monsterMotion} anchorRef={monsterAnchor}/>
    <FloatingLayer events={events}/>
   </div>
   <BattleVfxCanvas ref={vfxRef} playerRef={playerAnchor} monsterRef={monsterAnchor} weapon={weapon}/>
-  <CombatHud expedition={{...expedition,hp:displayHp}} playerMaxHp={playerMaxHp} titleName={titleName}/>
+  <CombatHud expedition={{...expedition,hp:displayHp,monster:{...expedition.monster,currentHp:displayMonsterHp}}} playerMaxHp={playerMaxHp} titleName={titleName}/>
  </>;
 }
 

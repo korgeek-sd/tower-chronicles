@@ -17,9 +17,9 @@ test('BATTLE HIT FIX 0.1.88 01: damage pop position is measured from the real ac
 
 test('BATTLE HIT FIX 0.1.88 02: each HP hit restarts a visible actor-level shake',()=>{
  assert.match(scene,/hitAnimations\.current\[target\]\?\.cancel\(\)/);
- assert.match(scene,/amp=critical\?7:4/);
+ assert.match(scene,/recoilFrames\(target,critical,speed\)/);
  assert.match(scene,/figure\.animate\(/);
- assert.match(scene,/brightness\(3\.5\)/);
+ assert.match(scene,/duration:recoil\.duration/);
  assert.match(scene,/if\(event\.hpDamage>0\)shakeTarget\(event\.target,event\.critical\)/);
 });
 
