@@ -12,4 +12,6 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  relic_collector:'assets/characters/jobs/relic_collector.webp',
  monster_dismantler:'assets/characters/jobs/monster_dismantler.webp',
  expedition_archivist:'assets/characters/jobs/expedition_archivist.webp',
+ expedition_tactician:'assets/characters/jobs/expedition_tactician.webp',
+ ascetic_priest:'assets/characters/jobs/ascetic_priest.webp',
 };
