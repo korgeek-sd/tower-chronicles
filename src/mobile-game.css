@@ -3247,3 +3247,16 @@ html,body,#root{
  .tc-battle .fighter-hud .hp>.tc-hp-loss{transition:none}
  .tc-monster-defeated .monster-figure{animation:none;opacity:.45}
 }
+
+.tc-nickname-gate{min-height:100dvh;display:grid;place-items:center;padding:20px;background:#10120f;color:#d9d2c0;font-family:inherit}
+.tc-nickname-gate>section{width:min(100%,380px);padding:28px 22px;border:1px solid #61533b;background:#191b16;box-shadow:0 10px 40px #0005}
+.tc-nickname-gate h1{font-size:22px;margin:16px 0 24px;line-height:1.45}
+.tc-nickname-gate p{font-size:14px;line-height:1.6}
+.tc-nickname-gate small{display:block;font-size:11px;color:#b5aa92;line-height:1.7}
+.tc-nickname-gate label{display:block;margin:22px 0 8px;font-size:13px}
+.tc-nickname-gate input{width:100%;box-sizing:border-box;min-height:48px;padding:10px 12px;margin-bottom:10px;background:#0b0e0a;color:#eee6d5;border:1px solid #8d7956;border-radius:2px;font-size:18px}
+.tc-nickname-gate input:focus{outline:2px solid #c5a46b;outline-offset:2px}
+.tc-nickname-gate button{width:100%;min-height:46px;padding:10px;border:1px solid #b59a65;background:#806439;color:#fff4dd;font-size:14px}
+.tc-nickname-gate button:disabled{opacity:.5}
+.tc-nickname-gate #nickname-error{min-height:24px;color:#ecb3a4;font-size:12px}
+.tc-nickname-gate .tc-nickname-logout{margin-top:14px;background:transparent;border-color:#514c3f;color:#bcb39e}

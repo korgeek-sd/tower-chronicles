@@ -1,0 +1,9 @@
+# Player nickname onboarding
+
+Google login is followed by a server profile lookup. Accounts without a nickname see the registration screen before acquiring a gameplay lease. Existing accounts keep their saves and choose their nickname on the next login. Guest play remains available. Load failures offer retry and logout rather than treating an unknown profile as absent.
+
+`public.game_player_profiles` is independent of game-save JSON. It contains stable `user_id` (the auth user ID), a visible nickname, a generated lowercase uniqueness key, and creation time. Only the public user ID and nickname are readable by signed-in permanent users. Clients can insert their own ID/nickname once; update/delete and generated-key writes are not granted. The database enforces ownership, NFC spelling, Korean syllables/ASCII letters/digits, length 2–12 and reserved administrative names. A unique index decides concurrent nickname collisions; another device completing the same account is recovered by reloading its existing profile.
+
+The home dossier shows the account nickname. Future chat should use authenticated user IDs for sender identity and resolve nicknames from this table; it must never trust a nickname supplied in a message payload. Message persistence, channel access, spam limits, moderation and reporting are separate future work.
+
+Verification: `npm test`, `npm run build`, and `supabase/tests/player_nicknames.sql`. The SQL test uses two existing accounts without profiles and rolls back every test insert. It verifies own-account registration/read, rejection of foreign-account registration, case-insensitive duplicate names, immutable names, reserved/invalid names and anonymous access. It must not be run inside an existing transaction. Security advisors were checked for this new table.

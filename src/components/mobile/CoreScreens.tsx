@@ -14,7 +14,7 @@ import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catal
 
 export type AppPage='home'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
-export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
+export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
  const highestReturn=Math.max(...towerIds.map(t=>game.exploration.highestReturned[t]));
  const loot=game.expedition?.loot??game.lastExpedition?.loot,lootSummary=loot?lootTotals(loot):{materials:0,tickets:0,skillBooks:0,equipment:0},routeKills=game.expedition?.kills??game.lastExpedition?.kills??0;
@@ -37,7 +37,7 @@ export function HomeScreen({game,onMove,onOpenJobs}:{game:GameState;onMove:(p:Ap
     <header className="tc-camp-dossier-title"><Glyph name="association"/><b>모험가 기록</b><small>{game.expedition?'EXPEDITION':'NOVAR DOSSIER'}</small></header>
     <div className="tc-camp-profile">
      <div className={'tc-camp-crest'+(job?.visualAssetKey?' has-job-art':'')} aria-hidden="true">{job?.visualAssetKey?<img src={assetUrl(job.visualAssetKey)} alt=""/>:<><span/><Glyph name={weaponId}/></>}</div>
-     <div className="tc-camp-identity"><small>{job?'현재 직능':'직능 미선택'}{job&&<span>{job.rarity}</span>}</small><h2>{job?.displayName??'모험가'}</h2><p>{weapon.description}</p></div>
+     <div className="tc-camp-identity"><small>{job?(nickname?job.displayName:'현재 직능'):'직능 미선택'}{job&&<span>{job.rarity}</span>}</small><h2>{nickname??job?.displayName??'모험가'}</h2><p>{weapon.description}</p></div>
      <button className="tc-camp-weapon tc-feel-press" data-game-feel="press" onClick={()=>onMove('inventory')}><small>장착 무기</small><span className="tc-camp-weapon-icon"><Glyph name={weaponId}/></span><b>{equippedWeapon?itemName(equippedWeapon):'미장착'}</b><em>장비 확인 ›</em></button>
     </div>
     <dl className="tc-camp-stats"><div><dt>최대 체력</dt><dd>{Math.round(st.hp)}</dd></div><div><dt>공격</dt><dd>{Math.round(st.attack)}</dd></div><div><dt>방어</dt><dd>{Math.round(st.defense)}</dd></div><div><dt>공격속도</dt><dd>{st.speed.toFixed(2)}</dd></div></dl>

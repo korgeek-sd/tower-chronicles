@@ -10,6 +10,8 @@ import {basicAttack,useBattleSkill,useBattlePotion,flee,resolveMonsterTurn,resol
 import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
 import {playerRecoveryDelay} from './components/battle/battleVfxTimeline';
+import {NicknameGate} from './components/NicknameGate';
+import {loadPlayerProfile,registerPlayerNickname,type PlayerProfile} from './online/playerProfiles';
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
 import {consumeOAuthRedirect,getStoredSession,signOutOnline,type OnlineSession} from './online/auth';
@@ -80,6 +82,10 @@ function App(){
  const wasExpedition=useRef(!!game.expedition);
  const [saved,setSaved]=useState('');
  const [onlineSession,setOnlineSession]=useState<OnlineSession|null>(()=>getStoredSession());
+ const [profileState,setProfileState]=useState<{userId:string;status:'loading'|'missing'|'ready'|'error';profile:PlayerProfile|null;error:string}>({userId:'',status:'loading',profile:null,error:''});
+ const [profileRetry,setProfileRetry]=useState(0);
+ const profileReady=!onlineSession||(profileState.userId===onlineSession.userId&&profileState.status==='ready');
+ const playerNickname=profileState.userId===onlineSession?.userId?profileState.profile?.nickname:undefined;
  const [cloudSyncStatus,setCloudSyncStatus]=useState<CloudSyncStatus>(onlineSession?'syncing':'local');
  const [cloudRevision,setCloudRevision]=useState<number|null>(null);
  const [cloudSyncMessage,setCloudSyncMessage]=useState(onlineSession?'클라우드 상태 확인 중':'게스트 저장');
@@ -93,7 +99,7 @@ function App(){
  const [gameSessionMessage,setGameSessionMessage]=useState(onlineSession?'계정의 플레이 권한을 확인하고 있습니다.':'');
  const gameplayLeaseRef=useRef<GameplayLease|null>(null),gameSessionPhaseRef=useRef<GameSessionPhase>(initialGate),handoffBusy=useRef(false),takeoverTimer=useRef<number|null>(null);
  gameplayLeaseRef.current=gameplayLease;gameSessionPhaseRef.current=gameSessionPhase;
- const gameplayWritable=!onlineSession||gameSessionPhase==='active';
+ const gameplayWritable=profileReady&&(!onlineSession||gameSessionPhase==='active');
  async function refreshStrongholdPvp(){
   const lease=gameplayLeaseRef.current,e=stateRef.current.expedition;
   if(!lease||gameSessionPhaseRef.current!=='active'||!e){setStrongholdPvp(null);return;}
@@ -198,11 +204,19 @@ function App(){
   return()=>{if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}};
  },[game,onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
  useEffect(()=>{
+  if(!onlineSession){setProfileState({userId:'',status:'loading',profile:null,error:''});return;}
+  let cancelled=false;const userId=onlineSession.userId;
+  setProfileState({userId,status:'loading',profile:null,error:''});
+  void loadPlayerProfile().then(profile=>{if(!cancelled)setProfileState({userId,status:profile?'ready':'missing',profile,error:''});}).catch(error=>{if(!cancelled)setProfileState({userId,status:'error',profile:null,error:error instanceof Error?error.message:'닉네임을 확인하지 못했습니다.'});});
+  return()=>{cancelled=true;};
+ },[onlineSession?.userId,profileRetry]);
+ useEffect(()=>{
   if(!onlineSession){gameplayLeaseRef.current=null;setGameplayLease(null);setGameSessionPhase('guest');setGameSessionPlatform(null);setGameSessionHeartbeat(null);return;}
+  if(!profileReady)return;
   let cancelled=false;
   void (async()=>{setGameSessionPhase('acquiring');setGameSessionMessage('계정의 플레이 권한을 확인하고 있습니다.');try{const result=await acquireGameSession();if(!cancelled)applyGameSessionResult(result);}catch(error){if(!cancelled){setGameSessionPhase('error');setGameSessionMessage(error instanceof Error?error.message:'플레이 세션을 확인하지 못했습니다.');}}})();
   return()=>{cancelled=true;};
- },[onlineSession?.userId]);
+ },[onlineSession?.userId,profileReady]);
 
  useEffect(()=>{
   if(!onlineSession)return;
@@ -363,6 +377,7 @@ function App(){
  async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);await signOutOnline();setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
+ if(onlineSession&&!profileReady)return <NicknameGate key={onlineSession.userId} status={profileState.userId===onlineSession.userId&&profileState.status!=='ready'?profileState.status:'loading'} error={profileState.error} onRegister={registerPlayerNickname} onReady={profile=>{if(profile.userId===getStoredSession()?.userId)setProfileState({userId:profile.userId,status:'ready',profile,error:''});}} onRetry={()=>setProfileRetry(n=>n+1)} onLogout={()=>void logoutOnline()}/>;
  return <div className={shellClass}>
   {!immersive&&<><header className="tc-topbar">
    <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
@@ -371,7 +386,7 @@ function App(){
   <main className="tc-main">
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
-   {page==='home'&&<HomeScreen game={game} onMove={move} onOpenJobs={openJobs}/>}
+   {page==='home'&&<HomeScreen nickname={playerNickname} game={game} onMove={move} onOpenJobs={openJobs}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
    {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;{const candidate=reconcileOnlineCombatState(stateRef.current,combat);stateRef.current=candidate;setGame(candidate);setStorageError('');setPage('battle');}}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
    {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&strongholdPanelOpen&&<ResourceStrongholdPanel
