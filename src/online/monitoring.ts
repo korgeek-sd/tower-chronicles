@@ -1,7 +1,7 @@
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
 
-export type WebsocketKind='session'|'market';
+export type WebsocketKind='session'|'market'|'chat';
 export type MonitorSeverity='NORMAL'|'WARNING'|'CRITICAL';
 
 export interface MonitorSnapshot {
