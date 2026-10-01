@@ -1,3 +1,4 @@
+import {loadSettings,reducedMotion} from '../../settings/preferences';
 import React,{useEffect,useRef,useState} from 'react';
 import type {CombatEvent,Expedition,Weapon} from '../../game/types';
 import {assetUrl,graphicFor,playerGraphicFor,playerGraphicForJob,SCENE_CONFIG} from '../../game/data/graphics';
@@ -80,7 +81,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
  };
 
  const shakeTarget=(target:'player'|'monster',critical:boolean)=>{
-  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+  if(!loadSettings().shake||reducedMotion())return;
   const placement=target==='player'?playerAnchor.current:monsterAnchor.current;
   const figure=placement?.querySelector<HTMLElement>(target==='player'?'.player-figure':'.monster-figure');
   if(!figure?.animate)return;

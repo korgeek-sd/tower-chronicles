@@ -1,3 +1,4 @@
+import {SaveManagement} from './components/SaveManagement';
 import React,{useEffect,useRef,useState} from 'react';
 import {WorldChat} from './components/WorldChat';
 import {createRoot} from 'react-dom/client';
@@ -36,7 +37,9 @@ import {SealScreen} from './components/seal/SealScreen';
 import {AssociationScreen} from './components/association/AssociationScreen';
 import {OccupationScreen} from './components/occupation/OccupationScreen';
 import {JobsScreen,type JobTab} from './components/JobsScreen';
-import {SaveManagement} from './components/SaveManagement';
+import {SettingsDialog} from './components/SettingsDialog';
+import {applySettings} from './settings/preferences';
+applySettings();
 import {GameSessionGate} from './components/GameSessionGate';
 import {BestiaryScreen} from './components/bestiary/BestiaryScreen';
 import {EnhancementScreen} from './components/enhancement/EnhancementScreen';
@@ -71,6 +74,7 @@ function App(){
  useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id);},[]);
  const blocked=useRef(false);
  const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
+ const [settingsOpen,setSettingsOpen]=useState(false);
  const [page,setPage]=useState<AppPage>(game.expedition||game.lastExpedition?'battle':'home');
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
  const [marketIntent,setMarketIntent]=useState<MarketIntent|null>(null);
@@ -383,11 +387,13 @@ function App(){
   {!immersive&&<><header className="tc-topbar">
    <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
    <div className="tc-wallet"><span className="tc-coin"><i/><b>{game.silver.toLocaleString()}</b><small>Silver</small></span><span className="tc-coin gold"><i/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></span></div>
+   <button className="tc-settings-open" aria-label="설정 열기" onClick={()=>setSettingsOpen(true)}>⚙</button>
   </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
+  {immersive&&<button className="tc-settings-open tc-settings-floating" aria-label="설정 열기" onClick={()=>setSettingsOpen(true)}>⚙</button>}
   <main className="tc-main">
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
-   {page==='home'&&<HomeScreen nickname={playerNickname} game={game} onMove={move} onOpenJobs={openJobs}/>}
+   {(page==='home'||page==='settings')&&<HomeScreen nickname={playerNickname} game={game} onMove={move} onOpenJobs={openJobs}/>}
    {page==='towers'&&<TowersScreen game={game} onSelect={t=>{setTower(t);setFloor(1);setPage('floor');}}/>}
    {page==='floor'&&<FloorScreen game={game} setGame={setGame} tower={tower} floor={floor} setFloor={setFloor} onBack={()=>setPage('towers')} onEnter={()=>{void (async()=>{const current=stateRef.current,next=enter(current,tower,floor);if(!next.expedition){setGame(next);return;}const lease=gameplayLeaseRef.current;if(onlineSession&&gameSessionPhaseRef.current==='active'&&lease){try{const record=await startOnlineExpedition(lease,tower,floor,next);confirmedKillCount.current=0;onlineRunVersion.current=0;onlineCombatNonce.current=0;createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setCloudRevision(record.revision);setCloudSyncStatus('synced');setCloudSyncMessage('입장권과 원정 시작을 서버에 기록했습니다.');setGame(record.payload);const combat=await beginOnlineCombatState(lease);onlineCombatNonce.current=combat.actionNonce;if(typeof combat.runVersion==='number')onlineRunVersion.current=combat.runVersion;{const candidate=reconcileOnlineCombatState(stateRef.current,combat);stateRef.current=candidate;setGame(candidate);setStorageError('');setPage('battle');}}catch(error){setGame({...current,notice:error instanceof Error?error.message:'서버 원정을 시작하지 못했습니다.'});}}else{setGame(next);setPage('battle');}})();}}/>}
    {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&strongholdPanelOpen&&<ResourceStrongholdPanel
@@ -421,7 +427,7 @@ function App(){
     onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('직능등록');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
    />}
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
-   {page==='settings'&&<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} 
+   {(settingsOpen||page==='settings')&&<SettingsDialog session={onlineSession} nickname={playerNickname} details={<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} syncStatus={cloudSyncStatus} syncMessage={cloudSyncMessage} onLogout={logoutOnline} onClose={()=>{setSettingsOpen(false);if(page==='settings')move('home');}}/>}
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
    {page==='shop'&&<ShopScreen game={game}/>}
 

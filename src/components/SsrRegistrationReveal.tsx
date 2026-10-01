@@ -1,3 +1,4 @@
+import {loadSettings,reducedMotion} from '../settings/preferences';
 import React,{useLayoutEffect,useRef,useState} from 'react';
 import {gsap} from 'gsap';
 import {jobById} from '../game/jobs/catalog';
@@ -13,7 +14,7 @@ export function SsrRegistrationReveal({entries,onFinish}:{entries:OnlineJobRegis
  useLayoutEffect(()=>{
   setReady(false);
   button.current?.focus();
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced=reducedMotion(),preferences=loadSettings();
   const ctx=gsap.context(()=>{
    if(reduced){setReady(true);return;}
    const tl=gsap.timeline({defaults:{ease:'power3.out'},onComplete:()=>setReady(true)});
@@ -26,7 +27,7 @@ export function SsrRegistrationReveal({entries,onFinish}:{entries:OnlineJobRegis
     .addLabel('impact',1.32)
     .to('.ssr-seal',{scale:2.4,opacity:0,duration:.3},'impact')
     .fromTo('.ssr-halo',{scale:.2,opacity:0},{scale:1.1,opacity:.8,duration:.35},'impact')
-    .to('.ssr-stage',{keyframes:[{x:5},{x:-4},{x:3},{x:-2},{x:0}],duration:.28},'impact')
+    .to('.ssr-stage',{keyframes:preferences.shake?[{x:5},{x:-4},{x:3},{x:-2},{x:0}]:[{x:0}],duration:.28},'impact')
     .fromTo('.ssr-spark',{x:0,y:0,autoAlpha:1},{x:i=>Math.cos(i*Math.PI*2/24)*(110+i%4*22),y:i=>Math.sin(i*Math.PI*2/24)*(110+i%4*22),autoAlpha:0,rotation:90,duration:.85,stagger:.003},'impact')
     .to('.ssr-person',{autoAlpha:1,y:0,scale:1,duration:.65,ease:'back.out(1.4)'},'impact+=.12')
     .to('.ssr-copy',{autoAlpha:1,y:0,duration:.45},'impact+=.42')
@@ -39,7 +40,7 @@ export function SsrRegistrationReveal({entries,onFinish}:{entries:OnlineJobRegis
   <div className="ssr-topline"><span>특별 직능기록 발견</span><span>{index+1} / {entries.length}</span></div>
   <div className="ssr-stage">
    <div className="ssr-halo" aria-hidden="true"/><div className="ssr-seal" aria-hidden="true"><i/><i/><i/></div>
-   <div className="ssr-particles" aria-hidden="true">{Array.from({length:24},(_,i)=><i className="ssr-spark" key={i}/>)}</div>
+   <div className="ssr-particles" style={{display:loadSettings().particles?undefined:'none'}} aria-hidden="true">{Array.from({length:24},(_,i)=><i className="ssr-spark" key={i}/>)}</div>
    <div className="ssr-person">{job?.visualAssetKey?<img src={assetUrl(job.visualAssetKey)} alt=""/>:<div className="ssr-fallback" aria-hidden="true">✦</div>}</div>
    <div className="ssr-copy"><strong>SSR</strong><h2>{job?.displayName??entry.jobId}</h2><p>{entry.newlyUnlocked?'새로운 직능이 해금되었습니다':'직능 기록을 획득했습니다'}</p></div>
   </div>

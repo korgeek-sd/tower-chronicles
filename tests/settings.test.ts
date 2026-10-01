@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{DEFAULT_SETTINGS,normalizeSettings}from'../src/settings/preferences';
+test('설정은 불리언만 허용하고 손상된 값은 기본값으로 복구한다',()=>{assert.deepEqual(normalizeSettings(null),DEFAULT_SETTINGS);assert.deepEqual(normalizeSettings({shake:false,particles:'false',ssrReveal:false,reducedMotion:true}),{shake:false,particles:true,ssrReveal:false,reducedMotion:true});});

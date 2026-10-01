@@ -1,3 +1,4 @@
+import {loadSettings,reducedMotion} from '../../settings/preferences';
 import React,{forwardRef,useEffect,useImperativeHandle,useRef} from 'react';
 import type {CombatEvent,Weapon} from '../../game/types';
 import {criticalVisualHold,battleImpactEnvelope,battleVfxNow,battleVfxTiming,type BattleVfxKind} from './battleVfxTimeline';
@@ -74,7 +75,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
  const ensureFrame=()=>{if(frameRef.current===null)frameRef.current=requestAnimationFrame(draw);};
 
  const push=(kind:BattleVfxKind,from:Point,to:Point,speed:number,seed:number)=>{
-  const timing=battleVfxTiming(kind,speed),count=reducedRef.current?0:timing.particles;
+  const timing=battleVfxTiming(kind,speed),count=reducedMotion()||!loadSettings().particles?0:timing.particles;
   const effect:Effect={id:++seqRef.current,kind,startedAt:battleVfxNow(),duration:timing.duration,holdMs:timing.holdMs,shakePx:timing.shakePx,weapon:kind==='player-damaged'||kind==='death'?'sword':weapon,from,to,particles:particlesFor(kind,count,to,seed)};
   effectsRef.current=[...effectsRef.current,effect].slice(-10);
   lastRef.current=battleVfxNow();
@@ -112,7 +113,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
    survivors.push(effect);
    const t=clamp(elapsed/effect.duration),hold=elapsed<criticalVisualHold(effect.kind==='critical-hit',speedFor(effect),reducedRef.current);
    const critical=effect.kind==='critical-hit',negative=effect.kind==='player-damaged'||effect.kind==='death';
-   const shake=!reducedRef.current&&effect.shakePx>0&&elapsed<Math.min(effect.duration,critical?150:effect.kind==='death'?240:110);
+   const shake=loadSettings().shake&&!reducedMotion()&&effect.shakePx>0&&elapsed<Math.min(effect.duration,critical?150:effect.kind==='death'?240:110);
    const shakeFade=shake?1-elapsed/Math.min(effect.duration,critical?150:effect.kind==='death'?240:110):0;
    const sx=shake?(Math.sin(elapsed*.41)+Math.sin(elapsed*.79))*.5*effect.shakePx*shakeFade:0;
    const sy=shake?Math.cos(elapsed*.53)*effect.shakePx*.55*shakeFade:0;
@@ -260,7 +261,7 @@ export const BattleVfxCanvas=forwardRef<BattleVfxHandle,Props>(function BattleVf
  useImperativeHandle(ref,()=>({cuePlayerAction,playEvent,playDamage,playHeal,playDeath,cancel}));
 
  useEffect(()=>{
-  reducedRef.current=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  reducedRef.current=reducedMotion();
   const canvas=canvasRef.current;if(!canvas)return;
   const resize=()=>{const rect=canvas.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);sizeRef.current={w:Math.max(1,rect.width),h:Math.max(1,rect.height),dpr};canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));};
   resize();

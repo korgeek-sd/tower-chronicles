@@ -1,3 +1,4 @@
+import {loadSettings,reducedMotion} from '../settings/preferences';
 import './job-registration-results.css';
 import {createPortal} from 'react-dom';
 import {SsrRegistrationReveal} from './SsrRegistrationReveal';
@@ -281,7 +282,7 @@ function JobRateInfo(){
 function RegistrationResult({result,onClose,onRepeat,repeatDisabled,busy,message}:{result:OnlineJobRegistrationResult;onClose:()=>void;onRepeat:()=>void;repeatDisabled:boolean;busy:boolean;message:string}){
  const [revealed,setRevealed]=useState(false);
  const ssrs=result.results.filter(entry=>entry.rarity==='SSR');
- if(!revealed&&ssrs.length)return createPortal(<SsrRegistrationReveal entries={ssrs} onFinish={()=>setRevealed(true)}/>,document.body);
+ if(!revealed&&ssrs.length&&loadSettings().ssrReveal&&!reducedMotion())return createPortal(<SsrRegistrationReveal entries={ssrs} onFinish={()=>setRevealed(true)}/>,document.body);
  const single=result.results.length===1;
  if(single){
   const entry=result.results[0],job=jobById(entry.jobId);
