@@ -18,6 +18,4 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  subjugation_officer:'assets/characters/jobs/subjugation_officer.webp',
  coroner:'assets/characters/jobs/coroner.webp',
  stair_scout:'assets/characters/jobs/stair_scout.webp',
- berserker:'assets/characters/jobs/berserker.webp',
- mutagen_doctor:'assets/characters/jobs/mutagen_doctor.webp',
 };
