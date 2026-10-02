@@ -17,4 +17,5 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  life_stitcher:'assets/characters/jobs/life_stitcher.webp',
  subjugation_officer:'assets/characters/jobs/subjugation_officer.webp',
  coroner:'assets/characters/jobs/coroner.webp',
+ stair_scout:'assets/characters/jobs/stair_scout.webp',
 };
