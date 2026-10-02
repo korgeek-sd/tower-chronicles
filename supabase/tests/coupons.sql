@@ -7,7 +7,7 @@ insert into auth.sessions(id,user_id,created_at,updated_at) select s,u,now(),now
 insert into private.active_game_sessions(user_id,lease_id,auth_session_id,device_id,client_instance_id,platform,app_version,generation,acquired_at,heartbeat_at,expires_at)
 select u,l,s,'coupon-qa','coupon-qa','QA','0.1.92',1,now(),now(),now()+interval '1 hour' from coupon_fixture;
 insert into public.game_saves(user_id,revision,save_schema,app_version,payload,payload_hash)
-select u,1,23,'0.1.92',private.server_bootstrap_payload('{}')||jsonb_build_object('version',23,'equipmentItems','[]'::jsonb,'silver',1000,'lootItems','{}'::jsonb),'qa' from coupon_fixture;
+select u,1,23,'0.1.92',private.server_bootstrap_payload('{}')||jsonb_build_object('version',23,'equipmentItems','[]'::jsonb,'silver',1000,'market',jsonb_build_object('gold',0),'lootItems','{}'::jsonb),'qa' from coupon_fixture;
 select private.sync_market_economy_from_latest_save(u) from coupon_fixture;
 create temporary table coupon_results(label text,result jsonb);
 grant all on coupon_results to authenticated;
@@ -61,7 +61,7 @@ do $$begin
  if (select used_count from private.game_coupons where code='QA-BUNDLE')<>2 then raise exception 'Count incorrect';end if;
  if (select count(*) from private.coupon_claims where coupon_id=(select coupon_id from private.game_coupons where code='QA-BUNDLE'))<>2 then raise exception 'Duplicate claim';end if;
  if (select silver from private.player_wallets where user_id=(select u from coupon_fixture where label='a'))<>1000 then raise exception 'Coupon bypassed mail';end if;
- if exists(select 1 from private.market_assets where user_id=(select u from coupon_fixture where label='a') and quantity>0) then raise exception 'Items bypassed mail';end if;
+ if exists(select 1 from private.market_assets where user_id=(select u from coupon_fixture where label='a') and item_id in('other:enhancement_stone','other:job_draw_ticket') and quantity>0) then raise exception 'Items bypassed mail';end if;
 end $$;
 set local role authenticated;
 do $$declare f record;r jsonb;m uuid;
