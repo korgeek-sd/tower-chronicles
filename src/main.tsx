@@ -440,7 +440,7 @@ function App(){
     onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('직능등록');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
    />}
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
-   {(settingsOpen||page==='settings')&&<SettingsDialog session={onlineSession} nickname={playerNickname} details={<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} syncStatus={cloudSyncStatus} syncMessage={cloudSyncMessage} onLogout={logoutOnline} onClose={()=>{setSettingsOpen(false);if(page==='settings')move('home');}}/>}
+   {(settingsOpen||page==='settings')&&<SettingsDialog key={onlineSession?.userId??'guest'} onRewardMail={()=>setMailUnread(n=>n+1)} session={onlineSession} nickname={playerNickname} details={<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} syncStatus={cloudSyncStatus} syncMessage={cloudSyncMessage} onLogout={logoutOnline} onClose={()=>{setSettingsOpen(false);if(page==='settings')move('home');}}/>}
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame}/>}
    {page==='shop'&&<ShopScreen game={game}/>}
 
@@ -452,3 +452,4 @@ function App(){
  </div>;
 }
 createRoot(document.getElementById('root')!).render(<GameFeelProvider><App/></GameFeelProvider>);
+

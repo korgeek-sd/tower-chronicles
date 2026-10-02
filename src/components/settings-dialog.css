@@ -5,3 +5,5 @@ html[data-tc-shake=false] .tc-feel-shake{animation:none!important}html[data-tc-p
 .tc-topbar:has(.tc-settings-open){grid-template-columns:minmax(0,1fr) auto 44px;gap:6px}.tc-settings-floating{position:fixed;right:12px;top:max(8px,env(safe-area-inset-top));z-index:50;background:#171913;color:#d7c796;border:1px solid #665b43}
 
 .tc-settings-dialog nav{grid-template-columns:repeat(3,minmax(0,1fr))}.tc-settings-body:has(.tc-screen){min-height:400px;height:55dvh}
+.tc-settings-dialog nav{grid-template-columns:repeat(2,minmax(0,1fr))}.tc-coupon-panel form,.tc-coupon-panel fieldset{display:grid;gap:10px}.tc-coupon-panel fieldset{border:0;padding:0;margin:0;min-width:0}.tc-coupon-panel label{display:grid;gap:5px;font-size:12px}.tc-coupon-panel input{width:100%;box-sizing:border-box;min-height:44px;padding:8px;color:#ded8c6;background:#0e110d;border:1px solid #625b46;font:inherit}.tc-coupon-panel article{padding:12px 0;border-top:1px solid #55503e;overflow-wrap:anywhere}.tc-coupon-panel [role=status]{white-space:pre-wrap;color:#ead4a4;min-height:22px}
+

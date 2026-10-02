@@ -26,7 +26,7 @@ export function MailDialog({userId,lease,game,setGame,onClose,onUnread}:Props){
  }catch(e){if(valid())setError(e instanceof Error?e.message:'우편 처리에 실패했습니다.');}finally{guard.current=false;if(active.current)setBusy(false);}
  }
  const visible=mails.filter(m=>m.expiresAt>now),mail=visible.find(m=>m.mailId===selected),canClaim=!!lease&&!game.expedition;
- const name=(m:GameMail)=>{const gear=m.details.gear??m.attachment?.gear;if(gear&&'grade' in gear)return equipmentItemName(gear);return marketItemName(game,m.details.itemId??m.attachment?.itemId??'');};
+ const name=(m:GameMail)=>{if(m.attachment?.reward)return '쿠폰 보상 묶음';const gear=m.details.gear??m.attachment?.gear;if(gear&&'grade' in gear)return equipmentItemName(gear);return marketItemName(game,m.details.itemId??m.attachment?.itemId??'');};
  const remaining=(m:GameMail)=>{const seconds=Math.max(0,Math.ceil((m.expiresAt-now)/1000));return seconds>=86400?`${Math.ceil(seconds/86400)}일 남음`:seconds>=3600?`${Math.ceil(seconds/3600)}시간 남음`:`${Math.ceil(seconds/60)}분 남음`;};
  return createPortal(<dialog ref={dialog} className="tc-mail-dialog" aria-labelledby="mail-title" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}>
  <header><div><small>ASSOCIATION POST</small><h2 id="mail-title">우편함</h2></div><button disabled={busy} aria-label="우편함 닫기" onClick={onClose}>×</button></header>
@@ -44,3 +44,4 @@ export function MailDialog({userId,lease,game,setGame,onClose,onUnread}:Props){
  </>}
  </dialog>,document.body);
 }
+
