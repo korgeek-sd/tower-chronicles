@@ -21,4 +21,6 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  berserker:'assets/characters/jobs/berserker.webp',
  mutagen_doctor:'assets/characters/jobs/mutagen_doctor.webp',
  soulcaster:'assets/characters/jobs/soulcaster.webp',
+ ascetic_fighter:'assets/characters/jobs/ascetic_fighter.webp',
+ field_engineer:'assets/characters/jobs/field_engineer.webp',
 };
