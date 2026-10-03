@@ -6,15 +6,23 @@ import {KALEON_NORMAL_DEFINITIONS,KALEON_BOSS_DEFINITIONS} from '../data/kaleonC
 
 export type MonsterActionKind='BASIC_ATTACK'|'ACTIVE_SKILL'|'PREPARED_DISCHARGE';
 export type AiCondition=
+ |{kind:'ALL'|'ANY';conditions:AiCondition[]}
+ |{kind:'TURN_AT_LEAST';value:number}
+ |{kind:'EVENT_FLAG';flag:string}
+ |{kind:'SELF_SHIELD_AT_LEAST'|'TARGET_SHIELD_AT_LEAST';value:number}
+ |{kind:'PREVIOUS_ACTION';actionId:string}
+ |{kind:'SKILL_USES_AT_LEAST';skillId:string;value:number}
+ |{kind:'PHASE_IS';phaseId:string}
  |{kind:'SELF_HP_BELOW';value:number}
  |{kind:'TARGET_HP_BELOW';value:number}
  |{kind:'SKILL_READY';skillId:string}
  |{kind:'SELF_HAS_EFFECT'|'SELF_MISSING_EFFECT'|'TARGET_HAS_EFFECT'|'TARGET_MISSING_EFFECT';effectId:string}
- |{kind:'SELF_EFFECT_STACKS_AT_LEAST'|'TARGET_EFFECT_STACKS_AT_LEAST';effectId:string;requiredStacks:number};
+ |{kind:'SELF_EFFECT_STACKS_AT_LEAST'|'TARGET_EFFECT_STACKS_AT_LEAST'|'SELF_EFFECT_APPLICATIONS_AT_LEAST'|'TARGET_EFFECT_APPLICATIONS_AT_LEAST';effectId:string;requiredStacks:number};
 export interface MonsterSkillEffect {target:'TARGET'|'SELF';effectId:string}
-export interface MonsterSkillDefinition {id:string;name:string;description:string;cooldown:number;kind:'damage'|'charge'|'reactive_prepare'|'effect';hits?:number;multiplier?:number;effects?:MonsterSkillEffect[];reactiveTrigger?:'DIRECT_HIT_RECEIVED';reactionSkillId?:string}
-export interface MonsterAiRule {id:string;priority:number;actionId:string;conditions:AiCondition[]}
-export interface MonsterDefinition {id:string;name:string;skills?:MonsterSkillDefinition[];passives?:string[];aiRules?:MonsterAiRule[]}
+export interface MonsterSkillDefinition {id:string;name:string;description:string;cooldown:number;kind:'damage'|'charge'|'reactive_prepare'|'effect';hits?:number;multiplier?:number;effects?:MonsterSkillEffect[];reactiveTrigger?:'DIRECT_HIT_RECEIVED';reactionSkillId?:string;weight?:number;conditions?:AiCondition[];cannotRepeat?:boolean;repeatLimit?:number;phaseIds?:string[];penetrationRate?:number;critical?:'ALLOWED'|'GUARANTEED'}
+export interface MonsterAiRule {id:string;priority:number;actionId:string;conditions:AiCondition[];forced?:boolean;weight?:number}
+export interface MonsterPhase {id:string;when?:AiCondition;skillIds?:string[];skillWeights?:Record<string,number>;effectImmunities?:string[];attackMultiplier?:number;defenseMultiplier?:number}
+export interface MonsterDefinition {id:string;name:string;skills?:MonsterSkillDefinition[];passives?:string[];aiRules?:MonsterAiRule[];phases?:MonsterPhase[];effectImmunities?:string[];basicAttackWeight?:number}
 export interface MonsterActionDecision {kind:MonsterActionKind;skill?:MonsterSkillDefinition}
 
 export const TEST_MONSTER_BASIC:MonsterDefinition={id:'test-basic-ai',name:'AI 훈련체',skills:[{id:'crush',name:'분쇄',description:'강한 단일 공격',cooldown:2,kind:'damage',multiplier:1.5}],aiRules:[{id:'low-crush',priority:10,actionId:'crush',conditions:[{kind:'SELF_HP_BELOW',value:.6},{kind:'SKILL_READY',skillId:'crush'}]}]};
@@ -45,13 +53,71 @@ const DEFINITIONS=new Map<string,MonsterDefinition>([...DEV_MONSTER_DEFINITIONS,
 
 export const monsterDefinitionById=(id:string)=>DEFINITIONS.get(id);
 export const monsterDefinitionFor=(monster:Monster):MonsterDefinition=>monsterDefinitionById(monster.definitionId??'')??{id:monster.definitionId??monster.name,name:monster.name,skills:[],passives:[],aiRules:[]};
-export const createMonsterRuntime=(monster:Monster,turnNumber=0):MonsterBattleRuntime=>({definitionId:monsterDefinitionFor(monster).id,skillCooldowns:{},preparedActionId:null,turnNumber});
+export function createMonsterRuntime(monster:Monster,turnNumber=0):MonsterBattleRuntime {const definition=monsterDefinitionFor(monster),runtime:MonsterBattleRuntime={definitionId:definition.id,skillCooldowns:{},preparedActionId:null,turnNumber};advanceMonsterPhase(definition,runtime,monster);return runtime;}
 export const definitionForRuntime=(monster:Monster,runtime:MonsterBattleRuntime)=>monsterDefinitionById(runtime.definitionId)??monsterDefinitionFor(monster);
-const ready=(runtime:MonsterBattleRuntime,skill:MonsterSkillDefinition)=>(runtime.skillCooldowns[skill.id]??0)===0;
-function condition(item:AiCondition,monster:Monster,targetHp:number,targetMaxHp:number,runtime:MonsterBattleRuntime,skills:MonsterSkillDefinition[],selfEffects:ActiveEffect[],targetEffects:ActiveEffect[]){if('effectId' in item&&!EFFECTS[item.effectId])return false;if(item.kind==='SELF_HP_BELOW')return monster.currentHp/monster.hp<item.value;if(item.kind==='TARGET_HP_BELOW')return targetHp/targetMaxHp<item.value;if(item.kind==='SKILL_READY'){const skill=skills.find(candidate=>candidate.id===item.skillId);return !!skill&&ready(runtime,skill);}if(item.kind==='SELF_HAS_EFFECT')return hasEffect(selfEffects,item.effectId);if(item.kind==='SELF_MISSING_EFFECT')return !hasEffect(selfEffects,item.effectId);if(item.kind==='TARGET_HAS_EFFECT')return hasEffect(targetEffects,item.effectId);if(item.kind==='TARGET_MISSING_EFFECT')return !hasEffect(targetEffects,item.effectId);if(item.kind==='SELF_EFFECT_STACKS_AT_LEAST'||item.kind==='TARGET_EFFECT_STACKS_AT_LEAST'){if(!Number.isSafeInteger(item.requiredStacks)||item.requiredStacks<1)return false;return effectStacks(item.kind==='SELF_EFFECT_STACKS_AT_LEAST'?selfEffects:targetEffects,item.effectId)>=item.requiredStacks;}return false;}
-export function chooseMonsterAction(definition:MonsterDefinition,runtime:MonsterBattleRuntime,monster:Monster,targetHp:number,targetMaxHp:number,selfEffects:ActiveEffect[]=[],targetEffects:ActiveEffect[]=[]):MonsterActionDecision {const skills=definition.skills??[];if(runtime.preparedActionId){const skill=skills.find(candidate=>candidate.id===runtime.preparedActionId);if(skill?.kind==='charge')return {kind:'PREPARED_DISCHARGE',skill};}for(const rule of [...(definition.aiRules??[])].sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id))){const skill=skills.find(candidate=>candidate.id===rule.actionId);if(skill&&ready(runtime,skill)&&rule.conditions.every(item=>condition(item,monster,targetHp,targetMaxHp,runtime,skills,selfEffects,targetEffects)))return {kind:'ACTIVE_SKILL',skill};}return {kind:'BASIC_ATTACK'};}
-export function beginMonsterTurn(runtime:MonsterBattleRuntime){runtime.turnNumber++;for(const id of Object.keys(runtime.skillCooldowns))runtime.skillCooldowns[id]=Math.max(0,runtime.skillCooldowns[id]-1);}
-export function useMonsterAction(runtime:MonsterBattleRuntime,decision:MonsterActionDecision){if(decision.kind==='ACTIVE_SKILL'&&decision.skill?.kind==='charge'){runtime.preparedActionId=decision.skill.id;return;}if(decision.kind==='PREPARED_DISCHARGE')runtime.preparedActionId=null;if(decision.skill)runtime.skillCooldowns[decision.skill.id]=Math.max(0,Math.floor(decision.skill.cooldown));}
+const ready=(runtime:MonsterBattleRuntime,skill:MonsterSkillDefinition)=>runtime.skillReadyTurns?.[skill.id]!==undefined?runtime.turnNumber>=runtime.skillReadyTurns[skill.id]:(runtime.skillCooldowns[skill.id]??0)===0;
+function condition(item:AiCondition,monster:Monster,targetHp:number,targetMaxHp:number,runtime:MonsterBattleRuntime,skills:MonsterSkillDefinition[],selfEffects:ActiveEffect[],targetEffects:ActiveEffect[]):boolean {
+ const match=(c:AiCondition)=>condition(c,monster,targetHp,targetMaxHp,runtime,skills,selfEffects,targetEffects);
+ if(item.kind==='ALL'||item.kind==='ANY')return item.kind==='ALL'?item.conditions.every(match):item.conditions.some(match);
+ if(item.kind==='TURN_AT_LEAST')return runtime.turnNumber>=item.value;
+ if(item.kind==='EVENT_FLAG')return !!runtime.eventFlags?.[item.flag];
+ if(item.kind==='PREVIOUS_ACTION')return runtime.lastActionId===item.actionId;
+ if(item.kind==='SKILL_USES_AT_LEAST')return (runtime.actionCounts?.[item.skillId]??0)>=item.value;
+ if(item.kind==='PHASE_IS')return runtime.phaseId===item.phaseId;
+ if(item.kind==='SELF_SHIELD_AT_LEAST'||item.kind==='TARGET_SHIELD_AT_LEAST')return (item.kind==='SELF_SHIELD_AT_LEAST'?selfEffects:targetEffects).reduce((n,x)=>n+(x.currentShield??0),0)>=item.value;
+ if('effectId' in item&&!EFFECTS[item.effectId])return false;
+ if(item.kind==='SELF_HP_BELOW')return monster.currentHp/monster.hp<item.value;
+ if(item.kind==='TARGET_HP_BELOW')return targetHp/targetMaxHp<item.value;
+ if(item.kind==='SKILL_READY'){const skill=skills.find(x=>x.id===item.skillId);return !!skill&&ready(runtime,skill);}
+ if(item.kind==='SELF_HAS_EFFECT')return hasEffect(selfEffects,item.effectId);
+ if(item.kind==='SELF_MISSING_EFFECT')return !hasEffect(selfEffects,item.effectId);
+ if(item.kind==='TARGET_HAS_EFFECT')return hasEffect(targetEffects,item.effectId);
+ if(item.kind==='TARGET_MISSING_EFFECT')return !hasEffect(targetEffects,item.effectId);
+ if(item.kind==='SELF_EFFECT_APPLICATIONS_AT_LEAST'||item.kind==='TARGET_EFFECT_APPLICATIONS_AT_LEAST'){const actor=item.kind==='SELF_EFFECT_APPLICATIONS_AT_LEAST'?'monster':'player';return hasEffect(actor==='monster'?selfEffects:targetEffects,item.effectId)&&(runtime.effectApplications?.[actor+':'+item.effectId]??0)>=item.requiredStacks;}
+ if(item.kind==='SELF_EFFECT_STACKS_AT_LEAST'||item.kind==='TARGET_EFFECT_STACKS_AT_LEAST')return Number.isSafeInteger(item.requiredStacks)&&item.requiredStacks>=1&&effectStacks(item.kind==='SELF_EFFECT_STACKS_AT_LEAST'?selfEffects:targetEffects,item.effectId)>=item.requiredStacks;
+ return false;
+}
+function consumePhaseEvents(c:AiCondition,runtime:MonsterBattleRuntime,matches:(c:AiCondition)=>boolean){
+ if(c.kind==='EVENT_FLAG'&&runtime.eventFlags)runtime.eventFlags[c.flag]=false;
+ else if(c.kind==='ALL')for(const child of c.conditions)consumePhaseEvents(child,runtime,matches);
+ else if(c.kind==='ANY'){const chosen=c.conditions.find(matches);if(chosen)consumePhaseEvents(chosen,runtime,matches);}
+}
+export function advanceMonsterPhase(definition:MonsterDefinition,runtime:MonsterBattleRuntime,monster:Monster,targetHp=1,targetMaxHp=1,selfEffects:ActiveEffect[]=[],targetEffects:ActiveEffect[]=[]){
+ const phases=definition.phases??[];runtime.phaseIndex??=0;
+ while(runtime.phaseIndex+1<phases.length){const next=phases[runtime.phaseIndex+1];if(!next.when||!condition(next.when,monster,targetHp,targetMaxHp,runtime,definition.skills??[],selfEffects,targetEffects))break;runtime.phaseIndex++;consumePhaseEvents(next.when,runtime,c=>condition(c,monster,targetHp,targetMaxHp,runtime,definition.skills??[],selfEffects,targetEffects));}
+ const phase=phases[runtime.phaseIndex];if(phase)runtime.phaseId=phase.id;else delete runtime.phaseId;
+ runtime.effectImmunities=[...(definition.effectImmunities??[]),...(phase?.effectImmunities??[])];
+ runtime.attackMultiplier=phase?.attackMultiplier??1;runtime.defenseMultiplier=phase?.defenseMultiplier??1;
+ return phase;
+}
+export function chooseMonsterAction(definition:MonsterDefinition,runtime:MonsterBattleRuntime,monster:Monster,targetHp:number,targetMaxHp:number,selfEffects:ActiveEffect[]=[],targetEffects:ActiveEffect[]=[],rng:()=>number=Math.random):MonsterActionDecision {
+ const skills=definition.skills??[],phase=advanceMonsterPhase(definition,runtime,monster,targetHp,targetMaxHp,selfEffects,targetEffects);
+ if(runtime.preparedActionId){const skill=skills.find(x=>x.id===runtime.preparedActionId);if(skill?.kind==='charge')return {kind:'PREPARED_DISCHARGE',skill};}
+ const match=(c:AiCondition)=>condition(c,monster,targetHp,targetMaxHp,runtime,skills,selfEffects,targetEffects);
+ const eligible=(skill:MonsterSkillDefinition)=>ready(runtime,skill)&&(!phase?.skillIds||phase.skillIds.includes(skill.id))&&(!skill.phaseIds||skill.phaseIds.includes(runtime.phaseId??''))&&(!skill.cannotRepeat||runtime.lastActionId!==skill.id)&&(!(skill.repeatLimit&&runtime.lastActionId===skill.id)||((runtime.repeatCount??0)<skill.repeatLimit))&&(skill.conditions??[]).every(match);
+ const candidates:{skill?:MonsterSkillDefinition;weight:number}[]=[];
+ for(const rule of [...(definition.aiRules??[])].sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id))){
+  const skill=skills.find(x=>x.id===rule.actionId);if(!skill||!eligible(skill)||!rule.conditions.every(match))continue;
+  if(rule.forced!==false&&rule.weight===undefined)return {kind:'ACTIVE_SKILL',skill};
+  candidates.push({skill,weight:phase?.skillWeights?.[skill.id]??rule.weight??skill.weight??1});
+ }
+ for(const skill of skills)if(skill.weight!==undefined&&eligible(skill)&&!candidates.some(x=>x.skill?.id===skill.id))candidates.push({skill,weight:phase?.skillWeights?.[skill.id]??skill.weight});
+ if((definition.basicAttackWeight??0)>0)candidates.push({weight:definition.basicAttackWeight!});
+ const viable=candidates.filter(x=>Number.isFinite(x.weight)&&x.weight>0),total=viable.reduce((n,x)=>n+x.weight,0);let roll=Math.max(0,Math.min(.999999,rng()))*total;
+ for(const c of viable){roll-=c.weight;if(roll<0)return c.skill?{kind:'ACTIVE_SKILL',skill:c.skill}:{kind:'BASIC_ATTACK'};}
+ return {kind:'BASIC_ATTACK'};
+}
+export function beginMonsterTurn(runtime:MonsterBattleRuntime){
+  runtime.turnNumber++;runtime.skillReadyTurns??={};
+  for(const id of new Set([...Object.keys(runtime.skillCooldowns),...Object.keys(runtime.skillReadyTurns)])){
+    const raw=runtime.skillCooldowns[id]??0;
+    if(runtime.skillReadyTurns[id]===undefined&&raw>0)runtime.skillReadyTurns[id]=runtime.turnNumber+raw;
+    runtime.skillCooldowns[id]=Math.max(0,(runtime.skillReadyTurns[id]??runtime.turnNumber)-runtime.turnNumber);
+  }
+}
+export function useMonsterAction(runtime:MonsterBattleRuntime,decision:MonsterActionDecision){const id=decision.skill?.id??'basic';runtime.repeatCount=runtime.lastActionId===id?(runtime.repeatCount??0)+1:1;runtime.lastActionId=id;runtime.actionCounts??={};runtime.actionCounts[id]=(runtime.actionCounts[id]??0)+1;if(decision.kind==='ACTIVE_SKILL'&&decision.skill?.kind==='charge'){runtime.preparedActionId=decision.skill.id;return;}if(decision.kind==='PREPARED_DISCHARGE')runtime.preparedActionId=null;if(decision.skill){const cd=Math.max(0,Math.floor(decision.skill.cooldown));runtime.skillCooldowns[decision.skill.id]=cd;runtime.skillReadyTurns??={};runtime.skillReadyTurns[decision.skill.id]=runtime.turnNumber+cd+1;}}
 export const preparedMonsterSkill=(monster:Monster,runtime:MonsterBattleRuntime|null)=>runtime?.preparedActionId?definitionForRuntime(monster,runtime).skills?.find(skill=>skill.id===runtime.preparedActionId):undefined;
 export function validateMonsterDefinition(definition:MonsterDefinition){const errors:string[]=[],skills=definition.skills??[],ids=new Set(skills.map(skill=>skill.id));for(const skill of skills){if(skill.kind==='reactive_prepare'){const reaction=skills.find(candidate=>candidate.id===skill.reactionSkillId);if(skill.reactiveTrigger!=='DIRECT_HIT_RECEIVED')errors.push(`${skill.id}: invalid reactive trigger`);if(!reaction)errors.push(`${skill.id}: missing reaction skill`);else if(['reactive_prepare','charge'].includes(reaction.kind))errors.push(`${skill.id}: invalid reaction skill kind`);}for(const effect of skill.effects??[])if(!EFFECTS[effect.effectId])errors.push(`${skill.id}: unknown effect ${effect.effectId}`);}for(const rule of definition.aiRules??[]){if(!ids.has(rule.actionId))errors.push(`${rule.id}: missing action`);for(const item of rule.conditions){if('effectId' in item&&!EFFECTS[item.effectId])errors.push(`${rule.id}: unknown effect ${item.effectId}`);if('requiredStacks' in item&&(!Number.isSafeInteger(item.requiredStacks)||item.requiredStacks<1))errors.push(`${rule.id}: invalid stack threshold`);if(item.kind==='SKILL_READY'&&!ids.has(item.skillId))errors.push(`${rule.id}: missing ready skill`);}}return errors;}
 
+
+for(const d of DEFINITIONS.values())if(!d.id.startsWith('test-'))for(const r of d.aiRules??[])r.conditions=r.conditions.map(c=>c.kind==='TARGET_EFFECT_STACKS_AT_LEAST'?{kind:'TARGET_EFFECT_APPLICATIONS_AT_LEAST',effectId:c.effectId,requiredStacks:c.requiredStacks}:c.kind==='SELF_EFFECT_STACKS_AT_LEAST'?{kind:'SELF_EFFECT_APPLICATIONS_AT_LEAST',effectId:c.effectId,requiredStacks:c.requiredStacks}:c);

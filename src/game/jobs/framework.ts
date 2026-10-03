@@ -21,6 +21,7 @@ export type JobCondition =
   | { kind: 'TARGET_HAS_EFFECT'; effectId: string }
   | { kind: 'SELF_HAS_EFFECT'; effectId: string }
   | { kind: 'RESOURCE_GE'; amount: number }
+  | {kind:'RESOURCE_SPENT_GE';amount:number}
   | { kind: 'FLAG_IS'; flag: string; value: boolean }
   | { kind: 'ACTION_IS_BASIC_ATTACK' }
   | { kind: 'ACTION_IS_SKILL' }
@@ -37,12 +38,13 @@ export type JobEffectAction =
   | { kind: 'MODIFY_HEAL_MULTIPLIER'; multiplier: number }
   | { kind: 'SELF_HP_COST_PERCENT'; percentOfMax: number }
   | { kind: 'APPLY_EFFECT'; target: 'SELF' | 'TARGET'; effectId: string; duration?: number }
+  | { kind: 'CLEANSE' | 'DISPEL'; target:'SELF'|'TARGET'; count?:number; tags?:import('../types').EffectTag[] }
   | { kind: 'REMOVE_EFFECT_TAG'; target: 'SELF' | 'TARGET'; tag: string }
   | { kind: 'CHANGE_RESOURCE'; delta: number }
   | { kind: 'GAIN_RESOURCE_FROM_HP_DAMAGE' }
   | { kind: 'SET_FLAG'; flag: string; value: boolean }
   | { kind: 'PREPARE_REACTION'; reactionId: string }
-  | { kind: 'DIRECT_ATTACK'; hits: number; baseMultiplier: number; conditionalHits?: { condition: JobCondition; hits: number }; conditionalLastHitMultiplier?: { condition: JobCondition; multiplier: number } }
+  | { kind: 'DIRECT_ATTACK'; hits: number; baseMultiplier: number; penetrationRate?:number; critical?:'ALLOWED'|'GUARANTEED'; onHitEffects?:{effectId:string}[]; conditionalHits?: { condition: JobCondition; hits: number }; conditionalLastHitMultiplier?: { condition: JobCondition; multiplier: number } }
   | { kind: 'CHANCE_REACTION'; chance: number; multiplier: number };
 
 export interface PassiveDefinition {
@@ -54,7 +56,10 @@ export interface PassiveDefinition {
   effectActions?: JobEffectAction[];
 }
 
+export type CombatSkillResource={kind:'GENERATOR';gain:number}|{kind:'NEUTRAL'}|{kind:'SPENDER';cost:{mode:'FIXED';amount:number}|{mode:'VARIABLE';min:number;max:number}};
+
 export interface JobSkillDefinition {
+  resource?:CombatSkillResource;
   id: string;
   name: string;
   description: string;
@@ -73,6 +78,11 @@ export interface JobCombatDefinition {
 const JOB_REGISTRY: Record<string, JobCombatDefinition> = {};
 
 export function registerJobCombatDefinition(def: JobCombatDefinition) {
+  for(const skill of def.skills){
+    skill.resource??={kind:'NEUTRAL'};
+    const supported=['DIRECT_ATTACK','APPLY_EFFECT','REMOVE_EFFECT_TAG','CLEANSE','DISPEL','HEAL_PERCENT','HEAL_FLAT','SELF_HP_COST_PERCENT','CHANGE_RESOURCE','SET_FLAG'];
+    for(const action of skill.effectActions)if(!supported.includes(action.kind))throw new Error(`${skill.id}: unsupported active action ${action.kind}`);
+  }
   JOB_REGISTRY[def.jobId] = def;
 }
 
@@ -82,7 +92,7 @@ export function getJobCombatDefinition(jobId: string | null): JobCombatDefinitio
 
 export function modifyJobResource(runtime: BattleJobRuntime, delta: number): number {
   if (!runtime.resource) return 0;
-  const max = runtime.resource.maxValue ?? 100;
+  const max = 4;
   const oldVal = runtime.resource.value;
   const newVal = Math.max(0, Math.min(max, oldVal + delta));
   runtime.resource.value = newVal;
@@ -102,6 +112,7 @@ export interface JobHookContext {
   actor?: CombatActor;
   actionType?: 'BASIC' | 'SKILL' | 'POTION';
   skillId?: string;
+  resourceSpent?:number;
   isDirectHit?: boolean;
   damage?: number;
   actualHpDamage?: number;

@@ -140,7 +140,7 @@ test('Berserker (광전사) exact HP bands, rage gain clamp, and rampage', () =>
   s = resolveMonsterTurn(s, fixedRng);
   assert.ok(s.expedition!.jobRuntime.resource!.value > 0);
 
-  s.expedition!.jobRuntime.resource!.value = 60;
+  s.expedition!.jobRuntime.resource!.value = 3;
   s.expedition!.phase = 'PLAYER_TURN';
   s.expedition!.monster.currentHp = 150;
   s = useBattleSkill(s, 'berserker_skill_3', fixedRng);

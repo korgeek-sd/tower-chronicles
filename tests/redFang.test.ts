@@ -48,15 +48,16 @@ test('RED 02: 6F 핏갈기 추적자 Charge prepares, survives reload, then disc
  assert.equal(s.expedition!.monsterRuntime!.preparedActionId,null);
  assert.equal(s.expedition!.monsterRuntime!.skillCooldowns.blood_charge,2);
 });
-test('RED 03: 7F 붉은턱 가죽포식자 applies stacking bleed via skills',()=>{
+test('RED 03: 7F 붉은턱 가죽포식자 extends bleed duration via repeated skill applications',()=>{
  let s=bossState(7);s.expedition!.phase='MONSTER_TURN';
  s=resolveMonsterTurn(s);
  assert.equal(effectStacks(s.expedition!.playerEffects,'fang_wound'),1);
  s=passPlayerTurn(s,noEvent);
  s=resolveMonsterTurn(s);
- assert.ok(effectStacks(s.expedition!.playerEffects,'fang_wound')>=2);
+ s=passPlayerTurn(s,noEvent);s=resolveMonsterTurn(s);
+ assert.ok(effectStacks(s.expedition!.playerEffects,'fang_wound')===1);
  const reloaded=roundTrip(s);
- assert.ok(effectStacks(reloaded.expedition!.playerEffects,'fang_wound')>=2);
+ assert.ok(effectStacks(reloaded.expedition!.playerEffects,'fang_wound')===1);
 });
 test('RED 04: 7F bleed ticks damage without creating new stacks by itself',()=>{
  let s=bossState(7),e=s.expedition!;
