@@ -1,0 +1,17 @@
+import React,{useEffect,useRef,useState} from 'react';
+import {getStoredSession} from '../online/auth';
+import {loadFriendInviteState,applyFriendInviteCode,type FriendInviteState} from '../online/friendInvites';
+export function FriendInvitePanel({userId,onBusy,onRewardMail}:{userId:string|null;onBusy:(busy:boolean)=>void;onRewardMail:()=>void}){
+ const [state,setState]=useState<FriendInviteState|null>(null),[code,setCode]=useState(''),[message,setMessage]=useState(''),[loading,setLoading]=useState(!!userId),[busy,setBusy]=useState(false);
+ const active=useRef(true),sequence=useRef(0),guard=useRef(false),ownCode=useRef<HTMLInputElement>(null);
+ const valid=()=>active.current&&userId===getStoredSession()?.userId;
+ async function refresh(){if(!userId)return;const request=++sequence.current;setLoading(true);setMessage('');try{const next=await loadFriendInviteState(userId);if(valid()&&request===sequence.current)setState(next);}catch(e){if(valid()&&request===sequence.current)setMessage(e instanceof Error?e.message:'초대 정보를 불러오지 못했습니다.');}finally{if(valid()&&request===sequence.current)setLoading(false);}}
+ useEffect(()=>{active.current=true;void refresh();return()=>{active.current=false;sequence.current++;};},[userId]);
+ async function copy(){if(!state)return;try{await navigator.clipboard.writeText(state.code);if(valid())setMessage('내 초대 코드를 복사했습니다.');}catch{if(valid()){ownCode.current?.focus();ownCode.current?.select();setMessage('선택된 코드를 직접 복사해 주세요.');}}}
+ async function apply(){if(!userId||guard.current||state?.appliedCode)return;guard.current=true;setBusy(true);onBusy(true);setMessage('');try{const next=await applyFriendInviteCode(userId,code);if(valid()){setState(next);setCode('');setMessage(next.duplicate?'이미 적용한 코드입니다. 보상 우편을 확인해 주세요.':'직능 뽑기권 50개 보상이 우편함에 도착했습니다. 거점에서 수령해 주세요.');onRewardMail();}}catch(e){if(valid())setMessage(e instanceof Error?e.message:'코드를 적용하지 못했습니다.');}finally{guard.current=false;if(active.current){setBusy(false);onBusy(false);}}}
+ if(!userId)return <p>Google 로그인 후 친구 초대를 이용할 수 있습니다.</p>;
+ return <div className="tc-coupon-panel tc-invite-panel"><h3>친구 초대</h3><p>친구 코드를 입력하면 직능 뽑기권 50개, 코드 주인은 10개를 즉시 우편으로 받습니다. 보상 우편은 30일 안에 수령해 주세요.</p>
+ {loading?<p role="status">초대 정보를 불러오는 중…</p>:state?<><label>내 초대 코드<input ref={ownCode} readOnly value={state.code} aria-label="내 초대 코드" onFocus={e=>e.currentTarget.select()}/></label><div className="tc-invite-actions"><button type="button" disabled={busy} onClick={()=>void copy()}>코드 복사</button><button type="button" disabled={busy} onClick={()=>void refresh()}>새로고침</button></div><p>공유 보상 {state.rewardedInvites} / 100회 · 최대 1,000개</p><p>{state.rewardedInvites===100?'공유 보상 한도를 달성했습니다. 이후에도 친구는 코드 입력 보상 50개를 받습니다.':'내 코드는 계속 사용할 수 있으며, 공유 보상은 최대 100회 지급됩니다.'}</p>
+ {state.appliedCode?<><h3>적용한 친구 코드</h3><p><b>{state.appliedCode}</b><br/>이 계정은 친구 초대 코드를 이미 적용했습니다. 다른 코드로 변경할 수 없습니다.</p></>:<form onSubmit={e=>{e.preventDefault();void apply();}}><label>친구 초대 코드<input value={code} onChange={e=>setCode(e.target.value)} maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} placeholder="TC-XXXXXXXXXXXX" required disabled={busy}/></label><p>계정당 한 번만 적용할 수 있습니다. 자신의 코드는 사용할 수 없습니다.</p><button disabled={busy||!code.trim()}>{busy?'적용 중…':'코드 적용 · 50개 받기'}</button></form>}</>:<button type="button" onClick={()=>void refresh()}>다시 불러오기</button>}
+ <p role="status">{message}</p></div>;
+}

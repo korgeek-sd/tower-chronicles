@@ -7,3 +7,12 @@ html[data-tc-shake=false] .tc-feel-shake{animation:none!important}html[data-tc-p
 .tc-settings-dialog nav{grid-template-columns:repeat(3,minmax(0,1fr))}.tc-settings-body:has(.tc-screen){min-height:400px;height:55dvh}
 .tc-settings-dialog nav{grid-template-columns:repeat(2,minmax(0,1fr))}.tc-coupon-panel form,.tc-coupon-panel fieldset{display:grid;gap:10px}.tc-coupon-panel fieldset{border:0;padding:0;margin:0;min-width:0}.tc-coupon-panel label{display:grid;gap:5px;font-size:12px}.tc-coupon-panel input{width:100%;box-sizing:border-box;min-height:44px;padding:8px;color:#ded8c6;background:#0e110d;border:1px solid #625b46;font:inherit}.tc-coupon-panel article{padding:12px 0;border-top:1px solid #55503e;overflow-wrap:anywhere}.tc-coupon-panel [role=status]{white-space:pre-wrap;color:#ead4a4;min-height:22px}
 
+
+.tc-invite-panel>label{display:grid;gap:8px;font-weight:600}
+.tc-invite-panel>label input{width:100%;box-sizing:border-box;min-height:44px;padding:10px;border:1px solid #68604b;border-radius:6px;background:#171b20;color:#f0e4c5;font:16px monospace}
+.tc-invite-actions{display:flex;gap:8px;margin:12px 0}
+.tc-invite-actions button{flex:1;min-height:44px}
+.tc-settings-dialog nav>button:last-child:nth-child(odd){grid-column:1 / -1}
+.tc-invite-panel p{font-size:13px}
+.tc-invite-panel input{font-size:16px}
+.tc-invite-panel b{overflow-wrap:anywhere}
