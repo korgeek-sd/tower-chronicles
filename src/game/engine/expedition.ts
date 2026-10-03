@@ -1,3 +1,4 @@
+import {flee} from './combat';
 import {initialEvents} from '../events/service';
 import type {GameState,Tower} from '../types';
 import {CONFIG,potionIds,generalPotionIds,TOWERS,POTIONS,isValidTowerFloor} from '../data/config';
@@ -30,7 +31,7 @@ export function enter(s:GameState,tower:Tower,floor:number):GameState {
   n.notice='획득물은 원정 가방에 임시 보관됩니다. 안전 귀환해야 내 재산이 됩니다.';
   return n;
 }
-export function requestReturn(s:GameState):GameState {if(!s.expedition||s.expedition.pendingRevival||s.expedition.events.phase!=='BATTLE'||s.expedition.phase!=='PLAYER_TURN')return s;const n=structuredClone(s);n.expedition!.pendingFlee=true;n.expedition!.phase='MONSTER_TURN';return n;}
+export function requestReturn(s:GameState):GameState {return flee(s);}
 export function cancelReturn(s:GameState):GameState {
   if(!s.expedition||!s.expedition.returnRequested)return s;
   const n=structuredClone(s);n.expedition!.returnRequested=false;n.notice='안전 귀환 예약을 취소했습니다.';log(n,'안전 귀환 예약 취소');return n;

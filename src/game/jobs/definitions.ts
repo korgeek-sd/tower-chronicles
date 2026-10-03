@@ -245,7 +245,7 @@ const duelistDef: JobCombatDefinition = {
 // 5. berserker (광전사)
 const berserkerDef: JobCombatDefinition = {
   jobId: 'berserker',
-  resource: { id: 'rage', initialValue: 0, maxValue: 100 },
+  resource: { id: 'combat', initialValue: 0, maxValue: 4 },
   passives: [
     {
       id: 'berserker_passive_1_tier3',
@@ -292,32 +292,34 @@ const berserkerDef: JobCombatDefinition = {
     {
       id: 'berserker_skill_1',
       name: '난도질',
-      description: '75% x 2 Direct Hit, Rage +10',
+      resource:{kind:'GENERATOR',gain:1},
+      description: '75% x 2 Direct Hit, 자원 +1',
       cooldown: 0,
       effectActions: [
-        { kind: 'CHANGE_RESOURCE', delta: 10 },
+        
         { kind: 'DIRECT_ATTACK', hits: 2, baseMultiplier: 0.75 },
       ],
     },
     {
       id: 'berserker_skill_2',
       name: '피의 대가',
-      description: 'Max HP 10% 소비(최소 HP 1 보장), Rage +25, 3턴간 공격 피해 +25%',
+      resource:{kind:'GENERATOR',gain:1},
+      description: 'Max HP 10% 소비(최소 HP 1 보장), 자원 +1, 3턴간 공격 피해 +25%',
       cooldown: 0,
       effectActions: [
         { kind: 'SELF_HP_COST_PERCENT', percentOfMax: 0.1 },
-        { kind: 'CHANGE_RESOURCE', delta: 25 },
+        
         { kind: 'APPLY_EFFECT', target: 'SELF', effectId: 'berserker_blood_boost', duration: 3 },
       ],
     },
     {
       id: 'berserker_skill_3',
       name: '폭주',
-      description: 'Rage >= 60 필요, Rage -60 소비, 100% x 3 타격 (적 HP ≤30%면 막타 150%)',
-      cooldown: 0,
-      conditions: [{ kind: 'RESOURCE_GE', amount: 60 }],
+      description: '자원 3칸 소비, 100% x 3 타격 (적 HP ≤30%면 막타 150%)',
+      cooldown: 3,
+      resource:{kind:'SPENDER',cost:{mode:'FIXED',amount:3}},
       effectActions: [
-        { kind: 'CHANGE_RESOURCE', delta: -60 },
+        
         {
           kind: 'DIRECT_ATTACK',
           hits: 3,

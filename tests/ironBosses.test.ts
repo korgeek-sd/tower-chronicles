@@ -64,7 +64,7 @@ test('IRON BOSS 03: 7F 흑맥갑주 파쇄충 starts armored and three direct hi
  assert.equal(hasEffect(s.expedition!.monsterEffects,'iron_armor'),true);
  for(let hit=1;hit<=2;hit++){
   s=basicAttack(s,noEvent);
-  assert.equal(effectStacks(s.expedition!.monsterEffects,'fracture'),hit);
+  assert.equal(effectStacks(s.expedition!.monsterEffects,'fracture'),1);
   s=resolveMonsterTurn(s);
  }
  s=basicAttack(s,noEvent);
@@ -83,19 +83,19 @@ test('IRON BOSS 04: 7F periodic damage never creates fracture stacks',()=>{
  assert.equal(effectStacks(s.expedition!.monsterEffects,'fracture'),0);
 });
 
-test('IRON BOSS 05: 8F 울림포식자 waits for 3 resonance stacks before prioritizing Charge',()=>{
+test('IRON BOSS 05: 8F 울림포식자 waits for 3 resonance applications before prioritizing Charge',()=>{
  let s=bossState(8),e=s.expedition!;
  applyEffect(e,'player','resonance','monster',e.playerTurn);
  applyEffect(e,'player','resonance','monster',e.playerTurn);
  e.phase='MONSTER_TURN';
  s=resolveMonsterTurn(s);
- assert.equal(effectStacks(s.expedition!.playerEffects,'resonance'),3);
+ assert.equal(effectStacks(s.expedition!.playerEffects,'resonance'),1);
  assert.equal(s.expedition!.monsterRuntime!.preparedActionId,null);
  s=passPlayerTurn(s,noEvent);
  s=resolveMonsterTurn(s);
  assert.equal(s.expedition!.monsterRuntime!.preparedActionId,'resonant_charge');
  const reloaded=roundTrip(s);
- assert.equal(effectStacks(reloaded.expedition!.playerEffects,'resonance'),3);
+ assert.equal(effectStacks(reloaded.expedition!.playerEffects,'resonance'),1);
  assert.equal(reloaded.expedition!.monsterRuntime!.preparedActionId,'resonant_charge');
 });
 

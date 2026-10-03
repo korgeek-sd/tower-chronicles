@@ -481,3 +481,18 @@ git commit -m "feat: integrate tower chronicles combat engine v2"
 - [ ] Confirm save migration loads a pre-V2 active expedition with safe defaults.
 - [ ] Confirm battle HUD resource pips display 0..4 and clear on the next encounter.
 - [ ] Compare implementation against every section of `docs/superpowers/specs/2026-10-03-combat-engine-design.md` before merge.
+
+## Implementation checkpoint — 2026-10-03
+
+The TypeScript engine implementation for Tasks 1–10 is complete on `codex/combat-engine-v2`. Tasks 2–3 have separate commits; the remaining tasks were integrated together because queue, effects, turn completion, revival and UI event changes share resolution boundaries.
+
+Implemented: exact actor-turn cooldowns; four-slot resource and actual-spend branching; percentage defense and explicit penetration; hit outcomes and per-hit attached effects; additive capped shields; duration-only production statuses; controls, cleanse/dispel and immunity; cancellation on death/revival; critical healing and overheal decay; expedition potion limit; weighted/forced AI and one-way event-driven phases; runtime/save normalization; resource and outcome/healing HUD events.
+
+The final independent review identified eight substantive gaps. Regression tests and fixes cover RNG propagation, initial immunities/phases, unsupported active-action rejection and flat healing, explicit job on-hit effects, legacy stack normalization, one-shot phase event consumption, the alternate return entry point and deterministic combat event data. Rooted flee availability and overheal accessibility values were also corrected.
+
+Compatibility decisions:
+
+- Production effect magnitude no longer stacks. Boss thresholds use application counts; `test_*` fixtures retain legacy stacking only for compatibility tests.
+- Older schema-23 saves normalize runtime defaults, legacy resource values, production stacks and interrupted revival chains on load.
+- Active job actions must be supported by the resolver. Registration rejects unsupported actions rather than silently consuming cooldown/resource. Attached damage effects use `DIRECT_ATTACK.onHitEffects`; independent effects remain `APPLY_EFFECT`.
+- This checkpoint updates the TypeScript/offline engine. Supabase's authoritative SQL combat engine is unchanged. Online parity and release integration remain separate work; this branch must not be deployed as an online combat cutover.

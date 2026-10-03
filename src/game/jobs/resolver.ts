@@ -1,7 +1,10 @@
+import {applyHealing} from '../engine/healing';
+import {gainCombatResource,spendCombatResource} from '../engine/combatResource';
+import {setSkillCooldown} from '../engine/cooldowns';
 import type { Expedition, GameState } from '../types';
 import type { CombatHook, JobCondition, JobEffectAction, JobHookContext } from './framework';
 import { getJobCombatDefinition, modifyJobResource, setJobFlag, getJobFlag } from './framework';
-import { applyEffect, hasEffect, removeEffectsByTag } from '../engine/effects';
+import { applyEffect, cleanseEffects,dispelEffects,hasEffect, removeEffectsByTag } from '../engine/effects';
 import { log, stats } from '../engine/state';
 import { resolveActorDirectHits } from '../engine/monsterSkills';
 import { random } from '../events/rng';
@@ -28,6 +31,7 @@ export function evaluateJobCondition(
       return hasEffect(e.monsterEffects, cond.effectId);
     case 'SELF_HAS_EFFECT':
       return hasEffect(e.playerEffects, cond.effectId);
+    case 'RESOURCE_SPENT_GE':return (context.resourceSpent??0)>=cond.amount;
     case 'RESOURCE_GE':
       return (e.jobRuntime.resource?.value ?? 0) >= cond.amount;
     case 'FLAG_IS':
@@ -77,15 +81,15 @@ export function runJobHook(
           healMultiplier *= act.multiplier;
         } else if (act.kind === 'GAIN_RESOURCE_FROM_HP_DAMAGE' && context.actualHpDamage && context.actualHpDamage > 0) {
           const maxHp = stats(s, e.equipment).hp;
-          const rageGain = Math.floor((context.actualHpDamage / maxHp) * 100);
+          const rageGain = Math.max(1,Math.floor((context.actualHpDamage / maxHp) * 4));
           if (rageGain > 0) {
-            modifyJobResource(e.jobRuntime, rageGain);
+            gainCombatResource(e, rageGain);
             log(s, `피격 분노 수급 +${rageGain} (현재 분노: ${e.jobRuntime.resource?.value})`);
           }
         } else if (act.kind === 'HEAL_PERCENT') {
           const maxHp = stats(s, e.equipment).hp;
           const healAmount = Math.round(maxHp * act.percent);
-          e.hp = Math.min(maxHp, e.hp + healAmount);
+          applyHealing(s,'player',healAmount,{canCrit:true,rng});
           log(s, `[응급처치] 발동 · HP ${healAmount} 회복`);
         } else if (act.kind === 'SET_FLAG') {
           setJobFlag(e.jobRuntime, act.flag, act.value);
@@ -107,8 +111,8 @@ export function applyJobDamageTakenHooks(s: GameState, rawDamage: number, isDire
   return rawDamage * damageMultiplier;
 }
 
-export function notifyJobHpDamageTaken(s: GameState, actualHpDamage: number, rng: () => number = random) {
-  runJobHook(s, 'AFTER_DAMAGE_TAKEN', { isDirectHit: true, actualHpDamage, actor: 'player' }, rng);
+export function notifyJobHpDamageTaken(s: GameState, actualHpDamage: number, rng: () => number = random,allowReactive=true) {
+  runJobHook(s, 'AFTER_DAMAGE_TAKEN', { isDirectHit: allowReactive, actualHpDamage, actor: 'player' }, rng);
 }
 
 export function checkJobHpThresholdHooks(s: GameState, rng: () => number = random) {
@@ -144,13 +148,21 @@ export function executeJobSkill(s: GameState, skillId: string, rng: () => number
     }
   }
 
-  e.cooldowns['turn:' + skillId] = skill.cooldown;
-  const jobMult = resolveJobDirectHitMultiplier(s, 'SKILL', skillId);
+  const spent=spendCombatResource(e,skill.resource??{kind:'NEUTRAL'});
+  if(spent===null)return false;
+  setSkillCooldown(e,'player',skillId,skill.cooldown);
+  let successfulHits=0;
+  const offensive=skill.effectActions.some(a=>a.kind==='DIRECT_ATTACK');
+  const jobMult = resolveJobDirectHitMultiplier(s, 'SKILL', skillId,rng);
 
   for (const act of skill.effectActions) {
-    if (e.hp <= 0 || e.pendingRevival) break;
+    if (e.hp <= 0 || e.monster.currentHp<=0 || e.pendingRevival) break;
 
     switch (act.kind) {
+      case 'SET_FLAG':setJobFlag(e.jobRuntime,act.flag,act.value);break;
+      case 'CLEANSE':case 'DISPEL': {
+        (act.kind==='CLEANSE'?cleanseEffects:dispelEffects)(e,act.target==='SELF'?'player':'monster',{count:act.count,tags:act.tags});break;
+      }
       case 'APPLY_EFFECT': {
         const target = act.target === 'SELF' ? 'player' : 'monster';
         applyEffect(e, target, act.effectId, 'player', target === 'player' ? e.playerTurn : e.monsterTurn);
@@ -163,10 +175,14 @@ export function executeJobSkill(s: GameState, skillId: string, rng: () => number
         log(s, `[${skill.name}] 사용 · ${act.tag} 효과 제거`);
         break;
       }
+      case 'HEAL_FLAT': {
+        applyHealing(s,'player',act.amount,{canCrit:true,rng});
+        break;
+      }
       case 'HEAL_PERCENT': {
         const maxHp = stats(s, e.equipment).hp;
         const amount = Math.round(maxHp * act.percent);
-        e.hp = Math.min(maxHp, e.hp + amount);
+        applyHealing(s,'player',amount,{canCrit:true,rng});
         log(s, `[${skill.name}] 사용 · HP ${amount} 회복`);
         break;
       }
@@ -183,7 +199,7 @@ export function executeJobSkill(s: GameState, skillId: string, rng: () => number
       }
       case 'DIRECT_ATTACK': {
         let totalHits = act.hits;
-        if (act.conditionalHits && evaluateJobCondition(s, act.conditionalHits.condition, { actionType: 'SKILL', skillId })) {
+        if (act.conditionalHits && evaluateJobCondition(s, act.conditionalHits.condition, { actionType: 'SKILL', skillId,resourceSpent:spent })) {
           totalHits = act.conditionalHits.hits;
         }
 
@@ -192,18 +208,21 @@ export function executeJobSkill(s: GameState, skillId: string, rng: () => number
           if (e.hp <= 0 || e.monster.currentHp <= 0 || e.pendingRevival) break;
           let mult = act.baseMultiplier;
           if (i === totalHits - 1 && act.conditionalLastHitMultiplier) {
-            if (evaluateJobCondition(s, act.conditionalLastHitMultiplier.condition, { actionType: 'SKILL', skillId })) {
+            if (evaluateJobCondition(s, act.conditionalLastHitMultiplier.condition, { actionType: 'SKILL', skillId,resourceSpent:spent })) {
               mult = act.conditionalLastHitMultiplier.multiplier;
             }
           }
-          const res = resolveActorDirectHits(s, 'player', 1, mult * stats(s, e.equipment).skillPower * jobMult, true, rng);
+          const res = resolveActorDirectHits(s, 'player', 1, mult * stats(s, e.equipment).skillPower * jobMult, true, rng,1,{penetrationRate:act.penetrationRate,critical:act.critical,onHit:hit=>{if(hit.hpDamage>0&&hit.hpAfter>0)for(const effect of act.onHitEffects??[])applyEffect(e,'monster',effect.effectId,'player',e.monsterTurn);}});
           totalDamage += res.total;
+          successfulHits+=res.triggerPoints;
         }
         log(s, `[${skill.name}] ${totalHits > 1 ? `${totalHits}연타 · ` : ''}총 ${totalDamage} 피해`);
         break;
       }
+      default:throw new Error(`Unsupported active action: ${act.kind}`);
     }
   }
 
+  if(skill.resource?.kind==='GENERATOR'&&(!offensive||successfulHits>0)&&e.hp>0&&!e.pendingRevival)gainCombatResource(e,skill.resource.gain);
   return true;
 }

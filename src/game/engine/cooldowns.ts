@@ -10,7 +10,7 @@ const legacyStore=(e:Expedition,actor:CombatActor):Record<string,number>=>{
 };
 const setLegacy=(e:Expedition,actor:CombatActor,id:string,value:number)=>{
   if(actor==='monster'){if(e.monsterRuntime)e.monsterRuntime.skillCooldowns[id]=value;return;}
-  e.cooldowns['turn:'+id]=value;
+  if(value>0)e.cooldowns['turn:'+id]=value;else delete e.cooldowns['turn:'+id];
 };
 const readyStore=(e:Expedition,actor:CombatActor)=>combatRuntime(e).skillReadyTurns[actor];
 

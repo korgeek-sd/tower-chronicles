@@ -34,6 +34,7 @@ export function aiConditionText(condition:AiCondition):string|null {
   if(condition.kind==='SELF_MISSING_EFFECT')return '자신에게 '+effectName(condition.effectId)+' 없음';
   if(condition.kind==='TARGET_HAS_EFFECT')return '대상에게 '+effectName(condition.effectId)+' 적용 중';
   if(condition.kind==='TARGET_MISSING_EFFECT')return '대상에게 '+effectName(condition.effectId)+' 없음';
+  if(condition.kind==='SELF_EFFECT_APPLICATIONS_AT_LEAST'||condition.kind==='TARGET_EFFECT_APPLICATIONS_AT_LEAST')return (condition.kind==='SELF_EFFECT_APPLICATIONS_AT_LEAST'?'자신의 ':'대상의 ')+effectName(condition.effectId)+' '+condition.requiredStacks+'회 적용 이상';
   if(condition.kind==='SELF_EFFECT_STACKS_AT_LEAST')return '자신의 '+effectName(condition.effectId)+' '+condition.requiredStacks+'중첩 이상';
   if(condition.kind==='TARGET_EFFECT_STACKS_AT_LEAST')return '대상의 '+effectName(condition.effectId)+' '+condition.requiredStacks+'중첩 이상';
   return null;

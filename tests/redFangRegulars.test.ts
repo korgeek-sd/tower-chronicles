@@ -6,7 +6,7 @@ import {RED_NORMAL_DEFINITIONS} from '../src/game/data/redCombat.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {enter} from '../src/game/engine/expedition.ts';
 import {basicAttack,resolveMonsterTurn} from '../src/game/engine/combat.ts';
-import {effectStacks,hasEffect} from '../src/game/engine/effects.ts';
+import {applyEffect,effectStacks,hasEffect} from '../src/game/engine/effects.ts';
 import {createMonsterRuntime,monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
 import {monsterFor} from '../src/game/engine/drops.ts';
 
@@ -69,11 +69,13 @@ test('RED REGULAR 05: 썩은날 독수리 first weakens defense and exposes a tw
 });
 
 test('RED REGULAR 06: 가죽 갉는 하이에나는 출혈 중첩을 기반으로 강한 교상을 선택한다',()=>{
- let s=regularState('hide_gnawer');s.expedition!.phase='MONSTER_TURN';
+ let s=regularState('hide_gnawer');s.expedition!.monster.hp=10000;s.expedition!.monster.currentHp=10000;s.expedition!.phase='MONSTER_TURN';
  s=resolveMonsterTurn(s);
  assert.equal(effectStacks(s.expedition!.playerEffects,'fang_wound'),1);
  s=basicAttack(s,noEvent);s=resolveMonsterTurn(s);
- assert.equal(effectStacks(s.expedition!.playerEffects,'fang_wound'),2);
+ s=basicAttack(s,noEvent);s=resolveMonsterTurn(s);
+ assert.equal(effectStacks(s.expedition!.playerEffects,'fang_wound'),1);
+ applyEffect(s.expedition!,'player','fang_wound','monster',s.expedition!.playerTurn);
  s=basicAttack(s,noEvent);s=resolveMonsterTurn(s);
  assert.equal(s.expedition!.monsterRuntime!.skillCooldowns.rending_bite,2);
 });

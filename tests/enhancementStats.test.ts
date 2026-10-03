@@ -85,8 +85,8 @@ test('ENHANCE STATS 08: +3 unyielding uses 36% reduction at 35% HP and does not 
   const lowHit=resolveActorDirectHits(low,'monster',1,1,true,noCrit);
   const highHit=resolveActorDirectHits(high,'monster',1,1,true,noCrit);
   const defense=stats(low,low.expedition!.equipment).defense;
-  assert.equal(lowHit.incomingTotal,Math.floor(Math.max(1,50*(1-.36)-defense)));
-  assert.equal(highHit.incomingTotal,Math.floor(Math.max(1,50-defense)));
+  assert.equal(lowHit.incomingTotal,Math.floor(Math.floor(50*100/(100+defense))*(1-.36)));
+  assert.equal(highHit.incomingTotal,Math.floor(50*100/(100+defense)));
   assert.ok(lowHit.incomingTotal<highHit.incomingTotal);
 });
 

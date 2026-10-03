@@ -40,7 +40,7 @@ test('BESTIARY UI 04: 일반 개체 3회 처치 후 설명, 대기시간과 AI �
  const shatter=view.skills.find(skill=>skill.name==='파쇄교상')!;
  assert.match(shatter.description??'',/균열/);
  assert.equal(shatter.cooldown,2);
- assert.ok(shatter.conditions.some(condition=>condition.includes('결정 균열')&&condition.includes('2중첩')));
+ assert.ok(shatter.conditions.some(condition=>condition.includes('결정 균열')&&condition.includes('2회 적용')));
 });
 
 test('BESTIARY UI 05: 보스는 1회 처치로 완전 해금된다',()=>{

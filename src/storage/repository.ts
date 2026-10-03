@@ -1,3 +1,5 @@
+import {combatRuntime} from '../game/engine/battleLifecycle';
+import {stats} from '../game/engine/state';
 import {validEventExpedition} from '../game/events/validation';
 import {upgradeEvents} from '../game/events/service';
 import type {GameState,ExpeditionLoot,Tower,MarketOrder,MarketStorageEntry,MarketTrade} from '../game/types';
@@ -121,7 +123,7 @@ const validCrafting=(x:unknown)=>obj(x)&&count(x.nextJobId)&&x.nextJobId>=1&&Arr
 function validV11(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean{return obj(x)&&x.version===11&&validCrafting(x.crafting)&&validV10({...x,version:10},catalog);}
 function validV13(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean{return obj(x)&&x.version===13&&validExploration(x.exploration)&&validCrafting(x.crafting)&&validV10({...x,version:10},catalog);}
 const validTurnExpedition=(x:unknown)=>x===null||(obj(x)&&['PLAYER_TURN','MONSTER_TURN','BATTLE_END'].includes(x.phase as string)&&count(x.playerTurn)&&x.playerTurn>=1&&count(x.monsterTurn)&&typeof x.pendingFlee==='boolean');
-const validEffects=(x:unknown)=>Array.isArray(x)&&x.every(effect=>{if(!obj(effect)||typeof effect.instanceId!=='string'||typeof effect.effectId!=='string'||!['player','monster'].includes(effect.sourceActorId as string)||!['player','monster'].includes(effect.targetActorId as string)||!count(effect.remainingDuration)||!count(effect.stackCount)||!count(effect.applicationSequence)||!count(effect.createdTurn))return false;const definition=EFFECTS[effect.effectId],shield=definition?.behavior==='SHIELD';if(!shield)return !('currentShield' in effect)&&!('currentShieldHits' in effect);if(definition.shieldHits)return positive(effect.currentShieldHits)&&effect.currentShieldHits<=definition.shieldHits&&!('currentShield' in effect);return positive(effect.currentShield)&&effect.currentShield<=Number(definition.shieldAmount)&&!('currentShieldHits' in effect);});
+const validEffects=(x:unknown)=>Array.isArray(x)&&x.every(effect=>{if(!obj(effect)||typeof effect.instanceId!=='string'||typeof effect.effectId!=='string'||!['player','monster'].includes(effect.sourceActorId as string)||!['player','monster'].includes(effect.targetActorId as string)||!count(effect.remainingDuration)||!count(effect.stackCount)||!count(effect.applicationSequence)||!count(effect.createdTurn))return false;const definition=EFFECTS[effect.effectId],shield=definition?.behavior==='SHIELD';if(!shield)return !('currentShield' in effect)&&!('currentShieldHits' in effect);if(definition.shieldHits)return positive(effect.currentShieldHits)&&effect.currentShieldHits<=definition.shieldHits&&!('currentShield' in effect);return positive(effect.currentShield)&&effect.currentShield<=Number.MAX_SAFE_INTEGER&&!('currentShieldHits' in effect);});
 const validEffectExpedition=(x:unknown)=>x===null||(obj(x)&&validEffects(x.playerEffects)&&validEffects(x.monsterEffects)&&validEffects(x.preparedEffects)&&count(x.effectSequence));
 function validV15(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean{return obj(x)&&x.version===15&&validTurnExpedition(x.expedition)&&validEffectExpedition(x.expedition)&&validV13({...x,version:13},catalog);}
 const validJobRuntime=(x:unknown)=>obj(x)&&(x.jobId===null||isValidJobId(x.jobId))&&Array.isArray(x.passiveIds)&&[0,2].includes(x.passiveIds.length)&&strings(x.passiveIds)&&Array.isArray(x.activeSkillIds)&&[0,3].includes(x.activeSkillIds.length)&&strings(x.activeSkillIds)&&(x.resource===null||(obj(x.resource)&&typeof x.resource.id==='string'&&finite(x.resource.value)&&(x.resource.maxValue===undefined||finite(x.resource.maxValue))));
@@ -139,14 +141,14 @@ const validReactiveRuntime=(x:unknown)=>x===null||(obj(x)&&typeof x.definitionId
 const validReactiveExpedition=(x:unknown)=>x===null||(obj(x)&&obj(x.events)&&obj(x.reactivePrepared)&&validReactiveRuntime(x.reactivePrepared.player)&&validReactiveRuntime(x.reactivePrepared.monster)&&(x.events.phase==='BATTLE'||(x.reactivePrepared.player===null&&x.reactivePrepared.monster===null)));
 function validV19(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {if(!obj(x)||x.version!==19||!validEventExpedition(x.expedition)||!validMonsterRuntimeExpedition(x.expedition)||!validReactiveExpedition(x.expedition))return false;const e=x.expedition;return validV16({...x,version:16,expedition:e?{...e,bossTracking:{...e.bossTracking,progress:0,pendingBossId:null,encounterReason:null}}:null},catalog);}
 const validContinuationStep=(x:unknown)=>obj(x)&&((x.kind==='SKILL_EFFECTS'&&['player','monster'].includes(x.actor as string)&&Array.isArray(x.effects)&&x.effects.every(v=>obj(v)&&typeof v.effectId==='string'&&!!EFFECTS[v.effectId]&&['SELF','TARGET'].includes(v.target as string)))||['AFTER_PLAYER_ACTION','AFTER_PLAYER_PERIODIC','AFTER_MONSTER_ACTION','AFTER_EVENT_RESULT'].includes(x.kind as string)||(x.kind==='DIRECT_HITS'&&['player','monster'].includes(x.attacker as string)&&count(x.remainingHits)&&x.remainingHits>0&&finite(x.multiplier)&&x.multiplier>=0&&typeof x.allowReactive==='boolean'&&(!('defenseDivisor' in x)||(finite(x.defenseDivisor)&&Number(x.defenseDivisor)>=1))));
-const validPendingRevival=(x:unknown)=>x===null||(obj(x)&&['DIRECT_HIT','PERIODIC_DAMAGE','EVENT_DAMAGE'].includes(x.source as string)&&Array.isArray(x.steps)&&x.steps.length>0&&x.steps.length<=32&&x.steps.every(validContinuationStep)&&obj(x.steps[x.steps.length-1])&&['AFTER_PLAYER_ACTION','AFTER_PLAYER_PERIODIC','AFTER_MONSTER_ACTION','AFTER_EVENT_RESULT'].includes(x.steps[x.steps.length-1].kind));
+const validPendingRevival=(x:unknown)=>x===null||(obj(x)&&['DIRECT_HIT','PERIODIC_DAMAGE','EVENT_DAMAGE'].includes(x.source as string)&&Array.isArray(x.steps)&&((x.steps.length===0&&['PLAYER_TURN','MONSTER_TURN'].includes(x.resumeTurn as string))||(x.steps.length>0&&x.steps.length<=32&&x.steps.every(validContinuationStep)&&obj(x.steps[x.steps.length-1])&&['AFTER_PLAYER_ACTION','AFTER_PLAYER_PERIODIC','AFTER_MONSTER_ACTION','AFTER_EVENT_RESULT'].includes(x.steps[x.steps.length-1].kind))));
 function validPotionGraph(x:Obj){if(!currentBag(x.potions)||!currentBag(x.loadout))return false;if(obj(x.expedition)&&(!currentBag(x.expedition.bag)||!validPendingRevival(x.expedition.pendingRevival)))return false;if(obj(x.lastExpedition)&&!currentBag(x.lastExpedition.remainingPotions))return false;if(!Array.isArray(x.expeditionPresets)||!x.expeditionPresets.every(p=>p===null||(obj(p)&&currentBag(p.potions))))return false;if(obj(x.expedition)){const e=x.expedition,p=e.pendingRevival;if(obj(p)){if(e.hp!==0||!obj(e.bag)||e.bag.revival!==1||!obj(e.events))return false;if(p.source==='EVENT_DAMAGE'?e.events.phase!=='EVENT_RESULT':e.events.phase!=='BATTLE')return false;}if(obj(e.bag)&&Number(e.bag.revival)>1)return false;}return true;}
 function validV20(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {if(!obj(x)||x.version!==20||!validPotionGraph(x)||!validEventExpedition(x.expedition)||!validMonsterRuntimeExpedition(x.expedition)||!validReactiveExpedition(x.expedition))return false;const e=x.expedition;return validV16({...x,version:16,expedition:e?{...e,bossTracking:{...e.bossTracking,progress:0,pendingBossId:null,encounterReason:null}}:null},catalog);}
 /** The v20 validator is reused for structural checks and expects 50 ticket slots.
  * Pad every persisted ticket bag (including an active expedition) only for that
  * validation pass; the actual v21 save always remains a 10-slot save. */
 function padTickets(value:unknown):unknown {if(!obj(value))return value;const pad=(tickets:unknown)=>{if(!obj(tickets))return tickets;const next={...tickets};for(const t of towerIds){const row=next[t];if(Array.isArray(row)&&row.length===10)next[t]=[...row,...Array(40).fill(0)];}return next;};const next:any={...value,tickets:pad(value.tickets)};if(obj(value.expedition))next.expedition={...value.expedition,loot:{...(value.expedition.loot as Obj),tickets:pad((value.expedition.loot as Obj)?.tickets)}};if(obj(value.lastExpedition))next.lastExpedition={...value.lastExpedition,loot:{...(value.lastExpedition.loot as Obj),tickets:pad((value.lastExpedition.loot as Obj)?.tickets)}};return next;}
-const validCombatEvents=(state:Obj)=>{if(state.combatEvents===undefined&&state.combatEventSequence===undefined)return true;if(!Array.isArray(state.combatEvents)||state.combatEvents.length>40||!count(state.combatEventSequence))return false;let previous=0;for(const event of state.combatEvents){if(!obj(event)||!count(event.id)||event.id<=previous||event.id>Number(state.combatEventSequence)||event.kind!=='DIRECT_DAMAGE'||!['player','monster'].includes(event.attacker as string)||!['player','monster'].includes(event.target as string)||event.attacker===event.target||!count(event.hitIndex)||!count(event.hitCount)||event.hitIndex>event.hitCount||!finite(event.incomingDamage)||event.incomingDamage<0||!finite(event.absorbedByShield)||event.absorbedByShield<0||!finite(event.hpDamage)||event.hpDamage<0||typeof event.critical!=='boolean')return false;previous=event.id as number;}return true;};
+const validCombatEvents=(state:Obj)=>{if(state.combatEvents===undefined&&state.combatEventSequence===undefined)return true;if(!Array.isArray(state.combatEvents)||state.combatEvents.length>40||!count(state.combatEventSequence))return false;let previous=0;for(const event of state.combatEvents){if(!obj(event)||!count(event.id)||event.id<=previous||event.id>Number(state.combatEventSequence)||!['DIRECT_DAMAGE','HEAL'].includes(event.kind as string)||!['player','monster'].includes(event.attacker as string)||!['player','monster'].includes(event.target as string)||(event.kind==='DIRECT_DAMAGE'&&event.attacker===event.target)||!count(event.hitIndex)||!count(event.hitCount)||event.hitIndex>event.hitCount||!finite(event.incomingDamage)||event.incomingDamage<0||!finite(event.absorbedByShield)||event.absorbedByShield<0||!finite(event.hpDamage)||event.hpDamage<0||typeof event.critical!=='boolean')return false;if(event.kind==='HEAL'&&(!finite(event.healing)||event.healing<0))return false;if(event.outcome!==undefined&&!['HIT','MISS','IMMUNE','BLOCKED_BY_SHIELD'].includes(event.outcome as string))return false;if(event.origin!==undefined&&!['ACTION','REACTION'].includes(event.origin as string))return false;previous=event.id as number;}return true;};
 function validV21(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {if(!obj(x)||x.version!==21)return false;const state=x as Obj,tickets=state.tickets,progress=state.progress;if(!obj(tickets)||!towerIds.every(t=>numbers(tickets[t],10))||!obj(progress)||!towerIds.every(t=>floor21(progress[t]))||!validResult21(state.lastExpedition)||!validExpedition21(state.expedition)||!validCombatEvents(state))return false;const padded=padTickets(state);return obj(padded)&&validV20({...padded,version:20},catalog);}
 const floor21=(x:unknown)=>count(x)&&x>=1&&x<=10;
 function validResult21(x:unknown):boolean{if(x===null)return true;if(!obj(x))return false;const result=x as Obj,loot=result.loot;if(!obj(loot)||!obj(loot.tickets))return false;const tickets=loot.tickets as Obj;return floor21(result.floor)&&towerIds.every(t=>numbers(tickets[t],10));}
@@ -308,6 +310,23 @@ export function parseSaveImport(raw:string,catalog:CosmeticsCatalog=COSMETICS_CA
   const memory:StoragePort={getItem:key=>key===SAVE_KEY?current:null,setItem:(key,value)=>{if(key===SAVE_KEY)current=value;}};
   try{return createRepository(memory,catalog).load();}catch(error){throw Error(error instanceof Error?`저장 파일을 가져올 수 없습니다. ${error.message}`:'저장 파일을 가져올 수 없습니다.');}
 }
+export function normalizeCombatSave(s:GameState):GameState {
+ const e=s.expedition;if(!e)return s;
+ const runtime=combatRuntime(e);runtime.playerMaxHp=stats(s,e.equipment).hp;
+ for(const actor of ['player','monster'] as const)for(const effect of actor==='player'?e.playerEffects:e.monsterEffects){
+  if(EFFECTS[effect.effectId]?.stackingPolicy==='EXTEND_DURATION'&&effect.stackCount>1){
+   if(e.monsterRuntime){e.monsterRuntime.effectApplications??={};const key=actor+':'+effect.effectId;e.monsterRuntime.effectApplications[key]=Math.max(effect.stackCount,e.monsterRuntime.effectApplications[key]??0);}
+   effect.stackCount=1;
+  }
+ }
+
+ if(!e.jobRuntime.resource)e.jobRuntime.resource={id:'combat',value:0,maxValue:4};
+ else if((e.jobRuntime.resource.maxValue??4)>4){e.jobRuntime.resource.value=Math.min(4,Math.floor(e.jobRuntime.resource.value/25));e.jobRuntime.resource.maxValue=4;e.jobRuntime.resource.id='combat';}
+ if(e.pendingRevival&&!e.pendingRevival.resumeTurn&&e.pendingRevival.source!=='EVENT_DAMAGE'){
+  const steps=e.pendingRevival.steps;e.pendingRevival.resumeTurn=steps.some(x=>x.kind==='AFTER_MONSTER_ACTION')?'PLAYER_TURN':'MONSTER_TURN';e.pendingRevival.steps=[];
+ }
+ return s;
+}
 export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=COSMETICS_CATALOG){
   return {
     save(state:GameState){
@@ -321,7 +340,7 @@ export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=CO
       const current=storage.getItem(SAVE_KEY);
       if(current!==null)storage.setItem(IMPORT_BACKUP_KEY,current);
       storage.setItem(SAVE_KEY,JSON.stringify(next));
-      return next;
+      return normalizeCombatSave(next);
     },
     load():GameState {
       const raw=storage.getItem(SAVE_KEY);if(!raw)return initialState();
@@ -331,70 +350,70 @@ export function createRepository(storage:StoragePort,catalog:CosmeticsCatalog=CO
         if(storage.getItem(LEGACY_BACKUP_KEY)===null)storage.setItem(LEGACY_BACKUP_KEY,raw);
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===2){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(migrateV2(data),catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(MASTERY_BACKUP_KEY)===null)storage.setItem(MASTERY_BACKUP_KEY,raw);
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===3){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(migrateV3(data),catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(SILVER_BACKUP_KEY)===null)storage.setItem(SILVER_BACKUP_KEY,raw);
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===4){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(migrateV4(data,catalog),catalog),catalog),catalog),catalog)))));
         if(storage.getItem(COSMETICS_BACKUP_KEY)===null)storage.setItem(COSMETICS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===5){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(migrateV5(data,catalog),catalog),catalog),catalog)))));
         if(storage.getItem(BOSS_TRACKING_BACKUP_KEY)===null)storage.setItem(BOSS_TRACKING_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===6){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(migrateV6(data,catalog),catalog),catalog)))));
         if(storage.getItem(PRESETS_BACKUP_KEY)===null)storage.setItem(PRESETS_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===7){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(migrateV7(data,catalog),catalog)))));
         if(storage.getItem(GOLDEN_RECORDER_BACKUP_KEY)===null)storage.setItem(GOLDEN_RECORDER_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===8){
         const next=migrateV12(migrateV11(migrateV10(migrateV9(migrateV8(data,catalog)))));
         if(storage.getItem(MARKET_BACKUP_KEY)===null)storage.setItem(MARKET_BACKUP_KEY,raw);
         storage.setItem(SAVE_KEY,JSON.stringify(next));
-        return next;
+        return normalizeCombatSave(next);
       }
       if(obj(data)&&data.version===9&&obj(data.market)&&!('gold' in data.market)){data.market.gold=1000;storage.setItem(SAVE_KEY,JSON.stringify(data));}
-      if(obj(data)&&data.version===9){const next=migrateV12(migrateV11(migrateV10(migrateV9(data,catalog),catalog)));if(storage.getItem(ASSOCIATION_BACKUP_KEY)===null)storage.setItem(ASSOCIATION_BACKUP_KEY,raw);if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===10){const next=migrateV12(migrateV11(migrateV10(data,catalog)));if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===11){const next=migrateV12(migrateV11(data,catalog),catalog);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===12){const next=migrateV12(data,catalog);if(storage.getItem(EXPLORATION_BACKUP_KEY)===null)storage.setItem(EXPLORATION_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===13){const next=migrateV13(data,catalog);if(storage.getItem(TURN_BATTLE_BACKUP_KEY)===null)storage.setItem(TURN_BATTLE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===14){const next=migrateV14(data,catalog);if(storage.getItem(EFFECTS_BACKUP_KEY)===null)storage.setItem(EFFECTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===15){const next=migrateV15(data,catalog);if(storage.getItem(JOBS_BACKUP_KEY)===null)storage.setItem(JOBS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===9){const next=migrateV12(migrateV11(migrateV10(migrateV9(data,catalog),catalog)));if(storage.getItem(ASSOCIATION_BACKUP_KEY)===null)storage.setItem(ASSOCIATION_BACKUP_KEY,raw);if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===10){const next=migrateV12(migrateV11(migrateV10(data,catalog)));if(storage.getItem(CRAFTING_BACKUP_KEY)===null)storage.setItem(CRAFTING_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===11){const next=migrateV12(migrateV11(data,catalog),catalog);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===12){const next=migrateV12(data,catalog);if(storage.getItem(EXPLORATION_BACKUP_KEY)===null)storage.setItem(EXPLORATION_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===13){const next=migrateV13(data,catalog);if(storage.getItem(TURN_BATTLE_BACKUP_KEY)===null)storage.setItem(TURN_BATTLE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===14){const next=migrateV14(data,catalog);if(storage.getItem(EFFECTS_BACKUP_KEY)===null)storage.setItem(EFFECTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===15){const next=migrateV15(data,catalog);if(storage.getItem(JOBS_BACKUP_KEY)===null)storage.setItem(JOBS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
       data=normalizeV16JobReferences(data);
-      if(obj(data)&&data.version===16){const next=migrateV16(data,catalog);if(storage.getItem(EVENTS_BACKUP_KEY)===null)storage.setItem(EVENTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-       if(obj(data)&&data.version===17){const next=migrateV17(data,catalog);if(storage.getItem(MONSTER_RUNTIME_BACKUP_KEY)===null)storage.setItem(MONSTER_RUNTIME_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-       if(obj(data)&&data.version===18){const next=migrateV18(data,catalog);if(storage.getItem(COMBAT_TRIGGERS_BACKUP_KEY)===null)storage.setItem(COMBAT_TRIGGERS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-       if(obj(data)&&data.version===19){const next=migrateV19(data,catalog);if(storage.getItem(POTION_OVERHAUL_BACKUP_KEY)===null)storage.setItem(POTION_OVERHAUL_BACKUP_KEY,raw);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===20){const next=migrateV20(data,catalog);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);if(storage.getItem(EQUIPMENT_V2_BACKUP_KEY)===null)storage.setItem(EQUIPMENT_V2_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
-      if(obj(data)&&data.version===22){const next=migrateV22(data,catalog);if(storage.getItem(EQUIPMENT_V2_BACKUP_KEY)===null)storage.setItem(EQUIPMENT_V2_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return next;}
+      if(obj(data)&&data.version===16){const next=migrateV16(data,catalog);if(storage.getItem(EVENTS_BACKUP_KEY)===null)storage.setItem(EVENTS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+       if(obj(data)&&data.version===17){const next=migrateV17(data,catalog);if(storage.getItem(MONSTER_RUNTIME_BACKUP_KEY)===null)storage.setItem(MONSTER_RUNTIME_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+       if(obj(data)&&data.version===18){const next=migrateV18(data,catalog);if(storage.getItem(COMBAT_TRIGGERS_BACKUP_KEY)===null)storage.setItem(COMBAT_TRIGGERS_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+       if(obj(data)&&data.version===19){const next=migrateV19(data,catalog);if(storage.getItem(POTION_OVERHAUL_BACKUP_KEY)===null)storage.setItem(POTION_OVERHAUL_BACKUP_KEY,raw);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===20){const next=migrateV20(data,catalog);if(storage.getItem(TOWER_STRUCTURE_BACKUP_KEY)===null)storage.setItem(TOWER_STRUCTURE_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===21){const next=migrateV21(data,catalog);if(storage.getItem(BESTIARY_BACKUP_KEY)===null)storage.setItem(BESTIARY_BACKUP_KEY,raw);if(storage.getItem(EQUIPMENT_V2_BACKUP_KEY)===null)storage.setItem(EQUIPMENT_V2_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
+      if(obj(data)&&data.version===22){const next=migrateV22(data,catalog);if(storage.getItem(EQUIPMENT_V2_BACKUP_KEY)===null)storage.setItem(EQUIPMENT_V2_BACKUP_KEY,raw);storage.setItem(SAVE_KEY,JSON.stringify(next));return normalizeCombatSave(next);}
       if(!validSave(data,catalog))throw Error('지원하지 않거나 손상된 저장 데이터입니다.');
-      return data;
+      return normalizeCombatSave(data);
     }
   };
 }

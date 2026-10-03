@@ -88,7 +88,7 @@ test('CRYSTAL 06: 석영등갑충은 기존 SHIELD 효과 엔진만으로 결정
  assert.equal(shield?.currentShield,32);
 });
 
-test('CRYSTAL 07: 수정비늘 뱀은 기존 STACK 상태와 AI 조건으로 균열을 누적하고 파쇄교상을 선택한다',()=>{
+test('CRYSTAL 07: 수정비늘 뱀은 효과 적용 횟수와 AI 조건으로 파쇄교상을 선택한다',()=>{
  const base=initialState();base.tickets.gem[4]=1;
  let s=enter(base,'gem',5);
  s=beginEncounter(s,()=>.999);
@@ -98,12 +98,13 @@ test('CRYSTAL 07: 수정비늘 뱀은 기존 STACK 상태와 AI 조건으로 균
  assert.equal(effectStacks(s.expedition!.playerEffects,'crystal_fracture'),1);
  s=passPlayerTurn(s,noEvent);
  s=resolveMonsterTurn(s);
- assert.equal(effectStacks(s.expedition!.playerEffects,'crystal_fracture'),2);
+ s=passPlayerTurn(s,noEvent);s=resolveMonsterTurn(s);
+ assert.equal(effectStacks(s.expedition!.playerEffects,'crystal_fracture'),1);
  s=passPlayerTurn(s,noEvent);
  const before=s.expedition!.hp;
  s=resolveMonsterTurn(s);
  assert.ok(s.expedition!.hp<before);
- assert.equal(effectStacks(s.expedition!.playerEffects,'crystal_fracture'),2);
+ assert.equal(effectStacks(s.expedition!.playerEffects,'crystal_fracture'),1);
 });
 
 test('CRYSTAL 08: 만광굴절 포식자는 기존 Reactive Prepared로 직접 피격 1회에 반격한다',()=>{

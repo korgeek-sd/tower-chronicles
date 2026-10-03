@@ -30,7 +30,7 @@ export function MonsterLayer({expedition,impact,motion,anchorRef}:{expedition:Ex
  return <div ref={anchorRef} className={'monster-placement'+(motion==='monster'?' tc-combat-monster-attack':'')} style={{'--monster-scale':display.scale,'--monster-x':display.offsetX+'%','--monster-y':display.offsetY+'%'} as React.CSSProperties}><div className={className}>{state!=='placeholder'&&src?<img src={assetUrl(src)} alt={expedition.monster.name}/>:<div className="fighter-placeholder monster-placeholder"><span aria-hidden="true">♟</span></div>}</div></div>;
 }
 
-type Floating={id:number;kind:'monster-damage'|'player-damage'|'player-heal'|'monster-shield-float'|'player-shield-float';target:'player'|'monster';amount:number;x:number;y:number;critical?:boolean;hit?:string;lane?:number};
+type Floating={id:number;kind:'monster-damage'|'player-damage'|'player-heal'|'monster-heal'|'monster-shield-float'|'player-shield-float';target:'player'|'monster';amount:number;x:number;y:number;critical?:boolean;label?:string;hit?:string;lane?:number};
 
 function DamageDigits({amount,prefix}:{amount:number;prefix:string}){
  const chars=String(Math.max(0,Math.ceil(amount))).split('');
@@ -39,30 +39,30 @@ function DamageDigits({amount,prefix}:{amount:number;prefix:string}){
 
 export function FloatingLayer({events}:{events:Floating[]}){
  return <div className="damage-layer" aria-hidden="true">{events.map(e=>{
-  const shield=e.kind.endsWith('shield-float'),heal=e.kind==='player-heal',prefix=heal?'+':'';
+  const shield=e.kind.endsWith('shield-float'),heal=e.kind.endsWith('heal'),prefix=heal?'+':'';
   return <span key={e.id} className={'floating-number target-'+e.target+' '+e.kind+(e.critical?' critical':'')} style={{left:e.x,top:e.y,'--damage-lane':e.lane??0} as React.CSSProperties}>
    {e.hit&&<small className="tc-damage-hit">{e.hit}</small>}
    {shield&&<small className="tc-damage-shield-label">보호막</small>}
-   <DamageDigits amount={e.amount} prefix={prefix}/>
+   {e.label?<b>{e.label}</b>:<DamageDigits amount={e.amount} prefix={prefix}/>}
    {e.critical&&<b>CRITICAL</b>}
   </span>;
  })}</div>;
 }
 
-function StatusPips({count}:{count:number}){return <div className="tc-hud-pips" aria-hidden="true">{[0,1,2,3].map(i=><i key={i} className={i<count?'active':''}/>)}</div>;}
+function ResourcePips({count}:{count:number}){return <div className="tc-hud-pips" role="status" aria-label={'전투 자원 '+count+' / 4'}>{[0,1,2,3].map(i=><i key={i} className={i<count?'active':''}/>)}</div>;}
 
 function HpTrack({percent,enemy=false,name,current,max}:{percent:number;enemy?:boolean;name:string;current:number;max:number}){
- return <div className={'hp'+(enemy?' enemy':'')} role="progressbar" aria-label={name+' HP'} aria-valuenow={Math.max(0,current)} aria-valuemin={0} aria-valuemax={max}>
+ return <div className={'hp'+(enemy?' enemy':'')} role="progressbar" aria-label={name+' HP'} aria-valuenow={Math.min(max,Math.max(0,current))} aria-valuemin={0} aria-valuemax={max}>
   <i className="tc-hp-loss" style={{width:percent+'%'}}/>
   <div style={{width:percent+'%'}}/>
  </div>;
 }
 
 function CombatHud({expedition,playerMaxHp,titleName}:{expedition:Expedition;playerMaxHp:number;titleName?:string}){
- const monster=monsterHud(expedition.monster),playerPercent=Math.max(0,Math.min(100,expedition.hp/playerMaxHp*100)),playerPips=Math.min(4,expedition.playerEffects.length+(expedition.reactivePrepared.player?1:0)),monsterPips=Math.min(4,expedition.monsterEffects.length+(expedition.reactivePrepared.monster?1:0));
+ const monster=monsterHud(expedition.monster),playerPercent=Math.max(0,Math.min(100,expedition.hp/playerMaxHp*100)),playerPips=Math.max(0,Math.min(4,expedition.jobRuntime.resource?.value??0));
  return <div className="combat-hud">
-  <div className="fighter-hud monster-hud"><strong>{monster.name}</strong><span>{Math.ceil(monster.current)} / {monster.max}</span><HpTrack percent={monster.percent} enemy name={monster.name} current={monster.current} max={monster.max}/><StatusPips count={monsterPips}/><small className="tc-hud-level">Lv {expedition.floor}</small></div>
-  <div className="fighter-hud player-hud"><strong>{titleName&&<small className="title-tag">「{titleName}」</small>}모험가</strong><span>{Math.ceil(expedition.hp)} / {playerMaxHp}</span><HpTrack percent={playerPercent} name="플레이어" current={expedition.hp} max={playerMaxHp}/><StatusPips count={playerPips}/><small className="tc-hud-level">Lv {expedition.playerTurn}</small></div>
+  <div className="fighter-hud monster-hud"><strong>{monster.name}</strong><span>{Math.ceil(monster.current)} / {monster.max}</span><HpTrack percent={monster.percent} enemy name={monster.name} current={monster.current} max={monster.max}/><small className="tc-hud-level">Lv {expedition.floor}</small></div>
+  <div className="fighter-hud player-hud"><strong>{titleName&&<small className="title-tag">「{titleName}」</small>}모험가</strong><span>{Math.ceil(expedition.hp)} / {playerMaxHp}</span><HpTrack percent={playerPercent} name="플레이어" current={expedition.hp} max={playerMaxHp}/><ResourcePips count={playerPips}/><small className="tc-hud-level">Lv {expedition.playerTurn}</small></div>
  </div>;
 }
 
@@ -115,7 +115,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
  },[actionCue?.id,speed]);
 
  useEffect(()=>{
-  const before=previous.current,monsterDamage=damageBetween(before,expedition),playerEvent=playerVitalBetween(before,expedition),direct=combatEvents.filter(event=>event.id>previousEventId.current);
+  const before=previous.current,monsterDamage=damageBetween(before,expedition),playerEvent=playerVitalBetween(before,expedition),fresh=combatEvents.filter(event=>event.id>previousEventId.current),direct=fresh.filter(event=>event.kind==='DIRECT_DAMAGE');
   previous.current=expedition;previousEventId.current=combatEvents.at(-1)?.id??previousEventId.current;
   const rate=Math.min(2,Math.max(.75,speed||1)),hitMs=Math.round(SCENE_CONFIG.hitDurationMs/rate),dmgMs=Math.round(SCENE_CONFIG.damageDurationMs/rate),hitGap=Math.round(78/rate);
   const windup=attackWindup(speed),hasPlayerHit=direct.some(e=>e.attacker==='player'),hasMonsterHit=direct.some(e=>e.attacker==='monster');
@@ -134,13 +134,18 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
   }else setDisplayHp(expedition.hp);
   let touchedMonster=false,touchedPlayer=false,monsterCritical=false,playerCritical=false;
 
+  for(const event of fresh.filter(event=>event.kind==='HEAL')){
+   addFloating({id:++seq.current,kind:event.target==='player'?'player-heal':'monster-heal',target:event.target,amount:event.healing??0,critical:event.critical,lane:0},0,dmgMs);
+   if(event.target==='player')vfxRef.current?.playHeal(speed);
+  }
   for(const event of direct){
-   const delay=(event.attacker==='monster'?retaliationDelay:windup)+(event.hitCount>1?Math.max(0,event.hitIndex-1)*hitGap:0),hit=event.hitCount>1?event.hitIndex+'타':undefined,lane=(event.hitIndex-1)%3;
+   const delay=(event.attacker==='monster'?retaliationDelay:windup)+(event.hitCount>1?Math.max(0,event.hitIndex-1)*hitGap:0),hit=event.origin==='REACTION'?'반격':event.hitCount>1?event.hitIndex+'타':undefined,lane=(event.hitIndex-1)%3;
    schedule(()=>{
     vfxRef.current?.playEvent(event,speed);
     if(event.hpDamage>0||event.absorbedByShield>0)playCombatImpact(event.attacker==='player'?(weapon??'sword'):'sword',event.critical,event.hpDamage===0,event.target==='monster'&&expedition.monster.currentHp<=0&&event.hitIndex===event.hitCount);
     if(event.hpDamage>0)shakeTarget(event.target,event.critical);
    },delay);
+   if(event.outcome==='MISS'||event.outcome==='IMMUNE')addFloating({id:++seq.current,kind:event.target==='monster'?'monster-damage':'player-damage',target:event.target,amount:0,label:event.outcome==='MISS'?'MISS':'IMMUNE',hit:event.origin==='REACTION'?'반격':hit,lane},delay,dmgMs);
    if(event.absorbedByShield>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-shield-float':'player-shield-float',target:event.target,amount:event.absorbedByShield,critical:event.critical&&event.hpDamage===0,hit,lane},delay,dmgMs);
    if(event.hpDamage>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-damage':'player-damage',target:event.target,amount:event.hpDamage,critical:event.critical,hit,lane},delay,dmgMs);
    if(event.target==='monster'){touchedMonster=true;monsterCritical=monsterCritical||(event.critical&&event.hpDamage>0);}
@@ -153,7 +158,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
    schedule(()=>{vfxRef.current?.playDamage('monster',false,speed);shakeTarget('monster',false);},0);
    addFloating({id:++seq.current,kind:'monster-damage',target:'monster',amount:monsterDamage,lane:0},0,dmgMs);
   }
-  if(playerEvent?.kind==='heal'){
+  if(playerEvent?.kind==='heal'&&!fresh.some(event=>event.kind==='HEAL'&&event.target==='player')){
    addFloating({id:++seq.current,kind:'player-heal',target:'player',amount:playerEvent.amount,lane:0},0,dmgMs);
    vfxRef.current?.playHeal(speed);
   }else if(!direct.length&&playerEvent?.kind==='damage'){
