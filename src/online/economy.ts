@@ -1,3 +1,5 @@
+import {combatRuntime} from '../game/engine/battleLifecycle';
+import type {CombatEvent} from '../game/types';
 import type {ActiveEffect,EquipmentItem,GameState,Tower} from '../game/types';
 import type {JobRarity} from '../game/jobs/catalog';
 import type {JobRegistrationPaidRolls} from '../game/jobs/registration';
@@ -37,6 +39,11 @@ const errors:RpcErrorMap={
  COMBAT_ACTION_INVALID:'서버가 전투 행동을 확인하지 못했습니다.',
  COMBAT_ACTION_RATE_INVALID:'비정상적으로 빠른 전투 행동이 감지되었습니다.',
  COMBAT_POTION_INVALID:'현재 상태에서는 포션을 사용할 수 없습니다.',
+ COMBAT_POTION_LIMIT:'한 원정에서 회복 포션은 최대 5회 사용할 수 있습니다.',
+ COMBAT_ROOTED:'속박 중에는 도망칠 수 없습니다.',
+ COMBAT_STUNNED:'기절 중에는 행동할 수 없습니다.',
+ COMBAT_SILENCED:'침묵 중에는 직업 스킬을 사용할 수 없습니다.',
+ COMBAT_SKILL_COOLDOWN:'아직 스킬의 재사용 대기시간이 남아 있습니다.',
  COMBAT_POTION_EMPTY:'원정 가방에 해당 포션이 없습니다.',
  EXPEDITION_KILL_WITHOUT_SERVER_ACTION:'서버가 확인한 공격 행동 없이 처치를 인정할 수 없습니다.',
  DISMANTLE_ITEM_NOT_FOUND:'서버에 등록된 분해 장비를 찾지 못했습니다.',
@@ -129,7 +136,7 @@ export async function startOnlineExpedition(lease:GameplayLease,tower:Tower,floo
  return remember(record);
 }
 
-export interface OnlineCombatState {potions?:Partial<Record<'healing_lesser'|'healing_standard'|'healing_greater'|'healing_supreme',number>>;fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;monsterReaction?:{id?:string;damage?:number}|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;playerAbsorbed?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem|null;enhancementStones?:number}|null}
+export interface OnlineCombatState {engineVersion?:number;combatEvents?:Omit<CombatEvent,'id'>[];healingPotionUses?:number;playerReadyTurns?:Record<string,number>;monsterReadyTurns?:Record<string,number>;revivalResumeTurn?:'PLAYER_TURN'|'MONSTER_TURN';revivalSource?:'DIRECT_HIT'|'PERIODIC_DAMAGE';revivalCount?:number;monsterPhaseId?:string|null;potions?:Partial<Record<'healing_lesser'|'healing_standard'|'healing_greater'|'healing_supreme',number>>;fled?:boolean;returnAuthorized?:boolean;runVersion?:number;turnNo?:number;monsterAttack?:number;monsterDefense?:number;monsterCooldowns?:Record<string,number>;monsterPreparedAction?:string|null;monsterReactiveAction?:string|null;monsterReaction?:{id?:string;damage?:number}|null;jobId?:string|null;jobResource?:number;stateVersion?:number;playerEffects?:unknown[];monsterEffects?:unknown[];playerCooldowns?:Record<string,number>;jobFlags?:Record<string,boolean>;playerTurn?:number;monsterTurn?:number;playerShieldHits?:number;monsterShieldHits?:number;pendingRevival?:boolean;monsterAction?:{kind:string;id:string;effect?:string;multiplier?:number;prepared?:boolean};playerShield?:number;monsterShield?:number;playerAbsorbed?:number;periodicPlayer?:number;periodicMonster?:number;absorbed?:number;healing?:number;encounterIndex:number;monsterId:string;playerHp:number;playerMaxHp?:number;monsterHp:number;monsterMaxHp?:number;turn?:number;phase:'PLAYER_TURN'|'MONSTER_TURN'|'DEFEATED'|'PLAYER_DEAD';actionNonce:number;confirmedKills?:number;damage?:number;retaliation?:number;drop?:{silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem|null;enhancementStones?:number}|null}
 export async function beginOnlineCombatState(lease:GameplayLease){
  return rpc<OnlineCombatState>('begin_online_combat_state_v2',{...leaseArgs(lease)});
 }
@@ -299,7 +306,7 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  const next=structuredClone(local),e=next.expedition;if(!e)return next;
  const beforePlayerHp=e.hp,beforeMonsterHp=e.monster.currentHp;
  const visualEvents:{attacker:'player'|'monster';target:'player'|'monster';incomingDamage:number;absorbedByShield:number;hpDamage:number}[]=[];
- if(options.emitCombatEvents){
+ if(options.emitCombatEvents&&!Array.isArray(server.combatEvents)){
   const monsterAbsorb=Math.max(0,Number(server.absorbed??0)||0);
   const playerAbsorb=Math.max(0,Number(server.playerAbsorbed??0)||0);
   const serverPlayerDamage=Math.max(0,Number(server.damage??0)||0);
@@ -319,15 +326,20 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
  e.monster.currentHp=Math.max(0,Number.isFinite(server.monsterHp)?server.monsterHp:e.monster.currentHp);
  if(Number.isFinite(server.monsterMaxHp)&&Number(server.monsterMaxHp)>0)e.monster.hp=Number(server.monsterMaxHp);
  e.phase=server.phase==='MONSTER_TURN'?'MONSTER_TURN':'PLAYER_TURN';
- if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival={source:'DIRECT_HIT',steps:[{kind:'AFTER_MONSTER_ACTION'}]};
+ if(server.pendingRevival&&e.hp<=0&&!e.pendingRevival)e.pendingRevival=server.engineVersion===2?{source:server.revivalSource??'DIRECT_HIT',resumeTurn:server.revivalResumeTurn??'PLAYER_TURN',steps:[]}:{source:'DIRECT_HIT',steps:[{kind:'AFTER_MONSTER_ACTION'}]};
  if(!server.pendingRevival)e.pendingRevival=null;
  if(typeof server.jobId==='string'||server.jobId===null){e.jobSnapshotId=server.jobId??null;e.jobRuntime.jobId=server.jobId??null;}
- if(e.jobRuntime.resource&&typeof server.jobResource==='number')e.jobRuntime.resource.value=server.jobResource;
+ if(typeof server.jobResource==='number')e.jobRuntime.resource={id:'combat',value:Math.max(0,Math.min(4,server.jobResource)),maxValue:4};
+ const runtime=combatRuntime(e);if(typeof server.playerMaxHp==='number')runtime.playerMaxHp=server.playerMaxHp;
+ if(typeof server.healingPotionUses==='number')runtime.healingPotionUses=Math.max(0,Math.min(5,Math.trunc(server.healingPotionUses)));
+ if(server.playerReadyTurns)runtime.skillReadyTurns.player={...server.playerReadyTurns};
+ if(server.monsterReadyTurns)runtime.skillReadyTurns.monster={...server.monsterReadyTurns};
+ if(typeof server.revivalCount==='number')e.bag.revival=Math.max(0,Math.trunc(server.revivalCount));
  if(server.jobFlags)e.jobRuntime.flags={...server.jobFlags};
  if(server.playerCooldowns)e.cooldowns=Object.fromEntries(Object.entries(server.playerCooldowns).filter(([,value])=>Number.isFinite(value)).map(([key,value])=>[key,Math.max(0,Math.trunc(Number(value)))]));
  if(typeof server.playerTurn==='number')e.playerTurn=Math.max(1,Math.trunc(server.playerTurn));
  if(typeof server.monsterTurn==='number')e.monsterTurn=Math.max(0,Math.trunc(server.monsterTurn));
- const normalizeEffects=(raw:unknown[]|undefined,target:'player'|'monster'):ActiveEffect[]=>Array.isArray(raw)?raw.flatMap((value,index)=>{const x=value as Record<string,unknown>,effectId=typeof x.effectId==='string'?x.effectId:'',definition=EFFECTS[effectId];if(!effectId||!definition)return [];const remaining=Math.max(0,Math.trunc(Number(x.remainingDuration??x.duration??0))),stacks=Math.max(1,Math.trunc(Number(x.stackCount??x.stacks??1))),sequence=Math.max(1,Math.trunc(Number(x.applicationSequence??index+1))),created=Math.max(0,Math.trunc(Number(x.createdTurn??0))),source=x.sourceActorId==='player'||x.sourceActorId==='monster'?x.sourceActorId:target,effect:ActiveEffect={instanceId:typeof x.instanceId==='string'?x.instanceId:`server-${target}-${sequence}`,effectId,sourceActorId:source,targetActorId:target,remainingDuration:remaining,stackCount:stacks,applicationSequence:sequence,createdTurn:created,scope:x.scope==='EXPEDITION'?'EXPEDITION':'BATTLE'};if(definition.behavior==='SHIELD'){if(definition.shieldHits){const hits=Math.min(definition.shieldHits,Math.trunc(Number(x.currentShieldHits??0)));if(hits<=0)return [];effect.currentShieldHits=hits;}else if(definition.shieldAmount){const shield=Math.min(definition.shieldAmount,Number(x.currentShield??0));if(!Number.isFinite(shield)||shield<=0)return [];effect.currentShield=shield;}else return [];}return [effect];}):[];
+ const normalizeEffects=(raw:unknown[]|undefined,target:'player'|'monster'):ActiveEffect[]=>Array.isArray(raw)?raw.flatMap((value,index)=>{const x=value as Record<string,unknown>,effectId=typeof x.effectId==='string'?x.effectId:'',definition=EFFECTS[effectId];if(!effectId||!definition)return [];const remaining=Math.max(0,Math.trunc(Number(x.remainingDuration??x.duration??0))),stacks=Math.max(1,Math.trunc(Number(x.stackCount??x.stacks??1))),sequence=Math.max(1,Math.trunc(Number(x.applicationSequence??index+1))),created=Math.max(0,Math.trunc(Number(x.createdTurn??0))),source=x.sourceActorId==='player'||x.sourceActorId==='monster'?x.sourceActorId:target,effect:ActiveEffect={instanceId:typeof x.instanceId==='string'?x.instanceId:`server-${target}-${sequence}`,effectId,sourceActorId:source,targetActorId:target,remainingDuration:remaining,stackCount:stacks,applicationSequence:sequence,createdTurn:created,scope:x.scope==='EXPEDITION'?'EXPEDITION':'BATTLE'};if(definition.behavior==='SHIELD'){if(definition.shieldHits){const hits=Math.min(definition.shieldHits,Math.trunc(Number(x.currentShieldHits??0)));if(hits<=0)return [];effect.currentShieldHits=hits;}else if(definition.shieldAmount){const shield=Math.min(server.engineVersion===2?3*(target==='player'?(server.playerMaxHp??runtime.playerMaxHp):e.monster.hp):definition.shieldAmount,Number(x.currentShield??0));if(!Number.isFinite(shield)||shield<=0)return [];effect.currentShield=shield;}else return [];}return [effect];}):[];
  if(Array.isArray(server.playerEffects))e.playerEffects=normalizeEffects(server.playerEffects,'player');
  if(Array.isArray(server.monsterEffects))e.monsterEffects=normalizeEffects(server.monsterEffects,'monster');
  e.effectSequence=Math.max(e.effectSequence,...e.playerEffects.map(x=>x.applicationSequence),...e.monsterEffects.map(x=>x.applicationSequence));
@@ -350,6 +362,15 @@ export function reconcileOnlineCombatState(local:GameState,server:OnlineCombatSt
   next.combatEventSequence=id;
   next.combatEvents=[...(next.combatEvents??[]),...emitted].slice(-40);
  }
+ if(options.emitCombatEvents&&Array.isArray(server.combatEvents)){
+  const counters=e.jobRuntime.counters??={},version=server.stateVersion??server.actionNonce;
+  if(counters.serverEventNonce!==server.actionNonce||counters.serverEventEncounter!==server.encounterIndex||counters.serverEventVersion!==version){
+   let id=next.combatEventSequence??0;
+   const events=server.combatEvents.filter(event=>['DIRECT_DAMAGE','HEAL'].includes(event.kind)&&['player','monster'].includes(event.attacker)&&['player','monster'].includes(event.target)&&typeof event.critical==='boolean').map(event=>({...event,id:++id}));
+   next.combatEvents=[...(next.combatEvents??[]),...events].slice(-40);next.combatEventSequence=id;
+   counters.serverEventNonce=server.actionNonce;counters.serverEventEncounter=server.encounterIndex;counters.serverEventVersion=version;
+  }
+ }
  return next;
 }
 
@@ -362,12 +383,12 @@ export async function claimOnlineResourceStronghold(lease:GameplayLease,expected
 export async function settleOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{reward:OnlineStronghold['reward'];stronghold:OnlineStronghold;temporaryLoot:unknown;runVersion:number}>('settle_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
 export async function abandonOnlineResourceStronghold(lease:GameplayLease,expectedVersion:number){return rpc<{stronghold:OnlineStronghold;runVersion:number}>('abandon_online_resource_stronghold',{...leaseArgs(lease),p_expected_version:expectedVersion});}
 export interface OnlineTemporaryLoot {silver?:number;material?:number;tickets?:number;equipment?:EquipmentItem[];enhancementStones?:number}
-export interface RestoredOnlineExpedition {active:boolean;run?:{runId:string;tower:Tower;floor:number;confirmedKills:number;encounterIndex:number;bossProgress:number;bossDefeated:boolean;pendingEvent:OnlineExplorationEvent|null;temporaryLoot:OnlineTemporaryLoot;stronghold:OnlineStronghold|null;runVersion:number;potions:Record<string,number>};combat?:Partial<OnlineCombatState>|null}
+export interface RestoredOnlineExpedition {active:boolean;run?:{runId:string;tower:Tower;floor:number;confirmedKills:number;encounterIndex:number;bossProgress:number;bossDefeated:boolean;pendingEvent:OnlineExplorationEvent|null;temporaryLoot:OnlineTemporaryLoot;stronghold:OnlineStronghold|null;runVersion:number;healingPotionUses?:number;potions:Record<string,number>};combat?:Partial<OnlineCombatState>|null}
 export async function restoreOnlineExpedition(lease:GameplayLease){return rpc<RestoredOnlineExpedition>('restore_online_expedition',leaseArgs(lease));}
 export function reconcileOnlineExpeditionState(local:GameState,restored:RestoredOnlineExpedition):GameState{
  const run=restored.run;if(!restored.active||!run)return local;let next=structuredClone(local),e=next.expedition;if(!e)return next;
  const combat=restored.combat;if(combat&&typeof combat.playerHp==='number'&&typeof combat.monsterHp==='number'&&typeof combat.monsterId==='string'&&typeof combat.phase==='string')next=reconcileOnlineCombatState(next,{...combat,encounterIndex:combat.encounterIndex??run.encounterIndex,actionNonce:combat.actionNonce??0} as OnlineCombatState);
- e=next.expedition!;e.tower=run.tower;e.floor=run.floor;e.kills=run.confirmedKills;e.bossTracking.progress=run.bossProgress;e.bossTracking.bossDefeated=run.bossDefeated;
+ e=next.expedition!;if(typeof run.healingPotionUses==='number')combatRuntime(e).healingPotionUses=Math.max(0,Math.min(5,Math.trunc(run.healingPotionUses)));e.tower=run.tower;e.floor=run.floor;e.kills=run.confirmedKills;e.bossTracking.progress=run.bossProgress;e.bossTracking.bossDefeated=run.bossDefeated;
  const p=run.potions;e.bag.healing_lesser=p.lesser??e.bag.healing_lesser;e.bag.healing_standard=p.standard??e.bag.healing_standard;e.bag.healing_greater=p.greater??e.bag.healing_greater;e.bag.healing_supreme=p.supreme??e.bag.healing_supreme;e.bag.revival=p.revival??e.bag.revival;
  const pending=run.pendingEvent;if(pending){const eventId=pending.eventId??pending.id??'',state=pending.state==='RESULT'?'RESULT':'CHOICE';const normalized:PendingExpeditionEvent={instanceId:pending.instanceId??`server-event-${run.runId}-${run.runVersion}`,eventId,bossId:pending.bossId??null,state,choiceId:pending.choiceId??null,outcomeId:pending.outcomeId??null,resultText:pending.resultText??'',resultLines:Array.isArray(pending.resultLines)?pending.resultLines:[],next:pending.next==='BOSS'?'BOSS':'NORMAL',randomValue:Number(pending.randomValue??pending.outcomeTicket??0),expiresAt:typeof pending.expiresAt==='number'?pending.expiresAt:null};e.events.pendingEvent=normalized;e.events.phase=state==='RESULT'?'EVENT_RESULT':'EVENT';e.phase='BATTLE_END';e.monsterRuntime=null;e.reactivePrepared={player:null,monster:null};e.monsterEffects=[];e.preparedEffects=[];e.playerEffects=e.playerEffects.filter(effect=>effect.scope==='EXPEDITION');e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;e.events.activeBossId=null;}else{e.events.pendingEvent=null;e.events.phase='BATTLE';e.bossTracking.pendingBossId=null;e.bossTracking.encounterReason=null;const activeMonsterId=typeof combat?.monsterId==='string'?combat.monsterId:e.monster.definitionId??'';const entry=activeMonsterId?bestiaryEntryById(activeMonsterId):undefined;e.events.activeBossId=entry?.boss?activeMonsterId:null;}
  const loot=run.temporaryLoot??{};e.loot.silver=Math.max(0,Number(loot.silver??0));for(const t of Object.keys(e.loot.materials) as Tower[])e.loot.materials[t]=e.loot.materials[t].map(()=>0);for(const t of Object.keys(e.loot.tickets) as Tower[])e.loot.tickets[t]=e.loot.tickets[t].map(()=>0);e.loot.skillBooks={};e.loot.items={};const restoredStones=Math.max(0,Math.trunc(Number(loot.enhancementStones??0)));if(restoredStones>0)e.loot.items.enhancement_stone=restoredStones;e.loot.equipment=Array.isArray(loot.equipment)?structuredClone(loot.equipment):[];e.loot.materials[e.tower][tierOf(e.floor)-1]=Math.max(0,Number(loot.material??0));if(e.floor<e.loot.tickets[e.tower].length)e.loot.tickets[e.tower][e.floor]=Math.max(0,Number(loot.tickets??0));

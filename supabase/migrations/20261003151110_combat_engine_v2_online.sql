@@ -1,0 +1,865 @@
+-- Generated from the authored TypeScript catalogs; regenerate with node --import ./tests/register.mjs scripts/generateCombatSqlCatalog.ts.
+create or replace function private.combat_v2_catalog() returns jsonb language sql immutable set search_path='' as $catalog$
+ select $data${"effects":{"attack_up":{"id":"attack_up","name":"공격 증가","description":"공격력이 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"attack","multiplier":0.3}},"defense_up":{"id":"defense_up","name":"방어 증가","description":"방어력이 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":0.4}},"regen":{"id":"regen","name":"재생","description":"턴 종료 시 체력을 회복합니다.","category":"BUFF","behavior":"PERIODIC_HEAL","tags":["HOT","REGEN"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":0.1}},"guard":{"id":"guard","name":"방어 태세","description":"받는 피해가 40% 감소합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":4,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"receivedDamage","multiplier":-0.4}},"poison":{"id":"poison","name":"중독","description":"턴 종료 시 피해를 받습니다.","category":"DEBUFF","behavior":"PERIODIC_DAMAGE","tags":["DOT","POISON"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":5}},"bleed":{"id":"bleed","name":"출혈","description":"턴 종료 시 피해를 받습니다.","category":"DEBUFF","behavior":"PERIODIC_DAMAGE","tags":["DOT","BLEED"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":5}},"weaken":{"id":"weaken","name":"방어 약화","description":"방어력이 감소합니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":-0.2}},"test_crack":{"id":"test_crack","name":"TEST_CRACK","description":"개발용 균열 중첩입니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":5,"stackingPolicy":"STACK","maxStacks":3,"thresholdReaction":{"threshold":3,"removeSelf":true,"removeEffectIds":["test_armor"],"applyEffectIds":["test_exposed"],"message":"TEST_CRACK 임계 반응 발동"}},"test_armor":{"id":"test_armor","name":"TEST_ARMOR","description":"개발용 방어 상태입니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":5,"stackingPolicy":"REFRESH_DURATION","payload":{"stat":"defense","multiplier":0.4}},"test_exposed":{"id":"test_exposed","name":"TEST_EXPOSED","description":"개발용 노출 상태입니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":3,"stackingPolicy":"REFRESH_DURATION","payload":{"stat":"defense","multiplier":-0.4}},"test_resonance":{"id":"test_resonance","name":"TEST_RESONANCE","description":"개발용 공진 중첩입니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":5,"stackingPolicy":"STACK","maxStacks":5},"test_latched_stack":{"id":"test_latched_stack","name":"TEST_LATCHED_STACK","description":"개발용 경계 통과 검증 상태입니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":5,"stackingPolicy":"STACK","maxStacks":3,"thresholdReaction":{"threshold":3,"applyEffectIds":["test_exposed"]}},"test_shield":{"id":"test_shield","name":"TEST_SHIELD","description":"개발용 공통 보호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":30,"scope":"BATTLE"},"test_hit_shield":{"id":"test_hit_shield","name":"TEST_HIT_SHIELD","description":"개발용 타격 보호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldHits":2,"scope":"BATTLE"},"iron_armor":{"id":"iron_armor","name":"흑맥 갑주","description":"방어력이 크게 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":99,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":0.65}},"fracture":{"id":"fracture","name":"균열","description":"직접 공격을 받을 때 누적됩니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":99,"stackingPolicy":"EXTEND_DURATION"},"exposed_core":{"id":"exposed_core","name":"노출","description":"방어력이 감소합니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":4,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":-0.35}},"resonance":{"id":"resonance","name":"울림","description":"울림이 누적됩니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":5,"stackingPolicy":"EXTEND_DURATION"},"crushing_pressure":{"id":"crushing_pressure","name":"압착 저주","description":"방어력이 감소합니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":-0.3}},"iron_core_shield":{"id":"iron_core_shield","name":"철심 보호막","description":"철심의 보호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":70,"scope":"BATTLE"},"fang_wound":{"id":"fang_wound","name":"송곳니 출혈","description":"직접 공격을 받으면 누적되는 출혈입니다.","category":"DEBUFF","behavior":"PERIODIC_DAMAGE","tags":["DOT","BLEED"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":6}},"blood_rite_ward":{"id":"blood_rite_ward","name":"혈의식 수호","description":"성소의 수호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":60,"scope":"BATTLE"},"red_mantle_shield":{"id":"red_mantle_shield","name":"적아 외피","description":"적아의 주인의 외피입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":75,"scope":"BATTLE"},"crystal_shell":{"id":"crystal_shell","name":"결정막","description":"얇은 결정 보호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":32,"scope":"BATTLE"},"crystal_bastion":{"id":"crystal_bastion","name":"백정장벽","description":"두꺼운 백색 결정 보호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":65,"scope":"BATTLE"},"crystal_core_shield":{"id":"crystal_core_shield","name":"심핵장벽","description":"심핵을 감싸는 고밀도 결정 보호막입니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":85,"scope":"BATTLE"},"crystal_hardening":{"id":"crystal_hardening","name":"결정경화","description":"결정층이 굳어 방어력이 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":0.35}},"crystal_growth":{"id":"crystal_growth","name":"천광증폭","description":"결정핵의 출력으로 공격력이 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"attack","multiplier":0.25}},"crystal_regen":{"id":"crystal_regen","name":"광핵재생","description":"턴 종료 시 최대 HP 일부를 회복합니다.","category":"BUFF","behavior":"PERIODIC_HEAL","tags":["HOT","REGEN"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":0.06}},"crystal_glare":{"id":"crystal_glare","name":"탁광","description":"굴절된 빛이 공격력을 낮춥니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"attack","multiplier":-0.2}},"crystal_venom":{"id":"crystal_venom","name":"광독","description":"결정성 독이 턴 종료 시 피해를 줍니다.","category":"DEBUFF","behavior":"PERIODIC_DAMAGE","tags":["DOT","POISON"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":5}},"crystal_fracture":{"id":"crystal_fracture","name":"결정 균열","description":"결정성 상처가 누적되어 방어력을 낮춥니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":5,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":-0.08}},"hunter_mark":{"id":"hunter_mark","name":"사냥감 표식","description":"추적 중인 사냥감 표식입니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION"},"mercenary_guard":{"id":"mercenary_guard","name":"방패 올리기","description":"받는 피해가 25% 감소합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"receivedDamage","multiplier":-0.25}},"field_medic_regen":{"id":"field_medic_regen","name":"지혈 재생","description":"턴당 최대 HP 5%를 회복합니다.","category":"BUFF","behavior":"PERIODIC_HEAL","tags":["HOT","REGEN"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":0.05}},"field_medic_analgesic":{"id":"field_medic_analgesic","name":"진통제","description":"받는 피해가 30% 감소합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"receivedDamage","multiplier":-0.3}},"duelist_counter_stance":{"id":"duelist_counter_stance","name":"받아치기 태세","description":"다음 직접 공격을 반격 준비합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":2,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"receivedDamage","multiplier":-0.4}},"kaleon_regen":{"id":"kaleon_regen","name":"녹빛 재생","description":"비정상적인 조직 재생으로 턴 종료 시 최대 HP의 7%를 회복합니다.","category":"BUFF","behavior":"PERIODIC_HEAL","tags":["HOT","REGEN"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":0.07}},"kaleon_blight":{"id":"kaleon_blight","name":"녹병","description":"녹화 오염이 턴 종료 시 피해를 줍니다.","category":"DEBUFF","behavior":"PERIODIC_DAMAGE","tags":["DOT","POISON"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"amount":7}},"kaleon_overgrowth":{"id":"kaleon_overgrowth","name":"과잉 증식","description":"증식 조직이 몸을 덮어 방어력이 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":0.3}},"kaleon_transfer_mark":{"id":"kaleon_transfer_mark","name":"전이 표식","description":"고통의 전이 경로가 누적됩니다.","category":"DEBUFF","behavior":"STAT_MODIFIER","tags":["STAT_DOWN"],"defaultDuration":5,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"defense","multiplier":-0.05}},"kaleon_saint_ward":{"id":"kaleon_saint_ward","name":"수용자의 장벽","description":"칼레온이 오염을 억누르는 조직 장벽을 전개합니다.","category":"BUFF","behavior":"SHIELD","tags":["SHIELD"],"defaultDuration":3,"stackingPolicy":"REPLACE","shieldAmount":90,"scope":"BATTLE"},"berserker_blood_boost":{"id":"berserker_blood_boost","name":"피의 대가","description":"공격 피해가 25% 증가합니다.","category":"BUFF","behavior":"STAT_MODIFIER","tags":["STAT_UP"],"defaultDuration":3,"stackingPolicy":"EXTEND_DURATION","payload":{"stat":"attack","multiplier":0.25}},"stun":{"id":"stun","name":"기절","description":"행동 제한","category":"DEBUFF","behavior":"CONTROL","tags":["CONTROL","STUN"],"defaultDuration":1,"stackingPolicy":"EXTEND_DURATION"},"silence":{"id":"silence","name":"침묵","description":"행동 제한","category":"DEBUFF","behavior":"CONTROL","tags":["CONTROL","SILENCE"],"defaultDuration":1,"stackingPolicy":"EXTEND_DURATION"},"root":{"id":"root","name":"속박","description":"행동 제한","category":"DEBUFF","behavior":"CONTROL","tags":["CONTROL","ROOT"],"defaultDuration":1,"stackingPolicy":"EXTEND_DURATION"}},"monsters":{"test-basic-ai":{"id":"test-basic-ai","name":"AI 훈련체","skills":[{"id":"crush","name":"분쇄","description":"강한 단일 공격","cooldown":2,"kind":"damage","multiplier":1.5}],"aiRules":[{"id":"low-crush","priority":10,"actionId":"crush","conditions":[{"kind":"SELF_HP_BELOW","value":0.6},{"kind":"SKILL_READY","skillId":"crush"}]}]},"test-charge":{"id":"test-charge","name":"충전 훈련체","skills":[{"id":"charge","name":"암반 돌진","description":"한 턴 준비 후 돌진","cooldown":2,"kind":"charge","multiplier":2}],"aiRules":[{"id":"charge-first","priority":100,"actionId":"charge","conditions":[{"kind":"SKILL_READY","skillId":"charge"}]}]},"test-multi":{"id":"test-multi","name":"연타 훈련체","skills":[{"id":"triple","name":"삼연격","description":"세 번 공격","cooldown":1,"kind":"damage","hits":3,"multiplier":0.65}],"aiRules":[{"id":"triple-first","priority":10,"actionId":"triple","conditions":[]}]},"test-effect":{"id":"test-effect","name":"효과 훈련체","skills":[{"id":"venom","name":"독성 분진","description":"대상에게 중독","cooldown":2,"kind":"effect","effects":[{"target":"TARGET","effectId":"poison"}]},{"id":"fortify","name":"강철 경화","description":"자신의 방어 증가","cooldown":3,"kind":"effect","effects":[{"target":"SELF","effectId":"defense_up"}]}],"aiRules":[{"id":"venom-first","priority":20,"actionId":"venom","conditions":[{"kind":"TARGET_HP_BELOW","value":1.01},{"kind":"SKILL_READY","skillId":"venom"}]},{"id":"fortify-second","priority":10,"actionId":"fortify","conditions":[{"kind":"SKILL_READY","skillId":"fortify"}]}]},"test-reactive":{"id":"test-reactive","name":"반격 훈련체","skills":[{"id":"counter_stance","name":"TEST_COUNTER 준비","description":"직접 피격에 반응할 준비","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"counter"},{"id":"counter","name":"TEST_COUNTER","description":"즉시 반격","cooldown":0,"kind":"damage","multiplier":0.8}],"aiRules":[{"id":"prepare-counter","priority":100,"actionId":"counter_stance","conditions":[{"kind":"SKILL_READY","skillId":"counter_stance"}]}]},"test-status-ai":{"id":"test-status-ai","name":"상태 AI 훈련체","skills":[{"id":"test_burst","name":"TEST_BURST","description":"3중첩 대응","cooldown":2,"kind":"damage","multiplier":1.5},{"id":"test_pressure","name":"TEST_PRESSURE","description":"상태 대응","cooldown":1,"kind":"damage","multiplier":1.1}],"aiRules":[{"id":"burst","priority":20,"actionId":"test_burst","conditions":[{"kind":"TARGET_EFFECT_STACKS_AT_LEAST","effectId":"test_resonance","requiredStacks":3},{"kind":"SKILL_READY","skillId":"test_burst"}]},{"id":"pressure","priority":10,"actionId":"test_pressure","conditions":[{"kind":"TARGET_HAS_EFFECT","effectId":"test_resonance"}]}]},"test-self-status-ai":{"id":"test-self-status-ai","name":"자기 상태 AI 훈련체","skills":[{"id":"restore_armor","name":"TEST_RESTORE_ARMOR","description":"방어 상태 복구","cooldown":1,"kind":"effect","effects":[{"target":"SELF","effectId":"test_armor"}]},{"id":"armored_strike","name":"TEST_ARMORED_STRIKE","description":"방어 상태 공격","cooldown":1,"kind":"damage"}],"aiRules":[{"id":"restore","priority":20,"actionId":"restore_armor","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"test_armor"}]},{"id":"strike","priority":10,"actionId":"armored_strike","conditions":[{"kind":"SELF_HAS_EFFECT","effectId":"test_armor"}]}]},"test-prepared-combined":{"id":"test-prepared-combined","name":"복합 준비 훈련체","skills":[{"id":"qa_charge","name":"TEST_CHARGE_LONG_NAME","description":"Charge UI 검증","cooldown":2,"kind":"charge","multiplier":1.2},{"id":"qa_counter_stance","name":"TEST_REACTIVE_COUNTER_LONG_NAME","description":"Reactive UI 검증","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"qa_counter"},{"id":"qa_counter","name":"TEST_COUNTER","description":"반격","cooldown":0,"kind":"damage","multiplier":0.5}],"aiRules":[]},"test-shield-monster":{"id":"test-shield-monster","name":"보호막 훈련체","skills":[{"id":"shield_stance","name":"TEST_SHIELD 전개","description":"자신에게 보호막 적용","cooldown":3,"kind":"effect","effects":[{"target":"SELF","effectId":"test_shield"}]},{"id":"shield_multi","name":"TEST_SHIELD 삼연격","description":"세 번 공격","cooldown":1,"kind":"damage","hits":3,"multiplier":0.4}],"aiRules":[{"id":"shield-first","priority":20,"actionId":"shield_stance","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"test_shield"},{"kind":"SKILL_READY","skillId":"shield_stance"}]},{"id":"multi-second","priority":10,"actionId":"shield_multi","conditions":[{"kind":"SKILL_READY","skillId":"shield_multi"}]}]},"iron_maw_burrower":{"id":"iron_maw_burrower","name":"쇄철턱 굴혈수","skills":[{"id":"burrow_charge","name":"굴진 돌격","description":"다음 행동에 강하게 돌진합니다.","cooldown":2,"kind":"charge","multiplier":2.05}],"aiRules":[{"id":"charge","priority":20,"actionId":"burrow_charge","conditions":[{"kind":"SKILL_READY","skillId":"burrow_charge"}]}]},"black_vein_armor_breaker":{"id":"black_vein_armor_breaker","name":"흑맥갑주 파쇄충","skills":[{"id":"armor_up","name":"흑맥 갑주","description":"강한 갑주를 전개합니다.","cooldown":6,"kind":"effect","effects":[{"target":"SELF","effectId":"iron_armor"}]},{"id":"breaker_slam","name":"파쇄 강타","description":"노출된 적을 강타합니다.","cooldown":2,"kind":"damage","multiplier":1.55}],"aiRules":[{"id":"armor","priority":30,"actionId":"armor_up","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"iron_armor"},{"kind":"SKILL_READY","skillId":"armor_up"}]},{"id":"slam","priority":10,"actionId":"breaker_slam","conditions":[{"kind":"SKILL_READY","skillId":"breaker_slam"}]}]},"echo_devourer":{"id":"echo_devourer","name":"울림포식자","skills":[{"id":"echo_mark","name":"울림 각인","description":"플레이어에게 울림을 누적합니다.","cooldown":1,"kind":"effect","effects":[{"target":"TARGET","effectId":"resonance"}]},{"id":"resonant_charge","name":"공명 돌진","description":"울림이 높을 때 준비하는 강공격입니다.","cooldown":3,"kind":"charge","multiplier":2.15}],"aiRules":[{"id":"resonant-charge","priority":30,"actionId":"resonant_charge","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"resonance","requiredStacks":3},{"kind":"SKILL_READY","skillId":"resonant_charge"}]},{"id":"mark","priority":20,"actionId":"echo_mark","conditions":[{"kind":"SKILL_READY","skillId":"echo_mark"}]}]},"deep_hoist_overseer":{"id":"deep_hoist_overseer","name":"심층 권양감독체","skills":[{"id":"counter_prepare","name":"권양 반격 준비","description":"직접 피격에 반응합니다.","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"counter_strike"},{"id":"counter_strike","name":"권양 반격","description":"준비된 즉시 반격입니다.","cooldown":0,"kind":"damage","multiplier":0.9},{"id":"hoist_charge","name":"권양 추락","description":"다음 행동에 압착합니다.","cooldown":3,"kind":"charge","multiplier":2.25}],"aiRules":[{"id":"reactive","priority":30,"actionId":"counter_prepare","conditions":[{"kind":"SKILL_READY","skillId":"counter_prepare"}]},{"id":"charge","priority":20,"actionId":"hoist_charge","conditions":[{"kind":"SKILL_READY","skillId":"hoist_charge"}]}]},"iron_core_pulsator":{"id":"iron_core_pulsator","name":"철심 맥동체","skills":[{"id":"core_shield","name":"철심 보호막","description":"철심 보호막을 전개합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"iron_core_shield"}]},{"id":"pulse_debuff","name":"압착 맥동","description":"플레이어 방어를 약화합니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crushing_pressure"}]},{"id":"terminal_charge","name":"종말 맥동","description":"저체력에서 준비하는 강공격입니다.","cooldown":3,"kind":"charge","multiplier":2.5}],"aiRules":[{"id":"shield","priority":40,"actionId":"core_shield","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"iron_core_shield"},{"kind":"SKILL_READY","skillId":"core_shield"}]},{"id":"terminal","priority":30,"actionId":"terminal_charge","conditions":[{"kind":"SELF_HP_BELOW","value":0.5},{"kind":"SKILL_READY","skillId":"terminal_charge"}]},{"id":"debuff","priority":20,"actionId":"pulse_debuff","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crushing_pressure"},{"kind":"SKILL_READY","skillId":"pulse_debuff"}]}]},"bloodmane_tracker":{"id":"bloodmane_tracker","name":"핏갈기 추적자","skills":[{"id":"blood_charge","name":"혈로 돌진","description":"다음 행동에 강하게 돌진합니다.","cooldown":2,"kind":"charge","multiplier":2.05}],"aiRules":[{"id":"charge","priority":20,"actionId":"blood_charge","conditions":[{"kind":"SKILL_READY","skillId":"blood_charge"}]}]},"redjaw_hide_eater":{"id":"redjaw_hide_eater","name":"붉은턱 가죽포식자","skills":[{"id":"rip","name":"가죽 찢기","description":"출혈을 누적합니다.","cooldown":1,"kind":"damage","multiplier":1.1,"effects":[{"target":"TARGET","effectId":"fang_wound"}]},{"id":"deeper_rend","name":"깊은 할퀴기","description":"출혈이 깊을 때 강타합니다.","cooldown":2,"kind":"damage","multiplier":1.7}],"aiRules":[{"id":"rend","priority":30,"actionId":"deeper_rend","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"fang_wound","requiredStacks":2},{"kind":"SKILL_READY","skillId":"deeper_rend"}]},{"id":"rip","priority":20,"actionId":"rip","conditions":[{"kind":"SKILL_READY","skillId":"rip"}]}]},"fang_pack_matriarch":{"id":"fang_pack_matriarch","name":"송곳니 무리어미","skills":[{"id":"matriarch_counter_prepare","name":"무리 반격 준비","description":"직접 피격에 반응합니다.","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"matriarch_bite"},{"id":"matriarch_bite","name":"무리 반격","description":"준비된 즉시 반격입니다.","cooldown":0,"kind":"damage","multiplier":0.9},{"id":"pack_charge","name":"무리 덮치기","description":"다음 행동에 덮칩니다.","cooldown":3,"kind":"charge","multiplier":2.2},{"id":"pack_howl","name":"무리 울음","description":"공격을 올립니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]}],"aiRules":[{"id":"reactive","priority":30,"actionId":"matriarch_counter_prepare","conditions":[{"kind":"SKILL_READY","skillId":"matriarch_counter_prepare"}]},{"id":"charge","priority":20,"actionId":"pack_charge","conditions":[{"kind":"SKILL_READY","skillId":"pack_charge"}]},{"id":"howl","priority":10,"actionId":"pack_howl","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"pack_howl"}]}]},"sanctuary_talon_bishop":{"id":"sanctuary_talon_bishop","name":"성소 발톱주교","skills":[{"id":"rite_ward","name":"혈의식 수호","description":"수호막을 전개합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"blood_rite_ward"}]},{"id":"talon_hex","name":"발톱 저주","description":"플레이어 방어를 약화합니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crushing_pressure"}]},{"id":"bishop_strike","name":"주교 강타","description":"강한 단일 공격입니다.","cooldown":1,"kind":"damage","multiplier":1.5}],"aiRules":[{"id":"shield","priority":40,"actionId":"rite_ward","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"blood_rite_ward"},{"kind":"SKILL_READY","skillId":"rite_ward"}]},{"id":"debuff","priority":20,"actionId":"talon_hex","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crushing_pressure"},{"kind":"SKILL_READY","skillId":"talon_hex"}]},{"id":"strike","priority":10,"actionId":"bishop_strike","conditions":[{"kind":"SKILL_READY","skillId":"bishop_strike"}]}]},"lord_of_red_fang":{"id":"lord_of_red_fang","name":"적아의 주인","skills":[{"id":"red_mantle","name":"적아 외피","description":"외피를 전개합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"red_mantle_shield"}]},{"id":"fang_rupture","name":"송곳니 파열","description":"출혈을 누적합니다.","cooldown":1,"kind":"damage","multiplier":1.3,"effects":[{"target":"TARGET","effectId":"fang_wound"}]},{"id":"crushing_roar","name":"포식 포효","description":"플레이어 방어를 약화합니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crushing_pressure"}]},{"id":"terminal_hunt","name":"종말 사냥","description":"저체력에서 준비하는 강공격입니다.","cooldown":3,"kind":"charge","multiplier":2.5}],"aiRules":[{"id":"shield","priority":40,"actionId":"red_mantle","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"red_mantle_shield"},{"kind":"SKILL_READY","skillId":"red_mantle"}]},{"id":"terminal","priority":30,"actionId":"terminal_hunt","conditions":[{"kind":"SELF_HP_BELOW","value":0.5},{"kind":"SKILL_READY","skillId":"terminal_hunt"}]},{"id":"debuff","priority":20,"actionId":"crushing_roar","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crushing_pressure"},{"kind":"SKILL_READY","skillId":"crushing_roar"}]},{"id":"rupture","priority":10,"actionId":"fang_rupture","conditions":[{"kind":"SKILL_READY","skillId":"fang_rupture"}]}]},"wasteland_boar":{"id":"wasteland_boar","name":"황야 멧돼지","skills":[{"id":"boar_hide_brace","name":"거친가죽 버티기","description":"질긴 가죽과 자세로 방어를 끌어올립니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"defense_up"}]},{"id":"boar_charge","name":"황야 돌진","description":"한 턴 자세를 낮춘 뒤 거칠게 돌진합니다.","cooldown":3,"kind":"charge","multiplier":1.75}],"aiRules":[{"id":"brace","priority":20,"actionId":"boar_hide_brace","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"defense_up"},{"kind":"SKILL_READY","skillId":"boar_hide_brace"}]},{"id":"charge","priority":10,"actionId":"boar_charge","conditions":[{"kind":"SKILL_READY","skillId":"boar_charge"}]}]},"thorn_jackal":{"id":"thorn_jackal","name":"가시 자칼","skills":[{"id":"thorn_bite","name":"가시교상","description":"날카로운 이빨로 물어 출혈을 남깁니다.","cooldown":1,"kind":"damage","multiplier":1,"effects":[{"target":"TARGET","effectId":"fang_wound"}]},{"id":"blood_scent_bite","name":"피냄새 추격","description":"상처 입은 대상을 집요하게 물어뜯습니다.","cooldown":2,"kind":"damage","multiplier":1.45}],"aiRules":[{"id":"hunt-wounded","priority":20,"actionId":"blood_scent_bite","conditions":[{"kind":"TARGET_HAS_EFFECT","effectId":"fang_wound"},{"kind":"SKILL_READY","skillId":"blood_scent_bite"}]},{"id":"bite","priority":10,"actionId":"thorn_bite","conditions":[{"kind":"SKILL_READY","skillId":"thorn_bite"}]}]},"carrion_vulture":{"id":"carrion_vulture","name":"썩은날 독수리","skills":[{"id":"wing_feint","name":"흙먼지 날갯짓","description":"흙먼지를 일으켜 방어를 흐트러뜨립니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"weaken"}]},{"id":"carrion_dive","name":"부리연격","description":"급강하하며 두 차례 연속으로 쪼아댑니다.","cooldown":2,"kind":"damage","hits":2,"multiplier":0.72}],"aiRules":[{"id":"feint","priority":20,"actionId":"wing_feint","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"weaken"},{"kind":"SKILL_READY","skillId":"wing_feint"}]},{"id":"dive","priority":10,"actionId":"carrion_dive","conditions":[{"kind":"SKILL_READY","skillId":"carrion_dive"}]}]},"hide_gnawer":{"id":"hide_gnawer","name":"가죽 갉는 하이에나","skills":[{"id":"gnaw_wound","name":"가죽뜯기","description":"질긴 부위를 노려 물어 출혈을 누적합니다.","cooldown":1,"kind":"damage","multiplier":1.05,"effects":[{"target":"TARGET","effectId":"fang_wound"}]},{"id":"gnaw_frenzy","name":"포식흥분","description":"상처와 피냄새에 흥분해 공격력이 상승합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]},{"id":"rending_bite","name":"찢는교상","description":"출혈이 깊어진 대상을 강하게 찢습니다.","cooldown":2,"kind":"damage","multiplier":1.6}],"aiRules":[{"id":"rend","priority":30,"actionId":"rending_bite","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"fang_wound","requiredStacks":2},{"kind":"SKILL_READY","skillId":"rending_bite"}]},{"id":"frenzy","priority":20,"actionId":"gnaw_frenzy","conditions":[{"kind":"SELF_HP_BELOW","value":0.55},{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"gnaw_frenzy"}]},{"id":"gnaw","priority":10,"actionId":"gnaw_wound","conditions":[{"kind":"SKILL_READY","skillId":"gnaw_wound"}]}]},"pack_vanguard":{"id":"pack_vanguard","name":"무리 선봉","skills":[{"id":"vanguard_counter_prepare","name":"선봉 반격 자세","description":"정면 직접 공격을 받아칠 준비를 합니다.","cooldown":4,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"vanguard_counter"},{"id":"vanguard_counter","name":"선봉 반격","description":"공격자의 빈틈을 노려 즉시 반격합니다.","cooldown":0,"kind":"damage","multiplier":0.68},{"id":"vanguard_howl","name":"선봉 포효","description":"무리의 기세를 끌어올려 공격력을 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]},{"id":"vanguard_charge","name":"송곳니 돌파","description":"한 턴 준비한 뒤 정면을 돌파합니다.","cooldown":3,"kind":"charge","multiplier":1.9}],"aiRules":[{"id":"counter","priority":30,"actionId":"vanguard_counter_prepare","conditions":[{"kind":"SKILL_READY","skillId":"vanguard_counter_prepare"}]},{"id":"howl","priority":20,"actionId":"vanguard_howl","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"vanguard_howl"}]},{"id":"charge","priority":10,"actionId":"vanguard_charge","conditions":[{"kind":"SKILL_READY","skillId":"vanguard_charge"}]}]},"quartz_carapace_beetle":{"id":"quartz_carapace_beetle","name":"석영등갑충","skills":[{"id":"quartz_shell","name":"결정막","description":"결정 보호막을 전개합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_shell"}]},{"id":"carapace_slam","name":"갑각충돌","description":"무거운 등갑으로 들이받습니다.","cooldown":2,"kind":"damage","multiplier":1.35}],"aiRules":[{"id":"shell","priority":20,"actionId":"quartz_shell","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_shell"},{"kind":"SKILL_READY","skillId":"quartz_shell"}]},{"id":"slam","priority":10,"actionId":"carapace_slam","conditions":[{"kind":"SKILL_READY","skillId":"carapace_slam"}]}]},"glassjaw_stalker":{"id":"glassjaw_stalker","name":"유리턱 추적충","skills":[{"id":"glass_bite","name":"쇄광교상","description":"결정턱으로 강하게 물어뜯습니다.","cooldown":2,"kind":"damage","multiplier":1.5},{"id":"predatory_focus","name":"포식흥분","description":"공격성을 끌어올립니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]}],"aiRules":[{"id":"focus","priority":20,"actionId":"predatory_focus","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"predatory_focus"}]},{"id":"bite","priority":10,"actionId":"glass_bite","conditions":[{"kind":"SKILL_READY","skillId":"glass_bite"}]}]},"refractive_scale_lizard":{"id":"refractive_scale_lizard","name":"굴절비늘 도마뱀","skills":[{"id":"refraction_stance","name":"굴절자세","description":"직접 피격에 반응할 준비를 합니다.","cooldown":4,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"refraction_tail"},{"id":"refraction_tail","name":"반광꼬리치기","description":"굴절잔상 뒤에서 즉시 반격합니다.","cooldown":0,"kind":"damage","multiplier":0.72},{"id":"dulling_glare","name":"탁광분사","description":"빛을 흐려 공격력을 낮춥니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_glare"}]}],"aiRules":[{"id":"counter","priority":20,"actionId":"refraction_stance","conditions":[{"kind":"SKILL_READY","skillId":"refraction_stance"}]},{"id":"glare","priority":10,"actionId":"dulling_glare","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_glare"},{"kind":"SKILL_READY","skillId":"dulling_glare"}]}]},"echo_crystal":{"id":"echo_crystal","name":"반향결정체","skills":[{"id":"echo_stance","name":"반향대기","description":"직접 충격에 반응할 준비를 합니다.","cooldown":4,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"echo_burst"},{"id":"echo_burst","name":"반향충격","description":"축적한 충격을 즉시 되돌립니다.","cooldown":0,"kind":"damage","multiplier":0.8},{"id":"crystal_pressure","name":"결정압박","description":"결정질 몸체로 압박합니다.","cooldown":2,"kind":"damage","multiplier":1.3}],"aiRules":[{"id":"echo","priority":20,"actionId":"echo_stance","conditions":[{"kind":"SKILL_READY","skillId":"echo_stance"}]},{"id":"pressure","priority":10,"actionId":"crystal_pressure","conditions":[{"kind":"SKILL_READY","skillId":"crystal_pressure"}]}]},"vein_clinger":{"id":"vein_clinger","name":"광맥흡착체","skills":[{"id":"vein_regen","name":"광맥흡수","description":"광맥의 힘으로 체력을 회복합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_regen"}]},{"id":"vein_harden","name":"광맥경화","description":"광질을 응축해 방어를 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_hardening"}]}],"aiRules":[{"id":"regen","priority":20,"actionId":"vein_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.65},{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_regen"},{"kind":"SKILL_READY","skillId":"vein_regen"}]},{"id":"harden","priority":10,"actionId":"vein_harden","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_hardening"},{"kind":"SKILL_READY","skillId":"vein_harden"}]}]},"crystal_needle_centipede":{"id":"crystal_needle_centipede","name":"수정침 지네","skills":[{"id":"crystal_venom","name":"광독침","description":"수정침으로 광독을 남깁니다.","cooldown":2,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_venom"}]},{"id":"needle_bite","name":"독니찌르기","description":"광독에 물든 대상을 강하게 찌릅니다.","cooldown":2,"kind":"damage","multiplier":1.35}],"aiRules":[{"id":"bite-poisoned","priority":20,"actionId":"needle_bite","conditions":[{"kind":"TARGET_HAS_EFFECT","effectId":"crystal_venom"},{"kind":"SKILL_READY","skillId":"needle_bite"}]},{"id":"venom","priority":10,"actionId":"crystal_venom","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_venom"},{"kind":"SKILL_READY","skillId":"crystal_venom"}]}]},"whiteglow_burrower":{"id":"whiteglow_burrower","name":"백광 굴착충","skills":[{"id":"whiteglow_charge","name":"백광돌진","description":"한 턴 준비한 뒤 돌진합니다.","cooldown":3,"kind":"charge","multiplier":1.9},{"id":"ground_harden","name":"지각경화","description":"결정층을 두껍게 만듭니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_hardening"}]}],"aiRules":[{"id":"harden","priority":20,"actionId":"ground_harden","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_hardening"},{"kind":"SKILL_READY","skillId":"ground_harden"}]},{"id":"charge","priority":10,"actionId":"whiteglow_charge","conditions":[{"kind":"SKILL_READY","skillId":"whiteglow_charge"}]}]},"clouded_crystal_beast":{"id":"clouded_crystal_beast","name":"탁정 갑각수","skills":[{"id":"clouded_dust","name":"탁정분진","description":"탁한 결정가루로 공격력을 낮춥니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_glare"}]},{"id":"heavy_headbutt","name":"중갑박치기","description":"두꺼운 갑각으로 들이받습니다.","cooldown":2,"kind":"damage","multiplier":1.4}],"aiRules":[{"id":"dust","priority":20,"actionId":"clouded_dust","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_glare"},{"kind":"SKILL_READY","skillId":"clouded_dust"}]},{"id":"headbutt","priority":10,"actionId":"heavy_headbutt","conditions":[{"kind":"SKILL_READY","skillId":"heavy_headbutt"}]}]},"translucent_bat":{"id":"translucent_bat","name":"투광박쥐","skills":[{"id":"scattered_light","name":"산란광","description":"빛을 흩어 공격력을 낮춥니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_glare"}]},{"id":"falling_glow","name":"낙광습격","description":"한 턴 준비 후 급강하합니다.","cooldown":3,"kind":"charge","multiplier":1.8}],"aiRules":[{"id":"glare","priority":20,"actionId":"scattered_light","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_glare"},{"kind":"SKILL_READY","skillId":"scattered_light"}]},{"id":"dive","priority":10,"actionId":"falling_glow","conditions":[{"kind":"SKILL_READY","skillId":"falling_glow"}]}]},"shardback_spider":{"id":"shardback_spider","name":"파편등 거미","skills":[{"id":"crystal_spit","name":"수정독액","description":"광독이 섞인 액체를 뿜습니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_venom"}]},{"id":"shard_bite","name":"파편물기","description":"날카로운 결정턱으로 물어뜯습니다.","cooldown":2,"kind":"damage","multiplier":1.35}],"aiRules":[{"id":"venom","priority":20,"actionId":"crystal_spit","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_venom"},{"kind":"SKILL_READY","skillId":"crystal_spit"}]},{"id":"bite","priority":10,"actionId":"shard_bite","conditions":[{"kind":"SKILL_READY","skillId":"shard_bite"}]}]},"crystalhorn_goat":{"id":"crystalhorn_goat","name":"결정뿔 산양","skills":[{"id":"horn_charge","name":"결정뿔 돌진","description":"한 턴 준비한 뒤 뿔로 돌진합니다.","cooldown":3,"kind":"charge","multiplier":1.95},{"id":"cornered_beast","name":"몰린 짐승","description":"위기에 몰리면 공격력이 상승합니다.","cooldown":5,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]}],"aiRules":[{"id":"rage","priority":20,"actionId":"cornered_beast","conditions":[{"kind":"SELF_HP_BELOW","value":0.45},{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"cornered_beast"}]},{"id":"charge","priority":10,"actionId":"horn_charge","conditions":[{"kind":"SKILL_READY","skillId":"horn_charge"}]}]},"lens_eye_watcher":{"id":"lens_eye_watcher","name":"렌즈눈 감시충","skills":[{"id":"focused_gaze","name":"집광주시","description":"집중광으로 공격력을 낮춥니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_glare"}]},{"id":"focused_beam","name":"집광사출","description":"한 턴 집광한 뒤 강한 충격을 냅니다.","cooldown":3,"kind":"charge","multiplier":1.9}],"aiRules":[{"id":"gaze","priority":20,"actionId":"focused_gaze","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_glare"},{"kind":"SKILL_READY","skillId":"focused_gaze"}]},{"id":"beam","priority":10,"actionId":"focused_beam","conditions":[{"kind":"SKILL_READY","skillId":"focused_beam"}]}]},"hardening_slime":{"id":"hardening_slime","name":"경화수액충","skills":[{"id":"condensed_membrane","name":"응결막","description":"결정성 보호막을 만듭니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_shell"}]},{"id":"mineral_recovery","name":"광질회복","description":"상처를 광물질로 메우며 회복합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_regen"}]}],"aiRules":[{"id":"heal","priority":20,"actionId":"mineral_recovery","conditions":[{"kind":"SELF_HP_BELOW","value":0.55},{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_regen"},{"kind":"SKILL_READY","skillId":"mineral_recovery"}]},{"id":"shield","priority":10,"actionId":"condensed_membrane","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_shell"},{"kind":"SKILL_READY","skillId":"condensed_membrane"}]}]},"crystal_scale_serpent":{"id":"crystal_scale_serpent","name":"수정비늘 뱀","skills":[{"id":"fracture_fang","name":"균열독니","description":"상처에 균열을 누적합니다.","cooldown":1,"kind":"damage","multiplier":1.05,"effects":[{"target":"TARGET","effectId":"crystal_fracture"}]},{"id":"shatter_bite","name":"파쇄교상","description":"균열이 누적된 대상을 강하게 물어뜯습니다.","cooldown":2,"kind":"damage","multiplier":1.7}],"aiRules":[{"id":"shatter","priority":20,"actionId":"shatter_bite","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"crystal_fracture","requiredStacks":2},{"kind":"SKILL_READY","skillId":"shatter_bite"}]},{"id":"fracture","priority":10,"actionId":"fracture_fang","conditions":[{"kind":"SKILL_READY","skillId":"fracture_fang"}]}]},"vein_hound":{"id":"vein_hound","name":"광맥 사냥개","skills":[{"id":"vein_frenzy","name":"맥광흥분","description":"광맥의 빛으로 공격성을 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]},{"id":"throat_bite","name":"숨통물기","description":"약해진 대상을 노려 물어뜯습니다.","cooldown":2,"kind":"damage","multiplier":1.6}],"aiRules":[{"id":"finish","priority":20,"actionId":"throat_bite","conditions":[{"kind":"TARGET_HP_BELOW","value":0.4},{"kind":"SKILL_READY","skillId":"throat_bite"}]},{"id":"frenzy","priority":10,"actionId":"vein_frenzy","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"vein_frenzy"}]}]},"shatter_mole":{"id":"shatter_mole","name":"파광 두더지","skills":[{"id":"underground_charge","name":"지하축력","description":"한 턴 준비한 뒤 지면을 뚫고 솟구칩니다.","cooldown":3,"kind":"charge","multiplier":2},{"id":"stone_skin","name":"석피경화","description":"몸 표면을 단단하게 굳힙니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_hardening"}]}],"aiRules":[{"id":"skin","priority":20,"actionId":"stone_skin","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_hardening"},{"kind":"SKILL_READY","skillId":"stone_skin"}]},{"id":"charge","priority":10,"actionId":"underground_charge","conditions":[{"kind":"SKILL_READY","skillId":"underground_charge"}]}]},"quartz_spine_predator":{"id":"quartz_spine_predator","name":"석영등뼈 포식자","skills":[{"id":"quartz_claw","name":"석영할퀴기","description":"석영 돌기로 깊게 할퀴어 공격합니다.","cooldown":2,"kind":"damage","multiplier":1.45},{"id":"crystal_blood","name":"결정독혈","description":"광독을 남기는 결정혈을 흩뿌립니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_venom"}]}],"aiRules":[{"id":"venom","priority":20,"actionId":"crystal_blood","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_venom"},{"kind":"SKILL_READY","skillId":"crystal_blood"}]},{"id":"claw","priority":10,"actionId":"quartz_claw","conditions":[{"kind":"SKILL_READY","skillId":"quartz_claw"}]}]},"fracture_claw_hunter":{"id":"fracture_claw_hunter","name":"균열발톱 수렵수","skills":[{"id":"fracture_claw","name":"균열할퀴기","description":"발톱으로 균열을 누적합니다.","cooldown":1,"kind":"damage","multiplier":1.08,"effects":[{"target":"TARGET","effectId":"crystal_fracture"}]},{"id":"armor_break_claw","name":"쇄갑발톱","description":"균열이 쌓인 대상을 강하게 파고듭니다.","cooldown":2,"kind":"damage","multiplier":1.75}],"aiRules":[{"id":"break","priority":20,"actionId":"armor_break_claw","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"crystal_fracture","requiredStacks":2},{"kind":"SKILL_READY","skillId":"armor_break_claw"}]},{"id":"fracture","priority":10,"actionId":"fracture_claw","conditions":[{"kind":"SKILL_READY","skillId":"fracture_claw"}]}]},"whitevein_leech":{"id":"whitevein_leech","name":"백정맥 거머리","skills":[{"id":"vein_siphon","name":"광맥흡수","description":"광맥을 빨아들이듯 대상을 공격합니다.","cooldown":2,"kind":"damage","multiplier":1.25},{"id":"stored_recovery","name":"축적회복","description":"축적한 광질로 체력을 회복합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_regen"}]}],"aiRules":[{"id":"heal","priority":20,"actionId":"stored_recovery","conditions":[{"kind":"SELF_HP_BELOW","value":0.55},{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_regen"},{"kind":"SKILL_READY","skillId":"stored_recovery"}]},{"id":"siphon","priority":10,"actionId":"vein_siphon","conditions":[{"kind":"SKILL_READY","skillId":"vein_siphon"}]}]},"celestial_crystal_brute":{"id":"celestial_crystal_brute","name":"천광각질 거수","skills":[{"id":"keratin_barrier","name":"각질장벽","description":"두꺼운 결정각질로 보호막을 만듭니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_shell"}]},{"id":"celestial_crush","name":"천광압쇄","description":"한 턴 준비한 뒤 전신으로 압쇄합니다.","cooldown":3,"kind":"charge","multiplier":2.1},{"id":"crystal_frenzy","name":"광폭결정","description":"위기에서 공격력을 끌어올립니다.","cooldown":5,"kind":"effect","effects":[{"target":"SELF","effectId":"attack_up"}]}],"aiRules":[{"id":"frenzy","priority":30,"actionId":"crystal_frenzy","conditions":[{"kind":"SELF_HP_BELOW","value":0.4},{"kind":"SELF_MISSING_EFFECT","effectId":"attack_up"},{"kind":"SKILL_READY","skillId":"crystal_frenzy"}]},{"id":"shield","priority":20,"actionId":"keratin_barrier","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_shell"},{"kind":"SKILL_READY","skillId":"keratin_barrier"}]},{"id":"crush","priority":10,"actionId":"celestial_crush","conditions":[{"kind":"SKILL_READY","skillId":"celestial_crush"}]}]},"white_crystal_armor_behemoth":{"id":"white_crystal_armor_behemoth","name":"백정갑주 균열거수","skills":[{"id":"white_bastion","name":"백정장벽","description":"두꺼운 결정 보호막을 전개합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_bastion"}]},{"id":"armor_collision","name":"갑주충돌","description":"거대한 결정갑주로 강타합니다.","cooldown":2,"kind":"damage","multiplier":1.55},{"id":"crust_crush","name":"지각압쇄","description":"한 턴 준비한 뒤 강하게 압쇄합니다.","cooldown":3,"kind":"charge","multiplier":2.15},{"id":"boss_hardening","name":"결정경화","description":"갑주를 더욱 단단하게 만듭니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_hardening"}]}],"aiRules":[{"id":"shield","priority":40,"actionId":"white_bastion","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_bastion"},{"kind":"SKILL_READY","skillId":"white_bastion"}]},{"id":"harden","priority":30,"actionId":"boss_hardening","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_hardening"},{"kind":"SKILL_READY","skillId":"boss_hardening"}]},{"id":"charge","priority":20,"actionId":"crust_crush","conditions":[{"kind":"SKILL_READY","skillId":"crust_crush"}]},{"id":"slam","priority":10,"actionId":"armor_collision","conditions":[{"kind":"SKILL_READY","skillId":"armor_collision"}]}]},"myriad_refraction_predator":{"id":"myriad_refraction_predator","name":"만광굴절 포식자","skills":[{"id":"myriad_stance","name":"굴절자세","description":"직접 피격에 반응할 준비를 합니다.","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"reflected_claw"},{"id":"reflected_claw","name":"반광발톱","description":"굴절잔상에서 튀어나와 즉시 반격합니다.","cooldown":0,"kind":"damage","multiplier":0.95},{"id":"boss_scattered_light","name":"산란광","description":"빛을 흐려 공격력을 낮춥니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_glare"}]},{"id":"myriad_leap","name":"만광도약","description":"한 턴 준비한 뒤 도약해 덮칩니다.","cooldown":3,"kind":"charge","multiplier":2.2},{"id":"predation_strike","name":"포식일격","description":"약해진 대상을 집중적으로 노립니다.","cooldown":2,"kind":"damage","multiplier":1.75}],"aiRules":[{"id":"finish","priority":50,"actionId":"predation_strike","conditions":[{"kind":"TARGET_HP_BELOW","value":0.35},{"kind":"SKILL_READY","skillId":"predation_strike"}]},{"id":"counter","priority":40,"actionId":"myriad_stance","conditions":[{"kind":"SKILL_READY","skillId":"myriad_stance"}]},{"id":"glare","priority":30,"actionId":"boss_scattered_light","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_glare"},{"kind":"SKILL_READY","skillId":"boss_scattered_light"}]},{"id":"charge","priority":20,"actionId":"myriad_leap","conditions":[{"kind":"SKILL_READY","skillId":"myriad_leap"}]}]},"pulsing_crystal_core_growth":{"id":"pulsing_crystal_core_growth","name":"맥동광핵 증식체","skills":[{"id":"core_regen","name":"광핵재생","description":"결정핵이 체력을 지속 회복합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_regen"}]},{"id":"crystal_amplify","name":"결정증폭","description":"결정핵의 출력으로 공격력을 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_growth"}]},{"id":"vein_fortify","name":"광맥경화","description":"외피를 굳혀 방어력을 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_hardening"}]},{"id":"pulse_impact","name":"맥동충격","description":"맥동을 압축해 강하게 공격합니다.","cooldown":2,"kind":"damage","multiplier":1.55},{"id":"core_compression","name":"심핵압축","description":"한 턴 압축한 뒤 강한 충격을 방출합니다.","cooldown":3,"kind":"charge","multiplier":2.25}],"aiRules":[{"id":"regen","priority":50,"actionId":"core_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.6},{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_regen"},{"kind":"SKILL_READY","skillId":"core_regen"}]},{"id":"amplify","priority":40,"actionId":"crystal_amplify","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_growth"},{"kind":"SKILL_READY","skillId":"crystal_amplify"}]},{"id":"harden","priority":30,"actionId":"vein_fortify","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_hardening"},{"kind":"SKILL_READY","skillId":"vein_fortify"}]},{"id":"charge","priority":20,"actionId":"core_compression","conditions":[{"kind":"SKILL_READY","skillId":"core_compression"}]},{"id":"impact","priority":10,"actionId":"pulse_impact","conditions":[{"kind":"SKILL_READY","skillId":"pulse_impact"}]}]},"thousand_face_crystal_beast":{"id":"thousand_face_crystal_beast","name":"천면결정수","skills":[{"id":"white_face","name":"백정면","description":"백색 결정면으로 방어력을 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_hardening"}]},{"id":"mirror_face","name":"경정면","description":"직접 피격에 반응할 준비를 합니다.","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"mirror_shatter"},{"id":"mirror_shatter","name":"경면파쇄","description":"거울결정을 깨뜨리며 즉시 반격합니다.","cooldown":0,"kind":"damage","multiplier":1},{"id":"clouded_face","name":"탁정면","description":"공격적인 결정면으로 전환합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_growth"}]},{"id":"manyface_collision","name":"천면충돌","description":"결정면을 앞세워 강하게 충돌합니다.","cooldown":2,"kind":"damage","multiplier":1.6},{"id":"manyface_fall","name":"천면낙광","description":"한 턴 준비 후 결정광을 압축해 떨어뜨립니다.","cooldown":3,"kind":"charge","multiplier":2.3}],"aiRules":[{"id":"defense","priority":50,"actionId":"white_face","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_hardening"},{"kind":"SKILL_READY","skillId":"white_face"}]},{"id":"counter","priority":40,"actionId":"mirror_face","conditions":[{"kind":"SKILL_READY","skillId":"mirror_face"}]},{"id":"attack","priority":30,"actionId":"clouded_face","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_growth"},{"kind":"SKILL_READY","skillId":"clouded_face"}]},{"id":"charge","priority":20,"actionId":"manyface_fall","conditions":[{"kind":"SKILL_READY","skillId":"manyface_fall"}]},{"id":"collision","priority":10,"actionId":"manyface_collision","conditions":[{"kind":"SKILL_READY","skillId":"manyface_collision"}]}]},"celestial_core_matrix":{"id":"celestial_core_matrix","name":"천광심핵 모체","skills":[{"id":"core_barrier","name":"심핵장벽","description":"심핵 주변에 두꺼운 결정막을 만듭니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_core_shield"}]},{"id":"matrix_regen","name":"광핵재생","description":"저체력에서 심핵이 지속 회복합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_regen"}]},{"id":"celestial_amplify","name":"천광증폭","description":"저체력에서 공격 출력을 높입니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"crystal_growth"}]},{"id":"core_echo_stance","name":"심핵반향","description":"직접 피격에 반응할 준비를 합니다.","cooldown":4,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"core_echo_wave"},{"id":"core_echo_wave","name":"반향파동","description":"심핵이 충격에 반응해 즉시 파동을 방출합니다.","cooldown":0,"kind":"damage","multiplier":1.05},{"id":"dulling_pulse","name":"탁광맥동","description":"탁한 광맥동으로 공격력을 낮춥니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"crystal_glare"}]},{"id":"celestial_compression","name":"천광압축","description":"한 턴 준비한 뒤 심핵 에너지를 방출합니다.","cooldown":3,"kind":"charge","multiplier":2.55},{"id":"core_impact","name":"심핵충격","description":"심핵의 맥동으로 강하게 충격합니다.","cooldown":2,"kind":"damage","multiplier":1.65}],"aiRules":[{"id":"regen","priority":70,"actionId":"matrix_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.45},{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_regen"},{"kind":"SKILL_READY","skillId":"matrix_regen"}]},{"id":"amplify","priority":60,"actionId":"celestial_amplify","conditions":[{"kind":"SELF_HP_BELOW","value":0.5},{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_growth"},{"kind":"SKILL_READY","skillId":"celestial_amplify"}]},{"id":"terminal","priority":50,"actionId":"celestial_compression","conditions":[{"kind":"SELF_HP_BELOW","value":0.5},{"kind":"SKILL_READY","skillId":"celestial_compression"}]},{"id":"shield","priority":40,"actionId":"core_barrier","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"crystal_core_shield"},{"kind":"SKILL_READY","skillId":"core_barrier"}]},{"id":"counter","priority":30,"actionId":"core_echo_stance","conditions":[{"kind":"SKILL_READY","skillId":"core_echo_stance"}]},{"id":"glare","priority":20,"actionId":"dulling_pulse","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"crystal_glare"},{"kind":"SKILL_READY","skillId":"dulling_pulse"}]},{"id":"impact","priority":10,"actionId":"core_impact","conditions":[{"kind":"SKILL_READY","skillId":"core_impact"}]}]},"moss_spirit":{"id":"moss_spirit","name":"이끼 정령","skills":[{"id":"moss_regen","name":"녹빛 재생","description":"자가 재생을 활성화합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_regen"}]}],"aiRules":[{"id":"regen","priority":20,"actionId":"moss_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.7},{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_regen"},{"kind":"SKILL_READY","skillId":"moss_regen"}]}]},"spore_hound":{"id":"spore_hound","name":"포자 사냥개","skills":[{"id":"spore_bite","name":"포자 이빨","description":"상처에 병성 포자를 심습니다.","cooldown":2,"kind":"damage","multiplier":1.05,"effects":[{"target":"TARGET","effectId":"kaleon_blight"}]},{"id":"sick_hunt","name":"병든 사냥","description":"오염된 대상을 집요하게 물어뜯습니다.","cooldown":2,"kind":"damage","multiplier":1.45}],"aiRules":[{"id":"hunt","priority":30,"actionId":"sick_hunt","conditions":[{"kind":"TARGET_HAS_EFFECT","effectId":"kaleon_blight"},{"kind":"SKILL_READY","skillId":"sick_hunt"}]},{"id":"bite","priority":20,"actionId":"spore_bite","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"kaleon_blight"},{"kind":"SKILL_READY","skillId":"spore_bite"}]}]},"graft_stag":{"id":"graft_stag","name":"접목뿔 사슴","skills":[{"id":"bark_growth","name":"수피 증식","description":"비정상적으로 증식한 조직이 몸을 감쌉니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_overgrowth"}]},{"id":"graft_charge","name":"접목 돌진","description":"한 턴 준비 후 거대한 뿔로 돌진합니다.","cooldown":3,"kind":"charge","multiplier":2}],"aiRules":[{"id":"growth","priority":30,"actionId":"bark_growth","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_overgrowth"},{"kind":"SKILL_READY","skillId":"bark_growth"}]},{"id":"charge","priority":20,"actionId":"graft_charge","conditions":[{"kind":"SKILL_READY","skillId":"graft_charge"}]}]},"blight_leech":{"id":"blight_leech","name":"녹병 거머리","skills":[{"id":"blight_infect","name":"녹병 주입","description":"대상에게 녹병을 퍼뜨립니다.","cooldown":2,"kind":"effect","effects":[{"target":"TARGET","effectId":"kaleon_blight"}]},{"id":"green_drain","name":"생기 흡수","description":"피해를 입히며 재생을 활성화합니다.","cooldown":3,"kind":"damage","multiplier":1.15,"effects":[{"target":"SELF","effectId":"kaleon_regen"}]}],"aiRules":[{"id":"infect","priority":30,"actionId":"blight_infect","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"kaleon_blight"},{"kind":"SKILL_READY","skillId":"blight_infect"}]},{"id":"drain","priority":20,"actionId":"green_drain","conditions":[{"kind":"SELF_HP_BELOW","value":0.75},{"kind":"SKILL_READY","skillId":"green_drain"}]}]},"receptor_aberrant":{"id":"receptor_aberrant","name":"수용체 변이체","skills":[{"id":"transfer_mark","name":"전이 표식","description":"고통을 옮기기 위한 표식을 누적합니다.","cooldown":1,"kind":"effect","effects":[{"target":"TARGET","effectId":"kaleon_transfer_mark"}]},{"id":"transfer_crush","name":"고통 역류","description":"전이 표식이 겹친 대상에게 강한 충격을 되돌립니다.","cooldown":3,"kind":"damage","multiplier":1.75},{"id":"receptor_regen","name":"수용 재생","description":"손상된 조직을 빠르게 재생합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_regen"}]}],"aiRules":[{"id":"crush","priority":40,"actionId":"transfer_crush","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"kaleon_transfer_mark","requiredStacks":2},{"kind":"SKILL_READY","skillId":"transfer_crush"}]},{"id":"regen","priority":30,"actionId":"receptor_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.55},{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_regen"},{"kind":"SKILL_READY","skillId":"receptor_regen"}]},{"id":"mark","priority":20,"actionId":"transfer_mark","conditions":[{"kind":"SKILL_READY","skillId":"transfer_mark"}]}]},"greenwrought_gatekeeper":{"id":"greenwrought_gatekeeper","name":"녹화된 수문장","skills":[{"id":"gate_growth","name":"녹화 장갑","description":"증식 조직으로 방어를 굳힙니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_overgrowth"}]},{"id":"gate_charge","name":"봉쇄 돌진","description":"한 턴 준비 후 침입자를 밀어냅니다.","cooldown":3,"kind":"charge","multiplier":2.15}],"aiRules":[{"id":"growth","priority":30,"actionId":"gate_growth","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_overgrowth"},{"kind":"SKILL_READY","skillId":"gate_growth"}]},{"id":"charge","priority":20,"actionId":"gate_charge","conditions":[{"kind":"SKILL_READY","skillId":"gate_charge"}]}]},"overgrowth_regenerator":{"id":"overgrowth_regenerator","name":"과잉재생 포식체","skills":[{"id":"overflow_regen","name":"과잉 재생","description":"비정상적인 속도로 육체를 복구합니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_regen"}]},{"id":"rupture_bite","name":"증식 파열","description":"오염 조직을 터뜨려 녹병을 남깁니다.","cooldown":2,"kind":"damage","multiplier":1.25,"effects":[{"target":"TARGET","effectId":"kaleon_blight"}]}],"aiRules":[{"id":"regen","priority":30,"actionId":"overflow_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.8},{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_regen"},{"kind":"SKILL_READY","skillId":"overflow_regen"}]},{"id":"bite","priority":20,"actionId":"rupture_bite","conditions":[{"kind":"SKILL_READY","skillId":"rupture_bite"}]}]},"transfer_subject_c17":{"id":"transfer_subject_c17","name":"전이실험체 C-17","skills":[{"id":"c17_mark","name":"전이 표식","description":"고통의 전이 경로를 새깁니다.","cooldown":1,"kind":"effect","effects":[{"target":"TARGET","effectId":"kaleon_transfer_mark"}]},{"id":"c17_backflow","name":"전이 역류","description":"누적된 전이 표식을 따라 고통을 되돌립니다.","cooldown":3,"kind":"damage","multiplier":2}],"aiRules":[{"id":"backflow","priority":30,"actionId":"c17_backflow","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"kaleon_transfer_mark","requiredStacks":3},{"kind":"SKILL_READY","skillId":"c17_backflow"}]},{"id":"mark","priority":20,"actionId":"c17_mark","conditions":[{"kind":"SKILL_READY","skillId":"c17_mark"}]}]},"atonement_prototype":{"id":"atonement_prototype","name":"대속의 원형체","skills":[{"id":"atonement_counter_prepare","name":"대속 반응 준비","description":"직접 피격을 받은 순간 고통을 되돌릴 준비를 합니다.","cooldown":3,"kind":"reactive_prepare","reactiveTrigger":"DIRECT_HIT_RECEIVED","reactionSkillId":"atonement_counter"},{"id":"atonement_counter","name":"고통 반환","description":"받아들인 고통의 일부를 즉시 되돌립니다.","cooldown":0,"kind":"damage","multiplier":1},{"id":"atonement_regen","name":"대속 재생","description":"흡수한 고통을 조직 재생으로 바꿉니다.","cooldown":4,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_regen"}]},{"id":"atonement_blight","name":"오염 이전","description":"축적된 오염을 대상에게 옮깁니다.","cooldown":2,"kind":"effect","effects":[{"target":"TARGET","effectId":"kaleon_blight"}]}],"aiRules":[{"id":"reactive","priority":40,"actionId":"atonement_counter_prepare","conditions":[{"kind":"SKILL_READY","skillId":"atonement_counter_prepare"}]},{"id":"regen","priority":30,"actionId":"atonement_regen","conditions":[{"kind":"SELF_HP_BELOW","value":0.6},{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_regen"},{"kind":"SKILL_READY","skillId":"atonement_regen"}]},{"id":"blight","priority":20,"actionId":"atonement_blight","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"kaleon_blight"},{"kind":"SKILL_READY","skillId":"atonement_blight"}]}]},"false_saint_caleon":{"id":"false_saint_caleon","name":"거짓 성자 칼레온","skills":[{"id":"saint_ward","name":"수용자의 장벽","description":"오염을 억누르는 조직 장벽을 전개합니다.","cooldown":5,"kind":"effect","effects":[{"target":"SELF","effectId":"kaleon_saint_ward"}]},{"id":"caleon_mark","name":"고통의 전이","description":"대상에게 전이 표식을 누적합니다.","cooldown":1,"kind":"effect","effects":[{"target":"TARGET","effectId":"kaleon_transfer_mark"}]},{"id":"caleon_blight","name":"녹화 누출","description":"억제하던 오염 일부가 새어 나옵니다.","cooldown":3,"kind":"effect","effects":[{"target":"TARGET","effectId":"kaleon_blight"}]},{"id":"caleon_backflow","name":"대속 역류","description":"누적된 전이 표식을 따라 압축된 고통을 되돌립니다.","cooldown":3,"kind":"damage","multiplier":2.1},{"id":"last_receptor","name":"마지막 수용","description":"쇠약해진 칼레온이 남은 오염을 끌어안고 강한 일격을 준비합니다.","cooldown":4,"kind":"charge","multiplier":2.7}],"aiRules":[{"id":"ward","priority":50,"actionId":"saint_ward","conditions":[{"kind":"SELF_MISSING_EFFECT","effectId":"kaleon_saint_ward"},{"kind":"SKILL_READY","skillId":"saint_ward"}]},{"id":"last","priority":40,"actionId":"last_receptor","conditions":[{"kind":"SELF_HP_BELOW","value":0.45},{"kind":"SKILL_READY","skillId":"last_receptor"}]},{"id":"backflow","priority":35,"actionId":"caleon_backflow","conditions":[{"kind":"TARGET_EFFECT_APPLICATIONS_AT_LEAST","effectId":"kaleon_transfer_mark","requiredStacks":3},{"kind":"SKILL_READY","skillId":"caleon_backflow"}]},{"id":"blight","priority":30,"actionId":"caleon_blight","conditions":[{"kind":"TARGET_MISSING_EFFECT","effectId":"kaleon_blight"},{"kind":"SKILL_READY","skillId":"caleon_blight"}]},{"id":"mark","priority":20,"actionId":"caleon_mark","conditions":[{"kind":"SKILL_READY","skillId":"caleon_mark"}]}]}},"jobs":{"contract_mercenary":{"jobId":"contract_mercenary","passives":[{"id":"mercenary_passive_1","name":"전투 숙련","description":"기본 공격 피해 +10%","hooks":["BEFORE_DIRECT_HIT"],"conditions":[{"kind":"ACTION_IS_BASIC_ATTACK"}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.1}]},{"id":"mercenary_passive_2","name":"노련한 방어","description":"Direct Hit으로 받는 실제 피해 -8%","hooks":["BEFORE_DAMAGE_TAKEN"],"conditions":[{"kind":"IS_DIRECT_HIT"}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":0.92}]}],"skills":[{"id":"mercenary_skill_1","name":"강타","description":"180% Direct Damage","cooldown":3,"effectActions":[{"kind":"DIRECT_ATTACK","hits":1,"baseMultiplier":1.8}],"resource":{"kind":"NEUTRAL"}},{"id":"mercenary_skill_2","name":"방패 올리기","description":"2턴 동안 받는 피해 25% 감소","cooldown":5,"effectActions":[{"kind":"APPLY_EFFECT","target":"SELF","effectId":"mercenary_guard","duration":2}],"resource":{"kind":"NEUTRAL"}},{"id":"mercenary_skill_3","name":"빈틈 찌르기","description":"기본 130%, 적 HP ≤40%라면 200%","cooldown":4,"effectActions":[{"kind":"DIRECT_ATTACK","hits":1,"baseMultiplier":1.3,"conditionalLastHitMultiplier":{"condition":{"kind":"TARGET_HP_RATIO_LE","ratio":0.4},"multiplier":2}}],"resource":{"kind":"NEUTRAL"}}]},"hunter":{"jobId":"hunter","passives":[{"id":"hunter_passive_1","name":"추적자의 눈","description":"hunter_mark가 적용된 적에게 주는 피해 +15%","hooks":["BEFORE_DIRECT_HIT"],"conditions":[{"kind":"TARGET_HAS_EFFECT","effectId":"hunter_mark"}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.15}]},{"id":"hunter_passive_2","name":"사냥 본능","description":"적 HP가 35% 이하일 때 기본 공격 피해 +20%","hooks":["BEFORE_DIRECT_HIT"],"conditions":[{"kind":"ACTION_IS_BASIC_ATTACK"},{"kind":"TARGET_HP_RATIO_LE","ratio":0.35}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.2}]}],"skills":[{"id":"hunter_skill_1","name":"사냥감 표식","description":"적에게 hunter_mark 3턴","cooldown":5,"effectActions":[{"kind":"APPLY_EFFECT","target":"TARGET","effectId":"hunter_mark","duration":3}],"resource":{"kind":"NEUTRAL"}},{"id":"hunter_skill_2","name":"연속 사격","description":"기본 70% x 2타, 표식 대상 시 70% x 3타","cooldown":0,"effectActions":[{"kind":"DIRECT_ATTACK","hits":2,"baseMultiplier":0.7,"conditionalHits":{"condition":{"kind":"TARGET_HAS_EFFECT","effectId":"hunter_mark"},"hits":3}}],"resource":{"kind":"NEUTRAL"}},{"id":"hunter_skill_3","name":"마무리 사격","description":"기본 170%, 표식 대상이며 적 HP ≤35%라면 280%","cooldown":5,"effectActions":[{"kind":"DIRECT_ATTACK","hits":1,"baseMultiplier":1.7,"conditionalLastHitMultiplier":{"condition":{"kind":"ALL","conditions":[{"kind":"TARGET_HAS_EFFECT","effectId":"hunter_mark"},{"kind":"TARGET_HP_RATIO_LE","ratio":0.35}]},"multiplier":2.8}}],"resource":{"kind":"NEUTRAL"}}]},"field_medic":{"jobId":"field_medic","passives":[{"id":"field_medic_passive_1","name":"응급처치","description":"전투당 1회, 플레이어 HP가 처음 30% 이하로 내릴 때 Max HP 15% 회복","hooks":["HP_THRESHOLD"],"conditions":[{"kind":"FLAG_IS","flag":"first_aid_used","value":false},{"kind":"SELF_HP_RATIO_LE","ratio":0.3}],"effectActions":[{"kind":"HEAL_PERCENT","percent":0.15},{"kind":"SET_FLAG","flag":"first_aid_used","value":true}]},{"id":"field_medic_passive_2","name":"약물 지식","description":"회복 포션 회복량 +20%","hooks":["BEFORE_HEAL"],"conditions":[{"kind":"ACTION_IS_POTION"}],"effectActions":[{"kind":"MODIFY_HEAL_MULTIPLIER","multiplier":1.2}]}],"skills":[{"id":"field_medic_skill_1","name":"응급 치료","description":"Max HP 20% 회복","cooldown":5,"effectActions":[{"kind":"HEAL_PERCENT","percent":0.2}],"resource":{"kind":"NEUTRAL"}},{"id":"field_medic_skill_2","name":"지혈","description":"BLEED 상태효과 제거 후 3턴간 턴당 Max HP 5% 회복","cooldown":0,"effectActions":[{"kind":"REMOVE_EFFECT_TAG","target":"SELF","tag":"BLEED"},{"kind":"APPLY_EFFECT","target":"SELF","effectId":"field_medic_regen","duration":3}],"resource":{"kind":"NEUTRAL"}},{"id":"field_medic_skill_3","name":"진통제","description":"2턴 동안 받는 피해 -30%","cooldown":6,"effectActions":[{"kind":"APPLY_EFFECT","target":"SELF","effectId":"field_medic_analgesic","duration":2}],"resource":{"kind":"NEUTRAL"}}]},"duelist":{"jobId":"duelist","passives":[{"id":"duelist_passive_1","name":"일대일","description":"1:1 전투 시 공격력/최종 피해 +10%","hooks":["BEFORE_DIRECT_HIT"],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.1}]},{"id":"duelist_passive_2","name":"반격 태세","description":"Direct Hit을 받을 때 20% 확률로 공격력 60% 반격","hooks":["AFTER_DAMAGE_TAKEN"],"conditions":[{"kind":"IS_DIRECT_HIT"}],"effectActions":[{"kind":"CHANCE_REACTION","chance":0.2,"multiplier":0.6}]}],"skills":[{"id":"duelist_skill_1","name":"찌르기","description":"160% Direct Damage","cooldown":2,"effectActions":[{"kind":"DIRECT_ATTACK","hits":1,"baseMultiplier":1.6}],"resource":{"kind":"NEUTRAL"}},{"id":"duelist_skill_2","name":"받아치기","description":"Prepared Reaction 등록 (피해 40% 감소 + 공격력 180% 즉시 반격)","cooldown":5,"effectActions":[{"kind":"APPLY_EFFECT","target":"SELF","effectId":"duelist_counter_stance","duration":2}],"resource":{"kind":"NEUTRAL"}},{"id":"duelist_skill_3","name":"결착","description":"기본 220%, 적 HP ≤30%라면 320%","cooldown":6,"effectActions":[{"kind":"DIRECT_ATTACK","hits":1,"baseMultiplier":2.2,"conditionalLastHitMultiplier":{"condition":{"kind":"TARGET_HP_RATIO_LE","ratio":0.3},"multiplier":3.2}}],"resource":{"kind":"NEUTRAL"}}]},"berserker":{"jobId":"berserker","resource":{"id":"combat","initialValue":0,"maxValue":4},"passives":[{"id":"berserker_passive_1_tier3","name":"피의 열기 (20%)","description":"HP ≤20%일 때 피해 +35%","hooks":["BEFORE_DIRECT_HIT"],"conditions":[{"kind":"SELF_HP_RATIO_LE","ratio":0.2}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.35}]},{"id":"berserker_passive_1_tier2","name":"피의 열기 (40%)","description":"HP 20%~40%일 때 피해 +20%","hooks":["BEFORE_DIRECT_HIT"],"conditions":[{"kind":"SELF_HP_RATIO_LE","ratio":0.4},{"kind":"SELF_HP_RATIO_GT","ratio":0.2}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.2}]},{"id":"berserker_passive_1_tier1","name":"피의 열기 (70%)","description":"HP 40%~70%일 때 피해 +10%","hooks":["BEFORE_DIRECT_HIT"],"conditions":[{"kind":"SELF_HP_RATIO_LE","ratio":0.7},{"kind":"SELF_HP_RATIO_GT","ratio":0.4}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":1.1}]},{"id":"berserker_passive_2","name":"죽음 거부","description":"HP ≤30%일 때 받는 피해 -15%","hooks":["BEFORE_DAMAGE_TAKEN"],"conditions":[{"kind":"SELF_HP_RATIO_LE","ratio":0.3}],"effectActions":[{"kind":"DAMAGE_MULTIPLIER","multiplier":0.85}]},{"id":"berserker_passive_rage_gain","name":"분노 수급","description":"피격 시 실제 HP 피해량만큼 Rage 획득","hooks":["AFTER_DAMAGE_TAKEN"],"conditions":[{"kind":"IS_DIRECT_HIT"}],"effectActions":[{"kind":"GAIN_RESOURCE_FROM_HP_DAMAGE"}]}],"skills":[{"id":"berserker_skill_1","name":"난도질","resource":{"kind":"GENERATOR","gain":1},"description":"75% x 2 Direct Hit, 자원 +1","cooldown":0,"effectActions":[{"kind":"DIRECT_ATTACK","hits":2,"baseMultiplier":0.75}]},{"id":"berserker_skill_2","name":"피의 대가","resource":{"kind":"GENERATOR","gain":1},"description":"Max HP 10% 소비(최소 HP 1 보장), 자원 +1, 3턴간 공격 피해 +25%","cooldown":0,"effectActions":[{"kind":"SELF_HP_COST_PERCENT","percentOfMax":0.1},{"kind":"APPLY_EFFECT","target":"SELF","effectId":"berserker_blood_boost","duration":3}]},{"id":"berserker_skill_3","name":"폭주","description":"자원 3칸 소비, 100% x 3 타격 (적 HP ≤30%면 막타 150%)","cooldown":3,"resource":{"kind":"SPENDER","cost":{"mode":"FIXED","amount":3}},"effectActions":[{"kind":"DIRECT_ATTACK","hits":3,"baseMultiplier":1,"conditionalLastHitMultiplier":{"condition":{"kind":"TARGET_HP_RATIO_LE","ratio":0.3},"multiplier":1.5}}]}]}}}$data$::jsonb;
+$catalog$;
+revoke all on function private.combat_v2_catalog() from public,anon,authenticated;
+
+CREATE OR REPLACE FUNCTION private.server_job_damage_multiplier(p_combat private.online_combat_states, p_action text)
+ RETURNS numeric
+ LANGUAGE plpgsql
+ IMMUTABLE
+ SET search_path TO ''
+AS $function$
+declare r numeric:=p_combat.player_hp::numeric/nullif(p_combat.player_max_hp,0);m numeric:=p_combat.monster_hp::numeric/nullif(p_combat.monster_max_hp,0);x numeric:=1;
+begin
+ if p_combat.job_id='contract_mercenary' and p_action='BASIC' then x:=x*1.1;end if;
+ if p_combat.job_id='hunter' then
+  if exists(select 1 from jsonb_array_elements(p_combat.monster_effects)e where e->>'effectId'='hunter_mark') then x:=x*1.15;end if;
+  if p_action='BASIC' and m<=.35 then x:=x*1.2;end if;
+ elsif p_combat.job_id='duelist' then x:=x*1.1;
+ elsif p_combat.job_id='berserker' then x:=x*(case when r<=.2 then 1.35 when r<=.4 then 1.2 when r<=.7 then 1.1 else 1 end);
+ end if;
+ return x;
+end $function$;
+
+CREATE OR REPLACE FUNCTION private.server_roll(p_seed bigint, p_encounter bigint, p_nonce bigint, p_hit integer)
+ RETURNS numeric
+ LANGUAGE sql
+ IMMUTABLE
+ SET search_path TO ''
+AS $function$
+ select (abs(hashtextextended(p_seed::text||':'||p_encounter::text||':'||p_nonce::text||':'||p_hit::text,0))%1000000)::numeric/1000000
+$function$;
+
+-- V2 private primitives. No helper can be called directly by game clients.
+alter table private.online_combat_states add column if not exists engine_runtime jsonb not null default '{}';
+alter table private.online_expeditions add column if not exists healing_potion_uses integer not null default 0 check(healing_potion_uses between 0 and 5);
+alter table private.online_combat_states alter column player_hp type numeric,alter column monster_hp type numeric;
+
+create or replace function private.combat_v2_damage(a numeric,d numeric,m numeric default 1,crit numeric default 1,received numeric default 1,penetration numeric default 0)
+returns bigint language sql immutable set search_path='' as $$
+ select greatest(1,floor(greatest(1,floor(a*m*100/(100+greatest(0,d)*(1-greatest(0,least(1,penetration))))*crit))*greatest(0,received)))::bigint;
+$$;
+create or replace function private.combat_damage(p_attack numeric,p_defense numeric,p_multiplier numeric default 1,p_critical numeric default 1,p_received numeric default 1)
+returns bigint language sql immutable set search_path='' as $$ select private.combat_v2_damage(p_attack,p_defense,p_multiplier,p_critical,p_received,0); $$;
+
+create or replace function private.combat_v2_definition(id text) returns jsonb language sql immutable set search_path='' as $$ select private.combat_v2_catalog()->'effects'->id; $$;
+create or replace function private.combat_v2_modifier(effects jsonb,stat text) returns numeric language sql immutable set search_path='' as $$
+ select coalesce(sum(coalesce((private.combat_v2_definition(x->>'effectId')->'payload'->>'multiplier')::numeric,(x->>'multiplier')::numeric,0)*case when x->>'effectId' like 'test_%' then coalesce((x->>'stacks')::int,1) else 1 end),0)
+ from jsonb_array_elements(coalesce(effects,'[]'))x where coalesce(private.combat_v2_definition(x->>'effectId')->'payload'->>'stat',x->>'stat')=stat;
+$$;
+create or replace function private.effect_modifier(p_effects jsonb,p_stat text) returns numeric language sql immutable set search_path='' as $$ select private.combat_v2_modifier(p_effects,p_stat); $$;
+create or replace function private.combat_v2_has(effects jsonb,tag text) returns boolean language sql immutable set search_path='' as $$
+ select exists(select 1 from jsonb_array_elements(coalesce(effects,'[]'))x where x->>'effectId'=tag or coalesce(private.combat_v2_definition(x->>'effectId')->'tags','[]') ? tag);
+$$;
+create or replace function private.combat_v2_shield(effects jsonb) returns numeric language sql immutable set search_path='' as $$ select coalesce(sum(coalesce((x->>'currentShield')::numeric,0)),0) from jsonb_array_elements(coalesce(effects,'[]'))x; $$;
+
+create or replace function private.combat_v2_apply_effect(effects jsonb,id text,turn_no bigint,max_hp numeric,source text)
+returns jsonb language plpgsql immutable set search_path='' as $$
+declare d jsonb:=private.combat_v2_definition(id);old jsonb;created jsonb;duration int;amount numeric;seq bigint;
+begin
+ if d is null then return coalesce(effects,'[]');end if;
+ select x into old from jsonb_array_elements(coalesce(effects,'[]'))x where x->>'effectId'=id limit 1;
+ duration:=coalesce((d->>'defaultDuration')::int,1);
+ if d->>'behavior'='SHIELD' then
+  amount:=least(coalesce((d->>'shieldAmount')::numeric,0),greatest(0,3*max_hp-private.combat_v2_shield(effects)));
+  if amount<=0 then return coalesce(effects,'[]');end if;
+  if old is not null then created:=old||jsonb_build_object('currentShield',coalesce((old->>'currentShield')::numeric,0)+amount);
+  else created:=jsonb_build_object('effectId',id,'duration',duration,'stacks',1,'createdTurn',turn_no,'behavior','SHIELD','currentShield',amount,'sourceActorId',source);end if;
+ elsif old is not null then
+  created:=old||jsonb_build_object('duration',coalesce((old->>'duration')::int,0)+duration,'stacks',1,'applications',coalesce((old->>'applications')::int,(old->>'stacks')::int,1)+1);
+ else
+  created:=jsonb_build_object('effectId',id,'duration',duration,'stacks',1,'applications',1,'createdTurn',turn_no,'behavior',d->>'behavior','sourceActorId',source)||coalesce(d->'payload','{}');
+ end if;
+ if old is not null then return (select jsonb_agg(case when x->>'effectId'=id then created else x end order by ord) from jsonb_array_elements(coalesce(effects,'[]')) with ordinality t(x,ord));end if;
+ select coalesce(max(coalesce((x->>'applicationSequence')::bigint,0)),0)+1 into seq from jsonb_array_elements(coalesce(effects,'[]'))x;
+ return coalesce(effects,'[]')||jsonb_build_array(created||jsonb_build_object('applicationSequence',seq));
+end $$;
+create or replace function private.apply_server_effect(p_effects jsonb,p_id text,p_turn bigint) returns jsonb language sql immutable set search_path='' as $$ select private.combat_v2_apply_effect(p_effects,p_id,p_turn,1000000,'monster'); $$;
+
+create or replace function private.combat_v2_tick(effects jsonb,turn_no bigint) returns jsonb language sql immutable set search_path='' as $$
+ select coalesce(jsonb_agg(x||jsonb_build_object('duration',case when x->>'behavior'='SHIELD' or coalesce((x->>'createdTurn')::bigint,-1)=turn_no then (x->>'duration')::int else (x->>'duration')::int-1 end) order by ord),'[]')
+ from jsonb_array_elements(coalesce(effects,'[]')) with ordinality t(x,ord)
+ where x->>'behavior'='SHIELD' or (x->>'duration')::int-case when coalesce((x->>'createdTurn')::bigint,-1)=turn_no then 0 else 1 end>0;
+$$;
+create or replace function private.effect_tick(p_effects jsonb,p_turn bigint) returns jsonb language sql immutable set search_path='' as $$ select private.combat_v2_tick(p_effects,p_turn); $$;
+
+create or replace function private.combat_v2_event(c private.online_combat_states,event jsonb) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+begin c.engine_runtime:=coalesce(c.engine_runtime,'{}')||jsonb_build_object('events',coalesce(c.engine_runtime->'events','[]')||jsonb_build_array(event));return c;end $$;
+create or replace function private.combat_v2_heal(c private.online_combat_states,actor text,amount numeric,can_crit boolean,nonce bigint,salt int,source text default 'player')
+returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare src jsonb:=case when source='player' then c.player_effects else c.monster_effects end;dst jsonb:=case when actor='player' then c.player_effects else c.monster_effects end;critical boolean;healed numeric;
+begin
+ if (actor='player' and c.player_hp<=0) or (actor='monster' and c.monster_hp<=0) then return c;end if;
+ critical:=can_crit and private.server_roll(c.rng_seed,c.encounter_index,nonce,salt)<greatest(0,least(1,case when source='player' then coalesce(c.crit_chance,.05) else 0 end+private.combat_v2_modifier(src,'healCritChance')));
+ healed:=greatest(0,amount)*greatest(0,1+private.combat_v2_modifier(src,'healingDone'))*greatest(0,1+private.combat_v2_modifier(dst,'healingReceived'))*case when critical then greatest(1,coalesce(c.crit_damage,1.5)+private.combat_v2_modifier(src,'healCritDamage')) else 1 end;
+ if actor='player' then c.player_hp:=c.player_hp+healed;else c.monster_hp:=c.monster_hp+healed;end if;
+ if healed>0 then c:=private.combat_v2_event(c,jsonb_build_object('kind','HEAL','attacker',source,'target',actor,'healing',healed,'critical',critical,'hpDamage',0,'incomingDamage',0,'absorbedByShield',0,'hitIndex',1,'hitCount',1));end if;
+ return c;
+end $$;
+create or replace function private.combat_v2_periodic(c private.online_combat_states,actor text,nonce bigint)
+returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare effects jsonb:=case when actor='player' then c.player_effects else c.monster_effects end;turn_no bigint:=case when actor='player' then c.player_turn else c.monster_turn end;max_hp numeric:=case when actor='player' then c.player_max_hp else c.monster_max_hp end;x jsonb;d jsonb;amount numeric;idx int:=1200;
+begin
+ for x in select value from jsonb_array_elements(coalesce(effects,'[]')) where coalesce((value->>'createdTurn')::bigint,-1)<>turn_no loop
+  d:=coalesce(private.combat_v2_definition(x->>'effectId'),x);
+  if d->>'behavior'='PERIODIC_DAMAGE' then
+   amount:=coalesce((d->'payload'->>'amount')::numeric,(x->>'amount')::numeric,0);
+   if actor='player' then c.player_hp:=greatest(0,c.player_hp-amount);else c.monster_hp:=greatest(0,c.monster_hp-amount);end if;
+  end if;
+ end loop;
+ if (actor='player' and c.player_hp<=0) or (actor='monster' and c.monster_hp<=0) then return c;end if;
+ for x in select value from jsonb_array_elements(coalesce(effects,'[]')) where coalesce((value->>'createdTurn')::bigint,-1)<>turn_no loop
+  d:=coalesce(private.combat_v2_definition(x->>'effectId'),x);
+  if d->>'behavior'='PERIODIC_HEAL' then
+   idx:=idx+1;c:=private.combat_v2_heal(c,actor,max_hp*coalesce((d->'payload'->>'amount')::numeric,(x->>'amount')::numeric,0),coalesce(x->>'sourceActorId','monster')='player',nonce,idx,coalesce(x->>'sourceActorId','monster'));
+  end if;
+ end loop;
+ return c;
+end $$;
+
+-- Each user's row is reused across expeditions. Reset the allowance on run identity change.
+create or replace function private.combat_v2_reset_potion_allowance()
+returns trigger language plpgsql set search_path='' as $$
+begin
+ if tg_op='INSERT' or new.run_id is distinct from old.run_id then new.healing_potion_uses:=0;end if;
+ return new;
+end $$;
+drop trigger if exists combat_v2_reset_potion_allowance on private.online_expeditions;
+create trigger combat_v2_reset_potion_allowance before insert or update of run_id
+on private.online_expeditions for each row execute function private.combat_v2_reset_potion_allowance();
+
+create or replace function private.combat_v2_condition(c private.online_combat_states,q jsonb,actor text default 'monster',spent int default 0,action text default 'SKILL')
+returns boolean language plpgsql immutable set search_path='' as $$
+declare kind text:=q->>'kind';self_hp numeric:=case when actor='player' then c.player_hp/nullif(c.player_max_hp,0) else c.monster_hp/nullif(c.monster_max_hp,0) end;target_hp numeric:=case when actor='player' then c.monster_hp/nullif(c.monster_max_hp,0) else c.player_hp/nullif(c.player_max_hp,0) end;self_effects jsonb:=case when actor='player' then c.player_effects else c.monster_effects end;target_effects jsonb:=case when actor='player' then c.monster_effects else c.player_effects end;x jsonb;v numeric;
+begin
+ if kind='ALL' then for x in select value from jsonb_array_elements(q->'conditions') loop if not private.combat_v2_condition(c,x,actor,spent,action) then return false;end if;end loop;return true;end if;
+ if kind='ANY' then for x in select value from jsonb_array_elements(q->'conditions') loop if private.combat_v2_condition(c,x,actor,spent,action) then return true;end if;end loop;return false;end if;
+ if kind='SELF_HP_BELOW' then return self_hp<(q->>'value')::numeric;elsif kind='TARGET_HP_BELOW' then return target_hp<(q->>'value')::numeric;
+ elsif kind='SELF_HP_RATIO_LE' then return self_hp<=(q->>'ratio')::numeric;elsif kind='SELF_HP_RATIO_GT' then return self_hp>(q->>'ratio')::numeric;elsif kind='TARGET_HP_RATIO_LE' then return target_hp<=(q->>'ratio')::numeric;
+ elsif kind='SELF_HAS_EFFECT' then return private.combat_v2_has(self_effects,q->>'effectId');elsif kind='TARGET_HAS_EFFECT' then return private.combat_v2_has(target_effects,q->>'effectId');
+ elsif kind='SELF_MISSING_EFFECT' then return not private.combat_v2_has(self_effects,q->>'effectId');elsif kind='TARGET_MISSING_EFFECT' then return not private.combat_v2_has(target_effects,q->>'effectId');
+ elsif kind='RESOURCE_GE' then return c.job_resource>=(q->>'amount')::int;elsif kind='RESOURCE_SPENT_GE' then return spent>=(q->>'amount')::int;
+ elsif kind='FLAG_IS' then return coalesce((c.job_flags->>(q->>'flag'))::boolean,false)=(q->>'value')::boolean;
+ elsif kind='ACTION_IS_BASIC_ATTACK' then return action='BASIC';elsif kind='ACTION_IS_SKILL' then return action='SKILL';elsif kind='ACTION_IS_POTION' then return action='POTION';elsif kind='IS_DIRECT_HIT' then return true;
+ elsif kind='TURN_AT_LEAST' then return c.monster_turn>=(q->>'value')::int;elsif kind='EVENT_FLAG' then return coalesce((c.engine_runtime->'eventFlags'->>(q->>'flag'))::boolean,false);
+ elsif kind='PHASE_IS' then return c.engine_runtime->>'phaseId'=q->>'phaseId';elsif kind='PREVIOUS_ACTION' then return c.engine_runtime->>'lastActionId'=q->>'actionId';
+ elsif kind='SKILL_USES_AT_LEAST' then return coalesce((c.engine_runtime->'actionCounts'->>(q->>'skillId'))::int,0)>=(q->>'value')::int;
+ elsif kind='SKILL_READY' then return coalesce((c.engine_runtime->'monsterReady'->>(q->>'skillId'))::bigint,0)<=c.monster_turn;
+ elsif kind='SELF_SHIELD_AT_LEAST' then return private.combat_v2_shield(self_effects)>=(q->>'value')::numeric;elsif kind='TARGET_SHIELD_AT_LEAST' then return private.combat_v2_shield(target_effects)>=(q->>'value')::numeric;
+ elsif kind in ('SELF_EFFECT_APPLICATIONS_AT_LEAST','TARGET_EFFECT_APPLICATIONS_AT_LEAST','SELF_EFFECT_STACKS_AT_LEAST','TARGET_EFFECT_STACKS_AT_LEAST') then
+  select coalesce((e->>case when kind like '%APPLICATIONS%' then 'applications' else 'stacks' end)::int,1) into v from jsonb_array_elements(case when kind like 'SELF%' then self_effects else target_effects end)e where e->>'effectId'=q->>'effectId';return coalesce(v,0)>=(q->>'requiredStacks')::int;
+ end if;return false;
+end $$;
+
+create or replace function private.combat_v2_effect(c private.online_combat_states,actor text,id text,source text)
+returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare definition jsonb:=private.combat_v2_catalog()->'monsters'->c.monster_id;d jsonb:=private.combat_v2_definition(id);immune jsonb:=coalesce(c.engine_runtime->'immunities',definition->'effectImmunities','[]');tag text;
+begin
+ if actor='monster' then
+  if immune ? id then return c;end if;
+  for tag in select jsonb_array_elements_text(coalesce(d->'tags','[]')) loop if immune ? tag then return c;end if;end loop;
+  c.monster_effects:=private.combat_v2_apply_effect(c.monster_effects,id,c.monster_turn,c.monster_max_hp,source);
+  c.monster_shield:=private.combat_v2_shield(c.monster_effects);
+  if coalesce(d->'tags','[]') ? 'STUN' then c.monster_prepared_action:=null;c.engine_runtime:=c.engine_runtime||jsonb_build_object('eventFlags',coalesce(c.engine_runtime->'eventFlags','{}')||'{"interrupted":true,"stunned":true}');end if;
+ else c.player_effects:=private.combat_v2_apply_effect(c.player_effects,id,c.player_turn,c.player_max_hp,source);c.player_shield:=private.combat_v2_shield(c.player_effects);end if;
+ return c;
+end $$;
+
+create or replace function private.combat_v2_absorb(effects jsonb,shield numeric,incoming numeric) returns jsonb language plpgsql immutable set search_path='' as $$
+declare x jsonb;remaining numeric:=greatest(0,incoming);taken numeric;next_effects jsonb:='[]';pool numeric:=greatest(0,coalesce(shield,0));
+begin
+ -- Older scalar shields become one pool until an authored shield is applied.
+ if private.combat_v2_shield(effects)=0 and pool>0 then taken:=least(pool,remaining);return jsonb_build_object('effects',coalesce(effects,'[]'),'shield',pool-taken,'hpDamage',remaining-taken,'absorbed',taken);end if;
+ for x in select value from jsonb_array_elements(coalesce(effects,'[]')) loop
+  if x->>'behavior'='SHIELD' and coalesce((x->>'currentShield')::numeric,0)>0 then
+   taken:=least((x->>'currentShield')::numeric,remaining);remaining:=remaining-taken;x:=x||jsonb_build_object('currentShield',(x->>'currentShield')::numeric-taken);
+   if (x->>'currentShield')::numeric<=0 then continue;end if;
+  end if;next_effects:=next_effects||jsonb_build_array(x);
+ end loop;
+ return jsonb_build_object('effects',next_effects,'shield',private.combat_v2_shield(next_effects),'hpDamage',remaining,'absorbed',incoming-remaining);
+end $$;
+
+create or replace function private.combat_v2_hit(c private.online_combat_states,actor text,mult numeric,nonce bigint,idx int,hits int,reactive boolean default true,penetration numeric default 0,critical_mode text default null)
+returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare target text:=case when actor='player' then 'monster' else 'player' end;src jsonb:=case when actor='player' then c.player_effects else c.monster_effects end;dst jsonb:=case when actor='player' then c.monster_effects else c.player_effects end;attack numeric;defense numeric;received numeric;crit numeric:=1;is_crit boolean:=false;outcome text:='HIT';incoming numeric:=0;actual numeric:=0;absorbed numeric:=0;shield_before numeric;result jsonb;reaction text;skill jsonb;stance boolean;gain int;heal numeric;i int;
+begin
+ if c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false) then return c;end if;
+ if reactive then c.engine_runtime:=coalesce(c.engine_runtime,'{}')||jsonb_build_object('actionOwner',actor);end if;
+ if private.combat_v2_modifier(dst,'hitImmunity')>0 then outcome:='IMMUNE';elsif private.server_roll(c.rng_seed,c.encounter_index,nonce,idx+2000)<private.combat_v2_modifier(src,'missChance') then outcome:='MISS';end if;
+ if outcome='HIT' then
+  is_crit:=coalesce(critical_mode='GUARANTEED',false) or ((actor='player' or coalesce(critical_mode='ALLOWED',false)) and private.server_roll(c.rng_seed,c.encounter_index,nonce,idx)<greatest(0,least(1,case when actor='player' then coalesce(c.crit_chance,.05) else .05 end+private.combat_v2_modifier(src,'critChance'))));
+  crit:=case when is_crit then case when actor='player' then coalesce(c.crit_damage,1.5) else 1.5 end+private.combat_v2_modifier(src,'critDamage') else 1 end;
+  attack:=case when actor='player' then c.player_attack else c.monster_attack*coalesce((c.engine_runtime->>'attackMultiplier')::numeric,1) end*greatest(0,1+private.combat_v2_modifier(src,'attack'));
+  if actor='player' and c.accessory_passive='berserker' and c.player_hp/nullif(c.player_max_hp,0)<=.4 then attack:=attack*(1+c.accessory_value);end if;
+  defense:=case when actor='player' then c.monster_defense*coalesce((c.engine_runtime->>'defenseMultiplier')::numeric,1) else c.player_defense end*greatest(0,1+private.combat_v2_modifier(dst,'defense'));
+  received:=greatest(0,1+private.combat_v2_modifier(dst,'receivedDamage'));
+  stance:=actor='monster' and reactive and private.combat_v2_has(dst,'duelist_counter_stance');
+  if actor='monster' then
+   null;
+   null;
+   if c.accessory_passive='unyielding' and c.player_hp/nullif(c.player_max_hp,0)<=.35 then received:=received*(1-c.accessory_value);end if;
+  end if;
+  incoming:=private.combat_v2_damage(attack,defense,mult*greatest(0,1+private.combat_v2_modifier(src,'outgoingDamage')),crit,1,penetration);
+  if stance then incoming:=incoming*.6;end if;
+  incoming:=greatest(1,floor(incoming*received));
+  if actor='monster' and c.job_id='contract_mercenary' then incoming:=incoming*.92;elsif actor='monster' and c.job_id='berserker' and c.player_hp/nullif(c.player_max_hp,0)<=.3 then incoming:=incoming*.85;end if;
+  shield_before:=case when actor='player' then c.monster_shield else c.player_shield end;
+  result:=private.combat_v2_absorb(dst,shield_before,incoming);actual:=(result->>'hpDamage')::numeric;absorbed:=(result->>'absorbed')::numeric;
+  if actor='player' then c.monster_hp:=greatest(0,c.monster_hp-actual);c.monster_effects:=result->'effects';c.monster_shield:=(result->>'shield')::numeric;
+  else c.player_hp:=greatest(0,c.player_hp-actual);c.player_effects:=result->'effects';c.player_shield:=(result->>'shield')::numeric;end if;
+  if actual=0 and absorbed>0 then outcome:='BLOCKED_BY_SHIELD';end if;
+  if shield_before>0 and (result->>'shield')::numeric=0 then c.engine_runtime:=c.engine_runtime||jsonb_build_object('eventFlags',coalesce(c.engine_runtime->'eventFlags','{}')||jsonb_build_object(target||':shieldBroken',true));end if;
+ end if;
+ c:=private.combat_v2_event(c,jsonb_build_object('kind','DIRECT_DAMAGE','attacker',actor,'target',target,'incomingDamage',incoming,'absorbedByShield',absorbed,'hpDamage',actual,'critical',is_crit,'outcome',outcome,'origin',case when reactive then 'ACTION' else 'REACTION' end,'hitIndex',case when reactive then idx else least(hits,greatest(1,idx-900)) end,'hitCount',hits));
+ if c.monster_hp<=0 then c.monster_reactive_action:=null;return c;end if;
+ if c.player_hp<=0 then c.pending_revival:=coalesce(c.revival_count,0)>0;c.engine_runtime:=c.engine_runtime||jsonb_build_object('revivalSource','DIRECT_HIT','resumeTurn',case when coalesce(c.engine_runtime->>'actionOwner',actor)='player' then 'MONSTER_TURN' else 'PLAYER_TURN' end);return c;end if;
+ if actual>0 and actor='player' and c.monster_id='black_vein_armor_breaker' and private.combat_v2_has(c.monster_effects,'iron_armor') then
+  c:=private.combat_v2_effect(c,'monster','fracture','player');
+  if exists(select 1 from jsonb_array_elements(c.monster_effects)x where x->>'effectId'='fracture' and (x->>'applications')::int>=3) then c.monster_effects:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(c.monster_effects)x where x->>'effectId' not in('iron_armor','fracture'));c:=private.combat_v2_effect(c,'monster','exposed_core','player');end if;
+ end if;
+ if actual>0 and actor='player' and c.accessory_passive='vampire' then c:=private.combat_v2_heal(c,'player',floor(actual*c.accessory_value),false,nonce,idx+1100);end if;
+ if actual>0 and actor='monster' then
+  if c.job_id='berserker' then c.job_resource:=least(4,c.job_resource+greatest(1,floor(actual/c.player_max_hp*4)::int));end if;
+  if c.job_id='field_medic' and not coalesce((c.job_flags->>'first_aid_used')::boolean,false) and c.player_hp/c.player_max_hp<=.3 then c:=private.combat_v2_heal(c,'player',round(c.player_max_hp*.15),true,nonce,idx+1000);c.job_flags:=coalesce(c.job_flags,'{}')||'{"first_aid_used":true}';end if;
+ end if;
+ if incoming>0 and reactive then
+  if actor='player' and c.monster_reactive_action is not null then
+   reaction:=c.monster_reactive_action;c.monster_reactive_action:=null;select value into skill from jsonb_array_elements(coalesce(private.combat_v2_catalog()->'monsters'->c.monster_id->'skills','[]')) where value->>'id'=reaction;
+   for i in 1..greatest(1,coalesce((skill->>'hits')::int,1)) loop c:=private.combat_v2_hit(c,'monster',coalesce((skill->>'multiplier')::numeric,1),nonce,900+i,coalesce((skill->>'hits')::int,1),false,coalesce((skill->>'penetrationRate')::numeric,0),skill->>'critical');exit when c.player_hp<=0 or c.monster_hp<=0;end loop;
+  elsif actor='monster' and stance then
+   c.player_effects:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(c.player_effects)x where x->>'effectId'<>'duelist_counter_stance');c:=private.combat_v2_hit(c,'player',1.8*c.skill_power,nonce,901,1,false);
+  elsif actor='monster' and actual>0 and c.job_id='duelist' and private.server_roll(c.rng_seed,c.encounter_index,nonce,idx+701)<.2 then c:=private.combat_v2_hit(c,'player',.6*c.skill_power,nonce,902,1,false);
+  end if;
+ end if;
+ return c;
+end $$;
+
+create or replace function private.combat_v2_remove(effects jsonb,category text,amount int default 2147483647,tags jsonb default null) returns jsonb language sql immutable set search_path='' as $$
+ with eligible as(select ord from jsonb_array_elements(coalesce(effects,'[]')) with ordinality t(x,ord) where private.combat_v2_definition(x->>'effectId')->>'category'=category and private.combat_v2_definition(x->>'effectId')->>'behavior'<>'SHIELD' and (tags is null or exists(select 1 from jsonb_array_elements_text(tags)t where private.combat_v2_definition(x->>'effectId')->'tags' ? t)) order by case when private.combat_v2_has(jsonb_build_array(x),'STUN') then 0 when private.combat_v2_has(jsonb_build_array(x),'SILENCE') then 1 when private.combat_v2_has(jsonb_build_array(x),'DOT') then 2 when private.combat_v2_has(jsonb_build_array(x),'STAT_DOWN') then 3 when private.combat_v2_has(jsonb_build_array(x),'ROOT') then 4 else 5 end,ord limit greatest(0,amount))
+ select coalesce(jsonb_agg(x order by ord),'[]') from jsonb_array_elements(coalesce(effects,'[]')) with ordinality t(x,ord) where ord not in(select ord from eligible);
+$$;
+
+create or replace function private.combat_v2_job_skill(c private.online_combat_states,id text,nonce bigint)
+returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare skill jsonb;resource jsonb;cost jsonb;spent int:=0;a jsonb;q jsonb;mult numeric;hits int;i int;start_events int;successful boolean:=false;offensive boolean:=false;effects jsonb;tag jsonb;
+begin
+ select value into skill from jsonb_array_elements(coalesce(private.combat_v2_catalog()->'jobs'->c.job_id->'skills','[]')) where value->>'id'=id;
+ if skill is null then raise exception 'COMBAT_SKILL_INVALID';end if;
+ if private.combat_v2_has(c.player_effects,'SILENCE') then raise exception 'COMBAT_SILENCED';end if;
+ if coalesce((c.engine_runtime->'playerReady'->>id)::bigint,0)>c.player_turn or coalesce((c.cooldowns->>('turn:'||id))::int,0)>0 then raise exception 'COMBAT_SKILL_COOLDOWN';end if;
+ for q in select value from jsonb_array_elements(coalesce(skill->'conditions','[]')) loop if not private.combat_v2_condition(c,q,'player') then raise exception 'COMBAT_SKILL_CONDITION';end if;end loop;
+ resource:=skill->'resource';cost:=resource->'cost';
+ if resource->>'kind'='SPENDER' then
+  spent:=case when cost->>'mode'='FIXED' then (cost->>'amount')::int else least(c.job_resource,(cost->>'max')::int) end;
+  if c.job_resource<(case when cost->>'mode'='FIXED' then spent else (cost->>'min')::int end) then raise exception 'COMBAT_SKILL_RESOURCE';end if;c.job_resource:=c.job_resource-spent;
+ end if;
+ c.engine_runtime:=coalesce(c.engine_runtime,'{}')||jsonb_build_object('playerReady',coalesce(c.engine_runtime->'playerReady','{}')||jsonb_build_object(id,c.player_turn+(skill->>'cooldown')::int+1));c.cooldowns:=coalesce(c.cooldowns,'{}')||jsonb_build_object('turn:'||id,(skill->>'cooldown')::int);
+ for a in select value from jsonb_array_elements(skill->'effectActions') loop
+  exit when c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false);
+  if a->>'kind'='DIRECT_ATTACK' then
+   offensive:=true;hits:=(a->>'hits')::int;if a ? 'conditionalHits' and private.combat_v2_condition(c,a->'conditionalHits'->'condition','player',spent) then hits:=(a->'conditionalHits'->>'hits')::int;end if;
+   for i in 1..hits loop
+    exit when c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false);mult:=(a->>'baseMultiplier')::numeric;
+    if i=hits and a ? 'conditionalLastHitMultiplier' and private.combat_v2_condition(c,a->'conditionalLastHitMultiplier'->'condition','player',spent) then mult:=(a->'conditionalLastHitMultiplier'->>'multiplier')::numeric;end if;
+    start_events:=jsonb_array_length(coalesce(c.engine_runtime->'events','[]'));c:=private.combat_v2_hit(c,'player',mult*c.skill_power*private.server_job_damage_multiplier(c,'SKILL'),nonce,i,hits,true,coalesce((a->>'penetrationRate')::numeric,0),a->>'critical');
+    select value into q from jsonb_array_elements(c.engine_runtime->'events') with ordinality t(value,ord) where ord>start_events and value->>'attacker'='player' and value->>'origin'='ACTION' and (value->>'hitIndex')::int=i order by ord limit 1;
+    if coalesce((q->>'incomingDamage')::numeric,0)>0 then successful:=true;end if;
+    if coalesce((q->>'hpDamage')::numeric,0)>0 and c.monster_hp>0 then for q in select value from jsonb_array_elements(coalesce(a->'onHitEffects','[]')) loop c:=private.combat_v2_effect(c,'monster',q->>'effectId','player');end loop;end if;
+   end loop;
+  elsif a->>'kind'='APPLY_EFFECT' then c:=private.combat_v2_effect(c,case when a->>'target'='SELF' then 'player' else 'monster' end,a->>'effectId','player');
+  elsif a->>'kind' in ('HEAL_PERCENT','HEAL_FLAT') then c:=private.combat_v2_heal(c,'player',case when a->>'kind'='HEAL_FLAT' then (a->>'amount')::numeric else round(c.player_max_hp*(a->>'percent')::numeric) end,true,nonce,1100);
+  elsif a->>'kind'='SELF_HP_COST_PERCENT' then c.player_hp:=greatest(1,c.player_hp-round(c.player_max_hp*(a->>'percentOfMax')::numeric));
+  elsif a->>'kind'='CHANGE_RESOURCE' then c.job_resource:=greatest(0,least(4,c.job_resource+(a->>'delta')::int));
+  elsif a->>'kind'='SET_FLAG' then c.job_flags:=coalesce(c.job_flags,'{}')||jsonb_build_object(a->>'flag',(a->>'value')::boolean);
+  elsif a->>'kind' in ('CLEANSE','DISPEL','REMOVE_EFFECT_TAG') then
+   effects:=case when a->>'target'='SELF' then c.player_effects else c.monster_effects end;
+   if a->>'kind'='REMOVE_EFFECT_TAG' then effects:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(effects)x where not private.combat_v2_has(jsonb_build_array(x),a->>'tag') or x->>'behavior'='SHIELD');
+   else effects:=private.combat_v2_remove(effects,case when a->>'kind'='DISPEL' then 'BUFF' else 'DEBUFF' end,coalesce((a->>'count')::int,2147483647),a->'tags');end if;
+   if a->>'target'='SELF' then c.player_effects:=effects;else c.monster_effects:=effects;end if;
+  else raise exception 'COMBAT_ACTION_UNSUPPORTED';end if;
+ end loop;
+ if resource->>'kind'='GENERATOR' and (not offensive or successful) and c.player_hp>0 and not coalesce(c.pending_revival,false) then c.job_resource:=least(4,c.job_resource+(resource->>'gain')::int);end if;
+ return c;
+end $$;
+
+create or replace function private.combat_v2_consume_event(c private.online_combat_states,q jsonb) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare x jsonb;
+begin
+ if q->>'kind'='EVENT_FLAG' then c.engine_runtime:=c.engine_runtime||jsonb_build_object('eventFlags',coalesce(c.engine_runtime->'eventFlags','{}')||jsonb_build_object(q->>'flag',false));
+ elsif q->>'kind'='ALL' then for x in select value from jsonb_array_elements(q->'conditions') loop c:=private.combat_v2_consume_event(c,x);end loop;
+ elsif q->>'kind'='ANY' then for x in select value from jsonb_array_elements(q->'conditions') loop if private.combat_v2_condition(c,x) then c:=private.combat_v2_consume_event(c,x);exit;end if;end loop;end if;
+ return c;
+end $$;
+create or replace function private.combat_v2_phase(c private.online_combat_states) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare d jsonb:=private.combat_v2_catalog()->'monsters'->c.monster_id;phases jsonb:=coalesce(d->'phases','[]');idx int:=coalesce((c.engine_runtime->>'phaseIndex')::int,0);p jsonb;next_phase jsonb;
+begin
+ c.engine_runtime:=coalesce(c.engine_runtime,'{}');
+ while idx+1<jsonb_array_length(phases) loop next_phase:=phases->(idx+1);exit when next_phase->'when' is null or not private.combat_v2_condition(c,next_phase->'when');idx:=idx+1;c:=private.combat_v2_consume_event(c,next_phase->'when');end loop;
+ p:=phases->idx;c.engine_runtime:=c.engine_runtime||jsonb_build_object('phaseIndex',idx,'phaseId',p->>'id','immunities',coalesce(d->'effectImmunities','[]')||coalesce(p->'effectImmunities','[]'),'attackMultiplier',coalesce((p->>'attackMultiplier')::numeric,1),'defenseMultiplier',coalesce((p->>'defenseMultiplier')::numeric,1));return c;
+end $$;
+create or replace function private.combat_v2_eligible(c private.online_combat_states,skill jsonb,phase jsonb) returns boolean language plpgsql immutable set search_path='' as $$
+declare q jsonb;
+begin
+ if coalesce((c.engine_runtime->'monsterReady'->>(skill->>'id'))::bigint,0)>c.monster_turn then return false;end if;
+ if phase ? 'skillIds' and not (phase->'skillIds' ? (skill->>'id')) then return false;end if;
+ if skill ? 'phaseIds' and not (skill->'phaseIds' ? (c.engine_runtime->>'phaseId')) then return false;end if;
+ if skill->>'id'=c.engine_runtime->>'lastActionId' and (coalesce((skill->>'cannotRepeat')::boolean,false) or coalesce((c.engine_runtime->>'repeatCount')::int,0)>=coalesce((skill->>'repeatLimit')::int,2147483647)) then return false;end if;
+ for q in select value from jsonb_array_elements(coalesce(skill->'conditions','[]')) loop if not private.combat_v2_condition(c,q) then return false;end if;end loop;return true;
+end $$;
+create or replace function private.combat_v2_monster_decision(c private.online_combat_states,nonce bigint) returns jsonb language plpgsql immutable set search_path='' as $$
+declare d jsonb:=private.combat_v2_catalog()->'monsters'->c.monster_id;skills jsonb:=coalesce(d->'skills','[]');phase jsonb;skill jsonb;rule jsonb;q jsonb;allowed boolean;candidates jsonb:='[]';candidate jsonb;weight numeric;total numeric:=0;roll numeric;
+begin
+ c:=private.combat_v2_phase(c);phase:=d->'phases'->coalesce((c.engine_runtime->>'phaseIndex')::int,0);
+ if c.monster_prepared_action is not null then select value into skill from jsonb_array_elements(skills) where value->>'id'=c.monster_prepared_action;if skill->>'kind'='charge' then return jsonb_build_object('state',to_jsonb(c),'action',skill||'{"prepared":true}');end if;end if;
+ if private.combat_v2_has(c.monster_effects,'SILENCE') then return jsonb_build_object('state',to_jsonb(c),'action','{"kind":"BASIC","id":"basic"}'::jsonb);end if;
+ for rule in select value from jsonb_array_elements(coalesce(d->'aiRules','[]')) order by (value->>'priority')::int desc,value->>'id' loop
+  select value into skill from jsonb_array_elements(skills) where value->>'id'=rule->>'actionId';if skill is null or not private.combat_v2_eligible(c,skill,phase) then continue;end if;allowed:=true;
+  for q in select value from jsonb_array_elements(coalesce(rule->'conditions','[]')) loop if not private.combat_v2_condition(c,q) then allowed:=false;exit;end if;end loop;
+  if not allowed then continue;end if;
+  if coalesce((rule->>'forced')::boolean,true) then return jsonb_build_object('state',to_jsonb(c),'action',skill);end if;
+  weight:=coalesce((phase->'skillWeights'->>(skill->>'id'))::numeric,(rule->>'weight')::numeric,(skill->>'weight')::numeric,1);candidates:=candidates||jsonb_build_array(jsonb_build_object('skill',skill,'weight',greatest(0,weight)));
+ end loop;
+ for skill in select value from jsonb_array_elements(skills) loop
+  if skill ? 'weight' and private.combat_v2_eligible(c,skill,phase) and not exists(select 1 from jsonb_array_elements(candidates)x where x->'skill'->>'id'=skill->>'id') then candidates:=candidates||jsonb_build_array(jsonb_build_object('skill',skill,'weight',greatest(0,coalesce((phase->'skillWeights'->>(skill->>'id'))::numeric,(skill->>'weight')::numeric))));end if;
+ end loop;
+ if d ? 'basicAttackWeight' then candidates:=candidates||jsonb_build_array(jsonb_build_object('skill','{"kind":"BASIC","id":"basic"}'::jsonb,'weight',greatest(0,(d->>'basicAttackWeight')::numeric)));end if;
+ select coalesce(sum((x->>'weight')::numeric),0) into total from jsonb_array_elements(candidates)x;
+ if total>0 then roll:=private.server_roll(c.rng_seed,c.encounter_index,nonce,3000+c.monster_turn::int)*total;for candidate in select value from jsonb_array_elements(candidates) loop roll:=roll-(candidate->>'weight')::numeric;if roll<0 then return jsonb_build_object('state',to_jsonb(c),'action',candidate->'skill');end if;end loop;end if;
+ return jsonb_build_object('state',to_jsonb(c),'action','{"kind":"BASIC","id":"basic"}'::jsonb);
+end $$;
+create or replace function private.resolve_server_monster_turn_v2(p_combat private.online_combat_states,p_nonce bigint) returns jsonb language plpgsql immutable set search_path='' as $$
+declare c private.online_combat_states:=p_combat;result jsonb;a jsonb;effect jsonb;event jsonb;idx int;hits int;before_hp numeric:=c.player_hp;id text;ready jsonb;repeat_count int;start_events int;
+begin
+ c.monster_turn:=c.monster_turn+1;c:=private.combat_v2_phase(c);
+ select coalesce(jsonb_object_agg(key,greatest(0,(value#>>'{}')::bigint-c.monster_turn)),'{}') into c.monster_cooldowns from jsonb_each(coalesce(c.engine_runtime->'monsterReady','{}'));
+ if private.combat_v2_has(c.monster_effects,'STUN') then c.monster_prepared_action:=null;return jsonb_build_object('state',to_jsonb(c),'action','{"kind":"SKIP","id":"stun"}'::jsonb,'damage',0);end if;
+ result:=private.combat_v2_monster_decision(c,p_nonce);select * into c from jsonb_populate_record(null::private.online_combat_states,result->'state');a:=result->'action';id:=a->>'id';hits:=coalesce((a->>'hits')::int,1);
+ repeat_count:=case when c.engine_runtime->>'lastActionId'=id then coalesce((c.engine_runtime->>'repeatCount')::int,0)+1 else 1 end;
+ c.engine_runtime:=c.engine_runtime||jsonb_build_object('lastActionId',id,'repeatCount',repeat_count,'actionCounts',coalesce(c.engine_runtime->'actionCounts','{}')||jsonb_build_object(id,coalesce((c.engine_runtime->'actionCounts'->>id)::int,0)+1));
+ if a->>'kind'='charge' and not coalesce((a->>'prepared')::boolean,false) then c.monster_prepared_action:=id;return jsonb_build_object('state',to_jsonb(c),'action',a||'{"kind":"CHARGE"}','damage',0);end if;
+ if a->>'kind'='reactive_prepare' then c.monster_reactive_action:=a->>'reactionSkillId';
+ else
+  if a->>'kind' in ('damage','charge','BASIC') then
+   for idx in 1..hits loop
+    exit when c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false);
+    start_events:=jsonb_array_length(coalesce(c.engine_runtime->'events','[]'));c:=private.combat_v2_hit(c,'monster',coalesce((a->>'multiplier')::numeric,1),p_nonce,idx,hits,true,coalesce((a->>'penetrationRate')::numeric,0),a->>'critical');
+    select value into event from jsonb_array_elements(c.engine_runtime->'events') with ordinality t(value,ord) where ord>start_events and value->>'attacker'='monster' and value->>'origin'='ACTION' and (value->>'hitIndex')::int=idx order by ord limit 1;
+    if coalesce((event->>'hpDamage')::numeric,0)>0 and c.player_hp>0 then for effect in select value from jsonb_array_elements(coalesce(a->'effects','[]')) where value->>'target'='TARGET' loop c:=private.combat_v2_effect(c,'player',effect->>'effectId','monster');end loop;end if;
+   end loop;
+  end if;
+  if c.player_hp>0 and c.monster_hp>0 and not coalesce(c.pending_revival,false) then for effect in select value from jsonb_array_elements(coalesce(a->'effects','[]')) loop if a->>'kind'='effect' or effect->>'target'='SELF' then c:=private.combat_v2_effect(c,case when effect->>'target'='SELF' then 'monster' else 'player' end,effect->>'effectId','monster');end if;end loop;end if;
+ end if;
+ if coalesce((a->>'prepared')::boolean,false) then c.monster_prepared_action:=null;end if;
+ if id<>'basic' then ready:=coalesce(c.engine_runtime->'monsterReady','{}')||jsonb_build_object(id,c.monster_turn+coalesce((a->>'cooldown')::int,0)+1);c.engine_runtime:=c.engine_runtime||jsonb_build_object('monsterReady',ready);end if;
+ select coalesce(jsonb_object_agg(key,greatest(0,(value#>>'{}')::bigint-c.monster_turn)),'{}') into c.monster_cooldowns from jsonb_each(coalesce(c.engine_runtime->'monsterReady','{}'));
+ if id<>'basic' then c.monster_cooldowns:=c.monster_cooldowns||jsonb_build_object(id,coalesce((a->>'cooldown')::int,0));end if;
+ return jsonb_build_object('state',to_jsonb(c),'action',a,'damage',greatest(0,before_hp-c.player_hp));
+end $$;
+
+create or replace function private.combat_v2_initialize(c private.online_combat_states,fresh boolean default false) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare x jsonb;effects jsonb;actor text;shield numeric;ready jsonb;entry record;budget numeric;amount numeric;
+begin
+ c.engine_runtime:=coalesce(c.engine_runtime,'{}');
+ if fresh then
+  c.engine_runtime:='{"version":2,"events":[],"playerReady":{},"monsterReady":{}}';c.cooldowns:='{}';c.monster_cooldowns:='{}';c.job_resource:=0;c.job_flags:='{}';c.player_effects:='[]';c.monster_effects:='[]';c.player_shield:=0;c.monster_shield:=0;c.player_shield_hits:=0;c.monster_shield_hits:=0;c.monster_prepared_action:=null;c.monster_reactive_action:=null;c.pending_revival:=false;c.player_turn:=1;c.monster_turn:=0;c.player_hp:=least(c.player_hp,c.player_max_hp);
+  c:=private.combat_v2_phase(c);
+  if c.monster_id='black_vein_armor_breaker' then c:=private.combat_v2_effect(c,'monster','iron_armor','monster');elsif c.monster_id='sanctuary_talon_bishop' then c:=private.combat_v2_effect(c,'monster','blood_rite_ward','monster');end if;
+ elsif c.engine_runtime->>'version' is distinct from '2' then
+  c.job_resource:=greatest(0,least(4,floor(coalesce(c.job_resource,0)/25.0)::int));
+  c.engine_runtime:=c.engine_runtime||'{"version":2,"events":[]}';
+  ready:='{}';for entry in select * from jsonb_each(coalesce(c.cooldowns,'{}')) loop ready:=ready||jsonb_build_object(regexp_replace(entry.key,'^turn:',''),c.player_turn+(entry.value#>>'{}')::int);end loop;c.engine_runtime:=c.engine_runtime||jsonb_build_object('playerReady',ready);
+  ready:='{}';for entry in select * from jsonb_each(coalesce(c.monster_cooldowns,'{}')) loop ready:=ready||jsonb_build_object(entry.key,c.monster_turn+(entry.value#>>'{}')::int);end loop;c.engine_runtime:=c.engine_runtime||jsonb_build_object('monsterReady',ready);
+  for actor in select unnest(array['player','monster']) loop
+   shield:=case when actor='player' then c.player_shield else c.monster_shield end;budget:=greatest(0,least(coalesce(shield,0),3*case when actor='player' then c.player_max_hp else c.monster_max_hp end));
+   effects:='[]';for x in select value from jsonb_array_elements(case when actor='player' then c.player_effects else c.monster_effects end) loop
+    x:=x||jsonb_build_object('applications',coalesce((x->>'applications')::int,(x->>'stacks')::int,1),'stacks',1,'sourceActorId',coalesce(x->>'sourceActorId',case when coalesce(private.combat_v2_definition(x->>'effectId')->>'category','DEBUFF')='BUFF' then actor else case when actor='player' then 'monster' else 'player' end end));
+    if x->>'behavior'='SHIELD' then amount:=least(budget,coalesce((x->>'currentShield')::numeric,budget));budget:=budget-amount;if amount<=0 then continue;end if;x:=x||jsonb_build_object('currentShield',amount);end if;effects:=effects||jsonb_build_array(x);
+   end loop;
+   if budget>0 then effects:=effects||jsonb_build_array(jsonb_build_object('effectId','legacy_shield','behavior','SHIELD','duration',1,'stacks',1,'currentShield',budget,'sourceActorId',actor));end if;
+   if actor='player' then c.player_effects:=effects;c.player_shield:=private.combat_v2_shield(effects);else c.monster_effects:=effects;c.monster_shield:=private.combat_v2_shield(effects);end if;
+  end loop;c:=private.combat_v2_phase(c);
+ end if;return c;
+end $$;
+
+create or replace function private.combat_v2_player_start(c private.online_combat_states) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+begin
+ c.player_turn:=c.player_turn+1;
+ select coalesce(jsonb_object_agg('turn:'||key,greatest(0,(value#>>'{}')::bigint-c.player_turn)),'{}') into c.cooldowns from jsonb_each(coalesce(c.engine_runtime->'playerReady','{}'));
+ c.phase:='PLAYER_TURN';return c;
+end $$;
+create or replace function private.combat_v2_round(c private.online_combat_states,nonce bigint) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+declare result jsonb;skip_end boolean:=coalesce((c.engine_runtime->>'skipPlayerEnd')::boolean,false);cycles int:=0;
+begin
+ if c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false) then return c;end if;
+ if coalesce((c.engine_runtime->>'skipRound')::boolean,false) then c.engine_runtime:=c.engine_runtime-'skipRound';return c;end if;
+ c.engine_runtime:=c.engine_runtime-'skipPlayerEnd';
+ loop
+  if not skip_end then
+   c:=private.combat_v2_periodic(c,'player',nonce);
+   if c.player_hp<=0 then c.pending_revival:=coalesce(c.revival_count,0)>0;c.engine_runtime:=c.engine_runtime||'{"resumeTurn":"MONSTER_TURN","revivalSource":"PERIODIC_DAMAGE"}';return c;end if;
+   c.player_hp:=c.player_hp-greatest(0,c.player_hp-c.player_max_hp)*.25;c.player_effects:=private.combat_v2_tick(c.player_effects,c.player_turn);
+  end if;
+  result:=private.resolve_server_monster_turn_v2(c,nonce+cycles*10000);select * into c from jsonb_populate_record(null::private.online_combat_states,result->'state');c.engine_runtime:=c.engine_runtime||jsonb_build_object('monsterAction',result->'action');
+  if c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false) then return c;end if;
+  c:=private.combat_v2_periodic(c,'monster',nonce);c.monster_effects:=private.combat_v2_tick(c.monster_effects,c.monster_turn);
+  if c.monster_hp<=0 then return c;end if;
+  c:=private.combat_v2_player_start(c);exit when not private.combat_v2_has(c.player_effects,'STUN');
+  cycles:=cycles+1;if cycles>1000 then raise exception 'COMBAT_CONTROL_DURATION_INVALID';end if;skip_end:=false;
+ end loop;
+ return c;
+end $$;
+
+create or replace function private.combat_v2_payload(c private.online_combat_states,r private.online_expeditions) returns jsonb language sql immutable set search_path='' as $$
+ select jsonb_build_object('encounterIndex',c.encounter_index,'monsterId',c.monster_id,'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,'monsterAttack',c.monster_attack,'monsterDefense',c.monster_defense,'playerShield',c.player_shield,'monsterShield',c.monster_shield,'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'playerCooldowns',c.cooldowns,'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,'monsterReactiveAction',c.monster_reactive_action,'jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce,'stateVersion',c.state_version,'runVersion',r.run_version,'confirmedKills',r.confirmed_kills,'healingPotionUses',r.healing_potion_uses,'combatEvents',coalesce(c.engine_runtime->'events','[]'),'playerReadyTurns',coalesce(c.engine_runtime->'playerReady','{}'),'monsterReadyTurns',coalesce(c.engine_runtime->'monsterReady','{}'),'revivalResumeTurn',c.engine_runtime->>'resumeTurn','revivalSource',c.engine_runtime->>'revivalSource','engineVersion',2,'monsterAction',c.engine_runtime->'monsterAction','monsterPhaseId',c.engine_runtime->>'phaseId','returnAuthorized',c.return_authorized);
+$$;
+
+create or replace function private.combat_v2_require_action(c private.online_combat_states,r private.online_expeditions,nonce bigint,action text) returns private.online_combat_states language plpgsql immutable set search_path='' as $$
+begin
+ if c.user_id is null or r.user_id is null or r.status<>'ACTIVE' or r.pending_event is not null or c.run_id<>r.run_id or c.phase<>'PLAYER_TURN' or c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false) then raise exception 'COMBAT_PHASE_INVALID';end if;
+ if nonce is null or nonce<>c.action_nonce+1 then raise exception 'COMBAT_ACTION_SEQUENCE_INVALID';end if;
+ if private.combat_v2_has(c.player_effects,'STUN') then raise exception 'COMBAT_STUNNED';end if;
+ if action='FLEE' and private.combat_v2_has(c.player_effects,'ROOT') then raise exception 'COMBAT_ROOTED';end if;
+ if action='SKILL' and private.combat_v2_has(c.player_effects,'SILENCE') then raise exception 'COMBAT_SILENCED';end if;
+ c:=private.combat_v2_initialize(c);c.engine_runtime:=c.engine_runtime||'{"events":[]}';return c;
+end $$;
+
+CREATE OR REPLACE FUNCTION private.finish_server_player_action(p_user uuid, p_run private.online_expeditions, p_combat private.online_combat_states, p_nonce bigint, p_damage bigint)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+ direct_damage numeric:=greatest(0,p_damage);monster_absorb numeric:=0;player_absorb numeric:=0;step_absorb numeric:=0;
+ heal bigint:=0;player_delta bigint:=0;monster_delta bigint:=0;ret numeric:=0;reactive_damage bigint:=0;
+ kill_no bigint;inserted_kill bigint;next_phase text:='PLAYER_TURN';turn_result jsonb;monster_action jsonb;
+ reaction_id text;drop jsonb;tl jsonb;boss boolean:=false;step jsonb;
+begin
+ p_combat:=private.combat_v2_round(p_combat,p_nonce);
+ monster_action:=p_combat.engine_runtime->'monsterAction';
+ select coalesce(sum((x->>'hpDamage')::numeric),0) into direct_damage from jsonb_array_elements(coalesce(p_combat.engine_runtime->'events','[]'))x where x->>'kind'='DIRECT_DAMAGE' and x->>'attacker'='player' and x->>'origin'='ACTION';
+ select coalesce(sum((x->>'hpDamage')::numeric),0) into ret from jsonb_array_elements(coalesce(p_combat.engine_runtime->'events','[]'))x where x->>'kind'='DIRECT_DAMAGE' and x->>'attacker'='monster' and x->>'origin'='ACTION';
+ if p_combat.monster_hp=0 then
+   kill_no:=p_run.confirmed_kills+1;boss:=private.server_boss_id(p_run.tower,p_run.floor)=p_combat.monster_id;
+   insert into private.online_expedition_kills(user_id,run_id,kill_index,monster_id)
+   values(p_user,p_run.run_id,kill_no,p_combat.monster_id)
+   on conflict do nothing returning kill_index into inserted_kill;
+   if inserted_kill is not null then
+     drop:=private.server_kill_loot(p_run,kill_no);
+     tl:=jsonb_set(
+       jsonb_set(
+         jsonb_set(coalesce(p_run.temporary_loot,'{}'::jsonb),'{silver}',
+           to_jsonb(coalesce((p_run.temporary_loot->>'silver')::bigint,0)+coalesce((drop->>'silver')::bigint,0)),true),
+         '{material}',to_jsonb(coalesce((p_run.temporary_loot->>'material')::bigint,0)+coalesce((drop->>'material')::bigint,0)),true),
+       '{tickets}',to_jsonb(coalesce((p_run.temporary_loot->>'tickets')::bigint,0)+coalesce((drop->>'tickets')::bigint,0)),true);
+     if drop->'equipment' is not null and jsonb_typeof(drop->'equipment')='object' then
+       tl:=jsonb_set(
+         tl,'{equipment}',
+         coalesce(tl->'equipment','[]'::jsonb)||jsonb_build_array(drop->'equipment'),true
+       );
+     end if;
+     update private.online_expeditions set
+       confirmed_kills=greatest(confirmed_kills,kill_no),last_confirmed_kill_at=now(),temporary_loot=tl,
+       boss_progress=case when boss then 0 else boss_progress+1 end,
+       boss_defeated=case when boss then true else boss_defeated end,
+       run_version=run_version+1
+     where user_id=p_user returning * into p_run;
+   else
+     select * into p_run from private.online_expeditions where user_id=p_user;
+   end if;
+   next_phase:='DEFEATED';
+ elsif p_combat.player_hp=0 then
+   next_phase:='PLAYER_DEAD';p_combat.pending_revival:=p_combat.revival_count>0;
+ else
+   next_phase:='PLAYER_TURN';
+ end if;
+
+ if next_phase='DEFEATED' then
+   p_combat.player_hp:=least(p_combat.player_hp,p_combat.player_max_hp);p_combat.job_resource:=0;p_combat.job_flags:='{}';p_combat.cooldowns:='{}';p_combat.monster_cooldowns:='{}';p_combat.player_effects:='[]';p_combat.monster_effects:='[]';p_combat.player_shield:=0;p_combat.monster_shield:=0;p_combat.monster_reactive_action:=null;p_combat.monster_prepared_action:=null;
+   p_combat.engine_runtime:=p_combat.engine_runtime||'{"playerReady":{},"monsterReady":{}}';
+ end if;
+ update private.online_combat_states set
+   engine_runtime=p_combat.engine_runtime,cooldowns=p_combat.cooldowns,
+   potion_lesser=p_combat.potion_lesser,potion_standard=p_combat.potion_standard,potion_greater=p_combat.potion_greater,potion_supreme=p_combat.potion_supreme,revival_count=p_combat.revival_count,
+   monster_hp=p_combat.monster_hp,player_hp=p_combat.player_hp,
+   player_shield=p_combat.player_shield,monster_shield=p_combat.monster_shield,
+   player_shield_hits=p_combat.player_shield_hits,monster_shield_hits=p_combat.monster_shield_hits,
+   player_effects=p_combat.player_effects,monster_effects=p_combat.monster_effects,
+   monster_cooldowns=p_combat.monster_cooldowns,monster_prepared_action=p_combat.monster_prepared_action,
+   monster_reactive_action=p_combat.monster_reactive_action,player_turn=p_combat.player_turn,monster_turn=p_combat.monster_turn,
+   job_resource=p_combat.job_resource,job_flags=p_combat.job_flags,
+   turn_no=turn_no+1,phase=next_phase,pending_revival=p_combat.pending_revival,
+   action_nonce=p_nonce,return_authorized=false,state_version=state_version+1,updated_at=now()
+ where user_id=p_user returning * into p_combat;
+
+ return private.combat_v2_payload(p_combat,p_run)||jsonb_build_object(
+   'damage',direct_damage,'absorbed',monster_absorb,'healing',heal,
+   'monsterReaction',case when reaction_id is null then null else jsonb_build_object('id',reaction_id,'damage',reactive_damage) end,
+   'monsterAction',monster_action,'retaliation',ret,'playerAbsorbed',player_absorb,
+   'periodicPlayer',player_delta,'periodicMonster',monster_delta,
+   'monsterId',p_combat.monster_id,'monsterHp',p_combat.monster_hp,'monsterMaxHp',p_combat.monster_max_hp,
+   'playerHp',p_combat.player_hp,'playerMaxHp',p_combat.player_max_hp,
+   'playerShield',p_combat.player_shield,'monsterShield',p_combat.monster_shield,
+   'playerShieldHits',p_combat.player_shield_hits,'monsterShieldHits',p_combat.monster_shield_hits,
+   'playerEffects',p_combat.player_effects,'monsterEffects',p_combat.monster_effects,
+   'playerCooldowns',p_combat.cooldowns,'monsterCooldowns',p_combat.monster_cooldowns,
+   'monsterPreparedAction',p_combat.monster_prepared_action,'monsterReactiveAction',p_combat.monster_reactive_action,
+   'jobId',p_combat.job_id,'jobResource',p_combat.job_resource,'jobFlags',p_combat.job_flags,
+   'playerTurn',p_combat.player_turn,'monsterTurn',p_combat.monster_turn,'turnNo',p_combat.turn_no,
+   'phase',next_phase,'pendingRevival',p_combat.pending_revival,
+   'confirmedKills',coalesce(kill_no,p_run.confirmed_kills),'drop',drop,
+   'actionNonce',p_nonce,'stateVersion',p_combat.state_version,'runVersion',p_run.run_version
+ );
+end $function$
+;
+
+
+create or replace function public.apply_online_basic_attack(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint,p_attack numeric default null)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;i int;mult numeric;success boolean:=false;event jsonb;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;c:=private.combat_v2_require_action(c,r,p_action_nonce,'BASIC');
+ for i in 1..greatest(1,c.basic_hits) loop
+  exit when c.player_hp<=0 or c.monster_hp<=0 or coalesce(c.pending_revival,false);mult:=case when c.basic_hits=2 then .55 else 1 end;
+  c:=private.combat_v2_hit(c,'player',mult*private.server_job_damage_multiplier(c,'BASIC'),p_action_nonce,i,greatest(1,c.basic_hits));
+  select value into event from jsonb_array_elements(c.engine_runtime->'events') where value->>'attacker'='player' and value->>'origin'='ACTION' and (value->>'hitIndex')::int=i limit 1;
+  success:=success or coalesce((event->>'incomingDamage')::numeric,0)>0;
+ end loop;
+ if success then c.job_resource:=least(4,c.job_resource+1);end if;
+ return private.finish_server_player_action(u,r,c,p_action_nonce,0);
+end $$;
+
+create or replace function public.apply_online_job_skill(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint,p_skill_id text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;c:=private.combat_v2_require_action(c,r,p_action_nonce,'SKILL');
+ c:=private.combat_v2_job_skill(c,p_skill_id,p_action_nonce);
+ return private.finish_server_player_action(u,r,c,p_action_nonce,0);
+end $$;
+
+create or replace function public.apply_online_flee(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;result jsonb;authorized boolean;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;c:=private.combat_v2_require_action(c,r,p_action_nonce,'FLEE');
+ result:=private.finish_server_player_action(u,r,c,p_action_nonce,0);authorized:=coalesce((result->>'playerHp')::numeric,0)>0 and not coalesce((result->>'pendingRevival')::boolean,false) and result->>'phase' in ('PLAYER_TURN','DEFEATED');
+ update private.online_combat_states set return_authorized=authorized where user_id=u;return result||jsonb_build_object('fled',authorized,'returnAuthorized',authorized);
+end $$;
+
+create or replace function public.apply_online_potion(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_action_nonce bigint,p_potion text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;key text;ratio numeric;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;c:=private.combat_v2_require_action(c,r,p_action_nonce,'POTION');r:=private.ensure_run_consumables(u,r);
+ if r.healing_potion_uses>=5 then raise exception 'COMBAT_POTION_LIMIT';end if;
+ key:=regexp_replace(p_potion,'^healing_','');ratio:=case key when 'lesser' then .2 when 'standard' then .35 when 'greater' then .5 when 'supreme' then .75 else null end;
+ if ratio is null then raise exception 'COMBAT_POTION_INVALID';end if;
+ if key='lesser' and coalesce(r.potion_lesser,0)>0 then r.potion_lesser:=r.potion_lesser-1;
+ elsif key='standard' and coalesce(r.potion_standard,0)>0 then r.potion_standard:=r.potion_standard-1;
+ elsif key='greater' and coalesce(r.potion_greater,0)>0 then r.potion_greater:=r.potion_greater-1;
+ elsif key='supreme' and coalesce(r.potion_supreme,0)>0 then r.potion_supreme:=r.potion_supreme-1;else raise exception 'COMBAT_POTION_EMPTY';end if;
+ if c.job_id='field_medic' then ratio:=ratio*1.2;end if;
+ c:=private.combat_v2_heal(c,'player',round(c.player_max_hp*ratio),false,p_action_nonce,1100);
+ update private.online_expeditions set potion_lesser=r.potion_lesser,potion_standard=r.potion_standard,potion_greater=r.potion_greater,potion_supreme=r.potion_supreme,healing_potion_uses=healing_potion_uses+1,run_version=run_version+1 where user_id=u returning * into r;
+ perform private.persist_run_bag_to_save(u,r);c.potion_lesser:=r.potion_lesser;c.potion_standard:=r.potion_standard;c.potion_greater:=r.potion_greater;c.potion_supreme:=r.potion_supreme;
+ return private.finish_server_player_action(u,r,c,p_action_nonce,0)||jsonb_build_object('potions',jsonb_build_object('healing_lesser',r.potion_lesser,'healing_standard',r.potion_standard,'healing_greater',r.potion_greater,'healing_supreme',r.potion_supreme));
+end $$;
+
+create or replace function public.resolve_online_revival(p_lease_id uuid,p_generation bigint,p_client_instance_id text,p_device_id text,p_use boolean)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;result jsonb;resume text;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);select * into r from private.online_expeditions where user_id=u for update;select * into c from private.online_combat_states where user_id=u for update;
+ if c.user_id is null or r.status<>'ACTIVE' or c.run_id<>r.run_id or not coalesce(c.pending_revival,false) or c.player_hp<>0 then raise exception 'COMBAT_REVIVAL_INVALID';end if;
+ if not p_use then update private.online_combat_states set pending_revival=false,phase='PLAYER_DEAD',updated_at=now() where user_id=u returning * into c;return private.combat_v2_payload(c,r);end if;
+ r:=private.ensure_run_consumables(u,r);if coalesce(r.revival_count,0)<1 then raise exception 'COMBAT_REVIVAL_INVALID';end if;
+ update private.online_expeditions set revival_count=revival_count-1,run_version=run_version+1 where user_id=u returning * into r;perform private.persist_run_bag_to_save(u,r);
+ c.player_hp:=round(c.player_max_hp*.3);c.revival_count:=r.revival_count;c.pending_revival:=false;c.player_shield:=0;c.player_shield_hits:=0;c.player_effects:=private.combat_v2_remove(c.player_effects,'DEBUFF');c.player_effects:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(c.player_effects)x where x->>'behavior'<>'SHIELD' and x->>'effectId'<>'duelist_counter_stance');
+ resume:=coalesce(c.engine_runtime->>'resumeTurn','PLAYER_TURN');c.engine_runtime:=c.engine_runtime||jsonb_build_object('events',jsonb_build_array(jsonb_build_object('kind','HEAL','attacker','player','target','player','healing',c.player_hp,'critical',false,'incomingDamage',0,'absorbedByShield',0,'hpDamage',0,'hitIndex',1,'hitCount',1)),'eventFlags',coalesce(c.engine_runtime->'eventFlags','{}')||'{"revived":true}');
+ if r.pending_event is not null or c.monster_hp<=0 then
+  c.phase:=case when c.monster_hp<=0 then 'DEFEATED' else 'PLAYER_TURN' end;
+  update private.online_combat_states set player_hp=c.player_hp,player_shield=0,player_shield_hits=0,player_effects=c.player_effects,engine_runtime=c.engine_runtime,revival_count=c.revival_count,pending_revival=false,phase=c.phase,state_version=state_version+1,updated_at=now() where user_id=u returning * into c;
+  return private.combat_v2_payload(c,r)||jsonb_build_object('revivalCount',r.revival_count);
+ end if;
+ if resume='MONSTER_TURN' then c.engine_runtime:=c.engine_runtime||'{"skipPlayerEnd":true}';
+ else c.monster_effects:=private.combat_v2_tick(c.monster_effects,c.monster_turn);c:=private.combat_v2_player_start(c);c.engine_runtime:=c.engine_runtime||'{"skipRound":true}';end if;
+ result:=private.finish_server_player_action(u,r,c,c.action_nonce,0);return result||jsonb_build_object('revivalCount',r.revival_count);
+end $$;
+
+CREATE OR REPLACE FUNCTION private.server_start_encounter(p_user uuid, p_run private.online_expeditions, p_profile jsonb, p_prior private.online_combat_states)
+ RETURNS private.online_combat_states
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+ s public.game_saves%rowtype;combat_payload jsonb;st jsonb;passive jsonb;j text;c private.online_combat_states%rowtype;
+ hp bigint;mh bigint;ma numeric;md numeric;weapon text;crit numeric;hits int;
+ pe jsonb:='[]'::jsonb;me jsonb:='[]'::jsonb;nextcd jsonb:='{}'::jsonb;statev bigint:=1;
+begin
+ select * into s from public.game_saves where user_id=p_user;if not found then raise exception 'CLOUD_SAVE_REQUIRED';end if;
+ combat_payload:=private.server_authoritative_payload(p_user,s.payload);
+ combat_payload:=jsonb_set(combat_payload,'{expedition,equipment}',coalesce(p_run.equipment_snapshot,'{}'::jsonb),true);
+ combat_payload:=jsonb_set(combat_payload,'{currentJobId}',
+   case when p_run.job_snapshot_id is null then 'null'::jsonb else to_jsonb(p_run.job_snapshot_id) end,true);
+ st:=private.combat_equipment_stats(p_user,combat_payload);
+ passive:=private.combat_accessory_passive(combat_payload);
+ j:=case when p_run.job_snapshot_id in('contract_mercenary','hunter','field_medic','duelist','berserker') then p_run.job_snapshot_id else null end;
+
+ if p_prior.user_id is not null then
+   pe:=(select coalesce(jsonb_agg(e),'[]'::jsonb) from jsonb_array_elements(coalesce(p_prior.player_effects,'[]'::jsonb))e where e->>'scope'='EXPEDITION');
+   select coalesce(jsonb_object_agg(key,to_jsonb(greatest(0,(value#>>'{}')::int-1))),'{}'::jsonb)
+   into nextcd from jsonb_each(coalesce(p_prior.cooldowns,'{}'::jsonb));
+   statev:=p_prior.state_version+1;
+ end if;
+ hp:=least((st->>'hp')::bigint,greatest(1,coalesce(p_prior.player_hp,(st->>'hp')::bigint)));
+ mh:=round(private.server_monster_hp(p_run.floor)*(p_profile->>'hpMultiplier')::numeric);
+ ma:=private.server_monster_attack(p_run.floor)*(p_profile->>'attackMultiplier')::numeric;
+ md:=private.server_monster_defense(p_run.floor)+coalesce((p_profile->>'defenseBonus')::numeric,0);
+ weapon:=st->>'weapon';crit:=case weapon when 'dagger' then .2 else .05 end;hits:=case when weapon='bow' then 2 else 1 end;
+ me:=private.server_initial_monster_effects(p_profile->>'id',coalesce(p_prior.monster_turn,0));
+
+ insert into private.online_combat_states(
+   user_id,run_id,encounter_index,monster_id,player_hp,player_max_hp,player_attack,player_defense,
+   monster_hp,monster_max_hp,monster_attack,monster_defense,turn_no,phase,action_nonce,
+   potion_lesser,potion_standard,potion_greater,potion_supreme,cooldowns,rng_seed,crit_chance,crit_damage,basic_hits,
+   skill_power,guard_turns,revival_count,pending_revival,accessory_passive,accessory_value,
+   player_effects,monster_effects,player_shield,monster_shield,monster_cooldowns,monster_prepared_action,
+   job_id,job_resource,job_flags,state_version,player_turn,monster_turn,player_shield_hits,monster_shield_hits,
+   monster_reactive_action,return_authorized,updated_at
+ ) values(
+   p_user,p_run.run_id,p_run.encounter_index,p_profile->>'id',hp,(st->>'hp')::bigint,(st->>'attack')::numeric,(st->>'defense')::numeric,
+   mh,mh,ma,md,1,'PLAYER_TURN',0,
+   coalesce(p_run.potion_lesser,0),coalesce(p_run.potion_standard,0),coalesce(p_run.potion_greater,0),coalesce(p_run.potion_supreme,0),
+   nextcd,p_run.reward_seed,crit,1.5,hits,private.combat_skill_power(combat_payload),0,coalesce(p_run.revival_count,0),false,
+   passive->>'kind',coalesce((passive->>'value')::numeric,0),
+   pe,me,0,0,'{}'::jsonb,null,j,case when j='berserker' then coalesce(p_prior.job_resource,0) else 0 end,
+   coalesce(p_prior.job_flags,'{}'::jsonb),statev,coalesce(p_prior.player_turn,0)+1,coalesce(p_prior.monster_turn,0),0,0,null,false,now()
+ )
+ on conflict(user_id) do update set
+   run_id=excluded.run_id,encounter_index=excluded.encounter_index,monster_id=excluded.monster_id,
+   player_hp=excluded.player_hp,player_max_hp=excluded.player_max_hp,player_attack=excluded.player_attack,player_defense=excluded.player_defense,
+   monster_hp=excluded.monster_hp,monster_max_hp=excluded.monster_max_hp,monster_attack=excluded.monster_attack,monster_defense=excluded.monster_defense,
+   turn_no=1,phase='PLAYER_TURN',action_nonce=0,potion_lesser=excluded.potion_lesser,potion_standard=excluded.potion_standard,
+   potion_greater=excluded.potion_greater,potion_supreme=excluded.potion_supreme,cooldowns=excluded.cooldowns,rng_seed=excluded.rng_seed,
+   crit_chance=excluded.crit_chance,crit_damage=excluded.crit_damage,basic_hits=excluded.basic_hits,skill_power=excluded.skill_power,
+   guard_turns=0,revival_count=excluded.revival_count,pending_revival=false,accessory_passive=excluded.accessory_passive,
+   accessory_value=excluded.accessory_value,player_effects=excluded.player_effects,monster_effects=excluded.monster_effects,
+   player_shield=0,monster_shield=0,monster_cooldowns='{}'::jsonb,monster_prepared_action=null,job_id=excluded.job_id,
+   job_resource=excluded.job_resource,job_flags=excluded.job_flags,state_version=excluded.state_version,
+   player_turn=excluded.player_turn,monster_turn=excluded.monster_turn,player_shield_hits=0,monster_shield_hits=0,
+   monster_reactive_action=null,return_authorized=false,updated_at=now()
+ returning * into c;
+
+ if c.monster_id='sanctuary_talon_bishop' then c:=private.sync_server_shield(c,'monster','blood_rite_ward');end if;
+ update private.online_combat_states set
+   monster_shield=c.monster_shield,monster_shield_hits=c.monster_shield_hits,monster_effects=c.monster_effects
+ where user_id=p_user returning * into c;
+ c:=private.combat_v2_initialize(c,true);
+ update private.online_combat_states set engine_runtime=c.engine_runtime,player_hp=c.player_hp,player_turn=c.player_turn,monster_turn=c.monster_turn,cooldowns=c.cooldowns,monster_cooldowns=c.monster_cooldowns,job_resource=0,job_flags='{}',player_effects=c.player_effects,monster_effects=c.monster_effects,player_shield=0,monster_shield=c.monster_shield,monster_prepared_action=null,monster_reactive_action=null where user_id=p_user returning * into c;
+ return c;
+end $function$
+;
+CREATE OR REPLACE FUNCTION public.begin_online_combat_state_v2(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+ u uuid;r private.online_expeditions%rowtype;c private.online_combat_states%rowtype;
+ prior private.online_combat_states%rowtype;profile jsonb;
+begin
+ u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+ select * into r from private.online_expeditions where user_id=u for update;
+ if not found or r.status<>'ACTIVE' then raise exception 'EXPEDITION_SERVER_RUN_MISSING';end if;
+ r:=private.ensure_run_consumables(u,r);
+ select * into c from private.online_combat_states where user_id=u for update;
+
+ if c.user_id is not null and c.run_id=r.run_id then
+   if c.phase='DEFEATED' then raise exception 'EXPEDITION_CONTINUE_REQUIRED';end if;
+   return private.combat_v2_payload(c,r)||jsonb_build_object(
+    'encounterIndex',c.encounter_index,'monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,
+    'monsterAttack',c.monster_attack,'monsterDefense',c.monster_defense,
+    'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,
+    'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,
+    'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'playerCooldowns',c.cooldowns,
+    'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,
+    'monsterReactiveAction',c.monster_reactive_action,'jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,
+    'stateVersion',c.state_version,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,
+    'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce,'returnAuthorized',c.return_authorized,
+    'confirmedKills',r.confirmed_kills,'runVersion',r.run_version
+   );
+ end if;
+
+ prior:=null::private.online_combat_states;
+ if r.pending_event is not null then raise exception 'EXPEDITION_EVENT_PENDING';end if;
+ if r.encounter_index<1 then
+   update private.online_expeditions set encounter_index=1,run_version=run_version+1 where user_id=u returning * into r;
+ end if;
+ profile:=private.server_monster_profile(r.tower,r.floor,r.reward_seed,r.encounter_index);
+ c:=private.server_start_encounter(u,r,profile,prior);
+ return private.combat_v2_payload(c,r)||jsonb_build_object(
+   'encounterIndex',c.encounter_index,'monsterId',c.monster_id,'monsterHp',c.monster_hp,'monsterMaxHp',c.monster_max_hp,
+   'monsterAttack',c.monster_attack,'monsterDefense',c.monster_defense,
+   'playerHp',c.player_hp,'playerMaxHp',c.player_max_hp,'playerShield',c.player_shield,'monsterShield',c.monster_shield,
+   'playerShieldHits',c.player_shield_hits,'monsterShieldHits',c.monster_shield_hits,
+   'playerEffects',c.player_effects,'monsterEffects',c.monster_effects,'playerCooldowns',c.cooldowns,
+   'monsterCooldowns',c.monster_cooldowns,'monsterPreparedAction',c.monster_prepared_action,
+   'monsterReactiveAction',c.monster_reactive_action,'jobId',c.job_id,'jobResource',c.job_resource,'jobFlags',c.job_flags,
+   'stateVersion',c.state_version,'playerTurn',c.player_turn,'monsterTurn',c.monster_turn,'turnNo',c.turn_no,
+   'phase',c.phase,'pendingRevival',c.pending_revival,'actionNonce',c.action_nonce,'returnAuthorized',c.return_authorized,
+   'confirmedKills',r.confirmed_kills,'runVersion',r.run_version
+ );
+end $function$
+;
+
+
+CREATE OR REPLACE FUNCTION public.restore_online_expedition(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  u uuid;
+  r private.online_expeditions%rowtype;
+  c private.online_combat_states%rowtype;
+  temporary_loot jsonb;
+  stones bigint:=0;
+begin
+  u:=private.require_active_game_session(p_lease_id,p_generation,p_client_instance_id,p_device_id);
+  select * into r from private.online_expeditions where user_id=u;
+  if not found or r.status<>'ACTIVE' then return jsonb_build_object('active',false);end if;
+
+  r:=private.ensure_run_consumables(u,r);
+  select * into c from private.online_combat_states where user_id=u and run_id=r.run_id;
+
+  stones:=private.server_run_enhancement_stones(r);
+  temporary_loot:=jsonb_set(
+    coalesce(r.temporary_loot,'{}'::jsonb),
+    '{enhancementStones}',
+    to_jsonb(stones),
+    true
+  );
+
+  return jsonb_build_object(
+    'active',true,
+    'run',jsonb_build_object(
+      'runId',r.run_id,
+      'tower',r.tower,
+      'floor',r.floor,
+      'confirmedKills',r.confirmed_kills,
+      'encounterIndex',r.encounter_index,
+      'bossProgress',r.boss_progress,
+      'bossDefeated',r.boss_defeated,
+      'pendingEvent',r.pending_event,
+      'temporaryLoot',temporary_loot,
+      'stronghold',r.stronghold,
+      'runVersion',r.run_version,'healingPotionUses',r.healing_potion_uses,
+      'potions',jsonb_build_object(
+        'lesser',r.potion_lesser,
+        'standard',r.potion_standard,
+        'greater',r.potion_greater,
+        'supreme',r.potion_supreme,
+        'revival',r.revival_count
+      )
+    ),
+    'combat',case when c.user_id is null then null else private.combat_v2_payload(c,r)||jsonb_build_object(
+      'encounterIndex',c.encounter_index,
+      'monsterId',c.monster_id,
+      'monsterHp',c.monster_hp,
+      'monsterMaxHp',c.monster_max_hp,
+      'monsterAttack',c.monster_attack,
+      'monsterDefense',c.monster_defense,
+      'playerHp',c.player_hp,
+      'playerMaxHp',c.player_max_hp,
+      'playerShield',c.player_shield,
+      'monsterShield',c.monster_shield,
+      'playerShieldHits',c.player_shield_hits,
+      'monsterShieldHits',c.monster_shield_hits,
+      'playerEffects',c.player_effects,
+      'monsterEffects',c.monster_effects,
+      'monsterCooldowns',c.monster_cooldowns,
+      'monsterPreparedAction',c.monster_prepared_action,
+      'monsterReactiveAction',c.monster_reactive_action,
+      'jobId',c.job_id,
+      'jobResource',c.job_resource,
+      'jobFlags',c.job_flags,
+      'playerCooldowns',c.cooldowns,
+      'stateVersion',c.state_version,
+      'playerTurn',c.player_turn,
+      'monsterTurn',c.monster_turn,
+      'turnNo',c.turn_no,
+      'phase',c.phase,
+      'pendingRevival',c.pending_revival,
+      'actionNonce',c.action_nonce,
+      'returnAuthorized',c.return_authorized
+    ) end
+  );
+end;$function$
+;
+
+
+-- Upgrade existing encounters before a V2 response can be restored by a client.
+with converted as (
+ select (private.combat_v2_initialize(c)).* from private.online_combat_states c
+ where c.engine_runtime->>'version' is distinct from '2'
+)
+update private.online_combat_states c set
+ engine_runtime=n.engine_runtime,job_resource=n.job_resource,cooldowns=n.cooldowns,
+ monster_cooldowns=n.monster_cooldowns,player_effects=n.player_effects,monster_effects=n.monster_effects,
+ player_shield=n.player_shield,monster_shield=n.monster_shield,state_version=c.state_version+1
+from converted n where c.user_id=n.user_id and c.run_id=n.run_id;
+
+revoke all on function private.combat_v2_damage(numeric,numeric,numeric,numeric,numeric,numeric) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_definition(text) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_modifier(jsonb,text) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_has(jsonb,text) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_shield(jsonb) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_apply_effect(jsonb,text,bigint,numeric,text) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_tick(jsonb,bigint) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_event(private.online_combat_states,jsonb) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_heal(private.online_combat_states,text,numeric,boolean,bigint,integer,text) from public,anon,authenticated;
+
+revoke all on function private.combat_v2_periodic(private.online_combat_states,text,bigint) from public,anon,authenticated;
+
+do $permissions$
+declare fn regprocedure;begin
+ for fn in select p.oid::regprocedure from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='private' and (p.proname like 'combat_v2_%' or p.proname in ('combat_damage','effect_modifier','apply_server_effect','effect_tick','server_roll','server_job_damage_multiplier','resolve_server_monster_turn_v2','finish_server_player_action','server_start_encounter')) loop execute format('revoke all on function %s from public,anon,authenticated',fn);end loop;
+end $permissions$;
+
+revoke all on function public.apply_online_basic_attack(uuid,bigint,text,text,bigint,numeric) from public,anon;
+grant execute on function public.apply_online_basic_attack(uuid,bigint,text,text,bigint,numeric) to authenticated;
+
+revoke all on function public.apply_online_job_skill(uuid,bigint,text,text,bigint,text) from public,anon;
+grant execute on function public.apply_online_job_skill(uuid,bigint,text,text,bigint,text) to authenticated;
+
+revoke all on function public.apply_online_flee(uuid,bigint,text,text,bigint) from public,anon;
+grant execute on function public.apply_online_flee(uuid,bigint,text,text,bigint) to authenticated;
+
+revoke all on function public.apply_online_potion(uuid,bigint,text,text,bigint,text) from public,anon;
+grant execute on function public.apply_online_potion(uuid,bigint,text,text,bigint,text) to authenticated;
+
+revoke all on function public.resolve_online_revival(uuid,bigint,text,text,boolean) from public,anon;
+grant execute on function public.resolve_online_revival(uuid,bigint,text,text,boolean) to authenticated;
+
+revoke all on function public.begin_online_combat_state_v2(uuid,bigint,text,text) from public,anon;
+grant execute on function public.begin_online_combat_state_v2(uuid,bigint,text,text) to authenticated;
+
+revoke all on function public.restore_online_expedition(uuid,bigint,text,text) from public,anon;
+grant execute on function public.restore_online_expedition(uuid,bigint,text,text) to authenticated;
