@@ -13,9 +13,14 @@ test('chat entry long press enables dragging without replacing tap-to-open',()=>
  assert.match(html,/src="\/src\/components\/chatEntryDrag\.ts"/);
  assert.match(drag,/CHAT_ENTRY_LONG_PRESS_MS=500/);
  assert.match(drag,/addEventListener\('pointerdown'/);
- assert.match(drag,/addEventListener\('pointermove'/);
+ assert.match(drag,/window\.addEventListener\('pointermove',move,\{capture:true,passive:false\}\)/);
  assert.match(drag,/resolveChatEntryPlacement\(event\.clientX,event\.clientY/);
  assert.match(drag,/saveChatEntryPlacement\(mode,next\)/);
  assert.match(css,/\.tc-chat-entry\[data-side=left\]/);
  assert.match(css,/\.tc-chat-entry\[data-dragging=true\]/);
+});
+test('desktop mouse long press tolerates movement before activation',()=>{
+ assert.match(drag,/pointerType:event\.pointerType/);
+ assert.match(drag,/gesture\.pointerType!==\'mouse\'&&distance>CHAT_ENTRY_MOVE_CANCEL_PX/);
+ assert.match(drag,/current\.cancelled\|\|current\.moved/);
 });
