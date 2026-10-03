@@ -1,18 +1,18 @@
 # Tower Chronicles Combat Engine Design
 
-Date: 2026-10-03
-Status: Approved design for implementation planning
-Scope: Core turn-based combat engine only. Job-specific skill kits are intentionally out of scope until this engine is implemented.
+Date: 2026-10-03  
+Status: Approved design for implementation planning  
+Scope: Core turn-based combat engine. Job-specific skill kits and final balance numbers are intentionally deferred until this engine is implemented.
 
 ## 1. Goal
 
-Tower Chronicles keeps its existing strict alternating-turn combat model:
+Tower Chronicles keeps a strict alternating-turn model:
 
 `Player turn -> one player action -> Monster turn -> one monster action -> Player turn`
 
-The engine must support 48+ jobs, multi-hit actions, reactions, shields, status effects, boss phases, and a four-slot builder-spender resource system without hard-coding job behavior into the central combat loop.
+The engine must support 48+ jobs, multi-hit actions, reactions, shields, status effects, boss phases, and a four-slot builder-spender resource without hard-coding individual job behavior into the central combat loop.
 
-The selected architecture is an **action pipeline with an event queue**. Existing combat, effect, job, and monster-AI code should be reused where practical, while action resolution is refactored into smaller, testable resolvers.
+The selected architecture is an **action pipeline with an event queue**. Existing turn, effect, job, reaction, combat-event, and monster-AI concepts should be reused where practical while action resolution is split into small, testable units.
 
 ## 2. Core Combat Model
 
@@ -21,152 +21,143 @@ The selected architecture is an **action pipeline with an event queue**. Existin
 - Combat is fully turn based.
 - A normal player turn grants exactly one action.
 - A normal monster turn grants exactly one action.
-- Player actions are:
-  - Basic attack
-  - Active skill 1
-  - Active skill 2
-  - Active skill 3
-  - Healing potion
-  - Flee attempt
+- Player actions are: basic attack, active skill 1, active skill 2, active skill 3, healing potion, or flee attempt.
 - Reactions, counters, extra hits, passive follow-ups, and queued effects do not create a new normal turn.
 - A counter does not consume the monster's normal turn.
 
-### 2.2 Player active skill slots
+### 2.2 Player action kit
 
 Every job has:
 
 - One basic attack
 - Exactly three active skills
 
-Each active skill is classified as one of:
+Each active skill is one of:
 
 - `GENERATOR`
 - `NEUTRAL`
 - `SPENDER`
 
-The engine does not force every job to use one of each type. Job kits may mix these categories freely.
+The engine does not force a fixed mix. Jobs may use any combination of the three categories.
 
 ## 3. Four-Slot Combat Resource
 
-### 3.1 Shared baseline
+### 3.1 Baseline
 
-- Resource capacity is four slots.
-- Combat starts at `0 / 4`.
-- Resource is reset to `0 / 4` when the current combat ends.
-- Resource never carries to the next monster encounter.
+- Capacity: 4.
+- Every combat starts at `0 / 4`.
+- Resource resets to `0 / 4` when that combat ends.
+- Resource never carries to the next monster.
 - Overflow is discarded.
 
-### 3.2 Basic generation
+### 3.2 Basic attack generation
 
 Default rule:
 
-- A successful basic-attack action generates `+1` resource.
+- A successful basic-attack action grants `+1` resource.
 - Generation is action based, not hit based.
-- A multi-hit basic attack still generates only `+1` by default.
-- An action that successfully connects but deals `0` HP damage because a shield absorbed it still counts as successful for resource generation.
-- A true miss or immunity does not generate resource.
-
-Jobs may add to or replace this baseline through explicit job rules.
+- A multi-hit basic attack still grants only `+1` by default.
+- If at least one hit resolves as a successful hit, including a hit fully absorbed by shield, the basic-attack action counts as successful.
+- If every hit resolves as `MISS` or `IMMUNE`, the action grants no resource.
+- Jobs may explicitly add to or replace this baseline.
 
 ### 3.3 Generator skills
 
-- Generator skills perform their normal combat effect and then grant their configured resource amount.
-- Resource gain is configured per skill and is not globally fixed to `+1`.
-- Generator skills may deal damage, heal, apply buffs/debuffs, create shields, or perform other supported effects.
-- Resource is granted only after the action has successfully executed.
+- A Generator performs its normal combat effects and then grants its configured resource amount.
+- Gain is configured per skill and may be `+1`, `+2`, etc., up to the four-slot cap.
+- Generators may damage, heal, buff, debuff, create shields, or perform other supported effects.
+- For an offensive Generator, at least one hit must resolve successfully for its normal resource grant unless that skill explicitly defines a different success rule.
+- For a non-offensive Generator, successful execution of its configured effect is sufficient.
+- Resource is granted after successful execution, not before.
 
 ### 3.4 Neutral skills
 
-- Neutral skills do not change combat resource unless a job-specific passive explicitly does so.
+- Neutral skills do not alter combat resource unless a specific passive or effect explicitly does so.
 
 ### 3.5 Spender skills
 
-All spender skills also have cooldowns.
+All Spenders also have cooldowns.
 
-Two spender modes are supported:
+Supported modes:
 
-1. **Fixed cost**
-   - Example: always consumes 2 resource.
-2. **Variable cost**
-   - Has `minCost` and `maxCost`.
-   - Consumes as much currently available resource as possible up to `maxCost`.
-   - The actual amount spent is passed into effect resolution.
-   - Effects may vary by exact amount spent rather than using one forced formula.
+1. **Fixed cost** — consumes a fixed amount.
+2. **Variable cost** — has `minCost` and `maxCost`, consumes as much currently available resource as possible up to `maxCost`, and passes the actual amount spent into effect resolution.
 
-Spender resource is deducted before the action resolves. It is not refunded if the action later fails because the attacker dies during a reaction chain.
+Variable Spenders may define different effects for 2/3/4 resource rather than being forced into one formula.
+
+Spender resource is deducted before the skill resolves. It is never refunded because the attacker later dies during a reaction chain.
 
 ## 4. Cooldowns
 
-### 4.1 Semantics
+`Cooldown N` means the skill is unavailable for the next N turns belonging to that actor.
 
-`Cooldown N` means:
+Example: player uses a cooldown-3 skill on player turn 5.
 
-> After use, the skill is unavailable for the next N turns belonging to that actor.
-
-Example for a player skill used on player turn 5 with cooldown 3:
-
-- Turn 5: use skill
+- Turn 5: use
 - Turn 6: unavailable
 - Turn 7: unavailable
 - Turn 8: unavailable
 - Turn 9: available
 
-Implementation should track a ready turn or equivalent exact expiry state rather than rely on a decrement scheme that can produce off-by-one errors.
+Implementation should track an exact ready turn or equivalent expiry state to avoid off-by-one behavior.
 
-### 4.2 Additional cooldown rules
+Additional rules:
 
-- Player skill cooldowns advance only on player turns.
-- Monster skill cooldowns advance only on monster turns.
+- Player cooldowns advance only on player turns.
+- Monster cooldowns advance only on monster turns.
 - Cooldowns continue to advance while stunned.
 - Cooldowns continue to advance while silenced.
-- All combat skill cooldowns reset when combat ends.
+- All combat cooldowns reset when combat ends.
 
-## 5. Hit and Reaction Pipeline
+## 5. Hit Outcomes and Multi-Hit Resolution
 
-### 5.1 Default hit behavior
+### 5.1 Accuracy/evasion policy
 
-- There is no persistent Accuracy stat.
-- There is no persistent Evasion stat.
+- No persistent Accuracy stat.
+- No persistent Evasion stat.
 - Normal attacks and skills hit by default.
-- `MISS` only occurs when a specific skill, buff, passive, or monster mechanic explicitly creates a miss/evasion outcome.
+- `MISS` occurs only when an explicit skill, buff, passive, or monster mechanic creates it.
 
-Supported resolution outcomes should include at least:
+Supported hit outcomes include at least:
 
 - `HIT`
 - `MISS`
 - `BLOCKED_BY_SHIELD`
 - `IMMUNE`
 
-### 5.2 Multi-hit actions
+### 5.2 Per-hit resolution
 
-Each direct hit is resolved independently for:
+Each direct hit independently resolves:
 
-- Critical hit
+- Hit outcome
+- Critical roll
 - Damage
 - Shield absorption
 - HP damage
+- Death check
 - On-hit effects
 - Reaction checks
-- Death checks
 
-A multi-hit attack remains one action for resource and turn purposes.
+A multi-hit attack is still one normal action for turn and baseline resource purposes.
 
-### 5.3 Counterattacks
+## 6. Counters, Extra Hits, and Death Priority
+
+### 6.1 Counter rules
 
 - Counter checks occur per qualifying hit.
 - Multi-hit attacks may trigger multiple counters.
 - Extra hits may also trigger counters.
-- Counter attacks are additional reaction actions and do not replace the monster's normal turn.
-- Reaction attacks cannot themselves trigger another counter.
-- This prevents infinite counter chains.
+- Counters are reaction actions and never replace the monster's normal turn.
+- A reaction attack cannot itself trigger another counter.
+- This prevents counter-to-counter recursion.
 
 Example:
 
-`Hit 1 -> enemy counter -> Hit 2 -> enemy counter -> Hit 3 -> enemy counter -> player action ends -> monster normal turn`
+`Hit 1 -> counter -> Hit 2 -> counter -> Hit 3 -> counter -> player action ends -> monster normal turn`
 
-### 5.4 Death interrupts the chain
+### 6.2 Killing blow and chain cancellation
 
-Death has higher priority than all remaining unresolved hit-chain work.
+Death has higher priority than unresolved hit-chain work.
 
 If the target reaches 0 HP:
 
@@ -179,11 +170,11 @@ If the attacker dies during a counter:
 
 - Remaining hits and extra hits from the original action are canceled.
 
-## 6. Critical Hits
+## 7. Critical Hits
 
-### 6.1 Player critical hits
+### 7.1 Player
 
-Default player values:
+Defaults:
 
 - Critical chance: 5%
 - Critical damage: 150%
@@ -192,41 +183,37 @@ Rules:
 
 - Basic attacks may crit.
 - Offensive active skills may crit.
-- Each hit in a multi-hit action rolls crit independently.
-- Crits do not increase combat-resource generation.
-- Crit chance and crit damage may be modified by equipment, jobs, buffs, or debuffs.
+- Multi-hit actions roll crit per hit.
+- Crits do not increase resource generation.
+- Equipment, jobs, buffs, and debuffs may modify crit chance/damage.
 
-### 6.2 Monster critical hits
+### 7.2 Monsters
 
 - Monsters do not have random crits by default.
-- Monster skills may explicitly be configured as crit-capable or guaranteed crits.
+- A monster skill may explicitly allow crits or be configured as a guaranteed crit.
 
-## 7. Direct Damage Formula
+## 8. Direct Damage Formula
 
-Tower Chronicles will use percentage-based defense reduction rather than flat subtraction.
+Tower Chronicles uses percentage-based defense reduction rather than flat subtraction.
 
-### 7.1 Damage order
-
-Direct damage resolves in this conceptual order:
+### 8.1 Calculation order
 
 1. Base attack value
 2. Attack-stat buffs/debuffs
 3. Action/skill multiplier
 4. Outgoing-damage modifiers
 5. Defense penetration
-6. Percentage defense reduction formula
+6. Percentage defense reduction
 7. Critical multiplier
 8. Incoming-damage modifiers
 9. Shield absorption
 10. HP damage
 
-### 7.2 Defense formula
-
-Use a tunable constant:
+### 8.2 Defense formula
 
 `damageAfterDefense = preDefenseDamage * DEFENSE_SCALE / (DEFENSE_SCALE + effectiveDefense)`
 
-Initial value:
+Initial tuning value:
 
 `DEFENSE_SCALE = 100`
 
@@ -238,32 +225,32 @@ Examples:
 - Defense 200 -> about 33.3%
 - Defense 300 -> 25%
 
-Minimum direct HP damage after applicable calculations remains at least 1 when the hit reaches HP.
+When a direct hit reaches HP, minimum direct HP damage remains at least 1 after applicable calculations.
 
-### 7.3 Defense penetration
+### 8.3 Defense penetration
 
-- No permanent equipment Defense Penetration stat is added.
-- Skills, passives, or effects may explicitly grant percentage defense penetration.
+- No permanent equipment Defense Penetration stat.
+- Skills, passives, and effects may explicitly provide percentage penetration.
 - `effectiveDefense = defense * (1 - penetrationRate)`
 - Penetration is capped at 100%.
 - Effective defense cannot go below 0.
 
-### 7.4 No true damage
+### 8.4 No true damage
 
-- There is no separate fixed/true-damage type.
+- No separate true/fixed-damage type.
 - All direct attack damage uses the standard pipeline.
 - A skill that functionally ignores defense may use 100% defense penetration.
 
-## 8. Buff and Debuff Math
+## 9. Buff and Debuff Math
 
-### 8.1 Same calculation group
+### 9.1 Same group
 
-Modifiers in the same group add together.
+Modifiers in the same calculation group add together.
 
 Examples:
 
-- Attack +20% and Attack +30% = Attack +50%
-- Attack +30% and Attack -15% = Attack +15%
+- Attack +20% and Attack +30% -> Attack +50%
+- Attack +30% and Attack -15% -> Attack +15%
 
 Groups include at least:
 
@@ -273,31 +260,22 @@ Groups include at least:
 - Incoming damage
 - Healing done/received
 
-### 8.2 Different groups
+### 9.2 Different groups
 
-Different calculation groups apply in their own calculation stages and therefore multiply across stages.
+Different calculation groups apply at their own stages and therefore multiply across stages. Attack +30% and outgoing damage +20% are not combined into one +50% modifier.
 
-Example:
+### 9.3 Reapplying the same effect
 
-- Attack +30%
-- Outgoing damage +20%
+Repeated application of the same effect ID uses **duration extension only**:
 
-These are not merged into +50%; they modify different stages.
-
-### 8.3 Reapplying the same effect
-
-Tower Chronicles uses **duration extension only** for repeated applications of the same effect ID.
-
-- No stack-count multiplication.
+- No magnitude stacking.
 - No refresh-to-original-duration behavior.
-- `remainingDuration += newDuration`
-- Effect magnitude does not increase when duration is extended.
+- `remainingDuration += newDuration`.
+- Effect magnitude remains unchanged.
 
 Different effect IDs may coexist and combine under their relevant calculation groups.
 
-## 9. Status Effects
-
-### 9.1 Supported control effects
+## 10. Control Status Effects
 
 V1 includes:
 
@@ -305,23 +283,23 @@ V1 includes:
 - `SILENCE`
 - `ROOT`
 
-`DISARM` is explicitly excluded.
+`DISARM` is excluded.
 
-### 9.2 Stun
+### 10.1 Stun
 
 - The affected actor loses the entire normal turn.
 - Player cannot basic attack, use active skills, use healing potion, or flee.
 - Monster takes no normal action.
 - Cooldowns still advance.
-- Resource is retained.
-- Turn-end damage, healing, overheal decay, and duration updates still occur.
-- Stun cancels a monster's currently prepared/charged attack.
+- Player resource is retained.
+- Turn-end periodic damage/healing, overheal decay, and duration updates still occur.
+- Stun cancels a monster's currently prepared attack.
 
-### 9.3 Silence
+### 10.2 Silence
 
 Player:
 
-- Locks all three active-skill slots.
+- Locks all three active skill slots.
 - Basic attack remains available.
 - Healing potion remains available.
 - Flee remains available unless rooted.
@@ -330,123 +308,100 @@ Monster:
 
 - Cannot choose a new active skill or new prepared attack.
 - Falls back to basic attack.
-- An already prepared attack is not canceled by Silence and still fires on its scheduled monster turn.
+- An already prepared attack is not canceled and still discharges on schedule.
 
-### 9.4 Root
+### 10.3 Root
 
 - Prevents fleeing.
-- Does not block basic attacks, active skills, or potions.
-- Future movement mechanics may explicitly opt into Root interactions.
+- Does not block basic attack, active skills, or potions.
 
-### 9.5 Immunities
+### 10.4 Immunity
 
-- Immunity is defined per effect and per monster, not solely by monster rank.
+- Immunity is defined per effect and per monster, not solely by rank.
 - Bosses are not globally immune to all control.
-- Example capabilities:
-  - `IMMUNE_TO_STUN`
-  - `IMMUNE_TO_SILENCE`
-- A monster may be immune to one control effect but vulnerable to another.
+- A monster may be immune to Stun while remaining vulnerable to Silence, or vice versa.
 
-## 10. Shields
+## 11. Shields
 
-### 10.1 Shield lifetime
+### 11.1 Lifetime and accumulation
 
 - Shields have no turn duration.
-- Shields persist for the entire current combat unless fully depleted.
+- They persist for the current combat until depleted.
+- New shield amounts add to the current shield amount.
+- Maximum total shield is 300% of that actor's max HP.
+- Excess generation is discarded.
 - All remaining shield is removed when combat ends.
-
-### 10.2 Shield stacking
-
-- New shield amounts add to the existing shield amount.
-- Maximum total shield = 300% of the actor's maximum HP.
-- Excess shield generation beyond the cap is discarded.
 
 Example with max HP 1,000:
 
-- Shield cap = 3,000
-- Current shield 2,700 + new shield 800 -> 3,000
+- Shield cap = 3,000.
+- Current shield 2,700 + 800 -> 3,000.
 
-### 10.3 Damage absorption
+### 11.2 Absorption
 
 - Direct damage consumes shield before HP.
-- If shield fully absorbs the direct hit, HP damage is 0.
-- If incoming direct damage exceeds shield, the shield becomes 0 and overflow reaches HP.
+- If shield absorbs the entire direct hit, HP damage is 0.
+- If direct damage exceeds shield, shield becomes 0 and overflow reaches HP.
 
-### 10.4 Shield and attached debuffs
+### 11.3 Shield versus debuffs
 
-For an attack that deals direct damage and carries an on-hit debuff:
+For a direct-damage attack carrying an on-hit debuff:
 
-- If shield absorbs the entire direct hit and HP damage is 0, the attached debuff is not applied.
+- If shield absorbs the entire direct hit, the attached debuff is not applied.
 - If any HP damage penetrates, the attached debuff may apply.
 
-A direct non-damaging debuff is not blocked by shield.
+A non-damaging direct debuff is not blocked by shield.
 
-### 10.5 Damage-over-time bypass
+Damage-over-time effects bypass shield entirely.
 
-Damage-over-time effects ignore shield entirely and damage HP directly.
+## 12. Periodic Damage and Regeneration
 
-## 11. Damage Over Time and Regeneration
+Effects resolve at the end of the affected actor's turn.
 
-### 11.1 Turn-end timing
-
-Effects tied to an actor resolve at the end of that actor's turn.
-
-Player effects use player-turn timing. Monster effects use monster-turn timing.
-
-### 11.2 Turn-end order
-
-At turn end:
+Turn-end order:
 
 1. Damage over time
 2. Death/revival check
 3. If alive, regeneration/healing over time
 4. Player overheal decay when applicable
-5. Effect-duration reduction/removal
+5. Effect duration reduction/removal
 6. Turn transition
 
 If damage over time reduces HP to 0, regeneration does not occur afterward.
 
-### 11.3 Damage over time
+Periodic rules:
 
-- Poison, Bleed, Burn, and similar effects bypass shield.
+- Poison, Bleed, Burn, and similar DOT bypass shield and damage HP directly.
 - Different effect IDs may coexist.
-- Reapplying the same effect ID extends duration only; damage magnitude does not stack.
+- Reapplying the same effect ID extends duration only; magnitude does not stack.
+- Regeneration affects HP only and never restores shield.
+- Regeneration ticks use the source's normal healing rules and may critically heal when that source is allowed to crit-heal.
 
-### 11.4 Regeneration
+## 13. Healing and Overheal
 
-- Regeneration affects HP only.
-- It does not restore shield.
-- It uses the normal healing rules described below.
-
-## 12. Healing and Overheal
-
-### 12.1 Healing criticals
+### 13.1 Healing criticals and modifiers
 
 - Skill-based healing may critically heal.
-- Healing crit chance/damage can be modified through supported combat effects.
-- Healing potions do not critically heal.
+- Regeneration sourced from a crit-capable healing effect may critically heal per tick.
+- Healing crit chance/damage may be modified by supported combat effects.
+- Healing potions never critically heal.
+- Healing can be increased or reduced through buffs/debuffs.
 
-### 12.2 Healing modifiers
+### 13.2 Overheal
 
-Healing can be increased or reduced through buffs/debuffs using the normal modifier-group rules.
-
-### 12.3 Overheal
-
-- Healing may raise current HP above maximum HP.
+- Healing may raise current HP above max HP.
 - Overheal is real HP for damage-taking purposes.
-- Overheal is not converted into shield.
+- Overheal is never converted to shield.
 
 At the end of each player turn:
 
-- Determine `excess = max(0, currentHp - maxHp)`.
-- Remove 25% of the excess.
-- Never reduce HP below max HP through this decay.
+- `excess = max(0, currentHp - maxHp)`
+- Remove 25% of `excess`.
+- This decay never reduces HP below max HP.
 
-When combat ends:
+When combat ends, any HP above max HP is removed.
 
-- Any HP above max HP is removed.
-
-## 13. Cleanse and Dispel
+## 14. Cleanse and Dispel
 
 There is no Cleanse Potion.
 
@@ -457,60 +412,57 @@ The engine supports skill-based:
 
 Rules:
 
-- Skills may remove a configured number of effects.
+- Skills may remove a configured count.
 - Skills may target effect tags/categories.
 - Removal is automatic by priority rather than manual UI selection.
 - Combat resource, cooldown state, and shield are not normal cleanse/dispel targets.
 
-Default cleanse priority:
+Default Cleanse priority:
 
 `Stun > Silence > Damage-over-time > Stat reduction > Root > Other`
 
-Tag-filtered cleansing first restricts the eligible set, then uses priority inside that set.
+A tag-filtered Cleanse first restricts the eligible set, then applies priority within that set.
 
-## 14. Healing Potion and Revival Potion
+## 15. Healing Potion and Revival Potion
 
-### 14.1 Healing potion
+### 15.1 Healing potion
 
-- Using one healing potion consumes the player's normal action.
-- The monster receives its normal turn afterward.
+- Consumes the player's normal action.
+- Monster receives its normal turn afterward.
 - Cannot be used while stunned.
 - Can be used while silenced.
 - Can be used while rooted.
-- No combat cooldown.
+- Has no combat cooldown.
 - Consumes actual inventory quantity.
-- Maximum healing-potion uses per expedition: 5.
-- The 5-use limit persists across all combats within that expedition.
-- The usage counter resets when the expedition ends and a new expedition begins.
-- Healing potions may overheal but do not critically heal.
+- Maximum uses per expedition: 5.
+- The 5-use counter persists across all combats in that expedition.
+- The counter resets only when the expedition ends and a new expedition begins.
+- Healing potion may overheal but never crit-heals.
 
-### 14.2 Revival potion
+### 15.2 Revival potion
 
-- Revival potion is not a normal player action.
-- It is offered only as a death interrupt.
-- Declining revival ends the combat as a loss and ends the expedition.
+- Not a normal player action.
+- Offered only as a death interrupt.
+- Declining revival ends combat as a loss and ends the expedition.
 
-## 15. Death and Revival
+## 16. Death and Revival
 
-### 15.1 Death interruption
+### 16.1 Death interruption
 
 When an actor reaches 0 HP:
 
-- Current unresolved action-chain work belonging to that actor is canceled as applicable.
+- Current unresolved hit-chain work is canceled as applicable.
 - Remaining multi-hits are canceled.
 - Remaining extra hits are canceled.
 - Pending counters by the dead actor are canceled.
 - A killed target never counters the killing hit.
 
-### 15.2 Player revival
+### 16.2 Player revival state
 
-If the player uses a revival potion:
-
-Maintain:
+If the player uses a Revival Potion, maintain:
 
 - Current combat
-- Enemy HP
-- Enemy combat state
+- Enemy HP and enemy combat state
 - Player combat resource
 - Player skill cooldowns
 - Player beneficial buffs
@@ -522,109 +474,104 @@ Remove/reset:
 - Stun/Silence/Root
 - Player shield -> 0
 
-The revival HP amount remains a configurable game value.
+Revival HP amount remains a configurable game value.
 
-### 15.3 Resume point after revival
+### 16.3 Resume point
 
-The interrupted action chain does not resume.
+The interrupted action chain never resumes.
 
-- If the player died during the player's action because of a reaction/counter, revival continues to the monster's normal turn.
-- If the player died during the monster's normal action, revival continues to the next player turn.
-- If the player died from player-turn-end damage over time, revival continues to the monster turn.
+- Death during the player's action from a counter/reaction -> after revival, continue to the monster's normal turn.
+- Death during the monster's normal action -> after revival, continue to the next player turn.
+- Death from player-turn-end DOT -> after revival, continue to the monster turn.
 
-## 16. Monster Actions and AI
+## 17. Monster Actions and AI
 
-### 16.1 Monster action types
-
-Monster actions are classified as:
+### 17.1 Action types
 
 - `BASIC_ATTACK`
 - `ACTIVE_SKILL`
 - `PREPARED_ATTACK`
 - `REACTION`
 
-### 16.2 Prepared attacks
+### 17.2 Prepared attacks
 
 A prepared attack uses two monster turns:
 
-1. Preparation/telegraph turn
+1. Preparation/telegraph
 2. Discharge on the next monster turn
 
 Rules:
 
-- Strong boss skills should use this mechanic frequently enough to create counterplay.
-- Silence does not cancel an attack that is already prepared.
-- Stun cancels a currently prepared attack.
-- Killing the monster also cancels it.
-- If a prepared attack is canceled by Stun, the stunned turn is lost; the monster chooses a new action on its following normal turn.
+- Strong boss skills should use telegraphs to create counterplay.
+- Silence does not cancel an already prepared attack.
+- Stun cancels an already prepared attack.
+- Killing the monster cancels it.
+- When Stun cancels preparation, that stunned monster turn is lost; a new action is chosen on the following normal monster turn.
+- There is no generic physical-vs-spell taxonomy.
 
-There is no generic physical-vs-spell classification in the combat engine.
-
-### 16.3 AI decision order
-
-Conceptual monster-turn flow:
+### 17.3 AI decision order
 
 1. Turn-start state processing
 2. If stunned: skip normal action
-3. If a prepared attack exists: discharge it unless already canceled
+3. If a prepared attack exists: discharge it
 4. If silenced: basic attack
 5. Evaluate forced patterns
 6. Build eligible normal-action candidates from conditions and cooldowns
-7. Choose among candidates by weight
-8. Fallback to basic attack if none are available
-9. Resolve the action
+7. Select by weight
+8. Fallback to basic attack if no candidate exists
+9. Resolve action
 10. Resolve turn-end effects
 
-### 16.4 Conditions
+### 17.4 Supported AI conditions
 
-AI skill conditions may include:
+May include:
 
 - Monster HP ratio
 - Player HP ratio
 - Monster turn number
 - Player shield presence/amount
-- Presence/absence of specific effects
+- Presence/absence of effects
 - Prior action
 - Skill-use count
 - Boss phase
 - Combat-event flags
 
-### 16.5 Forced patterns and weighted behavior
+### 17.5 Forced patterns and weighted behavior
 
-- Forced patterns override normal weighted choice when their conditions are met.
+- Forced patterns override normal weighted choice when eligible.
 - Normal eligible skills use weighted selection.
-- Basic attack may participate as a weighted fallback/default action.
-- Optional `cannotRepeat`/repeat-limit data may prevent undesirable same-skill repetition when cooldown alone is insufficient.
+- Basic attack may participate as a weighted fallback/default.
+- Optional `cannotRepeat` or repeat-limit data may prevent undesirable repetition when cooldown alone is insufficient.
 
-## 17. Boss Phases
+## 18. Boss Phases
 
-### 17.1 Phase triggers
+### 18.1 Transition triggers
 
-Boss phase transitions may use:
+Boss phases may transition from:
 
 - HP thresholds
 - Monster turn counts
 - Specific combat events
 - AND / OR combinations of supported conditions
 
-Examples of event triggers:
+Example event triggers:
 
 - Shield broken for the first time
 - Player used revival
 - Boss was stunned for the first time
-- A prepared attack was interrupted
+- Prepared attack was interrupted
 - Player reached 4 resource
-- A specific skill was used N times
-- A future summon/part was destroyed
+- Specific skill used N times
+- Future summon/part destroyed
 
-### 17.2 Phase progression
+### 18.2 Progression rules
 
 - Phase progression is one-way.
-- A boss never returns to an earlier phase because HP was healed.
+- Healing the boss never returns it to an earlier phase.
 - One-shot transition triggers are consumed after firing.
 - Existing skill cooldowns do not reset on phase transition.
 
-### 17.3 Phase effects
+### 18.3 Phase effects
 
 A phase may alter:
 
@@ -638,23 +585,23 @@ A phase may alter:
 - AI conditions
 - Presentation hooks/dialogue
 
-## 18. Combat Start and End Lifecycle
+## 19. Combat Start and End Lifecycle
 
-### 18.1 Expedition-scoped state that persists across combats
+### 19.1 Expedition-scoped state that persists across combats
 
 - Current player HP, capped to max HP at combat transition
 - Equipment
 - Job
-- Healing-potion inventory quantity
-- Revival-potion inventory quantity
-- Healing-potion expedition usage count (0-5)
+- Healing-potion inventory
+- Revival-potion inventory
+- Healing-potion expedition usage count `0-5`
 - Loot/items acquired
 - Floor/progression
 - Expedition event history
 
-### 18.2 Combat-scoped state reset for each new monster
+### 19.2 Combat-scoped state reset for each new monster
 
-- Four-slot combat resource -> 0
+- Four-slot resource -> 0
 - Shield -> 0
 - Player combat buffs/debuffs
 - Monster buffs/debuffs
@@ -665,11 +612,11 @@ A phase may alter:
 - Extra-hit reservations
 - All combat skill cooldowns
 - Boss phase -> initial phase
-- Boss/monster turn counter -> initial value
+- Monster turn counter -> initial value
 - One-shot combat flags
 - Per-combat skill/action counters
 
-### 18.3 Combat victory cleanup
+### 19.3 Victory cleanup
 
 When monster HP reaches 0:
 
@@ -684,22 +631,18 @@ When monster HP reaches 0:
 9. Dispose monster AI/runtime state
 10. Continue expedition flow
 
-### 18.4 Combat defeat
+### 19.4 Defeat
 
-- Player death opens revival decision when an applicable revival potion is available.
-- Declining revival or having none available ends the combat as a loss and ends the expedition.
+- Player death opens the revival decision when an applicable Revival Potion is available.
+- Declining revival or having none available ends combat as a loss and ends the expedition.
 
-## 19. Event-Queue Architecture
+## 20. Event-Queue Architecture
 
-### 19.1 Why this architecture
+### 20.1 Resolution model
 
-The existing combat engine already has turn state, effects, reactions, job hooks, monster AI, and combat events. The redesign should preserve those useful concepts while preventing `combat.ts` from becoming a single growing chain of special cases.
+Action resolution is represented as explicit pipeline work rather than one growing special-case function.
 
-Action resolution should be broken into explicit stages and event entries.
-
-### 19.2 Conceptual event flow
-
-A skill action may emit work such as:
+Conceptual flow:
 
 `ACTION_START`
 -> `RESOURCE_SPEND`
@@ -713,66 +656,51 @@ A skill action may emit work such as:
 -> `ACTION_END`
 -> `TURN_END`
 
-Not every event name must become a public type exactly as written; these names define required resolution boundaries.
+The implementation may choose different exact event type names, but these resolution boundaries must remain explicit and independently testable.
 
-### 19.3 Required engine units
+### 20.2 Engine units
 
-The refactor should create or preserve clear units with one responsibility each:
+- **Turn Engine** — turn transitions and actor-turn counters.
+- **Action Resolver** — validates and starts basic attacks, skills, potions, and flee attempts.
+- **Resource Engine** — 0-4 resource, generation, fixed/variable spending, overflow.
+- **Hit Resolver** — hit outcome, per-hit crit, multi-hit progression, extra-hit scheduling.
+- **Damage Resolver** — attack modifiers, penetration, defense formula, crit multiplier, incoming modifiers.
+- **Shield Resolver** — additive shield, 300%-max-HP cap, absorption, combat cleanup.
+- **Effect Engine** — buffs/debuffs, duration extension, periodic effects, Cleanse/Dispel priority, immunity.
+- **Reaction Engine** — counters/extra-hit reactions and prevention of recursive counter chains.
+- **Death Resolver** — chain cancellation, death interrupt, revival mutation, resume point.
+- **Monster AI** — conditions, forced patterns, weighted choice, prepared attacks, boss phases.
+- **Battle Lifecycle** — combat initialization, victory/defeat cleanup, expedition/combat state boundaries.
 
-- **Turn Engine**
-  - Owns player/monster turn transitions and actor-turn counters.
-- **Action Resolver**
-  - Validates and starts basic attacks, skills, potions, and flee attempts.
-- **Resource Engine**
-  - Owns 0-4 resource state, generation, fixed spending, variable spending, and overflow.
-- **Hit Resolver**
-  - Owns hit outcome, per-hit crit, multi-hit progression, and extra-hit scheduling.
-- **Damage Resolver**
-  - Owns attack modifiers, penetration, defense formula, crit multiplier, and incoming modifiers.
-- **Shield Resolver**
-  - Owns shield gain, 300%-max-HP cap, absorption, and combat cleanup.
-- **Effect Engine**
-  - Owns buffs/debuffs, duration extension, periodic effects, cleanse/dispel priority, and immunity checks.
-- **Reaction Engine**
-  - Owns counter/extra-hit reactions and ensures reaction attacks cannot recursively generate counter chains.
-- **Death Resolver**
-  - Owns action-chain cancellation, death interrupt, revival state mutation, and resume point.
-- **Monster AI**
-  - Owns conditions, forced patterns, weighted choices, prepared attacks, and boss phase state.
-- **Battle Lifecycle**
-  - Owns combat initialization, victory cleanup, defeat cleanup, and expedition/combat state boundaries.
+### 20.3 Queue cancellation
 
-### 19.4 Queue cancellation rules
-
-The queue must support explicit cancellation of unresolved work.
-
-Examples:
+The queue must support explicit cancellation of unresolved work:
 
 - Target death cancels future hits, extra hits, and target counters.
-- Attacker death cancels remaining hits and extra hits from its current action.
-- Stun canceling a prepared attack removes that prepared discharge.
-- Combat victory cancels all remaining combat action work before cleanup.
+- Attacker death cancels remaining hits/extra hits from that action.
+- Stun removes a prepared discharge.
+- Combat victory cancels all remaining combat-action work before cleanup.
 
-## 20. Data Model Direction
+## 21. Data Model Direction
 
-The implementation plan should evolve the current job and monster definitions rather than replace them wholesale.
+Evolve current job and monster definitions rather than replacing them wholesale.
 
-Skill definitions need enough metadata to express:
+Player skill data must be able to express:
 
-- Skill category: Generator / Neutral / Spender
+- Generator / Neutral / Spender category
 - Cooldown
 - Resource gain or cost
-- Fixed or variable spender behavior
+- Fixed/variable spender behavior
 - Hit count
-- Damage multiplier(s)
+- Damage multipliers
 - Defense penetration
 - Effect applications
 - Shield generation
 - Healing
-- Cleanse/dispel behavior
+- Cleanse/Dispel behavior
 - Conditional branches based on actual resource spent
 
-Monster definitions need enough metadata to express:
+Monster data must be able to express:
 
 - Action type
 - Cooldown/ready timing
@@ -781,51 +709,50 @@ Monster definitions need enough metadata to express:
 - Forced-pattern priority
 - Prepared attacks
 - Reaction rules
-- Cannot-repeat/repeat limits
+- Repeat restrictions
 - Effect immunities
-- Phase restrictions and phase transitions
+- Phase restrictions/transitions
 
-## 21. UI Contract
+## 22. UI Contract
 
-This spec is primarily engine architecture, but the engine must expose enough state for the existing battle UI to render deterministically.
-
-Required visible state includes:
+The engine must expose deterministic battle state for the existing UI:
 
 - Current HP / max HP / overheal
 - Current shield / shield cap
 - Four combat-resource slots
-- Three active-skill cooldown states
-- Skill unusable reasons where needed (resource, cooldown, silence, etc.)
-- Player and monster status effects
+- Three active-skill cooldowns
+- Skill unusable reasons where needed: resource, cooldown, Silence, etc.
+- Player/monster status effects
 - Prepared monster attack/telegraph state
-- Boss phase when relevant to UI
-- Combat-event output for damage numbers, crits, shields, misses, immunity, counters, and healing
+- Boss phase where relevant
+- Combat events for damage numbers, crits, shield absorption, misses, immunity, counters, and healing
 
-The existing four HUD status pips must no longer be used as a fake status-effect count when the new resource UI is implemented; the four-circle display is reserved for the real four-slot combat resource.
+The existing four HUD status pips must no longer represent an artificial status-effect count once this redesign lands. The four-circle display is reserved for the real four-slot combat resource.
 
-## 22. Testing Requirements
+## 23. Testing Requirements
 
-Implementation should be test-driven and add focused unit/integration coverage for at least:
+Implementation is test-driven and must cover at least:
 
-### Turn and cooldown
+### Turn/cooldown
 
 - Strict alternating normal turns
 - Cooldown N blocks exactly N future same-actor turns
-- Cooldowns advance through Stun and Silence
+- Cooldowns advance through Stun/Silence
 - Combat-end cooldown reset
 
 ### Resource
 
-- Basic attack grants +1 once per action
-- Multi-hit basic still grants only +1
-- Generator skill-specific gain
+- Basic attack grants +1 once per successful action
+- Multi-hit basic with at least one successful hit grants only +1
+- Multi-hit basic with all hits MISS/IMMUNE grants 0
+- Generator skill-specific gain and success criteria
 - Overflow discarded at 4
 - Fixed spender pre-spend
 - Variable spender exact amount spent
 - No refund after death during reaction
-- Combat-end resource reset
+- Combat-end reset
 
-### Hits, counters, and death
+### Hit/reaction/death
 
 - Multi-hit per-hit crit resolution
 - Counter per qualifying hit
@@ -836,70 +763,71 @@ Implementation should be test-driven and add focused unit/integration coverage f
 
 ### Shield
 
-- Additive shields
+- Additive shield
 - 300%-max-HP cap
-- Direct-damage absorption and overflow
-- On-hit debuff blocked when shield absorbs 100% of direct hit
-- Periodic damage bypasses shield
-- Combat-end shield reset
+- Direct absorption and overflow
+- On-hit debuff blocked on 100% shield absorption
+- DOT bypasses shield
+- Combat-end reset
 
 ### Effects
 
 - Same effect extends duration without magnitude stacking
-- Stun turn skip with cooldown progress
-- Silence locks player skills only
-- Silence forces monster basic attack unless prepared attack already exists
+- Stun skips action while cooldown progresses
+- Silence locks player active skills only
+- Silence forces monster basic attack unless a prepared attack already exists
 - Stun cancels prepared attack
 - Root blocks flee
 - Per-effect immunity
-- Cleanse/dispel priority
+- Cleanse/Dispel priority
 
-### Periodic and healing
+### Periodic/healing
 
-- DOT -> death check -> regen order
+- DOT -> death check -> regeneration order
 - DOT bypasses shield
-- Healing crit behavior for skills
-- Healing potion does not crit
+- Skill heal crits
+- Crit-capable regeneration ticks
+- Healing potion never crits
 - Overheal allowed
 - 25% excess decay at player turn end
 - Overheal removed at combat end
 
 ### Death/revival
 
-- Current chain discarded on player death
+- Current chain discarded on death
 - Revival retains resource/cooldowns/buffs
 - Revival clears player debuffs and shield
 - Resume point depends on death context
-- Decline revival ends expedition
+- Declining revival ends expedition
 
-### Monster AI and phases
+### Monster AI/phases
 
-- Prepared-attack telegraph/discharge
-- Forced pattern wins over weighted behavior
+- Prepared telegraph/discharge
+- Forced pattern overrides weighted behavior
 - Weighted candidate selection
-- Phase transition via HP
-- Phase transition via turn count
-- Phase transition via event
-- One-way phase progression
+- Phase transition by HP
+- Phase transition by turn count
+- Phase transition by event
+- One-way progression
 - No cooldown reset on phase transition
 
-## 23. Explicit Non-Goals for This Engine Pass
+## 24. Explicit Non-Goals
 
-Do not add these while implementing this design unless separately approved:
+Do not add these in this engine pass unless separately approved:
 
 - Real-time or auto-attack combat
 - Persistent Accuracy/Evasion stats
-- Disarm status
+- Disarm
 - Physical-vs-spell damage taxonomy
 - True/fixed damage type
-- Permanent equipment defense-penetration stat
-- Cleanse potion
-- Job-specific skill balance numbers for all 48 jobs
-- Full skill-kit design for all jobs
+- Permanent equipment Defense Penetration stat
+- Cleanse Potion
+- Final balance numbers for all jobs
+- Full skill-kit design for all 48 jobs
 
-## 24. Implementation Principle
+## 25. Implementation Principle
 
-The implementation must preserve the player's core mental model:
+The player's mental model must remain:
 
 > One normal action per side, predictable turn ownership, visible cooldowns, a four-slot builder-spender resource, and tactical exceptions expressed through explicit effects rather than hidden random rules.
 
