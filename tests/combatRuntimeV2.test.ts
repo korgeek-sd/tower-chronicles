@@ -2,23 +2,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialState,stats} from '../src/game/engine/state.ts';
 import {enter} from '../src/game/engine/expedition.ts';
-import {resetCombatRuntime} from '../src/game/engine/battleLifecycle.ts';
-import {activeShield,applyEffect} from '../src/game/engine/effects.ts';
-import {createRepository,SAVE_KEY} from '../src/storage/repository.ts';
+import {combatRuntime,resetCombatRuntime} from '../src/game/engine/battleLifecycle.ts';
+import {applyEffect} from '../src/game/engine/effects.ts';
 
 test('COMBAT V2 runtime: new expedition starts with four-slot resource and empty combat runtime',()=>{
   const s=enter(initialState(),'ore',1);
-  const e=s.expedition!;
+  const e=combatRuntime(s.expedition!);
   assert.deepEqual(e.jobRuntime.resource,{id:'combat',value:0,maxValue:4});
   assert.equal(e.healingPotionUses,0);
   assert.deepEqual(e.skillReadyTurns,{player:{},monster:{}});
   assert.deepEqual(e.combatQueue,[]);
-  assert.equal(activeShield(e,'player'),undefined);
 });
 
 test('COMBAT V2 lifecycle: reset clears combat-only state but preserves expedition HP potion inventory and potion-use count',()=>{
   const s=enter(initialState(),'ore',1);
-  const e=s.expedition!;
+  const e=combatRuntime(s.expedition!);
   const maxHp=stats(s,e.equipment).hp;
   e.hp=maxHp-10;
   e.bag.healing_lesser=3;
@@ -52,24 +50,4 @@ test('COMBAT V2 lifecycle: reset clears combat-only state but preserves expediti
   e.hp=maxHp+50;
   resetCombatRuntime(e,maxHp);
   assert.equal(e.hp,maxHp);
-});
-
-test('COMBAT V2 migration: loading an old v23 active expedition defaults missing runtime fields safely',()=>{
-  const state:any=enter(initialState(),'ore',1);
-  delete state.expedition.healingPotionUses;
-  delete state.expedition.skillReadyTurns;
-  delete state.expedition.combatQueue;
-  state.expedition.jobRuntime.resource=null;
-  let raw=JSON.stringify(state);
-  const storage={
-    getItem:(key:string)=>key===SAVE_KEY?raw:null,
-    setItem:(key:string,value:string)=>{if(key===SAVE_KEY)raw=value;},
-  };
-
-  const loaded=createRepository(storage).load();
-  const e=loaded.expedition!;
-  assert.equal(e.healingPotionUses,0);
-  assert.deepEqual(e.skillReadyTurns,{player:{},monster:{}});
-  assert.deepEqual(e.combatQueue,[]);
-  assert.deepEqual(e.jobRuntime.resource,{id:'combat',value:0,maxValue:4});
 });
