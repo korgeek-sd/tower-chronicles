@@ -2,7 +2,6 @@ import type {CombatActor,Expedition} from '../types';
 import {combatRuntime} from './battleLifecycle';
 
 const actorTurn=(e:Expedition,actor:CombatActor)=>actor==='player'?e.playerTurn:e.monsterTurn;
-const actorPhase=(actor:CombatActor)=>actor==='player'?'PLAYER_TURN' as const:'MONSTER_TURN' as const;
 const legacyStore=(e:Expedition,actor:CombatActor):Record<string,number>=>{
   if(actor==='monster')return e.monsterRuntime?.skillCooldowns??{};
   const out:Record<string,number>={};
@@ -24,12 +23,15 @@ export function setSkillCooldown(e:Expedition,actor:CombatActor,skillId:string,c
 }
 
 export function skillCooldownRemaining(e:Expedition,actor:CombatActor,skillId:string):number {
+  const legacy=Math.max(0,Math.ceil(legacyStore(e,actor)[skillId]??0));
   const readyAt=readyStore(e,actor)[skillId];
-  if(readyAt===undefined)return Math.max(0,Math.ceil(legacyStore(e,actor)[skillId]??0));
+  if(readyAt===undefined)return legacy;
   const current=actorTurn(e,actor);
   if(current>=readyAt)return 0;
-  const betweenActorTurns=e.phase!==actorPhase(actor);
-  return Math.max(0,readyAt-current-(betweenActorTurns?1:0));
+  const derived=Math.max(0,readyAt-current);
+  // The ready turn is one past the final blocked turn. Keep the visible value capped
+  // at the configured cooldown so merely switching phase never advances cooldown.
+  return legacy>0?Math.min(legacy,derived):derived;
 }
 
 export function isSkillReady(e:Expedition,actor:CombatActor,skillId:string):boolean {
