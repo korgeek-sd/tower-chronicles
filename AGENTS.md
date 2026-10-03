@@ -1,5 +1,10 @@
 # Tower Chronicles Agent Instructions
 
+## Game UI and HUD
+When a user asks to change gameplay UI, HUD, overlays, persistent buttons, mobile sheets, menus, or reports that an interface element is obstructing play, read and follow `.agents/skills/tower-game-ui/SKILL.md` before editing.
+
+Use `docs/game-feel/README.md` as the local interaction authority. Preserve gameplay/server/save behavior when the request is visual or interaction-only, keep secondary persistent controls off the critical play field, respect normal/immersive shell edges and safe areas, and add a focused regression test before the implementation change.
+
 ## Job character assets
 When a user supplies one or more job character images, read and follow `.agents/skills/importing-tower-job-assets/SKILL.md`.
 
