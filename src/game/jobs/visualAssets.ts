@@ -34,4 +34,6 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  black_carriage_gambler:'assets/characters/jobs/black_carriage_gambler.webp',
  false_saint_proxy:'assets/characters/jobs/false_saint_proxy.webp',
  hundred_battle_returnee:'assets/characters/jobs/hundred_battle_returnee.webp',
+ green_crown_pilgrim:'assets/characters/jobs/green_crown_pilgrim.webp',
+ porter:'assets/characters/jobs/porter.webp',
 };
