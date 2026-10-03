@@ -118,11 +118,6 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
 
   <div className="tc-ref-effects player">{playerShield&&<span title={effectText(playerShield)}>보호막</span>}{buffs.slice(0,3).map(x=><span key={x.instanceId} title={EFFECTS[x.effectId]?.description}>{effectText(x)}</span>)}{playerReactive&&<span>반응 준비</span>}</div>
 
-  <div className="tc-ref-sidecontrols">
-   <button onClick={()=>setPanel('enemy')} aria-label="적 전투 정보"><span>◎</span><small>정보</small></button>
-   <button onClick={cycleSpeed} aria-label="전투 속도"><span>▶</span><small>×{prefs.speed}</small></button>
-  </div>
-
   <div className="tc-ref-actions">
    <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>cuePlayerAction('basic',onBasicAttack)}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
    {skillCards}
