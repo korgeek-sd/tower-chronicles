@@ -28,4 +28,5 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  deep_rescue_officer:'assets/characters/jobs/deep_rescue_officer.webp',
  unity_apostle:'assets/characters/jobs/unity_apostle.webp',
  dragonblood_knight:'assets/characters/jobs/dragonblood_knight.webp',
+ sealed_archivist:'assets/characters/jobs/sealed_archivist.webp',
 };
