@@ -29,4 +29,7 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  unity_apostle:'assets/characters/jobs/unity_apostle.webp',
  dragonblood_knight:'assets/characters/jobs/dragonblood_knight.webp',
  sealed_archivist:'assets/characters/jobs/sealed_archivist.webp',
+ corpse_tuner:'assets/characters/jobs/corpse_tuner.webp',
+ self_alchemist:'assets/characters/jobs/self_alchemist.webp',
+ black_carriage_gambler:'assets/characters/jobs/black_carriage_gambler.webp',
 };
