@@ -24,6 +24,7 @@ Before editing, inspect the relevant component and CSS plus `docs/game-feel/READ
 - Use opacity/transform for short presentation changes and provide a `prefers-reduced-motion` fallback.
 - Do not solve a placement problem by changing networking, server authority, game state, save data, cooldowns, or chat message behavior.
 - Opening a utility sheet may cover gameplay; the closed persistent entry must not.
+- When a persistent utility control is user-repositionable, keep tap/click as the primary action and use a deliberate long press before drag begins. Cancel the long press if the pointer moves first, snap released controls to a safe app edge, and store presentation-only placement outside the game save.
 
 ## Implementation Workflow
 1. Add or update a regression test before production UI changes and verify it fails for the intended reason.
@@ -32,7 +33,7 @@ Before editing, inspect the relevant component and CSS plus `docs/game-feel/READ
 4. Inspect the final diff for unrelated gameplay or data changes.
 
 ## Chat Entry Pattern
-The world-chat entry is a right-edge tab. Normal screens use the 520px app edge. Battle/event screens use the 620px immersive edge, compact to 44×44px, reduce opacity while idle, and keep the unread badge visible. The chat sheet, realtime connection, draft, channel and send logic stay unchanged.
+The world-chat entry starts on the right edge. Normal screens use the 520px app edge. Battle/event screens use the 620px immersive edge, compact to 44×44px, reduce opacity while idle, and keep the unread badge visible. A short tap opens chat. Holding for 500ms enters drag mode, provides a light capability-detected vibration, follows the pointer, and snaps to the nearest left/right app edge on release. Normal and immersive vertical positions are stored independently in local storage, never in the game save. The chat sheet, realtime connection, draft, channel and send logic stay unchanged.
 
 ## Reference
 Adapt game-HUD principles from the external `game-ui-designer` skill, but use this repository's existing React/CSS architecture and `docs/game-feel/README.md` as the authority for implementation.
