@@ -32,4 +32,6 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  corpse_tuner:'assets/characters/jobs/corpse_tuner.webp',
  self_alchemist:'assets/characters/jobs/self_alchemist.webp',
  black_carriage_gambler:'assets/characters/jobs/black_carriage_gambler.webp',
+ false_saint_proxy:'assets/characters/jobs/false_saint_proxy.webp',
+ hundred_battle_returnee:'assets/characters/jobs/hundred_battle_returnee.webp',
 };
