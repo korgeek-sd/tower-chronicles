@@ -37,4 +37,5 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  green_crown_pilgrim:'assets/characters/jobs/green_crown_pilgrim.webp',
  porter:'assets/characters/jobs/porter.webp',
  green_crown_inquisitor:'assets/characters/jobs/green_crown_inquisitor.webp',
+ duelist:'assets/characters/jobs/duelist.webp',
 };
