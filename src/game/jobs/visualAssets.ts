@@ -23,4 +23,8 @@ export const JOB_VISUAL_ASSETS:Readonly<Partial<Record<string,string>>>={
  soulcaster:'assets/characters/jobs/soulcaster.webp',
  ascetic_fighter:'assets/characters/jobs/ascetic_fighter.webp',
  field_engineer:'assets/characters/jobs/field_engineer.webp',
+ return_guardian:'assets/characters/jobs/return_guardian.webp',
+ boss_tracker:'assets/characters/jobs/boss_tracker.webp',
+ deep_rescue_officer:'assets/characters/jobs/deep_rescue_officer.webp',
+ unity_apostle:'assets/characters/jobs/unity_apostle.webp',
 };
