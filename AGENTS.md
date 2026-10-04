@@ -13,3 +13,8 @@ A pure job-image addition is a fast-path asset/data change. It must not trigger 
 For this workflow, **registration includes the GitHub commit**. If the user has already identified the job, proceed without asking for another confirmation. Do not report an asset as registered, applied, or complete until the asset file and registry update are committed and a commit SHA exists. When CI or GitHub Pages is available, check and report its actual status after the commit.
 
 For pure job-image imports and replacements, run the focused asset tests and diff checks described in the skill once; let GitHub CI run the full test suite and build. After verifying the remote commit, check CI/Pages once and report pending workflows as in progress without waiting. If the user explicitly requests completed deployment, continue checking until deployment is resolved.
+
+## Skill image assets
+When a user creates, supplies, replaces, registers, or applies one or more active-skill images for combat buttons or job skill displays, read and follow `.agents/skills/importing-tower-skill-assets/SKILL.md`.
+
+Keep pure skill-image work presentation-only: preserve the existing skill ID, combat behavior, balance values, cooldown/resource rules, save data, and server authority. Use the generic skill-image registry and retain the Glyph fallback instead of adding per-skill BattleScreen conditionals. Batch multiple supplied skill images when possible, and do not report them as registered until the asset mapping is committed and a commit SHA exists.
