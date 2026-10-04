@@ -11,12 +11,28 @@ Use a three-layer visual system for every skill icon: **Global Style Lock → Jo
 ## Global Style Lock
 - Use Tower Chronicles **muted dark-fantasy pixel art** with crisp pixel edges. Avoid painterly, glossy 3D, or anime rendering.
 - Use a transparent square canvas. Keep the main silhouette around **70–80%** of the canvas with clear edge breathing room.
-- Base palette: low-saturation iron, taupe, brown, cream, aged brass, and restrained reddish-brown. Strong color is a semantic accent, not the base.
+- Base palette: low-saturation iron, taupe, brown, cream, aged brass, and restrained reddish-brown. Permit dominant semantic effect colors as specified in the Reference Style Lock.
 - Build around **one dominant object/symbol/action** and at most one supporting effect.
 - Prefer weapons, hands, sigils, tools, marks, or effects over a full character.
 - Attacks normally flow rightward or upper-right; defense, healing, and buffs usually use centered compositions.
 - The icon must remain distinguishable at roughly **25–42px**.
 - Do not bake text, skill names, cooldown values, resource values, rarity, a UI frame, button border, or runtime state into the art.
+
+## Reference Style Lock (user examples, 2026-10-04)
+Use the five user-supplied external-game skill images as the default visual direction for future skill art. Transfer their visual grammar into original Tower Chronicles motifs:
+- Use **coarse, chunky pixel clusters**, stepped contours, broad flat color masses, and very little interior detail. Keep pixel density consistent across icons.
+- Depict the **skill action/effect itself**: a thick crescent slash, a sweeping weapon stroke, a compact flame group, or a central burst with a few detached fragments. Let tools or weapons support the action when needed.
+- Prefer a single bold directional silhouette with visible negative space. Use a curved sweep for slashes, upward tongues for flames, and a centered mass with sparse outward shards for bursts.
+- Use roughly **3–6 principal colors** with 2–3 clear value levels: dark mass, middle tone, bright core/edge. Prefer cream, bone, gray-violet, muted ochre, and rust for the shared base.
+- Allow a dominant semantic color when the skill calls for it: blood/crimson can carry a red slash; fire uses rust/orange and pale yellow; cold/spirit effects can use restrained cyan. Do not force every effect into monochrome or brown.
+- Keep highlights in large readable blocks. Avoid filigree, tiny runes, dense particles, realistic surface textures, fine outlines, glossy gradients, and broad bloom.
+- Treat the visible blur/soft enlargement in the supplied previews as **presentation artifacts**, not a generation requirement. Produce crisp pixel edges; do not bake blur into the icon.
+- Treat black surrounding space in the examples as a preview background. Generate **transparent backgrounds** and preserve dark pixels belonging to the effect; never remove black indiscriminately.
+- Use the references for style, palette structure, and action readability. Design each motif from the actual Tower Chronicles skill instead of duplicating another game's exact icon.
+
+## Prompt Skeleton
+Reuse this wording with the same Job Visual Lock for each job:
+> Create one original Tower Chronicles active-skill effect icon for [actual skill/action]. Coarse retro dark-fantasy pixel art, chunky stepped pixel clusters, bold [crescent sweep/upward flames/central burst/skill-specific silhouette], large flat color blocks, minimal interior detail, 3–6 principal colors and 2–3 value levels, [job palette and semantic accent], [Generator/Neutral/Spender intensity], clear negative space, 70–80% canvas occupancy, readable at 25–42px, crisp pixel edges, transparent square canvas. No text, UI frame, scenery, full character, blur, smooth gradients, glossy rendering, dense particles, or intricate ornament.
 
 ## Job Visual Lock
 Before generating the first icon for a job, define or reuse one **Visual Lock** for that job's three active skills. The same job must share:
@@ -38,11 +54,11 @@ Do not place resource cost/gain, cooldown numbers, or cooldown state in the imag
 
 ## Generation Workflow
 1. Resolve the actual job, its three active skills, and each skill's Generator/Neutral/Spender role before drawing.
-2. Define or reuse the job's Visual Lock.
+2. Apply the Reference Style Lock and define or reuse the job's Visual Lock.
 3. Assign one unique Skill Motif to each skill: primary object, action direction, supporting effect, and intensity.
 4. Generate all three from the same prompt skeleton and Visual Lock; change only the skill-specific motif/action/intensity.
 5. Compare the three together. Reject an icon that looks like a different game or is too similar to a sibling icon.
-6. Check readability at 25–42px and simplify before adding detail.
+6. Inspect each icon at 128px and 25–42px on dark and light backgrounds. Verify clean alpha edges, coarse pixel clusters, readable action, limited palette, distinct sibling silhouettes, and no baked blur or black background. Simplify before adding detail.
 7. When the artwork is approved for game use, hand it to `importing-tower-skill-assets`.
 
 ## Handoff to Import
