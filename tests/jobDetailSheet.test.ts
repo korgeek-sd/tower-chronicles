@@ -64,17 +64,18 @@ test('JOB DETAIL 05: disabled status buttons let taps pass through to the full-c
  assert.match(css,/\.tc-job \.tc-job-select:disabled\{pointer-events:none\}/);
 });
 
-test('JOB DETAIL 06: select and ownership status buttons keep a fixed compact box',()=>{
+test('JOB DETAIL 06: status buttons keep their original compact natural width',()=>{
  const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
- assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*width:46px;[^}]*min-width:46px;[^}]*max-width:46px;[^}]*height:30px;[^}]*min-height:30px/);
+ assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*justify-self:end;[^}]*height:30px;[^}]*min-height:30px;[^}]*padding:0 8px/);
+ assert.doesNotMatch(css,/\.tc-job \.tc-job-select\{[^}]*width:46px/);
  assert.doesNotMatch(css,/\.tc-job \.tc-job-select\{[^}]*align-self:stretch/);
 });
 
-test('JOB DETAIL 07: detailed job cards preserve a readable two-column layout',()=>{
+test('JOB DETAIL 07: detailed job trigger preserves the existing three-column card layout',()=>{
  const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
- assert.match(css,/\.tc-job\.has-art\{grid-template-columns:minmax\(0,1fr\) 46px/);
- assert.match(css,/\.tc-job \.tc-job-open\{[^}]*width:100%/);
- assert.match(css,/\.tc-job\.has-art \.tc-job-open\{grid-template-columns:48px minmax\(0,1fr\)/);
+ assert.doesNotMatch(css,/\.tc-job\.has-art\{grid-template-columns:/);
+ assert.match(css,/\.tc-job\.has-art \.tc-job-open\{[^}]*grid-column:1\/3;[^}]*grid-template-columns:38px minmax\(0,1fr\)/);
+ assert.match(css,/\.tc-job\.has-art \.tc-job-select\{grid-column:3/);
  assert.match(css,/\.tc-job \.tc-job-open>div\{min-width:0/);
- assert.match(css,/\.tc-job \.tc-job-open b,[^}]*\.tc-job \.tc-job-open small\{[^}]*white-space:nowrap/);
+ assert.match(css,/\.tc-job \.tc-job-open b,\.tc-job \.tc-job-open small\{[^}]*white-space:nowrap/);
 });
