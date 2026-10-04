@@ -26,7 +26,7 @@ The generic skill-art pipeline is already established.
 - Rendering uses `assetUrl(...)`, `object-fit: contain`, and pixelated image rendering without changing the five-card layout.
 - Missing mapping: the current **Glyph fallback** remains visible, so an incomplete asset set never breaks combat controls.
 
-A normal skill-image import must use this pipeline. Do not re-edit `BattleScreen` for a normal skill-image import; use the registry instead. Do not add per-skill conditions to the renderer. **REQUIRED SUB-SKILL:** use `tower-game-ui` only when changing the generic combat-button presentation itself rather than importing art.
+A normal skill-image import must use this pipeline. Do not re-edit `BattleScreen` for a normal skill-image import; use the registry instead. Do not add per-skill conditions to the renderer. **REQUIRED SUB-SKILL:** use `tower-game-ui` only when changing the generic combat-button presentation itself rather than importing art, and add or update a focused regression test for that generic UI behavior.
 
 ## Import Workflow
 1. Resolve all supplied job names and exact skill IDs in one pass.
