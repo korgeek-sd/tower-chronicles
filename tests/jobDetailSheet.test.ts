@@ -58,15 +58,17 @@ test('JOB DETAIL 04: detail sheet follows the one-screen mobile modal pattern',(
  assert.match(css,/overflow:/);
 });
 
-test('JOB DETAIL 05: the detail trigger covers the whole job card except the independent select button',()=>{
- const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
- assert.match(css,/\.tc-job\{position:relative/);
- assert.match(css,/\.tc-job \.tc-job-open:after\{content:"";position:absolute;inset:0;z-index:1/);
- assert.match(css,/\.tc-job \.tc-job-select\{[^}]*position:relative;z-index:2/);
+test('JOB DETAIL 05: the card itself opens details and the select control only intercepts selectable jobs',()=>{
+ const screen=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
+ assert.match(screen,/<article className=\{'tc-job'[^>]*onClick=\{\(\)=>setSelectedJobId\(job\.id\)\}/);
+ assert.match(screen,/className="tc-job-select" aria-disabled=\{!!game\.expedition\|\|!owned\|\|selected\}/);
+ assert.match(screen,/onClick=\{event=>\{if\(game\.expedition\|\|!owned\|\|selected\)return;event\.stopPropagation\(\);selectJob\(job\.id\);\}\}/);
+ assert.doesNotMatch(screen,/className="tc-job-select" disabled=/);
 });
 
 test('JOB DETAIL 06: select and ownership status buttons keep the original compact height',()=>{
  const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*height:30px;[^}]*min-height:30px/);
  assert.doesNotMatch(css,/\.tc-job \.tc-job-select\{[^}]*align-self:stretch/);
+ assert.doesNotMatch(css,/\.tc-job \.tc-job-open:after/);
 });
