@@ -64,8 +64,8 @@ test('JOB DETAIL 05: disabled status buttons let taps pass through to the full-c
  assert.match(css,/\.tc-job \.tc-job-select:disabled\{pointer-events:none\}/);
 });
 
-test('JOB DETAIL 06: select and ownership status buttons keep the original compact height',()=>{
+test('JOB DETAIL 06: select and ownership status buttons keep a fixed compact box',()=>{
  const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
- assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*height:30px;[^}]*min-height:30px/);
+ assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*width:46px;[^}]*min-width:46px;[^}]*max-width:46px;[^}]*height:30px;[^}]*min-height:30px/);
  assert.doesNotMatch(css,/\.tc-job \.tc-job-select\{[^}]*align-self:stretch/);
 });
