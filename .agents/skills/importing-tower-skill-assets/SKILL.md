@@ -12,7 +12,7 @@ Treat skill art as a reusable visual asset keyed by the existing `skill.id`. A p
 - Resolve the job and exact `skill.id` from the registered combat definition before touching assets. Do not rename or replace a skill ID just to match display text.
 - Final asset: **128×128 px transparent WebP**, square canvas.
 - Store at `public/assets/ui/skills/<job_id>/<skill_id>.webp`.
-- Keep at least **12px safe margin** on every edge; 16px is preferred when the silhouette remains readable.
+- Use the enlarged mercenary icons approved on 2026-10-05 as the default size: trim outer transparent padding, proportionally scale the visible alpha bounding box to a **120px longest dimension**, and center it on the 128×128 canvas with **at least 4px edge clearance**. Keep shorter dimensions proportional and preserve internal negative space. Do not stretch or clip the art, and do not reintroduce 12–16px padding.
 - Use one dominant symbol/action and at most one supporting effect. It must remain recognizable at roughly 25–42px in the five-card combat row.
 - No baked-in text, skill name, cooldown, resource number, UI frame, rarity badge, or button border.
 - Use the established Tower Chronicles muted dark-fantasy pixel-art direction: crisp edges, restrained detail, low-saturation iron/taupe/brown/cream tones, and limited semantic accents such as blood red or healing light.
@@ -31,7 +31,7 @@ A normal skill-image import must use this pipeline. Do not re-edit `BattleScreen
 ## Import Workflow
 1. Resolve all supplied job names and exact skill IDs in one pass.
 2. Preserve user-supplied art; do not regenerate or restyle it unless the user explicitly asks. For newly generated art, follow the Canonical Contract.
-3. Crop/scale deliberately, preserve transparency, export 128×128 transparent WebP, and inspect readability at mobile size.
+3. Crop to the alpha bounding box, then resize proportionally (including upscaling when needed) to a 120px longest dimension using nearest-neighbor. Center on a transparent 128×128 canvas and export lossless WebP. Verify at least 4px edge clearance, preserved transparency, an unclipped silhouette, and readability at mobile size; compare apparent size across the set.
 4. Store each file at the canonical path and add/update exactly one `SKILL_VISUAL_ASSETS` mapping per skill.
 5. Batch multiple supplied icons in one registry edit and one commit when possible.
 6. For a pure asset change, do not edit `BattleScreen`, gameplay definitions, cooldown/resource values, balance data, save schema, release version, or unrelated UI.

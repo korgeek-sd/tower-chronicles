@@ -10,7 +10,7 @@ Use a three-layer visual system for every skill icon: **Global Style Lock → Jo
 
 ## Global Style Lock
 - Use Tower Chronicles **muted dark-fantasy pixel art** with crisp pixel edges. Avoid painterly, glossy 3D, or anime rendering.
-- Use a transparent square canvas. Keep the main silhouette around **70–80%** of the canvas with clear edge breathing room.
+- Use a transparent square canvas. Keep the main silhouette around **90–94%** of the canvas with clear edge breathing room.
 - Base palette: low-saturation iron, taupe, brown, cream, aged brass, and restrained reddish-brown. Permit dominant semantic effect colors as specified in the Reference Style Lock.
 - Build around **one dominant object/symbol/action** and at most one supporting effect.
 - Prefer weapons, hands, sigils, tools, marks, or effects over a full character.
@@ -41,7 +41,7 @@ Use the user-approved contract mercenary Heavy Strike, Opening Thrust, and revis
 
 ## Prompt Skeleton
 Reuse this wording with the same Job Visual Lock for each job:
-> Create one original Tower Chronicles active-skill effect icon for [actual skill/action]. Coarse retro dark-fantasy pixel art, visibly large square pixels like a low-resolution sprite enlarged with nearest-neighbor, chunky stepped pixel clusters, bold [crescent sweep/upward flames/central burst/skill-specific silhouette], large flat color blocks, minimal interior detail, 3–6 principal colors and 2–3 value levels, [job palette and semantic accent], [Generator/Neutral/Spender intensity], clear negative space, 70–80% canvas occupancy, readable at 25–42px, crisp pixel edges, transparent square canvas. No text, UI frame, scenery, full character, blur, smooth gradients, glossy rendering, dense particles, or intricate ornament.
+> Create one original Tower Chronicles active-skill effect icon for [actual skill/action]. Coarse retro dark-fantasy pixel art, visibly large square pixels like a low-resolution sprite enlarged with nearest-neighbor, chunky stepped pixel clusters, bold [crescent sweep/upward flames/central burst/skill-specific silhouette], large flat color blocks, minimal interior detail, 3–6 principal colors and 2–3 value levels, [job palette and semantic accent], [Generator/Neutral/Spender intensity], clear negative space, 90–94% canvas occupancy, readable at 25–42px, crisp pixel edges, transparent square canvas. No text, UI frame, scenery, full character, blur, smooth gradients, glossy rendering, dense particles, or intricate ornament.
 
 ## Job Visual Lock
 Before generating the first icon for a job, define or reuse one **Visual Lock** for that job's three active skills. The same job must share:
@@ -69,6 +69,9 @@ Do not place resource cost/gain, cooldown numbers, or cooldown state in the imag
 5. Compare the three together. Reject an icon that looks like a different game or is too similar to a sibling icon.
 6. Inspect each icon at 128px and 25–42px on dark and light backgrounds. Verify clean alpha edges, coarse pixel clusters, readable action, limited palette, distinct sibling silhouettes, and no baked blur or black background. Simplify before adding detail.
 7. When the artwork is approved for game use, hand it to `importing-tower-skill-assets`.
+
+## Final Display Size
+Use the enlarged mercenary icons approved on 2026-10-05 as the default display-size benchmark. Trim outer transparent padding and proportionally resize the visible alpha bounding box so its longest dimension is **120px on a 128×128 canvas**. Center it with **at least 4px edge clearance**. Use nearest-neighbor resizing and lossless WebP; preserve the entire silhouette and internal negative space. Do not stretch, clip, or add the old 12–16px padding. Inspect all siblings at combat-button size for balanced apparent size.
 
 ## Handoff to Import
 The generation skill does not register files. The established `importing-tower-skill-assets` workflow exports the approved art as **128×128 transparent WebP**, stores it under the canonical skill path, maps the existing `skill.id` in `skillVisualAssets.ts`, verifies the Glyph fallback contract, and commits the result.
