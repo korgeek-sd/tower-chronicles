@@ -69,3 +69,12 @@ test('JOB DETAIL 06: select and ownership status buttons keep a fixed compact bo
  assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*width:46px;[^}]*min-width:46px;[^}]*max-width:46px;[^}]*height:30px;[^}]*min-height:30px/);
  assert.doesNotMatch(css,/\.tc-job \.tc-job-select\{[^}]*align-self:stretch/);
 });
+
+test('JOB DETAIL 07: detailed job cards preserve a readable two-column layout',()=>{
+ const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-job\.has-art\{grid-template-columns:minmax\(0,1fr\) 46px/);
+ assert.match(css,/\.tc-job \.tc-job-open\{[^}]*width:100%/);
+ assert.match(css,/\.tc-job\.has-art \.tc-job-open\{grid-template-columns:48px minmax\(0,1fr\)/);
+ assert.match(css,/\.tc-job \.tc-job-open>div\{min-width:0/);
+ assert.match(css,/\.tc-job \.tc-job-open b,[^}]*\.tc-job \.tc-job-open small\{[^}]*white-space:nowrap/);
+});
