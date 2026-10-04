@@ -64,3 +64,9 @@ test('JOB DETAIL 05: the detail trigger covers the whole job card except the ind
  assert.match(css,/\.tc-job \.tc-job-open:after\{content:"";position:absolute;inset:0;z-index:1/);
  assert.match(css,/\.tc-job \.tc-job-select\{[^}]*position:relative;z-index:2/);
 });
+
+test('JOB DETAIL 06: select and ownership status buttons keep the original compact height',()=>{
+ const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-job \.tc-job-select\{[^}]*align-self:center;[^}]*height:30px;[^}]*min-height:30px/);
+ assert.doesNotMatch(css,/\.tc-job \.tc-job-select\{[^}]*align-self:stretch/);
+});
