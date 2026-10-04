@@ -32,6 +32,7 @@
 .tc-job-detail-empty{min-height:88px;align-content:center;text-align:center;color:var(--muted)}
 .tc-job-detail-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:5px;padding:7px 8px;border-top:1px solid var(--line);background:#101310}
 .tc-job-detail-actions .tc-action{height:42px;min-height:42px}
+.tc-job.has-art{grid-template-columns:minmax(0,1fr) auto}
 .tc-job .tc-job-open{min-width:0;height:100%;min-height:30px;border:0;background:transparent;padding:0;text-align:left;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:center;color:inherit}
 .tc-job.has-art .tc-job-open{grid-template-columns:auto minmax(0,1fr)}
 .tc-job .tc-job-open:hover,.tc-job .tc-job-open:focus-visible{background:#171915;outline:1px solid #4a483e;outline-offset:-1px}
