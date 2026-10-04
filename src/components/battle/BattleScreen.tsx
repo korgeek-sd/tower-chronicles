@@ -7,6 +7,7 @@ import type {EquipmentItem,GameState,Potion} from '../../game/types';
 import {EVENT_BALANCE} from '../../game/events/selector';
 import {TOWERS,POTIONS,generalPotionIds,WEAPONS,SKILLS} from '../../game/data/config';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
+import {assetUrl} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
 import {stats,weaponOf} from '../../game/engine/state';
 import {combatAudioEnabled,setCombatAudioEnabled,unlockCombatAudio} from './combatAudio';
@@ -18,6 +19,7 @@ import {skillTurnsLeft} from '../../game/engine/turns';
 import {canPlayerAct,canUseSkill,canUsePotion} from '../../game/engine/combat';
 import {activeShield,EFFECTS} from '../../game/engine/effects';
 import {resolvePlayerCombatKit} from '../../game/jobs/service';
+import {skillVisualAssetFor} from '../../game/jobs/skillVisualAssets';
 import {reactivePreparedSkill} from '../../game/engine/reactions';
 import {effectText} from './presentation';
 import {monsterCombatIntel} from './combatIntel';
@@ -92,8 +94,9 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
   const jobSkill=getJobCombatDefinition(e.jobRuntime.jobId)?.skills.find(s=>s.id===id),skill=jobSkill??SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&'weapons' in skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
   const cost=jobSkill?.resource?.kind==='SPENDER'?resourceCost(e,jobSkill.resource):0;
   const reason=isSilenced(e,'player')?'침묵':mismatch?'무기 불일치':turns?turns+'턴 대기':cost===null?'자원 부족':cost?cost+'칸 소비':'사용 가능';
+  const skillArt=skill?skillVisualAssetFor(skill.id):null;
   return <button type="button" disabled={recovering||!skill||!canUseSkill(game,id||'')} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
-   <span className="tc-ref-card-art"><Glyph name={glyph[id]??'skills'}/>{turns>0&&<b>{turns}</b>}</span>
+   <span className="tc-ref-card-art">{skillArt?<img className="tc-skill-art" src={assetUrl(skillArt)} alt="" aria-hidden="true" draggable={false} style={{width:'100%',height:'100%',objectFit:'contain',imageRendering:'pixelated',pointerEvents:'none'}}/>:<Glyph name={glyph[id]??'skills'}/>} {turns>0&&<b>{turns}</b>}</span>
    <strong>{skill?.name||'미구현'}</strong>
    <small>{reason}</small>
   </button>;
