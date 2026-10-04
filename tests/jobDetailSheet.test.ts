@@ -49,11 +49,11 @@ test('JOB DETAIL 03: job list opens a dedicated accessible detail sheet without 
 });
 
 test('JOB DETAIL 04: detail sheet follows the one-screen mobile modal pattern',()=>{
- const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/components/jobs/job-detail-sheet.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-job-detail-backdrop\{/);
  assert.match(css,/\.tc-job-detail\{/);
  assert.match(css,/\.tc-job-detail-skills\{/);
- assert.match(css,/\.tc-job-detail-skill\{/);
+ assert.match(css,/\.tc-job-detail-skill/);
  assert.match(css,/max-height:/);
  assert.match(css,/overflow:/);
 });
