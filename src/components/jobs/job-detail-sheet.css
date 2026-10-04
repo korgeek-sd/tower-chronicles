@@ -39,7 +39,7 @@
 .tc-job .tc-job-open:after{content:"";position:absolute;inset:0;z-index:1}
 .tc-job .tc-job-open:hover,.tc-job .tc-job-open:focus-visible{background:#171915;outline:1px solid #4a483e;outline-offset:-1px}
 .tc-job .tc-job-open .tc-job-art{pointer-events:none}
-.tc-job .tc-job-select{align-self:center;height:30px;min-height:30px;position:relative;z-index:2}
+.tc-job .tc-job-select{align-self:center;width:46px;min-width:46px;max-width:46px;height:30px;min-height:30px;padding:0;white-space:nowrap;position:relative;z-index:2}
 .tc-job .tc-job-select:disabled{pointer-events:none}
 @media(max-width:360px){.tc-job-detail-backdrop{padding:6px}.tc-job-detail{max-height:calc(100dvh - 12px)}.tc-job-detail-summary{grid-template-columns:78px minmax(0,1fr)}.tc-job-detail-art{min-height:92px}}
 @media(max-height:680px){.tc-job-detail-head{min-height:46px;padding:6px 8px}.tc-job-detail-body{padding:6px;gap:6px}.tc-job-detail-summary{min-height:96px;grid-template-columns:74px minmax(0,1fr)}.tc-job-detail-art{min-height:82px}.tc-job-detail-skill{padding:5px;gap:4px}.tc-job-detail-actions{padding:5px 7px}.tc-job-detail-actions .tc-action{height:38px;min-height:38px}}
