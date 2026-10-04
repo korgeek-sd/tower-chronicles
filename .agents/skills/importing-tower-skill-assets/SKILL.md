@@ -35,8 +35,16 @@ A normal skill-image import must use this pipeline. Do not add per-skill conditi
 4. Store each file at the canonical path and add/update exactly one `SKILL_VISUAL_ASSETS` mapping per skill.
 5. Batch multiple supplied icons in one registry edit and one commit when possible.
 6. For a pure asset change, do not edit `BattleScreen`, gameplay definitions, cooldown/resource values, balance data, save schema, release version, or unrelated UI.
-7. Run the focused `skillVisualAsset*.test.ts` checks when available plus the repository diff check; let CI own the full suite/build.
+7. Run the focused `skillVisualAsset*.test.ts` checks when available plus the repository diff check; then run the full verification commands below before completion.
 8. Commit the asset and mapping. Registration is not complete until a GitHub commit exists.
+
+## Verification
+Run all of these before claiming the import or pipeline change is complete:
+1. `npm test`
+2. `npm run typecheck`
+3. `npm run build`
+
+For a pipeline change, also confirm an unregistered skill still renders the existing Glyph fallback and that cooldown/resource overlays remain owned by the runtime UI.
 
 ## Pure Addition Contract
 For an existing skill whose generic pipeline is already available, the intended diff is only:
