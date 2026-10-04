@@ -57,3 +57,9 @@ test('JOB DETAIL 04: detail sheet follows the one-screen mobile modal pattern',(
  assert.match(css,/max-height:/);
  assert.match(css,/overflow:/);
 });
+
+test('JOB DETAIL 05: tapping anywhere on a job card opens details while select stays independent',()=>{
+ const screen=readFileSync(new URL('../src/components/JobsScreen.tsx',import.meta.url),'utf8');
+ assert.match(screen,/className=\{'tc-job'\+\(job\.visualAssetKey\?' has-art':''\)\} key=\{job\.id\} onClick=\{\(\)=>setSelectedJobId\(job\.id\)\}/);
+ assert.match(screen,/onClick=\{event=>\{event\.stopPropagation\(\);selectJob\(job\.id\);\}\}/);
+});
