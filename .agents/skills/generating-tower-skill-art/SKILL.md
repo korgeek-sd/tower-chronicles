@@ -14,7 +14,7 @@ Use a three-layer visual system for every skill icon: **Global Style Lock → Jo
 - Base palette: low-saturation iron, taupe, brown, cream, aged brass, and restrained reddish-brown. Permit dominant semantic effect colors as specified in the Reference Style Lock.
 - Build around **one dominant object/symbol/action** and at most one supporting effect.
 - Prefer weapons, hands, sigils, tools, marks, or effects over a full character.
-- Attacks normally flow rightward or upper-right; defense, healing, and buffs usually use centered compositions.
+- Attacks normally flow rightward or upper-right. Center defense, healing, and buffs when useful, but preserve action and motion; do not default to a static frontal badge.
 - The icon must remain distinguishable at roughly **25–42px**.
 - Do not bake text, skill names, cooldown values, resource values, rarity, a UI frame, button border, or runtime state into the art.
 
@@ -30,9 +30,18 @@ Use the five user-supplied external-game skill images as the default visual dire
 - Treat black surrounding space in the examples as a preview background. Generate **transparent backgrounds** and preserve dark pixels belonging to the effect; never remove black indiscriminately.
 - Use the references for style, palette structure, and action readability. Design each motif from the actual Tower Chronicles skill instead of duplicating another game's exact icon.
 
+## Approved Pixel Treatment
+Use the user-approved contract mercenary Heavy Strike, Opening Thrust, and revised diagonal Raise Shield as the family benchmark.
+- Require **visibly large square pixels and stair-step contours**, like a low-resolution sprite enlarged with nearest-neighbor. Match the approved icons' pixel scale; do not substitute a smooth illustration with a pixel-art label.
+- Use broad flat blocks for both equipment and effects. Reject smooth curves, painterly metal textures, gradients, fine outlines, and excessive tiny details.
+- Match the same pixel density, gray-violet iron, cream highlights, ochre/rust accents, edge weight, and effect thickness across a job's full set.
+- Depict defensive skills as an **action frozen in motion**: for Raise Shield, tilt the shield in three-quarter view while its rim intercepts a strike; connect the deflection sweep and impact to the shield.
+- Avoid an isolated frontal shield with a detached halo. A centered defensive composition must still belong to the same dynamic effect language as its attacking siblings.
+- When available, include the actual approved sibling images as generation references, explicitly labeling them as style references. Do not rely only on textual color matching.
+
 ## Prompt Skeleton
 Reuse this wording with the same Job Visual Lock for each job:
-> Create one original Tower Chronicles active-skill effect icon for [actual skill/action]. Coarse retro dark-fantasy pixel art, chunky stepped pixel clusters, bold [crescent sweep/upward flames/central burst/skill-specific silhouette], large flat color blocks, minimal interior detail, 3–6 principal colors and 2–3 value levels, [job palette and semantic accent], [Generator/Neutral/Spender intensity], clear negative space, 70–80% canvas occupancy, readable at 25–42px, crisp pixel edges, transparent square canvas. No text, UI frame, scenery, full character, blur, smooth gradients, glossy rendering, dense particles, or intricate ornament.
+> Create one original Tower Chronicles active-skill effect icon for [actual skill/action]. Coarse retro dark-fantasy pixel art, visibly large square pixels like a low-resolution sprite enlarged with nearest-neighbor, chunky stepped pixel clusters, bold [crescent sweep/upward flames/central burst/skill-specific silhouette], large flat color blocks, minimal interior detail, 3–6 principal colors and 2–3 value levels, [job palette and semantic accent], [Generator/Neutral/Spender intensity], clear negative space, 70–80% canvas occupancy, readable at 25–42px, crisp pixel edges, transparent square canvas. No text, UI frame, scenery, full character, blur, smooth gradients, glossy rendering, dense particles, or intricate ornament.
 
 ## Job Visual Lock
 Before generating the first icon for a job, define or reuse one **Visual Lock** for that job's three active skills. The same job must share:
@@ -69,4 +78,6 @@ The generation skill does not register files. The established `importing-tower-s
 - Three icons are nearly identical → change silhouette and Skill Motif, not the shared visual language.
 - Tiny decorative detail disappears at combat size → simplify around the dominant symbol.
 - Resource/cooldown text is painted into the art → remove it; runtime UI owns state.
+- A defensive icon looks like a separate UI badge → use an angled active block/parry, integrate the impact and motion effect, and compare with approved attack siblings.
+- Pixel art becomes smooth or finely textured → regenerate with explicit large square pixels, stepped contours, flat shading, and approved image references.
 - Full character overwhelms the icon → return to a weapon, hand, sigil, tool, mark, or effect.
