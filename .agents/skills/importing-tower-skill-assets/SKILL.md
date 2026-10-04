@@ -19,18 +19,31 @@ Treat skill art as a reusable visual asset keyed by the existing `skill.id`. A p
 - Direction is not mandatory; when the action has a clear travel direction, prefer rightward or upper-right motion.
 
 ## Existing Pipeline
-Skill images are presentation-only. The generic registry is `src/game/jobs/skillVisualAssets.ts`, keyed by `skill.id`. Battle UI should resolve that asset and render it inside the existing `tc-ref-card-art` area without changing the five-card layout. If an asset is absent, keep the current **Glyph fallback**.
+The generic skill-art pipeline is already established.
+- Registry: `src/game/jobs/skillVisualAssets.ts`, keyed by the existing `skill.id`.
+- Resolver: `skillVisualAssetFor(skill.id)` returns the registered asset path or `null`.
+- Renderer: `src/components/battle/BattleScreen.tsx` resolves the path and renders it inside the existing `tc-ref-card-art` area as `tc-skill-art`.
+- Rendering uses `assetUrl(...)`, `object-fit: contain`, and pixelated image rendering without changing the five-card layout.
+- Missing mapping: the current **Glyph fallback** remains visible, so an incomplete asset set never breaks combat controls.
 
-If this generic pipeline does not exist yet, that is a one-time UI feature, not a pure asset import. **REQUIRED SUB-SKILL:** use `tower-game-ui`, add a focused regression test first, create the generic registry/resolver and fallback once, then return to this fast path. Do not patch `BattleScreen` separately for every skill.
+A normal skill-image import must use this pipeline. Do not add per-skill conditions to `BattleScreen`, and do not edit the renderer again just to register another icon. **REQUIRED SUB-SKILL:** use `tower-game-ui` only when changing the generic combat-button presentation itself rather than importing art.
 
 ## Import Workflow
-1. Resolve all supplied job names and skill IDs in one pass.
+1. Resolve all supplied job names and exact skill IDs in one pass.
 2. Preserve user-supplied art; do not regenerate or restyle it unless the user explicitly asks. For newly generated art, follow the Canonical Contract.
 3. Crop/scale deliberately, preserve transparency, export 128×128 transparent WebP, and inspect readability at mobile size.
-4. Add/update the asset and one registry mapping per skill. Batch multiple supplied icons in one registry edit and one commit when possible.
-5. For a pure asset change, do not edit gameplay definitions, cooldown/resource values, balance data, save schema, release version, or unrelated UI.
-6. Run the focused `skillVisualAsset*.test.ts` checks when the pipeline provides them, plus the repository diff check; let CI own the full suite/build.
-7. Commit the asset and mapping. Registration is not complete until a GitHub commit exists.
+4. Store each file at the canonical path and add/update exactly one `SKILL_VISUAL_ASSETS` mapping per skill.
+5. Batch multiple supplied icons in one registry edit and one commit when possible.
+6. For a pure asset change, do not edit `BattleScreen`, gameplay definitions, cooldown/resource values, balance data, save schema, release version, or unrelated UI.
+7. Run the focused `skillVisualAsset*.test.ts` checks when available plus the repository diff check; let CI own the full suite/build.
+8. Commit the asset and mapping. Registration is not complete until a GitHub commit exists.
+
+## Pure Addition Contract
+For an existing skill whose generic pipeline is already available, the intended diff is only:
+- `public/assets/ui/skills/<job_id>/<skill_id>.webp`
+- `src/game/jobs/skillVisualAssets.ts`
+
+Replacing an icon at the same canonical path normally changes only the binary asset. Do not bump the release version or add a bespoke test per icon.
 
 ## Completion Contract
 Report the job, skill name + `skill.id`, asset path, and **commit SHA**. Check CI/Pages once and report their observed status; do not claim deployment succeeded while it is queued or running.
@@ -38,6 +51,6 @@ Report the job, skill name + `skill.id`, asset path, and **commit SHA**. Check C
 ## Common Mistakes
 - High-resolution source committed unchanged → optimize to the 128×128 WebP contract.
 - Icon contains cooldown/resource text → remove it; runtime UI owns state labels.
-- Per-skill BattleScreen conditionals → use the generic registry.
+- Per-skill `BattleScreen` conditionals → use `SKILL_VISUAL_ASSETS` and `skillVisualAssetFor`.
 - Missing icon breaks the button → preserve Glyph fallback.
 - Visual request changes gameplay/balance → keep the change presentation-only.
