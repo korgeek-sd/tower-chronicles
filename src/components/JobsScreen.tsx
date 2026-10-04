@@ -2,6 +2,7 @@ import {loadSettings,reducedMotion} from '../settings/preferences';
 import './job-registration-results.css';
 import {createPortal} from 'react-dom';
 import {SsrRegistrationReveal} from './SsrRegistrationReveal';
+import {JobDetailSheet} from './jobs/JobDetailSheet';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../game/types';
 import {JOB_CATALOG,JOB_RARITIES,jobById,type JobRarity} from '../game/jobs/catalog';
@@ -64,8 +65,10 @@ export function JobsScreen({
  const [result,setResult]=useState<OnlineJobRegistrationResult|null>(null);
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
+ const [selectedJobId,setSelectedJobId]=useState<string|null>(null);
 
  const current=jobById(game.currentJobId);
+ const selectedJob=jobById(selectedJobId);
  const list=useMemo(()=>JOB_CATALOG.filter(j=>j.rarity===rarity),[rarity]);
  const pages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));
  const safe=Math.min(page,pages-1);
@@ -152,13 +155,18 @@ export function JobsScreen({
   finally{setBusy(false);}
  }
 
+ function selectJob(jobId:string){
+  if(game.expedition||!game.ownedJobIds.includes(jobId)||game.currentJobId===jobId)return;
+  if(onSelectJob)onSelectJob(jobId);else setGame(state=>setCurrentJob(state,jobId));
+ }
+
  return <Screen title="직능 기록실" meta={<span>{tab==='register'?'직능등록':current?.displayName??'미선택'}</span>}>
   <div className="tc-job-hub">
-   <Segments items={[['register','직능등록'],['list','직능목록']] as const} value={tab} onChange={value=>{setTab(value);setResult(null);setMessage('');}} label="직능 메뉴"/>
+   <Segments items={[['register','직능등록'],['list','직능목록']] as const} value={tab} onChange={value=>{setTab(value);setResult(null);setSelectedJobId(null);setMessage('');}} label="직능 메뉴"/>
    {tab==='list'?<div className="tc-jobs tc-job-list-mode">
-    <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능마다 고유한 패시브 2개와 액티브 3개를 사용합니다.'}</div>
-    <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);}} label="직능 등급"/>
-    <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className={'tc-job'+(job.visualAssetKey?' has-art':'')} key={job.id}>{job.visualAssetKey&&<span className="tc-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></span>}<div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div><button disabled={!!game.expedition||!owned||selected} onClick={()=>onSelectJob?onSelectJob(job.id):setGame(s=>setCurrentJob(s,job.id))}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
+    <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능을 눌러 설명과 액티브 스킬 3개를 확인할 수 있습니다.'}</div>
+    <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);setSelectedJobId(null);}} label="직능 등급"/>
+    <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className={'tc-job'+(job.visualAssetKey?' has-art':'')} key={job.id}><button type="button" className="tc-job-open" aria-label={job.displayName+' 상세 보기'} onClick={()=>setSelectedJobId(job.id)}>{job.visualAssetKey&&<span className="tc-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></span>}<div><b>{job.displayName}</b><small>{job.combatKit?'능력 사용 가능':'능력 준비 중'} · {owned?'등록 직능':'미등록 직능'}</small></div></button><button type="button" className="tc-job-select" disabled={!!game.expedition||!owned||selected} onClick={()=>selectJob(job.id)}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
    </div>:result?<RegistrationResult key={result.requestId} result={result} onClose={()=>setResult(null)} onRepeat={()=>void (result.ticketCost?drawWithTickets(10):draw(10))} repeatDisabled={!canRegister||(result.ticketCost?drawTickets<10:gold<1000)} busy={busy} message={message}/>:<div className="tc-reg-shell">
     <div className="tc-reg-subnav"><Segments items={[['draw','등록'],['records','직능기록'],['rates','확률정보']] as const} value={registerView} onChange={value=>{setRegisterView(value);setMessage('');}} label="직능등록 세부 메뉴"/></div>
@@ -206,6 +214,7 @@ export function JobsScreen({
     />:<JobRateInfo/>}
    </div>}
   </div>
+  {selectedJob&&<JobDetailSheet job={selectedJob} owned={game.ownedJobIds.includes(selectedJob.id)} selected={game.currentJobId===selectedJob.id} selectDisabled={!!game.expedition||!game.ownedJobIds.includes(selectedJob.id)||game.currentJobId===selectedJob.id} onClose={()=>setSelectedJobId(null)} onSelect={()=>{selectJob(selectedJob.id);setSelectedJobId(null);}}/>}
  </Screen>;
 }
 
