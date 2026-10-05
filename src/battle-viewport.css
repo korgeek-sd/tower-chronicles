@@ -54,9 +54,9 @@
 }
 
 /*
- * Fighter geometry remains responsive to the live viewport. Fighters are
- * intentionally larger than the original footprint so character art reads
- * clearly on phones, while their centers are pulled inward to avoid clipping
+ * Fighter geometry remains responsive to the live viewport. Fighters use the
+ * enlarged mobile footprint approved for readability: player 68% × 43% and
+ * monster 62% × 38%. Their centers are pulled inward to avoid edge clipping
  * and overlap with the bottom action cards.
  */
 .tc-app.tc-battle-mode .tc-battle .player-placement{
