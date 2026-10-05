@@ -46,4 +46,195 @@ export const A_JOB_DETAILS:Record<string,JobDetailDefinition>={
    {name:'집중 공세',kind:'SPENDER',cooldown:4,resourceLabel:'자원 -2',description:'자원을 2 소비하여 적을 2회 공격합니다. 각 타격은 공격력의 130%만큼 피해를 줍니다.',facts:['130% × 2회','총 260%']},
   ],
  },
+
+
+  "ascetic_priest": {
+    "description": "피해를 견디며 강한 타격과 자기 회복으로 버티는 고행사제.",
+    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
+    "skills": [
+      {
+        "name": "고행봉 타격",
+        "kind": "GENERATOR",
+        "cooldown": 1,
+        "resourceLabel": "자원 +1",
+        "description": "적에게 공격력의 115%만큼 피해를 주고 자원을 1 생성합니다.",
+        "facts": [
+          "피해 115%"
+        ]
+      },
+      {
+        "name": "인내의 기도",
+        "kind": "NEUTRAL",
+        "cooldown": 4,
+        "resourceLabel": "자원 변화 없음",
+        "description": "2턴 동안 자신이 받는 피해가 30% 감소합니다.",
+        "facts": [
+          "받는 피해 -30% · 2턴"
+        ]
+      },
+      {
+        "name": "고행의 응답",
+        "kind": "SPENDER",
+        "cooldown": 5,
+        "resourceLabel": "자원 -3",
+        "description": "자원을 3 소비하여 적에게 공격력의 240%만큼 피해를 주고 자신의 최대 HP의 20%만큼 HP를 회복합니다.",
+        "facts": [
+          "피해 240%",
+          "회복 · 최대 HP 20%"
+        ]
+      }
+    ]
+  },
+  "life_stitcher": {
+    "description": "출혈을 처치하고 큰 회복으로 생존을 이어가는 생명봉합사.",
+    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
+    "skills": [
+      {
+        "name": "봉합침 찌르기",
+        "kind": "GENERATOR",
+        "cooldown": 1,
+        "resourceLabel": "자원 +1",
+        "description": "적에게 공격력의 110%만큼 피해를 주고 자원을 1 생성합니다.",
+        "facts": [
+          "피해 110%"
+        ]
+      },
+      {
+        "name": "상처 봉합",
+        "kind": "NEUTRAL",
+        "cooldown": 4,
+        "resourceLabel": "자원 변화 없음",
+        "description": "자신의 최대 HP의 20%만큼 HP를 회복하고 자신에게 걸린 출혈을 제거합니다.",
+        "facts": [
+          "회복 · 최대 HP 20%",
+          "출혈 제거"
+        ]
+      },
+      {
+        "name": "생명 이어붙이기",
+        "kind": "SPENDER",
+        "cooldown": 5,
+        "resourceLabel": "자원 -3",
+        "description": "자원을 3 소비하여 자신의 최대 HP의 35%만큼 HP를 회복하고 자신에게 걸린 출혈과 중독을 제거합니다.",
+        "facts": [
+          "회복 · 최대 HP 35%",
+          "출혈·중독 제거"
+        ]
+      }
+    ]
+  },
+  "subjugation_officer": {
+    "description": "적의 방어를 낮춘 뒤 강한 단일 타격으로 마무리하는 토벌관.",
+    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
+    "skills": [
+      {
+        "name": "토벌검 베기",
+        "kind": "GENERATOR",
+        "cooldown": 1,
+        "resourceLabel": "자원 +1",
+        "description": "적에게 공격력의 135%만큼 피해를 주고 자원을 1 생성합니다.",
+        "facts": [
+          "피해 135%"
+        ]
+      },
+      {
+        "name": "방호 절개",
+        "kind": "NEUTRAL",
+        "cooldown": 4,
+        "resourceLabel": "자원 변화 없음",
+        "description": "적에게 공격력의 110%만큼 피해를 주고 2턴 동안 적의 방어력을 20% 감소시킵니다.",
+        "facts": [
+          "피해 110%",
+          "방어력 -20% · 2턴"
+        ]
+      },
+      {
+        "name": "토벌 집행",
+        "kind": "SPENDER",
+        "cooldown": 4,
+        "resourceLabel": "자원 -3",
+        "description": "자원을 3 소비하여 적에게 공격력의 300%만큼 피해를 줍니다.",
+        "facts": [
+          "피해 300%"
+        ]
+      }
+    ]
+  },
+  "rescuer": {
+    "description": "출혈을 처치하고 회복과 피해 감소를 함께 사용하는 구조대원.",
+    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
+    "skills": [
+      {
+        "name": "구조도끼 타격",
+        "kind": "GENERATOR",
+        "cooldown": 1,
+        "resourceLabel": "자원 +1",
+        "description": "적에게 공격력의 120%만큼 피해를 주고 자원을 1 생성합니다.",
+        "facts": [
+          "피해 120%"
+        ]
+      },
+      {
+        "name": "안전 확보",
+        "kind": "NEUTRAL",
+        "cooldown": 4,
+        "resourceLabel": "자원 변화 없음",
+        "description": "2턴 동안 자신이 받는 피해가 20% 감소하고 자신에게 걸린 출혈을 제거합니다.",
+        "facts": [
+          "받는 피해 -20% · 2턴",
+          "출혈 제거"
+        ]
+      },
+      {
+        "name": "긴급 구조",
+        "kind": "SPENDER",
+        "cooldown": 5,
+        "resourceLabel": "자원 -3",
+        "description": "자원을 3 소비하여 자신의 최대 HP의 30%만큼 HP를 회복하고 2턴 동안 자신이 받는 피해가 30% 감소합니다.",
+        "facts": [
+          "회복 · 최대 HP 30%",
+          "받는 피해 -30% · 2턴"
+        ]
+      }
+    ]
+  },
+  "quartermaster": {
+    "description": "체력을 보충하면서 공격을 강화하는 보급관.",
+    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
+    "skills": [
+      {
+        "name": "보급봉 타격",
+        "kind": "GENERATOR",
+        "cooldown": 1,
+        "resourceLabel": "자원 +1",
+        "description": "적에게 공격력의 115%만큼 피해를 주고 자원을 1 생성합니다.",
+        "facts": [
+          "피해 115%"
+        ]
+      },
+      {
+        "name": "전투 보급",
+        "kind": "NEUTRAL",
+        "cooldown": 4,
+        "resourceLabel": "자원 변화 없음",
+        "description": "자신의 최대 HP의 10%만큼 HP를 회복하고 2턴 동안 자신이 주는 피해가 25% 증가합니다.",
+        "facts": [
+          "회복 · 최대 HP 10%",
+          "주는 피해 +25% · 2턴"
+        ]
+      },
+      {
+        "name": "예비 물자 투입",
+        "kind": "SPENDER",
+        "cooldown": 5,
+        "resourceLabel": "자원 -3",
+        "description": "자원을 3 소비하여 자신의 최대 HP의 30%만큼 HP를 회복하고 2턴 동안 자신이 주는 피해가 20% 증가합니다.",
+        "facts": [
+          "회복 · 최대 HP 30%",
+          "주는 피해 +20% · 2턴"
+        ]
+      }
+    ]
+  }
+,
 };
