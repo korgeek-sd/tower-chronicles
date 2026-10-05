@@ -12,14 +12,14 @@
  * of stretching the combat scene.
  */
 .tc-app.tc-battle-mode{
- width:100vw;
- max-width:none;
- height:100dvh;
- margin:0;
- display:grid;
- place-items:center;
- overflow:hidden;
- background:#050707;
+ width:100vw!important;
+ max-width:none!important;
+ height:100dvh!important;
+ margin:0!important;
+ display:grid!important;
+ place-items:center!important;
+ overflow:hidden!important;
+ background:#050707!important;
 }
 
 .tc-app.tc-battle-mode .tc-main{
