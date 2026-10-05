@@ -25,7 +25,8 @@ test('GAME FEEL V2: battle scene distinguishes targeted normal and critical impa
 test('GAME FEEL V2: all main combat action cards share press feedback',()=>{
  const s=read('src/components/battle/BattleScreen.tsx');
  assert.match(s,/tc-ref-card tc-feel-press[^\n]*key=\{i\}/);
- assert.match(s,/tc-ref-card tc-feel-press[^\n]*아이템/);
+ assert.match(s,/tc-ref-card tc-feel-press[^\n]*<strong>포션<\/strong>/);
+ assert.match(s,/tc-ref-card tc-feel-press[^\n]*onClick=\{onFlee\}[^\n]*<strong>귀환<\/strong>/);
 });
 
 test('GAME FEEL V2: real silver and gold trade updates emit trade feedback',()=>{
