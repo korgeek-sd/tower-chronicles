@@ -60,20 +60,35 @@
 }
 
 /*
- * Reclaim the space left by the removed utility buttons. The battle header
- * now sits close to the safe-area edge and spans the same near-full width as
- * the five-card command row.
+ * The expedition counters (Silver / kills / danger) duplicated information
+ * that is already available from the battle menu and loot panel. Remove the
+ * entire metric row and promote tower/floor information into one compact row.
  */
+.tc-app.tc-battle-mode .tc-battle .tc-ref-metrics{
+ display:none!important;
+}
+
 .tc-app.tc-battle-mode .tc-battle .tc-ref-top{
  top:max(2.4%,env(safe-area-inset-top));
  left:.8%;
  right:.8%;
- height:12.5%;
+ height:7.2%;
+ grid-template-rows:1fr!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .tc-ref-floor{
+ grid-row:1!important;
+ align-self:center!important;
+ padding-top:0!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .tc-ref-menu{
+ grid-row:1!important;
 }
 
 .tc-app.tc-battle-mode .tc-battle .monster-hud{
  left:.8%!important;
- top:17.4%!important;
+ top:12.2%!important;
 }
 
 .tc-app.tc-battle-mode .tc-battle .player-hud{
@@ -82,7 +97,7 @@
 
 .tc-app.tc-battle-mode .tc-battle .tc-ref-loot-entry{
  right:.8%!important;
- top:16.4%!important;
+ top:11.4%!important;
 }
 
 /*
