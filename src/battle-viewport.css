@@ -41,3 +41,8 @@
  aspect-ratio:auto!important;
  overflow:hidden;
 }
+
+.tc-app.tc-battle-mode .tc-battle .player-figure img,
+.tc-app.tc-battle-mode .tc-battle .monster-figure img{
+ image-rendering:auto!important;
+}
