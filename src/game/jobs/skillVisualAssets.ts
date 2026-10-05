@@ -53,6 +53,21 @@ export const SKILL_VISUAL_ASSETS:Readonly<Record<string,string>>={
  expedition_tactician_skill_1:'assets/ui/skills/expedition_tactician/expedition_tactician_skill_1.webp',
  expedition_tactician_skill_2:'assets/ui/skills/expedition_tactician/expedition_tactician_skill_2.webp',
  expedition_tactician_skill_3:'assets/ui/skills/expedition_tactician/expedition_tactician_skill_3.webp',
+ ascetic_priest_skill_1:'assets/ui/skills/ascetic_priest/ascetic_priest_skill_1.webp',
+ ascetic_priest_skill_2:'assets/ui/skills/ascetic_priest/ascetic_priest_skill_2.webp',
+ ascetic_priest_skill_3:'assets/ui/skills/ascetic_priest/ascetic_priest_skill_3.webp',
+ life_stitcher_skill_1:'assets/ui/skills/life_stitcher/life_stitcher_skill_1.webp',
+ life_stitcher_skill_2:'assets/ui/skills/life_stitcher/life_stitcher_skill_2.webp',
+ life_stitcher_skill_3:'assets/ui/skills/life_stitcher/life_stitcher_skill_3.webp',
+ subjugation_officer_skill_1:'assets/ui/skills/subjugation_officer/subjugation_officer_skill_1.webp',
+ subjugation_officer_skill_2:'assets/ui/skills/subjugation_officer/subjugation_officer_skill_2.webp',
+ subjugation_officer_skill_3:'assets/ui/skills/subjugation_officer/subjugation_officer_skill_3.webp',
+ rescuer_skill_1:'assets/ui/skills/rescuer/rescuer_skill_1.webp',
+ rescuer_skill_2:'assets/ui/skills/rescuer/rescuer_skill_2.webp',
+ rescuer_skill_3:'assets/ui/skills/rescuer/rescuer_skill_3.webp',
+ quartermaster_skill_1:'assets/ui/skills/quartermaster/quartermaster_skill_1.webp',
+ quartermaster_skill_2:'assets/ui/skills/quartermaster/quartermaster_skill_2.webp',
+ quartermaster_skill_3:'assets/ui/skills/quartermaster/quartermaster_skill_3.webp',
 };
 
 export function skillVisualAssetFor(skillId:string|null|undefined):string|null{

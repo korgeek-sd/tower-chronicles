@@ -1,0 +1,141 @@
+{
+  "status": "artwork approved; asset registry prepared; combat and descriptions not implemented",
+  "generation": "built-in imagegen",
+  "records": [
+    {
+      "job": "ascetic_priest",
+      "ko": "고행사제",
+      "id": "ascetic_priest_skill_1",
+      "name": "고행봉 타격",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 고행사제 / 고행봉 타격. Reference image is STYLE ONLY. Job Visual Lock: Dark iron devotional staff with simple brass head, brown wrapped grip, bone cream, muted ochre and restrained sage accents. Skill motif: One heavy devotional staff sweeping diagonally upward, compact cream crescent. Restrained basic attack. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-30151a30-4e00-4a74-8d94-43d69d25c28a.png",
+      "asset": "public/assets/ui/skills/ascetic_priest/ascetic_priest_skill_1.webp"
+    },
+    {
+      "job": "ascetic_priest",
+      "ko": "고행사제",
+      "id": "ascetic_priest_skill_2",
+      "name": "인내의 기도",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 고행사제 / 인내의 기도. Reference image is STYLE ONLY. Job Visual Lock: Dark iron devotional staff with simple brass head, brown wrapped grip, bone cream, muted ochre and restrained sage accents. Skill motif: One gloved hand tightly gripping devotional staff, staff tilted while a broad cream protective sweep intercepts an angular incoming strike at its head. Dynamic integrated guard, no detached halo. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-2dd2b3f7-da16-4ff3-b86b-ead74ab9279c.png",
+      "asset": "public/assets/ui/skills/ascetic_priest/ascetic_priest_skill_2.webp"
+    },
+    {
+      "job": "ascetic_priest",
+      "ko": "고행사제",
+      "id": "ascetic_priest_skill_3",
+      "name": "고행의 응답",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 고행사제 / 고행의 응답. Reference image is STYLE ONLY. Job Visual Lock: Dark iron devotional staff with simple brass head, brown wrapped grip, bone cream, muted ochre and restrained sage accents. Skill motif: Devotional staff slamming diagonally down with a powerful cream ochre impact wedge, one pale sage recovery spark connected to the grip. Strong attack plus healing. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-60a05b50-2d7b-4827-b840-4f9b5d9100ef.png",
+      "asset": "public/assets/ui/skills/ascetic_priest/ascetic_priest_skill_3.webp"
+    },
+    {
+      "job": "life_stitcher",
+      "ko": "생명봉합사",
+      "id": "life_stitcher_skill_1",
+      "name": "봉합침 찌르기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 생명봉합사 / 봉합침 찌르기. Reference image is STYLE ONLY. Job Visual Lock: One large visibly curved metal surgical suture needle, simple attached cream thread, gray violet steel, bone cream and muted sage healing accents, minimal brown. Skill motif: One thick clearly curved surgical needle thrusting upper right, attached short cream thread trailing behind with a restrained pointed thrust streak. No sword or syringe. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-396c2fc7-4f40-4b4f-955e-9429d4f3dccb.png",
+      "asset": "public/assets/ui/skills/life_stitcher/life_stitcher_skill_1.webp"
+    },
+    {
+      "job": "life_stitcher",
+      "ko": "생명봉합사",
+      "id": "life_stitcher_skill_2",
+      "name": "상처 봉합",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 생명봉합사 / 상처 봉합. Reference image is STYLE ONLY. Job Visual Lock: One large visibly curved metal surgical suture needle, simple attached cream thread, gray violet steel, bone cream and muted sage healing accents, minimal brown. Skill motif: One curved surgical needle pulling cream thread through the two edges of a small torn burgundy cloth wound patch, three broad stitches closing its central gap, small sage recovery spark. Clear simplified stitching action. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-232593b7-6dfc-4b10-94b1-66a97403aa5d.png",
+      "asset": "public/assets/ui/skills/life_stitcher/life_stitcher_skill_2.webp"
+    },
+    {
+      "job": "life_stitcher",
+      "ko": "생명봉합사",
+      "id": "life_stitcher_skill_3",
+      "name": "생명 이어붙이기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 생명봉합사 / 생명 이어붙이기. Reference image is STYLE ONLY. Job Visual Lock: One large visibly curved metal surgical suture needle, simple attached cream thread, gray violet steel, bone cream and muted sage healing accents, minimal brown. Skill motif: One curved surgical needle drawing a strong luminous cream thread across a broad torn muted sage cloth patch, the torn edges joining into one whole, bold central recovery burst. Strongest healing, no anatomy or text. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-e1e1c732-d5e9-4b4d-9563-815398e2105f.png",
+      "asset": "public/assets/ui/skills/life_stitcher/life_stitcher_skill_3.webp"
+    },
+    {
+      "job": "subjugation_officer",
+      "ko": "토벌관",
+      "id": "subjugation_officer_skill_1",
+      "name": "토벌검 베기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 토벌관 / 토벌검 베기. Reference image is STYLE ONLY. Job Visual Lock: Heavy broad pointed iron hunting sword, brown leather grip, aged brass crossguard, gray violet iron, bone cream and rust ochre cutting trails. Skill motif: One heavy pointed sword swinging diagonally upper right with restrained thick cream slash. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-d14fbe4e-60e7-421c-a2b2-da3b345b537d.png",
+      "asset": "public/assets/ui/skills/subjugation_officer/subjugation_officer_skill_1.webp"
+    },
+    {
+      "job": "subjugation_officer",
+      "ko": "토벌관",
+      "id": "subjugation_officer_skill_2",
+      "name": "방호 절개",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 토벌관 / 방호 절개. Reference image is STYLE ONLY. Job Visual Lock: Heavy broad pointed iron hunting sword, brown leather grip, aged brass crossguard, gray violet iron, bone cream and rust ochre cutting trails. Skill motif: Same sword cutting through a small thick iron armor plate; two chunky separated plate halves and sharp cream impact joined to cutting edge. Medium armor breaking cut. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-bec09fc8-3f3e-4fda-9860-292c46717207.png",
+      "asset": "public/assets/ui/skills/subjugation_officer/subjugation_officer_skill_2.webp"
+    },
+    {
+      "job": "subjugation_officer",
+      "ko": "토벌관",
+      "id": "subjugation_officer_skill_3",
+      "name": "토벌 집행",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 토벌관 / 토벌 집행. Reference image is STYLE ONLY. Job Visual Lock: Heavy broad pointed iron hunting sword, brown leather grip, aged brass crossguard, gray violet iron, bone cream and rust ochre cutting trails. Skill motif: Same heavy pointed sword driven downward in one massive angular cream ochre cutting wedge, large decisive impact and only two iron fragments. Strongest single blow. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-55bf9759-6e90-4cc2-be88-8c5037762e9b.png",
+      "asset": "public/assets/ui/skills/subjugation_officer/subjugation_officer_skill_3.webp"
+    },
+    {
+      "job": "rescuer",
+      "ko": "구조대원",
+      "id": "rescuer_skill_1",
+      "name": "구조도끼 타격",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 구조대원 / 구조도끼 타격. Reference image is STYLE ONLY. Job Visual Lock: Traditional rescue axe with SINGLE clearly shaped broad iron axe head attached to straight wooden shaft, gray violet iron, brown wood, cream highlights, muted sage and ochre. Skill motif: One recognizable single headed rescue axe sweeping upper right, short thick cream chopping trail. Clearly connected axe head and wooden handle. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-31e69d7e-6b5f-4b43-941d-7175f54641d4.png",
+      "asset": "public/assets/ui/skills/rescuer/rescuer_skill_1.webp"
+    },
+    {
+      "job": "rescuer",
+      "ko": "구조대원",
+      "id": "rescuer_skill_2",
+      "name": "안전 확보",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 구조대원 / 안전 확보. Reference image is STYLE ONLY. Job Visual Lock: Traditional rescue axe with SINGLE clearly shaped broad iron axe head attached to straight wooden shaft, gray violet iron, brown wood, cream highlights, muted sage and ochre. Skill motif: One gloved hand bracing a tilted rescue axe across a small rolled cream bandage, a broad muted sage protective sweep connected to the axe intercepts an incoming strike. Compact unified defense and treatment action. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-6d25a9ba-1f2b-4651-8726-25671933f39b.png",
+      "asset": "public/assets/ui/skills/rescuer/rescuer_skill_2.webp"
+    },
+    {
+      "job": "rescuer",
+      "ko": "구조대원",
+      "id": "rescuer_skill_3",
+      "name": "긴급 구조",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 구조대원 / 긴급 구조. Reference image is STYLE ONLY. Job Visual Lock: Traditional rescue axe with SINGLE clearly shaped broad iron axe head attached to straight wooden shaft, gray violet iron, brown wood, cream highlights, muted sage and ochre. Skill motif: One rolled cream bandage unrolling in a powerful sweeping sage cream arc around a tilted rescue axe head, strong central healing spark connected to bandage. Integrated healing plus protection, no person. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-a57f3508-2763-4f73-add6-a863c96fab19.png",
+      "asset": "public/assets/ui/skills/rescuer/rescuer_skill_3.webp"
+    },
+    {
+      "job": "quartermaster",
+      "ko": "보급관",
+      "id": "quartermaster_skill_1",
+      "name": "보급봉 타격",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 보급관 / 보급봉 타격. Reference image is STYLE ONLY. Job Visual Lock: Short sturdy wooden supply baton capped in gray violet iron and brass, brown leather supply pouch with simple buckle, bone cream cloth, ochre and pale sage accents. Skill motif: One short stout iron capped wooden supply baton swinging diagonally with compact cream impact crescent. Clear baton not sword. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-330d49f9-e79c-4852-868c-aa3b2b594e88.png",
+      "asset": "public/assets/ui/skills/quartermaster/quartermaster_skill_1.webp"
+    },
+    {
+      "job": "quartermaster",
+      "ko": "보급관",
+      "id": "quartermaster_skill_2",
+      "name": "전투 보급",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 보급관 / 전투 보급. Reference image is STYLE ONLY. Job Visual Lock: Short sturdy wooden supply baton capped in gray violet iron and brass, brown leather supply pouch with simple buckle, bone cream cloth, ochre and pale sage accents. Skill motif: One open brown leather supply pouch with a cream wrapped ration packet emerging, a short ochre cream upward force sweep and small pale sage recovery spark attached to packet. Medium combat preparation. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-13a10e1f-2dae-4354-9e62-d426ddef6744.png",
+      "asset": "public/assets/ui/skills/quartermaster/quartermaster_skill_2.webp"
+    },
+    {
+      "job": "quartermaster",
+      "ko": "보급관",
+      "id": "quartermaster_skill_3",
+      "name": "예비 물자 투입",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 보급관 / 예비 물자 투입. Reference image is STYLE ONLY. Job Visual Lock: Short sturdy wooden supply baton capped in gray violet iron and brass, brown leather supply pouch with simple buckle, bone cream cloth, ochre and pale sage accents. Skill motif: One sturdy brown supply pouch spilling one large cream bandage roll and one simple iron capped baton, bound together by a broad cream sage restorative sweep. Strongest healing and offense preparation, only pouch and its contents, no scattered clutter. STRICT STYLE: coarse dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS like a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stepped contours, large flat blocks, minimal interior detail, 3-6 principal colors, 2-3 value levels. Match reference pixel size and bold action effect. One dominant tool/action with at most one supporting effect. Transparent square canvas, 90-94% silhouette occupancy, approx4% margin. Clear negative space and readable at32px. No text, UI frame, full person, scenery, blur, gradients, realistic textures, smooth curves, antialiasing, bloom, filigree or tiny decoration. Actually transparent background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-5d402a4c-5e8a-43d6-9b69-c6d27d2c44fc.png",
+      "asset": "public/assets/ui/skills/quartermaster/quartermaster_skill_3.webp"
+    }
+  ]
+}
