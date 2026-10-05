@@ -54,23 +54,23 @@
 }
 
 /*
- * Fighter geometry remains authored against the 360 × 800 grid, but scales
- * with the live viewport. Fixed 360-grid CSS pixels made fighters smaller on
- * wider phones and pushed the player too low when browser chrome shortened
- * the viewport. Percent fallbacks restore the original responsive footprint.
+ * Fighter geometry remains responsive to the live viewport. Fighters are
+ * intentionally larger than the original footprint so character art reads
+ * clearly on phones, while their centers are pulled inward to avoid clipping
+ * and overlap with the bottom action cards.
  */
 .tc-app.tc-battle-mode .tc-battle .player-placement{
- left:22.2222%!important;
- top:58%!important;
- width:53.3333%!important;
- height:34%!important;
+ left:25%!important;
+ top:57%!important;
+ width:68%!important;
+ height:43%!important;
 }
 
 .tc-app.tc-battle-mode .tc-battle .monster-placement{
- left:73.3333%!important;
- top:34%!important;
- width:51.1111%!important;
- height:31%!important;
+ left:70%!important;
+ top:33%!important;
+ width:62%!important;
+ height:38%!important;
 }
 
 /*
@@ -81,15 +81,15 @@
  */
 @supports (left:round(nearest,10vw,1px)){
  .tc-app.tc-battle-mode .tc-battle .player-placement{
-  left:round(nearest,22.2222vw,1px)!important;
-  top:round(nearest,58dvh,1px)!important;
-  width:round(nearest,53.3333vw,1px)!important;
-  height:round(nearest,34dvh,1px)!important;
+  left:round(nearest,25vw,1px)!important;
+  top:round(nearest,57dvh,1px)!important;
+  width:round(nearest,68vw,1px)!important;
+  height:round(nearest,43dvh,1px)!important;
  }
  .tc-app.tc-battle-mode .tc-battle .monster-placement{
-  left:round(nearest,73.3333vw,1px)!important;
-  top:round(nearest,34dvh,1px)!important;
-  width:round(nearest,51.1111vw,1px)!important;
-  height:round(nearest,31dvh,1px)!important;
+  left:round(nearest,70vw,1px)!important;
+  top:round(nearest,33dvh,1px)!important;
+  width:round(nearest,62vw,1px)!important;
+  height:round(nearest,38dvh,1px)!important;
  }
 }
