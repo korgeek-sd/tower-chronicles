@@ -44,6 +44,11 @@ export const isBossFloor=(floor:number)=>BOSS_FLOORS.some(n=>n===floor);
 export const graphicFor=(tower:Tower,monster:Pick<Monster,'name'>)=>MONSTER_GRAPHICS.find(g=>g.tower===tower&&g.name===monster.name);
 export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower][1];
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
-export const assetUrl=(path:string)=>'./'+path.replace(/^\/+/, '');
+const ASSET_REVISIONS:Readonly<Record<string,string>>={'assets/characters/jobs/duelist.webp':'e4991963'};
+export const assetUrl=(path:string)=>{
+ const normalized=path.replace(/^\/+/, '');
+ const revision=ASSET_REVISIONS[normalized];
+ return './'+normalized+(revision?'?v='+revision:'');
+};
 
 
