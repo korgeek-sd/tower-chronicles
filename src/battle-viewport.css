@@ -111,16 +111,16 @@
 
 /*
  * High-resolution fighter artwork uses normal browser resampling. Low-resolution
- * true pixel sprites opt back into nearest-neighbour rendering below so they do
- * not become soft when the responsive battle layout enlarges them.
+ * sprites are marked at runtime from their intrinsic image dimensions and use
+ * nearest-neighbour rendering so responsive enlargement does not soften them.
  */
 .tc-app.tc-battle-mode .tc-battle .player-figure img,
 .tc-app.tc-battle-mode .tc-battle .monster-figure img{
  image-rendering:auto!important;
 }
 
-.tc-app.tc-battle-mode .tc-battle .player-figure img[src*="hunter.webp"],
-.tc-app.tc-battle-mode .tc-battle .player-figure img[src*="excavator.webp"]{
+.tc-app.tc-battle-mode .tc-battle .player-figure img[data-rendering="pixelated"],
+.tc-app.tc-battle-mode .tc-battle .monster-figure img[data-rendering="pixelated"]{
  image-rendering:pixelated!important;
 }
 
