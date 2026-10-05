@@ -54,20 +54,42 @@
 }
 
 /*
- * Fighter geometry is authored on the 360 × 800 grid using whole CSS pixels
- * and 8px-aligned coordinates/sizes. This avoids fractional placement such as
- * 187.2px / 259.2px that forces another resampling pass on character art.
+ * Fighter geometry remains authored against the 360 × 800 grid, but scales
+ * with the live viewport. Fixed 360-grid CSS pixels made fighters smaller on
+ * wider phones and pushed the player too low when browser chrome shortened
+ * the viewport. Percent fallbacks restore the original responsive footprint.
  */
 .tc-app.tc-battle-mode .tc-battle .player-placement{
- left:80px!important;
- top:464px!important;
- width:192px!important;
- height:272px!important;
+ left:22.2222%!important;
+ top:58%!important;
+ width:53.3333%!important;
+ height:34%!important;
 }
 
 .tc-app.tc-battle-mode .tc-battle .monster-placement{
- left:264px!important;
- top:272px!important;
- width:184px!important;
- height:248px!important;
+ left:73.3333%!important;
+ top:34%!important;
+ width:51.1111%!important;
+ height:31%!important;
+}
+
+/*
+ * Modern browsers can keep that responsive footprint while snapping the
+ * resolved coordinates/sizes to whole CSS pixels. This avoids the fractional
+ * resampling that caused shimmering/jagged edges without freezing the sprite
+ * at a 360px-phone size.
+ */
+@supports (left:round(nearest,10vw,1px)){
+ .tc-app.tc-battle-mode .tc-battle .player-placement{
+  left:round(nearest,22.2222vw,1px)!important;
+  top:round(nearest,58dvh,1px)!important;
+  width:round(nearest,53.3333vw,1px)!important;
+  height:round(nearest,34dvh,1px)!important;
+ }
+ .tc-app.tc-battle-mode .tc-battle .monster-placement{
+  left:round(nearest,73.3333vw,1px)!important;
+  top:round(nearest,34dvh,1px)!important;
+  width:round(nearest,51.1111vw,1px)!important;
+  height:round(nearest,31dvh,1px)!important;
+ }
 }
