@@ -43,6 +43,49 @@
 }
 
 /*
+ * Battle mode is a dedicated combat canvas. Utility chrome that is useful on
+ * hub screens must not consume or cover the combat composition.
+ */
+.tc-app.tc-battle-mode .tc-settings-floating,
+.tc-app.tc-battle-mode .tc-mail-floating{
+ display:none!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .tc-ref-flee{
+ display:none!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .tc-ref-panel .tc-bprefs button:first-child{
+ display:none!important;
+}
+
+/*
+ * Reclaim the space left by the removed utility buttons. The battle header
+ * now sits close to the safe-area edge and spans the same near-full width as
+ * the five-card command row.
+ */
+.tc-app.tc-battle-mode .tc-battle .tc-ref-top{
+ top:max(2.4%,env(safe-area-inset-top));
+ left:.8%;
+ right:.8%;
+ height:12.5%;
+}
+
+.tc-app.tc-battle-mode .tc-battle .monster-hud{
+ left:.8%!important;
+ top:17.4%!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .player-hud{
+ right:.8%!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .tc-ref-loot-entry{
+ right:.8%!important;
+ top:16.4%!important;
+}
+
+/*
  * Fighter artwork is high-resolution pixel-styled illustration, not a tiny
  * source sprite intended for nearest-neighbour enlargement. Let the browser
  * resample it normally when the responsive battle layout scales it down.
