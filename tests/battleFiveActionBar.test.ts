@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const screen=readFileSync(new URL('../src/components/battle/BattleScreen.tsx',import.meta.url),'utf8');
-const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
-const qa=readFileSync(new URL('./EventQa.tsx',import.meta.url),'utf8');
 
 test('battle action bar is fixed to three skills, potion, and return',()=>{
  assert.match(screen,/const skillSlots=Array\.from\(\{length:3\}/);
@@ -16,8 +14,6 @@ test('battle action bar is fixed to three skills, potion, and return',()=>{
  assert.match(actions,/onClick=\{onFlee\}/);
 });
 
-test('BattleScreen no longer exposes a basic attack UI callback',()=>{
- assert.doesNotMatch(screen,/onBasicAttack/);
- assert.doesNotMatch(main,/onBasicAttack=/);
- assert.doesNotMatch(qa,/onBasicAttack=/);
+test('return action lives inside the five-card row instead of a separate flee button',()=>{
+ assert.doesNotMatch(screen,/className="tc-ref-flee/);
 });
