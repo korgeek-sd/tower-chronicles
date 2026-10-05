@@ -47,7 +47,8 @@
  * hub screens must not consume or cover the combat composition.
  */
 .tc-app.tc-battle-mode .tc-settings-floating,
-.tc-app.tc-battle-mode .tc-mail-floating{
+.tc-app.tc-battle-mode .tc-mail-floating,
+.tc-app.tc-battle-mode .tc-stronghold-pvp-entry{
  display:none!important;
 }
 
