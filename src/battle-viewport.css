@@ -41,3 +41,14 @@
  aspect-ratio:auto!important;
  overflow:hidden;
 }
+
+/*
+ * Fighter artwork is high-resolution pixel-styled illustration, not a tiny
+ * source sprite intended for nearest-neighbour enlargement. Let the browser
+ * resample it normally when the responsive battle layout scales it down.
+ * Keep pixelated rendering on skill/UI art elsewhere.
+ */
+.tc-app.tc-battle-mode .tc-battle .player-figure img,
+.tc-app.tc-battle-mode .tc-battle .monster-figure img{
+ image-rendering:auto!important;
+}
