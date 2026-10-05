@@ -5,7 +5,7 @@ import {isSilenced,isRooted} from '../../game/engine/effects';
 import React,{useEffect,useRef,useState} from 'react';
 import type {EquipmentItem,GameState,Potion} from '../../game/types';
 import {EVENT_BALANCE} from '../../game/events/selector';
-import {TOWERS,POTIONS,generalPotionIds,WEAPONS,SKILLS} from '../../game/data/config';
+import {TOWERS,POTIONS,generalPotionIds,SKILLS} from '../../game/data/config';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 import {assetUrl} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
@@ -32,7 +32,7 @@ import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 type Props={game:GameState;now?:number;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void;onAbandonStronghold?:()=>void};
 const glyph:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
 
-export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
+export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
  const feel=useGameFeel();
  const lastFeelEvent=useRef(0),lastHp=useRef(e.hp),actionCueSeq=useRef(0);
@@ -90,12 +90,13 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
  const strongholdMs=stronghold?strongholdRemainingMs(stronghold,now??Date.now()):0;
  const strongholdTime=String(Math.floor(strongholdMs/60_000)).padStart(2,'0')+':'+String(Math.floor(strongholdMs%60_000/1000)).padStart(2,'0');
 
- const skillCards=skillIds.map((id,i)=>{
-  const jobSkill=getJobCombatDefinition(e.jobRuntime.jobId)?.skills.find(s=>s.id===id),skill=jobSkill??SKILLS.find(s=>s.id===id),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&'weapons' in skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
+ const skillSlots=Array.from({length:3},(_,i)=>skillIds[i]??'');
+ const skillCards=skillSlots.map((id,i)=>{
+  const jobSkill=id?getJobCombatDefinition(e.jobRuntime.jobId)?.skills.find(s=>s.id===id):undefined,skill=jobSkill??(id?SKILLS.find(s=>s.id===id):undefined),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&'weapons' in skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
   const cost=jobSkill?.resource?.kind==='SPENDER'?resourceCost(e,jobSkill.resource):0;
-  const reason=isSilenced(e,'player')?'침묵':mismatch?'무기 불일치':turns?turns+'턴 대기':cost===null?'자원 부족':cost?cost+'칸 소비':'사용 가능';
+  const reason=!skill?'빈 슬롯':isSilenced(e,'player')?'침묵':mismatch?'무기 불일치':turns?turns+'턴 대기':cost===null?'자원 부족':cost?cost+'칸 소비':'사용 가능';
   const skillArt=skill?skillVisualAssetFor(skill.id):null;
-  return <button type="button" disabled={recovering||!skill||!canUseSkill(game,id||'')} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
+  return <button type="button" disabled={recovering||!skill||!canUseSkill(game,id)} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
    <span className="tc-ref-card-art">{skillArt?<img className="tc-skill-art" src={assetUrl(skillArt)} alt="" aria-hidden="true" draggable={false} style={{width:'100%',height:'100%',objectFit:'contain',imageRendering:'pixelated',pointerEvents:'none'}}/>:<Glyph name={glyph[id]??'skills'}/>} {turns>0&&<b>{turns}</b>}</span>
    <strong>{skill?.name||'미구현'}</strong>
    <small>{reason}</small>
@@ -117,8 +118,6 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
    <button className="tc-ref-menu" onClick={()=>setPanel(panel==='menu'?null:'menu')} aria-label="전투 메뉴" aria-expanded={panel==='menu'}><i/><i/><i/></button>
   </header>
 
-  <button className="tc-ref-flee tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn||isRooted(e,'player')} onClick={onFlee} aria-label="귀환 시도"><Glyph name="tickets"/><small>귀환</small></button>
-
   <button className="tc-ref-loot-entry tc-feel-press" data-game-feel="press" onClick={()=>setPanel('loot')} aria-label="원정 전리품 보기"><span>전리품</span><b>{lootSummary.equipment}</b><small>장비 · 재료 {lootSummary.materials}</small></button>
 
   {dropToast&&<div className={'tc-equipment-drop-toast grade-'+dropToast.grade} role="status" aria-live="polite"><small>특템 획득</small><b>{EQUIPMENT_GRADE_NAMES[dropToast.grade]} {EQUIPMENT_DEFINITIONS[dropToast.kind].name}</b><span>+{dropToast.enhancement} · 안전 귀환 시 보관함 확정</span></div>}
@@ -128,9 +127,9 @@ export function BattleScreen({game,now,onBasicAttack,onSkill,onPotion,onFlee,onH
   <div className="tc-ref-effects player">{playerShield&&<span title={effectText(playerShield)}>보호막</span>}{buffs.slice(0,3).map(x=><span key={x.instanceId} title={EFFECTS[x.effectId]?.description}>{effectText(x)}</span>)}{playerReactive&&<span>반응 준비</span>}</div>
 
   <div className="tc-ref-actions">
-   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>cuePlayerAction('basic',onBasicAttack)}><span className="tc-ref-card-art"><Glyph name={weapon}/></span><strong>기본 공격</strong><small>{WEAPONS[weapon].name}</small></button>
    {skillCards}
-   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>아이템</strong><small>포션</small></button>
+   <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>포션</strong><small>아이템</small></button>
+   <button type="button" className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn||isRooted(e,'player')} onClick={onFlee} aria-label="귀환 시도"><span className="tc-ref-card-art"><Glyph name="tickets"/></span><strong>귀환</strong><small>{isRooted(e,'player')?'속박':'거점'}</small></button>
   </div>
 
   <div className="tc-ref-turn">{e.phase==='PLAYER_TURN'?'행동을 선택하세요':e.phase==='MONSTER_TURN'?'적이 행동합니다':'전투 결과 처리 중'}</div>
