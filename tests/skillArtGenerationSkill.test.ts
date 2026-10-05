@@ -20,7 +20,7 @@ test('SKILL ART 02: generation skill defines the global Tower Chronicles icon st
  assert.match(skill,/dark-fantasy|다크 판타지/i);
  assert.match(skill,/pixel/i);
  assert.match(skill,/transparent|투명/i);
- assert.match(skill,/70.?80%|70–80%|70-80%/);
+ assert.match(skill,/90.?94%|90–94%|90-94%/);
  assert.match(skill,/text|텍스트/i);
  assert.match(skill,/frame|프레임/i);
  assert.match(skill,/25.?42px|25–42px|25-42px/);
