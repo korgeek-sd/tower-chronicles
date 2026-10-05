@@ -251,7 +251,8 @@ button:disabled{cursor:not-allowed;opacity:.38}
 .tc-ref-card-art>b{position:absolute;right:2px;top:2px;min-width:15px;height:15px;border:1px solid #e8e8e3;border-radius:50%;background:#161818;color:#efb59c;font:700 7px/13px ui-monospace,monospace}
 .tc-ref-card>strong{position:absolute;left:1px;right:1px;bottom:-14px;font-size:7px;line-height:12px;color:#c9cdc6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-ref-card>small{position:absolute;left:1px;right:1px;bottom:-25px;font-size:6px;color:#79b37f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-ref-card:disabled{filter:grayscale(.7);opacity:.48}
+.tc-ref-card:disabled{filter:none;opacity:1;border-color:#827f76;cursor:not-allowed}
+.tc-ref-card:disabled>small{color:#b9a58b}
 .tc-ref-turn{position:absolute;z-index:12;left:10%;right:10%;bottom:2.1%;height:14px;text-align:center;font-size:7px;color:#8e928c;letter-spacing:.04em}
 
 /* full combat panel */
