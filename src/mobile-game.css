@@ -193,7 +193,7 @@ button:disabled{cursor:not-allowed;opacity:.38}
 .tc-battle-reference .tc-battle-scene{z-index:2}
 .tc-battle-reference .battle-scene,.tc-battle-reference .combat-stage{position:absolute!important;inset:0!important;height:100%!important;background:transparent!important}
 .tc-battle-reference .combat-hud{display:contents}
-.tc-battle-reference .player-placement{left:27%!important;top:63%!important;width:50%!important;height:31%!important;max-width:none!important;max-height:none!important;z-index:4}
+.tc-battle-reference .player-placement{left:27%!important;top:58%!important;width:62%!important;height:40%!important;max-width:none!important;max-height:none!important;z-index:4}
 .tc-battle-reference .monster-placement{left:72%!important;top:39%!important;width:52%!important;height:34%!important;max-width:none!important;max-height:none!important;z-index:4}
 .tc-battle-reference .player-figure img,.tc-battle-reference .monster-figure img{filter:drop-shadow(0 8px 7px #000e)!important}
 .tc-battle-reference .fighter-placeholder{opacity:.45}
@@ -268,7 +268,7 @@ button:disabled{cursor:not-allowed;opacity:.38}
  .tc-battle-reference .monster-hud{top:20.5%!important}
  .tc-battle-reference .player-hud{top:57%!important}
  .tc-battle-reference .monster-placement{top:38%!important;height:33%!important}
- .tc-battle-reference .player-placement{top:62%!important;height:30%!important}
+ .tc-battle-reference .player-placement{top:57%!important;height:38%!important}
  .tc-ref-actions{bottom:7.5%;height:13.7%}.tc-ref-turn{bottom:2.4%}
 }
 @media(max-width:360px){
