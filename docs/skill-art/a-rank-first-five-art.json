@@ -1,0 +1,156 @@
+{
+  "status": "skills approved; artwork approved; asset registry prepared; combat implementation pending",
+  "generation": "built-in imagegen",
+  "records": [
+    {
+      "job": "executor",
+      "ko": "집행인",
+      "id": "executor_skill_1",
+      "name": "집행검 내려치기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 집행인 / 집행검 내려치기. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Broad heavy execution sword, squared blunt-ended gray-violet iron blade, ochre crossguard, bone highlights, rust accent. Skill motif: One broad execution sword diagonally chopping downward, compact cream cutting trail. Restrained basic attack. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-0a4b42fb-06aa-472f-9544-d03503a772b6.png",
+      "asset": "public/assets/ui/skills/executor/executor_skill_1.webp",
+      "motif_id": "execution_slash"
+    },
+    {
+      "job": "executor",
+      "ko": "집행인",
+      "id": "executor_skill_2",
+      "name": "형벌의 일격",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 집행인 / 형벌의 일격. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Broad heavy execution sword, squared blunt-ended gray-violet iron blade, ochre crossguard, bone highlights, rust accent. Skill motif: Same broad execution sword striking and breaking a small iron armor plate; angular cream impact at contact, two large broken armor fragments. Medium force. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-3ad2ff91-2c73-469f-bd93-538b8577a7f0.png",
+      "asset": "public/assets/ui/skills/executor/executor_skill_2.webp",
+      "motif_id": "punitive_blow"
+    },
+    {
+      "job": "executor",
+      "ko": "집행인",
+      "id": "executor_skill_3",
+      "name": "처형",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 집행인 / 처형. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Broad heavy execution sword, squared blunt-ended gray-violet iron blade, ochre crossguard, bone highlights, rust accent. Skill motif: Same squared broad execution sword dropping vertically through a huge single downward cream and rust cutting wedge. Strongest decisive execution impact, no victim. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-808b65a5-ae74-4e9c-bc95-ef83b88ac46a.png",
+      "asset": "public/assets/ui/skills/executor/executor_skill_3.webp",
+      "motif_id": "execution"
+    },
+    {
+      "job": "inquisitor",
+      "ko": "심문관",
+      "id": "inquisitor_skill_1",
+      "name": "심문칼 찌르기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 심문관 / 심문칼 찌르기. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Slender straight pointed iron interrogation dagger, dark leather grip, aged brass guard, bone cream trails with restrained burgundy. Skill motif: One slender dagger thrusting diagonally upper right with a short straight bone-white trail. Basic thrust. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-23af0e5a-7414-44d9-bc74-ac92caf99e5c.png",
+      "asset": "public/assets/ui/skills/inquisitor/inquisitor_skill_1.webp",
+      "motif_id": "interrogation_stab"
+    },
+    {
+      "job": "inquisitor",
+      "ko": "심문관",
+      "id": "inquisitor_skill_2",
+      "name": "엄정한 심문",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 심문관 / 엄정한 심문. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Slender straight pointed iron interrogation dagger, dark leather grip, aged brass guard, bone cream trails with restrained burgundy. Skill motif: Slender dagger cutting across a burgundy torn cloth strip, one cream crescent and two blocky burgundy droplets; stern forceful bleeding cut. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-ee132db2-5401-4ca5-b52f-c46c94ddbadb.png",
+      "asset": "public/assets/ui/skills/inquisitor/inquisitor_skill_2.webp",
+      "motif_id": "stern_interrogation"
+    },
+    {
+      "job": "inquisitor",
+      "ko": "심문관",
+      "id": "inquisitor_skill_3",
+      "name": "판결의 연격",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 심문관 / 판결의 연격. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Slender straight pointed iron interrogation dagger, dark leather grip, aged brass guard, bone cream trails with restrained burgundy. Skill motif: Three clean parallel pointed dagger thrust streaks fanning upper right, one dominant physical dagger and two simplified cream echoes. Strong triple attack. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-32aaf673-666b-4ea1-b35b-1266e905fd7c.png",
+      "asset": "public/assets/ui/skills/inquisitor/inquisitor_skill_3.webp",
+      "motif_id": "judgment_flurry"
+    },
+    {
+      "job": "deep_delver",
+      "ko": "심층 도굴꾼",
+      "id": "deep_delver_skill_1",
+      "name": "도굴 곡괭이",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 심층 도굴꾼 / 도굴 곡괭이. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Traditional anatomically clear mining pickaxe: straight wooden shaft ending centrally in transverse iron head with one long curved sharp pick on one side and short flat chisel on other. Gray-violet iron, brown wood, ochre, bone cream. Skill motif: One mining pickaxe in diagonal swing, its distinct head and connected shaft fully readable, restrained short cream sweep. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-c9e2638d-d72a-4947-9482-3461b2f7b246.png",
+      "asset": "public/assets/ui/skills/deep_delver/deep_delver_skill_1.webp",
+      "motif_id": "delving_pick"
+    },
+    {
+      "job": "deep_delver",
+      "ko": "심층 도굴꾼",
+      "id": "deep_delver_skill_2",
+      "name": "방호 파쇄",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 심층 도굴꾼 / 방호 파쇄. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Traditional anatomically clear mining pickaxe: straight wooden shaft ending centrally in transverse iron head with one long curved sharp pick on one side and short flat chisel on other. Gray-violet iron, brown wood, ochre, bone cream. Skill motif: Same mining pickaxe pointed end hitting a small armor plate, plate breaking into two chunky pieces. Clear pickaxe structure and medium angular impact. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-323d6f5a-3fcd-4919-9400-d927dd400fcd.png",
+      "asset": "public/assets/ui/skills/deep_delver/deep_delver_skill_2.webp",
+      "motif_id": "armor_shatter"
+    },
+    {
+      "job": "deep_delver",
+      "ko": "심층 도굴꾼",
+      "id": "deep_delver_skill_3",
+      "name": "심층 굴진",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 심층 도굴꾼 / 심층 굴진. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Traditional anatomically clear mining pickaxe: straight wooden shaft ending centrally in transverse iron head with one long curved sharp pick on one side and short flat chisel on other. Gray-violet iron, brown wood, ochre, bone cream. Skill motif: One dominant readable mining pickaxe swinging in a large cream ochre spiral arc, two simplified afterimage arc segments suggest three consecutive strikes. Strong sweeping attack, keep complete pickaxe head clear. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-6a2cccac-43bc-4850-acea-5cd9785a0b4d.png",
+      "asset": "public/assets/ui/skills/deep_delver/deep_delver_skill_3.webp",
+      "motif_id": "deep_boring"
+    },
+    {
+      "job": "bloodfighter",
+      "ko": "혈전가",
+      "id": "bloodfighter_skill_1",
+      "name": "혈전 베기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 혈전가 / 혈전 베기. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Heavy curved short iron sword, dark leather grip, gray-violet blade, bone cream edges, burgundy and rust red combat trails. Blood red accent stays flat and muted. Skill motif: One curved heavy sword with a short burgundy crescent cutting trail diagonally upper right. Basic restrained attack. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-c6e6b0aa-4ba9-48c6-ab54-88eb5bdd370a.png",
+      "asset": "public/assets/ui/skills/bloodfighter/bloodfighter_skill_1.webp",
+      "motif_id": "blood_slash"
+    },
+    {
+      "job": "bloodfighter",
+      "ko": "혈전가",
+      "id": "bloodfighter_skill_2",
+      "name": "상처 벌리기",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 혈전가 / 상처 벌리기. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Heavy curved short iron sword, dark leather grip, gray-violet blade, bone cream edges, burgundy and rust red combat trails. Blood red accent stays flat and muted. Skill motif: Same curved sword carving a jagged burgundy slash with two large red droplets, bold hooked cutting silhouette. Medium bleeding attack. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-d6963f26-3412-4c3b-a9e9-295c11709b77.png",
+      "asset": "public/assets/ui/skills/bloodfighter/bloodfighter_skill_2.webp",
+      "motif_id": "wound_opening"
+    },
+    {
+      "job": "bloodfighter",
+      "ko": "혈전가",
+      "id": "bloodfighter_skill_3",
+      "name": "혈전 돌파",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 혈전가 / 혈전 돌파. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Heavy curved short iron sword, dark leather grip, gray-violet blade, bone cream edges, burgundy and rust red combat trails. Blood red accent stays flat and muted. Skill motif: Same curved sword driving through a massive burgundy and cream forward cutting sweep, a small pale sage recovery spark integrated at hilt. Strong attack with self recovery. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-df1c9578-7e60-4795-ae44-1060dfdced5a.png",
+      "asset": "public/assets/ui/skills/bloodfighter/bloodfighter_skill_3.webp",
+      "motif_id": "blood_breakthrough"
+    },
+    {
+      "job": "expedition_tactician",
+      "ko": "원정 전술가",
+      "id": "expedition_tactician_skill_1",
+      "name": "전술검 타격",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 원정 전술가 / 전술검 타격. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Straight tactical iron arming sword, aged brass crossguard, gray-violet metal, brown leather, ochre bone cream effects and restrained muted teal strategy accents. Skill motif: One straight arming sword swinging diagonally with compact cream slash. Restrained basic attack. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-45eefa9e-997f-4ec4-a11d-a31793c70a2b.png",
+      "asset": "public/assets/ui/skills/expedition_tactician/expedition_tactician_skill_1.webp",
+      "motif_id": "tactical_strike"
+    },
+    {
+      "job": "expedition_tactician",
+      "ko": "원정 전술가",
+      "id": "expedition_tactician_skill_2",
+      "name": "공방 전술",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 원정 전술가 / 공방 전술. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Straight tactical iron arming sword, aged brass crossguard, gray-violet metal, brown leather, ochre bone cream effects and restrained muted teal strategy accents. Skill motif: Straight arming sword crossed tightly with a tilted small iron buckler, one continuous cream arc connects blade and shield to show offensive defensive stance. Unified dynamic composition, no detached halo. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-94440f6c-b73f-4120-b42e-2b9ba63d2dea.png",
+      "asset": "public/assets/ui/skills/expedition_tactician/expedition_tactician_skill_2.webp",
+      "motif_id": "offense_defense_tactics"
+    },
+    {
+      "job": "expedition_tactician",
+      "ko": "원정 전술가",
+      "id": "expedition_tactician_skill_3",
+      "name": "집중 공세",
+      "prompt": "Use case: stylized-concept. Create ONE original Tower Chronicles active skill icon: 원정 전술가 / 집중 공세. Reference image is STYLE ONLY, do not duplicate its weapon or composition. Shared Job Visual Lock: Straight tactical iron arming sword, aged brass crossguard, gray-violet metal, brown leather, ochre bone cream effects and restrained muted teal strategy accents. Skill motif: One dominant straight arming sword and one broad cream sword-shaped attack echo crossing forward upper right, two converging forceful cutting trails. Clear double attack. STRICT STYLE: coarse retro dark fantasy PIXEL SPRITE, visibly LARGE SQUARE PIXELS, as a 40-48 pixel sprite enlarged by nearest neighbor. Chunky stair-step contours, broad flat color blocks, only 3-6 principal colors with 2-3 value levels. Match reference pixel density and simple effect thickness. Square transparent canvas, silhouette spans 90-94% of canvas with approx 4% safe edge margin. Clear negative space inside silhouette and very readable at 32px. No text, letters, UI border, full character, background scenery, smooth curves, antialiasing, gradient, bloom, realistic texture, painterly detail or tiny decoration. Actually transparent empty background.",
+      "source": "/workspace/scratch/46d1585dbbb8/generated_images/exec-d9dad4f7-3101-44e5-b658-583686b73467.png",
+      "asset": "public/assets/ui/skills/expedition_tactician/expedition_tactician_skill_3.webp",
+      "motif_id": "focused_offensive"
+    }
+  ]
+}

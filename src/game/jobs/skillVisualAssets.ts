@@ -38,6 +38,21 @@ export const SKILL_VISUAL_ASSETS:Readonly<Record<string,string>>={
  expedition_archivist_skill_1:'assets/ui/skills/expedition_archivist/expedition_archivist_skill_1.webp',
  expedition_archivist_skill_2:'assets/ui/skills/expedition_archivist/expedition_archivist_skill_2.webp',
  expedition_archivist_skill_3:'assets/ui/skills/expedition_archivist/expedition_archivist_skill_3.webp',
+ executor_skill_1:'assets/ui/skills/executor/executor_skill_1.webp',
+ executor_skill_2:'assets/ui/skills/executor/executor_skill_2.webp',
+ executor_skill_3:'assets/ui/skills/executor/executor_skill_3.webp',
+ inquisitor_skill_1:'assets/ui/skills/inquisitor/inquisitor_skill_1.webp',
+ inquisitor_skill_2:'assets/ui/skills/inquisitor/inquisitor_skill_2.webp',
+ inquisitor_skill_3:'assets/ui/skills/inquisitor/inquisitor_skill_3.webp',
+ deep_delver_skill_1:'assets/ui/skills/deep_delver/deep_delver_skill_1.webp',
+ deep_delver_skill_2:'assets/ui/skills/deep_delver/deep_delver_skill_2.webp',
+ deep_delver_skill_3:'assets/ui/skills/deep_delver/deep_delver_skill_3.webp',
+ bloodfighter_skill_1:'assets/ui/skills/bloodfighter/bloodfighter_skill_1.webp',
+ bloodfighter_skill_2:'assets/ui/skills/bloodfighter/bloodfighter_skill_2.webp',
+ bloodfighter_skill_3:'assets/ui/skills/bloodfighter/bloodfighter_skill_3.webp',
+ expedition_tactician_skill_1:'assets/ui/skills/expedition_tactician/expedition_tactician_skill_1.webp',
+ expedition_tactician_skill_2:'assets/ui/skills/expedition_tactician/expedition_tactician_skill_2.webp',
+ expedition_tactician_skill_3:'assets/ui/skills/expedition_tactician/expedition_tactician_skill_3.webp',
 };
 
 export function skillVisualAssetFor(skillId:string|null|undefined):string|null{
