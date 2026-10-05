@@ -43,12 +43,15 @@
 }
 
 /*
- * Battle mode is a dedicated combat canvas. Utility chrome that is useful on
- * hub screens must not consume or cover the combat composition.
+ * Immersive combat/event screens do not show persistent utility chrome.
+ * Event screens use tc-event-mode while battles use tc-battle-mode.
  */
 .tc-app.tc-battle-mode .tc-settings-floating,
 .tc-app.tc-battle-mode .tc-mail-floating,
-.tc-app.tc-battle-mode .tc-stronghold-pvp-entry{
+.tc-app.tc-battle-mode .tc-stronghold-pvp-entry,
+.tc-app.tc-event-mode .tc-settings-floating,
+.tc-app.tc-event-mode .tc-mail-floating,
+.tc-app.tc-event-mode .tc-header-actions{
  display:none!important;
 }
 
