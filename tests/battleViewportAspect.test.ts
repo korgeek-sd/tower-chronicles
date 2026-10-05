@@ -14,4 +14,7 @@ test('battle viewport uses a dedicated portrait 20:9 design canvas',()=>{
  assert.match(css,/aspect-ratio:\s*9\s*\/\s*20/);
  assert.match(css,/width:\s*min\(100vw,\s*calc\(100dvh\s*\*\s*9\s*\/\s*20\)\)/);
  assert.match(css,/height:\s*min\(100dvh,\s*calc\(100vw\s*\*\s*20\s*\/\s*9\)\)/);
+ const shell=css.match(/\.tc-app\.tc-battle-mode\{([^}]+)\}/)?.[1]??'';
+ assert.match(shell,/display:grid!important/,'battle shell must override the legacy display:block rule');
+ assert.match(shell,/max-width:none!important/,'battle shell must override the legacy 620px cap');
 });
