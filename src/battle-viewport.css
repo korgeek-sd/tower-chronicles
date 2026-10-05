@@ -41,3 +41,11 @@
  aspect-ratio:auto!important;
  overflow:hidden;
 }
+
+/* High-resolution character artwork is scaled down on mobile. Let the browser
+ * use normal interpolation for fighters instead of forcing nearest-neighbour
+ * pixel scaling. Skill-card pixel art keeps its existing pixelated rendering. */
+.tc-app.tc-battle-mode .player-figure img,
+.tc-app.tc-battle-mode .monster-figure img{
+ image-rendering:auto!important;
+}
