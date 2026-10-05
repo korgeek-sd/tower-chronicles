@@ -35,10 +35,10 @@ test('BATTLE VFX 0.1.86 03: authoritative combat events drive visual hits withou
  assert.doesNotMatch(canvas,/setGame|basicAttack|resolveMonsterTurn/);
 });
 
-test('BATTLE VFX 0.1.86 04: player action anticipation starts before the existing action callback and does not delay it',()=>{
+test('BATTLE VFX 0.1.86 04: skill anticipation starts before the existing action callback and does not delay it',()=>{
  assert.match(screen,/cuePlayerAction/);
  assert.match(screen,/setActionCue\(\{id:\+\+actionCueSeq\.current,kind\}\);action\(\)/);
- assert.match(screen,/cuePlayerAction\('basic',onBasicAttack\)/);
+ assert.doesNotMatch(screen,/cuePlayerAction\('basic',onBasicAttack\)/);
  assert.match(screen,/cuePlayerAction\('skill',\(\)=>onSkill\(skill\.id\)\)/);
  assert.match(scene,/cuePlayerAction\(actionCue\.kind,speed\)/);
 });
