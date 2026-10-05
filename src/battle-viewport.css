@@ -52,3 +52,22 @@
 .tc-app.tc-battle-mode .tc-battle .monster-figure img{
  image-rendering:auto!important;
 }
+
+/*
+ * Fighter geometry is authored on the 360 × 800 grid using whole CSS pixels
+ * and 8px-aligned coordinates/sizes. This avoids fractional placement such as
+ * 187.2px / 259.2px that forces another resampling pass on character art.
+ */
+.tc-app.tc-battle-mode .tc-battle .player-placement{
+ left:80px!important;
+ top:464px!important;
+ width:192px!important;
+ height:272px!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .monster-placement{
+ left:264px!important;
+ top:272px!important;
+ width:184px!important;
+ height:248px!important;
+}
