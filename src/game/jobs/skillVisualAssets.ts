@@ -8,6 +8,9 @@ export const SKILL_VISUAL_ASSETS:Readonly<Record<string,string>>={
  field_medic_skill_1:'assets/ui/skills/field_medic/field_medic_skill_1.webp',
  field_medic_skill_2:'assets/ui/skills/field_medic/field_medic_skill_2.webp',
  field_medic_skill_3:'assets/ui/skills/field_medic/field_medic_skill_3.webp',
+ duelist_skill_1:'assets/ui/skills/duelist/duelist_skill_1.webp',
+ duelist_skill_2:'assets/ui/skills/duelist/duelist_skill_2.webp',
+ duelist_skill_3:'assets/ui/skills/duelist/duelist_skill_3.webp',
 };
 
 export function skillVisualAssetFor(skillId:string|null|undefined):string|null{
