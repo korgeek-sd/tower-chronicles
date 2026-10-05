@@ -2,6 +2,11 @@ import {combatRuntime} from './battleLifecycle';
 import type {ActiveEffect,EffectDefinition,EffectTag,Expedition} from '../types';
 
 export const EFFECTS:Record<string,EffectDefinition>={
+b_attack_20:{"id": "b_attack_20", "name": "공격 강화", "description": "2턴간 공격 피해 증가 20%", "category": "BUFF", "behavior": "STAT_MODIFIER", "tags": ["STAT_UP"], "defaultDuration": 2, "stackingPolicy": "REFRESH_DURATION", "payload": {"stat": "outgoingDamage", "multiplier": 0.2}},
+b_attack_25:{"id": "b_attack_25", "name": "공격 강화", "description": "2턴간 공격 피해 증가 25%", "category": "BUFF", "behavior": "STAT_MODIFIER", "tags": ["STAT_UP"], "defaultDuration": 2, "stackingPolicy": "REFRESH_DURATION", "payload": {"stat": "outgoingDamage", "multiplier": 0.25}},
+b_guard_15:{"id": "b_guard_15", "name": "피해 감소", "description": "2턴간 받는 피해 감소 15%", "category": "BUFF", "behavior": "STAT_MODIFIER", "tags": ["STAT_UP"], "defaultDuration": 2, "stackingPolicy": "REFRESH_DURATION", "payload": {"stat": "receivedDamage", "multiplier": -0.15}},
+b_guard_30:{"id": "b_guard_30", "name": "피해 감소", "description": "2턴간 받는 피해 감소 30%", "category": "BUFF", "behavior": "STAT_MODIFIER", "tags": ["STAT_UP"], "defaultDuration": 2, "stackingPolicy": "REFRESH_DURATION", "payload": {"stat": "receivedDamage", "multiplier": -0.3}},
+
  attack_up:{id:'attack_up',name:'공격 증가',description:'공격력이 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'attack',multiplier:.3}},
  defense_up:{id:'defense_up',name:'방어 증가',description:'방어력이 증가합니다.',category:'BUFF',behavior:'STAT_MODIFIER',tags:['STAT_UP'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{stat:'defense',multiplier:.4}},
  regen:{id:'regen',name:'재생',description:'턴 종료 시 체력을 회복합니다.',category:'BUFF',behavior:'PERIODIC_HEAL',tags:['HOT','REGEN'],defaultDuration:3,stackingPolicy:'REFRESH_DURATION',payload:{amount:.1}},

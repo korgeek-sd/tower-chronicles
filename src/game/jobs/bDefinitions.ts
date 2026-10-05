@@ -1,0 +1,646 @@
+import type {JobCombatDefinition} from './framework';
+export const B_JOB_DEFINITIONS:JobCombatDefinition[]=[
+  {
+    "jobId": "vanguard_explorer",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "vanguard_explorer_skill_1",
+        "name": "선봉 베기",
+        "description": "공격력 125% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.25
+          }
+        ]
+      },
+      {
+        "id": "vanguard_explorer_skill_2",
+        "name": "돌파 태세",
+        "description": "2턴간 공격 피해 +20%, 받는 피해 -15%",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_attack_20",
+            "duration": 2
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_guard_15",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "vanguard_explorer_skill_3",
+        "name": "전선 돌파",
+        "description": "공격력 260% 단일 피해",
+        "cooldown": 3,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 2
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 2.6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "tracker",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "tracker_skill_1",
+        "name": "추적 사격",
+        "description": "공격력 110% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.1
+          }
+        ]
+      },
+      {
+        "id": "tracker_skill_2",
+        "name": "출혈 화살",
+        "description": "공격력 90% 피해, 2턴간 턴 종료마다 출혈 피해 5",
+        "cooldown": 3,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 0.9
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "TARGET",
+            "effectId": "bleed",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "tracker_skill_3",
+        "name": "집중 사격",
+        "description": "공격력 80% × 3회 피해",
+        "cooldown": 3,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 2
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 3,
+            "baseMultiplier": 0.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "survivor",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "survivor_skill_1",
+        "name": "생존의 일격",
+        "description": "공격력 110% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.1
+          }
+        ]
+      },
+      {
+        "id": "survivor_skill_2",
+        "name": "비상 처치",
+        "description": "최대 HP 15% 회복, 출혈 제거",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "HEAL_PERCENT",
+            "percent": 0.15
+          },
+          {
+            "kind": "REMOVE_EFFECT_TAG",
+            "target": "SELF",
+            "tag": "BLEED"
+          }
+        ]
+      },
+      {
+        "id": "survivor_skill_3",
+        "name": "끝까지 살아남기",
+        "description": "최대 HP 25% 회복, 2턴간 받는 피해 -30%",
+        "cooldown": 5,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 3
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "HEAL_PERCENT",
+            "percent": 0.25
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_guard_30",
+            "duration": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "expedition_medic",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "expedition_medic_skill_1",
+        "name": "구호용 타격",
+        "description": "공격력 105% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.05
+          }
+        ]
+      },
+      {
+        "id": "expedition_medic_skill_2",
+        "name": "현장 치료",
+        "description": "최대 HP 20% 회복",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "HEAL_PERCENT",
+            "percent": 0.2
+          }
+        ]
+      },
+      {
+        "id": "expedition_medic_skill_3",
+        "name": "긴급 안정화",
+        "description": "최대 HP 30% 회복, 출혈·중독 제거",
+        "cooldown": 5,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 3
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "HEAL_PERCENT",
+            "percent": 0.3
+          },
+          {
+            "kind": "REMOVE_EFFECT_TAG",
+            "target": "SELF",
+            "tag": "BLEED"
+          },
+          {
+            "kind": "REMOVE_EFFECT_TAG",
+            "target": "SELF",
+            "tag": "POISON"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "redeemer",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "redeemer_skill_1",
+        "name": "속죄의 타격",
+        "description": "공격력 110% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.1
+          }
+        ]
+      },
+      {
+        "id": "redeemer_skill_2",
+        "name": "고통을 견디는 기도",
+        "description": "2턴간 받는 피해 30% 감소",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_guard_30",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "redeemer_skill_3",
+        "name": "대속의 빛",
+        "description": "자신의 최대 HP 25% 회복, 출혈·중독 제거",
+        "cooldown": 5,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 3
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "HEAL_PERCENT",
+            "percent": 0.25
+          },
+          {
+            "kind": "REMOVE_EFFECT_TAG",
+            "target": "SELF",
+            "tag": "BLEED"
+          },
+          {
+            "kind": "REMOVE_EFFECT_TAG",
+            "target": "SELF",
+            "tag": "POISON"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "lantern_keeper",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "lantern_keeper_skill_1",
+        "name": "등불 타격",
+        "description": "공격력 115% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.15
+          }
+        ]
+      },
+      {
+        "id": "lantern_keeper_skill_2",
+        "name": "꺼지지 않는 불빛",
+        "description": "2턴간 공격 피해 20% 증가, 받는 피해 15% 감소",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_attack_20",
+            "duration": 2
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_guard_15",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "lantern_keeper_skill_3",
+        "name": "어둠 가르기",
+        "description": "공격력 250% 단일 피해",
+        "cooldown": 4,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 2
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 2.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "relic_collector",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "relic_collector_skill_1",
+        "name": "회수용 단검",
+        "description": "공격력 120% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.2
+          }
+        ]
+      },
+      {
+        "id": "relic_collector_skill_2",
+        "name": "갈고리 찢기",
+        "description": "공격력 90% 피해, 2턴간 턴 종료마다 출혈 피해 5",
+        "cooldown": 3,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 0.9
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "TARGET",
+            "effectId": "bleed",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "relic_collector_skill_3",
+        "name": "마지막 회수",
+        "description": "공격력 220% 피해, 적 HP 30% 이하이면 300%",
+        "cooldown": 4,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 2
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 2.2,
+            "conditionalLastHitMultiplier": {
+              "condition": {
+                "kind": "TARGET_HP_RATIO_LE",
+                "ratio": 0.3
+              },
+              "multiplier": 3.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "monster_dismantler",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "monster_dismantler_skill_1",
+        "name": "해체칼 내려치기",
+        "description": "공격력 130% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.3
+          }
+        ]
+      },
+      {
+        "id": "monster_dismantler_skill_2",
+        "name": "깊게 도려내기",
+        "description": "공격력 110% 피해, 2턴간 턴 종료마다 출혈 피해 5",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.1
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "TARGET",
+            "effectId": "bleed",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "monster_dismantler_skill_3",
+        "name": "절단",
+        "description": "공격력 280% 단일 피해",
+        "cooldown": 4,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 3
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 2.8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "jobId": "expedition_archivist",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "expedition_archivist_skill_1",
+        "name": "기록봉 타격",
+        "description": "공격력 105% 단일 피해",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.05
+          }
+        ]
+      },
+      {
+        "id": "expedition_archivist_skill_2",
+        "name": "전투 기록 검토",
+        "description": "2턴간 공격 피해 25% 증가",
+        "cooldown": 4,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "SELF",
+            "effectId": "b_attack_25",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "expedition_archivist_skill_3",
+        "name": "기록대로 공략",
+        "description": "공격력 120%씩 2회 피해",
+        "cooldown": 4,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 2
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 2,
+            "baseMultiplier": 1.2
+          }
+        ]
+      }
+    ]
+  }
+];

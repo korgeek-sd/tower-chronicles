@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {PGlite} from '@electric-sql/pglite';
 const read=(p:string)=>readFileSync(new URL(p,import.meta.url),'utf8');
 const migration='../supabase/migrations/20261003151110_combat_engine_v2_online.sql';
-async function setup(){const db=new PGlite();await db.exec(read('./combatV2DatabaseFixture.sql'));await db.exec(read(migration));return db;}
+async function setup(){const db=new PGlite();await db.exec(read('./combatV2DatabaseFixture.sql'));await db.exec(read(migration));await db.exec(read('../supabase/combat-v2-catalog.sql'));return db;}
 test('SQL V2 percentage damage matches defense penetration and minimum damage',async()=>{
  const db=await setup();try{const r=await db.query<{a:number;b:number;c:number}>('select private.combat_v2_damage(100,100,1,1,1,0)::int a,private.combat_v2_damage(100,100,1,1,1,1)::int b,private.combat_v2_damage(1,9999,1,1,1,0)::int c');assert.deepEqual(r.rows[0],{a:50,b:100,c:1});}finally{await db.close();}
 });

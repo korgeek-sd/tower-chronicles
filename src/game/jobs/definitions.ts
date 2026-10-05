@@ -1,3 +1,4 @@
+import {B_JOB_DEFINITIONS} from './bDefinitions';
 import type {
   JobCombatDefinition,
   PassiveDefinition,
@@ -340,4 +341,5 @@ export function initFiveJobCombatDefinitions() {
   registerJobCombatDefinition(fieldMedicDef);
   registerJobCombatDefinition(duelistDef);
   registerJobCombatDefinition(berserkerDef);
+  B_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
 }

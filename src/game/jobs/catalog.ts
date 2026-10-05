@@ -1,6 +1,7 @@
+import {B_JOB_DEFINITIONS} from './bDefinitions';
 import {JOB_VISUAL_ASSETS} from './visualAssets';
 export type JobRarity='C'|'B'|'A'|'SR'|'SSR';
-export type JobCombatKit={passiveIds:[string,string];activeSkillIds:[string,string,string]};
+export type JobCombatKit={passiveIds:[]|[string,string];activeSkillIds:[string,string,string]};
 export type JobResourceDefinition={id:string;initialValue:number;maxValue?:number};
 export type JobDefinition={id:string;displayName:string;rarity:JobRarity;description?:string;combatKit?:JobCombatKit;jobResource?:JobResourceDefinition;implementationStatus:'CATALOG_ONLY'|'COMBAT_READY';visualAssetKey?:string};
 const rows:[JobRarity,string,string][]=[
@@ -48,6 +49,8 @@ const COMBAT_READY_JOBS: Record<string, { combatKit: JobCombatKit; jobResource?:
   },
 };
 
+for(const def of B_JOB_DEFINITIONS){COMBAT_READY_JOBS[def.jobId]={combatKit:{passiveIds:[],activeSkillIds:def.skills.map(s=>s.id) as [string,string,string]},jobResource:def.resource};}
+
 export const JOB_CATALOG:JobDefinition[]=rows.map(([rarity,id,displayName])=>{
   const ready = COMBAT_READY_JOBS[id];
   return {
@@ -63,6 +66,6 @@ export const jobById=(id:string|null)=>id?JOB_CATALOG.find(job=>job.id===id)??nu
 export const JOB_RARITIES:JobRarity[]=['C','B','A','SR','SSR'];
 export const jobsByRarity=(rarity:JobRarity)=>JOB_CATALOG.filter(job=>job.rarity===rarity);
 export const isValidJobId=(id:unknown):id is string=>typeof id==='string'&&JOB_CATALOG.some(job=>job.id===id);
-export function validateCombatKit(kit:JobCombatKit,passiveDefinitions:ReadonlySet<string>,skillDefinitions:ReadonlySet<string>){return new Set(kit.passiveIds).size===2&&new Set(kit.activeSkillIds).size===3&&kit.passiveIds.every(id=>passiveDefinitions.has(id))&&kit.activeSkillIds.every(id=>skillDefinitions.has(id));}
+export function validateCombatKit(kit:JobCombatKit,passiveDefinitions:ReadonlySet<string>,skillDefinitions:ReadonlySet<string>){return (kit.passiveIds.length===0||new Set(kit.passiveIds).size===2)&&new Set(kit.activeSkillIds).size===3&&kit.passiveIds.every(id=>passiveDefinitions.has(id))&&kit.activeSkillIds.every(id=>skillDefinitions.has(id));}
 export function validateJobCatalog(catalog:JobDefinition[]=JOB_CATALOG){const ids=new Set(catalog.map(job=>job.id)),names=new Set(catalog.map(job=>job.displayName));if(catalog.length!==EXPECTED_JOB_TOTAL||ids.size!==EXPECTED_JOB_TOTAL||names.size!==EXPECTED_JOB_TOTAL||JOB_RARITIES.some(rarity=>catalog.filter(job=>job.rarity===rarity).length!==EXPECTED_JOB_COUNTS[rarity]))throw Error('직업 카탈로그 정합성 오류');return true;}
 validateJobCatalog();
