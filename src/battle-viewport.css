@@ -69,11 +69,16 @@
  display:none!important;
 }
 
+/*
+ * Pull the compact tower/floor header into the reclaimed top gap left by the
+ * removed utility/metric chrome. Keep a tiny safe-area cushion for notched
+ * displays without wasting vertical combat space.
+ */
 .tc-app.tc-battle-mode .tc-battle .tc-ref-top{
- top:max(2.4%,env(safe-area-inset-top));
+ top:max(.6%,env(safe-area-inset-top));
  left:.8%;
  right:.8%;
- height:7.2%;
+ height:5.8%;
  grid-template-rows:1fr!important;
 }
 
