@@ -110,14 +110,18 @@
 }
 
 /*
- * Fighter artwork is high-resolution pixel-styled illustration, not a tiny
- * source sprite intended for nearest-neighbour enlargement. Let the browser
- * resample it normally when the responsive battle layout scales it down.
- * Keep pixelated rendering on skill/UI art elsewhere.
+ * High-resolution fighter artwork uses normal browser resampling. Low-resolution
+ * true pixel sprites opt back into nearest-neighbour rendering below so they do
+ * not become soft when the responsive battle layout enlarges them.
  */
 .tc-app.tc-battle-mode .tc-battle .player-figure img,
 .tc-app.tc-battle-mode .tc-battle .monster-figure img{
  image-rendering:auto!important;
+}
+
+.tc-app.tc-battle-mode .tc-battle .player-figure img[src*="hunter.webp"],
+.tc-app.tc-battle-mode .tc-battle .player-figure img[src*="excavator.webp"]{
+ image-rendering:pixelated!important;
 }
 
 /*
