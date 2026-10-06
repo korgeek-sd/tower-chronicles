@@ -1,1 +1,0 @@
-Execution proceeds from docs/superpowers/plans/2026-10-06-a-rank-job-skills.md.
