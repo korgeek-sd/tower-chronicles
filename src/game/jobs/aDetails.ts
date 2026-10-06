@@ -1,240 +1,44 @@
-import type {JobDetailDefinition} from './details';
+import {A_JOB_DEFINITIONS} from './aDefinitions';
+import type {JobDetailDefinition,JobSkillPreview} from './details';
 
-export const A_JOB_DETAILS:Record<string,JobDetailDefinition>={
- executor:{
-  description:'갑옷을 깨뜨리고 체력이 낮아진 적에게 강한 마무리 공격을 가하는 집행인.',
-  resourceSummary:'전투 자원 · 시작 0 · 최대 4칸',
-  skills:[
-   {name:'집행검 내려치기',kind:'GENERATOR',cooldown:1,resourceLabel:'자원 +1',description:'적에게 공격력의 135%만큼 피해를 주고 자원을 1 생성합니다.',facts:['피해 135%']},
-   {name:'형벌의 일격',kind:'NEUTRAL',cooldown:4,resourceLabel:'자원 변화 없음',description:'적에게 공격력의 120%만큼 피해를 주고 2턴 동안 적의 방어력을 20% 감소시킵니다.',facts:['피해 120%','방어력 -20% · 2턴']},
-   {name:'처형',kind:'SPENDER',cooldown:4,resourceLabel:'자원 -3',description:'자원을 3 소비하여 적에게 공격력의 260%만큼 피해를 줍니다. 적의 HP가 최대 HP의 30% 이하이면 피해 배율이 360%로 증가합니다.',facts:['피해 260%','적 HP 30% 이하 · 피해 360%']},
-  ],
- },
- inquisitor:{
-  description:'출혈과 자신의 피해 증가를 함께 사용하고 세 번의 연격으로 몰아치는 심문관.',
-  resourceSummary:'전투 자원 · 시작 0 · 최대 4칸',
-  skills:[
-   {name:'심문칼 찌르기',kind:'GENERATOR',cooldown:1,resourceLabel:'자원 +1',description:'적에게 공격력의 120%만큼 피해를 주고 자원을 1 생성합니다.',facts:['피해 120%']},
-   {name:'엄정한 심문',kind:'NEUTRAL',cooldown:4,resourceLabel:'자원 변화 없음',description:'적에게 공격력의 90%만큼 피해를 주고 2턴 동안 출혈을 부여합니다. 출혈은 매 턴 5의 피해를 줍니다. 2턴 동안 자신이 주는 피해가 20% 증가합니다.',facts:['피해 90%','출혈 · 매 턴 5 · 2턴','주는 피해 +20% · 2턴']},
-   {name:'판결의 연격',kind:'SPENDER',cooldown:4,resourceLabel:'자원 -3',description:'자원을 3 소비하여 적을 3회 공격합니다. 각 타격은 공격력의 100%만큼 피해를 줍니다.',facts:['100% × 3회','총 300%']},
-  ],
- },
- deep_delver:{
-  description:'곡괭이로 적의 방어를 무너뜨리고 연속 타격으로 파고드는 심층 도굴꾼.',
-  resourceSummary:'전투 자원 · 시작 0 · 최대 4칸',
-  skills:[
-   {name:'도굴 곡괭이',kind:'GENERATOR',cooldown:1,resourceLabel:'자원 +1',description:'적에게 공격력의 125%만큼 피해를 주고 자원을 1 생성합니다.',facts:['피해 125%']},
-   {name:'방호 파쇄',kind:'NEUTRAL',cooldown:3,resourceLabel:'자원 변화 없음',description:'적에게 공격력의 100%만큼 피해를 주고 2턴 동안 적의 방어력을 20% 감소시킵니다.',facts:['피해 100%','방어력 -20% · 2턴']},
-   {name:'심층 굴진',kind:'SPENDER',cooldown:4,resourceLabel:'자원 -2',description:'자원을 2 소비하여 적을 3회 공격합니다. 각 타격은 공격력의 90%만큼 피해를 줍니다.',facts:['90% × 3회','총 270%']},
-  ],
- },
- bloodfighter:{
-  description:'출혈을 누적하고 강력한 공격과 자기 회복을 함께 사용하는 혈전가.',
-  resourceSummary:'전투 자원 · 시작 0 · 최대 4칸',
-  skills:[
-   {name:'혈전 베기',kind:'GENERATOR',cooldown:1,resourceLabel:'자원 +1',description:'적에게 공격력의 130%만큼 피해를 주고 자원을 1 생성합니다.',facts:['피해 130%']},
-   {name:'상처 벌리기',kind:'NEUTRAL',cooldown:3,resourceLabel:'자원 변화 없음',description:'적에게 공격력의 130%만큼 피해를 주고 2턴 동안 출혈을 부여합니다. 출혈은 매 턴 5의 피해를 줍니다.',facts:['피해 130%','출혈 · 매 턴 5 · 2턴']},
-   {name:'혈전 돌파',kind:'SPENDER',cooldown:5,resourceLabel:'자원 -3',description:'자원을 3 소비하여 적에게 공격력의 270%만큼 피해를 주고 자신의 최대 HP의 15%만큼 HP를 회복합니다.',facts:['피해 270%','회복 · 최대 HP 15%']},
-  ],
- },
- expedition_tactician:{
-  description:'주는 피해와 받는 피해를 함께 조절하고 두 번의 집중 공격으로 공세를 펼치는 원정 전술가.',
-  resourceSummary:'전투 자원 · 시작 0 · 최대 4칸',
-  skills:[
-   {name:'전술검 타격',kind:'GENERATOR',cooldown:1,resourceLabel:'자원 +1',description:'적에게 공격력의 120%만큼 피해를 주고 자원을 1 생성합니다.',facts:['피해 120%']},
-   {name:'공방 전술',kind:'NEUTRAL',cooldown:4,resourceLabel:'자원 변화 없음',description:'2턴 동안 자신이 주는 피해가 25% 증가하고 받는 피해가 20% 감소합니다.',facts:['주는 피해 +25%','받는 피해 -20%','지속 2턴']},
-   {name:'집중 공세',kind:'SPENDER',cooldown:4,resourceLabel:'자원 -2',description:'자원을 2 소비하여 적을 2회 공격합니다. 각 타격은 공격력의 130%만큼 피해를 줍니다.',facts:['130% × 2회','총 260%']},
-  ],
- },
-
-
-  "ascetic_priest": {
-    "description": "피해를 견디며 강한 타격과 자기 회복으로 버티는 고행사제.",
-    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
-    "skills": [
-      {
-        "name": "고행봉 타격",
-        "kind": "GENERATOR",
-        "cooldown": 1,
-        "resourceLabel": "자원 +1",
-        "description": "적에게 공격력의 115%만큼 피해를 주고 자원을 1 생성합니다.",
-        "facts": [
-          "피해 115%"
-        ]
-      },
-      {
-        "name": "인내의 기도",
-        "kind": "NEUTRAL",
-        "cooldown": 4,
-        "resourceLabel": "자원 변화 없음",
-        "description": "2턴 동안 자신이 받는 피해가 30% 감소합니다.",
-        "facts": [
-          "받는 피해 -30% · 2턴"
-        ]
-      },
-      {
-        "name": "고행의 응답",
-        "kind": "SPENDER",
-        "cooldown": 5,
-        "resourceLabel": "자원 -3",
-        "description": "자원을 3 소비하여 적에게 공격력의 240%만큼 피해를 주고 자신의 최대 HP의 20%만큼 HP를 회복합니다.",
-        "facts": [
-          "피해 240%",
-          "회복 · 최대 HP 20%"
-        ]
-      }
-    ]
-  },
-  "life_stitcher": {
-    "description": "출혈을 처치하고 큰 회복으로 생존을 이어가는 생명봉합사.",
-    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
-    "skills": [
-      {
-        "name": "봉합침 찌르기",
-        "kind": "GENERATOR",
-        "cooldown": 1,
-        "resourceLabel": "자원 +1",
-        "description": "적에게 공격력의 110%만큼 피해를 주고 자원을 1 생성합니다.",
-        "facts": [
-          "피해 110%"
-        ]
-      },
-      {
-        "name": "상처 봉합",
-        "kind": "NEUTRAL",
-        "cooldown": 4,
-        "resourceLabel": "자원 변화 없음",
-        "description": "자신의 최대 HP의 20%만큼 HP를 회복하고 자신에게 걸린 출혈을 제거합니다.",
-        "facts": [
-          "회복 · 최대 HP 20%",
-          "출혈 제거"
-        ]
-      },
-      {
-        "name": "생명 이어붙이기",
-        "kind": "SPENDER",
-        "cooldown": 5,
-        "resourceLabel": "자원 -3",
-        "description": "자원을 3 소비하여 자신의 최대 HP의 35%만큼 HP를 회복하고 자신에게 걸린 출혈과 중독을 제거합니다.",
-        "facts": [
-          "회복 · 최대 HP 35%",
-          "출혈·중독 제거"
-        ]
-      }
-    ]
-  },
-  "subjugation_officer": {
-    "description": "적의 방어를 낮춘 뒤 강한 단일 타격으로 마무리하는 토벌관.",
-    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
-    "skills": [
-      {
-        "name": "토벌검 베기",
-        "kind": "GENERATOR",
-        "cooldown": 1,
-        "resourceLabel": "자원 +1",
-        "description": "적에게 공격력의 135%만큼 피해를 주고 자원을 1 생성합니다.",
-        "facts": [
-          "피해 135%"
-        ]
-      },
-      {
-        "name": "방호 절개",
-        "kind": "NEUTRAL",
-        "cooldown": 4,
-        "resourceLabel": "자원 변화 없음",
-        "description": "적에게 공격력의 110%만큼 피해를 주고 2턴 동안 적의 방어력을 20% 감소시킵니다.",
-        "facts": [
-          "피해 110%",
-          "방어력 -20% · 2턴"
-        ]
-      },
-      {
-        "name": "토벌 집행",
-        "kind": "SPENDER",
-        "cooldown": 4,
-        "resourceLabel": "자원 -3",
-        "description": "자원을 3 소비하여 적에게 공격력의 300%만큼 피해를 줍니다.",
-        "facts": [
-          "피해 300%"
-        ]
-      }
-    ]
-  },
-  "rescuer": {
-    "description": "출혈을 처치하고 회복과 피해 감소를 함께 사용하는 구조대원.",
-    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
-    "skills": [
-      {
-        "name": "구조도끼 타격",
-        "kind": "GENERATOR",
-        "cooldown": 1,
-        "resourceLabel": "자원 +1",
-        "description": "적에게 공격력의 120%만큼 피해를 주고 자원을 1 생성합니다.",
-        "facts": [
-          "피해 120%"
-        ]
-      },
-      {
-        "name": "안전 확보",
-        "kind": "NEUTRAL",
-        "cooldown": 4,
-        "resourceLabel": "자원 변화 없음",
-        "description": "2턴 동안 자신이 받는 피해가 20% 감소하고 자신에게 걸린 출혈을 제거합니다.",
-        "facts": [
-          "받는 피해 -20% · 2턴",
-          "출혈 제거"
-        ]
-      },
-      {
-        "name": "긴급 구조",
-        "kind": "SPENDER",
-        "cooldown": 5,
-        "resourceLabel": "자원 -3",
-        "description": "자원을 3 소비하여 자신의 최대 HP의 30%만큼 HP를 회복하고 2턴 동안 자신이 받는 피해가 30% 감소합니다.",
-        "facts": [
-          "회복 · 최대 HP 30%",
-          "받는 피해 -30% · 2턴"
-        ]
-      }
-    ]
-  },
-  "quartermaster": {
-    "description": "체력을 보충하면서 공격을 강화하는 보급관.",
-    "resourceSummary": "전투 자원 · 시작 0 · 최대 4칸",
-    "skills": [
-      {
-        "name": "보급봉 타격",
-        "kind": "GENERATOR",
-        "cooldown": 1,
-        "resourceLabel": "자원 +1",
-        "description": "적에게 공격력의 115%만큼 피해를 주고 자원을 1 생성합니다.",
-        "facts": [
-          "피해 115%"
-        ]
-      },
-      {
-        "name": "전투 보급",
-        "kind": "NEUTRAL",
-        "cooldown": 4,
-        "resourceLabel": "자원 변화 없음",
-        "description": "자신의 최대 HP의 10%만큼 HP를 회복하고 2턴 동안 자신이 주는 피해가 25% 증가합니다.",
-        "facts": [
-          "회복 · 최대 HP 10%",
-          "주는 피해 +25% · 2턴"
-        ]
-      },
-      {
-        "name": "예비 물자 투입",
-        "kind": "SPENDER",
-        "cooldown": 5,
-        "resourceLabel": "자원 -3",
-        "description": "자원을 3 소비하여 자신의 최대 HP의 30%만큼 HP를 회복하고 2턴 동안 자신이 주는 피해가 20% 증가합니다.",
-        "facts": [
-          "회복 · 최대 HP 30%",
-          "주는 피해 +20% · 2턴"
-        ]
-      }
-    ]
-  }
-,
+const A_JOB_DESCRIPTIONS:Record<string,string>={
+ executor:'체력이 낮아진 적을 강한 마무리 공격으로 처단하는 집행인.',
+ inquisitor:'약화된 적의 빈틈을 파고들어 방어를 관통하는 심문관.',
+ deep_delver:'높은 방어 관통과 다단 공격으로 깊게 파고드는 심층 도굴꾼.',
+ bloodfighter:'자신의 체력을 대가로 강한 피해를 밀어붙이는 혈전가.',
+ expedition_tactician:'공격 강화와 피해 감소를 함께 운용하는 원정 전술가.',
+ ascetic_priest:'자신의 체력을 대가로 공격력을 끌어올리고 고통을 되갚는 고행사제.',
+ life_stitcher:'회복과 재생, 출혈·중독 제거로 전투를 이어가는 생명봉합사.',
+ subjugation_officer:'약화와 방어 관통으로 단일 목표를 제압하는 토벌관.',
+ rescuer:'피해 감소와 회복, 상태이상 제거로 생존을 지원하는 구조대원.',
+ quartermaster:'공격 강화와 회복·방어·재생을 보급하는 보급관.',
+ coroner:'출혈과 약화로 적을 분석하고 빈사 상태를 끝내는 검시관.',
+ stair_scout:'빠른 연격과 다단 공격으로 층계를 돌파하는 층계척후.',
 };
+
+function toPreview(skill:(typeof A_JOB_DEFINITIONS)[number]['skills'][number]):JobSkillPreview{
+ const resource=skill.resource!;
+ return {
+  name:skill.name,
+  kind:resource.kind,
+  cooldown:skill.cooldown,
+  resourceLabel:resource.kind==='GENERATOR'
+   ?`자원 +${resource.gain}`
+   :resource.kind==='SPENDER'
+    ?`자원 -${resource.cost.mode==='FIXED'?resource.cost.amount:resource.cost.min}`
+    :'자원 변화 없음',
+  description:skill.description,
+  facts:[],
+ };
+}
+
+export const A_JOB_DETAILS:Record<string,JobDetailDefinition>=Object.fromEntries(
+ A_JOB_DEFINITIONS.map(def=>[
+  def.jobId,
+  {
+   description:A_JOB_DESCRIPTIONS[def.jobId]??'확정된 A등급 전투 정의를 사용하는 직능입니다.',
+   resourceSummary:'전투 자원 · 시작 0 · 최대 4칸',
+   skills:def.skills.map(toPreview) as JobDetailDefinition['skills'],
+  },
+ ])
+);
