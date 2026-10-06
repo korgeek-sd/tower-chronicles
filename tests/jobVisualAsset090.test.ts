@@ -17,6 +17,10 @@ test('JOB ART FAST PATH 01: every registry entry is canonical, known, and backed
   assert.equal(existsSync(disk),true,disk);
   // Compact valid sprites can be smaller than 5 KB. Keep a basic truncation check.
   assert.ok(statSync(disk).size>1024,disk);
+  const bytes=readFileSync(disk);
+  assert.equal(bytes.toString('ascii',0,4),'RIFF','invalid image header: '+id);
+  assert.equal(bytes.toString('ascii',8,12),'WEBP','invalid image format: '+id);
+  assert.equal(bytes.readUInt32LE(4)+8,bytes.length,'truncated image: '+id);
  }
 });
 

@@ -47,8 +47,7 @@ export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower]
 const ASSET_REVISIONS:Readonly<Record<string,string>>={'assets/characters/jobs/duelist.webp':'e4991963','assets/characters/jobs/unity_apostle.webp':'unity-hd-20261006'};
 export const assetUrl=(path:string)=>{
  const normalized=path.replace(/^\/+/, '');
- const revision=ASSET_REVISIONS[normalized];
+ const revision=ASSET_REVISIONS[normalized]??(normalized.startsWith('assets/characters/jobs/')?'jobs-hd-20261006':undefined);
  return './'+normalized+(revision?'?v='+revision:'');
 };
-
 
