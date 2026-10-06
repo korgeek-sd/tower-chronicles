@@ -29,7 +29,7 @@ test('desktop landscape battle fills its canvas and uses desktop-relative combat
  assert.doesNotMatch(desktop,/width:min\(45dvh,100vw\)/,'desktop must not be squeezed into a phone-width column');
  assert.match(desktop,/\.monster-hud\{[^}]*left:3%!important[^}]*top:14%!important[^}]*width:30%!important/s);
  assert.match(desktop,/\.player-hud\{[^}]*right:3%!important[^}]*top:54%!important[^}]*width:30%!important/s);
- assert.match(desktop,/\.player-placement\{[^}]*left:28%!important[^}]*top:60%!important[^}]*width:30%!important[^}]*height:42%!important/s);
- assert.match(desktop,/\.monster-placement\{[^}]*left:72%!important[^}]*top:34%!important[^}]*width:30%!important[^}]*height:38%!important/s);
+ assert.match(desktop,/\.player-placement\{[^}]*left:28%!important[^}]*top:60%!important[^}]*width:52%!important[^}]*height:52%!important/s);
+ assert.match(desktop,/\.monster-placement\{[^}]*left:72%!important[^}]*top:34%!important[^}]*width:48%!important[^}]*height:48%!important/s);
  assert.doesNotMatch(desktop,/round\(nearest,[\d.]+vw,1px\)/);
 });
