@@ -165,7 +165,7 @@ export function executeJobSkill(s: GameState, skillId: string, rng: () => number
       }
       case 'APPLY_EFFECT': {
         const target = act.target === 'SELF' ? 'player' : 'monster';
-        applyEffect(e, target, act.effectId, 'player', target === 'player' ? e.playerTurn : e.monsterTurn);
+        applyEffect(e, target, act.effectId, 'player', target === 'player' ? e.playerTurn : e.monsterTurn,act.duration);
         log(s, `[${skill.name}] 사용 · ${act.target === 'SELF' ? '자신에게' : '적에게'} 효과 적용`);
         break;
       }

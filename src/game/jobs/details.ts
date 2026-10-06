@@ -1,5 +1,6 @@
 import {B_JOB_DEFINITIONS} from './bDefinitions';
 import {A_JOB_DETAILS} from './aDetails';
+import {SR_JOB_DEFINITIONS} from './srDefinitions';
 import {getJobCombatDefinition} from './framework';
 import {initFiveJobCombatDefinitions} from './definitions';
 export type JobSkillPreview={
@@ -93,9 +94,9 @@ export const JOB_DETAIL_CATALOG:Record<string,JobDetailDefinition>={
 };
 
 initFiveJobCombatDefinitions();
-for(const id of [...B_JOB_DEFINITIONS.map(d=>d.jobId),'duelist']){
+for(const id of [...B_JOB_DEFINITIONS.map(d=>d.jobId),...SR_JOB_DEFINITIONS.map(d=>d.jobId),'duelist','berserker']){
  const def=getJobCombatDefinition(id)!;
- JOB_DETAIL_CATALOG[id]={description:'확정된 스킬을 사용하는 B등급 직능입니다.',resourceSummary:def.resource?'전투 자원 · 시작 0 · 최대 4칸':'자원 소비 없음',skills:def.skills.map(skill=>({name:skill.name,description:skill.description,cooldown:skill.cooldown,kind:skill.resource!.kind,resourceLabel:skill.resource!.kind==='GENERATOR'?'자원 +'+skill.resource!.gain:skill.resource!.kind==='SPENDER'?'자원 -'+(skill.resource!.cost.mode==='FIXED'?skill.resource!.cost.amount:skill.resource!.cost.min):'자원 변화 없음',facts:[]})) as unknown as JobDetailDefinition['skills']};
+ JOB_DETAIL_CATALOG[id]={description:id==='berserker'||SR_JOB_DEFINITIONS.some(d=>d.jobId===id)?'확정된 강력한 스킬을 사용하는 SR등급 직능입니다.':'확정된 스킬을 사용하는 B등급 직능입니다.',resourceSummary:def.resource?'전투 자원 · 시작 0 · 최대 4칸':'자원 소비 없음',skills:def.skills.map(skill=>({name:skill.name,description:skill.description,cooldown:skill.cooldown,kind:skill.resource!.kind,resourceLabel:skill.resource!.kind==='GENERATOR'?'자원 +'+skill.resource!.gain:skill.resource!.kind==='SPENDER'?'자원 -'+(skill.resource!.cost.mode==='FIXED'?skill.resource!.cost.amount:skill.resource!.cost.min):'자원 변화 없음',facts:[]})) as unknown as JobDetailDefinition['skills']};
 }
 
 Object.assign(JOB_DETAIL_CATALOG,A_JOB_DETAILS);

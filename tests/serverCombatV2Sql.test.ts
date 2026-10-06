@@ -119,3 +119,13 @@ test('SQL V2 legacy migration preserves shield pools, ready turns and effect own
  await db.exec(read('../supabase/combat-v2-cutover.sql'));assert.equal((await db.query<{n:number}>('select state_version n from private.online_combat_states')).rows[0].n,2);
  }finally{await db.close();}
 });
+
+test('SR online skills execute approved damage, resource and effect duration',async()=>{
+ const db=await setup();try{
+  const invoke=async(job:string,id:string,extra={})=>(await db.query<{a:any}>("select to_jsonb(private.combat_v2_job_skill(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),$2,1)) a",[JSON.stringify(combat({job_id:job,crit_chance:0,...extra})),id])).rows[0].a;
+  const poison=await invoke('mutagen_doctor','mutagen_doctor_skill_1');assert.equal(poison.job_resource,1);assert.equal(poison.monster_hp,971);assert.equal(poison.monster_effects[0].duration,3);
+  const extended=await invoke('mutagen_doctor','mutagen_doctor_skill_1',{monster_effects:poison.monster_effects});assert.equal(extended.monster_effects[0].duration,6);
+  const guard=await invoke('return_guardian','return_guardian_skill_2');assert.equal(guard.player_effects[0].duration,2);
+  const burst=await invoke('boss_tracker','boss_tracker_skill_3',{job_resource:3});assert.equal(burst.job_resource,0);assert.equal(burst.monster_hp,916);
+ }finally{await db.close();}
+});

@@ -136,7 +136,15 @@ begin
     if coalesce((q->>'incomingDamage')::numeric,0)>0 then successful:=true;end if;
     if coalesce((q->>'hpDamage')::numeric,0)>0 and c.monster_hp>0 then for q in select value from jsonb_array_elements(coalesce(a->'onHitEffects','[]')) loop c:=private.combat_v2_effect(c,'monster',q->>'effectId','player');end loop;end if;
    end loop;
-  elsif a->>'kind'='APPLY_EFFECT' then c:=private.combat_v2_effect(c,case when a->>'target'='SELF' then 'player' else 'monster' end,a->>'effectId','player');
+  elsif a->>'kind'='APPLY_EFFECT' then
+   effects:=case when a->>'target'='SELF' then c.player_effects else c.monster_effects end;
+   c:=private.combat_v2_effect(c,case when a->>'target'='SELF' then 'player' else 'monster' end,a->>'effectId','player');
+   q:=private.combat_v2_definition(a->>'effectId');
+   if a ? 'duration' and q->>'behavior'<>'SHIELD' and effects is distinct from (case when a->>'target'='SELF' then c.player_effects else c.monster_effects end) then
+    select coalesce(jsonb_agg(case when x->>'effectId'=a->>'effectId' then x||jsonb_build_object('duration',case when q->>'stackingPolicy'='EXTEND_DURATION' then (x->>'duration')::int-(q->>'defaultDuration')::int+(a->>'duration')::int else (a->>'duration')::int end) else x end order by ord),'[]') into effects
+    from jsonb_array_elements(case when a->>'target'='SELF' then c.player_effects else c.monster_effects end) with ordinality t(x,ord);
+    if a->>'target'='SELF' then c.player_effects:=effects;else c.monster_effects:=effects;end if;
+   end if;
   elsif a->>'kind' in ('HEAL_PERCENT','HEAL_FLAT') then c:=private.combat_v2_heal(c,'player',case when a->>'kind'='HEAL_FLAT' then (a->>'amount')::numeric else round(c.player_max_hp*(a->>'percent')::numeric) end,true,nonce,1100);
   elsif a->>'kind'='SELF_HP_COST_PERCENT' then c.player_hp:=greatest(1,c.player_hp-round(c.player_max_hp*(a->>'percentOfMax')::numeric));
   elsif a->>'kind'='CHANGE_RESOURCE' then c.job_resource:=greatest(0,least(4,c.job_resource+(a->>'delta')::int));
