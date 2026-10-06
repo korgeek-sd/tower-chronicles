@@ -66,22 +66,28 @@
 }
 
 /*
- * Desktop battle is intentionally a centered 20:9 portrait playfield.
- * Keep this block after the round() feature query so desktop values win.
- * Fighter coordinates are percentages of the stage, never vw/dvh.
+ * Desktop has its own composition. The battle field fills the screen;
+ * HUD and fighters are positioned against that landscape field.
+ * This block stays after the mobile round() rules so desktop always wins.
  */
 @media (min-width:900px) and (orientation:landscape){
- .tc-app.tc-battle-mode .tc-main{
-  display:flex!important;
-  justify-content:center!important;
-  align-items:stretch!important;
- }
+ .tc-app.tc-battle-mode .tc-main{display:block!important}
  .tc-app.tc-battle-mode .tc-main>.tc-battle{
-  width:min(45dvh,100vw)!important;
-  height:100dvh!important;
-  flex:0 0 min(45dvh,100vw);
-  margin:0 auto!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
  }
- .tc-app.tc-battle-mode .tc-battle .player-placement{left:25%!important;top:57%!important;width:68%!important;height:43%!important}
- .tc-app.tc-battle-mode .tc-battle .monster-placement{left:70%!important;top:33%!important;width:62%!important;height:38%!important}
+ .tc-app.tc-battle-mode .tc-battle .monster-hud{
+  left:3%!important;right:auto!important;top:14%!important;width:30%!important;
+ }
+ .tc-app.tc-battle-mode .tc-battle .player-hud{
+  left:auto!important;right:3%!important;top:54%!important;width:30%!important;
+ }
+ .tc-app.tc-battle-mode .tc-battle .tc-ref-loot-entry{right:3%!important;top:12%!important}
+ .tc-app.tc-battle-mode .tc-battle .player-placement{
+  left:28%!important;top:60%!important;width:30%!important;height:42%!important;
+ }
+ .tc-app.tc-battle-mode .tc-battle .monster-placement{
+  left:72%!important;top:34%!important;width:30%!important;height:38%!important;
+ }
 }
