@@ -16,7 +16,13 @@ test('battle keeps the 20:9 design grid but fills the visible browser viewport o
  assert.match(shell,/height:100dvh!important/);
 });
 
-test('desktop landscape battle fills the desktop viewport and uses desktop-relative combat placement',()=>{
+test('desktop battle shell uses the same 520px horizontal canvas as the stronghold',()=>{
+ const css=readFileSync(viewportCssUrl,'utf8');
+ const desktop=css.split('@media (min-width:900px) and (orientation:landscape)')[1]??'';
+ assert.match(desktop,/\.tc-app\.tc-battle-mode\{[^}]*width:min\(100%,520px\)!important[^}]*margin:0 auto!important/s);
+});
+
+test('desktop landscape battle fills its canvas and uses desktop-relative combat placement',()=>{
  const css=readFileSync(viewportCssUrl,'utf8');
  const desktop=css.split('@media (min-width:900px) and (orientation:landscape)')[1]??'';
  assert.match(desktop,/\.tc-main>\.tc-battle\{[^}]*width:100%!important[^}]*height:100%!important/s);
