@@ -7,6 +7,7 @@
         "dev": "vite --host 127.0.0.1",
         "typecheck": "tsc --noEmit",
         "build": "tsc --noEmit && vite build",
+        "pretest": "node --import ./tests/register.mjs scripts/generateCombatSqlCatalog.ts && node scripts/buildCombatV2Migration.mjs",
         "test": "node --import ./tests/register.mjs --test tests/*.test.ts"
     },
     "dependencies": {
@@ -22,10 +23,3 @@
         "vite": "6.4.3"
     }
 }
-
-
-
-
-
-
-
