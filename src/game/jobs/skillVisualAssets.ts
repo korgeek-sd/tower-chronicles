@@ -68,6 +68,12 @@ export const SKILL_VISUAL_ASSETS:Readonly<Record<string,string>>={
  quartermaster_skill_1:'assets/ui/skills/quartermaster/quartermaster_skill_1.webp',
  quartermaster_skill_2:'assets/ui/skills/quartermaster/quartermaster_skill_2.webp',
  quartermaster_skill_3:'assets/ui/skills/quartermaster/quartermaster_skill_3.webp',
+ coroner_skill_1:'assets/ui/skills/coroner/coroner_skill_1.webp',
+ coroner_skill_2:'assets/ui/skills/coroner/coroner_skill_2.webp',
+ coroner_skill_3:'assets/ui/skills/coroner/coroner_skill_3.webp',
+ stair_scout_skill_1:'assets/ui/skills/stair_scout/stair_scout_skill_1.webp',
+ stair_scout_skill_2:'assets/ui/skills/stair_scout/stair_scout_skill_2.webp',
+ stair_scout_skill_3:'assets/ui/skills/stair_scout/stair_scout_skill_3.webp',
 };
 
 export function skillVisualAssetFor(skillId:string|null|undefined):string|null{
