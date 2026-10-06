@@ -2,47 +2,61 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {jobDetailById} from '../src/game/jobs/details';
 
-test('approved A-rank jobs expose three skills with resource costs and cooldowns',()=>{
- const rows:[string,string[],number[],string[]][]=[
-  ['executor',['집행검 내려치기','형벌의 일격','처형'],[1,4,4],['+1','변화 없음','-3']],
-  ['inquisitor',['심문칼 찌르기','엄정한 심문','판결의 연격'],[1,4,4],['+1','변화 없음','-3']],
-  ['deep_delver',['도굴 곡괭이','방호 파쇄','심층 굴진'],[1,3,4],['+1','변화 없음','-2']],
-  ['bloodfighter',['혈전 베기','상처 벌리기','혈전 돌파'],[1,3,5],['+1','변화 없음','-3']],
-  ['expedition_tactician',['전술검 타격','공방 전술','집중 공세'],[1,4,4],['+1','변화 없음','-2']],
- ];
- for(const [id,names,cooldowns,resources] of rows){
+// Independent expectations from the user-approved 2026-10-06 A-rank design.
+const APPROVED_KITS:[string,string[],number[]][]=[
+ ['executor',['처단 베기','유죄 선고','최종 집행'],[0,3,4]],
+ ['inquisitor',['심문봉 타격','약점 추궁','이단 단죄'],[0,2,4]],
+ ['deep_delver',['곡괭이 강타','틈새 파고들기','심층 붕괴'],[0,3,4]],
+ ['bloodfighter',['혈흔 베기','피의 대가','혈전 종결'],[0,3,4]],
+ ['expedition_tactician',['전술 타격','공세 전환','집중 공세'],[0,4,4]],
+ ['ascetic_priest',['고행봉 타격','육신의 대가','고통의 응보'],[0,4,4]],
+ ['life_stitcher',['봉합침 찌르기','응급 봉합','생명 재구성'],[0,3,5]],
+ ['subjugation_officer',['제압 타격','방어 파쇄','토벌 명령'],[0,3,4]],
+ ['rescuer',['구조용 철퇴','긴급 방호','생환 조치'],[0,4,5]],
+ ['quartermaster',['보급검 타격','전투 보급','비상 물자 투입'],[0,4,5]],
+ ['coroner',['해부도 절개','사인 분석','사망 판정'],[0,3,4]],
+ ['stair_scout',['선행 찌르기','틈새 연격','층계 돌파'],[0,2,4]],
+];
+
+test('all 12 approved A-rank job details expose names, cooldowns and the skill-only resource loop',()=>{
+ for(const [id,names,cooldowns] of APPROVED_KITS){
   const d=jobDetailById(id);assert.ok(d,`${id} details missing`);
-  assert.deepEqual(d.skills.map(s=>s.name),names);
-  assert.deepEqual(d.skills.map(s=>s.cooldown),cooldowns);
-  assert.deepEqual(d.skills.map(s=>s.resourceLabel),resources.map(r=>'자원 '+r));
-  assert.deepEqual(d.skills.map(s=>s.kind),['GENERATOR','NEUTRAL','SPENDER']);
-  assert.match(d.resourceSummary,/시작 0.*최대 4/);
+  assert.deepEqual(d.skills.map(s=>s.name),names,id);
+  assert.deepEqual(d.skills.map(s=>s.cooldown),cooldowns,id);
+  assert.deepEqual(d.skills.map(s=>s.resourceLabel),['자원 +1','자원 변화 없음','자원 -3'],id);
+  assert.deepEqual(d.skills.map(s=>s.kind),['GENERATOR','NEUTRAL','SPENDER'],id);
+  assert.match(d.resourceSummary,/시작 0.*최대 4/,id);
  }
 });
 
-test('A-rank descriptions spell out duration, bleed damage, execution threshold and fixed healing',()=>{
- for(const id of ['inquisitor','bloodfighter'])assert.match(jobDetailById(id)!.skills[1].description,/2턴.*출혈.*매 턴 5/);
- assert.match(jobDetailById('executor')!.skills[2].description,/260%.*30% 이하.*360%/);
- assert.match(jobDetailById('bloodfighter')!.skills[2].description,/270%.*최대 HP의 15%/);
- assert.match(jobDetailById('expedition_tactician')!.skills[1].description,/2턴.*25%.*20%/);
- assert.equal(jobDetailById('coroner'),null);
-});
-
-
-test('second five A-rank job details expose approved costs, cooldowns and effects',()=>{
- const rows:[string,string[],number[],RegExp[]][]=[
-  ['ascetic_priest',['고행봉 타격','인내의 기도','고행의 응답'],[1,4,5],[/115%/,/2턴.*30%/,/240%.*최대 HP의 20%/]],
-  ['life_stitcher',['봉합침 찌르기','상처 봉합','생명 이어붙이기'],[1,4,5],[/110%/,/최대 HP의 20%.*출혈/,/최대 HP의 35%.*출혈.*중독/]],
-  ['subjugation_officer',['토벌검 베기','방호 절개','토벌 집행'],[1,4,4],[/135%/,/110%.*2턴.*방어력.*20%/,/300%/]],
-  ['rescuer',['구조도끼 타격','안전 확보','긴급 구조'],[1,4,5],[/120%/,/2턴.*20%.*출혈/,/최대 HP의 30%.*2턴.*30%/]],
-  ['quartermaster',['보급봉 타격','전투 보급','예비 물자 투입'],[1,4,5],[/115%/,/최대 HP의 10%.*2턴.*25%/,/최대 HP의 30%.*2턴.*20%/]],
+test('A-rank offensive descriptions preserve approved damage, duration, penetration and HP conditions',()=>{
+ const rows:[string,RegExp[]][]=[
+  ['executor',[/140%/,/120%.*2턴.*약화/,/300%.*적 HP 30% 이하.*380%/]],
+  ['inquisitor',[/130%/,/100%.*2턴.*약화/,/관통 35%.*310%.*약화.*350%/]],
+  ['deep_delver',[/145%/,/관통 30%.*180%/,/120%.*3회/]],
+  ['bloodfighter',[/140%.*2턴.*출혈/,/최대 HP 8% 소비.*240%/,/최대 HP 12% 소비.*340%.*자신의 HP 50% 이하.*400%/]],
+  ['expedition_tactician',[/125%/,/2턴.*25%.*15%/,/105%.*3회/]],
+  ['ascetic_priest',[/125%/,/최대 HP 10% 소비.*3턴.*공격력 증가/,/320%.*자신의 HP 50% 이하.*380%/]],
+  ['subjugation_officer',[/140%/,/130%.*2턴.*약화/,/관통 40%.*330%/]],
+  ['coroner',[/125%.*2턴.*출혈/,/110%.*2턴.*약화/,/290%.*적 HP 30% 이하.*390%/]],
+  ['stair_scout',[/130%/,/85%.*2회.*관통 20%/,/90%.*4회/]],
  ];
- for(const [id,names,cooldowns,effects] of rows){
-  const d=jobDetailById(id);assert.ok(d,`${id} detail missing`);
-  assert.deepEqual(d.skills.map(s=>s.name),names);
-  assert.deepEqual(d.skills.map(s=>s.cooldown),cooldowns);
-  assert.deepEqual(d.skills.map(s=>s.resourceLabel),['자원 +1','자원 변화 없음','자원 -3']);
-  assert.deepEqual(d.skills.map(s=>s.kind),['GENERATOR','NEUTRAL','SPENDER']);
-  d.skills.forEach((s,i)=>assert.match(s.description,effects[i]));
+ for(const [id,effects] of rows){
+  const d=jobDetailById(id);assert.ok(d,`${id} details missing`);
+  d.skills.forEach((s,i)=>assert.match(s.description,effects[i],`${id} skill ${i+1}`));
  }
+});
+
+test('A-rank support descriptions preserve approved healing, buffs and cleansing',()=>{
+ const rows:[string,RegExp[]][]=[
+  ['life_stitcher',[/115%/,/최대 HP 20% 회복.*출혈 제거/,/최대 HP 30% 회복.*3턴.*재생.*출혈.*중독 제거/]],
+  ['rescuer',[/120%/,/2턴.*받는 피해 -30%.*최대 HP 10% 회복/,/최대 HP 28% 회복.*출혈.*중독 제거/]],
+  ['quartermaster',[/120%/,/3턴.*공격력 증가/,/최대 HP 20% 회복.*3턴.*방어력 증가.*재생/]],
+ ];
+ for(const [id,effects] of rows){
+  const d=jobDetailById(id);assert.ok(d,`${id} details missing`);
+  d.skills.forEach((s,i)=>assert.match(s.description,effects[i],`${id} skill ${i+1}`));
+ }
+ assert.equal(jobDetailById('unknown_job'),null);
+ assert.equal(jobDetailById(null),null);
 });
