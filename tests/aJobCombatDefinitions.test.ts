@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {JOB_CATALOG} from '../src/game/jobs/catalog';
+import {jobDetailById} from '../src/game/jobs/details';
 import {initFiveJobCombatDefinitions} from '../src/game/jobs/definitions';
 import {getJobCombatDefinition,type JobCombatDefinition,type JobEffectAction} from '../src/game/jobs/framework';
 
@@ -23,6 +24,12 @@ function directAttack(id:(typeof A_JOB_IDS)[number],skillIndex:number){
  const action=actions(id,skillIndex).find((candidate):candidate is Extract<JobEffectAction,{kind:'DIRECT_ATTACK'}>=>candidate.kind==='DIRECT_ATTACK');
  assert.ok(action,`${id} skill ${skillIndex+1} should contain DIRECT_ATTACK`);
  return action;
+}
+function resourceLabel(skill:JobCombatDefinition['skills'][number]){
+ const resource=skill.resource!;
+ if(resource.kind==='GENERATOR')return `자원 +${resource.gain}`;
+ if(resource.kind==='SPENDER')return `자원 -${resource.cost.mode==='FIXED'?resource.cost.amount:resource.cost.min}`;
+ return '자원 변화 없음';
 }
 
 test('A-rank catalog exposes all 12 jobs as combat-ready three-skill kits with the approved resource loop',()=>{
@@ -87,4 +94,21 @@ test('A-rank representative authored numbers match the approved design',()=>{
  const stairScout=directAttack('stair_scout',2);
  assert.equal(stairScout.hits,4);
  assert.equal(stairScout.baseMultiplier,.9);
+});
+
+test('A-rank job detail sheet is derived from the live combat definitions',()=>{
+ for(const id of A_JOB_IDS){
+  const combat=def(id);
+  const detail=jobDetailById(id);
+  assert.ok(detail,id);
+  assert.equal(detail.resourceSummary,'전투 자원 · 시작 0 · 최대 4칸',id);
+  combat.skills.forEach((skill,index)=>{
+   const preview=detail.skills[index];
+   assert.equal(preview.name,skill.name,`${id} skill ${index+1} name`);
+   assert.equal(preview.description,skill.description,`${id} skill ${index+1} description`);
+   assert.equal(preview.cooldown,skill.cooldown,`${id} skill ${index+1} cooldown`);
+   assert.equal(preview.kind,skill.resource!.kind,`${id} skill ${index+1} kind`);
+   assert.equal(preview.resourceLabel,resourceLabel(skill),`${id} skill ${index+1} resource label`);
+  });
+ }
 });
