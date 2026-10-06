@@ -71,6 +71,10 @@
  * This block stays after the mobile round() rules so desktop always wins.
  */
 @media (min-width:900px) and (orientation:landscape){
+ .tc-app.tc-battle-mode{
+  width:min(100%,520px)!important;
+  margin:0 auto!important;
+ }
  .tc-app.tc-battle-mode .tc-main{display:block!important}
  .tc-app.tc-battle-mode .tc-main>.tc-battle{
   width:100%!important;
