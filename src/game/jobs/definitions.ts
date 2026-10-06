@@ -1,4 +1,5 @@
 import {B_JOB_DEFINITIONS} from './bDefinitions';
+import {A_JOB_DEFINITIONS} from './aDefinitions';
 import type {
   JobCombatDefinition,
   PassiveDefinition,
@@ -297,7 +298,6 @@ const berserkerDef: JobCombatDefinition = {
       description: '75% x 2 Direct Hit, 자원 +1',
       cooldown: 0,
       effectActions: [
-        
         { kind: 'DIRECT_ATTACK', hits: 2, baseMultiplier: 0.75 },
       ],
     },
@@ -309,7 +309,6 @@ const berserkerDef: JobCombatDefinition = {
       cooldown: 0,
       effectActions: [
         { kind: 'SELF_HP_COST_PERCENT', percentOfMax: 0.1 },
-        
         { kind: 'APPLY_EFFECT', target: 'SELF', effectId: 'berserker_blood_boost', duration: 3 },
       ],
     },
@@ -320,7 +319,6 @@ const berserkerDef: JobCombatDefinition = {
       cooldown: 3,
       resource:{kind:'SPENDER',cost:{mode:'FIXED',amount:3}},
       effectActions: [
-        
         {
           kind: 'DIRECT_ATTACK',
           hits: 3,
@@ -342,4 +340,5 @@ export function initFiveJobCombatDefinitions() {
   registerJobCombatDefinition(duelistDef);
   registerJobCombatDefinition(berserkerDef);
   B_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
+  A_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
 }
