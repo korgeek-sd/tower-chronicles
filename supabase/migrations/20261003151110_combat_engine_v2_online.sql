@@ -618,7 +618,7 @@ begin
    case when p_run.job_snapshot_id is null then 'null'::jsonb else to_jsonb(p_run.job_snapshot_id) end,true);
  st:=private.combat_equipment_stats(p_user,combat_payload);
  passive:=private.combat_accessory_passive(combat_payload);
- j:=case when p_run.job_snapshot_id in('contract_mercenary','hunter','field_medic','duelist','berserker') then p_run.job_snapshot_id else null end;
+ j:=private.server_job_id(jsonb_build_object('expedition',jsonb_build_object('jobSnapshotId',p_run.job_snapshot_id)));
 
  if p_prior.user_id is not null then
    pe:=(select coalesce(jsonb_agg(e),'[]'::jsonb) from jsonb_array_elements(coalesce(p_prior.player_effects,'[]'::jsonb))e where e->>'scope'='EXPEDITION');

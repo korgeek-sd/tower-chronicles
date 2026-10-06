@@ -129,3 +129,32 @@ test('SR online skills execute approved damage, resource and effect duration',as
   const burst=await invoke('boss_tracker','boss_tracker_skill_3',{job_resource:3});assert.equal(burst.job_resource,0);assert.equal(burst.monster_hp,916);
  }finally{await db.close();}
 });
+
+test('new online encounters preserve the expedition job for every SR kit',async()=>{
+ const db=await setup();try{
+  await db.exec(read('../supabase/migrations/20261005123000_preserve_all_job_ids_in_online_combat.sql'));
+  await db.exec(`
+   create unique index encounter_user on private.online_combat_states(user_id);
+   create function private.server_authoritative_payload(uuid,jsonb) returns jsonb language sql as $$select $2$$;
+   create function private.combat_equipment_stats(uuid,jsonb) returns jsonb language sql as $$select '{"hp":180,"attack":18,"defense":10,"weapon":"sword"}'::jsonb$$;
+   create function private.combat_accessory_passive(jsonb) returns jsonb language sql as $$select '{}'::jsonb$$;
+   create function private.combat_skill_power(jsonb) returns numeric language sql as $$select 1::numeric$$;
+   create function private.server_monster_hp(int) returns numeric language sql as $$select 1000::numeric$$;
+   create function private.server_monster_attack(int) returns numeric language sql as $$select 10::numeric$$;
+   create function private.server_monster_defense(int) returns numeric language sql as $$select 0::numeric$$;
+   create function private.server_initial_monster_effects(text,bigint) returns jsonb language sql as $$select '[]'::jsonb$$;
+  `);
+  await db.query('insert into public.game_saves(user_id,payload) values($1,$2)',[user,'{}']);
+  for(const id of ['berserker','mutagen_doctor','soulcaster','ascetic_fighter','field_engineer','green_crown_martyr','unity_apostle','deep_rescue_officer','boss_tracker','return_guardian','green_crown_inquisitor']){
+   const runData={user_id:user,run_id:run,tower:'ore',floor:1,encounter_index:1,reward_seed:1,job_snapshot_id:id,equipment_snapshot:{}};
+   const r=await db.query<{a:any}>(`select to_jsonb(private.server_start_encounter($1,jsonb_populate_record(null::private.online_expeditions,$2::jsonb),'{"id":"unknown","hpMultiplier":1,"attackMultiplier":1}',null::private.online_combat_states)) a`,[user,JSON.stringify(runData)]);
+   assert.equal(r.rows[0].a.job_id,id);
+   const skill=await db.query<{a:any}>(`select to_jsonb(private.combat_v2_job_skill(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),$2,1)) a`,[JSON.stringify(r.rows[0].a),id+'_skill_1']);
+   assert.equal(skill.rows[0].a.job_resource,1,id);
+  }
+  await db.query("insert into private.online_expeditions(user_id,run_id,status,job_snapshot_id) values($1,$2,'ACTIVE','green_crown_inquisitor')",[user,run]);
+  await db.exec('update private.online_combat_states set job_id=null');
+  await db.exec(read('../supabase/migrations/20261006134507_preserve_catalog_job_at_encounter_start.sql'));
+  assert.equal((await db.query<{job_id:string}>('select job_id from private.online_combat_states')).rows[0].job_id,'green_crown_inquisitor');
+ }finally{await db.close();}
+});
