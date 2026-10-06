@@ -10,6 +10,7 @@ test('battle cards keep artwork opaque and colored while disabled',()=>{
  assert.match(rule,/filter:none(?:;|$)/);
 });
 
-test('damaged character art falls back to the standard player sprite',()=>{
- assert.equal(playerGraphicForJob('field_medic','default').image.idle,playerGraphicFor('default').image.idle);
+test('restored field medic artwork resolves and unknown jobs retain the fallback',()=>{
+ assert.equal(playerGraphicForJob('field_medic','default').image.idle,'assets/characters/jobs/field_medic.webp');
+ assert.equal(playerGraphicForJob('unknown_job','default').image.idle,playerGraphicFor('default').image.idle);
 });
