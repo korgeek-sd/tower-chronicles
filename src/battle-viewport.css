@@ -6,9 +6,7 @@
 /*
  * Battle layout contract
  * ----------------------
- * 360 × 800 (portrait 9:20 / phone 20:9) remains the authoring grid.
- * The live browser viewport, however, must fill the visible screen because
- * mobile browser chrome changes dvh and would otherwise create side gutters.
+ * 360 × 800 portrait remains the mobile authoring grid.
  */
 .tc-app.tc-battle-mode{
  width:100vw!important;
@@ -19,7 +17,6 @@
  overflow:hidden!important;
  background:#050707!important;
 }
-
 .tc-app.tc-battle-mode .tc-main{
  width:100%!important;
  height:100%!important;
@@ -31,7 +28,6 @@
  position:relative;
  aspect-ratio:auto!important;
 }
-
 .tc-app.tc-battle-mode .tc-main>.tc-battle{
  width:100%!important;
  height:100%!important;
@@ -42,10 +38,6 @@
  overflow:hidden;
 }
 
-/*
- * Immersive combat/event screens do not show persistent utility chrome.
- * Event screens use tc-event-mode while battles use tc-battle-mode.
- */
 .tc-app.tc-battle-mode .tc-settings-floating,
 .tc-app.tc-battle-mode .tc-mail-floating,
 .tc-app.tc-battle-mode .tc-stronghold-pvp-entry,
@@ -54,113 +46,58 @@
 .tc-app.tc-event-mode .tc-header-actions{
  display:none!important;
 }
-
-.tc-app.tc-battle-mode .tc-battle .tc-ref-flee{
- display:none!important;
-}
-
-.tc-app.tc-battle-mode .tc-battle .tc-ref-panel .tc-bprefs button:first-child{
- display:none!important;
-}
-
-/*
- * The expedition counters (Silver / kills / danger) duplicated information
- * that is already available from the battle menu and loot panel. Remove the
- * entire metric row and promote tower/floor information into one compact row.
- */
-.tc-app.tc-battle-mode .tc-battle .tc-ref-metrics{
- display:none!important;
-}
-
-/*
- * Pull the compact tower/floor header into the reclaimed top gap left by the
- * removed utility/metric chrome. Keep a tiny safe-area cushion for notched
- * displays without wasting vertical combat space.
- */
+.tc-app.tc-battle-mode .tc-battle .tc-ref-flee{display:none!important}
+.tc-app.tc-battle-mode .tc-battle .tc-ref-panel .tc-bprefs button:first-child{display:none!important}
+.tc-app.tc-battle-mode .tc-battle .tc-ref-metrics{display:none!important}
 .tc-app.tc-battle-mode .tc-battle .tc-ref-top{
- top:max(.6%,env(safe-area-inset-top));
- left:.8%;
- right:.8%;
- height:5.8%;
- grid-template-rows:1fr!important;
+ top:max(.6%,env(safe-area-inset-top));left:.8%;right:.8%;height:5.8%;grid-template-rows:1fr!important;
 }
+.tc-app.tc-battle-mode .tc-battle .tc-ref-floor{grid-row:1!important;align-self:center!important;padding-top:0!important}
+.tc-app.tc-battle-mode .tc-battle .tc-ref-menu{grid-row:1!important}
+.tc-app.tc-battle-mode .tc-battle .monster-hud{left:.8%!important;top:12.2%!important}
+.tc-app.tc-battle-mode .tc-battle .player-hud{right:.8%!important}
+.tc-app.tc-battle-mode .tc-battle .tc-ref-loot-entry{right:.8%!important;top:11.4%!important}
 
-.tc-app.tc-battle-mode .tc-battle .tc-ref-floor{
- grid-row:1!important;
- align-self:center!important;
- padding-top:0!important;
-}
-
-.tc-app.tc-battle-mode .tc-battle .tc-ref-menu{
- grid-row:1!important;
-}
-
-.tc-app.tc-battle-mode .tc-battle .monster-hud{
- left:.8%!important;
- top:12.2%!important;
-}
-
-.tc-app.tc-battle-mode .tc-battle .player-hud{
- right:.8%!important;
-}
-
-.tc-app.tc-battle-mode .tc-battle .tc-ref-loot-entry{
- right:.8%!important;
- top:11.4%!important;
-}
-
-/*
- * High-resolution fighter artwork uses normal browser resampling. Low-resolution
- * sprites are marked at runtime from their intrinsic image dimensions and use
- * nearest-neighbour rendering so responsive enlargement does not soften them.
- */
 .tc-app.tc-battle-mode .tc-battle .player-figure img,
-.tc-app.tc-battle-mode .tc-battle .monster-figure img{
- image-rendering:auto!important;
-}
-
+.tc-app.tc-battle-mode .tc-battle .monster-figure img{image-rendering:auto!important}
 .tc-app.tc-battle-mode .tc-battle .player-figure img[data-rendering="pixelated"],
-.tc-app.tc-battle-mode .tc-battle .monster-figure img[data-rendering="pixelated"]{
- image-rendering:pixelated!important;
-}
+.tc-app.tc-battle-mode .tc-battle .monster-figure img[data-rendering="pixelated"]{image-rendering:pixelated!important}
 
-/*
- * Fighter geometry remains responsive to the live viewport. Fighters use the
- * enlarged mobile footprint approved for readability: player 68% × 43% and
- * monster 62% × 38%. Their centers are pulled inward to avoid edge clipping
- * and overlap with the bottom action cards.
- */
+/* mobile portrait baseline */
 .tc-app.tc-battle-mode .tc-battle .player-placement{
- left:25%!important;
- top:57%!important;
- width:68%!important;
- height:43%!important;
+ left:25%!important;top:57%!important;width:68%!important;height:43%!important;
 }
-
 .tc-app.tc-battle-mode .tc-battle .monster-placement{
- left:70%!important;
- top:33%!important;
- width:62%!important;
- height:38%!important;
+ left:70%!important;top:33%!important;width:62%!important;height:38%!important;
 }
 
-/*
- * Modern browsers can keep that responsive footprint while snapping the
- * resolved coordinates/sizes to whole CSS pixels. This avoids the fractional
- * resampling that caused shimmering/jagged edges without freezing the sprite
- * at a 360px-phone size.
- */
-@supports (left:round(nearest,10vw,1px)){
+/* desktop landscape: keep portrait combat stage instead of stretching it wide */
+@media (min-width:900px) and (orientation:landscape){
+ .tc-app.tc-battle-mode .tc-main>.tc-battle{
+  width:min(56.25vh,100vw)!important;
+  height:100vh!important;
+  margin:0 auto!important;
+  position:relative;
+ }
  .tc-app.tc-battle-mode .tc-battle .player-placement{
-  left:round(nearest,25vw,1px)!important;
-  top:round(nearest,57dvh,1px)!important;
-  width:round(nearest,68vw,1px)!important;
-  height:round(nearest,43dvh,1px)!important;
+  left:25%!important;
+  top:57%!important;
+  width:68%!important;
+  height:43%!important;
  }
  .tc-app.tc-battle-mode .tc-battle .monster-placement{
-  left:round(nearest,70vw,1px)!important;
-  top:round(nearest,33dvh,1px)!important;
-  width:round(nearest,62vw,1px)!important;
-  height:round(nearest,38dvh,1px)!important;
+  left:70%!important;
+  top:33%!important;
+  width:62%!important;
+  height:38%!important;
+ }
+}
+
+@supports (left:round(nearest,10vw,1px)){
+ .tc-app.tc-battle-mode .tc-battle .player-placement{
+  left:round(nearest,25vw,1px)!important;top:round(nearest,57dvh,1px)!important;width:round(nearest,68vw,1px)!important;height:round(nearest,43dvh,1px)!important;
+ }
+ .tc-app.tc-battle-mode .tc-battle .monster-placement{
+  left:round(nearest,70vw,1px)!important;top:round(nearest,33dvh,1px)!important;width:round(nearest,62vw,1px)!important;height:round(nearest,38dvh,1px)!important;
  }
 }
