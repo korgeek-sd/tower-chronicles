@@ -1,0 +1,26 @@
+import React,{useState} from 'react';
+import {WORLD_TOWNS,TOWN_ROUTES,canTravel,townKindLabel,type TownKind} from './worldMap';
+function TownIcon({kind}:{kind:TownKind}){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">{kind==='city'?<path d="M4 21V8h4V4h3v4h2V4h3v4h4v13H4Zm6 0v-6h4v6M2 21h20"/>:kind==='herb'?<path d="M5 20c2-6 6-10 13-15M6 16C1 7 8 3 20 3c0 12-4 18-14 13Z"/>:<path d="M12 22V3m0 6C6 9 5 5 5 3c5 0 7 3 7 6Zm0 6c-6 0-7-4-7-6 5 0 7 3 7 6Zm0-3c6 0 7-4 7-6-5 0-7 3-7 6Zm0 6c6 0 7-4 7-6-5 0-7 3-7 6Z"/>}</svg>;}
+export function WorldMapScreen({currentId,onTravel}:{currentId:string;onTravel:(id:string)=>void}){
+ const [selectedId,setSelectedId]=useState(currentId),[message,setMessage]=useState('');
+ const current=WORLD_TOWNS.find(t=>t.id===currentId)??WORLD_TOWNS[5];
+ const selected=WORLD_TOWNS.find(t=>t.id===selectedId)??current;
+ const reachable=canTravel(current.id,selected.id);
+ return <section className="tc-world" aria-label="마을 이동">
+  <header className="tc-world-heading"><div><small>WORLD MAP</small><h1>마을 이동</h1></div><span>10개 마을 · 1개 도시</span></header>
+  <div className="tc-world-location"><span>현재 위치 <b>{current.name}</b></span><small>길로 연결된 이웃 거점으로 이동</small></div>
+  <div className="tc-world-map" aria-label="거점 지도">
+   <svg className="tc-world-roads" viewBox="0 0 500 500" aria-hidden="true">{TOWN_ROUTES.map(([a,b])=>{const from=WORLD_TOWNS.find(t=>t.id===a)!,to=WORLD_TOWNS.find(t=>t.id===b)!;return <line key={a+b} x1={from.x*100+50} y1={from.y*100+50} x2={to.x*100+50} y2={to.y*100+50}/>;})}</svg>
+   {Array.from({length:25},(_,i)=>{const town=WORLD_TOWNS.find(t=>t.x===i%5&&t.y===Math.floor(i/5));if(!town)return <div key={i} className="tc-world-terrain" aria-hidden="true"/>;const here=town.id===current.id,near=canTravel(current.id,town.id);return <button key={i} data-town-id={town.id} className={'tc-world-town '+town.kind+(here?' current':'')+(near?' reachable':'')} aria-pressed={town.id===selected.id} aria-label={`${town.name}, ${townKindLabel(town.kind)}, 소유 ${town.owner}, 세율 ${town.tax}%, ${here?'현재 위치':near?'이동 가능':'정보 보기'}`} onClick={()=>{setSelectedId(town.id);setMessage('');}}><span className="tc-world-symbol"><TownIcon kind={town.kind}/>{here&&<i>현재</i>}</span><b>{town.name}</b><small>{town.owner}</small><em>{near?'이동 가능 · ':''}{town.tax}%</em></button>;})}
+  </div>
+  <div className="tc-world-legend"><span>금색: 현재 위치</span><span>초록: 이동 가능</span><span>칸을 눌러 소유·세금 확인</span></div>
+  <section className="tc-world-details" aria-label="선택한 마을 정보">
+   <header><div><small>{townKindLabel(selected.kind)}</small><h2>{selected.name}</h2></div><span>소유 <b>{selected.owner==='중립'?'중립':selected.owner+' 원정단'}</b></span></header>
+   <div className="tc-world-facts"><div><small>생산물 세율</small><b>{selected.tax}%</b></div><div><small>소유 원정단원</small><b>생산 +20%</b></div><div><small>시설 레벨</small><b>한도 0 · 효율 0</b></div></div>
+   {(selected.kind==='city'?['약초','농산물']:[selected.kind==='herb'?'약초':'농산물']).map(resource=><div className="tc-world-stock" key={resource}><span>{resource} 잔여량</span><b>30,000 / 30,000</b><div><i/></div></div>)}
+   <button aria-label="이동하기" className="tc-action tc-feel-press tc-world-travel" disabled={!reachable} onClick={()=>{if(!canTravel(current.id,selected.id))return;onTravel(selected.id);setMessage(`${selected.name}(으)로 이동했습니다.`);}}>{selected.id===current.id?'현재 위치':reachable?selected.name+' 이동하기':'이웃 거점을 거쳐 이동'} <span aria-hidden="true">›</span></button>
+  </section>
+  <p className="tc-world-message" role="status">{message||'마을을 선택해 이동 경로를 확인하세요.'}</p>
+  <p className="tc-world-preview">화면 미리보기 · 소유·세율·생산량은 예시 데이터입니다. 이동은 이 화면에만 적용됩니다.</p>
+ </section>;
+}

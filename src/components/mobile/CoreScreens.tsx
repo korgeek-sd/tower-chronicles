@@ -12,7 +12,7 @@ import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
 
-export type AppPage='home'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='world'|'home'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -32,7 +32,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
   {id:'settings',glyph:'settings',title:'계정 · 저장',subtitle:'연결과 저장 상태',action:()=>onMove('settings')},
  ];
  return <Screen title="노바르 거점" className="tc-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
-  <div className="tc-camp">
+  <div className="tc-camp tc-camp-with-world">
    <section className="tc-camp-dossier" aria-label="모험가 기록">
     <header className="tc-camp-dossier-title"><Glyph name="association"/><b>모험가 기록</b><small>{game.expedition?'EXPEDITION':'NOVAR DOSSIER'}</small></header>
     <div className="tc-camp-profile">
@@ -54,6 +54,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
     </div>
     <button className="tc-camp-depart tc-feel-press" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span>{game.expedition?'원정으로 돌아가기':'사냥하기'}</span><span aria-hidden="true">›</span></button>
    </section>
+   <button className="tc-action tc-feel-press" onClick={()=>onMove('world')}>마을 이동 · 10개 마을과 중앙 도시 ›</button>
    <nav className="tc-camp-links" aria-label="거점 시설">{quick.map(item=><button className="tc-feel-press" data-game-feel="press" data-facility={item.id} key={item.id} onClick={item.action}><span className="tc-camp-link-icon"><Glyph name={item.glyph}/></span><span><b>{item.title}</b><small>{item.subtitle}</small></span><i aria-hidden="true">›</i></button>)}</nav>
   </div>
  </Screen>;
