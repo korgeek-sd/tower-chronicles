@@ -8,6 +8,7 @@ export function MonsterIntentBanner({intent}:{intent:MonsterIntentView}){
     <strong>{intent.skillName}</strong>
     {intent.description&&<small className="tc-intent-timing">{intent.description}</small>}
     {intent.attackInfo&&<span className="tc-intent-attack">{intent.attackInfo}</span>}
+    {intent.threats&&<span className="tc-intent-threats">{intent.threats}</span>}
     {intent.guidance&&<small className="tc-intent-guidance">{intent.guidance}</small>}
   </div>;
 }

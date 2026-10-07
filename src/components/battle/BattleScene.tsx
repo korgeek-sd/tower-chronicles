@@ -1,5 +1,6 @@
 import {preparedMonsterSkill} from '../../game/engine/monsterAi';
 import {EFFECTS,isStunned} from '../../game/engine/effects';
+import {chargeInterrupted,shieldFeedback} from './combatIntel';
 import {effectText} from './presentation';
 import {loadSettings,reducedMotion} from '../../settings/preferences';
 import React,{useEffect,useRef,useState} from 'react';
@@ -48,7 +49,7 @@ export function FloatingLayer({events}:{events:Floating[]}){
   const shield=e.kind.endsWith('shield-float'),heal=e.kind.endsWith('heal'),prefix=heal?'+':'';
   return <span key={e.id} className={'floating-number target-'+e.target+' '+e.kind+(e.critical?' critical':'')} style={{left:e.x,top:e.y,'--damage-lane':e.lane??0} as React.CSSProperties}>
    {e.hit&&<small className="tc-damage-hit">{e.hit}</small>}
-   {shield&&<small className="tc-damage-shield-label">보호막</small>}
+   {shield&&!e.label&&<small className="tc-damage-shield-label">보호막</small>}
    {e.label?<b>{e.label}</b>:<DamageDigits amount={e.amount} prefix={prefix}/>}
    {e.critical&&<b>CRITICAL</b>}
   </span>;
@@ -162,6 +163,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
    setDisplayHp(expedition.hp+direct.filter(e=>e.attacker==='monster'&&e.target==='player').reduce((sum,e)=>sum+e.hpDamage,0));
    schedule(()=>setDisplayHp(expedition.hp),retaliationDelay);
   }else setDisplayHp(expedition.hp);
+  if(chargeInterrupted(before,expedition))addFloating({id:++seq.current,kind:'monster-damage',target:'monster',amount:0,label:'강공격 차단!',lane:1},windup,dmgMs);
   let touchedMonster=false,touchedPlayer=false,monsterCritical=false,playerCritical=false;
 
   for(const event of fresh.filter(event=>event.kind==='HEAL')){
@@ -176,7 +178,8 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
     if(event.hpDamage>0)shakeTarget(event.target,event.critical);
    },delay);
    if(event.outcome==='MISS'||event.outcome==='IMMUNE')addFloating({id:++seq.current,kind:event.target==='monster'?'monster-damage':'player-damage',target:event.target,amount:0,label:event.outcome==='MISS'?'MISS':'IMMUNE',hit:event.origin==='REACTION'?'반격':hit,lane},delay,dmgMs);
-   if(event.absorbedByShield>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-shield-float':'player-shield-float',target:event.target,amount:event.absorbedByShield,critical:event.critical&&event.hpDamage===0,hit,lane},delay,dmgMs);
+   if(event.outcome==='BLOCKED_BY_SHIELD'&&event.absorbedByShield===0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-shield-float':'player-shield-float',target:event.target,amount:0,label:shieldFeedback(event)??undefined,hit,lane},delay,dmgMs);
+   if(event.absorbedByShield>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-shield-float':'player-shield-float',target:event.target,amount:event.absorbedByShield,critical:event.critical&&event.hpDamage===0,hit:shieldFeedback(event)??hit,lane},delay,dmgMs);
    if(event.hpDamage>0)addFloating({id:++seq.current,kind:event.target==='monster'?'monster-damage':'player-damage',target:event.target,amount:event.hpDamage,critical:event.critical,hit,lane},delay,dmgMs);
    if(event.target==='monster'){touchedMonster=true;monsterCritical=monsterCritical||(event.critical&&event.hpDamage>0);}
    else{touchedPlayer=true;playerCritical=playerCritical||(event.critical&&event.hpDamage>0);}

@@ -3291,3 +3291,5 @@ html,body,#root{
 .tc-monster-charging .monster-figure img,.tc-monster-charging .monster-placeholder{animation:tcChargeBrace 1.6s ease-in-out infinite}
 @keyframes tcChargeBrace{0%,100%{translate:0 0}50%{translate:0 2px}}
 @media(prefers-reduced-motion:reduce){.tc-monster-charging .monster-figure img,.tc-monster-charging .monster-placeholder{animation:none}}
+
+.tc-battle-reference .tc-ref-intent .tc-intent-threats{display:block;margin-top:3px;font-size:10px;line-height:1.4;color:#ffbc96;overflow-wrap:anywhere}

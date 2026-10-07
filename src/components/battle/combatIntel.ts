@@ -1,6 +1,7 @@
-import type {ActiveEffect,Expedition} from '../../game/types';
-import {EFFECTS,activeShield} from '../../game/engine/effects';
-import {monsterDefinitionFor,preparedMonsterSkill} from '../../game/engine/monsterAi';
+import type {ActiveEffect,CombatEvent,Expedition} from '../../game/types';
+import {EFFECTS,activeShield,isStunned} from '../../game/engine/effects';
+import {type MonsterSkillDefinition,monsterDefinitionFor,preparedMonsterSkill} from '../../game/engine/monsterAi';
+import {encounterKey} from './presentation';
 import {reactivePreparedSkill} from '../../game/engine/reactions';
 
 export type MonsterIntentKind='CHARGE'|'REACTIVE'|'NONE';
@@ -10,6 +11,7 @@ export interface MonsterIntentView {
   skillName?:string;
   description?:string;
   attackInfo?:string;
+  threats?:string;
   guidance?:string;
 }
 export interface CombatEffectView {
@@ -55,9 +57,23 @@ export function combatEffectView(effect:ActiveEffect):CombatEffectView {
   };
 }
 
+export function monsterSkillThreats(skill:MonsterSkillDefinition){
+  const parts=[(skill.hits??1)>1?'연속 타격 '+skill.hits+'회':'단일 타격'];
+  if((skill.penetrationRate??0)>0)parts.push('방어 관통 '+Math.round(skill.penetrationRate!*100)+'%');
+  if(skill.critical==='GUARANTEED')parts.push('확정 치명타');
+  for(const effect of skill.effects??[]){const definition=EFFECTS[effect.effectId];if(definition)parts.push((effect.target==='SELF'?'자신: ':'대상: ')+definition.name);}
+  return parts.join(' · ');
+}
+export function chargeInterrupted(before:Expedition,after:Expedition){
+  return encounterKey(before)===encounterKey(after)&&after.events.phase==='BATTLE'&&after.monster.currentHp>0&&!!preparedMonsterSkill(before.monster,before.monsterRuntime)&&!preparedMonsterSkill(after.monster,after.monsterRuntime)&&(isStunned(after,'monster')||Object.values(EFFECTS).some(effect=>effect.tags.includes('STUN')&&(after.monsterRuntime?.effectApplications?.['monster:'+effect.id]??0)>(before.monsterRuntime?.effectApplications?.['monster:'+effect.id]??0)));
+}
+export function shieldFeedback(event:Pick<CombatEvent,'outcome'|'absorbedByShield'|'hpDamage'>){
+  return event.outcome==='BLOCKED_BY_SHIELD'||event.absorbedByShield>0&&event.hpDamage===0?'보호막 방어!':event.absorbedByShield>0?'보호막 흡수':null;
+}
+
 export function monsterIntentView(expedition:Expedition):MonsterIntentView {
   const prepared=preparedMonsterSkill(expedition.monster,expedition.monsterRuntime);
-  if(prepared)return {kind:'CHARGE',title:'강공격 준비 중',skillName:prepared.name,description:'다음 적 턴에 발동',attackInfo:`공격력 ${Math.round((prepared.multiplier??1)*100)}%${(prepared.hits??1)>1?' × '+prepared.hits+'회':''} 피해`,guidance:'기절로 중단 · 보호막이나 피해 감소로 대비'};
+  if(prepared)return {kind:'CHARGE',title:'강공격 준비 중',skillName:prepared.name,description:'다음 적 턴에 발동',threats:monsterSkillThreats(prepared),attackInfo:`공격력 ${Math.round((prepared.multiplier??1)*100)}%${(prepared.hits??1)>1?' × '+prepared.hits+'회':''} 피해`,guidance:'기절로 중단 · 보호막이나 피해 감소로 대비'};
   const reactive=reactivePreparedSkill(expedition,'monster');
   if(reactive)return {kind:'REACTIVE',title:'반격 준비',skillName:reactive.prepare.name,description:'직접 공격을 받으면 반응합니다.'};
   return {kind:'NONE',title:'준비 행동 없음'};
