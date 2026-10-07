@@ -15,6 +15,7 @@ create function private.combat_equipment_stats(uuid,jsonb) returns jsonb languag
 for(const f of ['20261007130000_instant_hunting.sql','20261007163810_village_life.sql'])await db.exec(readFileSync(new URL('../supabase/migrations/'+f,import.meta.url),'utf8'));
 await db.exec(readFileSync(migration,'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261007172125_village_dismantle_lock_order.sql',import.meta.url),'utf8'));
+await db.exec(readFileSync(new URL('../supabase/migrations/20261007172410_hunting_prebattle_recovery.sql',import.meta.url),'utf8'));
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
 const get=()=>call('get_village_life');const action=(kind:string,item:string,count=1,request=id(),town='city')=>call('village_life_action',[request,town,kind,item,count]);
@@ -30,6 +31,8 @@ await db.exec(`update private.village_life_players set products=products||'{"def
 const hreq=id();const hunt=await call('hunt_once',[hreq,'plains']);assert.equal(hunt.result.player.attack,22);assert.equal(hunt.result.player.defense,11);assert.equal(hunt.result.exp,22);assert.ok(hunt.result.potionsUsed>0);assert.equal(hunt.state.currentHp,100);assert.equal((await get()).foodTurns.attack_food,59);
 await call('hunt_once',[hreq,'plains']);assert.equal((await get()).foodTurns.attack_food,59);const after=(await get()).products.potion;assert.equal(after,1100-hunt.result.potionsUsed);
 await db.exec(`update private.village_life_players set products=products||'{"potion":0}'::jsonb;update private.hunting_states set current_hp=1;`);const low=await call('hunt_once',[id(),'mine']);assert.equal(low.result.startHp,1);assert.equal(low.state.currentHp,1);
+await db.exec(`update private.village_life_players set products=products||'{\"potion\":200}'::jsonb;`);const refilled=await call('hunt_once',[id(),'plains']);assert.equal(refilled.result.startHp,100,'newly crafted potions must heal before the next fight');assert.equal((await get()).products.potion,200-refilled.result.potionsUsed);
+await db.exec(`update public.game_saves set payload=jsonb_set(payload,'{testStats,hp}','150');`);const equipped=await call('hunt_once',[id(),'plains']);assert.equal(equipped.result.startHp,150,'larger equipment HP also heals before battle');
 const wreq=id();await action('well','well',1,wreq);assert.equal((await get()).health.hp,null);assert.equal((await action('well','well',1,wreq)).replayed,true);await assert.rejects(()=>action('well','well'),/WELL_COOLDOWN/);
 await db.exec(`insert into private.market_assets values('${u}','equipment_v2:drop',1,'{"grade":"rare","tier":3}',now());`);const dis=await call('dismantle_online_equipment',['drop']);assert.equal(dis.splitStones,6);assert.equal((await get()).materials.stone,1006);await action('craft','challenge_ticket');assert.equal((await get()).products.challenge_ticket,1);
 await db.exec(`update private.village_life_players set action_points=0,day=day-1;`);assert.equal((await get()).actionPoints,100);assert.equal((await get()).craftMastery,1012);
