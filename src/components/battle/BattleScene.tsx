@@ -1,3 +1,5 @@
+import {EFFECTS} from '../../game/engine/effects';
+import {effectText} from './presentation';
 import {loadSettings,reducedMotion} from '../../settings/preferences';
 import React,{useEffect,useRef,useState} from 'react';
 import type {CombatEvent,Expedition,Weapon} from '../../game/types';
@@ -49,6 +51,19 @@ export function FloatingLayer({events}:{events:Floating[]}){
  })}</div>;
 }
 
+function HudEffects({expedition,actor}:{expedition:Expedition;actor:'player'|'monster'}){
+ const effects=(actor==='player'?expedition.playerEffects:expedition.monsterEffects).filter(e=>e.remainingDuration>0&&e.stackCount>0);
+ const reactive=expedition.reactivePrepared[actor];
+ if(!effects.length&&!reactive)return null;
+ return <div className="tc-hud-effects" role="list" aria-label={(actor==='player'?'플레이어':'몬스터')+' 버프 및 디버프'}>
+  {effects.map(effect=>{const definition=EFFECTS[effect.effectId],shield=definition?.behavior==='SHIELD';
+   const label=(definition?.name??effect.effectId)+' · '+(shield?(effect.currentShieldHits!==undefined?effect.currentShieldHits+'회 방어':'흡수 '+Math.ceil(effect.currentShield??0)):effect.remainingDuration+'턴');
+   return <span role="listitem" key={effect.instanceId} data-effect-id={effect.effectId} className={'tc-hud-effect '+(definition?.category==='DEBUFF'?'debuff':'buff')} title={shield?label:effectText(effect)} aria-label={shield?label:effectText(effect)}>{label}</span>;
+  })}
+  {reactive&&<span role="listitem" className="tc-hud-effect buff" title="직접 피격 시 반응합니다">반응 준비</span>}
+ </div>;
+}
+
 function ResourcePips({count}:{count:number}){return <div className="tc-hud-pips" role="status" aria-label={'전투 자원 '+count+' / 4'}>{[0,1,2,3].map(i=><i key={i} className={i<count?'active':''}/>)}</div>;}
 
 function HpTrack({percent,enemy=false,name,current,max}:{percent:number;enemy?:boolean;name:string;current:number;max:number}){
@@ -61,8 +76,8 @@ function HpTrack({percent,enemy=false,name,current,max}:{percent:number;enemy?:b
 function CombatHud({expedition,playerMaxHp,titleName}:{expedition:Expedition;playerMaxHp:number;titleName?:string}){
  const monster=monsterHud(expedition.monster),playerPercent=Math.max(0,Math.min(100,expedition.hp/playerMaxHp*100)),playerPips=Math.max(0,Math.min(4,expedition.jobRuntime.resource?.value??0));
  return <div className="combat-hud">
-  <div className="fighter-hud monster-hud"><strong>{monster.name}</strong><span>{Math.ceil(monster.current)} / {monster.max}</span><HpTrack percent={monster.percent} enemy name={monster.name} current={monster.current} max={monster.max}/><small className="tc-hud-level">Lv {expedition.floor}</small></div>
-  <div className="fighter-hud player-hud"><strong>{titleName&&<small className="title-tag">「{titleName}」</small>}모험가</strong><span>{Math.ceil(expedition.hp)} / {playerMaxHp}</span><HpTrack percent={playerPercent} name="플레이어" current={expedition.hp} max={playerMaxHp}/><ResourcePips count={playerPips}/><small className="tc-hud-level">Lv {expedition.playerTurn}</small></div>
+  <div className="fighter-hud monster-hud"><strong>{monster.name}</strong><span>{Math.ceil(monster.current)} / {monster.max}</span><HpTrack percent={monster.percent} enemy name={monster.name} current={monster.current} max={monster.max}/><HudEffects expedition={expedition} actor="monster"/><small className="tc-hud-level">Lv {expedition.floor}</small></div>
+  <div className="fighter-hud player-hud"><strong>{titleName&&<small className="title-tag">「{titleName}」</small>}모험가</strong><span>{Math.ceil(expedition.hp)} / {playerMaxHp}</span><HpTrack percent={playerPercent} name="플레이어" current={expedition.hp} max={playerMaxHp}/><HudEffects expedition={expedition} actor="player"/><ResourcePips count={playerPips}/><small className="tc-hud-level">Lv {expedition.playerTurn}</small></div>
  </div>;
 }
 

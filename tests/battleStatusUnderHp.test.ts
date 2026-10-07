@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {BattleScene} from '../src/components/battle/BattleScene';
+import {enter} from '../src/game/engine/expedition';
+import {initialState} from '../src/game/engine/state';
+import {applyEffect} from '../src/game/engine/effects';
+test('both fighter HUDs show every active effect below HP without duplicate shields',()=>{
+ const s=enter(initialState(),'ore',1),e=s.expedition!;
+ for(const id of ['attack_up','defense_up','guard','poison','test_shield'])applyEffect(e,'player',id,'player',0);
+ applyEffect(e,'monster','weaken','player',0);
+ const html=renderToStaticMarkup(React.createElement(BattleScene,{expedition:e,combatEvents:[],playerMaxHp:180,appearanceId:'default'}));
+ const monster=html.slice(html.indexOf('fighter-hud monster-hud'),html.indexOf('fighter-hud player-hud'));
+ const player=html.slice(html.indexOf('fighter-hud player-hud'));
+ assert.ok(monster.indexOf('tc-hud-effects')>monster.indexOf('role="progressbar"'));
+ assert.ok(player.indexOf('tc-hud-effects')>player.indexOf('role="progressbar"'));
+ assert.match(monster,/방어 약화/);assert.match(player,/공격 증가/);assert.match(player,/독/);
+ assert.equal((player.match(/data-effect-id="test_shield"/g)??[]).length,1);
+ assert.equal((player.match(/data-effect-id=/g)??[]).length,5);
+ assert.match(player,/3턴/);assert.match(player,/debuff/);assert.match(player,/buff/);
+});

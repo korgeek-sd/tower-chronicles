@@ -17,11 +17,8 @@ import {titleById} from '../../game/data/cosmetics';
 import {bossIdFor} from '../../game/engine/bossTracking';
 import {skillTurnsLeft} from '../../game/engine/turns';
 import {canPlayerAct,canUseSkill,canUsePotion} from '../../game/engine/combat';
-import {activeShield,EFFECTS} from '../../game/engine/effects';
 import {resolvePlayerCombatKit} from '../../game/jobs/service';
 import {skillVisualAssetFor} from '../../game/jobs/skillVisualAssets';
-import {reactivePreparedSkill} from '../../game/engine/reactions';
-import {effectText} from './presentation';
 import {monsterCombatIntel} from './combatIntel';
 import {loadPrefs,savePrefs,SPEEDS} from './prefs';
 import type {BattlePrefs} from './prefs';
@@ -69,7 +66,7 @@ export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,
   dropToastTimer.current=window.setTimeout(()=>{setDropToast(null);dropToastTimer.current=null;},2400);
  },[equipmentSignature]);
  useEffect(()=>()=>{if(dropToastTimer.current!==null)window.clearTimeout(dropToastTimer.current);},[]);
- const playerReactive=reactivePreparedSkill(e,'player'),playerShield=activeShield(e,'player'),intel=monsterCombatIntel(e),buffs=e.playerEffects,playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
+ const intel=monsterCombatIntel(e),playerTurn=canPlayerAct(game),skillIds=resolvePlayerCombatKit(game).activeSkillIds;
  const [prefs,setPrefs]=useState<BattlePrefs>(loadPrefs);
  useEffect(()=>{
   const fresh=(game.combatEvents??[]).filter(event=>event.id>recoveryEventId.current);
@@ -124,7 +121,6 @@ export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,
 
   {intent&&<div className="tc-ref-intent" role="alert"><b>{intent.kind==='CHARGE'?'강공격 준비':'반격 준비'}</b><span>{intent.skillName}</span></div>}
 
-  <div className="tc-ref-effects player">{playerShield&&<span title={effectText(playerShield)}>보호막</span>}{buffs.slice(0,3).map(x=><span key={x.instanceId} title={EFFECTS[x.effectId]?.description}>{effectText(x)}</span>)}{playerReactive&&<span>반응 준비</span>}</div>
 
   <div className="tc-ref-actions">
    {skillCards}
