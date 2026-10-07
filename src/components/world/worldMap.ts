@@ -15,5 +15,5 @@ export const WORLD_TOWNS:WorldTown[]=[
  {id:'herb-5',name:'초록샘',kind:'herb',x:3,y:4,owner:'푸른늑대',tax:3},
 ];
 export const TOWN_ROUTES=[['herb-1','farm-2'],['herb-1','herb-2'],['farm-1','herb-2'],['farm-1','herb-3'],['farm-2','herb-4'],['herb-2','city'],['herb-3','farm-4'],['city','herb-4'],['city','farm-3'],['city','farm-4'],['herb-4','farm-5'],['farm-3','farm-5'],['farm-3','herb-5'],['farm-4','herb-5']];
-export function canTravel(from:string,to:string){return from!==to&&TOWN_ROUTES.some(([a,b])=>a===from&&b===to||a===to&&b===from);}
+export function canTravel(from:string,to:string){return from!==to&&WORLD_TOWNS.some(t=>t.id===from)&&WORLD_TOWNS.some(t=>t.id===to);}
 export const townKindLabel=(kind:TownKind)=>kind==='herb'?'약초 마을':kind==='farm'?'농업 마을':'중앙 도시';
