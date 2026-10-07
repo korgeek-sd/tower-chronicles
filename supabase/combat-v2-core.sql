@@ -29,7 +29,7 @@ begin
  select x into old from jsonb_array_elements(coalesce(effects,'[]'))x where x->>'effectId'=id limit 1;
  duration:=coalesce((d->>'defaultDuration')::int,1);
  if d->>'behavior'='SHIELD' then
-  amount:=least(coalesce((d->>'shieldAmount')::numeric,0),greatest(0,3*max_hp-private.combat_v2_shield(effects)));
+  amount:=least(coalesce((d->>'shieldAmount')::numeric,round(max_hp*(d->>'shieldPercent')::numeric),0),greatest(0,3*max_hp-private.combat_v2_shield(effects)));
   if amount<=0 then return coalesce(effects,'[]');end if;
   if old is not null then created:=old||jsonb_build_object('currentShield',coalesce((old->>'currentShield')::numeric,0)+amount);
   else created:=jsonb_build_object('effectId',id,'duration',duration,'stacks',1,'createdTurn',turn_no,'behavior','SHIELD','currentShield',amount,'sourceActorId',source);end if;

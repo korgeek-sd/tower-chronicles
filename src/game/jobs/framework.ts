@@ -35,6 +35,7 @@ export type JobEffectAction =
   | { kind: 'FLAT_DAMAGE'; amount: number }
   | { kind: 'HEAL_PERCENT'; percent: number }
   | { kind: 'HEAL_FLAT'; amount: number }
+  | { kind: 'HEAL_ATTACK'; multiplier: number }
   | { kind: 'MODIFY_HEAL_MULTIPLIER'; multiplier: number }
   | { kind: 'SELF_HP_COST_PERCENT'; percentOfMax: number }
   | { kind: 'APPLY_EFFECT'; target: 'SELF' | 'TARGET'; effectId: string; duration?: number }
@@ -80,7 +81,7 @@ const JOB_REGISTRY: Record<string, JobCombatDefinition> = {};
 export function registerJobCombatDefinition(def: JobCombatDefinition) {
   for(const skill of def.skills){
     skill.resource??={kind:'NEUTRAL'};
-    const supported=['DIRECT_ATTACK','APPLY_EFFECT','REMOVE_EFFECT_TAG','CLEANSE','DISPEL','HEAL_PERCENT','HEAL_FLAT','SELF_HP_COST_PERCENT','CHANGE_RESOURCE','SET_FLAG'];
+    const supported=['DIRECT_ATTACK','APPLY_EFFECT','REMOVE_EFFECT_TAG','CLEANSE','DISPEL','HEAL_PERCENT','HEAL_FLAT','HEAL_ATTACK','SELF_HP_COST_PERCENT','CHANGE_RESOURCE','SET_FLAG'];
     for(const action of skill.effectActions)if(!supported.includes(action.kind))throw new Error(`${skill.id}: unsupported active action ${action.kind}`);
   }
   JOB_REGISTRY[def.jobId] = def;

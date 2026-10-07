@@ -1,3 +1,4 @@
+import {C_JOB_DEFINITIONS} from './cDefinitions';
 import {SSR_JOB_DEFINITIONS} from './ssrDefinitions';
 import {B_JOB_DEFINITIONS} from './bDefinitions';
 import {A_JOB_DEFINITIONS} from './aDefinitions';
@@ -341,6 +342,7 @@ export function initFiveJobCombatDefinitions() {
   registerJobCombatDefinition(fieldMedicDef);
   registerJobCombatDefinition(duelistDef);
   registerJobCombatDefinition(berserkerDef);
+  C_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
   B_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
   A_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
   SR_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);

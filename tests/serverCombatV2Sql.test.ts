@@ -170,3 +170,28 @@ test('SSR online kits execute all skills and preserve critical, recovery and res
   const low=await invoke('hundred_battle_returnee',3);const high=await invoke('hundred_battle_returnee',3,{player_hp:180});assert.ok(low.monster_hp<high.monster_hp);assert.equal(low.player_hp,153);
  }finally{await db.close();}
 });
+
+test('remaining C online kits execute fifteen skills and use attack healing and percent shields',async()=>{
+ const db=await setup();try{
+  const before=(await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a;
+  await db.exec(read('../supabase/migrations/20261007041705_register_remaining_c_combat_skills.sql'));
+  await db.exec(read('../supabase/migrations/20261007041705_register_remaining_c_combat_skills.sql'));
+  const after=(await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a;assert.deepEqual(after,before);assert.equal(Object.keys(after.jobs).length,48);
+  const invoke=async(job:string,i:number,extra={})=>(await db.query<{a:any}>("select to_jsonb(private.combat_v2_job_skill(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),$2,1)) a",[JSON.stringify(combat({job_id:job,crit_chance:0,player_hp:90,job_resource:4,...extra})),job+'_skill_'+i])).rows[0].a;
+  for(const job of ['excavator','reclaimer','green_crown_pilgrim','porter','guide'])for(let i=1;i<=3;i++){
+   const r=await invoke(job,i);assert.ok(r.player_hp>0,job);
+   assert.equal(r.job_resource,i===3?(job==='excavator'?1:2):4,job);
+   if(i===1){assert.ok(r.monster_hp<1000);assert.equal(r.engine_runtime.playerReady[job+'_skill_1'],2);}
+  }
+  assert.equal((await invoke('reclaimer',2)).player_hp,99);
+  assert.equal((await invoke('reclaimer',3)).player_hp,104);
+  assert.equal((await invoke('green_crown_pilgrim',3)).player_hp,124);
+  const prayer=await invoke('green_crown_pilgrim',2);
+  assert.deepEqual(prayer.player_effects.map((x:any)=>[x.effectId,x.duration]),[['c_attack_15',3],['c_defense_25',3]]);
+  assert.equal((await invoke('green_crown_pilgrim',3,{player_effects:prayer.player_effects})).player_hp,129);
+  assert.equal((await invoke('porter',2,{player_max_hp:1000})).player_shield,180);
+  assert.equal((await invoke('porter',3,{player_max_hp:1000})).player_shield,300);
+  const excavator=await invoke('excavator',3);assert.equal(excavator.monster_effects[0].effectId,'stun');assert.equal(excavator.monster_effects[0].duration,1);
+  const guide=await invoke('guide',3);assert.equal(guide.monster_effects[0].effectId,'silence');assert.equal(guide.monster_effects[0].duration,1);
+ }finally{await db.close();}
+});

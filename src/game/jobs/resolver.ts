@@ -4,7 +4,7 @@ import {setSkillCooldown} from '../engine/cooldowns';
 import type { Expedition, GameState } from '../types';
 import type { CombatHook, JobCondition, JobEffectAction, JobHookContext } from './framework';
 import { getJobCombatDefinition, modifyJobResource, setJobFlag, getJobFlag } from './framework';
-import { applyEffect, cleanseEffects,dispelEffects,hasEffect, removeEffectsByTag } from '../engine/effects';
+import { modifier, applyEffect, cleanseEffects,dispelEffects,hasEffect, removeEffectsByTag } from '../engine/effects';
 import { log, stats } from '../engine/state';
 import { resolveActorDirectHits } from '../engine/monsterSkills';
 import { random } from '../events/rng';
@@ -173,6 +173,11 @@ export function executeJobSkill(s: GameState, skillId: string, rng: () => number
         const target = act.target === 'SELF' ? 'player' : 'monster';
         removeEffectsByTag(e, target, act.tag as any);
         log(s, `[${skill.name}] 사용 · ${act.tag} 효과 제거`);
+        break;
+      }
+      case 'HEAL_ATTACK': {
+        const amount=Math.round(stats(s,e.equipment).attack*Math.max(0,1+modifier(e,'player','attack'))*act.multiplier);
+        applyHealing(s,'player',amount,{canCrit:true,rng});
         break;
       }
       case 'HEAL_FLAT': {

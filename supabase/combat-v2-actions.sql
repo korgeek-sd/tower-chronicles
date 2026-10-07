@@ -145,6 +145,7 @@ begin
     from jsonb_array_elements(case when a->>'target'='SELF' then c.player_effects else c.monster_effects end) with ordinality t(x,ord);
     if a->>'target'='SELF' then c.player_effects:=effects;else c.monster_effects:=effects;end if;
    end if;
+  elsif a->>'kind'='HEAL_ATTACK' then c:=private.combat_v2_heal(c,'player',round(c.player_attack*greatest(0,1+private.combat_v2_modifier(c.player_effects,'attack'))*(a->>'multiplier')::numeric),true,nonce,1100);
   elsif a->>'kind' in ('HEAL_PERCENT','HEAL_FLAT') then c:=private.combat_v2_heal(c,'player',case when a->>'kind'='HEAL_FLAT' then (a->>'amount')::numeric else round(c.player_max_hp*(a->>'percent')::numeric) end,true,nonce,1100);
   elsif a->>'kind'='SELF_HP_COST_PERCENT' then c.player_hp:=greatest(1,c.player_hp-round(c.player_max_hp*(a->>'percentOfMax')::numeric));
   elsif a->>'kind'='CHANGE_RESOURCE' then c.job_resource:=greatest(0,least(4,c.job_resource+(a->>'delta')::int));

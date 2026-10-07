@@ -1,3 +1,4 @@
+import {C_JOB_DEFINITIONS} from './cDefinitions';
 import {SSR_JOB_DEFINITIONS} from './ssrDefinitions';
 import {B_JOB_DEFINITIONS} from './bDefinitions';
 import {A_JOB_DEFINITIONS} from './aDefinitions';
@@ -53,7 +54,7 @@ const COMBAT_READY_JOBS: Record<string, { combatKit: JobCombatKit; jobResource?:
 };
 
 for(const def of B_JOB_DEFINITIONS){COMBAT_READY_JOBS[def.jobId]={combatKit:{passiveIds:[],activeSkillIds:def.skills.map(s=>s.id) as [string,string,string]},jobResource:def.resource};}
-for(const def of [...A_JOB_DEFINITIONS,...SR_JOB_DEFINITIONS,...SSR_JOB_DEFINITIONS]){COMBAT_READY_JOBS[def.jobId]={combatKit:{passiveIds:[],activeSkillIds:def.skills.map(s=>s.id) as [string,string,string]},jobResource:def.resource};}
+for(const def of [...C_JOB_DEFINITIONS,...A_JOB_DEFINITIONS,...SR_JOB_DEFINITIONS,...SSR_JOB_DEFINITIONS]){COMBAT_READY_JOBS[def.jobId]={combatKit:{passiveIds:[],activeSkillIds:def.skills.map(s=>s.id) as [string,string,string]},jobResource:def.resource};}
 
 export const JOB_CATALOG:JobDefinition[]=rows.map(([rarity,id,displayName])=>{
   const ready = COMBAT_READY_JOBS[id];
