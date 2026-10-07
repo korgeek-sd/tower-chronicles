@@ -56,7 +56,7 @@ test('IRON BOSS 02: 6F 쇄철턱 굴혈수 Charge prepares, survives reload, the
  s=resolveMonsterTurn(s);
  assert.ok(s.expedition!.hp<before);
  assert.equal(s.expedition!.monsterRuntime!.preparedActionId,null);
- assert.equal(s.expedition!.monsterRuntime!.skillCooldowns.burrow_charge,2);
+ assert.equal(s.expedition!.monsterRuntime!.skillCooldowns.burrow_charge,3);
 });
 
 test('IRON BOSS 03: 7F 흑맥갑주 파쇄충 starts armored and three direct hits break armor into exposed',()=>{
@@ -83,20 +83,15 @@ test('IRON BOSS 04: 7F periodic damage never creates fracture stacks',()=>{
  assert.equal(effectStacks(s.expedition!.monsterEffects,'fracture'),0);
 });
 
-test('IRON BOSS 05: 8F 울림포식자 waits for 3 resonance applications before prioritizing Charge',()=>{
+test('IRON BOSS 05: one resonance mark enables charge and cleansing it blocks preparation',()=>{
  let s=bossState(8),e=s.expedition!;
- applyEffect(e,'player','resonance','monster',e.playerTurn);
- applyEffect(e,'player','resonance','monster',e.playerTurn);
- e.phase='MONSTER_TURN';
- s=resolveMonsterTurn(s);
- assert.equal(effectStacks(s.expedition!.playerEffects,'resonance'),1);
+ applyEffect(e,'player','resonance','monster',e.playerTurn);e.phase='MONSTER_TURN';
+ s=resolveMonsterTurn(s);assert.equal(s.expedition!.monsterRuntime!.preparedActionId,'resonant_charge');
+ s=bossState(8);s.expedition!.phase='MONSTER_TURN';s=resolveMonsterTurn(s);
  assert.equal(s.expedition!.monsterRuntime!.preparedActionId,null);
- s=passPlayerTurn(s,noEvent);
- s=resolveMonsterTurn(s);
- assert.equal(s.expedition!.monsterRuntime!.preparedActionId,'resonant_charge');
- const reloaded=roundTrip(s);
- assert.equal(effectStacks(reloaded.expedition!.playerEffects,'resonance'),1);
- assert.equal(reloaded.expedition!.monsterRuntime!.preparedActionId,'resonant_charge');
+ assert.equal(hasEffect(s.expedition!.playerEffects,'resonance'),true);
+ s.expedition!.playerEffects=[];s=passPlayerTurn(s,noEvent);s=resolveMonsterTurn(s);
+ assert.equal(s.expedition!.monsterRuntime!.preparedActionId,null);
 });
 
 test('IRON BOSS 06: 9F 심층 권양감독체 prepares one direct-hit counter and then can prepare Charge independently',()=>{
@@ -129,16 +124,16 @@ test('IRON BOSS 08: 10F 철심 맥동체 Shield absorbs first, debuff follows, a
  let shield=activeShield(s.expedition!,'monster');
  assert.ok(shield);
  assert.equal(shield!.effectId,'iron_core_shield');
- assert.equal(shield!.currentShield,70);
+ assert.equal(shield!.currentShield,Math.round(s.expedition!.monster.hp*.15));
  s=roundTrip(s);
  shield=activeShield(s.expedition!,'monster');
- assert.equal(shield?.currentShield,70);
+ assert.equal(shield?.currentShield,Math.round(s.expedition!.monster.hp*.15));
  const hp=s.expedition!.monster.currentHp,shieldBefore=shield!.currentShield!;
  s=basicAttack(s,noEvent);
  assert.equal(s.expedition!.monster.currentHp,hp);
  assert.ok((activeShield(s.expedition!,'monster')?.currentShield??0)<shieldBefore);
  s=resolveMonsterTurn(s);
- assert.equal(hasEffect(s.expedition!.playerEffects,'crushing_pressure'),true);
+ assert.equal(hasEffect(s.expedition!.playerEffects,'iron_pressure'),true);
  s.expedition!.monster.currentHp=Math.floor(s.expedition!.monster.hp*.4);
  s=passPlayerTurn(s,noEvent);
  s=resolveMonsterTurn(s);
@@ -159,4 +154,11 @@ test('IRON BOSS 09: lethal boss Charge enters the shared revival decision pipeli
  assert.equal(s.expedition!.bag.revival,0);
  assert.ok(s.expedition!.hp>0);
  assert.equal(s.expedition!.phase,'PLAYER_TURN');
+});
+
+test('IRON BOSS 10: a fresh armor cycle clears the previous fracture progress',()=>{
+ const s=bossState(7),e=s.expedition!;
+ applyEffect(e,'monster','fracture','player',e.playerTurn);
+ applyEffect(e,'monster','iron_armor','monster',e.monsterTurn);
+ assert.equal(hasEffect(e.monsterEffects,'fracture'),false);
 });

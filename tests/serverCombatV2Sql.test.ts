@@ -195,3 +195,28 @@ test('remaining C online kits execute fifteen skills and use attack healing and 
   const guide=await invoke('guide',3);assert.equal(guide.monster_effects[0].effectId,'silence');assert.equal(guide.monster_effects[0].duration,1);
  }finally{await db.close();}
 });
+
+test('iron online normal skills and boss preparation use approved conditions',async()=>{
+ const db=await setup();try{
+  const before=(await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a;
+  await db.exec(read('../supabase/migrations/20261007043855_implement_iron_monster_skills.sql'));
+  await db.exec(read('../supabase/migrations/20261007043855_implement_iron_monster_skills.sql'));
+  assert.deepEqual((await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a,before);
+  const turn=async(id:string,extra={})=>(await db.query<{a:any}>("select private.resolve_server_monster_turn_v2(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),1) a",[JSON.stringify(combat({monster_id:id,crit_chance:0,...extra}))])).rows[0].a;
+  const rat=await turn('cave_rat');assert.equal(rat.action.id,'rat_double_bite');assert.equal(rat.state.engine_runtime.events.filter((e:any)=>e.kind==='DIRECT_DAMAGE').length,2);
+  const bat=await turn('mine_bat');assert.equal(bat.state.player_hp,180);assert.equal(bat.state.monster_prepared_action,'bat_dive');
+  const carrier=await turn('goblin_carrier');assert.equal(carrier.state.monster_shield,150);
+  const miner=await turn('goblin_miner');assert.equal(miner.state.player_effects[0].effectId,'iron_attack_down_15');assert.equal(miner.state.player_effects[0].duration,2);
+  const echo=await turn('echo_devourer',{player_effects:[{effectId:'resonance',duration:3,stacks:1,applications:1,createdTurn:1,behavior:'STAT_MODIFIER'}]});assert.equal(echo.state.monster_prepared_action,'resonant_charge');
+  const unmarked=await turn('echo_devourer');assert.equal(unmarked.state.monster_prepared_action,null);assert.equal(unmarked.state.player_effects[0].effectId,'resonance');
+  const core=await turn('iron_core_pulsator');assert.equal(core.state.monster_shield,150);
+  const lowCore=await turn('iron_core_pulsator',{monster_hp:400});assert.equal(lowCore.state.monster_prepared_action,'terminal_charge');
+ }finally{await db.close();}
+});
+test('reapplying iron armor resets fractures from the previous armor cycle',async()=>{
+ const db=await setup();try{
+  const c=combat({monster_id:'black_vein_armor_breaker',monster_effects:[{effectId:'fracture',duration:99,applications:2,stacks:1,behavior:'STAT_MODIFIER'}]});
+  const r=(await db.query<{a:any}>("select to_jsonb(private.combat_v2_effect(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),'monster','iron_armor','monster')) a",[JSON.stringify(c)])).rows[0].a;
+  assert.equal(r.monster_effects.some((x:any)=>x.effectId==='fracture'),false);
+ }finally{await db.close();}
+});

@@ -28,6 +28,7 @@ begin
  if actor='monster' then
   if immune ? id then return c;end if;
   for tag in select jsonb_array_elements_text(coalesce(d->'tags','[]')) loop if immune ? tag then return c;end if;end loop;
+  if id='iron_armor' then c.monster_effects:=(select coalesce(jsonb_agg(x),'[]') from jsonb_array_elements(coalesce(c.monster_effects,'[]'))x where x->>'effectId'<>'fracture');end if;
   c.monster_effects:=private.combat_v2_apply_effect(c.monster_effects,id,c.monster_turn,c.monster_max_hp,source);
   c.monster_shield:=private.combat_v2_shield(c.monster_effects);
   if coalesce(d->'tags','[]') ? 'STUN' then c.monster_prepared_action:=null;c.engine_runtime:=c.engine_runtime||jsonb_build_object('eventFlags',coalesce(c.engine_runtime->'eventFlags','{}')||'{"interrupted":true,"stunned":true}');end if;

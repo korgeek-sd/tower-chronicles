@@ -1,3 +1,4 @@
+import {IRON_NORMAL_DEFINITIONS} from '../src/game/data/ironCombat.ts';
 import {writeFileSync} from 'node:fs';
 import {EFFECTS} from '../src/game/engine/effects.ts';
 import {DEV_MONSTER_DEFINITIONS,IRON_BOSS_DEFINITIONS,RED_BOSS_DEFINITIONS} from '../src/game/engine/monsterAi.ts';
@@ -8,6 +9,6 @@ import {initFiveJobCombatDefinitions} from '../src/game/jobs/definitions.ts';
 import {getJobCombatDefinition} from '../src/game/jobs/framework.ts';
 import {JOB_CATALOG} from '../src/game/jobs/catalog.ts';
 initFiveJobCombatDefinitions();
-export const combatCatalog={effects:EFFECTS,monsters:Object.fromEntries([...DEV_MONSTER_DEFINITIONS,...IRON_BOSS_DEFINITIONS,...RED_BOSS_DEFINITIONS,...RED_NORMAL_DEFINITIONS,...CRYSTAL_MONSTER_DEFINITIONS,...KALEON_NORMAL_DEFINITIONS,...KALEON_BOSS_DEFINITIONS].map(d=>[d.id,d])),jobs:Object.fromEntries(JOB_CATALOG.flatMap(j=>{const d=getJobCombatDefinition(j.id);return d?[[j.id,d]]:[];}))};
+export const combatCatalog={effects:EFFECTS,monsters:Object.fromEntries([...DEV_MONSTER_DEFINITIONS,...IRON_NORMAL_DEFINITIONS,...IRON_BOSS_DEFINITIONS,...RED_BOSS_DEFINITIONS,...RED_NORMAL_DEFINITIONS,...CRYSTAL_MONSTER_DEFINITIONS,...KALEON_NORMAL_DEFINITIONS,...KALEON_BOSS_DEFINITIONS].map(d=>[d.id,d])),jobs:Object.fromEntries(JOB_CATALOG.flatMap(j=>{const d=getJobCombatDefinition(j.id);return d?[[j.id,d]]:[];}))};
 export const catalogSql=`-- Generated from the authored TypeScript catalogs; regenerate with node --import ./tests/register.mjs scripts/generateCombatSqlCatalog.ts.\ncreate or replace function private.combat_v2_catalog() returns jsonb language sql immutable set search_path='' as $catalog$\n select $data$${JSON.stringify(combatCatalog)}$data$::jsonb;\n$catalog$;\nrevoke all on function private.combat_v2_catalog() from public,anon,authenticated;\n`;
 if(process.argv[1]?.endsWith('generateCombatSqlCatalog.ts'))writeFileSync('supabase/combat-v2-catalog.sql',catalogSql);
