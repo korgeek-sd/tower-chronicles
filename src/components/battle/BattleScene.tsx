@@ -1,4 +1,5 @@
-import {EFFECTS} from '../../game/engine/effects';
+import {preparedMonsterSkill} from '../../game/engine/monsterAi';
+import {EFFECTS,isStunned} from '../../game/engine/effects';
 import {effectText} from './presentation';
 import {loadSettings,reducedMotion} from '../../settings/preferences';
 import React,{useEffect,useRef,useState} from 'react';
@@ -6,7 +7,7 @@ import type {CombatEvent,Expedition,Weapon} from '../../game/types';
 import {assetUrl,graphicFor,playerGraphicFor,playerGraphicForJob,SCENE_CONFIG} from '../../game/data/graphics';
 import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} from './presentation';
 import {attackWindup,counterattackDelay,recoilFrames} from './battleVfxTimeline';
-import {playCombatImpact,stopCombatAudio} from './combatAudio';
+import {playCombatCharge,playCombatImpact,stopCombatAudio} from './combatAudio';
 import {BattleVfxCanvas,type BattleVfxHandle} from './BattleVfxCanvas';
 
 function useImage(path?:string){
@@ -26,10 +27,13 @@ export function PlayerLayer({impact,motion,jobId,appearanceId,anchorRef}:{impact
  return <div ref={anchorRef} className={placementClass} style={{'--player-scale':d.scale,'--player-x':d.offsetX+'%','--player-y':d.offsetY+'%'} as React.CSSProperties}><div className={className}>{src?<img src={assetUrl(src)} alt="모험가"/>:<div className="fighter-placeholder player-placeholder"><span aria-hidden="true">♙</span></div>}</div></div>;
 }
 
-export function MonsterLayer({expedition,impact,motion,anchorRef}:{expedition:Expedition;impact:Impact;motion:Motion;anchorRef:React.RefObject<HTMLDivElement|null>}){
+export function monsterChargeId(expedition:Expedition){return expedition.events.phase==='BATTLE'&&expedition.monster.currentHp>0&&expedition.hp>0&&!isStunned(expedition,'monster')?preparedMonsterSkill(expedition.monster,expedition.monsterRuntime)?.id:null;}
+
+export function MonsterLayer({expedition,impact,motion,release=false,anchorRef}:{expedition:Expedition;impact:Impact;motion:Motion;release?:boolean;anchorRef:React.RefObject<HTMLDivElement|null>}){
+ const charging=!!monsterChargeId(expedition);
  const hit=!!impact,graphic=graphicFor(expedition.tower,expedition.monster),idleReady=useImage(graphic?.image.idle),hitReady=useImage(graphic?.image.hit),state=imageState(hit,idleReady,hitReady),display=graphic?.display??{scale:1,offsetX:0,offsetY:0},src=state==='hit'?graphic?.image.hit:graphic?.image.idle;
  const className='monster-figure'+(impact?' is-hit tc-combat-impact-'+impact:'')+(impact==='critical'?' is-critical':'');
- return <div ref={anchorRef} className={'monster-placement'+(motion==='monster'?' tc-combat-monster-attack':'')} style={{'--monster-scale':display.scale,'--monster-x':display.offsetX+'%','--monster-y':display.offsetY+'%'} as React.CSSProperties}><div className={className}>{state!=='placeholder'&&src?<img src={assetUrl(src)} alt={expedition.monster.name}/>:<div className="fighter-placeholder monster-placeholder"><span aria-hidden="true">♟</span></div>}</div></div>;
+ return <div ref={anchorRef} className={'monster-placement'+(motion==='monster'?' tc-combat-monster-attack':'')+(charging?' tc-monster-charging':'')+(release?' tc-monster-charge-release':'')} style={{'--monster-scale':display.scale,'--monster-x':display.offsetX+'%','--monster-y':display.offsetY+'%'} as React.CSSProperties}>{charging&&<div className="tc-charge-vfx" aria-hidden="true"><i className="tc-charge-aura"/><i className="tc-charge-ring"/>{[0,1,2,3,4,5].map(i=><i key={i} className="tc-charge-particle" style={{'--charge-angle':i*60+'deg','--charge-delay':-i*.27+'s'} as React.CSSProperties}/>)}</div>}{release&&<i className="tc-charge-burst" aria-hidden="true"/>}<div className={className}>{state!=='placeholder'&&src?<img src={assetUrl(src)} alt={expedition.monster.name}/>:<div className="fighter-placeholder monster-placeholder"><span aria-hidden="true">♟</span></div>}</div></div>;
 }
 
 type Floating={id:number;kind:'monster-damage'|'player-damage'|'player-heal'|'monster-heal'|'monster-shield-float'|'player-shield-float';target:'player'|'monster';amount:number;x:number;y:number;critical?:boolean;label?:string;hit?:string;lane?:number};
@@ -89,6 +93,17 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
  const [displayHp,setDisplayHp]=useState(expedition.hp),[displayMonsterHp,setDisplayMonsterHp]=useState(expedition.monster.currentHp);
  const [monsterDefeated,setMonsterDefeated]=useState(false);
  const [playerMotion,setPlayerMotion]=useState<Motion>(null),[monsterMotion,setMonsterMotion]=useState<Motion>(null);
+
+ const chargeId=monsterChargeId(expedition),chargeHistory=useRef<{id:string|null|undefined;eventId:number}>({id:chargeId,eventId:combatEvents.at(-1)?.id??0});
+ const [chargeRelease,setChargeRelease]=useState(false);
+ useEffect(()=>{if(chargeId)return playCombatCharge();},[chargeId]);
+ useEffect(()=>{
+  const before=chargeHistory.current,lastId=combatEvents.at(-1)?.id??0;
+  const released=!!before.id&&!chargeId&&expedition.events.phase==='BATTLE'&&expedition.monster.currentHp>0&&combatEvents.some(e=>e.id>before.eventId&&e.attacker==='monster'&&e.kind==='DIRECT_DAMAGE'&&e.origin!=='REACTION');
+  setChargeRelease(released);
+  chargeHistory.current={id:chargeId,eventId:lastId};
+  if(released){const timer=setTimeout(()=>setChargeRelease(false),320);return()=>clearTimeout(timer);}
+ },[chargeId,combatEvents,expedition.events.phase,expedition.monster.currentHp]);
 
  const schedule=(fn:()=>void,ms:number)=>{
   const timer=setTimeout(()=>{timers.current=timers.current.filter(t=>t!==timer);fn();},ms);
@@ -199,7 +214,7 @@ function Encounter({expedition,combatEvents,playerMaxHp,appearanceId,titleName,s
  return <>
   <div ref={stageRef} className={'combat-stage'+(monsterDefeated?' tc-monster-defeated':'')} style={{'--action-duration':Math.round(320/Math.min(2,Math.max(.75,speed||1)))+'ms'} as React.CSSProperties}>
    <PlayerLayer impact={playerImpact} motion={playerMotion} jobId={expedition.jobSnapshotId} appearanceId={appearanceId} anchorRef={playerAnchor}/>
-   <MonsterLayer expedition={expedition} impact={monsterImpact} motion={monsterMotion} anchorRef={monsterAnchor}/>
+   <MonsterLayer expedition={expedition} impact={monsterImpact} motion={monsterMotion} release={chargeRelease} anchorRef={monsterAnchor}/>
    <FloatingLayer events={events}/>
   </div>
   <BattleVfxCanvas ref={vfxRef} playerRef={playerAnchor} monsterRef={monsterAnchor} weapon={weapon}/>

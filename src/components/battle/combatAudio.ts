@@ -56,3 +56,20 @@ export function playCombatImpact(weapon:Weapon,critical:boolean,guard:boolean,fi
   noise.start(now);tone.start(now);noise.stop(now+life+.01);tone.stop(now+life+.01);
  }catch{/* presentation failure is isolated from combat */}
 }
+
+/** One rising warning per preparation, with immediate cancellation. */
+export function playCombatCharge():()=>void{
+ const ctx=context;
+ if(!enabled||!ctx||ctx.state!=='running')return()=>{};
+ try{
+  while(voices.size>=8)voices.values().next().value?.stop();
+  const tone=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;
+  tone.type='triangle';tone.frequency.setValueAtTime(120,now);tone.frequency.exponentialRampToValueAtTime(240,now+.2);
+  gain.gain.setValueAtTime(.001,now);gain.gain.linearRampToValueAtTime(.045,now+.03);gain.gain.exponentialRampToValueAtTime(.001,now+.24);
+  tone.connect(gain);gain.connect(ctx.destination);
+  let stopped=false;
+  const voice={stop:()=>{if(stopped)return;stopped=true;tone.onended=null;try{tone.stop();}catch{}tone.disconnect();gain.disconnect();voices.delete(voice);}};
+  voices.add(voice);tone.onended=voice.stop;tone.start(now);tone.stop(now+.25);
+  return voice.stop;
+ }catch{return()=>{};}
+}
