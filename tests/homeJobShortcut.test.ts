@@ -2,12 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('HOME JOB SHORTCUT 01: base camp replaces cosmetics shortcut with dedicated job registration',()=>{
+test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
- assert.match(home,/title:'직능등록'/);
- assert.match(home,/subtitle:'100G · 10\+1'/);
- assert.match(home,/onOpenJobs\('register'\)/);
+ assert.match(home,/title:'제작'/);
+ assert.match(home,/subtitle:'포션 · 음식 · 도전권'/);
+ assert.match(home,/onMove\('craft'\)/);
+ assert.doesNotMatch(home,/title:'직능등록'/);
  assert.doesNotMatch(home,/title:'외형'/);
  assert.doesNotMatch(home,/onMove\('cosmetics'\)/);
 });

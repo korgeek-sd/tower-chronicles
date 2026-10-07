@@ -9,10 +9,11 @@ test('CRAFT REMOVAL 01: workshop and crafting runtime modules are gone',()=>{
  assert.equal(existsSync(new URL('../src/game/engine/crafting.ts',import.meta.url)),false);
 });
 
-test('CRAFT REMOVAL 02: app routing no longer exposes craft or crafting mastery screens',()=>{
+test('CRAFT REMOVAL 02: retired equipment workshop stays removed while new life crafting is routed',()=>{
  const main=read('src/main.tsx'),core=read('src/components/mobile/CoreScreens.tsx');
- assert.doesNotMatch(main,/WorkshopScreen|settleCrafting|page==='craft'|page==='mastery'/);
- assert.doesNotMatch(core,/\|'craft'|\|'mastery'|MasteryScreen|engine\/crafting|discount\(/);
+ assert.doesNotMatch(main,/WorkshopScreen|settleCrafting|page==='mastery'/);
+ assert.doesNotMatch(core,/\|'mastery'|MasteryScreen|engine\/crafting|discount\(/);
+ assert.match(main,/page==='craft'/);
  assert.match(main,/page==='enhancement'.*onBack=\{backFromEnhancement\}/s);
  assert.match(main,/function backFromEnhancement\(\)[\s\S]*setPage\('inventory'\)/);
 });

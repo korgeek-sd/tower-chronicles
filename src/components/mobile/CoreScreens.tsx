@@ -12,7 +12,7 @@ import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
 
-export type AppPage='world'|'home'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='craft'|'world'|'home'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -22,7 +22,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
  const routeText=game.expedition?`${TOWERS[game.expedition.tower].name} · ${game.expedition.floor}층 원정 중`:game.lastExpedition?`${TOWERS[game.lastExpedition.tower].name} · ${game.lastExpedition.floor}층 ${game.lastExpedition.outcome==='returned'?'안전 귀환':'원정 종료'}`:highestReturn?`최고 ${highestReturn}층에서 안전 귀환`:'첫 원정을 앞두고';
  const routeCaption=game.expedition?'전리품은 안전 귀환 전까지 임시 보관됩니다.':game.lastExpedition?.outcome==='returned'?'최근 귀환 기록과 획득물을 요약합니다.':'다음 출정을 준비하세요.';
  const quick=[
-  {id:'jobs-register',glyph:'registration',title:'직능등록',subtitle:'100G · 10+1',action:()=>onOpenJobs('register')},
+  {id:'craft',glyph:'craft',title:'제작',subtitle:'포션 · 음식 · 도전권',action:()=>onMove('craft')},
   {id:'jobs-list',glyph:'jobs',title:'직능목록',subtitle:`보유 직능 ${game.ownedJobIds.length}종`,action:()=>onOpenJobs('list')},
   {id:'gold-exchange',glyph:'market',title:'골드 거래소',subtitle:'Gold ↔ Silver',action:()=>onMove('gold-exchange')},
   {id:'seal',glyph:'association',title:'협회 인장',subtitle:'20회 주조 · 30단계',action:()=>onMove('seal')},
