@@ -18,7 +18,7 @@ test('NOVAR HUB 0.1.78 01: dossier and expedition summary use live game data',()
 test('NOVAR HUB 0.1.78 02: existing facility routes and primary CTA remain wired',()=>{
  for(const title of ['직능등록','직능목록','골드 거래소','협회 인장','점령전','강화','생물록','계정 · 저장'])
   assert.ok(home.includes(`title:'${title}'`),title);
- assert.match(home,/onClick=\{\(\)=>onMove\('towers'\)\}/);
+ assert.match(home,/onClick=\{\(\)=>onMove\(game\.expedition\?'battle':'hunt'\)\}/);
  assert.match(home,/data-game-feel="press"/);
 });
 

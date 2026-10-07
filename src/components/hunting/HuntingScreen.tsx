@@ -1,0 +1,29 @@
+import React from 'react';
+import type {GameState} from '../../game/types';
+import {HUNT_MAPS,huntingLevel,recoverVitality,VITALITY_INTERVAL,type HuntingState,type HuntMapId} from '../../game/hunting/model';
+import {stats} from '../../game/engine/state';
+import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
+import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
+import {Glyph} from '../../ui/mobile';
+type Props={game:GameState;hunting:HuntingState|null;now:number;busy:boolean;error?:string;nickname?:string;onHunt:(id:HuntMapId)=>void;onSettings:()=>void;onRetry?:()=>void};
+function Hp({label,value,max}:{label:string;value:number;max:number}){
+ return <div className="tc-hunt-hp"><div><span>HP</span><b>{Math.round(value).toLocaleString()} / {Math.round(max).toLocaleString()}</b></div><div role="progressbar" aria-label={label+' HP'} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}><i style={{width:Math.max(0,Math.min(100,value/max*100))+'%'}}/></div></div>;
+}
+export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onSettings,onRetry}:Props){
+ const state=hunting?recoverVitality(hunting,now):null,result=state?.lastResult,map=HUNT_MAPS.find(m=>m.id===result?.mapId),player=result?.player??stats(game);
+ const seconds=state?Math.max(0,Math.ceil((VITALITY_INTERVAL-Math.max(0,now-state.recoveredAt))/1000)):0;
+ const level=huntingLevel(state?.experience??0),exp=(state?.experience??0)-(level-1)**2*100,nextExp=(level**2-(level-1)**2)*100;
+ const art=playerGraphicFor(game.cosmetics.selectedAppearanceId).image.idle;
+ return <section className="tc-hunt" aria-label="즉시 사냥">
+  <header className="tc-hunt-heading"><div><small>노바르 외곽</small><h1>전투</h1></div><button onClick={onSettings} className="tc-feel-press" data-game-feel="press"><Glyph name="skills"/>전투 세팅</button></header>
+  <div className="tc-hunt-vitality tc-hunt-panel"><Glyph name="haste"/><strong>활력 <b>{state?.vitality??'—'}</b><small> / 100</small></strong><div className="tc-hunt-energy" role="progressbar" aria-label="활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state?.vitality??0}><i style={{width:(state?.vitality??0)+'%'}}/></div><span>{!state?'불러오는 중':state.vitality===100?'충전 완료':`회복 ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}</span></div>
+  <div className="tc-hunt-metrics tc-hunt-panel"><div><small>레벨 / 경험치</small><b>{level} <em>{exp} / {nextExp}</em></b><span>{result?.exp?`+${result.exp} EXP`:'사냥으로 성장'}</span></div><div><small>실버</small><b>{game.silver.toLocaleString()}</b><span>{result?.silver?`+${result.silver}`:'보유 재화'}</span></div><div><small>무기 숙련도</small><b>{(state?.mastery??0).toLocaleString()}</b><span>{result?.mastery?'+1':'전투 기록'}</span></div></div>
+  <nav className="tc-hunt-maps" aria-label="사냥 지역">{HUNT_MAPS.map(m=><button key={m.id} className={'tc-feel-press '+(map?.id===m.id?'selected':'')} data-game-feel="press" disabled={busy||!state||state.vitality<1||!!game.expedition} onClick={()=>onHunt(m.id)} style={{backgroundImage:`linear-gradient(90deg,rgba(15,14,12,.55),rgba(15,14,12,.95)),url(${assetUrl('assets/backgrounds/'+m.tower+'/t1.png')})`}}><strong>{m.name}</strong><small>사냥 · 활력 1</small></button>)}</nav>
+  <p className="tc-hunt-hint">{busy?'전투 결과를 확인하고 있습니다…':game.expedition?'진행 중인 원정을 마친 후 사냥할 수 있습니다.':state?.vitality===0?'활력이 부족합니다. 회복 후 다시 사냥하세요.':'지역을 누르면 즉시 전투 결과가 표시됩니다.'}</p>
+  {error&&<div className="tc-hunt-error" role="alert">{error}{onRetry&&<button onClick={onRetry} disabled={busy}>다시 확인</button>}</div>}
+  <article className="tc-hunt-fighter tc-hunt-panel player"><div className="tc-hunt-art">{art&&<img src={assetUrl(art)} alt="탐사자"/>}</div><div className="tc-hunt-fighter-info"><h2>{nickname??'탐사자'}</h2><div className="tc-hunt-stats"><span>공격 <b>{Math.round(player.attack)}</b></span><span>방어 <b>{Math.round(player.defense)}</b></span></div><div className="tc-hunt-equipment">{(['weapon','armor'] as const).map(slot=>{const item=game.equipmentItems.find(i=>i.id===game.equipped[slot]);return <span key={slot}>{item?`${EQUIPMENT_DEFINITIONS[item.kind].name} +${item.enhancement}`:slot==='weapon'?'기본 무기':'방어구 없음'}</span>;})}</div><Hp label="탐사자" value={result?.playerHp??player.hp} max={player.hp}/></div></article>
+  {result&&map?<><article className="tc-hunt-fighter tc-hunt-panel enemy"><div className="tc-hunt-art"><img src={assetUrl(`assets/monsters/${map.tower==='ore'?'iron-t1':'redfang'}/${map.monsterId}.png`)} alt={map.monsterName}/></div><div className="tc-hunt-fighter-info"><h2>{map.monsterName}</h2><div className="tc-hunt-stats"><span>공격 <b>{map.attack}</b></span><span>방어 <b>{map.defense}</b></span></div><Hp label={map.monsterName} value={result.monsterHp} max={map.hp}/></div></article>
+  <div className={'tc-hunt-result tc-hunt-panel '+result.outcome} role="status" aria-live="polite"><h2>{result.outcome==='victory'?'승리!':'패배'}</h2><div>{result.outcome==='victory'?<><p>경험치 <b>+{result.exp}</b> · 실버 <b>+{result.silver}</b> · 숙련도 <b>+{result.mastery}</b></p><span>{map.materialName} × {result.materialCount}</span></>:<p>획득 보상 없음 · 다음 사냥은 HP를 회복하고 시작합니다.</p>}</div></div>
+  <div className="tc-hunt-log-heading"><h2>전투 기록</h2><span>총 {result.turns.length}턴</span></div><div className="tc-hunt-log">{result.turns.map(t=><details className="tc-hunt-panel" key={result.createdAt+':'+t.turn} open={t.turn===1}><summary>Turn {t.turn}<span>HP {Math.round(t.playerHp)} / 적 {Math.round(t.monsterHp)}</span></summary><div>{t.lines.map((line,i)=><p key={i}>{line}</p>)}</div></details>)}</div></>:<div className="tc-hunt-empty tc-hunt-panel"><Glyph name="sword"/><h2>사냥할 지역을 선택하세요</h2><p>장비와 스킬을 준비하고 첫 전투 기록을 남겨보세요.</p></div>}
+ </section>;
+}
