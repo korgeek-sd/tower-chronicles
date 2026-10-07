@@ -1,6 +1,9 @@
+import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../../game/life/inventory';
+import type {FoodId} from '../../game/life/crafting';
+import {useInventoryLife} from './useInventoryLife';
 import React,{useCallback,useEffect,useMemo,useState} from 'react';
 import type {EquipmentItem,GameState,Slot} from '../../game/types';
-import {inventoryView,selectInventory,categories,categoryNames,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
+import {selectInventory,categoryNames,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
 import {equip,equipmentStatComparison,stats,unequip} from '../../game/engine/state';
 import {dismantleEquipment,equipmentDismantleYield} from '../../game/engine/equipmentDismantle';
 import {V2_STARTER_EQUIPMENT_ID} from '../../game/data/equipment';
@@ -27,7 +30,8 @@ const INVENTORY_SANDBOX_EQUIPMENT:EquipmentItem[]=[
 ];
 const SLOT_GLYPH:Record<Slot,string>={weapon:'sword',helmet:'armor',armor:'armor',gloves:'armor',boots:'boots',necklace:'accessory',ring:'accessory'};
 
-export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
+export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
+ const life=useInventoryLife(userId,onlineLease??null);
  const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const [sandboxGame,setSandboxGame]=useState<GameState|null>(null);
  const activeGame=sandboxGame??game;
@@ -54,24 +58,25 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket
  };
  const stopInventorySandbox=()=>{setSandboxGame(null);setCategory('all');setSelected(null);setPage(0);setFilter({tier:0,status:false});};
  const close=useCallback(()=>setSelected(null),[]);
- const items=inventoryView(activeGame),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
+ const items=unifiedInventoryView(activeGame,sandboxGame?null:life.state),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=visible.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),item=items.find(i=>i.key===selected);
  useEffect(()=>{if(!initialSelected)return;setSelected(initialSelected);onInitialSelectedConsumed?.();},[initialSelected]);
- const categorySet=useMemo(()=>categories,[ ]),st=stats(activeGame),graphic=playerGraphicForJob(activeGame.expedition?.jobSnapshotId??activeGame.currentJobId,activeGame.cosmetics.selectedAppearanceId),characterSrc=graphic.image.idle?assetUrl(graphic.image.idle):undefined;
+ const categorySet=useMemo(()=>LIFE_INVENTORY_CATEGORIES,[ ]),st=stats(activeGame),graphic=playerGraphicForJob(activeGame.expedition?.jobSnapshotId??activeGame.currentJobId,activeGame.cosmetics.selectedAppearanceId),characterSrc=graphic.image.idle?assetUrl(graphic.image.idle):undefined;
  const equippedCount=(Object.keys(SLOTS) as Slot[]).filter(slot=>!!activeGame.equipped[slot]).length;
  const noRealEquipment=(game.equipmentItems??[]).length===0;
  let action:(()=>void)|undefined,label='',disabled=false;
  if(item?.category==='equipment'){action=()=>updateActive(s=>item.equipped?unequip(s,item.sourceId):equip(s,item.sourceId));label=activeGame.expedition?'원정 중 변경 불가':item.equipped?'장착 해제':'장착';disabled=!!activeGame.expedition;}
+ if(item?.lifeProduct&&item.category==='foods'){action=()=>life.consume(item.lifeProduct as FoodId);label=life.busy?'사용 처리 중…':'음식 먹기 · +30회';disabled=life.disabled||!!sandboxGame;}
  if(item?.category==='skillbooks'){action=()=>updateActive(s=>useSkillBook(s,item.sourceId));label=item.learned?'습득 완료':activeGame.expedition?'원정 중 사용 불가':'사용하여 학습';disabled=!!item.learned||!!activeGame.expedition||!SKILLS.some(s=>s.id===item.sourceId);}
  if(item?.category==='cosmetics'){action=()=>updateActive(s=>registerAppearance(s,item.sourceId));label=item.registered?'등록 완료':'외형 등록';disabled=!!item.registered;}
  const selectedEquipment=item?.category==='equipment'&&item.modern?(activeGame.equipmentItems??[]).find(value=>value.id===item.sourceId):undefined;
  const marketItemId=!sandboxGame&&item?marketItemIdForInventory(activeGame,item):null;
- const marketVisible=!!item&&!['potions','cosmetics'].includes(item.category);
+ const marketVisible=!!item&&!item.lifeMaterial&&!item.lifeProduct&&!['potions','cosmetics','foods'].includes(item.category);
  const marketLabel=marketVisible?(sandboxGame?'체험 중 거래 제외':marketItemId?'시세 · 거래':'거래 불가'):undefined;
  const marketDisabled=marketVisible&&(!!sandboxGame||!marketItemId||!onMarket);
  const marketAction=marketItemId&&onMarket&&item?()=>onMarket({itemId:marketItemId,inventoryKey:item.key,sourceName:item.name}):undefined;
  const dismantleYield=selectedEquipment?equipmentDismantleYield(selectedEquipment):0;
  const starterProtected=item?.sourceId===V2_STARTER_EQUIPMENT_ID;
- const dismantleDisabled=busy||!!activeGame.expedition||!!item?.equipped||starterProtected;
+ const dismantleDisabled=busy||life.busy||!!activeGame.expedition||!!item?.equipped||starterProtected;
  const dismantleLabel=starterProtected?'보급 장비 분해 불가':`분해 · 강화석 +${dismantleYield}`;
  const dismantleSelected=async()=>{
   if(!item||item.category!=='equipment'||!item.modern||!selectedEquipment)return;
@@ -81,7 +86,7 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket
   try{
    const result=await dismantleOnlineEquipment(onlineLease,item.sourceId);
    setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:`${item.name} 분해 완료 · 강화석 ${result.stones}개 · 분해석 ${result.splitStones??0}개 획득`}));
-   setSelected(null);
+   setSelected(null);void life.refresh();
   }catch(error){
    setGame(s=>({...s,notice:error instanceof Error?error.message:'장비 분해에 실패했습니다.'}));
   }finally{setBusy(false);}
@@ -92,7 +97,7 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket
  function openEquipped(slot:Slot){const view=equippedView(slot);if(view)setSelected(view.key);}
  function comparisonFor(sourceId:string){return equipmentStatComparison(activeGame,sourceId);}
  const signed=(value:number)=>{const rounded=Math.round(value);return rounded>0?'+'+rounded:String(rounded);};
- return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><span>{sandboxGame?"체험 모드 · ":""}장착 {equippedCount}/7 · {items.length}종</span>{sandboxGame?<button className="tc-action secondary slim tc-inventory-sandbox-exit" onClick={stopInventorySandbox}>체험 종료</button>:<button className="tc-action secondary slim tc-inventory-enhance-link" onClick={()=>onEnhancement()}>강화</button>}</>} className="tc-inventory-screen">
+ return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><span>{sandboxGame?"체험 모드 · ":""}장착 {equippedCount}/7 · {items.length}종</span>{sandboxGame?<button className="tc-action secondary slim tc-inventory-sandbox-exit" onClick={stopInventorySandbox}>체험 종료</button>:<button className="tc-action secondary slim tc-inventory-enhance-link" onClick={()=>onEnhancement()}>강화</button>}</>} className="tc-inventory-screen tc-unified-inventory">
   <div className="tc-ref-inventory tc-inventory-v081">
    <section className="tc-loadout-stage" aria-label="현재 장착 장비">
     <header className="tc-loadout-ledger"><div><small>EXPLORER LOADOUT</small><b>원정 장비</b></div><span>{equippedCount}/7 장착</span></header>
@@ -104,13 +109,13 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket
    </section>
 
    <section className="tc-storage-board">
-    <div className="tc-storage-head"><div><small>QUARTERMASTER STORAGE</small><b>영구 보관함</b><em>{categoryNames[category]} · {visible.length}종</em></div><button className={toolsOpen?'active':''} onClick={()=>setToolsOpen(v=>!v)} aria-label="검색과 정렬"><Glyph name="filter"/> 정렬</button></div>
-    <div className="tc-storage-categories">{categorySet.map(c=><button key={c} aria-selected={category===c} aria-label={categoryNames[c]} onClick={()=>{setCategory(c);setSelected(null);setFilter({tier:0,status:false});setPage(0);}}><Glyph name={c}/><small>{categoryNames[c]}</small></button>)}</div>
+    <div className="tc-storage-head"><div><small>QUARTERMASTER STORAGE</small><b>인벤토리</b><em role="status">{life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${visible.length}종`}</em></div>{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className={toolsOpen?'active':''} onClick={()=>setToolsOpen(v=>!v)} aria-label="검색과 정렬"><Glyph name="filter"/> 정렬</button></div>
+    <div className="tc-storage-categories">{categorySet.map(c=><button key={c} aria-selected={category===c} aria-label={categoryNames[c]} onClick={()=>{setCategory(c);setSelected(null);setFilter({tier:0,status:false});setPage(0);}}><Glyph name={c==='foods'?'health':c}/><small>{categoryNames[c]}</small></button>)}</div>
     {toolsOpen&&<div className="tc-storage-tools"><input aria-label="아이템 검색" placeholder="이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/><select aria-label="정렬" value={sort} onChange={e=>setSort(e.target.value as InventorySort)}><option value="default">기본 정렬</option><option value="name">이름순</option><option value="tier">티어 높은순</option><option value="quantity">수량 많은순</option></select>{tierVisible&&<select aria-label="티어 필터" value={filter.tier} onChange={e=>{setFilter({...filter,tier:+e.target.value});setPage(0);}}>{[0,1,2,3,4,5].map(t=><option key={t} value={t}>{t?'T'+t:'전체 티어'}</option>)}</select>}{statusLabel&&<label><input type="checkbox" checked={filter.status} onChange={e=>setFilter({...filter,status:e.target.checked})}/>{statusLabel}</label>}</div>}
     <div className="tc-storage-grid">{shown.map(i=>{const comparison=i.category==='equipment'?comparisonFor(i.sourceId):null;return <button key={i.key} className={'tc-storage-item'+(i.grade?' grade-'+i.grade:'')+(i.equipped?' equipped':'')} aria-label={i.name+' · '+i.quantity+'개'} aria-pressed={selected===i.key} onClick={()=>setSelected(i.key)}><div className="tc-storage-icon"><Glyph name={i.iconId}/>{i.tier&&<span>T{i.tier}</span>}{i.grade&&<span className={'tc-storage-grade grade-'+i.grade}>{i.grade==='common'?'일반':i.grade==='uncommon'?'고급':i.grade==='rare'?'희귀':i.grade==='heroic'?'영웅':'전설'}</span>}</div><strong>{i.name}</strong>{comparison&&<span className={'tc-storage-impact '+(i.equipped?'remove':'equip')}>{i.equipped?'해제':'장착'} · 공 {signed(comparison.delta.attack)} · 방 {signed(comparison.delta.defense)} · HP {signed(comparison.delta.hp)}</span>}<small>{i.stack?i.quantity.toLocaleString()+'개':i.equipped?'장착 중':i.enhancement!==undefined?'+'+i.enhancement:'1개'}</small>{i.enhancement!==undefined&&i.enhancement>0&&<b className="tc-storage-enhance">+{i.enhancement}</b>}{i.equipped&&<em aria-label="장착 중">●</em>}</button>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-storage-item empty" aria-hidden="true" key={'empty'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} enhancementAction={item.category==='equipment'&&item.modern?()=>{close();onEnhancement(sandboxGame?undefined:item.sourceId,sandboxGame?undefined:item.key);}:undefined} marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet item={item} status={item.category==='foods'?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={item.category==='foods'&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} enhancementAction={item.category==='equipment'&&item.modern?()=>{close();onEnhancement(sandboxGame?undefined:item.sourceId,sandboxGame?undefined:item.key);}:undefined} marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }

@@ -18,6 +18,7 @@ export function marketItemIdForEquipment(item:EquipmentItem):string|null{
  return item.id===V2_STARTER_EQUIPMENT_ID?null:equipmentMarketKey(item);
 }
 export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
+ if(item.lifeMaterial||item.lifeProduct)return null;
  if(item.category==='equipment'){
   if(item.modern){
    const gear=(s.equipmentItems??[]).find(value=>value.id===item.sourceId);

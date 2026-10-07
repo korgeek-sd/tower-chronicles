@@ -3293,3 +3293,8 @@ html,body,#root{
 @media(prefers-reduced-motion:reduce){.tc-monster-charging .monster-figure img,.tc-monster-charging .monster-placeholder{animation:none}}
 
 .tc-battle-reference .tc-ref-intent .tc-intent-threats{display:block;margin-top:3px;font-size:10px;line-height:1.4;color:#ffbc96;overflow-wrap:anywhere}
+
+/* Current inventory: six categories and authoritative life consumables. */
+.tc-unified-inventory .tc-storage-categories{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories button{height:44px;min-height:44px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{grid-template-rows:44px 44px minmax(0,1fr) 44px}.tc-unified-inventory .tc-storage-head>div{min-width:0;flex:1}.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button{min-width:44px;min-height:44px;height:44px;font-size:10px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-head em{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-unified-inventory .tc-inventory-v081 .tc-storage-item>strong{font-size:10px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-item>small{font-size:10px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories button small{font-size:9px;display:block}.tc-unified-inventory .tc-storage-board .tc-pager button{min-height:44px}
+
+.tc-item-request-status{font-size:12px;line-height:1.5;padding:8px 12px;color:#e9c780;}

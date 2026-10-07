@@ -4,8 +4,8 @@ import type {GameplayLease} from '../../online/gameSession';
 import {getVillageLife,travelVillage,gatherVillage,villageLifeAction,validGatherRequest,VillageLifeRejected,LIFE_MATERIAL_NAMES,type VillageLifeState,type GatherRequest,type LifeResource,type LifeMaterial} from '../../online/villageLife';
 import {WorldMapScreen} from './WorldMapScreen';
 import {LifeScreen} from './LifeScreen';
-type Props={userId:string|null;lease:GameplayLease|null;now:number};
-export function WorldPage({userId,lease,now}:Props){
+type Props={userId:string|null;lease:GameplayLease|null;now:number;onInventory?:()=>void};
+export function WorldPage({userId,lease,now,onInventory}:Props){
  const [state,setState]=useState<VillageLifeState|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[view,setView]=useState<'map'|'life'>('map'),[count,setCount]=useState(1),[pending,setPending]=useState<GatherRequest|LifeActionRequest|null>(null),[offset,setOffset]=useState(0);
  const alive=useRef(true),lock=useRef(false),resetRetryAt=useRef(0),key=userId?'tower-life-pending:'+userId:null;
  const accept=(s:VillageLifeState)=>{if(alive.current){setState(s);setOffset(s.serverNow-Date.now());}};
@@ -36,6 +36,6 @@ export function WorldPage({userId,lease,now}:Props){
  const disabled=busy||!lease||!!pending;
  return <div className="tc-world-page">
   {(error||pending)&&<div className="tc-life-error" role="alert"><span>{error||'이전 생활 결과 확인이 필요합니다.'}</span><button disabled={busy||!lease} onClick={retryPending}>{pending?'생활 결과 다시 확인':'상태 다시 확인'}</button></div>}
-  {view==='map'?<WorldMapScreen currentId={state.location} towns={state.towns} busy={disabled} actionPoints={state.actionPoints} onTravel={id=>void travel(id)} onLife={()=>{setMessage('');setView('life');}}/>:<LifeScreen state={state} busy={disabled} count={count} now={now+offset} message={message} onCount={setCount} onGather={r=>void gather(r)} onBack={()=>setView('map')} onRefresh={()=>void refresh()} onCraft={id=>void action('craft',id)} onFood={id=>void action('food',id)} onWell={()=>void action('well','well')}/>}
+  {view==='map'?<WorldMapScreen currentId={state.location} towns={state.towns} busy={disabled} actionPoints={state.actionPoints} onTravel={id=>void travel(id)} onLife={()=>{setMessage('');setView('life');}}/>:<LifeScreen state={state} busy={disabled} count={count} now={now+offset} message={message} onCount={setCount} onGather={r=>void gather(r)} onBack={()=>setView('map')} onRefresh={()=>void refresh()} onCraft={id=>void action('craft',id)} onInventory={onInventory} onWell={()=>void action('well','well')}/>}
  </div>;
 }
