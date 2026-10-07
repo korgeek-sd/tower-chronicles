@@ -158,3 +158,15 @@ test('new online encounters preserve the expedition job for every SR kit',async(
   assert.equal((await db.query<{job_id:string}>('select job_id from private.online_combat_states')).rows[0].job_id,'green_crown_inquisitor');
  }finally{await db.close();}
 });
+
+test('SSR online kits execute all skills and preserve critical, recovery and resource rules',async()=>{
+ const db=await setup();try{
+  await db.exec(read('../supabase/migrations/20261007022840_register_ssr_combat_skills.sql'));
+  await db.exec(read('../supabase/migrations/20261007022840_register_ssr_combat_skills.sql'));
+  const invoke=async(job:string,i:number,extra={})=>(await db.query<{a:any}>("select to_jsonb(private.combat_v2_job_skill(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),$2,1)) a",[JSON.stringify(combat({job_id:job,crit_chance:0,player_hp:90,job_resource:4,...extra})),job+'_skill_'+i])).rows[0].a;
+  for(const job of ['dragonblood_knight','sealed_archivist','corpse_tuner','self_alchemist','black_carriage_gambler','false_saint_proxy','hundred_battle_returnee'])for(let i=1;i<=3;i++){const r=await invoke(job,i);assert.ok(r.player_hp>0,job);if(i===3)assert.equal(r.job_resource,job==='black_carriage_gambler'?0:1,job);}
+  const alchemy=await invoke('self_alchemist',2,{player_hp:1,job_resource:0});assert.equal(alchemy.player_hp,1);assert.equal(alchemy.job_resource,2);
+  const crit=await invoke('black_carriage_gambler',2,{job_resource:0});assert.equal(crit.monster_hp,925);assert.equal(crit.job_resource,1);
+  const low=await invoke('hundred_battle_returnee',3);const high=await invoke('hundred_battle_returnee',3,{player_hp:180});assert.ok(low.monster_hp<high.monster_hp);assert.equal(low.player_hp,153);
+ }finally{await db.close();}
+});

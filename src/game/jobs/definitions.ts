@@ -1,3 +1,4 @@
+import {SSR_JOB_DEFINITIONS} from './ssrDefinitions';
 import {B_JOB_DEFINITIONS} from './bDefinitions';
 import {A_JOB_DEFINITIONS} from './aDefinitions';
 import {SR_JOB_DEFINITIONS} from './srDefinitions';
@@ -343,4 +344,5 @@ export function initFiveJobCombatDefinitions() {
   B_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
   A_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
   SR_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
+  SSR_JOB_DEFINITIONS.forEach(registerJobCombatDefinition);
 }
