@@ -80,7 +80,7 @@ export function InventoryScreen({game,setGame,onlineLease,onEnhancement,onMarket
   setBusy(true);
   try{
    const result=await dismantleOnlineEquipment(onlineLease,item.sourceId);
-   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:`${item.name} 분해 완료 · 강화석 ${result.stones}개 획득`}));
+   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:`${item.name} 분해 완료 · 강화석 ${result.stones}개 · 분해석 ${result.splitStones??0}개 획득`}));
    setSelected(null);
   }catch(error){
    setGame(s=>({...s,notice:error instanceof Error?error.message:'장비 분해에 실패했습니다.'}));

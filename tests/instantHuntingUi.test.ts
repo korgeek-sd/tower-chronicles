@@ -10,3 +10,8 @@ test('zero vitality and pending request disable map actions',()=>{
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:{...initialHuntingState(0),vitality:0},now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
  assert.equal((html.match(/disabled=""/g)??[]).length,3);assert.match(html,/활력이 부족/);
 });
+test('online hunting shows recovered HP, remaining potion count and food turns while logs keep battle HP',()=>{
+ const h=resolveHunt(initialHuntingState(0),'plains',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:{...h,currentHp:180,maxHp:180,potions:1234,foodTurns:{attack_food:29,defense_food:0,experience_food:30}} as any,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.match(html,/포션 1,234/);assert.match(html,/공격 29회/);assert.match(html,/경험치 30회/);assert.match(html,/aria-label="탐사자 HP"[^>]*aria-valuenow="180"/);
+});

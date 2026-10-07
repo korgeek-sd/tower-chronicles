@@ -280,7 +280,7 @@ export async function exchangeOnlineJobResidualRecommendation(
 }
 
 export async function dismantleOnlineEquipment(lease:GameplayLease,itemId:string){
- const result=await rpc<{itemId:string;stones:number;record:CloudSaveRecord}>('dismantle_online_equipment',{
+ const result=await rpc<{itemId:string;stones:number;splitStones?:number;record:CloudSaveRecord}>('dismantle_online_equipment',{
   ...leaseArgs(lease),p_item_id:itemId,
  });
  await remember(result.record);

@@ -7,9 +7,9 @@ export const HUNT_MAPS=[
  {id:'mine' as const,name:'광산',tower:'ore' as Tower,monsterId:'goblin_miner',monsterName:'고블린 광부',hp:180,attack:24,defense:14,speed:6,silver:80,exp:45,materialName:'1T 철광석'},
 ];
 export interface HuntTurn {turn:number;lines:string[];playerHp:number;monsterHp:number}
-export interface HuntResult {requestId?:string;mapId:HuntMapId;outcome:'victory'|'defeat';player:Stats;playerHp:number;monsterHp:number;turns:HuntTurn[];silver:number;exp:number;mastery:number;materialCount:number;createdAt:number}
+export interface HuntResult {startHp?:number;recoveredHp?:number;potionsUsed?:number;requestId?:string;mapId:HuntMapId;outcome:'victory'|'defeat';player:Stats;playerHp:number;monsterHp:number;turns:HuntTurn[];silver:number;exp:number;mastery:number;materialCount:number;createdAt:number}
 export const HUNT_SKILLS=[{id:'heavy',name:'강타',description:'공격력 180% 피해 · 3턴마다 사용'},{id:'guard',name:'방어',description:'HP 50% 이하 · 이번 턴 받는 피해 50% 감소 · 4턴마다 사용'},{id:'quick',name:'속공',description:'공격력 120% 피해 · 2턴마다 사용'}];
-export interface HuntingState {skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
+export interface HuntingState {currentHp?:number|null;maxHp?:number|null;potions?:number;foodTurns?:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
 export const initialHuntingState=(now=Date.now()):HuntingState=>({skills:['heavy','guard','quick'],vitality:100,recoveredAt:now,experience:0,mastery:0,lastResult:null});
 export function recoverVitality(state:HuntingState,now:number):HuntingState {
  const elapsed=Math.max(0,now-state.recoveredAt),ticks=Math.floor(elapsed/VITALITY_INTERVAL);
