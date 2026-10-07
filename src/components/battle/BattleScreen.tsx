@@ -1,3 +1,4 @@
+import {MonsterIntentBanner} from './MonsterIntentBanner';
 import {getJobCombatDefinition} from '../../game/jobs/framework';
 import {combatRuntime} from '../../game/engine/battleLifecycle';
 import {resourceCost} from '../../game/engine/combatResource';
@@ -119,7 +120,7 @@ export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,
 
   {dropToast&&<div className={'tc-equipment-drop-toast grade-'+dropToast.grade} role="status" aria-live="polite"><small>특템 획득</small><b>{EQUIPMENT_GRADE_NAMES[dropToast.grade]} {EQUIPMENT_DEFINITIONS[dropToast.kind].name}</b><span>+{dropToast.enhancement} · 안전 귀환 시 보관함 확정</span></div>}
 
-  {intent&&<div className="tc-ref-intent" role="alert"><b>{intent.kind==='CHARGE'?'강공격 준비':'반격 준비'}</b><span>{intent.skillName}</span></div>}
+  {intent&&<MonsterIntentBanner intent={intent}/>}
 
 
   <div className="tc-ref-actions">

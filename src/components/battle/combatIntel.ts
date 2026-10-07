@@ -9,6 +9,8 @@ export interface MonsterIntentView {
   title:string;
   skillName?:string;
   description?:string;
+  attackInfo?:string;
+  guidance?:string;
 }
 export interface CombatEffectView {
   id:string;
@@ -55,7 +57,7 @@ export function combatEffectView(effect:ActiveEffect):CombatEffectView {
 
 export function monsterIntentView(expedition:Expedition):MonsterIntentView {
   const prepared=preparedMonsterSkill(expedition.monster,expedition.monsterRuntime);
-  if(prepared)return {kind:'CHARGE',title:'강공격 준비 중',skillName:prepared.name,description:'다음 적 행동에 발동합니다.'};
+  if(prepared)return {kind:'CHARGE',title:'강공격 준비 중',skillName:prepared.name,description:'다음 적 턴에 발동',attackInfo:`공격력 ${Math.round((prepared.multiplier??1)*100)}%${(prepared.hits??1)>1?' × '+prepared.hits+'회':''} 피해`,guidance:'기절로 중단 · 보호막이나 피해 감소로 대비'};
   const reactive=reactivePreparedSkill(expedition,'monster');
   if(reactive)return {kind:'REACTIVE',title:'반격 준비',skillName:reactive.prepare.name,description:'직접 공격을 받으면 반응합니다.'};
   return {kind:'NONE',title:'준비 행동 없음'};
