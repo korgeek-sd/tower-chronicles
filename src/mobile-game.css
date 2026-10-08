@@ -3309,3 +3309,10 @@ html,body,#root{
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-icon>.tc-storage-grade{right:0;top:0;font-size:8px}
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>em{left:4px;right:auto;top:auto;bottom:4px;font-size:10px}
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-categories button small{display:block;font-size:10px;line-height:1.1}
+
+/* Slot art fills the card; quantity has its own lower rail. */
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact{padding:5px 6px;grid-template-rows:minmax(0,1fr) 14px;gap:3px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-count{position:static;justify-self:end;align-self:center;max-width:100%;font-size:10px;line-height:14px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact .tc-storage-icon{min-height:0;overflow:hidden}
+.tc-unified-inventory .tc-inventory-v081 .tc-inventory-slot-art{display:block;width:auto;height:100%;max-width:100%;aspect-ratio:1;min-height:0;overflow:hidden}
+.tc-unified-inventory .tc-inventory-v081 .tc-inventory-slot-art .tc-craft-art{width:100%;height:100%;object-fit:contain;clip-path:inset(13%);transform:scale(1.32);filter:none}

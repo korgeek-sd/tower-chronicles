@@ -6,6 +6,7 @@ import {initialState} from '../src/game/engine/state';
 import {InventoryScreen} from '../src/components/inventory/InventoryScreen';
 import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../src/game/life/inventory';
 import {selectInventory,categoryNames} from '../src/game/inventoryView';
+import {InventoryItemArt} from '../src/components/inventory/InventoryDetailSheet';
 
 test('current inventory offers the six requested categories and keeps challenge tickets in other',()=>{
  assert.deepEqual(LIFE_INVENTORY_CATEGORIES.map(c=>categoryNames[c]),['전체','장비','재료','포션','음식','기타']);
@@ -17,6 +18,16 @@ test('current inventory offers the six requested categories and keeps challenge 
  assert.equal(selectInventory(items,'foods').length,1);
  assert.equal(selectInventory(items,'materials')[0]?.quantity,20);
  assert.equal(selectInventory(items,'all').length,items.length);
+});
+
+test('inventory slot artwork can fill its slot without changing framed detail artwork',()=>{
+ const item=unifiedInventoryView(initialState(),{materials:{herb:20},products:{}} as any).find(i=>i.lifeMaterial==='herb')!;
+ const slot=renderToStaticMarkup(React.createElement(InventoryItemArt,{item,slot:true} as any));
+ const detail=renderToStaticMarkup(React.createElement(InventoryItemArt,{item}));
+ assert.match(slot,/tc-inventory-slot-art/);
+ assert.doesNotMatch(slot,/width:1em/);
+ assert.match(detail,/width:1em/);
+ assert.match(slot,/data-craft-art="herb"/);
 });
 
 test('inventory keeps its loadout layout while item slots show quantity and accessible equipment status',()=>{
