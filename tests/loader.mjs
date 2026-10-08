@@ -7,6 +7,7 @@ export async function resolve(specifier,context,next){
  return next(specifier,context);
 }
 export async function load(url,context,next){
+ if(url.endsWith('.css'))return {format:'module',source:'export default {};',shortCircuit:true};
  if(/\.tsx?$/.test(url)){const source=await readFile(new URL(url),'utf8');return {format:'module',source:ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,jsx:ts.JsxEmit.ReactJSX}}).outputText,shortCircuit:true};}
  return next(url,context);
 }
