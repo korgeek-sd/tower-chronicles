@@ -17,12 +17,12 @@ export function CraftScreen({state,busy,count,recipe,onRecipe,onCount,onCraft}:P
  const rarity=r.id==='challenge_ticket'?'rare':r.id==='potion'?'common':'uncommon';
  return <div className="tc-craft tc-game-craft">
   <header className="tc-craft-header"><h2>제작소</h2><span>{town.name}</span><b>행동력 {state.actionPoints}/100</b></header>
-  <div className="tc-craft-mastery"><span>숙련도 {mastery.toLocaleString()}</span><b>생산 보너스 +{Math.min(50,Math.floor(mastery/100))}%</b></div>
+  <div className="tc-craft-mastery"><span>제작 숙련도 {mastery.toLocaleString()}</span><b>생산 보너스 +{Math.min(50,Math.floor(mastery/100))}%</b></div>
   <div className="tc-item-tabs">{recipes.map(item=><button key={item.id} className={r.id===item.id?'active':''} disabled={busy} onClick={()=>onRecipe(item.id)}>{PRODUCT_NAMES[item.id]}</button>)}</div>
   <section className="tc-craft-board">
    <div className={`tc-item-slot ${owned<required?'insufficient':''}`}><small>재료</small><span className="tc-craft-glyph" aria-hidden="true"><Glyph name={materials[r.material]}/></span><strong>{LIFE_MATERIAL_NAMES[r.material]}</strong><em>{owned.toLocaleString()} / {required.toLocaleString()}</em><p>{owned<required?`부족 ${required-owned}개`:'재료 확보'}</p></div>
    <div className="tc-craft-arrow">▶</div>
-   <div className={`tc-item-slot result ${rarity}`}><small>완성품 미리보기</small><span className="tc-craft-glyph" aria-hidden="true"><Glyph name={symbols[r.id]}/></span><strong>{PRODUCT_NAMES[r.id]}</strong><em>x{preview.quantity.toLocaleString()}</em><p>{r.description}</p></div>
+   <div className={`tc-item-slot result ${rarity}`}><small>예상 완성품 미리보기</small><span className="tc-craft-glyph" aria-hidden="true"><Glyph name={symbols[r.id]}/></span><strong>{PRODUCT_NAMES[r.id]}</strong><em>x{preview.quantity.toLocaleString()}</em><p>{r.description}</p></div>
   </section>
   <div className="tc-life-quantity"><label>제작 횟수 (최대 {limit})</label><div><button disabled={busy} aria-pressed={quantity===1} onClick={()=>onCount(1)}>1회</button><button disabled={busy||limit<10} aria-pressed={quantity===10} onClick={()=>onCount(10)}>10회</button><button disabled={busy||limit===0} aria-pressed={quantity===limit} onClick={()=>onCount(limit)}>최대</button></div></div>
   <button className="tc-action tc-feel-press tc-craft-main" disabled={!canCraft} onClick={()=>setConfirm(true)}>{busy?'제작 중…':`제작하기 ${quantity}회`}</button>
