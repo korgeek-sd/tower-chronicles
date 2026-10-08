@@ -1,4 +1,5 @@
 import React from 'react';
+import './craft-screen.css';
 import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,type ProductId} from '../../game/life/crafting';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState} from '../../online/villageLife';
 type Props={state:VillageLifeState;busy:boolean;count:number;recipe:ProductId;onRecipe:(id:ProductId)=>void;onCount:(n:number)=>void;onCraft:(id:ProductId)=>void};
