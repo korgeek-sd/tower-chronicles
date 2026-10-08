@@ -55,3 +55,11 @@ test('Novar enables production of each of the five planned products',()=>{
   assert.doesNotMatch(html,/<button[^>]*class="[^"]*tc-craft-main[^"]*"[^>]*disabled/);
  }
 });
+
+test('blueprint workshop separates the recipe rail from the selected product workspace',()=>{
+ const html=renderToStaticMarkup(React.createElement(CraftScreen,props));
+ assert.match(html,/<aside[^>]*aria-label="제작 도안 목록"/);
+ assert.match(html,/<section[^>]*aria-label="제작 작업대"/);
+ assert.match(html,/예상 완성품 미리보기/);
+ assert.match(html,/필요 재료/);
+});

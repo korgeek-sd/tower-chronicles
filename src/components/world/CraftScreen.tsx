@@ -48,29 +48,28 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
   shownRequest.current=confirmedResult.requestId;
   if(confirmedResult.quantity>0){setCompleted({id:confirmedResult.product,quantity:confirmedResult.quantity});feel.play('ui.confirm');}
  },[busy,confirmedResult,feel]);
- return <div className="tc-craft tc-game-craft" role="region" aria-label="제작소" tabIndex={-1} aria-busy={busy}>
+ return <div className="tc-craft tc-game-craft tc-blueprint-craft" role="region" aria-label="제작소" tabIndex={-1} aria-busy={busy}>
   <header className="tc-craft-header">
    <div className="tc-workshop-location"><span>{town.name}</span><small>제작 숙련도 <b>{mastery.toLocaleString()}</b> · +{Math.min(50,Math.floor(mastery/100))}%</small></div>
    <div className="tc-craft-ap"><span>생활 행동력 <b>{state.actionPoints} / 100</b></span><div role="progressbar" aria-label="생활 행동력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state.actionPoints}><i style={{width:Math.max(0,Math.min(100,state.actionPoints))+'%'}}/></div></div>
    <button type="button" disabled={busy} onClick={local?onMap:()=>onTravel?.('city')}>{local?'마을 이동':'노바르로 이동'}</button>
   </header>
   <div className="tc-craft-scroll">
-   <section className="tc-craft-recipes" aria-label="전체 5종 제작 도안">
+   <aside className="tc-craft-recipes" aria-label="제작 도안 목록">
     <div className="tc-item-tabs" role="group" aria-label="제작 도안">{recipes.map(item=><button type="button" key={item.id} className={'tc-feel-press '+(r.id===item.id?'active':'')} aria-pressed={r.id===item.id} disabled={busy} onClick={()=>onRecipe(item.id)}><CraftItemArt id={item.id}/><span>{PRODUCT_NAMES[item.id]}</span></button>)}</div>
-   </section>
+   </aside>
    <section className={'tc-craft-board'+(busy?' working':'')} aria-label="제작 작업대">
-    <div className="tc-craft-section-title"><span>{busy?'제작 요청 처리 중…':local?'재료 → 완성품':locationHint}</span></div>
-    <div className="tc-craft-material"><InventorySlot className={'tc-craft-slot'+(owned<required?' insufficient':'')} size="lg" label={LIFE_MATERIAL_NAMES[r.material]}><ItemStack name={LIFE_MATERIAL_NAMES[r.material]} icon={<CraftItemArt id={r.material}/>}/></InventorySlot><div><small>필요 재료</small><strong>{LIFE_MATERIAL_NAMES[r.material]}</strong><span>{owned.toLocaleString()} / {required.toLocaleString()}</span><em className={owned<required?'insufficient':''}>{owned<required?`부족 ${required-owned}개`:'재료 확보'}</em></div></div>
-    <div className="tc-craft-arrow" aria-hidden="true"><i/><span>◇</span><i/></div>
     <div className="tc-craft-result">
      <small>예상 완성품 미리보기</small>
      <div className="tc-craft-result-halo"><InventorySlot className="tc-craft-slot tc-craft-product-slot" size="lg" label={PRODUCT_NAMES[r.id]}><ItemStack name={PRODUCT_NAMES[r.id]} icon={<CraftItemArt id={r.id}/>}/></InventorySlot></div>
-     <h3>{PRODUCT_NAMES[r.id]}</h3><b className="tc-craft-yield">×{preview.quantity.toLocaleString()}</b><span className="tc-craft-owned">보유 {(state.products?.[r.id]??0).toLocaleString()}개</span>
+     <div className="tc-craft-result-caption"><h3>{PRODUCT_NAMES[r.id]}</h3><b className="tc-craft-yield">×{preview.quantity.toLocaleString()}</b></div>
+     <span className="tc-craft-owned">보유 {(state.products?.[r.id]??0).toLocaleString()}개</span>
     </div>
+    <div className="tc-craft-material"><InventorySlot className={'tc-craft-slot'+(owned<required?' insufficient':'')} size="lg" label={LIFE_MATERIAL_NAMES[r.material]}><ItemStack name={LIFE_MATERIAL_NAMES[r.material]} icon={<CraftItemArt id={r.material}/>}/></InventorySlot><div><small>필요 재료 · {LIFE_MATERIAL_NAMES[r.material]}</small><strong>{owned.toLocaleString()} <span>/ {required.toLocaleString()}</span></strong><em className={owned<required?'insufficient':''}>{owned<required?`부족 ${required-owned}개`:'재료 확보'}</em></div></div>
     <p className="tc-craft-description">{r.description}</p>
     <div className="tc-craft-breakdown"><span>기본 생산 <b>{base.toLocaleString()}</b></span><span>숙련 보너스 <b>+{(preview.quantity-base).toLocaleString()}</b></span></div>
+    <div className="tc-life-quantity"><div className="tc-craft-section-title"><h3>제작 횟수</h3><span>최대 {limit}회</span></div><div role="group" aria-label="제작 횟수">{[1,10,limit].map((value,index)=><button type="button" className="tc-feel-press" key={index} disabled={busy||value<1||value>limit} aria-pressed={quantity===value&&(index<2||value!==1&&value!==10)} onClick={()=>onCount(value)}>{index===2?'최대':value+'회'}</button>)}</div></div>
    </section>
-   <div className="tc-life-quantity"><div className="tc-craft-section-title"><h3>제작 횟수</h3><span>최대 {limit}회</span></div><div role="group" aria-label="제작 횟수">{[1,10,limit].map((value,index)=><button type="button" className="tc-feel-press" key={index} disabled={busy||value<1||value>limit} aria-pressed={quantity===value&&(index<2||value!==1&&value!==10)} onClick={()=>onCount(value)}>{index===2?'최대':value+'회'}</button>)}</div></div>
   </div>
   <footer className="tc-craft-footer">
    <button ref={craftButton} type="button" className="tc-action tc-feel-press tc-craft-main" disabled={!canCraft} onClick={()=>{feel.play('ui.press');setConfirm(true);}}><Glyph name="craft"/><span>{busy?'제작 중…':`제작하기 ${quantity}회`}</span><small>×{preview.quantity.toLocaleString()}</small></button>

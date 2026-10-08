@@ -1,8 +1,14 @@
 # Novar crafting workbench
 
-The crafting screen uses a dark iron workbench, brass frames and distinct item artwork. The recipe picker, material slot, output preview, owned stock, base production, mastery bonus and costs all read the existing crafting data. The complete workbench fits without scrolling at 320×568 and larger tested viewports. Compact layouts place materials and output side by side, keep all five recipes in one row and combine quantity controls into a single row. On short screens with an error or pending receipt, optional explanatory details collapse so resources, output, quantity and the action remain visible.
+The approved sixth concept is implemented as a Novar guild blueprint: a vertical five-recipe rail on the left and a large selected-product illustration on the right. A quiet charcoal/navy drawing grid and thin brass reference marks frame the actual existing pixel artwork. Product name, yield and owned stock lead the workspace; the material ledger, item effect, base/bonus breakdown and batch controls sit below it. The primary action stays along the bottom edge.
+
+All labels and numbers are live HTML from the existing authoritative crafting state. The mockup is a design reference, never an image of the interface embedded in the game. Existing typefaces, muted colors, square frames and shared feedback keep the screen consistent with the rest of Tower Chronicles.
+
+Container-based layout keeps the workbench inside the app shell, including 320×568 phones. On short screens, optional headings collapse; when an error/pending receipt takes space, the left rail becomes two columns so all five recipes retain 44px targets. The large illustration scales to the workspace's available width and height using CSS container units.
 
 ## Components and references
+
+GitHub repository search for `pixel game ui react` surfaced BlockUI again. Its actual inventory components remain in use; the redesign applies the game-ui-ux responsive/focus guidance and the game-feel event-based feedback guidance. RPGUI is a frame/typography reference. No new UI dependency or external code was added for this redesign.
 
 - [BlockUI](https://github.com/malilion/BlockUI), MIT: `@malilion/block-ui-react` **0.6.1** supplies the actual `InventorySlot` and `ItemStack` components. Its stylesheet is imported by `CraftScreen`; the workshop overrides are scoped to `.tc-game-craft`. No BlockUI crafting mechanic or inventory state is used.
 - [RPGUI](https://github.com/RonenNess/RPGUI): visual reference for inset framed panels and tactile buttons. No RPGUI source, textures or runtime is bundled.
@@ -34,4 +40,4 @@ node scripts/standalone.mjs
 
 The Node test loader ignores CSS only during SSR tests; Vite continues to load real styles. `craftWorkbench.test.ts` exercises product selection, artwork, stock, yield breakdown, resource shortage, pending state and all five recipes and town restrictions. Every town shows potion, three foods and challenge ticket; a nonlocal selection explains its required town and offers travel to Novar through the existing travel RPC. Novar can produce all five types; specialty restrictions remain enforced by the server.
 
-Browser checks with a controlled UI fixture covered 320×568, 390×844, 520×740 and 1280×900: all five recipes and the whole workbench fit without scrolling, no horizontal overflow, touch targets, confirmation/Tab/Shift+Tab/Escape/focus return, pending controls, exact confirmed quantity, rejected outcomes and empty stock. These fixture checks do not claim live production login or backend access; SQL crafting regression tests separately exercise the server transaction rules.
+Browser checks with a controlled UI fixture covered 320×568, 390×844, 520×740 and 1280×900: all five recipes and the whole workbench fit without scrolling, no horizontal overflow, vertical recipe rail and scaled hero, touch targets, confirmation/Tab/Shift+Tab/Escape/focus return, pending controls, exact confirmed quantity, rejected outcomes and empty stock. These fixture checks do not claim live production login or backend access; SQL crafting regression tests separately exercise the server transaction rules.
