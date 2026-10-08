@@ -8,4 +8,4 @@
 
 .tc-auto-equip{min-height:44px;padding:0 10px;border:1px solid var(--brass);background:#252419;color:var(--brass-hi);font-size:11px;white-space:nowrap}.tc-auto-equip:disabled{opacity:.45}.tc-equipment-upgrade{position:absolute;right:3px;top:3px;z-index:2;color:#8bd47c;background:#102010dd;border:1px solid #496b3e;width:20px;height:23px;display:grid;place-items:center;font-size:20px;font-weight:800;line-height:1;pointer-events:none}
 
-.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed{grid-template-rows:44px 32px minmax(0,1fr);min-height:244px}.tc-unified-inventory .tc-storage-icon>.tc-equipment-upgrade{left:2px;right:auto;top:2px;bottom:auto}
+.tc-unified-inventory .tc-storage-icon>.tc-equipment-upgrade{left:2px;right:auto;top:2px;bottom:auto}
