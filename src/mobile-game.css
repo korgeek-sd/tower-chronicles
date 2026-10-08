@@ -3358,3 +3358,11 @@ html,body,#root{
 
 /* Upgrade hints must override generic item badge styles. */
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-icon>.tc-equipment-upgrade{left:2px;right:auto;top:2px;bottom:auto;width:18px;height:20px;padding:0;display:grid;place-items:center;color:#8bd47c;background:#102010e8;border:0;border-radius:0;font:800 20px/1 Arial,sans-serif;font-size:20px;pointer-events:none}
+
+/* Keep the pager outside item rows even on short mobile viewports. */
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-board>.tc-pager{height:44px;min-height:44px;align-self:stretch;position:relative;z-index:1}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-board>.tc-pager button{height:44px;min-height:44px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid.tc-storage-one-row{grid-template-rows:minmax(0,1fr)}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid>.tc-storage-item{min-height:0;max-height:100%;width:min(calc((100cqw - 12px)/4),calc((100cqh - 4px)/2));overflow:hidden}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid.tc-storage-one-row>.tc-storage-item{width:min(calc((100cqw - 12px)/4),100cqh)}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-icon>svg.tc-equipment-upgrade{position:absolute;left:0;right:auto;top:auto;bottom:0;width:14px;height:14px;padding:0;color:#8bd47c;background:transparent;border:0;z-index:2}
