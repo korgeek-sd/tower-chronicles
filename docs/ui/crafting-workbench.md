@@ -1,6 +1,6 @@
 # Novar crafting workbench
 
-The crafting screen uses a dark iron workbench, brass frames and distinct item artwork. The recipe picker, material slot, output preview, owned stock, base production, mastery bonus and costs all read the existing crafting data. The action remains visible while the workbench body scrolls on short screens.
+The crafting screen uses a dark iron workbench, brass frames and distinct item artwork. The recipe picker, material slot, output preview, owned stock, base production, mastery bonus and costs all read the existing crafting data. The complete workbench fits without scrolling at 320×568 and larger tested viewports. Compact layouts place materials and output side by side, keep all five recipes in one row and combine quantity controls into a single row. On short screens with an error or pending receipt, optional explanatory details collapse so resources, output, quantity and the action remain visible.
 
 ## Components and references
 
@@ -30,6 +30,6 @@ npm run build
 node scripts/standalone.mjs
 ```
 
-The Node test loader ignores CSS only during SSR tests; Vite continues to load real styles. `craftWorkbench.test.ts` exercises product selection, artwork, stock, yield breakdown, resource shortage, pending state and town-specific recipes.
+The Node test loader ignores CSS only during SSR tests; Vite continues to load real styles. `craftWorkbench.test.ts` exercises product selection, artwork, stock, yield breakdown, resource shortage, pending state and all five recipes and town restrictions. Every town shows potion, three foods and challenge ticket; a nonlocal selection explains its required town and offers travel to Novar through the existing travel RPC. Novar can produce all five types; specialty restrictions remain enforced by the server.
 
-Browser checks with a controlled UI fixture covered 320×568, 390×844, 520×740 and 1280×900: visible primary action, no horizontal overflow, touch targets, confirmation/Tab/Shift+Tab/Escape/focus return, pending controls, exact confirmed quantity, rejected outcomes and empty stock. These fixture checks do not claim live production login or backend access; SQL crafting regression tests separately exercise the server transaction rules.
+Browser checks with a controlled UI fixture covered 320×568, 390×844, 520×740 and 1280×900: all five recipes and the whole workbench fit without scrolling, no horizontal overflow, touch targets, confirmation/Tab/Shift+Tab/Escape/focus return, pending controls, exact confirmed quantity, rejected outcomes and empty stock. These fixture checks do not claim live production login or backend access; SQL crafting regression tests separately exercise the server transaction rules.

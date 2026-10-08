@@ -28,7 +28,7 @@
 .tc-craft-mastery .tc-glyph { margin-right: 3px; color: var(--craft-gold); }
 .tc-craft-mastery b { color: var(--craft-paper); }
 .tc-craft-mastery strong { font-size: 10px; font-weight: 500; color: var(--craft-gold); padding: 4px 6px; border: 1px solid #65563e; background: #29271d; }
-.tc-craft-scroll { min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #756245 #111614; display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 5px; }
+.tc-craft-scroll { min-height: 0; min-width: 0; overflow: visible; display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 5px; }
 .tc-craft-section-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 7px; }
 .tc-craft-section-title h3 { margin: 0; font: 700 12px Georgia, 'Noto Serif KR', serif; color: #d1c4a9; }
 .tc-craft-section-title span { font-size: 10px; color: var(--craft-soft); }
@@ -102,30 +102,63 @@
 .tc-craft-success>button { width: 100%; margin-top: 20px; }
 @keyframes tc-craft-reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tc-craft-reward { 0% { transform: scale(.85); } 60% { transform: scale(1.05); } 100% { transform: scale(1); } }
-/* Keep the primary action reachable while only the workbench body scrolls. */
+/* The complete workbench fits the app's remaining viewport, including short phones. */
 .tc-craft-page { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
-.tc-craft-page>.tc-life-header, .tc-craft-page>.tc-life-result, .tc-craft-page>footer { flex-shrink: 0; }
+.tc-craft-page>.tc-life-header { flex-shrink: 0; min-height: 44px; }
 .tc-craft-page>.tc-life-header h1 { font-size: 18px; }
-.tc-craft-page>.tc-life-result { font-size: 10px; margin: 0; }
 .tc-craft-page>.tc-life-header small { display: none; }
-@media (max-width: 360px) {
- .tc-game-craft { padding: 9px; gap: 8px; }
- .tc-craft-mark { width: 30px; height: 30px; }
- .tc-craft-header { gap: 8px; }
- .tc-craft-header h2 { font-size: 19px; }
- .tc-craft-header small { font-size: 8px; }
- .tc-craft-header span { font-size: 10px; }
- .tc-item-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
- .tc-craft-board { padding: 9px; }
- .tc-game-craft .tc-craft-slot { width: 64px; height: 64px; }
- .tc-game-craft .tc-craft-product-slot { width: 72px; height: 72px; }
- .tc-craft-result h3 { font-size: 15px; }
-}
-@media (max-height: 740px) {
- .tc-game-craft { gap: 6px; padding: 9px; }
- .tc-craft-header { padding-bottom: 6px; }
- .tc-craft-header h2 { font-size: 19px; }
- .tc-craft-scroll { gap: 9px; }
+.tc-craft-page .tc-life-navigation button { min-width: 44px; min-height: 44px; padding: 4px 8px; }
+.tc-game-craft { padding: 8px; gap: 6px; }
+.tc-craft-header { gap: 6px; padding: 0 0 4px; min-height: 44px; }
+.tc-workshop-location { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tc-workshop-location>span { color: var(--craft-gold); font-size: 12px; }
+.tc-craft-header .tc-workshop-location small { font-size: 10px; letter-spacing: 0; color: var(--craft-soft); }
+.tc-craft-header .tc-craft-ap { min-width: 70px; flex: 0 0 auto; }
+.tc-craft-ap b { display: inline; font: 700 11px ui-monospace, monospace; }
+.tc-craft-ap>span { font-size: 9px; }
+.tc-craft-header button { min-width: 44px; min-height: 44px; padding: 4px 6px; font-size: 10px; color: var(--craft-paper); border: 1px solid #756245; background: #29271d; }
+.tc-craft-scroll { overflow: visible; padding: 0; gap: 6px; flex: 1; }
+.tc-craft-recipes { flex-shrink: 0; }
+.tc-craft-section-title { margin-bottom: 4px; }
+.tc-item-tabs { gap: 3px; }
+.tc-item-tabs button { min-width: 44px; min-height: 52px; padding: 3px 1px; gap: 2px; }
+.tc-item-tabs .tc-craft-art { width: 24px; height: 24px; }
+.tc-item-tabs span { font-size: 10px; line-height: 1.2; }
+.tc-craft-board { flex: 1; grid-template-columns: minmax(0, .9fr) 12px minmax(0, 1.1fr); padding: 7px; gap: 4px; align-content: center; }
+.tc-craft-board>.tc-craft-section-title { padding-bottom: 3px; justify-content: center; line-height: 1.2; }
+.tc-craft-material { gap: 4px; }
+.tc-craft-material>div:last-child { gap: 2px; }
+.tc-craft-material strong { font-size: 12px; }
+.tc-game-craft .tc-craft-slot { width: 44px; height: 44px; padding: 4px; }
+.tc-game-craft .tc-craft-product-slot { width: 48px; height: 48px; padding: 4px; }
+.tc-craft-result { gap: 2px; }
+.tc-craft-result-halo { padding: 2px; }
+.tc-craft-result h3 { font-size: 12px; }
+.tc-craft-yield { font-size: 18px; }
+.tc-craft-result p { font-size: 10px; line-height: 1.25; }
+.tc-craft-description { grid-column: 1/-1; margin: 0; font-size: 10px; line-height: 1.25; color: var(--craft-soft); }
+.tc-craft-breakdown { padding-top: 3px; gap: 4px; }
+.tc-game-craft .tc-life-quantity { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+.tc-game-craft .tc-life-quantity .tc-craft-section-title { flex-direction: column; align-items: flex-start; gap: 2px; margin: 0; }
+.tc-game-craft .tc-life-quantity [role=group] { flex: 1; gap: 4px; }
+.tc-game-craft>.tc-craft-footer { gap: 3px; padding-top: 4px; }
+.tc-game-craft .tc-craft-main { min-height: 44px; padding: 5px 8px; }
+.tc-craft-cost { font-size: 10px; }
+.tc-craft-status { min-height: 13px; line-height: 1.25; }
+@media (max-height: 650px) {
+ .tc-game-craft { gap: 3px; padding: 6px; }
+ .tc-craft-scroll { gap: 3px; }
+ .tc-item-tabs button { min-height: 44px; padding: 2px 0; gap: 0; }
+ .tc-item-tabs .tc-craft-art { width: 18px; height: 18px; }
+ .tc-craft-board { padding: 5px; }
+ .tc-craft-material { display: grid; grid-template-columns: 36px minmax(0,1fr); text-align: left; }
+ .tc-game-craft .tc-craft-material .tc-craft-slot { width: 36px; height: 36px; }
+ .tc-craft-result { display: grid; grid-template-columns: 40px minmax(0,1fr); text-align: left; align-items: center; }
+ .tc-craft-result>small, .tc-craft-result>p { grid-column: 1/-1; }
+ .tc-craft-result-halo { grid-column: 1; grid-row: 2/5; padding: 0; }
+ .tc-game-craft .tc-craft-product-slot { width: 38px; height: 38px; }
+ .tc-craft-result h3,.tc-craft-yield,.tc-craft-owned { grid-column: 2; }
+ .tc-craft-notice .tc-craft-board>.tc-craft-section-title, .tc-craft-notice .tc-craft-result>small, .tc-craft-notice .tc-craft-description, .tc-craft-notice .tc-craft-breakdown { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
  .tc-game-craft *, .tc-craft-dialog * { animation: none !important; transition: none !important; }

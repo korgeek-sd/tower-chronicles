@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {CraftScreen} from '../src/components/world/CraftScreen';
+import {CRAFT_RECIPES,PRODUCT_NAMES} from '../src/game/life/crafting';
 import {WORLD_TOWNS} from '../src/components/world/worldMap';
 import type {VillageLifeState} from '../src/online/villageLife';
 
@@ -36,9 +37,20 @@ test('insufficient resources keep crafting disabled and pending cannot show a re
  assert.doesNotMatch(pending,/제작 완료!/);
 });
 
-test('local workshop only offers recipes supported by the current town',()=>{
- const html=renderToStaticMarkup(React.createElement(CraftScreen,{...props,state:{...state,location:'farm-1'},recipe:'attack_food'}));
- assert.match(html,/data-craft-art="pepper"/);
- assert.match(html,/공격 음식/);
- assert.doesNotMatch(html,/회복 포션|점령전 도전권/);
+test('every town shows all five recipes and explains how to craft nonlocal products',()=>{
+ const html=renderToStaticMarkup(React.createElement(CraftScreen,{...props,state:{...state,location:'farm-1'}}));
+ for(const label of ['회복 포션','공격 음식','방어 음식','경험치 음식','점령전 도전권'])assert.ok(html.includes(label),label);
+ assert.match(html,/노바르로 이동/);
+ assert.match(html,/약초 마을 또는 노바르에서 제작/);
+ assert.match(html,/<button[^>]*class="[^"]*tc-craft-main[^"]*"[^>]*disabled/);
+});
+
+test('Novar enables production of each of the five planned products',()=>{
+ for(const recipe of CRAFT_RECIPES){
+  const html=renderToStaticMarkup(React.createElement(CraftScreen,{...props,recipe:recipe.id,count:1}));
+  assert.ok(html.includes(PRODUCT_NAMES[recipe.id]));
+  assert.match(html,new RegExp(`data-craft-art="${recipe.material}"`));
+  assert.match(html,/<button[^>]*class="[^"]*tc-craft-main[^"]*"[^>]*>[^]*?제작하기 1회/);
+  assert.doesNotMatch(html,/<button[^>]*class="[^"]*tc-craft-main[^"]*"[^>]*disabled/);
+ }
 });
