@@ -14,7 +14,7 @@ test('CRAFT REMOVAL 02: retired equipment workshop stays removed while new life 
  assert.doesNotMatch(main,/WorkshopScreen|settleCrafting|page==='mastery'/);
  assert.doesNotMatch(core,/\|'mastery'|MasteryScreen|engine\/crafting|discount\(/);
  assert.match(main,/page==='craft'/);
- assert.match(main,/page==='enhancement'.*onBack=\{backFromEnhancement\}/s);
+ assert.doesNotMatch(main,/<EnhancementScreen/);
  assert.match(main,/function backFromEnhancement\(\)[\s\S]*setPage\('inventory'\)/);
 });
 

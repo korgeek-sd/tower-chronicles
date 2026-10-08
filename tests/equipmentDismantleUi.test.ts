@@ -17,7 +17,7 @@ test('DISMANTLE UI 02: equipment details expose a destructive two-step dismantle
  assert.match(detail,/dangerAction/);
  assert.match(detail,/dangerLabel/);
  assert.match(detail,/confirm/i);
- assert.match(inventory,/강화석/);
+ assert.match(inventory,/분해석/);
  assert.match(inventory,/equipmentDismantleYield/);
 });
 

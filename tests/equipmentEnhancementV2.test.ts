@@ -67,43 +67,11 @@ test('V2 ENHANCEMENT 04: exact roll boundaries resolve success keep downgrade an
  assert.equal(resolveEquipmentEnhancementOutcome(9,.975),'FAIL_DESTROYED');
 });
 
-test('V2 ENHANCEMENT 05: success consumes Silver and stones and raises enhancement by one',()=>{
- const s=initialState();
- s.equipmentItems=[item('rare-armor','return_corps_plate_armor','rare',2)];
- s.silver=10000;s.lootItems.enhancement_stone=5;
- const next=enhanceEquipmentV2(s,'rare-armor',()=>0);
- assert.equal(next.equipmentItems[0].enhancement,3);
- assert.equal(next.silver,7580);
- assert.equal(next.lootItems.enhancement_stone,3);
- assert.match(next.notice,/강화 성공/);
-});
+test('V2 ENHANCEMENT 05 retired enhancement leaves gear and currencies intact',()=>{const s=initialState();s.equipmentItems=[item('target','return_corps_plate_armor','rare',2)];s.silver=10000;s.lootItems.enhancement_stone=20;let calls=0;const next=enhanceEquipmentV2(s,'target',()=>{calls++;return .999;});assert.deepEqual(next.equipmentItems,s.equipmentItems);assert.deepEqual(next.equipped,s.equipped);assert.equal(next.silver,s.silver);assert.deepEqual(next.lootItems,s.lootItems);assert.equal(calls,0);assert.match(next.notice,/종료/);});
 
-test('V2 ENHANCEMENT 06: keep and downgrade still consume full attempt cost',()=>{
- const base=initialState();
- base.equipmentItems=[item('heroic-boots','survey_corps_dust_boots','heroic',6)];
- base.silver=30000;base.lootItems.enhancement_stone=20;
- const kept=enhanceEquipmentV2(base,'heroic-boots',()=>.40);
- assert.equal(kept.equipmentItems[0].enhancement,6);
- assert.equal(kept.silver,14800);
- assert.equal(kept.lootItems.enhancement_stone,15);
- const down=enhanceEquipmentV2(base,'heroic-boots',()=>.70);
- assert.equal(down.equipmentItems[0].enhancement,5);
- assert.equal(down.silver,14800);
- assert.equal(down.lootItems.enhancement_stone,15);
-});
+test('V2 ENHANCEMENT 06 retired enhancement leaves gear and currencies intact',()=>{const s=initialState();s.equipmentItems=[item('target','survey_corps_dust_boots','heroic',6)];s.silver=10000;s.lootItems.enhancement_stone=20;let calls=0;const next=enhanceEquipmentV2(s,'target',()=>{calls++;return .999;});assert.deepEqual(next.equipmentItems,s.equipmentItems);assert.deepEqual(next.equipped,s.equipped);assert.equal(next.silver,s.silver);assert.deepEqual(next.lootItems,s.lootItems);assert.equal(calls,0);assert.match(next.notice,/종료/);});
 
-test('V2 ENHANCEMENT 07: destruction permanently removes and auto-unequips the item',()=>{
- let s=initialState();
- s.equipmentItems=[item('destroy-ring','expedition_merit_ring','legendary',1)];
- s=equip(s,'destroy-ring');
- s.silver=10000;s.lootItems.enhancement_stone=10;
- const next=enhanceEquipmentV2(s,'destroy-ring',()=>.9999);
- assert.equal(next.equipmentItems.some(x=>x.id==='destroy-ring'),false);
- assert.equal(next.equipped.ring,null);
- assert.equal(next.silver,6250);
- assert.equal(next.lootItems.enhancement_stone,9);
- assert.match(next.notice,/파괴/);
-});
+test('V2 ENHANCEMENT 07 retired enhancement leaves gear and currencies intact',()=>{const s=initialState();s.equipmentItems=[item('target','expedition_merit_ring','legendary',1)];s.equipped.ring='target';s.silver=10000;s.lootItems.enhancement_stone=20;let calls=0;const next=enhanceEquipmentV2(s,'target',()=>{calls++;return .999;});assert.deepEqual(next.equipmentItems,s.equipmentItems);assert.deepEqual(next.equipped,s.equipped);assert.equal(next.silver,s.silver);assert.deepEqual(next.lootItems,s.lootItems);assert.equal(calls,0);assert.match(next.notice,/종료/);});
 
 test('V2 ENHANCEMENT 08: +10, expedition, starter and shortages are rejected without consuming resources',()=>{
  for(const setup of ['max','expedition','starter','silver','stones'] as const){

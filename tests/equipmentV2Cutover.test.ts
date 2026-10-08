@@ -7,14 +7,14 @@ import {migrateV22,validSave} from '../src/storage/repository.ts';
 
 test('V2 CUTOVER 01: all nine equipment identities have finalized base stats',()=>{
  assert.deepEqual(EQUIPMENT_DEFINITIONS.association_supply_iron_sword.baseStats,{attack:10,defense:4});
- assert.deepEqual(EQUIPMENT_DEFINITIONS.outer_guard_longbow.baseStats,{attack:12,defense:1,critChance:.05});
- assert.deepEqual(EQUIPMENT_DEFINITIONS.archive_standard_arcane_staff.baseStats,{attack:6});
+ assert.deepEqual(EQUIPMENT_DEFINITIONS.outer_guard_longbow.baseStats,{attack:12,critChance:.02});
+ assert.deepEqual(EQUIPMENT_DEFINITIONS.archive_standard_arcane_staff.baseStats,{attack:10,armorPenetration:.05});
  assert.deepEqual(EQUIPMENT_DEFINITIONS.expedition_iron_helmet.baseStats,{hp:20,defense:5});
  assert.deepEqual(EQUIPMENT_DEFINITIONS.return_corps_plate_armor.baseStats,{hp:55,defense:7});
- assert.deepEqual(EQUIPMENT_DEFINITIONS.mining_detail_reinforced_gloves.baseStats,{attack:3,defense:2});
+ assert.deepEqual(EQUIPMENT_DEFINITIONS.mining_detail_reinforced_gloves.baseStats,{attack:3,critChance:.01});
  assert.deepEqual(EQUIPMENT_DEFINITIONS.survey_corps_dust_boots.baseStats,{hp:15,defense:3});
- assert.deepEqual(EQUIPMENT_DEFINITIONS.association_registration_tag.baseStats,{attack:2,hp:25});
- assert.deepEqual(EQUIPMENT_DEFINITIONS.expedition_merit_ring.baseStats,{attack:4,critChance:.03});
+ assert.deepEqual(EQUIPMENT_DEFINITIONS.association_registration_tag.baseStats,{hp:25,critDamage:.05});
+ assert.deepEqual(EQUIPMENT_DEFINITIONS.expedition_merit_ring.baseStats,{attack:4,armorPenetration:.02});
 });
 
 test('V2 CUTOVER 02: fresh state starts on schema 23 with only the V2 starter sword equipped',()=>{

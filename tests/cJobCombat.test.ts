@@ -62,9 +62,9 @@ test('remaining C kits execute fifteen skills with their existing artwork',()=>{
 });
 test('C recovery scales with attack and porter shields scale with maximum HP',()=>{
  let s=setupJobBattleState('reclaimer');s.expedition!.hp=90;
- s=useBattleSkill(s,'reclaimer_skill_2',()=>.5);assert.equal(s.expedition!.hp,96);
+ s=useBattleSkill(s,'reclaimer_skill_2',()=>.5);assert.equal(s.expedition!.hp,94);
  s=setupJobBattleState('green_crown_pilgrim');s.expedition!.hp=90;s.expedition!.jobRuntime!.resource!.value=2;
- s=useBattleSkill(s,'green_crown_pilgrim_skill_3',()=>.5);assert.equal(s.expedition!.hp,113);
+ s=useBattleSkill(s,'green_crown_pilgrim_skill_3',()=>.5);assert.equal(s.expedition!.hp,105);
  s=setupJobBattleState('porter');s=useBattleSkill(s,'porter_skill_2',()=>.5);assert.equal(s.expedition!.playerEffects[0].currentShield,Math.round(stats(s,s.expedition!.equipment).hp*.18));
  s=setupJobBattleState('porter');s.expedition!.jobRuntime!.resource!.value=2;s=useBattleSkill(s,'porter_skill_3',()=>.5);assert.equal(s.expedition!.playerEffects[0].currentShield,Math.round(stats(s,s.expedition!.equipment).hp*.3));
 });
@@ -80,5 +80,5 @@ test('C prayer attack bonus increases subsequent attack-based recovery',()=>{
  s=useBattleSkill(s,'green_crown_pilgrim_skill_2',()=>.5);
  assert.deepEqual(s.expedition!.playerEffects.map(e=>[e.effectId,e.remainingDuration]),[['c_attack_15',3],['c_defense_25',3]]);
  s.expedition!.phase='PLAYER_TURN';s.expedition!.jobRuntime!.resource!.value=2;
- s=useBattleSkill(s,'green_crown_pilgrim_skill_3',()=>.5);assert.equal(s.expedition!.hp,116);
+ s=useBattleSkill(s,'green_crown_pilgrim_skill_3',()=>.5);assert.equal(s.expedition!.hp,107);
 });

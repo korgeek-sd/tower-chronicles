@@ -45,14 +45,14 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  const dismantleYield=selectedEquipment?equipmentDismantleYield(selectedEquipment):0;
  const starterProtected=item?.sourceId===V2_STARTER_EQUIPMENT_ID;
  const dismantleDisabled=busy||life.busy||!!game.expedition||!!item?.equipped||starterProtected;
- const dismantleLabel=starterProtected?'보급 장비 분해 불가':`분해 · 강화석 +${dismantleYield}`;
+ const dismantleLabel=starterProtected?'보급 장비 분해 불가':`분해 · 분해석 +${dismantleYield}`;
  const dismantleSelected=async()=>{
   if(!item||item.category!=='equipment'||!item.modern||!selectedEquipment)return;
   if(!onlineLease){setGame(s=>dismantleEquipment(s,item.sourceId));setSelected(null);return;}
   setBusy(true);
   try{
    const result=await dismantleOnlineEquipment(onlineLease,item.sourceId);
-   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:`${item.name} 분해 완료 · 강화석 ${result.stones}개 · 분해석 ${result.splitStones??0}개 획득`}));
+   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:`${item.name} 분해 완료 · 분해석 ${result.splitStones??0}개 획득`}));
    setSelected(null);void life.refresh();
   }catch(error){
    setGame(s=>({...s,notice:error instanceof Error?error.message:'장비 분해에 실패했습니다.'}));
@@ -63,7 +63,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  function equippedView(slot:Slot){const id=game.equipped[slot];return id?items.find(i=>i.category==='equipment'&&i.sourceId===id):undefined;}
  function openEquipped(slot:Slot){const view=equippedView(slot);if(view)setSelected(view.key);}
  function comparisonFor(sourceId:string){return equipmentStatComparison(game,sourceId);}
- return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><span>장착 {equippedCount}/7 · {items.length}종</span><button className="tc-action secondary slim tc-inventory-enhance-link" onClick={()=>onEnhancement()}>강화</button></>} className="tc-inventory-screen tc-unified-inventory">
+ return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory">
   <div className="tc-ref-inventory tc-inventory-v081">
    <section className="tc-loadout-stage tc-loadout-renewed" aria-label="현재 장착 장비">
     <header className="tc-loadout-ledger"><b>원정 장비</b><span>{equippedCount}/7 장착</span></header>
@@ -82,6 +82,6 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} status={item.category==='foods'?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={item.category==='foods'&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close} enhancementAction={item.category==='equipment'&&item.modern?()=>{close();onEnhancement(item.sourceId,item.key);}:undefined} marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet item={item} status={item.category==='foods'?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={item.category==='foods'&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }

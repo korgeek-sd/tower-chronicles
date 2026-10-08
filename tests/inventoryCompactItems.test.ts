@@ -38,7 +38,7 @@ test('inventory keeps its loadout layout while item slots show quantity and acce
  assert.match(html,/tc-loadout-stage/);
  assert.match(html,/tc-storage-grid/);
  assert.doesNotMatch(html,/tc-storage-count/);
- assert.match(html,/aria-label="[^"]*1개[^"]*희귀[^"]*강화 \+3[^"]*장착 중/);
+ assert.match(html,/aria-label="[^"]*1개[^"]*희귀[^"]*장착 중/);
  assert.doesNotMatch(html,/tc-storage-impact/);
  assert.match(html,/aria-label="기타"/);
 });

@@ -16,14 +16,14 @@ test('V2 INVENTORY 01: modern equipment appears with Korean name, grade, slot, e
  const view=inventoryView(s);
  const sword=view.find(x=>x.sourceId==='drop-sword');
  assert.ok(sword);
- assert.equal(sword.name,'희귀 협회 보급 철검 +3');
+ assert.equal(sword.name,'희귀 협회 보급 철검');
  assert.equal(sword.grade,'rare');
  assert.equal(sword.slot,'weapon');
- assert.equal(sword.enhancement,3);
+ assert.equal(sword.enhancement,undefined);
  assert.equal(sword.modern,true);
  assert.ok(sword.facts?.some(x=>x.startsWith('공격 +')));
  const helmet=view.find(x=>x.sourceId==='drop-helmet');
- assert.equal(helmet?.name,'일반 원정대 철제 투구 +0');
+ assert.equal(helmet?.name,'일반 원정대 철제 투구');
  assert.equal(helmet?.slot,'helmet');
 });
 
@@ -109,7 +109,7 @@ test('V2 INVENTORY 07: modern inventory and equipped references survive local sa
  s=equip(s,'saved-ring');
  repo.save(s);
  const loaded=repo.load();
- assert.deepEqual(loaded.equipmentItems,s.equipmentItems);
+ assert.deepEqual(loaded.equipmentItems,s.equipmentItems.map(i=>({...i,enhancement:0})));
  assert.equal(loaded.equipped.weapon,'saved-weapon');
  assert.equal(loaded.equipped.ring,'saved-ring');
 });

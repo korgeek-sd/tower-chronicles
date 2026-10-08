@@ -11,21 +11,9 @@ test('EQUIPMENT LOOP 01: legacy equipment screen is not part of active routing',
  assert.match(core,/onMove\('inventory'\)[\s\S]*장비 확인/);
 });
 
-test('EQUIPMENT LOOP 02: inventory exposes enhancement as the next action in the V2 loop',()=>{
- const main=read('src/main.tsx'),inventory=read('src/components/inventory/InventoryScreen.tsx');
- assert.match(main,/InventoryScreen[\s\S]*onEnhancement=\{openEnhancement\}/);
- assert.match(main,/function openEnhancement\([\s\S]*setPage\('enhancement'\)/);
- assert.match(inventory,/onEnhancement/);
- assert.match(inventory,/>강화<\/button>/);
-});
+test('EQUIPMENT LOOP 02: inventory has no enhancement actions',()=>{const inventory=read('src/components/inventory/InventoryScreen.tsx');assert.doesNotMatch(inventory,/>강화<\/button>|enhancementAction=/);});
 
-test('EQUIPMENT LOOP 03: enhancement returns to storage and contains no workshop wording',()=>{
- const main=read('src/main.tsx'),screen=read('src/components/enhancement/EnhancementScreen.tsx');
- assert.match(main,/page==='enhancement'[\s\S]*onBack=\{backFromEnhancement\}/);
- assert.match(main,/function backFromEnhancement\(\)[\s\S]*setPage\('inventory'\)/);
- assert.doesNotMatch(screen,/WORKSHOP|제작으로/);
- assert.match(screen,/보관함/);
-});
+test('EQUIPMENT LOOP 03: retired enhancement screen cannot run in the active app',()=>{assert.doesNotMatch(read('src/main.tsx'),/<EnhancementScreen/);});
 
 test('EQUIPMENT LOOP 04: skill screen remains implemented after camp shortcut removal',()=>{
  const core=read('src/components/mobile/CoreScreens.tsx'),main=read('src/main.tsx');

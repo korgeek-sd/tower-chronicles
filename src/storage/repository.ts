@@ -311,6 +311,19 @@ export function parseSaveImport(raw:string,catalog:CosmeticsCatalog=COSMETICS_CA
   try{return createRepository(memory,catalog).load();}catch(error){throw Error(error instanceof Error?`저장 파일을 가져올 수 없습니다. ${error.message}`:'저장 파일을 가져올 수 없습니다.');}
 }
 export function normalizeCombatSave(s:GameState):GameState {
+ if(s.equipmentRulesVersion!==1){
+  const retired=(id:string)=>id.startsWith('equipment:')||id.startsWith('equipment_v2:')||id.startsWith('gear:')||id==='other:enhancement_stone';
+  for(const order of s.market.orders)if(retired(order.itemId)&&order.side==='BUY'&&order.ownerId===s.market.ownerId&&['OPEN','PARTIAL'].includes(order.status))s.silver+=order.limitPrice*order.remainingQuantity;
+  for(const entry of s.market.storage??[])if(retired(entry.itemId))s.silver+=entry.silver;
+  s.market.orders=s.market.orders.filter(o=>!retired(o.itemId));s.market.storage=s.market.storage?.filter(o=>!retired(o.itemId));
+  s.items=[];s.equipmentItems=[createV2StarterEquipment()];s.equipped=emptyEquipmentLoadout(V2_STARTER_EQUIPMENT_ID);delete s.lootItems.enhancement_stone;
+  for(const preset of s.expeditionPresets)if(preset)preset.equipment={...s.equipped};
+  if(s.expedition){s.expedition.equipment={...s.equipped};s.expedition.loot.equipment=[];delete s.expedition.loot.items.enhancement_stone;}
+  s.equipmentRulesVersion=1;
+ }
+ // Enhancement is a retired serialization field, always normalized to zero.
+ for(const item of s.equipmentItems)item.enhancement=0;
+
  const e=s.expedition;if(!e)return s;
  const runtime=combatRuntime(e);runtime.playerMaxHp=stats(s,e.equipment).hp;
  for(const actor of ['player','monster'] as const)for(const effect of actor==='player'?e.playerEffects:e.monsterEffects){

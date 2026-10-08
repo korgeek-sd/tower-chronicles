@@ -33,15 +33,15 @@ test('HOME JOB SHORTCUT 03: app routes the selected home shortcut to the request
 });
 
 
-test('HOME FACILITY 04: base camp replaces combat skill shortcut with enhancement',()=>{
+test('HOME FACILITY 04: base camp removes retired enhancement shortcut',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
  assert.match(home,/title:'골드 거래소'/);
  assert.match(home,/subtitle:'Gold ↔ Silver'/);
  assert.match(home,/onMove\('gold-exchange'\)/);
- assert.match(home,/title:'강화'/);
- assert.match(home,/subtitle:'장비 강화'/);
- assert.match(home,/onMove\('enhancement'\)/);
+ assert.doesNotMatch(home,/title:'강화'/);
+ assert.doesNotMatch(home,/subtitle:'장비 강화'/);
+ assert.doesNotMatch(home,/onMove\('enhancement'\)/);
  assert.doesNotMatch(home,/title:'전투 스킬'/);
  assert.doesNotMatch(home,/onMove\('skills'\)/);
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');

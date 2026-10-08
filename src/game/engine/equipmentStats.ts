@@ -65,13 +65,13 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
     ?modernContribution(modernWeapon)
     :legacyWeapon
       ?equipmentContribution(legacyWeapon)
-      :{hp:0,attack:identity.attack*.4,defense:identity.defense*.4,speed:0};
+      :ZERO_CONTRIBUTION;
 
   let hp=CONFIG.baseHp+weapon.hp;
   let attack=CONFIG.baseAttack+weapon.attack;
   let defense=CONFIG.baseDefense+weapon.defense;
   let speed=identity.speed;
-  let nonWeaponCrit=0;
+  let nonWeaponCrit=0,critDamageBonus=0,armorPenetration=0;
 
   for(const slot of EQUIPMENT_SLOTS){
     if(slot==='weapon')continue;
@@ -79,7 +79,7 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
     if(modern){
       const contribution=modernContribution(modern),itemStats=equipmentItemStats(modern);
       hp+=contribution.hp;attack+=contribution.attack;defense+=contribution.defense;
-      nonWeaponCrit+=itemStats.critChance??0;
+      nonWeaponCrit+=itemStats.critChance??0;critDamageBonus+=itemStats.critDamage??0;armorPenetration+=itemStats.armorPenetration??0;
       continue;
     }
     const legacy=legacyEquippedItem(s,slot,equipment);
@@ -89,7 +89,7 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
   }
 
   const modernWeaponStats=modernWeapon?equipmentItemStats(modernWeapon):null;
-  const weaponCrit=modernWeaponStats?.critChance??identity.critChance;
+  const weaponCrit=identity.critChance+(modernWeaponStats?.critChance??0);
   return {
     hp,
     attack,
@@ -97,7 +97,8 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
     speed,
     skillPower:identity.skillPower,
     critChance:Math.min(1,Math.max(0,weaponCrit+nonWeaponCrit)),
-    critDamage:identity.critDamage,
+    critDamage:identity.critDamage+critDamageBonus+(modernWeaponStats?.critDamage??0),
+    armorPenetration:Math.min(1,armorPenetration+(modernWeaponStats?.armorPenetration??0)),
     attackHits:identity.basicHitMultipliers.length,
   };
 }

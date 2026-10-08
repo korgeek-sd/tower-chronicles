@@ -52,6 +52,7 @@ const errors:RpcErrorMap={
  DISMANTLE_EXPEDITION_BLOCKED:'원정 중에는 장비를 분해할 수 없습니다.',
  DISMANTLE_GRADE_INVALID:'분해할 수 없는 장비 등급입니다.',
  ENHANCE_SILVER_SHORTAGE:'서버 지갑의 Silver가 부족합니다.',
+ ENHANCEMENT_REMOVED:'장비 강화는 종료되었습니다.',
  ENHANCE_MATERIAL_SHORTAGE:'서버에 확인된 강화 재료가 부족합니다.',
  ENHANCE_ITEM_NOT_FOUND:'서버에 등록된 강화 장비를 찾지 못했습니다.',
  ENHANCE_STONE_SHORTAGE:'강화에 필요한 강화석이 부족합니다.',

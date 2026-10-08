@@ -22,15 +22,7 @@ test('FORGE UI 0.1.83 02: risks and costs are decision-first before the enhancem
  assert.match(screen,/view\.canAttempt/);
 });
 
-test('FORGE UI 0.1.83 03: inventory opens exact equipment and market can return to enhancement',()=>{
- assert.match(inventory,/onEnhancement\(item\.sourceId,item\.key\)/);
- assert.match(main,/enhancementInitialId/);
- assert.match(screen,/initialSelectedId/);
- assert.match(screen,/enhancementItemId:selected\.id/);
- assert.match(market,/returnEnhancementId/);
- assert.match(server,/returnEnhancementId/);
- assert.match(server,/‹ 강화/);
-});
+test('FORGE UI 0.1.83 03: retired forge is unreachable from inventory',()=>{assert.doesNotMatch(inventory,/onEnhancement\(item\.sourceId,item\.key\)/);assert.doesNotMatch(main,/<EnhancementScreen/);});
 
 test('FORGE UI 0.1.83 04: mobile forge remains contained and touch-safe',()=>{
  const section=css.slice(css.indexOf('/* v0.1.83 — NOVAR FORGE'));

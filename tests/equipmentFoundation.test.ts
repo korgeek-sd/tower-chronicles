@@ -4,7 +4,7 @@ import type {EquipmentGrade,EquipmentKind,EquipmentItem,Slot} from '../src/game/
 import {
   EQUIPMENT_DEFINITIONS,
   EQUIPMENT_GRADES,
-  EQUIPMENT_GRADE_MULTIPLIERS,
+  EQUIPMENT_FIXED_STATS,
   EQUIPMENT_SLOTS,
   equipmentDefinition,
 } from '../src/game/data/equipment.ts';
@@ -41,8 +41,8 @@ test('EQUIPMENT FOUNDATION 02: nine equipment identities have exact Korean names
     ['return_corps_plate_armor','귀환대 판금갑','armor'],
     ['mining_detail_reinforced_gloves','채굴반 강화 장갑','gloves'],
     ['survey_corps_dust_boots','탐사대 방진 장화','boots'],
-    ['association_registration_tag','협회 등록 인식패','necklace'],
-    ['expedition_merit_ring','원정 공적 반지','ring'],
+    ['association_registration_tag','귀환자의 부적 목걸이','necklace'],
+    ['expedition_merit_ring','추적자의 인장 반지','ring'],
   ] as const;
   assert.deepEqual(expected.map(([kind])=>equipmentDefinition(kind).name),expected.map(([,name])=>name));
   assert.deepEqual(expected.map(([kind])=>equipmentDefinition(kind).slot),expected.map(([, ,slot])=>slot));
@@ -50,13 +50,7 @@ test('EQUIPMENT FOUNDATION 02: nine equipment identities have exact Korean names
 });
 
 test('EQUIPMENT FOUNDATION 03: grade multipliers are deterministic and equipment base stats never expose speed',()=>{
-  assert.deepEqual(EQUIPMENT_GRADE_MULTIPLIERS,{
-    common:1,
-    uncommon:1.12,
-    rare:1.26,
-    heroic:1.42,
-    legendary:1.6,
-  });
+  assert.equal(Object.keys(EQUIPMENT_FIXED_STATS).length,9);
   for(const definition of Object.values(EQUIPMENT_DEFINITIONS)){
     assert.equal('speed' in definition.baseStats,false);
   }

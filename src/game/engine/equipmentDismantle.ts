@@ -24,7 +24,7 @@ export function dismantleEquipment(state:GameState,itemId:string):GameState {
  if(Object.values(s.equipped).includes(itemId))return {...s,notice:'장착 해제 후 분해할 수 있습니다.'};
  const stones=equipmentDismantleYield(item);
  s.equipmentItems=(s.equipmentItems??[]).filter(value=>value.id!==itemId);
- s.lootItems[ENHANCEMENT_STONE_ITEM_ID]=(s.lootItems[ENHANCEMENT_STONE_ITEM_ID]??0)+stones;
- s.notice=`${equipmentItemName(item)} 분해 완료 · 강화석 ${stones}개 획득`;
+ s.lootItems.split_stone=(s.lootItems.split_stone??0)+stones;
+ s.notice=`${equipmentItemName(item)} 분해 완료 · 분해석 ${stones}개 획득`;
  return s;
 }

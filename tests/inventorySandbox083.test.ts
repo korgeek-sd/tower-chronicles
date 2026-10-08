@@ -18,14 +18,14 @@ test('empty loadout exposes all seven real slots without preview controls or inv
  assert.equal(JSON.stringify(game),before);
 });
 
-test('real equipped gear keeps its identity and grade and enhancement in renewed slots',()=>{
+test('real equipped gear keeps its identity and grade without enhancement in renewed slots',()=>{
  const game=initialState();game.equipmentItems=[{id:'real-armor',kind:'return_corps_plate_armor',grade:'heroic',enhancement:4}];game.equipped.armor='real-armor';
  const html=render(game);
  assert.match(html,/1\/7 장착/);
  assert.match(html,/tc-equip-copy/);
  assert.match(html,/영웅/);
- assert.match(html,/\+4/);
- assert.match(html,/aria-label="갑옷 영웅 귀환대 판금갑 \+4"/);
+ assert.doesNotMatch(html,/강화|\+4/);
+ assert.match(html,/aria-label="갑옷 영웅 귀환대 판금갑"/);
  assert.doesNotMatch(html,/tc-equip-impact/);
 });
 

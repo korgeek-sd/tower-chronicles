@@ -13,7 +13,7 @@ const status=(remaining:number,original:number):MarketOrder['status']=>remaining
 const local=(s:GameState,id:string)=>s.market.ownerId===id;
 const isEquipmentItem=(gear:Item|EquipmentItem):gear is EquipmentItem=>
  typeof (gear as EquipmentItem).grade==='string'&&typeof (gear as EquipmentItem).enhancement==='number';
-const equipmentMarketKey=(gear:EquipmentItem)=>'equipment:'+gear.kind+':'+gear.grade+':+'+gear.enhancement;
+const equipmentMarketKey=(gear:EquipmentItem)=>'equipment:'+gear.kind+':'+gear.grade;
 export function marketItemIdForEquipment(item:EquipmentItem):string|null{
  return item.id===V2_STARTER_EQUIPMENT_ID?null:equipmentMarketKey(item);
 }
@@ -40,7 +40,7 @@ export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):str
 const equipmentMarketName=(itemId:string)=>{
  const [,kind,grade,enhancement]=itemId.split(':');
  const definition=(EQUIPMENT_DEFINITIONS as Record<string,{name:string}>)[kind];
- return definition?definition.name+' · '+(EQUIPMENT_GRADE_NAMES as Record<string,string>)[grade]+' '+enhancement:itemId;
+ return definition?definition.name+' · '+(EQUIPMENT_GRADE_NAMES as Record<string,string>)[grade]:itemId;
 };
 
 function parseStack(itemId:string):{kind:string;tower?:Tower;index?:number;id?:string}|null {
@@ -55,7 +55,7 @@ export function marketItems(s:GameState):MarketItem[]{
  const groupedEquipment=new Map<string,MarketItem>();
  for(const kind of Object.keys(EQUIPMENT_DEFINITIONS) as EquipmentItem['kind'][]){
   for(const grade of EQUIPMENT_GRADES){
-   for(let enhancement=0;enhancement<=10;enhancement++){
+   {const enhancement=0;
     const sample:EquipmentItem={
      id:'market-catalog:'+kind+':'+grade+':'+enhancement,
      kind,
@@ -71,7 +71,7 @@ export function marketItems(s:GameState):MarketItem[]{
      modernEquipment:true,
      equipmentIds:[],
      category:'equipment',
-     description:'같은 종류·등급·강화 단계 장비가 하나의 실시간 주문장에서 거래됩니다.',
+     description:'같은 종류·등급 장비가 하나의 실시간 주문장에서 거래됩니다.',
     });
    }
   }
@@ -110,9 +110,10 @@ export function marketItemName(s:GameState,itemId:string){const own=marketItems(
 export function marketCatalog(s:GameState){
  const own=marketItems(s),known=new Map(own.map(item=>[item.id,item]));
  s.market.orders.forEach(order=>{
+  if(order.itemId.startsWith('equipment:')&&order.itemId.split(':').length!==3)return;
   if(known.has(order.itemId))return;
   const gear=order.gear??escrowGear(s,order.itemId);
-  known.set(order.itemId,{id:order.itemId,name:gear?(isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear)):marketItemName(s,order.itemId),available:0,gear,modernEquipment:order.itemId.startsWith('equipment:'),equipmentIds:[],category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')||order.itemId.startsWith('equipment:')||order.itemId.startsWith('equipment_v2:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'강화 단계를 포함한 개별 장비입니다.':'거래소에 등록된 아이템입니다.'});
+  known.set(order.itemId,{id:order.itemId,name:gear?(isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear)):marketItemName(s,order.itemId),available:0,gear,modernEquipment:order.itemId.startsWith('equipment:'),equipmentIds:[],category:order.itemId.startsWith('ticket:')?'tickets':order.itemId.startsWith('skillbook:')?'skillbooks':order.itemId.startsWith('gear:')||order.itemId.startsWith('equipment:')||order.itemId.startsWith('equipment_v2:')?'equipment':order.itemId.startsWith('material:')?'materials':'other',description:gear?'등급별 고정 능력치 장비입니다.':'거래소에 등록된 아이템입니다.'});
  });
  return [...known.values()];
 }
