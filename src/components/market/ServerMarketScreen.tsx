@@ -1,6 +1,9 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,marketCatalog,marketItemName,orderBook} from '../../game/market/marketService';
+import {EquipmentArt} from '../inventory/EquipmentArt';
+import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
+import type {EquipmentKind} from '../../game/types';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {
@@ -22,6 +25,7 @@ const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']]
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['other','기타']];
 const ranges:[RangeKey,string][]=[['1H','1H'],['24H','24H'],['1W','1W'],['1M','1M'],['ALL','ALL']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
+function ProductArt({item}:{item:{category:string;gear?:{kind:string}}}){return item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const categoryLabel=(c:string)=>c==='equipment'?'장비':c==='materials'?'재료':c==='skillbooks'?'스킬북':c==='tickets'?'입장권':'기타';
 const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['skillbooks','tickets','other'].includes(entryCategory));
@@ -198,7 +202,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
   return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
    <div className={'tc-market-v4-trade'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-tradehead">
-     <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
+     <span className="tc-market-v2-icon"><ProductArt item={item}/></span>
      <div><small>{categoryLabel(item.category)}</small><b>{item.name}</b><span>최근 체결 {money(current)}</span></div>
      <strong>{side==='BUY'?snapshot.wallet.silver.toLocaleString()+' S':'보유 '+item.available+'개'}</strong>
     </section>
@@ -242,7 +246,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
    <div className={'tc-market-v2-detail tc-market-v4-detail'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">
-      <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
+      <span className="tc-market-v2-icon"><ProductArt item={item}/></span>
       <div><b>{item.name}</b><small>{categoryLabel(item.category)} · 보유 {item.available}</small></div>
      </div>
      <div className="tc-market-v3-current"><small>최근 체결가</small><b>{money(current)}</b><span className={trendClass(overviewTrend.delta)}>{trendLabel(overviewTrend.delta)}</span></div>
@@ -261,7 +265,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
     </section>
 
     <section className="tc-market-v4-holding">
-     <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(item.category)}/></span>
+     <span className="tc-market-v2-mini"><ProductArt item={item}/></span>
      <div><b>{item.name}</b><small>내 보유 {item.available}개</small></div>
      <div className="value"><b>{money(estimated)}</b><small>평가액</small></div>
     </section>
@@ -299,7 +303,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
       const displayPrice=demo?.last??ask??bid;
       const sub=(demoMode?'DEMO · ':'')+categoryLabel(entry.category)+' · 보유 '+entry.available;
       return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
-       <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
+       <span className="tc-market-v2-mini"><ProductArt item={entry}/></span>
        <span className="name"><b>{entry.name}</b><small>{sub}</small></span>
        <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
        <span className="tc-market-v3-rowprice"><b>{money(displayPrice)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>

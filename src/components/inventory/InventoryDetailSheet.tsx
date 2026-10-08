@@ -1,12 +1,14 @@
 import React,{useEffect,useRef,useState} from 'react';
 import type {InventoryViewItem} from '../../game/inventoryView';
 import {categoryNames} from '../../game/inventoryView';
+import {EquipmentArt} from './EquipmentArt';
 import {CraftItemArt} from '../world/CraftItemArt';
 import {Glyph} from '../../ui/mobile';
 import {EQUIPMENT_GRADE_NAMES,EQUIPMENT_SLOT_NAMES} from '../../game/data/equipment';
 import type {EquipmentStatComparison} from '../../game/engine/state';
 
 export function InventoryItemArt({item,slot=false}:{item:InventoryViewItem;slot?:boolean}){
+ if(item.equipmentKind)return <i className={slot?'tc-inventory-slot-art':'tc-glyph'} aria-hidden="true"><EquipmentArt kind={item.equipmentKind}/></i>;
  const id=item.lifeMaterial??item.lifeProduct;
  if(id&&slot)return <i className="tc-inventory-slot-art" aria-hidden="true"><CraftItemArt id={id}/></i>;
  return id?<i className="tc-glyph" aria-hidden="true" style={{width:'1em',height:'1em'}}><CraftItemArt id={id}/></i>:<Glyph name={item.iconId}/>;
