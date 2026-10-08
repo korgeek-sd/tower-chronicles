@@ -2,7 +2,7 @@ import type {GameState} from '../types';
 import {inventoryView,type InventoryViewItem,type InventoryCategory} from '../inventoryView';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState,type LifeMaterial} from '../../online/villageLife';
 import {CRAFT_RECIPES,PRODUCT_NAMES,type ProductId,type FoodId} from './crafting';
-export const LIFE_INVENTORY_CATEGORIES:readonly InventoryCategory[]=['all','equipment','materials','potions','foods','tickets'];
+export const LIFE_INVENTORY_CATEGORIES:readonly InventoryCategory[]=['all','equipment','materials','potions','foods','other'];
 /** Current inventory: canonical equipment plus the server-owned life inventory. */
 export function unifiedInventoryView(game:GameState,life:VillageLifeState|null):InventoryViewItem[]{
  const items=inventoryView(game).filter(i=>i.category==='equipment'&&i.modern);
@@ -16,7 +16,7 @@ export function unifiedInventoryView(game:GameState,life:VillageLifeState|null):
   const food=r.id.endsWith('_food'),facts=['보유 '+quantity.toLocaleString()+'개'];
   if(food)facts.push('지속 30회 / 1개','남은전투 '+(life.foodTurns?.[r.id as FoodId]??0).toLocaleString()+'회','적용 PvE 전용');
   if(r.id==='potion')facts.push('회복 HP 1 / 1개','사용 일반 사냥 자동 회복');
-  items.push({key:'life:product:'+r.id,category:food?'foods':r.id==='potion'?'potions':'tickets',sourceId:'life:'+r.id,lifeProduct:r.id as ProductId,name:PRODUCT_NAMES[r.id],quantity,iconId:food?'health':r.id==='potion'?'potions':'tickets',description:r.description+(food?' · 세 종류 동시 적용, 같은 음식은 지속 횟수만 늘어납니다.':''),facts,order,stack:true});
+  items.push({key:'life:product:'+r.id,category:food?'foods':r.id==='potion'?'potions':'other',sourceId:'life:'+r.id,lifeProduct:r.id as ProductId,name:PRODUCT_NAMES[r.id],quantity,iconId:food?'health':r.id==='potion'?'potions':'tickets',description:r.description+(food?' · 세 종류 동시 적용, 같은 음식은 지속 횟수만 늘어납니다.':''),facts,order,stack:true});
  }
  return items;
 }

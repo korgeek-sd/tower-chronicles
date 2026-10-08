@@ -3298,3 +3298,14 @@ html,body,#root{
 .tc-unified-inventory .tc-storage-categories{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories button{height:44px;min-height:44px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{grid-template-rows:44px 44px minmax(0,1fr) 44px}.tc-unified-inventory .tc-storage-head>div{min-width:0;flex:1}.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button{min-width:44px;min-height:44px;height:44px;font-size:10px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-head em{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-unified-inventory .tc-inventory-v081 .tc-storage-item>strong{font-size:10px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-item>small{font-size:10px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories button small{font-size:9px;display:block}.tc-unified-inventory .tc-storage-board .tc-pager button{min-height:44px}
 
 .tc-item-request-status{font-size:12px;line-height:1.5;padding:8px 12px;color:#e9c780;}
+
+/* Compact item contents; preserve the existing loadout and storage layout. */
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact{padding:4px;grid-template-rows:1fr;min-height:44px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact .tc-storage-icon{width:100%;height:100%;border:0;background:transparent}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact .tc-storage-icon .tc-glyph{font-size:clamp(28px,8vw,42px)}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-item-name{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-count{right:4px;bottom:3px;max-width:calc(100% - 8px);font:700 12px/1.2 ui-monospace,monospace;color:#ead3a4;text-shadow:1px 1px 2px #000;overflow:hidden;text-overflow:ellipsis}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-enhance{left:4px;top:4px;bottom:auto;font-size:10px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-icon>.tc-storage-grade{right:0;top:0;font-size:8px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>em{left:4px;right:auto;top:auto;bottom:4px;font-size:10px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories button small{display:block;font-size:10px;line-height:1.1}
