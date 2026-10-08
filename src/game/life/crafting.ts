@@ -1,7 +1,7 @@
 import type {VillageLifeState} from '../../online/villageLife';
 export type ProductId='potion'|'attack_food'|'defense_food'|'experience_food'|'challenge_ticket';
 export type FoodId=Extract<ProductId,`${string}_food`>;
-export const PRODUCT_NAMES:Record<ProductId,string>={potion:'회복 포션',attack_food:'공격 음식',defense_food:'방어 음식',experience_food:'경험치 음식',challenge_ticket:'점령전 도전권'};
+export const PRODUCT_NAMES:Record<ProductId,string>={potion:'회복 포션',attack_food:'떡볶이',defense_food:'방어 음식',experience_food:'경험치 음식',challenge_ticket:'점령전 도전권'};
 export const CRAFT_RECIPES:readonly {id:ProductId;material:'herb'|'pepper'|'potato'|'wheat'|'stone';base:number;kind:'herb'|'farm'|'city';description:string}[]=[
  {id:'potion',material:'herb',base:1000,kind:'herb',description:'개당 HP 1 · 일반 사냥 후 자동 사용'},
  {id:'attack_food',material:'pepper',base:1,kind:'farm',description:'PvE 공격력 +10% · 30회 전투'},

@@ -13,7 +13,9 @@ The crafting screen uses a dark iron workbench, brass frames and distinct item a
 
 ## Artwork provenance
 
-`CraftItemArt.tsx` contains original code-authored SVG artwork, not copied game assets or generated raster images. All ten icons share a 64×64 view box, muted fills, brass/dark edges and an overhead light treatment: herb, pepper, potato, wheat, stone, potion, three foods and challenge ticket. Food motifs distinguish attack, defense and experience. SVG scales to the recipe and workbench slots; decorative artwork is hidden from assistive technology and item names stay in HTML.
+`public/assets/ui/crafting/` contains ten generated PNG assets: herb, pepper, potato, wheat, stone, potion, three foods and challenge ticket. The art follows the existing `healing_lesser.png` potion's dark pixel-art style and the approved potato's weathered silver square frame. All assets omit tier badges. Original generated images were preserved outside the repository; approved copies are committed here.
+
+`CraftItemArt.tsx` loads the assets through the existing relative `assetUrl` helper, so GitHub Pages subdirectories and the offline build resolve the same paths. Crafting selection, material/output previews, confirmation and reward use these assets, as do life items in the inventory grid and detail sheet. Artwork is decorative; accessible names remain in HTML. The attack food is displayed as **떡볶이**, with the existing `attack_food` ID, pepper recipe and PvE effect retained.
 
 ## Outcome and interaction rules
 

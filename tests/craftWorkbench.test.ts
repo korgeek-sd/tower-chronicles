@@ -15,6 +15,7 @@ test('workbench recipe picker announces the selected product and shows distinct 
  assert.match(html,/aria-label="제작 도안"/);
  assert.match(html,/<button[^>]*aria-pressed="true"[^>]*>[\s\S]*?회복 포션/);
  assert.match(html,/data-craft-art="potion"/);
+ assert.match(html,/<img[^>]*src="\.\/assets\/ui\/crafting\/potion.png"/);
  assert.match(html,/data-craft-art="herb"/);
  assert.match(html,/보유 7개/);
 });
@@ -39,7 +40,7 @@ test('insufficient resources keep crafting disabled and pending cannot show a re
 
 test('every town shows all five recipes and explains how to craft nonlocal products',()=>{
  const html=renderToStaticMarkup(React.createElement(CraftScreen,{...props,state:{...state,location:'farm-1'}}));
- for(const label of ['회복 포션','공격 음식','방어 음식','경험치 음식','점령전 도전권'])assert.ok(html.includes(label),label);
+ for(const label of ['회복 포션','떡볶이','방어 음식','경험치 음식','점령전 도전권'])assert.ok(html.includes(label),label);
  assert.match(html,/노바르로 이동/);
  assert.match(html,/약초 마을 또는 노바르에서 제작/);
  assert.match(html,/<button[^>]*class="[^"]*tc-craft-main[^"]*"[^>]*disabled/);

@@ -1,18 +1,8 @@
 import React from 'react';
 import type {ProductId} from '../../game/life/crafting';
+import {assetUrl} from '../../game/data/graphics';
 type CraftArtId=ProductId|'herb'|'pepper'|'potato'|'wheat'|'stone';
-/** Original 64px SVG silhouettes with brass edges and muted item colors. */
+/** Approved pixel-art inventory assets, sharing a silver frame without tier badges. */
 export function CraftItemArt({id}:{id:CraftArtId}){
- let art:React.ReactNode;
- switch(id){
- case 'potion':art=<><path d="M26 8h12v15l12 18v12c0 5-36 5-36 0V41l12-18Z" fill="#adc2b8" stroke="#4f645e" strokeWidth="2"/><path d="M18 41h28v11c-6 5-22 5-28 0Z" fill="#bd6254"/><path d="M24 8h16v7H24Z" fill="#bc9860" stroke="#705335" strokeWidth="2"/><path d="M22 30v7m-3 6v7" stroke="#edf2d8" strokeWidth="3"/><path d="M29 38h6v6h6v5h-6v6h-6v-6h-6v-5h6Z" fill="#ecdab0"/></>;break;
- case 'herb':art=<><path d="M30 56 34 13M31 43 16 30M33 31l14-14" stroke="#b6a36e" strokeWidth="3"/><path d="M31 40C10 42 8 28 10 18c15 0 24 9 21 22Z" fill="#68875a" stroke="#344e38" strokeWidth="2"/><path d="M34 30C30 15 40 8 53 7c0 14-4 24-19 23Z" fill="#93a367" stroke="#43593e" strokeWidth="2"/><path d="M31 51C17 54 9 47 8 38c12-2 20 2 23 13Z" fill="#455f46"/><path d="m16 25 12 11m20-21-10 10" stroke="#c5ce8e" strokeWidth="2"/></>;break;
- case 'pepper':art=<><path d="M37 17c0-7 3-9 8-10" fill="none" stroke="#718354" strokeWidth="4"/><path d="M28 19c11-6 21 1 18 14C43 47 30 56 12 55c14-8 15-15 13-22-2-6-2-11 3-14Z" fill="#b9523e" stroke="#74382d" strokeWidth="2"/><path d="m28 20 9-5 9 5-7 4Z" fill="#667d4d"/><path d="M37 28c2 8-5 17-13 21" fill="none" stroke="#e79e65" strokeWidth="3"/></>;break;
- case 'potato':art=<><path d="M12 38C6 17 26 9 39 16c18 4 20 24 7 35C31 61 17 54 12 38Z" fill="#b79963" stroke="#705b3d" strokeWidth="2"/><path d="M17 30c1-8 8-11 16-10" fill="none" stroke="#e5cb91" strokeWidth="3"/><g fill="#725a3d"><ellipse cx="24" cy="37" rx="3" ry="2"/><ellipse cx="41" cy="29" rx="2" ry="3"/><ellipse cx="35" cy="47" rx="3" ry="2"/></g></>;break;
- case 'wheat':art=<><path d="m20 58 22-47m-15 46 14-26" stroke="#967145" strokeWidth="3"/>{[0,1,2,3].map(n=><g key={n} transform={`translate(${n*4} ${-n*9})`}><path d="M29 43c-11 0-14-6-14-13 10 0 15 5 14 13Z" fill="#c7a45e" stroke="#84643c"/><path d="M30 42c10 0 16-5 18-12-12-1-17 5-18 12Z" fill="#e1c37c" stroke="#84643c"/></g>)}</>;break;
- case 'stone':art=<><path d="m9 38 9-20 22-5 15 22-7 19-27 2Z" fill="#727c80" stroke="#3e494c" strokeWidth="2"/><path d="m18 18 9 20 28-3-15-22Z" fill="#a1a6a0"/><path d="m9 38 18 0-6 18m6-18 13-25m-13 25 21 16" fill="none" stroke="#46545a" strokeWidth="2"/></>;break;
- case 'challenge_ticket':art=<><path d="m14 11 40 8-2 12c-7 0-8 8-2 11l-2 13-40-8 2-12c7 0 8-8 2-11Z" fill="#ccb583" stroke="#81663f" strokeWidth="2"/><path d="m20 19 24 5-5 22-24-5Z" fill="none" stroke="#79603c"/><path d="m29 24 9 5-4 13-8-2-3-8Z" fill="#78637f" stroke="#564358"/><path d="m27 30 7 6m1-8-9 8" stroke="#ead5a2" strokeWidth="2"/></>;break;
- default:{const tone=id==='attack_food'?'#b86b48':id==='defense_food'?'#91a06a':'#d1ae67';art=<><ellipse cx="32" cy="31" rx="24" ry="13" fill="#444c46" stroke="#ac9363" strokeWidth="2"/><path d="M9 31c1 18 10 25 23 25s22-7 23-25Z" fill="#5b6357" stroke="#a48c61" strokeWidth="2"/><ellipse cx="32" cy="29" rx="19" ry="10" fill={tone}/><path d="m17 29 9-6 7 5 12-4-4 9-14 3Z" fill="#e0c899"/>{id==='attack_food'?<path d="m33 22-6 10h7l-5 11 14-15h-8l4-6Z" fill="#9c4436"/>:id==='defense_food'?<path d="m32 22 9 4-2 10-7 5-7-5-2-10Z" fill="#4e654b" stroke="#bac48e"/>:<path d="m32 20 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" fill="#ecd28b" stroke="#9c7541"/>}<path d="M18 39c5 5 11 6 16 6" fill="none" stroke="#bac4a3" strokeWidth="2"/></>;}break;
- }
- return <svg className="tc-craft-art" data-craft-art={id} viewBox="0 0 64 64" aria-hidden="true" focusable="false"><ellipse cx="32" cy="57" rx="23" ry="4" fill="#000" opacity=".25"/>{art}</svg>;
+ return <img className="tc-craft-art" data-craft-art={id} src={assetUrl(`assets/ui/crafting/${id}.png`)} alt="" aria-hidden="true" draggable={false} width={64} height={64} style={{objectFit:'contain'}}/>;
 }
