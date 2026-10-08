@@ -16,3 +16,13 @@
 .tc-craft-dialog button{flex:1;min-height:44px;background:#352e22;border:1px solid #ad9460;color:#f0e3c9;font-weight:700}
 .tc-craft-dialog button:disabled{opacity:.45}
 @media(max-width:420px){.tc-item-slot{height:170px;gap:5px}.tc-item-slot strong{font-size:13px}.tc-craft-glyph{width:42px;height:42px;font-size:24px}.tc-craft-board{grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:4px}.tc-craft-arrow{font-size:17px}}
+
+.tc-craft-glyph .tc-glyph{width:100%;height:100%;font-size:28px;display:grid;place-items:center}
+.tc-craft-progress{height:5px;overflow:hidden;background:#292c27;border:1px solid #595441}
+.tc-craft-progress span{display:block;width:38%;height:100%;background:#d0b477;animation:tc-craft-working 1.1s ease-in-out infinite alternate}
+@keyframes tc-craft-working{from{transform:translateX(-100%)}to{transform:translateX(265%)}}
+.tc-craft-success{animation:tc-craft-reveal .32s ease-out;box-shadow:0 0 35px #a8874555,0 15px 45px #000}
+.tc-craft-reward{display:grid;place-items:center;width:88px;height:88px;margin:0 auto 14px;border:3px double #d0b477;background:radial-gradient(circle,#69552e,#161a19 72%);color:#f3d58e;font-size:42px;animation:tc-craft-glow 1.6s ease-in-out infinite alternate}
+@keyframes tc-craft-reveal{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes tc-craft-glow{from{box-shadow:0 0 4px #d0b47755}to{box-shadow:0 0 24px #d0b47799}}
+@media(prefers-reduced-motion:reduce){.tc-craft-progress span,.tc-craft-success,.tc-craft-reward{animation:none}}
