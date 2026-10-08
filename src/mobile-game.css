@@ -3324,3 +3324,34 @@ html,body,#root{
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact.grade-heroic{border-color:#8d719c}
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact.grade-legendary{border-color:#b28a4d}
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact[aria-pressed=true]{border-color:#e1c17a}
+
+/* Real equipment loadout: flow layout keeps the ledger and slots apart. */
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed{display:grid;grid-template-rows:24px 32px minmax(0,1fr);gap:5px;padding:6px}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed:before{display:none}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-ledger{position:static;min-height:0;padding:0 5px;box-shadow:none;background:transparent}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-ledger b{font-size:12px;color:#ead3a4}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-ledger>span{font-size:10px}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-vitals{position:static;transform:none;min-width:0;z-index:auto}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-vitals span{padding:2px 4px}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-vitals small{font-size:9px}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-vitals b{font-size:13px}
+.tc-loadout-slots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.85fr) minmax(0,1fr);grid-template-rows:repeat(3,minmax(44px,1fr));gap:4px;min-height:0}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-loadout-character{position:static;transform:none;width:100%;height:100%;min-height:0;grid-column:2;grid-row:1/3}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-equip-slot{position:relative;left:auto;right:auto;top:auto;width:100%;height:100%;min-height:44px;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:5px;padding:4px;box-shadow:inset 0 0 0 1px #0b0806}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-equip-slot:disabled{opacity:1;color:#85765f;border-color:#40372b;background:#110e0b}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-weapon{grid-column:1;grid-row:1}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-helmet{grid-column:1;grid-row:2}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-armor{grid-column:1;grid-row:3}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-gloves{grid-column:3;grid-row:1}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-necklace{grid-column:3;grid-row:2}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-ring{grid-column:3;grid-row:3}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .slot-boots{grid-column:2;grid-row:3}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-equip-icon{position:static;width:24px;height:28px;min-width:0;border:0;background:transparent}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-equip-icon .tc-glyph{font-size:22px}
+.tc-equip-copy{display:grid;gap:2px;min-width:0;line-height:1.1}
+.tc-equip-copy strong{font-size:9px;color:#b49c75;padding-right:20px}
+.tc-equip-copy small{font-size:10px;color:#ded0b4;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-equip-copy em{font-style:normal;font-size:8px;color:#9c8b6e}
+.tc-unified-inventory .tc-inventory-v081 .tc-loadout-renewed .tc-equip-enhance{right:3px;top:3px;font-size:9px;line-height:14px}
+
+.tc-unified-inventory .tc-inventory-v081{grid-template-rows:minmax(224px,44%) minmax(0,1fr)}

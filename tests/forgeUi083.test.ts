@@ -23,7 +23,7 @@ test('FORGE UI 0.1.83 02: risks and costs are decision-first before the enhancem
 });
 
 test('FORGE UI 0.1.83 03: inventory opens exact equipment and market can return to enhancement',()=>{
- assert.match(inventory,/onEnhancement\(sandboxGame\?undefined:item\.sourceId,sandboxGame\?undefined:item\.key\)/);
+ assert.match(inventory,/onEnhancement\(item\.sourceId,item\.key\)/);
  assert.match(main,/enhancementInitialId/);
  assert.match(screen,/initialSelectedId/);
  assert.match(screen,/enhancementItemId:selected\.id/);
