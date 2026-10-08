@@ -25,3 +25,32 @@ test('defeat pays nothing and consumes vitality',()=>{
  assert.equal(r.result.outcome,'defeat');assert.equal(r.result.silver,0);assert.equal(r.result.exp,0);assert.equal(r.result.materialCount,0);assert.equal(r.state.vitality,99);
  assert.equal(HUNT_MAPS.length,3);
 });
+
+test('six combat stats apply critical damage and percentage penetration',()=>{
+ const base={hp:1000,attack:100,defense:0,critChance:1,critDamage:2,armorPenetration:1};
+ const r=resolveHunt(initialHuntingState(0),'mine',base,['heavy'],0,()=>0);
+ assert.equal(r.result.turns[0].monsterHp,0);
+ assert.ok(r.result.turns[0].lines[0].includes('360 피해'));
+ assert.deepEqual(Object.keys(r.result.player).sort(),['hp','attack','defense','critChance','critDamage','armorPenetration'].sort());
+});
+test('skill cooldowns wait without basic attacks and invalid skills do not attack',()=>{
+ const r=resolveHunt(initialHuntingState(0),'mine',{...fighter,hp:1000},['heavy'],0,()=>1);
+ assert.equal(r.result.turns[1].monsterHp,r.result.turns[0].monsterHp);
+ assert.ok(r.result.turns[1].lines[0].includes('대기'));
+ const empty=resolveHunt(initialHuntingState(0),'plains',fighter,['unknown'],0,()=>0);
+ assert.equal(empty.result.monsterHp,90);assert.equal(empty.result.outcome,'defeat');
+});
+test('guest HP, food and potions persist once per hunt without mutating input',()=>{
+ const before={...initialHuntingState(0),currentHp:1,potions:300,foodTurns:{attack_food:2,defense_food:1,experience_food:1}};
+ const r=resolveHunt(before,'plains',fighter,['heavy','quick'],0,()=>1);
+ assert.equal(r.result.startHp,180);assert.equal(r.result.player.attack,19.8);
+ assert.equal(r.result.exp,22);assert.equal(r.state.currentHp,180);
+ assert.equal(r.state.potions,300-r.result.potionsUsed!);
+ assert.equal(r.state.foodTurns?.attack_food,1);assert.equal(r.state.foodTurns?.defense_food,0);
+ assert.equal(before.currentHp,1);assert.equal(before.potions,300);
+});
+test('invalid combat values normalize and guard acts before monster damage',()=>{
+ const r=resolveHunt({...initialHuntingState(0),currentHp:50},'plains',{hp:100,attack:10,defense:0,critChance:2,critDamage:0,armorPenetration:-1},['guard','heavy'],0,()=>0);
+ assert.equal(r.result.player.critChance,1);assert.equal(r.result.player.critDamage,1);assert.equal(r.result.player.armorPenetration,0);
+ assert.equal(r.result.turns[0].playerHp,44);assert.equal(r.result.turns[0].monsterHp,90);
+});
