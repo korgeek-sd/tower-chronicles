@@ -120,8 +120,8 @@
 .tc-craft-scroll { overflow: visible; padding: 0; gap: 6px; flex: 1; }
 .tc-craft-recipes { flex-shrink: 0; }
 .tc-craft-section-title { margin-bottom: 4px; }
-.tc-item-tabs { gap: 3px; }
-.tc-item-tabs button { position: relative; min-width: 44px; min-height: 44px; aspect-ratio: 1; padding: 0; gap: 0; overflow: hidden; }
+.tc-item-tabs { gap: 3px; width: min(100%, 340px); margin-inline: auto; }
+.tc-item-tabs button { position: relative; min-width: 44px; min-height: 44px; height: 56px; aspect-ratio: auto; padding: 0; gap: 0; overflow: hidden; }
 .tc-item-tabs .tc-craft-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none; }
 .tc-item-tabs span { position: absolute; inset: auto 0 0; padding: 8px 1px 3px; font-size: 10px; line-height: 1.2; color: #f3e6c9; background: linear-gradient(transparent, #080c09e8 40%); text-shadow: 0 1px 2px #000; }
 .tc-item-tabs button.active { outline: 1px solid var(--craft-gold); outline-offset: -3px; }
@@ -131,8 +131,13 @@
 .tc-craft-material { gap: 4px; }
 .tc-craft-material>div:last-child { gap: 2px; }
 .tc-craft-material strong { font-size: 12px; }
-.tc-game-craft .tc-craft-slot { width: 44px; height: 44px; padding: 4px; }
-.tc-game-craft .tc-craft-product-slot { width: 48px; height: 48px; padding: 4px; }
+.tc-game-craft .tc-craft-slot { width: 44px; height: 44px; padding: 0; }
+.tc-game-craft .tc-craft-product-slot { width: 48px; height: 48px; padding: 0; }
+/* BlockUI's stack/icon wrappers must fill the well as well as the image. */
+.tc-game-craft .tc-craft-slot>span:first-child,
+.tc-game-craft .tc-craft-slot>span:first-child>span,
+.tc-game-craft .tc-craft-slot>span:first-child>span>span:first-child { display: block; width: 100%; height: 100%; max-width: none; max-height: none; padding: 0; }
+.tc-game-craft .tc-craft-slot .tc-craft-art { width: 100%; height: 100%; object-fit: cover; filter: none; }
 .tc-craft-result { gap: 2px; }
 .tc-craft-result-halo { padding: 2px; }
 .tc-craft-result h3 { font-size: 12px; }
