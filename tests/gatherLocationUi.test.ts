@@ -55,7 +55,8 @@ test('pending keeps gathering and resource selection disabled and only displays 
  assert.match(confirmed,/약초 \+10 · 행동력 −1/);
 });
 
-test('missing optional well action is disabled and the existing well cooldown remains visible',()=>{
- assert.match(render(),/<button[^>]*disabled[^>]*>우물/);
- assert.match(render({onWell:()=>{},state:{...state,wellReadyAt:30000}}),/우물[^]*?30초/);
+test('gathering leaves utility actions out and puts specialty selection after the scene',()=>{
+ const html=render({onWell:()=>{}});
+ assert.doesNotMatch(html,/우물|잔여량 새로고침|<footer/);
+ assert.match(html,/<\/div><div class="tc-life-resource"/);
 });
