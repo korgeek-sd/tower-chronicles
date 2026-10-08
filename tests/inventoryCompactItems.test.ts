@@ -6,7 +6,7 @@ import {initialState} from '../src/game/engine/state';
 import {InventoryScreen} from '../src/components/inventory/InventoryScreen';
 import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../src/game/life/inventory';
 import {selectInventory,categoryNames} from '../src/game/inventoryView';
-import {InventoryItemArt} from '../src/components/inventory/InventoryDetailSheet';
+import {InventoryItemArt,InventoryStackCount} from '../src/components/inventory/InventoryDetailSheet';
 
 test('current inventory offers the six requested categories and keeps challenge tickets in other',()=>{
  assert.deepEqual(LIFE_INVENTORY_CATEGORIES.map(c=>categoryNames[c]),['전체','장비','재료','포션','음식','기타']);
@@ -37,8 +37,17 @@ test('inventory keeps its loadout layout while item slots show quantity and acce
  const html=renderToStaticMarkup(React.createElement(InventoryScreen,{game,setGame:()=>{},onEnhancement:()=>{}}));
  assert.match(html,/tc-loadout-stage/);
  assert.match(html,/tc-storage-grid/);
- assert.match(html,/tc-storage-count[^>]*>1/);
+ assert.doesNotMatch(html,/tc-storage-count/);
  assert.match(html,/aria-label="[^"]*1개[^"]*희귀[^"]*강화 \+3[^"]*장착 중/);
  assert.doesNotMatch(html,/tc-storage-impact/);
  assert.match(html,/aria-label="기타"/);
+});
+
+test('stack counts show exact grouped quantities but omit single items and equipment',()=>{
+ const items=unifiedInventoryView(initialState(),{materials:{herb:200},products:{potion:3000,attack_food:1}} as any);
+ const count=(id:string)=>renderToStaticMarkup(React.createElement(InventoryStackCount,{item:items.find(i=>i.lifeMaterial===id||i.lifeProduct===id)!}));
+ assert.match(count('herb'),/>200</);
+ assert.match(count('potion'),/>3,000</);
+ assert.equal(count('attack_food'),'');
+ assert.equal(renderToStaticMarkup(React.createElement(InventoryStackCount,{item:{...items[0],stack:false,quantity:1}})),'');
 });
