@@ -1,7 +1,7 @@
 import React from 'react';
 import './inventory.css';
-import type {EquipmentKind} from '../../game/types';
+import type {EquipmentKind,EquipmentGrade} from '../../game/types';
 import {assetUrl} from '../../game/data/graphics';
-export function EquipmentArt({kind}:{kind:EquipmentKind}){
- return <img className="tc-equipment-art" src={assetUrl(`assets/ui/equipment/${kind}.png`)} alt="" aria-hidden="true" draggable={false} width={64} height={64}/>;
+export function EquipmentArt({kind,grade}:{kind:EquipmentKind;grade?:EquipmentGrade}){
+ return <img className={"tc-equipment-art"+(grade?" tc-equipment-grade-"+grade:"")} src={assetUrl(`assets/ui/equipment/${kind}.png`)} alt="" aria-hidden="true" draggable={false} width={64} height={64}/>;
 }

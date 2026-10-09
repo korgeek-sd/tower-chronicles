@@ -1,9 +1,9 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
-import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,marketCatalog,marketItemName,orderBook} from '../../game/market/marketService';
+import {aggregateOrderBookByPrice,getBestAsk,getBestBid,getMyOpenOrders,currentMarketCatalog,marketItemName,orderBook} from '../../game/market/marketService';
 import {EquipmentArt} from '../inventory/EquipmentArt';
 import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
-import type {EquipmentKind} from '../../game/types';
+import type {EquipmentKind,EquipmentGrade} from '../../game/types';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import {
@@ -25,7 +25,7 @@ const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']]
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['other','기타']];
 const ranges:[RangeKey,string][]=[['1H','1H'],['24H','24H'],['1W','1W'],['1M','1M'],['ALL','ALL']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
-function ProductArt({item}:{item:{category:string;gear?:{kind:string}}}){return item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind}/>:<Glyph name={categoryGlyph(item.category)}/>;}
+function ProductArt({item}:{item:{category:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const categoryLabel=(c:string)=>c==='equipment'?'장비':c==='materials'?'재료':c==='skillbooks'?'스킬북':c==='tickets'?'입장권':'기타';
 const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['skillbooks','tickets','other'].includes(entryCategory));
@@ -128,7 +128,8 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  useEffect(()=>()=>{if(tradePulseTimer.current!==null)window.clearTimeout(tradePulseTimer.current);},[]);
 
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
- const catalog=useMemo(()=>marketCatalog(view),[view]);
+ const [gradeFilter,setGradeFilter]=useState('all');
+ const catalog=useMemo(()=>currentMarketCatalog(view).filter(item=>gradeFilter==='all'||item.gear&&'grade' in item.gear&&item.gear.grade===gradeFilter),[view,gradeFilter]);
  const normalizedQuery=query.trim().toLowerCase();
  const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
@@ -294,7 +295,8 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
      <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
      <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button>
     </div>
-    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
+    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter('all');setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
+    {category==='equipment'&&<div className="tc-market-grade-filters" aria-label="장비 등급">{[['all','전체'],['common','일반'],['uncommon','고급'],['rare','희귀'],['heroic','영웅'],['legendary','전설']].map(([key,label])=><button key={key} className={'grade-'+key+(gradeFilter===key?' active':'')} onClick={()=>{setGradeFilter(key);setPage(0);}}>{label}</button>)}</div>}
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
       const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);

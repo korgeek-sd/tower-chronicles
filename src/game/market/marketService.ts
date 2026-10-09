@@ -117,6 +117,17 @@ export function marketCatalog(s:GameState){
  });
  return [...known.values()];
 }
+/** Current combat catalog; legacy orders remain accessible through orders/storage. */
+export function currentMarketCatalog(s:GameState):MarketItem[]{
+ const catalog=marketCatalog(s);
+ for(const id of ['split_stone','job_draw_ticket'])if(!catalog.some(item=>item.id==='other:'+id))catalog.push({id:'other:'+id,name:id==='job_draw_ticket'?'직능 뽑기권':'분해석',available:0,category:'other',description:'거래 가능한 아이템입니다.'});
+ return catalog.filter(item=>item.modernEquipment||['material:ore:1','material:leather:1','other:split_stone','other:job_draw_ticket'].includes(item.id)).map(item=>{
+  if(item.id==='material:ore:1')return {...item,name:'철광석',description:'원정에서 획득한 제작 재료입니다.'};
+  if(item.id==='material:leather:1')return {...item,name:'가죽',description:'원정에서 획득한 제작 재료입니다.'};
+  if(item.id==='other:split_stone')return {...item,name:'분해석',category:'materials',description:'장비를 분해하여 얻는 도전권 제작 재료입니다.'};
+  return item;
+ });
+}
 function available(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.available||0;}
 function removeItem(s:GameState,itemId:string,quantity:number):Item|EquipmentItem|undefined {
  if(itemId.startsWith('gear:')){const id=itemId.slice(5),index=s.items.findIndex(i=>i.id===id);if(quantity!==1||index<0||Object.values(s.equipped).includes(id)||s.expedition)throw Error('판매할 수 없는 장비입니다.');return s.items.splice(index,1)[0];}

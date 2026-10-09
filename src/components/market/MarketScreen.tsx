@@ -2,8 +2,11 @@ import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState,MarketOrder} from '../../game/types';
 import {
  aggregateOrderBookByPrice,cancelOrder,claimAllMarketStorage,claimMarketStorage,getBestAsk,getBestBid,getMarketStorage,getMarketStorageItemCount,getMarketStorageSilver,getMyOpenOrders,
- marketCatalog,marketItemName,orderBook,placeOrder
+ currentMarketCatalog,marketItemName,orderBook,placeOrder
 } from '../../game/market/marketService';
+import {EquipmentArt} from '../inventory/EquipmentArt';
+import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
+import type {EquipmentKind,EquipmentGrade} from '../../game/types';
 import {marketTradesForPreview} from './demoTrades';
 import {Glyph,Pager,Screen,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
@@ -20,6 +23,7 @@ const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']]
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['other','기타']];
 const ranges:[RangeKey,string][]=[['1H','1H'],['24H','24H'],['1W','1W'],['1M','1M'],['ALL','ALL']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
+function ProductArt({item}:{item:{category:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const categoryLabel=(c:string)=>c==='equipment'?'장비':c==='materials'?'재료':c==='skillbooks'?'스킬북':c==='tickets'?'입장권':'기타';
 const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['skillbooks','tickets','other'].includes(entryCategory));
@@ -68,7 +72,8 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
  useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
 
- const catalog=useMemo(()=>marketCatalog(game),[game]);
+ const [gradeFilter,setGradeFilter]=useState('all');
+ const catalog=useMemo(()=>currentMarketCatalog(game).filter(item=>gradeFilter==='all'||item.gear&&'grade' in item.gear&&item.gear.grade===gradeFilter),[game,gradeFilter]);
  const normalizedQuery=query.trim().toLowerCase();
  const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE)),safeMarketPage=Math.min(page,marketPages-1),shown=pageSlice(filtered,safeMarketPage);
@@ -133,7 +138,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
   return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
    <div className="tc-market-v4-trade">
     <section className="tc-market-v4-tradehead">
-     <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
+     <span className="tc-market-v2-icon"><ProductArt item={item}/></span>
      <div><small>{categoryLabel(item.category)}</small><b>{item.name}</b><span>최근 체결 {money(current)}</span></div>
      <strong>{side==='BUY'?game.silver.toLocaleString()+' S':'보유 '+item.available+'개'}</strong>
     </section>
@@ -174,7 +179,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
    <div className="tc-market-v2-detail tc-market-v4-detail">
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">
-      <span className="tc-market-v2-icon"><Glyph name={categoryGlyph(item.category)}/></span>
+      <span className="tc-market-v2-icon"><ProductArt item={item}/></span>
       <div><b>{item.name}</b><small>{categoryLabel(item.category)} · 보유 {item.available}</small></div>
      </div>
      <div className="tc-market-v3-current"><small>최근 체결가</small><b>{money(current)}</b><span className={trendClass(overviewTrend.delta)}>{trendLabel(overviewTrend.delta)}</span></div>
@@ -193,7 +198,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
     </section>
 
     <section className="tc-market-v4-holding">
-     <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(item.category)}/></span>
+     <span className="tc-market-v2-mini"><ProductArt item={item}/></span>
      <div><b>{item.name}</b><small>내 보유 {item.available}개</small></div>
      <div className="value"><b>{money(estimated)}</b><small>평가액</small></div>
     </section>
@@ -222,12 +227,13 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
      <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
      <small>LOCAL</small>
     </div>
-    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setPage(0);}}>{label}</button>)}</div>
+    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter('all');setPage(0);}}>{label}</button>)}</div>
+    {category==='equipment'&&<div className="tc-market-grade-filters" aria-label="장비 등급">{[['all','전체'],['common','일반'],['uncommon','고급'],['rare','희귀'],['heroic','영웅'],['legendary','전설']].map(([key,label])=><button key={key} className={'grade-'+key+(gradeFilter===key?' active':'')} onClick={()=>{setGradeFilter(key);setPage(0);}}>{label}</button>)}</div>}
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
       const ask=getBestAsk(game,entry.id),bid=getBestBid(game,entry.id),trend=trendByItem.get(entry.id)??makeTrend([]);
       return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
-       <span className="tc-market-v2-mini"><Glyph name={categoryGlyph(entry.category)}/></span>
+       <span className="tc-market-v2-mini"><ProductArt item={entry}/></span>
        <span className="name"><b>{entry.name}</b><small>{categoryLabel(entry.category)} · 보유 {entry.available}</small></span>
        <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
        <span className="tc-market-v3-rowprice"><b>{money(ask??bid)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>
