@@ -25,3 +25,8 @@ test('hunting map ascends from plains to ruins and home exposes matching shortcu
 });
 
 test('home has a hunting facility button using the bestiary facility treatment',()=>{const html=renderToStaticMarkup(React.createElement(HomeScreen,{game:initialState(),onMove:()=>{},onOpenJobs:()=>{}}));assert.match(html,/data-facility="hunt"/);assert.match(html,/data-facility="bestiary"/);});
+
+test('map nodes alternate edges and keep map artwork visible',()=>{
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:initialHuntingState(0),now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.match(html,/tc-hunt-node[^"]*edge-right/);assert.match(html,/tc-hunt-node[^"]*edge-left/);
+});

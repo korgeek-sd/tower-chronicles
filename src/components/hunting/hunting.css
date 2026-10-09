@@ -20,3 +20,17 @@
 .tc-hunt-result-dialog{width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow-y:auto;background:#151410;color:#eee8db;border:1px solid #a48755;padding:12px}.tc-hunt-result-dialog::backdrop{background:#000c}.tc-hunt-result-dialog[open]{display:flex;flex-direction:column;gap:10px}.tc-hunt-result-dialog .tc-hunt-fighter{flex:none;min-height:130px}.tc-hunt-result-dialog .tc-hunt-art img{height:100%}.tc-hunt-result-dialog button{min-height:44px}.tc-hunt-heading>span{margin-left:auto;color:#dacba8;font-size:14px}.tc-hunt-heading{gap:8px}
 @media(max-height:740px){.tc-hunt-world{min-height:240px}.tc-hunt-destination{padding:6px 10px}.tc-hunt-destination h2{font-size:16px}.tc-hunt-node strong{font-size:13px}.tc-hunt-node>span{padding:3px 8px}}
 @media(max-height:580px){.tc-main.tc-hunt-main{overflow-y:auto}.tc-main.tc-hunt-main>.tc-hunt{height:auto;min-height:100%;overflow:visible}.tc-hunt-world{flex:none;height:270px}}
+
+/* Small visible nameplates, full-size invisible touch targets; keep the map centre clear. */
+.tc-hunt-world .tc-hunt-node{gap:5px;max-width:47%;min-height:44px;line-height:1.15}
+.tc-hunt-world .tc-hunt-node.edge-right{right:5%;left:auto}
+.tc-hunt-world .tc-hunt-node.edge-left{left:5%;right:auto;flex-direction:row-reverse;text-align:right}
+.tc-hunt-world .tc-hunt-node>i{width:12px;height:12px;border-width:1px;box-shadow:0 0 0 2px #19120bd9}
+.tc-hunt-world .tc-hunt-node>span{padding:3px 6px;background:linear-gradient(90deg,#0c0b09bd,#0c0b098a);border:1px solid #9c825844;box-shadow:none}
+.tc-hunt-world .tc-hunt-node strong{font-size:12px;line-height:1.2;font-weight:600}
+.tc-hunt-world .tc-hunt-node small{font-size:10px;line-height:1.25;color:#e0d6c3}
+.tc-hunt-world .tc-hunt-node.selected>span{background:#4d2015c9;border-color:#d8b26d}
+.tc-hunt-world .tc-hunt-node.selected>i{box-shadow:0 0 0 2px #5e3e1c,0 0 9px #edb643}
+.tc-hunt-destination{padding:7px 10px}.tc-hunt-destination h2{font-size:16px}.tc-hunt-heading h1{font-size:20px}
+.tc-hunt>.tc-hunt-log-button{min-height:44px;font-size:12px;padding:4px 10px}
+@media(min-width:500px){.tc-hunt-world .tc-hunt-node strong{font-size:14px}.tc-hunt-world .tc-hunt-node small{font-size:12px}}
