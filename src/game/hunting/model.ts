@@ -1,10 +1,12 @@
 import type {Tower} from '../types';
-export type HuntMapId='plains'|'forest'|'mine';
+export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
 export const HUNT_MAPS=[
- {id:'plains' as const,name:'평야',tower:'leather' as Tower,monsterId:'hide_gnawer',monsterName:'가죽 갉는 하이에나',hp:90,attack:12,defense:5,silver:35,exp:20,materialName:'1T 가죽'},
- {id:'forest' as const,name:'숲',tower:'leather' as Tower,monsterId:'thorn_jackal',monsterName:'가시 자칼',hp:130,attack:18,defense:8,silver:55,exp:30,materialName:'1T 가죽'},
- {id:'mine' as const,name:'광산',tower:'ore' as Tower,monsterId:'goblin_miner',monsterName:'고블린 광부',hp:180,attack:24,defense:14,silver:80,exp:45,materialName:'1T 철광석'},
+ {id:'plains' as const,name:'외곽 평야',recommendedLevel:'1–20',tower:'leather' as Tower,monsterId:'hide_gnawer',monsterName:'가죽 갉는 하이에나',hp:90,attack:12,defense:5,silver:35,exp:20,materialName:'1T 가죽'},
+ {id:'forest' as const,name:'어두운 숲',recommendedLevel:'21–40',tower:'leather' as Tower,monsterId:'thorn_jackal',monsterName:'가시 자칼',hp:130,attack:18,defense:8,silver:55,exp:30,materialName:'1T 가죽'},
+ {id:'mine' as const,name:'폐광',recommendedLevel:'41–60',tower:'ore' as Tower,monsterId:'goblin_miner',monsterName:'고블린 광부',hp:180,attack:24,defense:14,silver:80,exp:45,materialName:'1T 철광석'},
+ {id:'fortress' as const,name:'무너진 성채',recommendedLevel:'61–80',tower:'leather' as Tower,monsterId:'pack_vanguard',monsterName:'무리 선봉',hp:250,attack:32,defense:20,silver:110,exp:65,materialName:'1T 가죽'},
+ {id:'ruins' as const,name:'심층 유적',recommendedLevel:'81–100',tower:'leather' as Tower,monsterId:'fang_nest',monsterName:'송곳니 둥지',hp:340,attack:42,defense:28,silver:150,exp:90,materialName:'1T 가죽'},
 ];
 /** Current combat uses six stats; legacy expedition Stats remains save-compatible. */
 export interface CombatStats {hp:number;attack:number;defense:number;critChance:number;critDamage:number;armorPenetration:number}
@@ -23,7 +25,7 @@ export function recoverVitality(state:HuntingState,now:number):HuntingState {
  const vitality=Math.min(VITALITY_CAP,state.vitality+ticks);
  return {...state,vitality,recoveredAt:vitality===VITALITY_CAP?Math.max(now,state.recoveredAt):state.recoveredAt+ticks*VITALITY_INTERVAL};
 }
-export const huntingLevel=(exp:number)=>1+Math.floor(Math.sqrt(Math.max(0,exp)/100));
+export const huntingLevel=(exp:number)=>Math.min(100,1+Math.floor(Math.sqrt(Math.max(0,exp)/100)));
 export const damage=(attack:number,defense:number,multiplier=1,armorPenetration=0)=>Math.max(1,Math.floor(attack*multiplier*100/(100+Math.max(0,defense)*(1-Math.max(0,Math.min(1,armorPenetration))))));
 /** Guest-only resolver. Online results always originate in hunt_once. */
 export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random){

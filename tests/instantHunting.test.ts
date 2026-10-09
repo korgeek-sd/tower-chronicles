@@ -23,7 +23,7 @@ test('empty vitality, active clock reversal and invalid map cannot grant hunting
 test('defeat pays nothing and consumes vitality',()=>{
  const r=resolveHunt(initialHuntingState(0),'mine',{hp:1,attack:1,defense:0,speed:1},[],0,()=>0.5);
  assert.equal(r.result.outcome,'defeat');assert.equal(r.result.silver,0);assert.equal(r.result.exp,0);assert.equal(r.result.materialCount,0);assert.equal(r.state.vitality,99);
- assert.equal(HUNT_MAPS.length,3);
+ assert.equal(HUNT_MAPS.length,5);
 });
 
 test('six combat stats apply critical damage and percentage penetration',()=>{
