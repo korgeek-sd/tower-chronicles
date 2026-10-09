@@ -6,12 +6,12 @@ const inventory=readFileSync(new URL('../src/components/inventory/InventoryScree
 const detail=readFileSync(new URL('../src/components/inventory/InventoryDetailSheet.tsx',import.meta.url),'utf8');
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 
-test('INVENTORY UI 0.1.81 01: quartermaster loadout keeps seven live equipment slots',()=>{
+test('INVENTORY UI 0.1.81 01: storage fills inventory without the retired character and slot panel',()=>{
  assert.match(inventory,/NOVAR QUARTERMASTER \/ LOADOUT/);
  assert.match(inventory,/equippedCount/);
- assert.match(inventory,/원정 장비/);
- assert.match(inventory,/Object\.keys\(SLOTS\)/);
- assert.match(inventory,/tc-equip-slot/);
+ assert.match(inventory,/tc-storage-only/);
+ assert.match(inventory,/자동 장착/);
+ assert.doesNotMatch(inventory,/tc-loadout-stage|tc-loadout-character|tc-equip-slot/);
 });
 
 test('INVENTORY UI 0.1.81 02: storage grid exposes grade enhancement and comparison state',()=>{
