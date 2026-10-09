@@ -3368,3 +3368,8 @@ html,body,#root{
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-icon>svg.tc-equipment-upgrade{position:absolute;left:0;right:auto;top:auto;bottom:0;width:14px;height:14px;padding:0;color:#8bd47c;background:transparent;border:0;z-index:2}
 
 .tc-unified-inventory .tc-inventory-v081.tc-storage-only{grid-template-rows:minmax(0,1fr)}
+
+/* Dense inventory: six columns and as many compact rows as fit. */
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid.tc-storage-dense{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid.tc-storage-dense>.tc-storage-item{width:100%;height:100%;max-height:100%;aspect-ratio:auto;align-self:stretch;justify-self:stretch;padding:2px}
+.tc-unified-inventory .tc-inventory-v081 .tc-storage-dense .tc-storage-grade{font-size:7px}
