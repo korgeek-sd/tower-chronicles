@@ -39,3 +39,20 @@ test('entering hunting keeps stored results hidden and uses a page instead of a 
  assert.doesNotMatch(html,/<dialog[^>]*aria-label="사냥 결과"/);
  assert.match(html,/<section[^>]*aria-label="사냥 결과"[^>]*hidden=""/);
 });
+
+test('result layout integrates records in rewards and provides the same-region next battle dock',()=>{
+ const h=resolveHunt(initialHuntingState(0),'forest',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.doesNotMatch(html,/스킬 세팅/);
+ assert.match(html,/tc-hunt-repeat-dock/);assert.match(html,/다음 전투/);
+ assert.match(html,/aria-label="다음 전투 사냥터"/);
+ assert.match(html,/tc-hunt-result-records/);
+});
+
+test('repeat battle is disabled while busy, out of vitality, or on an expedition',()=>{
+ const game=initialState(),h=resolveHunt(initialHuntingState(0),'forest',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
+ for(const props of [{game,hunting:h,busy:true},{game,hunting:{...h,vitality:0},busy:false},{game:{...game,expedition:{} as any},hunting:h,busy:false}]){
+  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{...props,now:0,onHunt:()=>{},onSettings:()=>{}}));
+  assert.match(html,/<button class="tc-hunt-next [^"]*"[^>]*disabled=""/);
+ }
+});
