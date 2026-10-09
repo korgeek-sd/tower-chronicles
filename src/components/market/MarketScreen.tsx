@@ -218,7 +218,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  }
 
  return <Screen eyebrow="SILVER SCALE / LOCAL" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
-  <div className={"tc-market-v2 tc-market-v3 tc-market-v4 tab-"+tab}>
+  <div className={"tc-market-v2 tc-market-v3 tc-market-v4"+(category==='equipment'?" has-grade-filter":"")+" tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);}} label="거래소 메뉴"/>
 
    {tab==='market'&&<>

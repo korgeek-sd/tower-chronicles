@@ -286,7 +286,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  }
 
  return <Screen eyebrow="SILVER SCALE / ONLINE" title="은저울 거래소" meta={<span>{snapshot.wallet.silver.toLocaleString()} S</span>}>
-  <div className={"tc-market-v2 tc-market-v3 tc-market-v4 tab-"+tab+(tradePulse?" tc-market-trade-pulse":"")}>
+  <div className={"tc-market-v2 tc-market-v3 tc-market-v4"+(category==='equipment'?" has-grade-filter":"")+" tab-"+tab+(tradePulse?" tc-market-trade-pulse":"")}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);setError('');}} label="온라인 거래소 메뉴"/>
 
    {tab==='market'&&<>
