@@ -51,7 +51,7 @@ import {BestiaryScreen} from './components/bestiary/BestiaryScreen';
 
 import {
   HomeScreen,TowersScreen,FloorScreen,SkillsScreen,
-  CosmeticsScreen,ShopScreen,ExpeditionCompleteScreen,type AppPage
+  CosmeticsScreen,ShopScreen,type AppPage
 } from './components/mobile/CoreScreens';
 import {Glyph} from './ui/mobile';
 import './mobile-game.css';
@@ -82,7 +82,8 @@ function App(){
  const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
  const [settingsOpen,setSettingsOpen]=useState(false);
  const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
- const [page,setPage]=useState<AppPage>(game.expedition||game.lastExpedition?'battle':'home');
+ const [page,setPage]=useState<AppPage>(game.expedition?'battle':'home');
+ useEffect(()=>{if(page==='battle'&&!game.expedition)setPage('towers');},[page,game.expedition]);
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
  const [marketIntent,setMarketIntent]=useState<MarketIntent|null>(null);
  const [inventoryReturnKey,setInventoryReturnKey]=useState<string|null>(null);
@@ -170,7 +171,7 @@ function App(){
  useEffect(()=>{const before=getStoredSession();const session=consumeOAuthRedirect();setOnlineSession(session);if(session&&!before)setGame(s=>({...s,notice:'Google 로그인 완료 · 진행 상황이 자동으로 동기화됩니다.'}));},[]);
 
  useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
- useEffect(()=>{if(wasExpedition.current&&!game.expedition&&game.lastExpedition)setPage('battle');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
+ useEffect(()=>{if(wasExpedition.current&&!game.expedition)setPage('home');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
 
  useEffect(()=>{
   const lease=gameplayLeaseRef.current,receipt=game.lastExpedition;
@@ -278,7 +279,7 @@ function App(){
  function openMarketFromEnhancement(intent:MarketIntent){if(exp?.pendingRevival)return;setMarketIntent(intent);setPage('market');}
  function returnToEnhancement(itemId:string){setMarketIntent(null);setEnhancementInitialId(itemId);setPage('enhancement');}
  function openJobs(tab:JobTab){if(exp?.pendingRevival)return;setJobsEntryTab(tab);setPage('jobs');}
- function acceptImportedSave(next:GameState){if(onlineSession&&gameSessionPhaseRef.current!=='active')return;blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('복구');setPage(next.expedition||next.lastExpedition?'battle':'home');}
+ function acceptImportedSave(next:GameState){if(onlineSession&&gameSessionPhaseRef.current!=='active')return;blocked.current=false;setStorageError('');stateRef.current=next;flushSync(()=>setGame(next));setSaved('복구');setPage(next.expedition?'battle':'home');}
  function commitEvent(action:(state:GameState)=>GameState){if(blocked.current)throw Error('저장 차단');if(getStoredSession()&&gameSessionPhaseRef.current!=='active')throw Error('다른 기기에서 플레이 중입니다.');const current=stateRef.current,next=action(current);if(next===current)return;createRepository(gameStorage).save(next);stateRef.current=next;flushSync(()=>setGame(next));}
  async function commitOnlineEventChoice(instance:string,choice:string){const lease=gameplayLeaseRef.current,expedition=stateRef.current.expedition;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease||!expedition){commitEvent(s=>resolveEvent(s,instance,choice));return;}try{const eventId=expedition.events.pendingEvent?.eventId;if(eventId==='resource_stronghold'&&choice==='claim'){const pvp=await requestResourceStronghold(lease,expedition.tower,expedition.floor);setStrongholdPvp(pvp);setCloudSyncMessage(pvp.role==='OWNER'?'자원거점 점령을 서버에서 시작했습니다.':'자원거점 쟁탈 요청을 서버에 등록했습니다.');await restoreServerRun(lease);return;}const result=await resolveOnlineExplorationEvent(lease,onlineRunVersion.current,choice);onlineRunVersion.current=result.runVersion;if(result.playerHp===0&&!result.pendingRevival){await settleOnlineRun('dead');return;}await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 이벤트 처리에 실패했습니다.');}}
  async function settleOnlineStrongholdNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{await settleOnlineResourceStronghold(lease,onlineRunVersion.current);await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'자원거점 정산에 실패했습니다.');}}
@@ -308,7 +309,7 @@ function App(){
   lastPersistedGame.current=stableStringify(next);
   setSaved(remote?'클라우드':'새 계정');
   setStorageError('');setCloudSyncStatus('synced');setCloudSyncMessage(remote?'이 계정의 저장 상태를 불러왔습니다.':'새 계정 저장을 생성했습니다.');
-  setPage(next.lastExpedition?'battle':'home');
+  setPage(next.expedition?'battle':'home');
  }
  async function loseGameplaySession(message:string){if(gameSessionPhaseRef.current==='locked'&&!gameplayLeaseRef.current)return;if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}gameplayLeaseRef.current=null;setGameplayLease(null);setGameSessionPhase('locked');setGameSessionMessage(message);setCloudSyncStatus('synced');setCloudSyncMessage('다른 기기의 플레이 세션이 활성화되었습니다.');await applyLatestCloud();}
  async function gracefulHandoff(){const lease=gameplayLeaseRef.current;if(!lease||handoffBusy.current)return;handoffBusy.current=true;setGameSessionPhase('handoff');setGameSessionMessage('현재 진행 상황을 저장한 뒤 다른 기기로 플레이를 넘기고 있습니다.');try{const result=await reconcileCloudState(stateRef.current,lease);if(result.action==='pulled'){createRepository(gameStorage).save(result.state);stateRef.current=result.state;flushSync(()=>setGame(result.state));}if(result.record)setCloudRevision(result.record.revision);await releaseGameSession(lease);}catch(error){if(!(error instanceof CloudSessionLostError)&&!(error instanceof GameSessionLostError))setCloudSyncMessage(error instanceof Error?error.message:'마지막 저장을 확인하지 못했습니다.');}finally{gameplayLeaseRef.current=null;setGameplayLease(null);setGameSessionPhase('locked');setGameSessionMessage('다른 기기에서 플레이가 시작되었습니다. 이 기기에서는 진행할 수 없습니다.');handoffBusy.current=false;}}
@@ -347,7 +348,7 @@ function App(){
   try{
    const record=await settleOnlineExpedition(lease,outcome);
    createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));
-   setCloudRevision(record.revision);setSaved('서버 정산');setCloudSyncStatus('synced');setCloudSyncMessage(outcome==='returned'?'안전 귀환을 서버에서 정산했습니다.':'원정 실패를 서버에서 정산했습니다.');setPage('battle');
+   setCloudRevision(record.revision);setSaved('서버 정산');setCloudSyncStatus('synced');setCloudSyncMessage(outcome==='returned'?'안전 귀환을 서버에서 정산했습니다.':'원정 실패를 서버에서 정산했습니다.');setPage('home');
   }finally{serverEconomyBusy.current=false;}
  }
  async function selectOnlineJobNow(jobId:string){
@@ -423,7 +424,7 @@ function App(){
     onAbandon={()=>void abandonStrongholdPvpNow()} onClose={()=>setStrongholdPanelOpen(false)}
    />}
    {page==='battle'&&exp&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!eventOpen&&!strongholdPanelOpen&&<button className="tc-stronghold-pvp-entry" onClick={()=>setStrongholdPanelOpen(true)}>자원거점</button>}
-   {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>void commitOnlineEventChoice(instance,choice)} onContinue={instance=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)void continueOnlineExplorationNow();else commitEvent(s=>continueEvent(s,instance));}} onRevival={use=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use));else setGame(s=>resolveRevivalDecision(s,use));}}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>void abandonOnlineStrongholdNow()}/>):<ExpeditionCompleteScreen game={game} onInventory={()=>setPage('inventory')} onTowers={()=>setPage('towers')}/>)}
+   {page==='battle'&&(exp?(eventOpen?<EventScreen key={exp.events.pendingEvent!.instanceId+exp.events.pendingEvent!.state} game={game} now={now} onHome={()=>setPage('home')} onChoice={(instance,choice)=>void commitOnlineEventChoice(instance,choice)} onContinue={instance=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)void continueOnlineExplorationNow();else commitEvent(s=>continueEvent(s,instance));}} onRevival={use=>{if(onlineSession&&gameSessionPhaseRef.current==='active'&&gameplayLeaseRef.current)commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use));else setGame(s=>resolveRevivalDecision(s,use));}}/>:<BattleScreen game={game} now={now} onHome={()=>setPage('home')} onBasicAttack={()=>commitOnlineCombatAction('BASIC',undefined,basicAttack)} onSkill={id=>commitOnlineCombatAction('SKILL',id,s=>useBattleSkill(s,id))} onPotion={p=>commitOnlineCombatAction('POTION',p,s=>useBattlePotion(s,p))} onFlee={()=>commitOnlineCombatAction('FLEE',undefined,flee)} onRevival={use=>commitOnlineCombatAction('REVIVAL',use?'use':'decline',s=>resolveRevivalDecision(s,use))} onAbandonStronghold={()=>void abandonOnlineStrongholdNow()}/>):null)}
    {page==='inventory'&&<InventoryScreen key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)+':'+gameSessionPhase} userId={onlineSession?.userId??null} game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onEnhancement={openEnhancement} onMarket={openMarketFromInventory} initialSelected={inventoryReturnKey} onInitialSelectedConsumed={()=>setInventoryReturnKey(null)}/>}
    {page==='skills'&&<SkillsScreen game={game} setGame={setGame}/>}
    {page==='enhancement'&&<p>장비 강화는 종료되었습니다.</p>}
