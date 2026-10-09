@@ -3366,3 +3366,5 @@ html,body,#root{
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-grid>.tc-storage-item{min-height:0;max-height:100%;width:min(calc((100cqw - 12px)/4),calc((100cqh - 4px)/2));overflow:hidden}
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-grid.tc-storage-one-row>.tc-storage-item{width:min(calc((100cqw - 12px)/4),100cqh)}
 .tc-unified-inventory .tc-inventory-v081 .tc-storage-item-compact>.tc-storage-icon>svg.tc-equipment-upgrade{position:absolute;left:0;right:auto;top:auto;bottom:0;width:14px;height:14px;padding:0;color:#8bd47c;background:transparent;border:0;z-index:2}
+
+.tc-unified-inventory .tc-inventory-v081.tc-storage-only{grid-template-rows:minmax(0,1fr)}

@@ -30,12 +30,12 @@ test('inventory slot artwork can fill its slot without changing framed detail ar
  assert.match(slot,/data-craft-art="herb"/);
 });
 
-test('inventory keeps its loadout layout while item slots show quantity and accessible equipment status',()=>{
+test('inventory item slots show quantity and equipped status without a loadout panel',()=>{
  const game=initialState();
  game.equipmentItems=[{id:'compact-armor',kind:'return_corps_plate_armor',grade:'rare',enhancement:3}];
  game.equipped.armor='compact-armor';
  const html=renderToStaticMarkup(React.createElement(InventoryScreen,{game,setGame:()=>{},onEnhancement:()=>{}}));
- assert.match(html,/tc-loadout-stage/);
+ assert.doesNotMatch(html,/tc-loadout-stage/);
  assert.match(html,/tc-storage-grid/);
  assert.doesNotMatch(html,/tc-storage-count/);
  assert.match(html,/aria-label="[^"]*1개[^"]*희귀[^"]*장착 중/);
