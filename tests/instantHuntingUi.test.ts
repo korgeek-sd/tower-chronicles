@@ -32,3 +32,10 @@ test('five illustrated hunting cards replace the world-map overlay',()=>{
  assert.doesNotMatch(html,/tc-hunt-world|tc-hunt-node/);
  assert.match(html,/background-position/);
 });
+
+test('entering hunting keeps stored results hidden and uses a page instead of a result popup',()=>{
+ const game=initialState(),h=resolveHunt(initialHuntingState(0),'plains',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game,hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.doesNotMatch(html,/<dialog[^>]*aria-label="사냥 결과"/);
+ assert.match(html,/<section[^>]*aria-label="사냥 결과"[^>]*hidden=""/);
+});

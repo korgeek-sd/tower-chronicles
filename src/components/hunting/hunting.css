@@ -23,3 +23,12 @@
 .tc-hunt>.tc-hunt-log-button{min-height:44px;font-size:12px;padding:4px 10px}
 @media(max-height:740px){.tc-hunt-cards{min-height:244px}.tc-hunt .tc-hunt-card{padding:5px 12px}.tc-hunt-card strong{font-size:15px}.tc-hunt-card small{margin-top:2px;font-size:11px}}
 @media(max-height:580px){.tc-main.tc-hunt-main{overflow-y:auto}.tc-main.tc-hunt-main>.tc-hunt{height:auto;min-height:100%;overflow:visible}.tc-hunt-cards{flex:none;height:280px}}
+
+.tc-hunt-selection,.tc-hunt-result-page{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0}
+.tc-hunt-selection[hidden],.tc-hunt-result-page[hidden]{display:none}
+.tc-hunt-result-page>.tc-hunt-log-heading{flex-shrink:0;margin:0;gap:8px}
+.tc-hunt-result-page>.tc-hunt-log-heading h2{font-size:16px}
+.tc-hunt-result-page>.tc-hunt-log-heading button{padding:4px 10px}
+.tc-hunt-result-page>.tc-hunt-result,.tc-hunt-result-page>.tc-hunt-log-button{flex-shrink:0}
+.tc-hunt-selection>.tc-hunt-log-button{flex-shrink:0;min-height:44px}
+@media(max-height:580px){.tc-hunt-result-page>.tc-hunt-fighter{flex:none;min-height:130px}}
