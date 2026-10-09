@@ -34,7 +34,7 @@
 @media(max-height:580px){.tc-hunt-result-page>.tc-hunt-fighter{flex:none;min-height:130px}}
 
 /* Repeat hunting: reward-integrated records and a bottom destination dock. */
-.tc-hunt-result-page>.tc-hunt-result{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px}
+.tc-hunt-result-page>.tc-hunt-result{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px}
 .tc-hunt .tc-hunt-result-records{align-self:stretch;padding:4px 9px;border:0;border-left:1px solid #554832;border-radius:0;background:transparent;color:#e0c898;font-size:12px}
 .tc-hunt-result-records span{display:block;margin-top:4px;font-size:10px;color:#aaa69b}
 .tc-hunt-repeat-dock{flex-shrink:0;padding:10px;border-color:#8a7048;background-repeat:no-repeat;overflow:hidden}
@@ -45,3 +45,9 @@
 .tc-hunt-repeat-dock>p{margin:5px 0 0;font-size:11px;color:#efb0a6}
 @media(max-width:380px){.tc-hunt-result-page>.tc-hunt-result{gap:6px}.tc-hunt-result-page>.tc-hunt-result h2{font-size:18px}.tc-hunt .tc-hunt-result-records{font-size:11px;padding:4px 6px}.tc-hunt-repeat-dock>div strong{font-size:14px}}
 @media(max-height:700px){.tc-hunt-repeat-dock{padding:7px}.tc-hunt-repeat-dock>div{margin-bottom:5px}.tc-hunt .tc-hunt-next{min-height:48px}}
+
+.tc-hunt .tc-hunt-records-button{flex-shrink:0;min-height:44px;padding:6px 12px;background:#24221b;border:1px solid var(--hunt-border);border-radius:7px;font-size:13px}
+.tc-hunt .tc-hunt-next{min-height:44px;height:44px;padding:4px 12px}
+.tc-hunt-next strong{font-size:17px}
+.tc-hunt-repeat-dock{padding:7px 9px}
+.tc-hunt-repeat-dock>div{margin-bottom:5px}
