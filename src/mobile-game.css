@@ -3380,3 +3380,14 @@ html,body,#root{
 .tc-market-v4 .tc-market-grade-filters button{height:28px;min-height:0;max-height:28px;line-height:20px;padding:3px 2px;box-sizing:border-box;font-size:10px;}
 @media(max-height:740px){.tc-market-v4.tab-market.has-grade-filter{grid-template-rows:40px 37px 28px 32px minmax(0,1fr) 26px;}.tc-market-v4 .tc-market-grade-filters{height:32px;padding:2px 0;}}
 @media(max-height:660px){.tc-market-v4.tab-market.has-grade-filter{grid-template-rows:38px 33px 25px 30px minmax(0,1fr) 23px;}.tc-market-v4 .tc-market-grade-filters{height:30px;padding:1px 0;}}
+
+/* Order summary stays one line; the order list owns remaining height. */
+.tc-market-v4.tab-orders{grid-template-rows:44px 34px minmax(0,1fr) 30px;gap:6px;}
+.tc-market-v4.tab-orders.has-order-policy{grid-template-rows:44px auto 34px minmax(0,1fr) 30px;}
+.tc-market-v4.tab-orders>.tc-floor-risk{margin:0;padding:6px;font-size:7px;line-height:1.4;}
+.tc-market-v4.tab-orders>.tc-market-v2-status{height:34px;min-height:0;}
+.tc-market-v4.tab-orders>.tc-market-v2-status>div{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px 5px;min-width:0;}
+.tc-market-v4.tab-orders>.tc-market-v2-status b{margin:0;}
+.tc-market-v4.tab-orders>.tc-market-v2-orders>.tc-market-v2-empty{grid-row:1/-1;display:grid;place-items:center;min-height:0;}
+@media(max-height:740px){.tc-market-v4.tab-orders{grid-template-rows:40px 30px minmax(0,1fr) 26px;gap:4px;}.tc-market-v4.tab-orders.has-order-policy{grid-template-rows:40px auto 30px minmax(0,1fr) 26px;}.tc-market-v4.tab-orders>.tc-market-v2-status{height:30px;}}
+@media(max-height:660px){.tc-market-v4.tab-orders{grid-template-rows:38px 28px minmax(0,1fr) 23px;gap:3px;}.tc-market-v4.tab-orders.has-order-policy{grid-template-rows:38px auto 28px minmax(0,1fr) 23px;}.tc-market-v4.tab-orders>.tc-market-v2-status{height:28px;}}
