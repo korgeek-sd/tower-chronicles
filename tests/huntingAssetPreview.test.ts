@@ -5,7 +5,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {assetUrl,playerGraphicForJob} from '../src/game/data/graphics';
 import {initialState} from '../src/game/engine/state';
-import {initialHuntingState} from '../src/game/hunting/model';
+import {initialHuntingState,resolveHunt} from '../src/game/hunting/model';
 import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
 import {HuntingScreen} from '../src/components/hunting/HuntingScreen';
 
@@ -46,4 +46,22 @@ test('active selected job is used in normal hunting battles; image comparison is
  assert.equal(playerGraphicForJob('duelist',game.cosmetics.selectedAppearanceId).image.idle,'assets/characters/jobs/duelist.webp');
  assert.match(normal,/assets\/characters\/jobs\/duelist\.webp/);
  assert.match(normal,/aria-pressed="false"/);
+
+});
+
+test('actual compact monster panel shows name, ATK, DEF and HP before any skill details',()=>{
+ const h=resolveHunt(initialHuntingState(0),'plains',{hp:900,attack:300,defense:80},['heavy'],0,()=>0).state;
+ const result=h.lastResult!;
+ const markup=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{},previewAppearance:false}));
+ const card=markup.match(/<article[^>]*data-monster-id="[^"]+"[^>]*>.*?<\/article>/)?.[0]??'';
+ assert.ok(card.length>0,'opponent card must render');
+ const posName=card.indexOf('<h2>'+result.monster!.name+'</h2>');
+ const posStats=card.indexOf('공격 <b>'+result.monster!.attack+'</b>');
+ const posHP=card.indexOf('aria-label="'+result.monster!.name+' HP"');
+ assert.ok(posName>=0&&posStats>posName&&posHP>posStats,'monster name/stats/HP must appear in that order');
+ assert.match(card,/스킬 보기/);
+ assert.doesNotMatch(card,/tc-hunt-monster-skill/);
+ assert.match(markup,/aria-label="[^"]+ 스킬 정보"/);
+ assert.match(markup,/몬스터 스킬/);
+ for(const skill of result.monster!.skills)assert.ok(markup.includes(skill.name));
 });

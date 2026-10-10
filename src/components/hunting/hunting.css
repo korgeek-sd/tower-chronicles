@@ -105,3 +105,21 @@
 .tc-hunt-art-preview-grid .tc-hunt-hp>div:first-child{font-size:10px;margin-bottom:4px;gap:4px}
 .tc-hunt-art-preview-grid .tc-hunt-hp b{font-size:10px;white-space:nowrap}
 .tc-hunt-art-preview-grid .tc-hunt-hp [role=progressbar]{height:10px}
+
+/* Compact opponent card: name, ATK, DEF and HP are always visible; skills open separately. */
+.tc-hunt-result-page>.tc-hunt-fighter.enemy .tc-hunt-fighter-info{justify-content:center;gap:10px;padding:9px 11px;overflow:hidden}
+.tc-hunt-monster-title{display:flex;align-items:center;justify-content:space-between;gap:7px;min-width:0}
+.tc-hunt-monster-title h2{display:block!important;flex:1;min-width:0;margin:0;font-size:18px;line-height:1.3;color:#ead4ba;overflow-wrap:anywhere}
+.tc-hunt .tc-hunt-skill-open{flex-shrink:0;min-height:30px;padding:4px 7px;background:#30271d;border:1px solid #675542;color:#e9d1a3;font-size:11px;white-space:nowrap}
+.tc-hunt-result-page>.tc-hunt-fighter.enemy .tc-hunt-hp{width:100%;min-width:0}
+.tc-hunt-result-page>.tc-hunt-fighter.enemy .tc-hunt-hp [role=progressbar]{height:12px}
+.tc-hunt-monster-dialog{border:1px solid #795d45;border-radius:10px;background:#181612;color:#f1e5d5;padding:14px;width:min(410px,calc(100vw - 28px));max-height:calc(100dvh - 60px);overflow-y:auto}
+.tc-hunt-monster-dialog::backdrop{background:#000c}
+.tc-hunt-monster-dialog header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.tc-hunt-monster-dialog h2{font-size:17px;margin:0}
+.tc-hunt-monster-dialog button{padding:6px 14px;min-height:40px}
+.tc-hunt-monster-ability-list{display:grid;gap:8px}
+.tc-hunt-monster-ability-list>div{padding:9px 10px;border:1px solid #453b30;border-radius:6px;background:#231e18}
+.tc-hunt-monster-ability-list strong{font-size:13px;color:#e5c991}
+.tc-hunt-monster-ability-list p{font-size:12px;color:#cbbdaa;margin:5px 0 0;line-height:1.5}
+@media(max-height:760px){.tc-hunt-result-page>.tc-hunt-fighter.enemy .tc-hunt-fighter-info{gap:6px;padding:6px 9px}.tc-hunt-monster-title h2{font-size:16px}.tc-hunt .tc-hunt-skill-open{min-height:28px}}
