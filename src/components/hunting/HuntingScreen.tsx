@@ -1,6 +1,6 @@
 import React from 'react';
 import type {GameState} from '../../game/types';
-import {HUNT_MAPS,huntingLevel,recoverVitality,VITALITY_INTERVAL,type HuntingState,type HuntMapId} from '../../game/hunting/model';
+import {HUNT_MAPS,huntingProgress,recoverVitality,VITALITY_INTERVAL,type HuntingState,type HuntMapId} from '../../game/hunting/model';
 import {stats} from '../../game/engine/state';
 import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
 import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
@@ -24,7 +24,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const logDialog=React.useRef<HTMLDialogElement>(null);
  const state=hunting?recoverVitality(hunting,now):null,result=state?.lastResult,map=HUNT_MAPS.find(m=>m.id===result?.mapId),player=result?.player??stats(game);
  const seconds=state?Math.max(0,Math.ceil((VITALITY_INTERVAL-Math.max(0,now-state.recoveredAt))/1000)):0;
- const level=huntingLevel(state?.experience??0),exp=(state?.experience??0)-(level-1)**2*100,nextExp=(level**2-(level-1)**2)*100;
+ const {level,exp,nextExp}=huntingProgress(state?.experience??0);
  const art=playerGraphicFor(game.cosmetics.selectedAppearanceId).image.idle;
  return <section className="tc-hunt" aria-label="즉시 사냥">
   <header className="tc-hunt-heading"><div><small>노바르 외곽</small><h1>{view==='result'?'사냥 결과':'사냥터'}</h1></div><span>Lv. {level}</span>{view==='result'&&<button onClick={()=>setView('regions')}>사냥터로 <span aria-hidden="true">›</span></button>}</header>

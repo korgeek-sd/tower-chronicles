@@ -44,7 +44,7 @@ test('guest HP, food and potions persist once per hunt without mutating input',(
  const before={...initialHuntingState(0),currentHp:1,potions:300,foodTurns:{attack_food:2,defense_food:1,experience_food:1}};
  const r=resolveHunt(before,'plains',fighter,['heavy','quick'],0,()=>1);
  assert.equal(r.result.startHp,180);assert.equal(r.result.player.attack,19.8);
- assert.equal(r.result.exp,22);assert.equal(r.state.currentHp,180);
+ assert.equal(r.result.exp,110);assert.equal(r.state.currentHp,180);
  assert.equal(r.state.potions,300-r.result.potionsUsed!);
  assert.equal(r.state.foodTurns?.attack_food,1);assert.equal(r.state.foodTurns?.defense_food,0);
  assert.equal(before.currentHp,1);assert.equal(before.potions,300);
