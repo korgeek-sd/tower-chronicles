@@ -32,6 +32,7 @@ test('enhance and learn actions stay outside the scrollable detail in a nonshrin
  const css=readFileSync(new URL('../src/components/skills/skillTree.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-skill-actions\{[^}]*flex-shrink:0/);
  assert.match(css,/\.tc-skill-codex-grid\{[^}]*overflow:auto/);
+ assert.match(css,/\.tc-skill-tree-detail\{[^}]*flex-shrink:1;min-height:0/);
 });
 test('learned skills show enhancement cost, next effect and +3 resource guards',()=>{
  const game=initialState();game.learned.push('sword_strike_c');game.skillBooks.sword_strike_c=10;game.market.gold=10000;
