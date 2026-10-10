@@ -2,11 +2,11 @@ import type {Tower} from '../types';
 export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
 export const HUNT_MAPS=[
- {id:'plains' as const,name:'외곽 평야',recommendedLevel:'1–19',tower:'leather' as Tower,monsterId:'hide_gnawer',monsterName:'가죽 갉는 하이에나',hp:90,attack:12,defense:5,silver:35,exp:100,materialName:'1T 가죽'},
- {id:'forest' as const,name:'어두운 숲',recommendedLevel:'20–39',tower:'leather' as Tower,monsterId:'thorn_jackal',monsterName:'가시 자칼',hp:130,attack:18,defense:8,silver:55,exp:250,materialName:'1T 가죽'},
- {id:'mine' as const,name:'폐광',recommendedLevel:'40–59',tower:'ore' as Tower,monsterId:'goblin_miner',monsterName:'고블린 광부',hp:180,attack:24,defense:14,silver:80,exp:600,materialName:'1T 철광석'},
- {id:'fortress' as const,name:'무너진 성채',recommendedLevel:'60–79',tower:'leather' as Tower,monsterId:'pack_vanguard',monsterName:'무리 선봉',hp:250,attack:32,defense:20,silver:110,exp:1400,materialName:'1T 가죽'},
- {id:'ruins' as const,name:'심층 유적',recommendedLevel:'80–100',tower:'leather' as Tower,monsterId:'fang_nest',monsterName:'송곳니 둥지',hp:340,attack:42,defense:28,silver:150,exp:3000,materialName:'1T 가죽'},
+ {id:'plains' as const,name:'외곽 평야',recommendedLevel:'1–19',tower:'leather' as Tower,monsterId:'hide_gnawer',monsterName:'가죽 갉는 하이에나',hp:90,attack:12,defense:5,silver:1000,silverMax:1200,exp:100,materialName:'1T 가죽'},
+ {id:'forest' as const,name:'어두운 숲',recommendedLevel:'20–39',tower:'leather' as Tower,monsterId:'thorn_jackal',monsterName:'가시 자칼',hp:130,attack:18,defense:8,silver:1600,silverMax:2000,exp:250,materialName:'1T 가죽'},
+ {id:'mine' as const,name:'폐광',recommendedLevel:'40–59',tower:'ore' as Tower,monsterId:'goblin_miner',monsterName:'고블린 광부',hp:180,attack:24,defense:14,silver:2500,silverMax:3100,exp:600,materialName:'1T 철광석'},
+ {id:'fortress' as const,name:'무너진 성채',recommendedLevel:'60–79',tower:'leather' as Tower,monsterId:'pack_vanguard',monsterName:'무리 선봉',hp:250,attack:32,defense:20,silver:3800,silverMax:4600,exp:1400,materialName:'1T 가죽'},
+ {id:'ruins' as const,name:'심층 유적',recommendedLevel:'80–100',tower:'leather' as Tower,monsterId:'fang_nest',monsterName:'송곳니 둥지',hp:340,attack:42,defense:28,silver:5500,silverMax:6500,exp:3000,materialName:'1T 가죽'},
 ];
 /** Current combat uses six stats; legacy expedition Stats remains save-compatible. */
 export interface CombatStats {hp:number;attack:number;defense:number;critChance:number;critDamage:number;armorPenetration:number}
@@ -73,6 +73,6 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  const postPotions=Math.min(potions,Math.ceil(player.hp-hp));potions-=postPotions;
  const recoveredHp=Math.max(1,Math.min(player.hp,hp+postPotions));
  for(const food of ['attack_food','defense_food','experience_food'] as const)foods[food]=Math.max(0,(foods[food]??0)-1);
- const result:HuntResult={startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,turns,silver:win?map.silver:0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
+ const result:HuntResult={startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,turns,silver:win?map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
  return {state:{...state,currentHp:recoveredHp,maxHp:player.hp,potions,foodTurns:foods,vitality:state.vitality-1,experience:state.experience+result.exp,mastery:state.mastery+result.mastery,lastResult:result},result};
 }

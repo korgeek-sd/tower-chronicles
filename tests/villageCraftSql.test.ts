@@ -20,6 +20,7 @@ await db.exec(readFileSync(new URL('../supabase/migrations/20261007172410_huntin
 await db.exec(readFileSync(new URL('../supabase/migrations/20261008100000_hunting_six_stats.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261009143756_hunting_world_map.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010114553_hunting_long_term_progression.sql',import.meta.url),'utf8'));
+await db.exec(readFileSync(new URL('../supabase/migrations/20261010120432_hunting_random_silver.sql',import.meta.url),'utf8'));
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
 const get=()=>call('get_village_life');const action=(kind:string,item:string,count=1,request=id(),town='city')=>call('village_life_action',[request,town,kind,item,count]);
@@ -63,5 +64,5 @@ assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon'
 await assert.rejects(()=>db.query(`select public.village_life_action($1,null,'c','d',$2,'city','craft','potion',1)`,[u,id()]),/GAME_SESSION_LOST/);
 
  await db.exec(`update private.hunting_states set vitality=100,current_hp=100000,skills=array['heavy','quick'];create or replace function private.combat_equipment_stats(uuid,jsonb) returns jsonb language sql as $$select '{"hp":100000,"attack":10000,"defense":1000,"critChance":0,"critDamage":1.5,"armorPenetration":0}'::jsonb$$;`);
- for(const [map,xp,silver] of [['plains',100,35],['forest',250,55],['mine',600,80],['fortress',1400,110],['ruins',3000,150]] as const){const req=id();const r=await call('hunt_once',[req,map]);assert.equal(r.result.mapId,map);assert.equal(r.result.outcome,'victory');assert.equal(r.result.exp,xp);assert.equal(r.result.silver,silver);const replay=await call('hunt_once',[req,map]);assert.equal(replay.replayed,true);assert.equal(replay.state.vitality,r.state.vitality);}
+ for(const [map,xp,minSilver,maxSilver] of [['plains',100,1000,1200],['forest',250,1600,2000],['mine',600,2500,3100],['fortress',1400,3800,4600],['ruins',3000,5500,6500]] as const){const req=id();const r=await call('hunt_once',[req,map]);assert.equal(r.result.mapId,map);assert.equal(r.result.outcome,'victory');assert.equal(r.result.exp,xp);assert.ok(Number.isInteger(r.result.silver)&&r.result.silver>=minSilver&&r.result.silver<=maxSilver);const replay=await call('hunt_once',[req,map]);assert.equal(replay.replayed,true);assert.equal(replay.result.silver,r.result.silver);assert.equal(replay.state.vitality,r.state.vitality);}
 }finally{await db.close();}});
