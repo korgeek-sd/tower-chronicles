@@ -414,7 +414,7 @@ function App(){
   </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
   {immersive&&<button className="tc-settings-open tc-settings-floating" aria-label="설정 열기" onClick={()=>setSettingsOpen(true)}>⚙</button>}
   {immersive&&<button className="tc-mail-open tc-mail-floating" aria-label="우편함 열기" onClick={()=>setMailOpen(true)}>✉{mailUnread>0&&<i/>}</button>}
-  {mailOpen&&<MailDialog key={onlineSession?.userId??'guest'} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} game={game} setGame={setGame} onClose={()=>setMailOpen(false)} onUnread={setMailUnread}/>}
+  {mailOpen&&<MailDialog key={'mail:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} game={game} setGame={setGame} onClose={()=>setMailOpen(false)} onUnread={setMailUnread}/>}
   <main className={page==='hunt'?'tc-main tc-hunt-main':page==='stats'?'tc-main tc-stat-main':page==='skills'?'tc-main tc-skill-tree-main':'tc-main'}>
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
@@ -462,7 +462,7 @@ function App(){
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
   {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
-  <WorldChat key={onlineSession?.userId??'guest'} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'}/>
+  <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }
