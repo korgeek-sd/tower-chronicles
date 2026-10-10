@@ -20,7 +20,7 @@ export function InventoryItemArt({item,slot=false}:{item:InventoryViewItem;slot?
 export function InventoryIcon({id}:{id:string;tier?:number}){return <Glyph name={id}/>;}
 
 export function InventoryStackCount({item}:{item:InventoryViewItem}){
- return item.stack&&item.quantity>1?<small className="tc-storage-count">{item.quantity.toLocaleString('en-US')}</small>:null;
+ return item.stack&&(item.quantity>1||item.category==='skillbooks')?<small className="tc-storage-count">{item.quantity.toLocaleString('en-US')}</small>:null;
 }
 
 export function InventoryDetailSheet({item,comparison,onClose,action,disabled,label,enhancementAction,marketAction,marketDisabled,marketLabel,dangerAction,dangerDisabled,dangerLabel,status,retryAction,retryDisabled}:{item:InventoryViewItem;comparison?:EquipmentStatComparison|null;onClose:()=>void;action?:()=>void;disabled?:boolean;label?:string;enhancementAction?:()=>void;marketAction?:()=>void;marketDisabled?:boolean;marketLabel?:string;dangerAction?:()=>void|Promise<void>;dangerDisabled?:boolean;dangerLabel?:string;status?:string;retryAction?:()=>void;retryDisabled?:boolean}){

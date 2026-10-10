@@ -2,10 +2,11 @@ import type {GameState} from '../types';
 import {inventoryView,type InventoryViewItem,type InventoryCategory} from '../inventoryView';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState,type LifeMaterial} from '../../online/villageLife';
 import {CRAFT_RECIPES,PRODUCT_NAMES,type ProductId,type FoodId} from './crafting';
-export const LIFE_INVENTORY_CATEGORIES:readonly InventoryCategory[]=['all','equipment','materials','potions','foods','other'];
-/** Current inventory: canonical equipment plus the server-owned life inventory. */
+import {skillBookFor} from '../skills/books';
+export const LIFE_INVENTORY_CATEGORIES:readonly InventoryCategory[]=['all','equipment','skillbooks','materials','potions','foods','other'];
+/** Current inventory: canonical equipment and catalog skillbooks plus the server-owned life inventory. */
 export function unifiedInventoryView(game:GameState,life:VillageLifeState|null):InventoryViewItem[]{
- const items=inventoryView(game).filter(i=>i.category==='equipment'&&i.modern);
+ const items=inventoryView(game).filter(i=>(i.category==='equipment'&&i.modern)||(i.category==='skillbooks'&&!!skillBookFor(i.sourceId)));
  if(!life)return items;
  for(const [order,id] of (Object.keys(LIFE_MATERIAL_NAMES) as LifeMaterial[]).entries()){
   const quantity=life.materials[id]??0;if(quantity<=0)continue;

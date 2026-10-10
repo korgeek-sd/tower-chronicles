@@ -1,3 +1,4 @@
+import {MarketGradeFilters,marketGradeMatches} from './MarketGradeFilters';
 import {SkillBookArt} from '../inventory/SkillBookArt';
 import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState,MarketOrder} from '../../game/types';
@@ -72,12 +73,12 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
  const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
  const [returnSkillId,setReturnSkillId]=useState<string|null>(null);
- useEffect(()=>{if(!intent)return;setTab('market');setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
+ useEffect(()=>{if(!intent)return;setTab('market');setGradeFilter('all');setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
 
  const [gradeFilter,setGradeFilter]=useState('all');
- const catalog=useMemo(()=>currentMarketCatalog(game).filter(item=>gradeFilter==='all'||item.gear&&'grade' in item.gear&&item.gear.grade===gradeFilter),[game,gradeFilter]);
+ const catalog=useMemo(()=>currentMarketCatalog(game),[game]);
  const normalizedQuery=query.trim().toLowerCase();
- const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery]);
+ const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery,gradeFilter]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE)),safeMarketPage=Math.min(page,marketPages-1),shown=pageSlice(filtered,safeMarketPage);
  const item=catalog.find(x=>x.id===selected)??null;
  const side:Side=tradeSide??'BUY';
@@ -220,7 +221,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  }
 
  return <Screen eyebrow="SILVER SCALE / LOCAL" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
-  <div className={"tc-market-v2 tc-market-v3 tc-market-v4"+(category==='equipment'?" has-grade-filter":"")+" tab-"+tab}>
+  <div className={"tc-market-v2 tc-market-v3 tc-market-v4"+(category==='equipment'||category==='skillbooks'?" has-grade-filter":"")+" tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);}} label="거래소 메뉴"/>
 
    {tab==='market'&&<>
@@ -230,7 +231,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
      <small>LOCAL</small>
     </div>
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter('all');setPage(0);}}>{label}</button>)}</div>
-    {category==='equipment'&&<div className="tc-market-grade-filters" aria-label="장비 등급">{[['all','전체'],['common','일반'],['uncommon','고급'],['rare','희귀'],['heroic','영웅'],['legendary','전설']].map(([key,label])=><button key={key} className={'grade-'+key+(gradeFilter===key?' active':'')} onClick={()=>{setGradeFilter(key);setPage(0);}}>{label}</button>)}</div>}
+    <MarketGradeFilters category={category} value={gradeFilter} onChange={grade=>{setGradeFilter(grade);setPage(0);}}/>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
       const ask=getBestAsk(game,entry.id),bid=getBestBid(game,entry.id),trend=trendByItem.get(entry.id)??makeTrend([]);

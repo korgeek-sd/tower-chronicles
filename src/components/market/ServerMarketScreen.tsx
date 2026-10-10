@@ -1,3 +1,4 @@
+import {MarketGradeFilters,marketGradeMatches} from './MarketGradeFilters';
 import {SkillBookArt} from '../inventory/SkillBookArt';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
@@ -76,7 +77,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
  const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
  const [returnSkillId,setReturnSkillId]=useState<string|null>(null);
- useEffect(()=>{if(!intent)return;setTab('market');setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setError('');setDemoMode(false);setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
+ useEffect(()=>{if(!intent)return;setTab('market');setGradeFilter('all');setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setError('');setDemoMode(false);setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
  const seenTradeIds=useRef<Set<string>|null>(null),tradePulseTimer=useRef<number|null>(null);
 
  const applySnapshot=(next:OnlineMarketState)=>{
@@ -131,9 +132,9 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
 
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
  const [gradeFilter,setGradeFilter]=useState('all');
- const catalog=useMemo(()=>currentMarketCatalog(view).filter(item=>gradeFilter==='all'||item.gear&&'grade' in item.gear&&item.gear.grade===gradeFilter),[view,gradeFilter]);
+ const catalog=useMemo(()=>currentMarketCatalog(view),[view]);
  const normalizedQuery=query.trim().toLowerCase();
- const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery]);
+ const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery,gradeFilter]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
  const safeMarketPage=Math.min(page,marketPages-1);
  const shown=pageSlice(filtered,safeMarketPage);
@@ -288,7 +289,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  }
 
  return <Screen eyebrow="SILVER SCALE / ONLINE" title="은저울 거래소" meta={<span>{snapshot.wallet.silver.toLocaleString()} S</span>}>
-  <div className={"tc-market-v2 tc-market-v3 tc-market-v4 has-order-policy"+(category==='equipment'?" has-grade-filter":"")+" tab-"+tab+(tradePulse?" tc-market-trade-pulse":"")}>
+  <div className={"tc-market-v2 tc-market-v3 tc-market-v4 has-order-policy"+(category==='equipment'||category==='skillbooks'?" has-grade-filter":"")+" tab-"+tab+(tradePulse?" tc-market-trade-pulse":"")}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);setError('');}} label="온라인 거래소 메뉴"/>
 
    {tab==='market'&&<>
@@ -298,7 +299,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
      <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button>
     </div>
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter('all');setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
-    {category==='equipment'&&<div className="tc-market-grade-filters" aria-label="장비 등급">{[['all','전체'],['common','일반'],['uncommon','고급'],['rare','희귀'],['heroic','영웅'],['legendary','전설']].map(([key,label])=><button key={key} className={'grade-'+key+(gradeFilter===key?' active':'')} onClick={()=>{setGradeFilter(key);setPage(0);}}>{label}</button>)}</div>}
+    <MarketGradeFilters category={category} value={gradeFilter} onChange={grade=>{setGradeFilter(grade);setPage(0);}}/>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
       const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);
