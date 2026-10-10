@@ -70,3 +70,5 @@
 @keyframes tcHuntValue{0%{transform:translateY(5px) scale(.9);opacity:.35}45%{transform:translateY(-2px) scale(1.05);opacity:1}100%{transform:translateY(0) scale(1)}}
 .tc-hunt-motion-off .tc-hunt-slash{display:none}.tc-hunt-motion-off .tc-hunt-arrived img,.tc-hunt-motion-off .tc-hunt-reward-arrived,.tc-hunt-motion-off .tc-hunt-value,.tc-hunt-motion-off .tc-hunt-working,.tc-hunt-motion-off .tc-hunt-tracking .tc-glyph,.tc-hunt-motion-off .tc-hunt-working>.tc-glyph{animation:none}
 @media(prefers-reduced-motion:reduce){.tc-hunt-slash{display:none}.tc-hunt-arrived .tc-hunt-art img,.tc-hunt-reward-arrived,.tc-hunt-reward-arrived .tc-hunt-value,.tc-hunt .tc-hunt-working,.tc-hunt-tracking .tc-glyph,.tc-hunt-working>.tc-glyph{animation:none}}
+
+.tc-hunt-level-up{color:#e6c375!important;font-weight:700;font-size:15px!important;letter-spacing:.02em}

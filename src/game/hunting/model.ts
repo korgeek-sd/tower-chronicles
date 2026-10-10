@@ -20,8 +20,15 @@ export function combatStats(input:CombatInput):CombatStats {
 export interface HuntTurn {turn:number;lines:string[];playerHp:number;monsterHp:number}
 export interface HuntResult {monster?:HuntMonsterSnapshot;equipment?:EquipmentItem|null;startHp?:number;recoveredHp?:number;potionsUsed?:number;requestId?:string;mapId:HuntMapId;outcome:'victory'|'defeat';player:CombatStats;playerHp:number;monsterHp:number;turns:HuntTurn[];silver:number;exp:number;mastery:number;materialCount:number;createdAt:number}
 export const HUNT_SKILLS=[{id:'heavy',name:'강타',description:'공격력 180% 피해 · 3턴마다 사용'},{id:'guard',name:'방어',description:'HP 50% 이하 · 이번 턴 받는 피해 50% 감소 · 4턴마다 사용'},{id:'quick',name:'속공',description:'공격력 120% 피해 · 2턴마다 사용'}];
-export interface HuntingState {currentHp?:number|null;maxHp?:number|null;potions?:number;foodTurns?:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
-export const initialHuntingState=(now=Date.now()):HuntingState=>({skills:['heavy','guard','quick'],vitality:100,recoveredAt:now,experience:0,mastery:0,lastResult:null});
+export type StatAllocation={hp:number;attack:number;defense:number;crit:number};
+export const EMPTY_STAT_ALLOCATION:StatAllocation={hp:0,attack:0,defense:0,crit:0};
+export function normalizeStatAllocation(value:unknown):StatAllocation { const v=(value&&typeof value==='object'?value:{}) as Record<string,unknown>;return {hp:Math.max(0,Math.floor(Number(v.hp)||0)),attack:Math.max(0,Math.floor(Number(v.attack)||0)),defense:Math.max(0,Math.floor(Number(v.defense)||0)),crit:Math.max(0,Math.min(10,Math.floor(Number(v.crit)||0)))}; }
+export function usedStatPoints(a:StatAllocation){return a.hp+a.attack+a.defense+a.crit;}
+export function statPointsForLevel(level:number){return Math.max(0,Math.min(99,Math.floor(level)-1));}
+export function statResetCost(level:number,resets:number){return resets===0?0:10000+Math.max(1,Math.min(100,Math.floor(level)))*1000;}
+export function applyStatAllocation(player:CombatInput,alloc:StatAllocation):CombatInput {return {...player,hp:player.hp+alloc.hp*12,attack:player.attack+alloc.attack,defense:player.defense+alloc.defense*2,critChance:Math.min(.6,(player.critChance??.05)+alloc.crit*.02)};}
+export interface HuntingState {statAllocation?:StatAllocation;statPoints?:number;statResets?:number;combatStats?:CombatStats;currentHp?:number|null;maxHp?:number|null;potions?:number;foodTurns?:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
+export const initialHuntingState=(now=Date.now()):HuntingState=>({skills:['heavy','guard','quick'],vitality:100,recoveredAt:now,experience:0,mastery:0,lastResult:null,statAllocation:{...EMPTY_STAT_ALLOCATION},statResets:0});
 export function recoverVitality(state:HuntingState,now:number):HuntingState {
  const elapsed=Math.max(0,now-state.recoveredAt),ticks=Math.floor(elapsed/VITALITY_INTERVAL);
  const vitality=Math.min(VITALITY_CAP,state.vitality+ticks);
@@ -54,7 +61,7 @@ export const damage=(attack:number,defense:number,multiplier=1,armorPenetration=
 export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random){
  const map=HUNT_MAPS.find(m=>m.id===mapId);if(!map)throw Error('알 수 없는 지역입니다.');
  const state=recoverVitality(before,now);if(state.vitality<1)throw Error('활력이 부족합니다.');
- const player=combatStats(input),foods={...state.foodTurns};
+ const player=combatStats(applyStatAllocation(input,normalizeStatAllocation(state.statAllocation))),foods={...state.foodTurns};
  if((foods.attack_food??0)>0)player.attack*=1.1;
  if((foods.defense_food??0)>0)player.defense*=1.1;
  let potions=Math.max(0,Math.floor(state.potions??0));
