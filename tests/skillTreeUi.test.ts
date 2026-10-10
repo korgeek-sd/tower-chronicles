@@ -71,7 +71,7 @@ test('skill list shows exact owned skillbook counts instead of material availabi
  const render=()=>renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{}}));
  const html=render();
  assert.match(html,/보급검 베기 · C · 습득 가능 · 스킬북 7권/);
- assert.match(html,/검술 숙련 · B · 습득 가능 · 스킬북 2권/);
+ assert.match(html,/강철 베기 · B · 습득 가능 · 스킬북 2권/);
  assert.match(html,/스킬북 0권/);
  assert.doesNotMatch(html,/습득 재료 보유/);
  game.learned=['sword_strike_c'];
