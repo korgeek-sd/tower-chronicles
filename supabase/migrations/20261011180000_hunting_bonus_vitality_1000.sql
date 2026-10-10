@@ -1,6 +1,10 @@
 -- One-off event: every currently registered account receives exactly 1,000 vitality.
 -- Natural recovery stays capped at 100 but must never erase above-cap promotional vitality.
 -- No change to gear rewards, vitality cost per battle, or existing player progression.
+
+-- Storage may hold up to 1,000 event-granted vitality, while passive recovery still stops at 100.
+alter table private.hunting_states drop constraint hunting_states_vitality_check;
+alter table private.hunting_states add constraint hunting_states_vitality_check check (vitality>=0 and vitality<=1000);
 CREATE OR REPLACE FUNCTION private.refresh_hunting_state(u uuid)
  RETURNS jsonb
  LANGUAGE plpgsql
