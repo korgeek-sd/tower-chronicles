@@ -8,7 +8,7 @@ permissions:
   contents: write
 jobs:
   import:
-    if: github.event.head_commit.message == 'chore: stage one-time user art importer'
+    if: startsWith(github.event.head_commit.message, 'chore:')
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
