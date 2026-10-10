@@ -23,9 +23,13 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Run fixed-seed balance benchmarks
         run: node --import ./tests/register.mjs scripts/balance/runBenchmark.ts
+      - name: Tune monster stats without applying to the game
+        run: node --import ./tests/register.mjs scripts/balance/tuneMonsters.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: balance-benchmark-csv
-          path: balance-output/*.csv
+          path: |
+            balance-output/*.csv
+            balance-output/*.json
           if-no-files-found: warn
