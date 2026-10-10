@@ -5,13 +5,14 @@ import {enhancementCost,enhancedSkill,skillEnhancementLevel} from '../../game/sk
 import './skillTree.css';
 const weapons:[TreeWeapon,string][]=[['sword','검'],['bow','활'],['staff','스태프'],['any','공통']];
 const statusNames={learned:'습득 완료',available:'습득 재료 보유',locked:'미습득'};
-type Props={game:GameState;onHome:()=>void;initialWeapon?:TreeWeapon;initialType?:TreeType;onLearn?:(id:string)=>void;onEnhance?:(id:string,expectedLevel:number)=>void;busy?:boolean;error?:string;loginRequired?:boolean;onRefresh?:()=>void};
-export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='active',onLearn,onEnhance,busy=false,error='',loginRequired=false,onRefresh}:Props){
- const [weapon,setWeapon]=useState<TreeWeapon>(initialWeapon),[type,setType]=useState<TreeType>(initialType),[selection,setSelection]=useState<string|null>(null),[family,setFamily]=useState<string|null>(null),[grade,setGrade]=useState<string>('all');
+export const nextSkillSelection=(current:string|null,clicked:string):string|null=>current===clicked?null:clicked;
+type Props={game:GameState;onHome:()=>void;initialWeapon?:TreeWeapon;initialType?:TreeType;initialSkillId?:string;onLearn?:(id:string)=>void;onEnhance?:(id:string,expectedLevel:number)=>void;busy?:boolean;error?:string;loginRequired?:boolean;onRefresh?:()=>void};
+export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='active',initialSkillId,onLearn,onEnhance,busy=false,error='',loginRequired=false,onRefresh}:Props){
+ const [weapon,setWeapon]=useState<TreeWeapon>(initialWeapon),[type,setType]=useState<TreeType>(initialType),[selection,setSelection]=useState<string|null>(initialSkillId??null),[family,setFamily]=useState<string|null>(null),[grade,setGrade]=useState<string>('all');
  const shown=SKILL_TREE_CATALOG.filter(s=>s.weapon===weapon&&s.type===type),families=[...new Set(shown.map(s=>s.family))];
  const activeFamily=family&&families.includes(family)?family:weapon==='any'&&type==='passive'?'all':families[0];
  const visible=shown.filter(s=>(activeFamily==='all'||s.family===activeFamily)&&(grade==='all'||s.grade===grade));
- const skill=visible.find(s=>s.id===selection)??visible[0];
+ const skill=visible.find(s=>s.id===selection)??null;
  const learned=(s:TreeSkill)=>game.learned.includes(s.id);
  const books=(s:TreeSkill)=>Math.max(0,Math.floor(game.skillBooks[s.id]??0));
  const status=(s:TreeSkill)=>learned(s)?'learned':books(s)>=1?'available':'locked';
@@ -27,7 +28,7 @@ export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='
   <div role="group" className="tc-skill-tree-types" aria-label="스킬 종류">{(['active','passive'] as const).map(id=><button key={id} aria-pressed={type===id} onClick={()=>{setType(id);reset();}}>{id==='active'?'액티브':'패시브'}</button>)}</div>
   <div role="group" className="tc-skill-tree-families" aria-label="스킬 계열">{(weapon==='any'&&type==='passive'?['all',...families]:families).map(id=><button key={id} aria-pressed={activeFamily===id} onClick={()=>{setFamily(id);setSelection(null);}}>{id==='all'?'전체':shown.find(s=>s.family===id)!.familyName}</button>)}<select className="tc-skill-grade-select" aria-label="등급 필터" value={grade} onChange={e=>{setGrade(e.target.value);setSelection(null);}}>{['all',...GRADES].map(id=><option key={id} value={id}>{id==='all'?'전체 등급':id}</option>)}</select></div>
   <div role="group" className="tc-skill-tree-grades" aria-label="등급 필터">{['all',...GRADES].map(id=><button key={id} aria-pressed={grade===id} onClick={()=>{setGrade(id);setSelection(null);}}>{id==='all'?'전체':id}</button>)}</div>
-  <div className="tc-skill-codex-grid" aria-label="스킬 도감">{visible.map(s=><button key={s.id} className="tc-skill-codex-card" data-status={status(s)} aria-pressed={skill?.id===s.id} aria-label={`${s.name} · ${s.grade} · ${statusNames[status(s)]}`} onClick={()=>setSelection(s.id)}>
+  <div className="tc-skill-codex-grid" aria-label="스킬 도감">{visible.map(s=><button key={s.id} className="tc-skill-codex-card" data-status={status(s)} aria-pressed={skill?.id===s.id} aria-expanded={skill?.id===s.id} aria-label={`${s.name} · ${s.grade} · ${statusNames[status(s)]}`} onClick={()=>setSelection(current=>nextSkillSelection(current,s.id))}>
    <span className="tc-skill-codex-title"><b className="tc-skill-grade" data-grade={s.grade}>{s.grade}</b><strong>{s.name}{learned(s)&&<span className="tc-skill-plus"> +{level(s)}</span>}</strong></span>
    <span className="tc-skill-codex-effect">{enhancedSkill(s,level(s)).effect}</span>
    <span className="tc-skill-codex-meta"><span>{s.type==='active'?`MP ${s.mp}`:'상시 적용'}</span><em>{statusNames[status(s)]}{game.skills.includes(s.id)?' · 장착':''}</em></span>
