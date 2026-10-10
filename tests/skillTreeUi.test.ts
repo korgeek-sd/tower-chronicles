@@ -6,7 +6,7 @@ test('skill tree shows two-column codex and real ownership as image-free codex c
  const game=initialState();game.learned=['sword_strike_c'];game.skillBooks={sword_strike_a:1};
  const html=renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{}}));
  assert.equal(SKILL_TREE_CATALOG.filter(s=>s.type==='active').length,60);assert.equal(SKILL_TREE_CATALOG.filter(s=>s.type==='passive').length,20);
- for(const label of ['스킬트리','참격','SSR','보급검 베기','습득 완료','미습득'])assert.ok(html.includes(label),label);
+ for(const label of ['스킬트리','참격','SSR','보급검 베기','스킬북 1권','스킬북 0권'])assert.ok(html.includes(label),label);
  assert.match(html,/습득 <b>1<\/b>/);assert.match(html,/data-status="learned"/);assert.match(html,/data-status="available"/);assert.match(html,/data-status="locked"/);assert.doesNotMatch(html,/<img|<svg/);assert.match(html,/tc-skill-codex-card/);assert.doesNotMatch(html,/<nav/);assert.match(html,/tc-skill-grade-select/);assert.doesNotMatch(html,/class="tc-skill-tree-detail"|class="tc-skill-actions"/);assert.match(html,/aria-expanded="false"/);
 });
 test('common passive collection contains the two SSR skills and locked details remain visible',()=>{
@@ -64,4 +64,18 @@ test('skill cards keep compact intrinsic-height rows aligned to the top, includi
  assert.match(css,/\.tc-skill-codex-grid\{grid-auto-rows:minmax\(70px,max-content\)\}/);
  assert.doesNotMatch(css,/grid-template-rows:repeat\(3,minmax\(44px,1fr\)\)/);
  assert.match(css,/\.tc-skill-codex-grid\{overflow:auto\}/);
+});
+
+test('skill list shows exact owned skillbook counts instead of material availability text',()=>{
+ const game=initialState();game.skillBooks={sword_strike_c:7,sword_strike_b:2};
+ const render=()=>renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{}}));
+ const html=render();
+ assert.match(html,/보급검 베기 · C · 습득 가능 · 스킬북 7권/);
+ assert.match(html,/검술 숙련 · B · 습득 가능 · 스킬북 2권/);
+ assert.match(html,/스킬북 0권/);
+ assert.doesNotMatch(html,/습득 재료 보유/);
+ game.learned=['sword_strike_c'];
+ const learnedHtml=render();
+ assert.match(learnedHtml,/보급검 베기 · C · 습득 완료 · 스킬북 7권/);
+ assert.match(learnedHtml,/습득 · 스킬북 7권/);
 });
