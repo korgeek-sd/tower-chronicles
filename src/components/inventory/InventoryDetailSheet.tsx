@@ -1,3 +1,5 @@
+import {SkillBookArt} from './SkillBookArt';
+import {skillBookFor} from '../../game/skills/books';
 import React,{useEffect,useRef,useState} from 'react';
 import type {InventoryViewItem} from '../../game/inventoryView';
 import {categoryNames} from '../../game/inventoryView';
@@ -8,6 +10,7 @@ import {EQUIPMENT_GRADE_NAMES,EQUIPMENT_SLOT_NAMES} from '../../game/data/equipm
 import type {EquipmentStatComparison} from '../../game/engine/state';
 
 export function InventoryItemArt({item,slot=false}:{item:InventoryViewItem;slot?:boolean}){
+ if(item.category==='skillbooks')return <i className={slot?'tc-inventory-slot-art':'tc-glyph'} aria-hidden="true"><SkillBookArt grade={skillBookFor(item.sourceId)?.grade}/></i>;
  if(item.equipmentKind)return <i className={slot?'tc-inventory-slot-art':'tc-glyph'} aria-hidden="true"><EquipmentArt kind={item.equipmentKind} grade={item.grade}/></i>;
  const id=item.lifeMaterial??item.lifeProduct;
  if(id&&slot)return <i className="tc-inventory-slot-art" aria-hidden="true"><CraftItemArt id={id}/></i>;

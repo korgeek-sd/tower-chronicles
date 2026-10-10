@@ -1,3 +1,4 @@
+import {SkillBookArt} from '../inventory/SkillBookArt';
 import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState,MarketOrder} from '../../game/types';
 import {
@@ -23,7 +24,7 @@ const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']]
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['skillbooks','스킬북'],['other','기타']];
 const ranges:[RangeKey,string][]=[['1H','1H'],['24H','24H'],['1W','1W'],['1M','1M'],['ALL','ALL']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
-function ProductArt({item}:{item:{category:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
+function ProductArt({item}:{item:{category:string;skillBookGrade?:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.category==='skillbooks'?<SkillBookArt grade={item.skillBookGrade}/>:item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const categoryLabel=(c:string)=>c==='equipment'?'장비':c==='materials'?'재료':c==='skillbooks'?'스킬북':c==='tickets'?'입장권':'기타';
 const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['tickets','other'].includes(entryCategory));
