@@ -1,4 +1,5 @@
 import {initialHuntingState,resolveHunt,damage} from '../src/game/hunting/model';
+import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {PGlite} from '@electric-sql/pglite';
 const u='11111111-1111-4111-8111-111111111111';
 const migration=new URL('../supabase/migrations/20261007171148_village_crafting.sql',import.meta.url);
@@ -23,6 +24,7 @@ await db.exec(readFileSync(new URL('../supabase/migrations/20261010114553_huntin
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010120432_hunting_random_silver.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010122549_hunting_equipment_drops.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010123745_hunting_varied_encounters.sql',import.meta.url),'utf8'));
+await db.exec(readFileSync(new URL('../supabase/migrations/20261010150000_hunting_monster_skills.sql',import.meta.url),'utf8'));
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
 const get=()=>call('get_village_life');const action=(kind:string,item:string,count=1,request=id(),town='city')=>call('village_life_action',[request,town,kind,item,count]);
@@ -46,7 +48,16 @@ for(const critical of [0,1]){
  await db.query(`update public.game_saves set payload=jsonb_set(payload,'{testStats}',$1::jsonb)`,[JSON.stringify(fighter)]);
  await db.exec(`update private.hunting_states set current_hp=180,skills=array['heavy','guard','quick'];update private.village_life_players set products='{"potion":0}',food_turns='{}';`);
  const server=await call('hunt_once',[id(),'mine']);
- const guest=resolveHunt(initialHuntingState(0),'mine',fighter,['heavy','guard','quick'],0,()=>.5);
+ // Drive the guest's first encounter draw to the server-picked monster, then keep deterministic crit endpoints.
+ const excluded=HUNT_MONSTERS.mine.find(m=>m.id!==server.result.monster.id)!;
+ const choices=HUNT_MONSTERS.mine.filter(m=>m.id!==excluded.id);
+ const roll=(choices.findIndex(m=>m.id===server.result.monster.id)+.5)/choices.length;
+ assert.ok(roll>0&&roll<1);
+ let calls=0;
+ const prior={...initialHuntingState(0),lastResult:{monster:{id:excluded.id}} as any};
+ const guest=resolveHunt(prior,'mine',fighter,['heavy','guard','quick'],0,()=>calls++===0?roll:.5);
+ assert.equal(guest.result.monster?.id,server.result.monster.id);
+ assert.deepEqual(guest.result.monster?.skill,server.result.monster.skill);
  assert.deepEqual(server.result.player,guest.result.player);
  assert.deepEqual(server.result.turns.map((t:any)=>({...t,lines:t.lines.map((line:string)=>line.replace(server.result.monster.name,guest.result.monster!.name))})),guest.result.turns);
  assert.equal(server.result.outcome,guest.result.outcome);
