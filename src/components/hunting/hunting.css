@@ -51,3 +51,22 @@
 .tc-hunt-next strong{font-size:17px}
 .tc-hunt-repeat-dock{padding:7px 9px}
 .tc-hunt-repeat-dock>div{margin-bottom:5px}
+/* Immediate input, visible pending state, and a fresh completion beat on every hunt. */
+.tc-hunt-fighter.enemy{position:relative}
+.tc-hunt-tracking{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;background:#11150dd9;color:#edd5a5;font-size:14px;pointer-events:none}
+.tc-hunt-tracking .tc-glyph,.tc-hunt-working>.tc-glyph{animation:tcHuntTracking .8s ease-in-out infinite}
+.tc-hunt .tc-hunt-working{opacity:.85;border-color:#eed199;animation:tcHuntPressed .16s ease-out}
+.tc-hunt-arrived .tc-hunt-art img{animation:tcHuntOpponent .32s ease-out}
+.tc-hunt-slash{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.tc-hunt-slash:after{content:"";position:absolute;left:22%;top:12%;width:2px;height:80%;background:#f0d6a4;box-shadow:0 0 14px 3px #e6b56966;transform:rotate(35deg);animation:tcHuntSlash .3s ease-out both}
+.tc-hunt-reward-arrived{animation:tcHuntResult .38s ease-out}
+.tc-hunt-value{display:inline-block;color:#ebcc86}.tc-hunt-reward-arrived .tc-hunt-value{animation:tcHuntValue .38s ease-out both}
+.tc-hunt-loot{display:inline-block;color:#ddd3b9}.tc-hunt-loot[data-grade=uncommon]{color:#99bc90}.tc-hunt-loot[data-grade=rare]{color:#8fb6e3}.tc-hunt-loot[data-grade=heroic]{color:#c1a0e0}.tc-hunt-loot[data-grade=legendary]{color:#f0c75b;text-shadow:0 0 8px #b78b4166}
+@keyframes tcHuntTracking{0%,100%{transform:rotate(-12deg);opacity:.65}50%{transform:rotate(12deg);opacity:1}}
+@keyframes tcHuntPressed{from{transform:scale(.97);filter:brightness(1.2)}to{transform:scale(1);filter:brightness(1)}}
+@keyframes tcHuntOpponent{from{transform:translateX(12px);opacity:.35}to{transform:translateX(0);opacity:1}}
+@keyframes tcHuntSlash{0%{opacity:0;transform:translate(-16px,-8px) rotate(35deg) scaleY(.2)}30%{opacity:1}100%{opacity:0;transform:translate(16px,8px) rotate(35deg) scaleY(1)}}
+@keyframes tcHuntResult{0%{border-color:#e6c578;background:#3c3020}100%{border-color:var(--hunt-border)}}
+@keyframes tcHuntValue{0%{transform:translateY(5px) scale(.9);opacity:.35}45%{transform:translateY(-2px) scale(1.05);opacity:1}100%{transform:translateY(0) scale(1)}}
+.tc-hunt-motion-off .tc-hunt-slash{display:none}.tc-hunt-motion-off .tc-hunt-arrived img,.tc-hunt-motion-off .tc-hunt-reward-arrived,.tc-hunt-motion-off .tc-hunt-value,.tc-hunt-motion-off .tc-hunt-working,.tc-hunt-motion-off .tc-hunt-tracking .tc-glyph,.tc-hunt-motion-off .tc-hunt-working>.tc-glyph{animation:none}
+@media(prefers-reduced-motion:reduce){.tc-hunt-slash{display:none}.tc-hunt-arrived .tc-hunt-art img,.tc-hunt-reward-arrived,.tc-hunt-reward-arrived .tc-hunt-value,.tc-hunt .tc-hunt-working,.tc-hunt-tracking .tc-glyph,.tc-hunt-working>.tc-glyph{animation:none}}

@@ -22,6 +22,7 @@ await db.exec(readFileSync(new URL('../supabase/migrations/20261009143756_huntin
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010114553_hunting_long_term_progression.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010120432_hunting_random_silver.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010122549_hunting_equipment_drops.sql',import.meta.url),'utf8'));
+await db.exec(readFileSync(new URL('../supabase/migrations/20261010123745_hunting_varied_encounters.sql',import.meta.url),'utf8'));
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
 const get=()=>call('get_village_life');const action=(kind:string,item:string,count=1,request=id(),town='city')=>call('village_life_action',[request,town,kind,item,count]);
@@ -47,7 +48,7 @@ for(const critical of [0,1]){
  const server=await call('hunt_once',[id(),'mine']);
  const guest=resolveHunt(initialHuntingState(0),'mine',fighter,['heavy','guard','quick'],0,()=>.5);
  assert.deepEqual(server.result.player,guest.result.player);
- assert.deepEqual(server.result.turns,guest.result.turns);
+ assert.deepEqual(server.result.turns.map((t:any)=>({...t,lines:t.lines.map((line:string)=>line.replace(server.result.monster.name,guest.result.monster!.name))})),guest.result.turns);
  assert.equal(server.result.outcome,guest.result.outcome);
  assert.equal(server.state.currentHp,guest.state.currentHp);
 }
@@ -65,10 +66,11 @@ assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon'
 await assert.rejects(()=>db.query(`select public.village_life_action($1,null,'c','d',$2,'city','craft','potion',1)`,[u,id()]),/GAME_SESSION_LOST/);
 
  await db.exec(`update private.hunting_states set vitality=100,current_hp=100000,skills=array['heavy','quick'];create or replace function private.combat_equipment_stats(uuid,jsonb) returns jsonb language sql as $$select '{"hp":100000,"attack":10000,"defense":1000,"critChance":0,"critDamage":1.5,"armorPenetration":0}'::jsonb$$;`);
- for(const [map,xp,minSilver,maxSilver] of [['plains',100,1000,1200],['forest',250,1600,2000],['mine',600,2500,3100],['fortress',1400,3800,4600],['ruins',3000,5500,6500]] as const){const req=id();const r=await call('hunt_once',[req,map]);assert.equal(r.result.mapId,map);assert.equal(r.result.outcome,'victory');assert.equal(r.result.exp,xp);assert.ok(Number.isInteger(r.result.silver)&&r.result.silver>=minSilver&&r.result.silver<=maxSilver);const replay=await call('hunt_once',[req,map]);assert.equal(replay.replayed,true);assert.equal(replay.result.silver,r.result.silver);assert.deepEqual(replay.result.equipment,r.result.equipment);assert.equal(replay.state.vitality,r.state.vitality);}
+ for(const [map,xp,minSilver,maxSilver] of [['plains',100,1000,1200],['forest',250,1600,2000],['mine',600,2500,3100],['fortress',1400,3800,4600],['ruins',3000,5500,6500]] as const){const req=id();const r=await call('hunt_once',[req,map]);assert.equal(r.result.mapId,map);assert.equal(r.result.outcome,'victory');assert.equal(r.result.exp,xp);assert.ok(Number.isInteger(r.result.silver)&&r.result.silver>=minSilver&&r.result.silver<=maxSilver);const replay=await call('hunt_once',[req,map]);assert.equal(replay.replayed,true);assert.equal(replay.result.silver,r.result.silver);assert.deepEqual(replay.result.equipment,r.result.equipment);assert.deepEqual(replay.result.monster,r.result.monster);assert.equal(replay.state.vitality,r.state.vitality);}
 
  await db.exec(`create or replace function private.hunting_equipment_drop(p_map text,p_roll integer,p_kind_index integer) returns jsonb language sql as $$select '{"id":"test-hunt-drop","kind":"association_supply_iron_sword","grade":"legendary","enhancement":0}'::jsonb$$;`);
- const dropReq=id(),dropped=await call('hunt_once',[dropReq,'ruins']);assert.equal(dropped.result.equipment.grade,'legendary');
+ const beforeMonster=(await db.query<{last_result:any}>('select last_result from private.hunting_states')).rows[0].last_result.monster;
+ const dropReq=id(),dropped=await call('hunt_once',[dropReq,'ruins']);assert.equal(dropped.result.equipment.grade,'legendary');assert.notEqual(dropped.result.monster.id,beforeMonster.id);
  assert.equal((await db.query<{quantity:number}>("select quantity::integer from private.market_assets where item_id='equipment_v2:test-hunt-drop'")).rows[0].quantity,1);
  const again=await call('hunt_once',[dropReq,'ruins']);assert.deepEqual(again.result.equipment,dropped.result.equipment);
  assert.equal((await db.query<{quantity:number}>("select quantity::integer from private.market_assets where item_id='equipment_v2:test-hunt-drop'")).rows[0].quantity,1);
