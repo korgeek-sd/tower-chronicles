@@ -2,12 +2,48 @@
 .tc-world-page>.tc-region-board{flex:1;min-height:0;height:auto}
 .tc-region-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:7px;border-bottom:1px solid #685135;flex-wrap:wrap}
 .tc-region-heading small{font:7px ui-monospace;letter-spacing:.13em;color:#ad946e}.tc-region-heading h1{margin:3px 0 0;font:700 22px Georgia,"Noto Serif KR",serif;color:#ead6b0}.tc-region-heading>div:last-child{display:grid;gap:5px;text-align:right;font-size:10px;color:#b8aa90}.tc-region-heading b{color:#e8cd99}
-.tc-region-destinations{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:7px;overscroll-behavior:contain;padding:2px}
+.tc-region-destinations{min-height:0;overflow:hidden;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:5px;padding:2px}
 .tc-region-city,.tc-region-card{position:relative;text-align:left;border:1px solid #795b35;color:#302012;background:radial-gradient(ellipse at 10% 10%,#f5ddb133,transparent 55%),repeating-linear-gradient(0deg,#53331505 0 1px,transparent 1px 4px),linear-gradient(#d4bd91,#b79a66);box-shadow:inset 0 0 0 2px #ead3a133;cursor:pointer;min-width:0}
 .tc-region-city{display:grid;grid-template-columns:49px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px;min-height:70px;flex-shrink:0}.tc-region-city-crest{display:grid;place-items:center;background:#5e2a21;color:#e9c98e;border:1px solid #8b6238;height:53px}.tc-region-city-crest .tc-glyph{font-size:31px}.tc-region-city small{display:block;font:7px ui-monospace;letter-spacing:.12em;color:#755332}.tc-region-city b{display:block;font:700 20px Georgia,"Noto Serif KR",serif;margin:3px 0}.tc-region-city em{font:10px sans-serif;font-style:normal;color:#765331}.tc-region-city>span:nth-child(2)>span{font-size:10px}.tc-region-city>i{font-size:9px;font-style:normal;align-self:start;border:1px solid #74572e;padding:4px;background:#eee0b533}
 .tc-region-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;flex-shrink:0}.tc-region-filters button{min-height:44px;padding:5px;border:1px solid #514432;background:#1c1a14;color:#bcaf94;font-size:11px;cursor:pointer}.tc-region-filters [aria-pressed=true]{border-color:#b28c51;background:#493222;color:#f1d7a8}
-.tc-region-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:start}.tc-region-card{display:grid;grid-template-columns:29px minmax(0,1fr);gap:7px;align-items:center;padding:6px 7px;min-height:58px}.tc-region-card-icon{border-right:1px solid #8d714b;min-height:43px;display:grid;place-items:center}.tc-region-card-icon .tc-glyph{font-size:22px;color:#5c3922}.tc-region-card-copy{display:grid;gap:3px;min-width:0}.tc-region-card b{font:700 13px Georgia,"Noto Serif KR",serif;padding-right:12px}.tc-region-card-copy>span{font-size:10px;color:#6d4f30}.tc-region-card small{font-size:9px;color:#6b4b2c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tc-region-card>i{position:absolute;right:7px;top:10px;width:7px;height:7px;border-radius:50%;background:#3e6747;box-shadow:0 0 0 2px #e7d3a3}
+.tc-region-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;grid-auto-rows:minmax(0,1fr);min-height:0}.tc-region-card{display:grid;grid-template-columns:29px minmax(0,1fr);gap:7px;align-items:center;padding:6px 7px;min-height:44px}.tc-region-card-icon{border-right:1px solid #8d714b;min-height:43px;display:grid;place-items:center}.tc-region-card-icon .tc-glyph{font-size:22px;color:#5c3922}.tc-region-card-copy{display:grid;gap:3px;min-width:0}.tc-region-card b{font:700 13px Georgia,"Noto Serif KR",serif;padding-right:12px}.tc-region-card-copy>span{font-size:10px;color:#6d4f30}.tc-region-card small{font-size:9px;color:#6b4b2c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tc-region-card>i{position:absolute;right:7px;top:10px;width:7px;height:7px;border-radius:50%;background:#3e6747;box-shadow:0 0 0 2px #e7d3a3}
 .tc-region-card.current,.tc-region-city.current{border-color:#d5a647;box-shadow:inset 0 0 0 2px #9b6d27}.tc-region-card>i.current{background:#a77b26}.tc-region-card[aria-pressed=true],.tc-region-city[aria-pressed=true]{outline:2px solid #dfb56f;outline-offset:-3px;filter:brightness(1.06)}
 .tc-region-details{border:1px solid #765635;padding:9px;background:linear-gradient(#252016,#12140f);min-width:0}.tc-region-details>header{display:flex;align-items:center;gap:8px;border-bottom:1px solid #4c412e;padding-bottom:6px}.tc-region-details>header>.tc-glyph{font-size:26px;color:#c19d62}.tc-region-details h2{margin:2px 0 0;font:700 17px Georgia,"Noto Serif KR",serif}.tc-region-details header small{font-size:9px;color:#b99a6c}.tc-region-details header>span:last-child{margin-left:auto;font-size:10px;color:#b8c292}.tc-region-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:7px 0}.tc-region-facts small,.tc-region-facts b{display:block;overflow-wrap:anywhere}.tc-region-facts small{font-size:9px;color:#aaa087}.tc-region-facts b{font-size:11px;color:#e4cda4;margin-top:3px}.tc-region-stocks{display:grid;gap:4px;margin-bottom:7px}.tc-region-stocks>div{display:flex;justify-content:space-between;gap:5px;font-size:10px;color:#b3aa93}.tc-region-stocks b{font-weight:400;color:#d9caac}.tc-region-actions{display:flex;gap:6px}.tc-region-actions button{flex:1;min-width:0;min-height:44px;font-size:12px;background:linear-gradient(#78352b,#4b211b);border-color:#a67b43}.tc-region-actions button:disabled{opacity:.5;cursor:default}.tc-region-footnote,.tc-region-message{font-size:9px;line-height:1.3;color:#978d77;margin:6px 0 0}.tc-region-message{color:#d5b173}.tc-region-board button:focus-visible{outline:2px solid #efd3a1;outline-offset:-3px}.tc-region-board button:hover{filter:brightness(1.1)}
-@media(max-height:740px){.tc-region-board{gap:5px;padding:6px}.tc-region-city{min-height:67px;padding:7px;grid-template-columns:38px minmax(0,1fr) auto}.tc-region-city-crest{height:43px}.tc-region-city b{font-size:17px}.tc-region-card{min-height:58px;padding:6px}.tc-region-details{padding:7px}.tc-region-facts{margin:5px 0}.tc-region-heading h1{font-size:19px}.tc-region-footnote{font-size:8px}}
+@media(max-height:740px){.tc-region-board{gap:5px;padding:6px}.tc-region-city{min-height:67px;padding:7px;grid-template-columns:38px minmax(0,1fr) auto}.tc-region-city-crest{height:43px}.tc-region-city b{font-size:17px}.tc-region-card{min-height:44px;padding:6px}.tc-region-details{padding:7px}.tc-region-facts{margin:5px 0}.tc-region-heading h1{font-size:19px}.tc-region-footnote{font-size:8px}}
 @media(max-width:360px){.tc-region-card{grid-template-columns:23px minmax(0,1fr);gap:5px}.tc-region-card b{font-size:12px}.tc-region-city em{display:none}.tc-region-city>i{font-size:8px;padding:3px}}
+
+/* Fit every destination into the available screen, including short phones. */
+.tc-world-page{container-type:size;container-name:travel-page}
+.tc-region-card{min-height:0;padding:4px 6px}
+.tc-region-card-icon{min-height:0;height:100%}
+.tc-region-card-copy{gap:2px}
+.tc-region-details{padding:7px}
+.tc-region-facts{margin:5px 0}
+.tc-region-stocks{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tc-region-stocks>div{flex-wrap:wrap;font-size:9px}
+@container travel-page (max-height:560px){
+ .tc-region-board{gap:4px;padding:5px}
+ .tc-region-heading{padding-bottom:4px}.tc-region-heading small{display:none}.tc-region-heading h1{font-size:18px}
+ .tc-region-city{min-height:44px;padding:5px;grid-template-columns:32px minmax(0,1fr) auto;gap:6px}
+ .tc-region-city-crest{height:32px}.tc-region-city-crest .tc-glyph{font-size:23px}
+ .tc-region-city small{display:none}.tc-region-city b{font-size:16px;margin:0}.tc-region-city>span:nth-child(2)>span{font-size:9px}
+ .tc-region-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .tc-region-card{grid-template-columns:18px minmax(0,1fr);gap:4px;padding:3px}
+ .tc-region-card-icon .tc-glyph{font-size:17px}.tc-region-card b{font-size:11px;padding-right:5px}
+ .tc-region-card small{display:none}.tc-region-card>i{right:4px;top:5px;width:4px;height:4px}
+ .tc-region-details>header{padding-bottom:3px;gap:5px}.tc-region-details header small{display:none}.tc-region-details h2{font-size:14px;margin:0}.tc-region-details>header>.tc-glyph{font-size:18px}
+ .tc-region-facts small,.tc-region-facts b{display:inline;font-size:9px}.tc-region-facts b{margin-left:3px}
+ .tc-region-footnote{display:none}.tc-region-stocks{margin-bottom:4px}
+}
+@container travel-page (max-height:340px){
+ .tc-region-heading>div:last-child{display:flex;gap:7px;font-size:9px}
+ .tc-region-destinations{grid-template-columns:1fr 1fr;grid-template-rows:auto minmax(0,1fr)}
+ .tc-region-grid{grid-column:1/-1}
+ .tc-region-city{grid-template-columns:24px minmax(0,1fr)}.tc-region-city>i,.tc-region-city em,.tc-region-city>span:nth-child(2)>span{display:none}
+ .tc-region-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .tc-region-card{grid-template-columns:minmax(0,1fr);text-align:center}.tc-region-card-icon{display:none}
+ .tc-region-card b{font-size:10px}.tc-region-card-copy>span{font-size:9px}
+ .tc-region-details{display:grid;grid-template-columns:1fr 1fr;gap:3px 7px;padding:4px}
+ .tc-region-details>header{border:0}.tc-region-facts{margin:0;align-items:center}
+ .tc-region-stocks{margin:0;align-items:center}.tc-region-actions button{font-size:10px}
+}
