@@ -12,7 +12,7 @@ import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
 
-export type AppPage='craft'|'world'|'home'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
@@ -27,6 +27,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
   {id:'gold-exchange',glyph:'market',title:'골드 거래소',subtitle:'Gold ↔ Silver',action:()=>onMove('gold-exchange')},
   {id:'seal',glyph:'association',title:'협회 인장',subtitle:'20회 주조 · 30단계',action:()=>onMove('seal')},
   {id:'occupation',glyph:'towers',title:'점령전',subtitle:'3전선 · 토 22:00',action:()=>onMove('occupation')},
+  {id:'stats',glyph:'skill',title:'스탯 분배',subtitle:'능력치 확인 · 포인트 배분',action:()=>onMove('stats')},
   {id:'hunt',glyph:'sword',title:'사냥터',subtitle:'지역 선택 · 즉시 사냥',action:()=>onMove('hunt')},
   {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'발견한 생물',action:()=>onMove('bestiary')},
   {id:'settings',glyph:'settings',title:'계정 · 저장',subtitle:'연결과 저장 상태',action:()=>onMove('settings')},
