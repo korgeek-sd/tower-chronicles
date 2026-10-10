@@ -1,4 +1,10 @@
 export const SKILL_VISUAL_ASSETS:Readonly<Record<string,string>>={
+ sword_strike_c:'assets/ui/skills/sword_strike/sword_strike_c.webp',
+ sword_strike_b:'assets/ui/skills/sword_strike/sword_strike_b.webp',
+ sword_strike_a:'assets/ui/skills/sword_strike/sword_strike_a.webp',
+ sword_strike_s:'assets/ui/skills/sword_strike/sword_strike_s.webp',
+ sword_strike_sr:'assets/ui/skills/sword_strike/sword_strike_sr.webp',
+ sword_strike_ssr:'assets/ui/skills/sword_strike/sword_strike_ssr.webp',
  excavator_skill_1:'assets/ui/skills/excavator/excavator_skill_1.webp',
  excavator_skill_2:'assets/ui/skills/excavator/excavator_skill_2.webp',
  excavator_skill_3:'assets/ui/skills/excavator/excavator_skill_3.webp',
