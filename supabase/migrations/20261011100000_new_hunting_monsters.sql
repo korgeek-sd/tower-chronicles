@@ -2368,7 +2368,7 @@ begin
  elsif kind='leech' then heal:=floor(total*amount);
  end if;
  heal:=least(greatest(0,(p_monster->>'hp')::numeric-p_monster_hp),heal);
- line:=p_monster->>'name'||'의 '||skill->>'name'||'! '||
+ line:=(p_monster->>'name')||'의 '||(skill->>'name')||'! '||
   case when power>0 then total::text||' 피해' else '효과 발동' end||
   case when hits>1 then ' · '||hits::text||'연타' else '' end||
   case when heal>0 then ' · HP +'||heal::text else '' end||
