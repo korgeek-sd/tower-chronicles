@@ -42,6 +42,11 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_bjJQ-qJg2eB6w88-QHS-vg_68OVgFK7
         run: npm run build
 
+      - name: Verify artwork is included in deploy bundle
+        run: |
+          test -s dist/assets/monsters/new/plains/grave_digger_hound.png
+          test -s dist/assets/characters/preview/grave_hound_job_reference.jpg
+          file dist/assets/monsters/new/plains/grave_digger_hound.png dist/assets/characters/preview/grave_hound_job_reference.jpg
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

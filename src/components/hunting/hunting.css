@@ -91,3 +91,8 @@
 .tc-hunt-art-preview-grid .tc-hunt-fighter-info small{font-size:10px;line-height:1.4;color:#a99b83}
 .tc-hunt-art-preview p{margin:0}
 @media(min-width:680px){.tc-hunt-art-preview-grid .tc-hunt-art img,.tc-hunt-art-preview-grid .tc-hunt-fighter.enemy img{height:230px}.tc-hunt-art-preview-grid .tc-hunt-art{min-height:230px}}
+
+/* Keep appearance-compare controls visible and tappable on narrow phones. */
+.tc-hunt-heading{flex-wrap:wrap;gap:8px}
+.tc-hunt-preview-toggle{font-size:12px;padding:7px 10px;white-space:nowrap}
+.tc-hunt-preview-toggle[aria-pressed="true"]{border-color:#b99762;color:#f0d49f;background:#34281b}

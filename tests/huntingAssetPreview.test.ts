@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {existsSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {assetUrl} from '../src/game/data/graphics';
+import {assetUrl,playerGraphicForJob} from '../src/game/data/graphics';
 import {initialState} from '../src/game/engine/state';
 import {initialHuntingState} from '../src/game/hunting/model';
 import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
@@ -13,7 +13,7 @@ test('grave-digging hound loads exact newly imported PNG, retaining server encou
  const monster=HUNT_MONSTERS.plains[0];
  assert.equal(monster.name,'무덤파는 들개');
  assert.equal(monster.image,'assets/monsters/new/plains/grave_digger_hound.svg');
- assert.equal(assetUrl(monster.image),'./assets/monsters/new/plains/grave_digger_hound.png');
+ assert.match(assetUrl(monster.image),/^\.\/assets\/monsters\/new\/plains\/grave_digger_hound\.png\?v=/);
  assert.ok(existsSync(new URL('../public/assets/monsters/new/plains/grave_digger_hound.png',import.meta.url)));
  assert.ok(existsSync(new URL('../public/assets/characters/preview/grave_hound_job_reference.jpg',import.meta.url)));
 });
@@ -27,4 +27,15 @@ test('preview link compares supplied job and actual hound in hunting screen, wit
  assert.match(preview,/assets\/monsters\/new\/plains\/grave_digger_hound.png/);
  assert.doesNotMatch(normal,/외형 비교 미리보기/);
  assert.doesNotMatch(normal,/assets\/characters\/preview\/grave_hound_job_reference.jpg/);
+});
+
+test('active selected job is used in normal hunting battles; image comparison is accessible in both result and region views',()=>{
+ const game={...initialState(),currentJobId:'duelist'};
+ const hunting=initialHuntingState(0);
+ const normal=renderToStaticMarkup(React.createElement(HuntingScreen,{game,hunting,now:0,busy:false,onHunt:()=>{},onSettings:()=>{},previewAppearance:false}));
+ assert.match(normal,/외형 비교/);
+ assert.doesNotMatch(normal,/외형 비교 미리보기/);
+ assert.equal(playerGraphicForJob('duelist',game.cosmetics.selectedAppearanceId).image.idle,'assets/characters/jobs/duelist.webp');
+ assert.match(normal,/assets\/characters\/jobs\/duelist\.webp/);
+ assert.match(normal,/aria-pressed="false"/);
 });

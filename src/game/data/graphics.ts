@@ -44,7 +44,7 @@ export const isBossFloor=(floor:number)=>BOSS_FLOORS.some(n=>n===floor);
 export const graphicFor=(tower:Tower,monster:Pick<Monster,'name'>)=>MONSTER_GRAPHICS.find(g=>g.tower===tower&&g.name===monster.name);
 export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower][1];
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
-const ASSET_REVISIONS:Readonly<Record<string,string>>={'assets/characters/jobs/duelist.webp':'e4991963','assets/characters/jobs/unity_apostle.webp':'unity-hd-20261006'};
+const ASSET_REVISIONS:Readonly<Record<string,string>>={'assets/characters/jobs/duelist.webp':'e4991963','assets/characters/jobs/unity_apostle.webp':'unity-hd-20261006','assets/monsters/new/plains/grave_digger_hound.png':'grave-hound-20261011','assets/characters/preview/grave_hound_job_reference.jpg':'job-preview-20261011'};
 export const assetUrl=(path:string)=>{
  const source=path.replace(/^[/]+/, '');
  const artReplacement:Readonly<Record<string,string>>={
