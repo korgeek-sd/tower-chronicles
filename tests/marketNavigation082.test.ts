@@ -34,8 +34,8 @@ test('MARKET LINK 0.1.82 03: local and online market open exact detail and resto
  assert.match(market,/setSelected\(intent\.itemId\)/);
  assert.match(server,/setSelected\(intent\.itemId\)/);
  assert.match(server,/setDemoMode\(false\)/);
- assert.match(market,/returnInventoryKey\?'‹ 아이템':returnEnhancementId\?'‹ 강화':'시장'/);
- assert.match(server,/returnInventoryKey\?'‹ 아이템':returnEnhancementId\?'‹ 강화':'시장'/);
+ assert.match(market,/returnInventoryKey\?'‹ 아이템':returnEnhancementId\?'‹ 강화':returnSkillId\?'‹ 스킬트리':'시장'/);
+ assert.match(server,/returnInventoryKey\?'‹ 아이템':returnEnhancementId\?'‹ 강화':returnSkillId\?'‹ 스킬트리':'시장'/);
  assert.match(main,/initialSelected=\{inventoryReturnKey\}/);
 });
 

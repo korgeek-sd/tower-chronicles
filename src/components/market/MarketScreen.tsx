@@ -53,12 +53,12 @@ const makeTrend=(values:number[],height=24):Trend=>{
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
-export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void}){
- if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement}/>;
- return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement}/>;
+export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void}){
+ if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement} onReturnToSkill={onReturnToSkill}/>;
+ return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement} onReturnToSkill={onReturnToSkill}/>;
 }
 
-function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void}){
+function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void}){
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
  const [query,setQuery]=useState('');
@@ -70,7 +70,8 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  const [qty,setQty]=useState('1');
  const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
  const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
- useEffect(()=>{if(!intent)return;setTab('market');setCategory('all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey]);
+ const [returnSkillId,setReturnSkillId]=useState<string|null>(null);
+ useEffect(()=>{if(!intent)return;setTab('market');setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
 
  const [gradeFilter,setGradeFilter]=useState('all');
  const catalog=useMemo(()=>currentMarketCatalog(game).filter(item=>gradeFilter==='all'||item.gear&&'grade' in item.gear&&item.gear.grade===gradeFilter),[game,gradeFilter]);
@@ -175,7 +176,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
   const current=trend.last??fallback.last??bestAsk??bestBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
-  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':'시장'}</button>}>
+  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):returnSkillId&&onReturnToSkill?onReturnToSkill(returnSkillId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':returnSkillId?'‹ 스킬트리':'시장'}</button>}>
    <div className="tc-market-v2-detail tc-market-v4-detail">
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">

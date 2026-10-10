@@ -6,9 +6,9 @@ import './skillTree.css';
 const weapons:[TreeWeapon,string][]=[['sword','검'],['bow','활'],['staff','스태프'],['any','공통']];
 const statusNames={learned:'습득 완료',available:'습득 재료 보유',locked:'미습득'};
 export const nextSkillSelection=(current:string|null,clicked:string):string|null=>current===clicked?null:clicked;
-type Props={game:GameState;onHome:()=>void;initialWeapon?:TreeWeapon;initialType?:TreeType;initialSkillId?:string;onLearn?:(id:string)=>void;onEnhance?:(id:string,expectedLevel:number)=>void;busy?:boolean;error?:string;loginRequired?:boolean;onRefresh?:()=>void};
-export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='active',initialSkillId,onLearn,onEnhance,busy=false,error='',loginRequired=false,onRefresh}:Props){
- const [weapon,setWeapon]=useState<TreeWeapon>(initialWeapon),[type,setType]=useState<TreeType>(initialType),[selection,setSelection]=useState<string|null>(initialSkillId??null),[family,setFamily]=useState<string|null>(null),[grade,setGrade]=useState<string>('all');
+type Props={game:GameState;onHome:()=>void;initialWeapon?:TreeWeapon;initialType?:TreeType;initialSkillId?:string;onLearn?:(id:string)=>void;onEnhance?:(id:string,expectedLevel:number)=>void;onMarket?:(id:string)=>void;busy?:boolean;error?:string;loginRequired?:boolean;onRefresh?:()=>void};
+export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='active',initialSkillId,onLearn,onEnhance,onMarket,busy=false,error='',loginRequired=false,onRefresh}:Props){
+ const [weapon,setWeapon]=useState<TreeWeapon>(initialWeapon),[type,setType]=useState<TreeType>(initialType),[selection,setSelection]=useState<string|null>(initialSkillId??null),[family,setFamily]=useState<string|null>(SKILL_TREE_CATALOG.find(s=>s.id===initialSkillId)?.family??null),[grade,setGrade]=useState<string>('all');
  const shown=SKILL_TREE_CATALOG.filter(s=>s.weapon===weapon&&s.type===type),families=[...new Set(shown.map(s=>s.family))];
  const activeFamily=family&&families.includes(family)?family:weapon==='any'&&type==='passive'?'all':families[0];
  const visible=shown.filter(s=>(activeFamily==='all'||s.family===activeFamily)&&(grade==='all'||s.grade===grade));
@@ -41,10 +41,11 @@ export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='
    {learned(skill)&&cost&&next&&<div className="tc-skill-upgrade" aria-label="강화 효과 미리보기"><p>강화 +{cost.level} · 기본 대비 효과 +{cost.bonus}%</p><p>{skill.type==='passive'?'효과':'위력'} {current?.power} → {next.power}</p>{current?.effect!==next.effect&&<p>{next.effect}</p>}</div>}
   </section>}
   {skill&&<footer className="tc-skill-actions" aria-label="스킬 습득 및 강화">
-   {learned(skill)?<>
-    {cost?<div className="tc-skill-action-cost"><span>필요: 스킬북 {cost.books}권 · {cost.gold.toLocaleString('ko-KR')} 골드</span><small>보유: {books(skill)}권 · {game.market.gold.toLocaleString('ko-KR')} 골드</small></div>:<p>최대 강화 +3 · 기본 대비 효과 +15%</p>}
-    <button className="tc-skill-enhance" disabled={busy||!onEnhance||!cost||books(skill)<(cost?.books??0)||game.market.gold<(cost?.gold??0)||!!game.expedition} onClick={()=>onEnhance?.(skill.id,level(skill))}>{busy?'처리 중…':!cost?'최대 강화 +3':loginRequired?'로그인 후 강화':game.expedition?'귀환 후 강화 가능':`강화 +${cost.level}`}</button>
-   </>:<button className="tc-skill-learn" disabled={busy||!onLearn||learned(skill)||books(skill)<1||!!game.expedition} onClick={()=>onLearn?.(skill.id)}>{busy?'처리 중…':learned(skill)?'습득 완료':loginRequired?'로그인 후 습득':game.expedition?'귀환 후 습득 가능':'습득 · 스킬북 1권'}</button>}
+   {learned(skill)?cost?<div className="tc-skill-action-cost"><span>필요: 스킬북 {cost.books}권 · {cost.gold.toLocaleString('ko-KR')} 골드</span><small>보유: {books(skill)}권 · {game.market.gold.toLocaleString('ko-KR')} 골드</small></div>:<p>최대 강화 +3 · 기본 대비 효과 +15%</p>:null}
+   <div className="tc-skill-action-buttons">
+    {learned(skill)?<button className="tc-skill-enhance" disabled={busy||!onEnhance||!cost||books(skill)<(cost?.books??0)||game.market.gold<(cost?.gold??0)||!!game.expedition} onClick={()=>onEnhance?.(skill.id,level(skill))}>{busy?'처리 중…':!cost?'최대 강화 +3':loginRequired?'로그인 후 강화':game.expedition?'귀환 후 강화 가능':`강화 +${cost.level}`}</button>:<button className="tc-skill-learn" disabled={busy||!onLearn||books(skill)<1||!!game.expedition} onClick={()=>onLearn?.(skill.id)}>{busy?'처리 중…':loginRequired?'로그인 후 습득':game.expedition?'귀환 후 습득 가능':'습득 · 스킬북 1권'}</button>}
+    <button className="tc-skill-market" disabled={busy||!onMarket||!!game.expedition} onClick={()=>onMarket?.(skill.id)} aria-label={`${skill.name} 스킬북 거래소`}>거래소</button>
+   </div>
   </footer>}
  </section>;
 }
