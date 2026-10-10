@@ -7,6 +7,7 @@ const ICON_PATHS:Record<string,string>={
  association:'M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M9 9h6',
  craft:'m5 3 5 5-3 3-5-5M7 11l11 11 3-3L10 8M14 7l4-4 3 3-4 4M3 21l6-6',
  towers:'M5 21h14M7 21V9h10v12M6 5V2m4 3V2m4 3V2m4 3V2M6 5h12v4H6Zm4 16v-6h4v6',
+ mail:'M3 5h18v14H3Zm0 0 9 7 9-7',
  settings:'M4 6h16M4 12h16M4 18h16M8 3v6m8 0v6m-6 0v6',
  jobs:'M5 3h14v18H5ZM8 7h8M8 11h8M8 15h4m2 2 2 2 4-4',
  registration:'M5 3h10l4 4v5M15 3v5h4M5 3v18h7M8 8h3M8 12h5m4 2v8m-4-4h8',

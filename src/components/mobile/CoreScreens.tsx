@@ -14,7 +14,7 @@ import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catal
 
 export type AppPage='craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
-export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
+export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
  const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
  const highestReturn=Math.max(...towerIds.map(t=>game.exploration.highestReturned[t]));
  const loot=game.expedition?.loot??game.lastExpedition?.loot,lootSummary=loot?lootTotals(loot):{materials:0,tickets:0,skillBooks:0,equipment:0},routeKills=game.expedition?.kills??game.lastExpedition?.kills??0;
@@ -31,7 +31,8 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
   {id:'stats',glyph:'skill',title:'스탯 분배',subtitle:'능력치 확인 · 포인트 배분',action:()=>onMove('stats')},
   {id:'hunt',glyph:'sword',title:'사냥터',subtitle:'지역 선택 · 즉시 사냥',action:()=>onMove('hunt')},
   {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'발견한 생물',action:()=>onMove('bestiary')},
-  {id:'settings',glyph:'settings',title:'계정 · 저장',subtitle:'연결과 저장 상태',action:()=>onMove('settings')},
+  {id:'mail',glyph:'mail',title:'우편함',subtitle:mailUnread?`미확인 우편 ${mailUnread}개`:'거래 · 보상 · 공지',action:onOpenMail},
+  {id:'settings',glyph:'settings',title:'설정',subtitle:'계정 · 저장 · 환경',action:()=>onMove('settings')},
  ];
  return <Screen title="노바르 거점" className="tc-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
   <div className="tc-camp tc-camp-with-world">
@@ -57,7 +58,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
     <button className="tc-camp-depart tc-feel-press" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span>{game.expedition?'원정으로 돌아가기':'사냥하기'}</span><span aria-hidden="true">›</span></button>
    </section>
    <button className="tc-action tc-feel-press" onClick={()=>onMove('world')}>마을 이동 · 10개 마을과 중앙 도시 ›</button>
-   <nav className="tc-camp-links" aria-label="거점 시설">{quick.map(item=><button className="tc-feel-press" data-game-feel="press" data-facility={item.id} key={item.id} onClick={item.action}><span className="tc-camp-link-icon"><Glyph name={item.glyph}/></span><span><b>{item.title}</b><small>{item.subtitle}</small></span><i aria-hidden="true">›</i></button>)}</nav>
+   <nav className="tc-camp-links" aria-label="거점 시설">{quick.map(item=><button className="tc-feel-press" data-game-feel="press" data-facility={item.id} key={item.id} aria-label={item.id==='mail'&&mailUnread?`우편함 · 미확인 우편 ${mailUnread}개`:undefined} onClick={item.action}><span className="tc-camp-link-icon"><Glyph name={item.glyph}/></span><span><b>{item.title}{item.id==='mail'&&mailUnread>0&&<span className="tc-camp-mail-dot" aria-hidden="true"/>}</b><small>{item.subtitle}</small></span><i aria-hidden="true">›</i></button>)}</nav>
   </div>
  </Screen>;
 }

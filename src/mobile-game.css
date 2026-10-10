@@ -3395,3 +3395,9 @@ html,body,#root{
 /* Catalog skillbooks share the inventory and market grade controls. */
 .tc-market-book-grades .grade-c{color:#8b928c}.tc-market-book-grades .grade-b{color:#6aa477}.tc-market-book-grades .grade-a{color:#679bc5}.tc-market-book-grades .grade-s{color:#ae82c8}.tc-market-book-grades .grade-sr{color:#d5af5d}.tc-market-book-grades .grade-ssr{color:#d37b68}
 @media(max-width:380px){.tc-unified-inventory .tc-storage-categories{grid-template-columns:repeat(4,minmax(0,1fr));height:auto;grid-auto-rows:44px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{grid-template-rows:44px 92px minmax(0,1fr) 44px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page{grid-template-rows:44px 92px minmax(0,1fr)}.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(.tc-storage-tools){grid-template-rows:44px 92px auto minmax(0,1fr) 44px}.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page:has(.tc-storage-tools){grid-template-rows:44px 92px auto minmax(0,1fr)}}
+
+/* Camp utility entries share the facility grid and preserve unread visibility. */
+.tc-camp-links [data-facility="bestiary"]{grid-column:1 / -1}
+.tc-camp-links [data-facility="mail"],.tc-camp-links [data-facility="settings"]{min-height:44px}
+.tc-camp-mail-dot{display:inline-block;width:6px;height:6px;margin-left:6px;border-radius:50%;background:#8f3c32;vertical-align:middle}
+.tc-camp-with-world{grid-template-rows:minmax(210px,1fr) auto auto auto;overflow-y:auto;overscroll-behavior:contain}
