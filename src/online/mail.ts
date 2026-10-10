@@ -1,7 +1,7 @@
 import type {OnlineMarketGear,OnlineMarketState} from './market';
 import type {GameplayLease} from './gameSession';
 import {getDeviceId} from './cloudSave';
-import {getFreshSession} from './auth';
+import {getFreshSession,getStoredSession} from './auth';
 import {supabaseConfig} from './config';
 import type {CouponReward} from './coupons';
 export interface MailDetails {itemId?:string;itemName?:string;gear?:OnlineMarketGear|null;original:number;filled:number;remaining:number;total:number;fee:number;refund:number}
@@ -19,14 +19,25 @@ export function mailBody(mail:MailContent):string{
  else{rows.push(`주문 수량: ${d.original}개`,`${buy?'구매':'판매'}된 수량: ${d.filled}개`,`${buy?'취소':'반환'} 수량: ${d.remaining}개`);if(buy)rows.push(`반환 금액: ${money(d.refund)}`,'','취소 수량에 해당하는 구매 예약금은 보유 실버에 반환되었습니다.');else rows.push('','판매되지 않은 아이템이 첨부되어 있습니다. 받기 버튼을 눌러 수령해 주세요.');}
  return rows.join('\n');
 }
+/** Bound auth, the request and response reading; never retry a mutation automatically. */
+export async function withMailTimeout<T>(operation:(signal:AbortSignal)=>Promise<T>,timeoutMs=15000):Promise<T>{
+ const controller=new AbortController();
+ let timer:ReturnType<typeof setTimeout>|undefined;
+ const timeout=new Promise<never>((_,reject)=>{timer=setTimeout(()=>{reject(new Error('우편 처리 결과를 확인하지 못했습니다. 새로고침으로 수령 상태를 확인해 주세요.'));controller.abort();},timeoutMs);});
+ try{return await Promise.race([operation(controller.signal),timeout]);}
+ finally{if(timer!==undefined)clearTimeout(timer);}
+}
 async function rpc(name:string,args:Record<string,unknown>={},expectedUser?:string):Promise<MailState>{
- if(!supabaseConfig)throw Error('온라인 설정이 필요합니다.');
- const session=await getFreshSession();if(!session)throw Error('Google 로그인이 필요합니다.');
- if(expectedUser&&session.userId!==expectedUser)throw Error('계정이 변경되었습니다. 우편함을 다시 열어 주세요.');
- const response=await fetch(supabaseConfig.url+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:supabaseConfig.publishableKey,Authorization:'Bearer '+session.accessToken,'Content-Type':'application/json'},body:JSON.stringify(args)});
- const raw=await response.text();
- if(!response.ok){const messages:Record<string,string>={MAIL_UNCLAIMED:'첨부 아이템을 먼저 수령해 주세요.',MAIL_NOT_FOUND:'삭제되었거나 보관 기간이 지난 우편입니다.',MAIL_EXPEDITION_BLOCKED:'첨부 아이템은 거점에서 수령할 수 있습니다.',GAME_SESSION_LOST:'다른 기기에서 플레이가 시작되었습니다.'};for(const [key,message]of Object.entries(messages))if(raw.includes(key))throw Error(message);throw Error('우편 요청에 실패했습니다. 다시 시도해 주세요.');}
- return JSON.parse(raw) as MailState;
+ const config=supabaseConfig;if(!config)throw Error('온라인 설정이 필요합니다.');
+ return withMailTimeout(async signal=>{
+  const session=await getFreshSession();signal.throwIfAborted();if(!session)throw Error('Google 로그인이 필요합니다.');
+  if(expectedUser&&session.userId!==expectedUser)throw Error('계정이 변경되었습니다. 우편함을 다시 열어 주세요.');
+  const response=await fetch(config.url+'/rest/v1/rpc/'+name,{method:'POST',signal,headers:{apikey:config.publishableKey,Authorization:'Bearer '+session.accessToken,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  const raw=await response.text();signal.throwIfAborted();
+  if(!response.ok){const messages:Record<string,string>={MAIL_UNCLAIMED:'첨부 아이템을 먼저 수령해 주세요.',MAIL_NOT_FOUND:'삭제되었거나 보관 기간이 지난 우편입니다.',MAIL_EXPEDITION_BLOCKED:'첨부 아이템은 거점에서 수령할 수 있습니다.',GAME_SESSION_LOST:'다른 기기에서 플레이가 시작되었습니다.'};for(const [key,message]of Object.entries(messages))if(raw.includes(key))throw Error(message);throw Error('우편 요청에 실패했습니다. 다시 시도해 주세요.');}
+  if(getStoredSession()?.userId!==session.userId)throw Error('계정이 변경되었습니다. 우편함을 다시 열어 주세요.');
+  return JSON.parse(raw) as MailState;
+ });
 }
 export const loadGameMail=(userId:string)=>rpc('get_game_mail',{},userId);
 export const manageGameMail=(userId:string,lease:GameplayLease,action:'read'|'claim'|'claim_all'|'delete'|'delete_read',mailId?:string)=>rpc('manage_game_mail',{p_lease_id:lease.leaseId,p_generation:lease.generation,p_client_instance_id:lease.clientInstanceId,p_device_id:getDeviceId(),p_action:action,p_mail_id:mailId??null},userId);
