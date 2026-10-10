@@ -34,6 +34,8 @@ test('seeded simulations reproduce outcomes and restore altered candidate monste
  const args={levels:[40],builds:['balanced' as const],gears:['standard' as const],maps:['mine' as const],runs:15,seed:77,potions:10000,candidate:{mine:{hp:current.hp+200,attack:current.attack+10,defense:current.defense+10}}};
  const one=simulateBalance(args),two=simulateBalance(args);
  assert.deepEqual(one,two);assert.equal(one.length,2);
+ assert.ok(one.every(r=>r.win95Low<=r.winRate&&r.winRate<=r.win95High));
+ assert.ok(one.every(r=>r.expectedEquipmentPerVitality>=0&&r.expectedEquipmentPerVitality<=1));
  assert.deepEqual({hp:current.hp,attack:current.attack,defense:current.defense},original);
  assert.ok(one[1].meanTurns>=one[0].meanTurns);
  assert.match(balanceCsv(one),/xpPerVitality/);assert.match(balanceTable(one),/potion\/fight/);

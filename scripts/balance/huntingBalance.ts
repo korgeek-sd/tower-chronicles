@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {HUNT_MAPS,combatStats,applyStatAllocation,initialHuntingState,resolveHunt,statPointsForLevel,type CombatInput,type HuntMapId,type StatAllocation} from '../../src/game/hunting/model';
 import {EQUIPMENT_SLOTS,equipmentItemStats} from '../../src/game/data/equipment';
+import {HUNT_EQUIPMENT_RATES} from '../../src/game/hunting/equipmentDrops';
 import type {EquipmentGrade,EquipmentKind,Slot} from '../../src/game/types';
 
 export type BuildName='balanced'|'offense'|'defense'|'critical';
@@ -23,9 +24,9 @@ export interface BalanceRow {
  version:'baseline'|'candidate';mapId:HuntMapId;mapName:string;level:number;
  build:BuildName;gear:GearName;equipmentStage:string;points:StatAllocation;
  hp:number;attack:number;defense:number;critChance:number;critDamage:number;armorPenetration:number;
- attempts:number;wins:number;winRate:number;meanTurns:number;p90Turns:number;
+ attempts:number;wins:number;winRate:number;win95Low:number;win95High:number;meanTurns:number;p90Turns:number;
  meanBattleHpLoss:number;potionsPerAttempt:number;potionsPerWin:number;
- xpPerVitality:number;silverPerVitality:number;equipmentPerVitality:number;
+ xpPerVitality:number;silverPerVitality:number;equipmentPerVitality:number;expectedEquipmentPerVitality:number;
  underHealedRate:number;meanRemainingPotions:number;
 }
 const BASE={hp:180,attack:8,defense:3,critChance:.05,critDamage:1.5,armorPenetration:0};
@@ -134,7 +135,7 @@ export function simulateBalance(options:Partial<BalanceOptions>={}):BalanceRow[]
    const map=HUNT_MAPS.find(m=>m.id===mapId)!;
    const row=withMonsterOverride(mapId,candidate.changes,()=>{
     const turns:number[]=[],damageLoss:number[]=[],potionsPer:number[]=[];
-    let tries=0,wins=0,xp=0,silver=0,equipment=0,underhealed=0,remainingPotions=0;
+    let tries=0,wins=0,xp=0,silver=0,equipment=0,underhealed=0,remainingPotions=0,potionsOnWins=0;
     const perSeedAttempts=config.mode==='endurance'?100:1;
     for(let run=0;run<config.runs;run++){
      const rng=seededRng(config.seed+Math.imul(run,0x9E3779B1));
@@ -148,20 +149,22 @@ export function simulateBalance(options:Partial<BalanceOptions>={}):BalanceRow[]
       damageLoss.push(Math.max(0,(result.startHp??final.hp)-result.playerHp));
       potionsPer.push(result.potionsUsed??0);
       if((result.startHp??final.hp)<final.hp)underhealed++;
-      if(result.outcome==='victory')wins++;
+      if(result.outcome==='victory'){wins++;potionsOnWins+=result.potionsUsed??0;}
       xp+=result.exp;silver+=result.silver;
       if(result.equipment)equipment++;
      }
      remainingPotions+=state.potions??0;
     }
+    const p=wins/tries,z=1.96,den=1+z*z/tries;
+    const center=(p+z*z/(2*tries))/den,margin=z*Math.sqrt(p*(1-p)/tries+z*z/(4*tries*tries))/den;
     return {
      version:candidate.version,mapId,mapName:map.name,level,build,gear,equipmentStage:stage,points,
      hp:final.hp,attack:final.attack,defense:final.defense,critChance:final.critChance,
      critDamage:final.critDamage,armorPenetration:final.armorPenetration,
-     attempts:tries,wins,winRate:wins/tries,meanTurns:mean(turns),p90Turns:percentile90(turns),
+     attempts:tries,wins,winRate:p,win95Low:Math.max(0,center-margin),win95High:Math.min(1,center+margin),meanTurns:mean(turns),p90Turns:percentile90(turns),
      meanBattleHpLoss:mean(damageLoss),potionsPerAttempt:mean(potionsPer),
-     potionsPerWin:wins?potionsPer.reduce((a,b)=>a+b,0)/wins:0,
-     xpPerVitality:xp/tries,silverPerVitality:silver/tries,equipmentPerVitality:equipment/tries,
+     potionsPerWin:wins?potionsOnWins/wins:0,
+     xpPerVitality:xp/tries,silverPerVitality:silver/tries,equipmentPerVitality:equipment/tries,expectedEquipmentPerVitality:p*HUNT_EQUIPMENT_RATES[mapId].reduce((a,b)=>a+b,0)/1000000,
      underHealedRate:underhealed/tries,meanRemainingPotions:remainingPotions/config.runs,
     };
    });
@@ -172,7 +175,7 @@ export function simulateBalance(options:Partial<BalanceOptions>={}):BalanceRow[]
 }
 const round3=(value:number)=>Math.round(value*1000)/1000;
 export function balanceCsv(rows:BalanceRow[]):string {
- const keys=['version','mapId','level','build','gear','equipmentStage','hp','attack','defense','critChance','attempts','winRate','meanTurns','p90Turns','meanBattleHpLoss','potionsPerAttempt','potionsPerWin','xpPerVitality','silverPerVitality','equipmentPerVitality','underHealedRate','meanRemainingPotions'] as const;
+ const keys=['version','mapId','level','build','gear','equipmentStage','hp','attack','defense','critChance','attempts','winRate','win95Low','win95High','meanTurns','p90Turns','meanBattleHpLoss','potionsPerAttempt','potionsPerWin','xpPerVitality','silverPerVitality','equipmentPerVitality','expectedEquipmentPerVitality','underHealedRate','meanRemainingPotions'] as const;
  return [keys.join(','),...rows.map(row=>keys.map(k=>typeof row[k]==='number'?String(round3(row[k] as number)):row[k]).join(','))].join('\n');
 }
 export function balanceTable(rows:BalanceRow[]):string {
