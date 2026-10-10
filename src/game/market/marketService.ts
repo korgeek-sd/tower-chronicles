@@ -3,9 +3,10 @@ import type {InventoryCategory,InventoryViewItem} from '../inventoryView';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
+import {SKILL_BOOKS} from '../skills/books';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,EQUIPMENT_GRADES,V2_STARTER_EQUIPMENT_ID,equipmentItemName} from '../data/equipment';
 
-export interface MarketItem {id:string;name:string;available:number;gear?:Item|EquipmentItem;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string;modernEquipment?:boolean;equipmentIds?:string[]}
+export interface MarketItem {id:string;name:string;available:number;gear?:Item|EquipmentItem;category:Exclude<InventoryCategory,'all'|'potions'|'cosmetics'>;description:string;modernEquipment?:boolean;equipmentIds?:string[];skillBookGrade?:string}
 export interface OrderInput {itemId:string;side:MarketSide;limitPrice:number;quantity:number;ownerId?:string;createdAt?:number}
 const active=(o:MarketOrder)=>o.status==='OPEN'||o.status==='PARTIAL';
 const validPositive=(n:number)=>Number.isSafeInteger(n)&&n>0;
@@ -120,8 +121,15 @@ export function marketCatalog(s:GameState){
 /** Current combat catalog; legacy orders remain accessible through orders/storage. */
 export function currentMarketCatalog(s:GameState):MarketItem[]{
  const catalog=marketCatalog(s);
+ const known=new Map(catalog.map(item=>[item.id,item]));
+ // Show every current skillbook for price discovery and buy orders, including unowned books.
+ for(const book of SKILL_BOOKS){
+  const existing=known.get(book.itemId);
+  if(existing){existing.name=book.name;existing.description=book.description;existing.skillBookGrade=book.grade;}
+  else{const item:MarketItem={id:book.itemId,name:book.name,available:0,category:'skillbooks',description:book.description,skillBookGrade:book.grade};catalog.push(item);known.set(book.itemId,item);}
+ }
  for(const id of ['split_stone','job_draw_ticket'])if(!catalog.some(item=>item.id==='other:'+id))catalog.push({id:'other:'+id,name:id==='job_draw_ticket'?'직능 뽑기권':'분해석',available:0,category:'other',description:'거래 가능한 아이템입니다.'});
- return catalog.filter(item=>item.modernEquipment||['material:ore:1','material:leather:1','other:split_stone','other:job_draw_ticket'].includes(item.id)).map(item=>{
+ return catalog.filter(item=>item.category==='skillbooks'||item.modernEquipment||['material:ore:1','material:leather:1','other:split_stone','other:job_draw_ticket'].includes(item.id)).map(item=>{
   if(item.id==='material:ore:1')return {...item,name:'철광석',description:'원정에서 획득한 제작 재료입니다.'};
   if(item.id==='material:leather:1')return {...item,name:'가죽',description:'원정에서 획득한 제작 재료입니다.'};
   if(item.id==='other:split_stone')return {...item,name:'분해석',category:'materials',description:'장비를 분해하여 얻는 도전권 제작 재료입니다.'};

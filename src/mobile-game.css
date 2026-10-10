@@ -1837,7 +1837,7 @@ button:disabled{cursor:not-allowed;opacity:.38}
 }
 .tc-market-v4-search small.live{color:#87978c}
 
-.tc-market-v4-cats{grid-template-columns:repeat(4,1fr)}
+.tc-market-v4-cats{grid-template-columns:repeat(5,minmax(0,1fr))}
 .tc-market-v4-cats button{font-size:6.5px}
 
 .tc-market-v4-list{

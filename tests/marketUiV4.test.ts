@@ -2,15 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('MARKET UI V4 01: market entry is search-first with four compact filters',()=>{
+test('MARKET UI V4 01: market entry is search-first with five compact filters',()=>{
  const online=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  const local=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  for(const source of [online,local]){
   assert.match(source,/거래 품목 검색/);
-  assert.match(source,/type Category='all'\|'equipment'\|'materials'\|'other'/);
+  assert.match(source,/type Category='all'.*'equipment'.*'materials'.*'skillbooks'.*'other'/);
   assert.match(source,/\['all','전체'\]/);
   assert.match(source,/\['equipment','장비'\]/);
   assert.match(source,/\['materials','재료'\]/);
+  assert.match(source,/스킬북/);
   assert.match(source,/\['other','기타'\]/);
   assert.match(source,/tc-market-v4-card/);
  }

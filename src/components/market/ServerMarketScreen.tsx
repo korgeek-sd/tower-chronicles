@@ -17,18 +17,18 @@ import type {MarketIntent} from './marketNavigation';
 
 type Tab='market'|'orders'|'storage';
 type Side='BUY'|'SELL';
-type Category='all'|'equipment'|'materials'|'other';
+type Category='all'|'equipment'|'materials'|'skillbooks'|'other';
 type RangeKey='1H'|'24H'|'1W'|'1M'|'ALL';
 type Trend={points:string;delta:number|null;last:number|null;low:number|null;high:number|null;count:number};
 const PAGE_SIZE=5;
 const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']] as const;
-const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['other','기타']];
+const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['skillbooks','스킬북'],['other','기타']];
 const ranges:[RangeKey,string][]=[['1H','1H'],['24H','24H'],['1W','1W'],['1M','1M'],['ALL','ALL']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
 function ProductArt({item}:{item:{category:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const categoryLabel=(c:string)=>c==='equipment'?'장비':c==='materials'?'재료':c==='skillbooks'?'스킬북':c==='tickets'?'입장권':'기타';
-const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['skillbooks','tickets','other'].includes(entryCategory));
+const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['tickets','other'].includes(entryCategory));
 const pageSlice=<T,>(rows:T[],page:number)=>rows.slice(page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE);
 const rangeMs=(range:RangeKey)=>range==='1H'?60*60*1000:range==='24H'?24*60*60*1000:range==='1W'?7*24*60*60*1000:range==='1M'?30*24*60*60*1000:null;
 const sparkPoints=(values:number[],height=24)=>{
@@ -303,7 +303,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
       const demo=demoMode?demoMarketView(entry.id,ask??bid??realTrend.last,demoTick):null;
       const trend=demo?makeTrend(demo.series):realTrend;
       const displayPrice=demo?.last??ask??bid;
-      const sub=(demoMode?'DEMO · ':'')+categoryLabel(entry.category)+' · 보유 '+entry.available;
+      const sub=(demoMode?'DEMO · ':'')+(entry.skillBookGrade?entry.skillBookGrade+' · ':'')+categoryLabel(entry.category)+' · 보유 '+entry.available;
       return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
        <span className="tc-market-v2-mini"><ProductArt item={entry}/></span>
        <span className="name"><b>{entry.name}</b><small>{sub}</small></span>
