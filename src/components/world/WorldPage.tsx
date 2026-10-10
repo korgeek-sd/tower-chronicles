@@ -38,7 +38,7 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
   finally{lock.current=false;if(alive.current)setBusy(false);}
  }
  function retryPending(){if(pending){if('action' in pending)void action(pending.action,pending.item,pending);else void gather(pending.resource,pending);}else void refresh();}
- if(!userId)return <div className="tc-life-access"><h1>{initialView==='craft'?'제작 공방':'마을 생활'}</h1><p>Google 로그인 후 마을 이동·채집·제작을 이용할 수 있습니다.</p><p>상단 설정에서 계정을 연결하세요.</p></div>;
+ if(!userId)return <div className="tc-life-access"><h1>{initialView==='craft'?'제작 공방':'마을 생활'}</h1><p>Google 로그인 후 마을 이동·채집·제작을 이용할 수 있습니다.</p><p>거점의 설정에서 계정을 연결하세요.</p></div>;
  if(!state)return <div className="tc-life-access"><h1>{initialView==='craft'?'제작 공방':'마을 생활'}</h1><p role="status">{error||(!lease?'플레이 권한 확인 중…':'마을 정보를 불러오는 중…')}</p><button className="tc-action" disabled={busy||!lease} onClick={()=>void refresh()}>다시 확인</button></div>;
  const disabled=busy||!lease||!!pending;
  return <div className="tc-world-page">

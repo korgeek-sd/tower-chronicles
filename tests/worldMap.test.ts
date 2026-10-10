@@ -18,9 +18,10 @@ test('map exposes owners, preview disclosure, selected town details and travel b
  assert.match(html,/aria-pressed="true"/);assert.match(html,/disabled=""/);
 });
 
-test('town tiles have only names and owners without icons taxes or legend',()=>{
+test('region board separates central city from ten specialty cards and exposes resource filters',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{}}));
- for(const tile of html.matchAll(/<button[^>]*data-town-id=[\s\S]*?<\/button>/g))assert.doesNotMatch(tile[0],/<svg|<em|%|이동 가능/);
- assert.doesNotMatch(html,/금색:|초록:|칸을 눌러|이웃 거점|이동 경로/);
+ assert.match(html,/tc-region-city/);assert.match(html,/tc-region-grid/);
+ assert.equal((html.match(/class="tc-region-card /g)??[]).length,10);
+ assert.match(html,/aria-label="자원별 마을"/);assert.match(html,/모든 생활 자원/);
  for(const a of WORLD_TOWNS)for(const b of WORLD_TOWNS)assert.equal(canTravel(a.id,b.id),a.id!==b.id);
 });
