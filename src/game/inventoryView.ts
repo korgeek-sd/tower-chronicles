@@ -1,3 +1,4 @@
+import {skillBookFor} from './skills/books';
 import type {ProductId} from './life/crafting';
 import type {LifeMaterial} from '../online/villageLife';
 import type {EquipmentGrade,EquipmentItem,GameState,Item,Slot,Weapon} from './types';
@@ -50,7 +51,7 @@ export function inventoryView(s:GameState):InventoryViewItem[]{
  (s.equipmentItems??[]).forEach((i,order)=>{const def=EQUIPMENT_DEFINITIONS[i.kind];add({category:'equipment',equipmentKind:i.kind,sourceId:i.id,name:equipmentItemName(i),quantity:1,iconId:modernEquipmentIcon(i),grade:i.grade,slot:def.slot,equipped:s.equipped[def.slot]===i.id,modern:true,description:def.description,facts:modernEquipmentFacts(i),order:100+order,stack:false});});
  towerIds.forEach((t,order)=>{s.materials[t].forEach((quantity,index)=>add({category:'materials',sourceId:t+':'+index,name:`T${index+1} ${TOWERS[t].material}`,quantity,iconId:t,tier:index+1,description:'탑 원정에서 안전 귀환으로 확보한 재료입니다.',order,stack:true}));s.tickets[t].forEach((quantity,index)=>add({category:'tickets',sourceId:t+':'+index,name:`${TOWERS[t].name} ${index+1}층 입장권`,quantity,iconId:'tickets',tier:Math.ceil((index+1)/10),description:'해당 층 입장 시 1장이 소비됩니다.',order:order*50+index,stack:true}));});
  potionIds.forEach((p,order)=>add({category:'potions',sourceId:p,name:POTIONS[p].name+' 포션',quantity:s.potions[p],iconId:p,tier:POTIONS[p].tier,description:POTIONS[p].description,order,stack:true}));
- Object.entries(s.skillBooks).forEach(([id,quantity])=>add({category:'skillbooks',sourceId:id,name:bookName(id),quantity,iconId:'skillbooks',learned:s.learned.includes(id),description:'사용하면 해당 기술을 배웁니다. 원정 중에는 사용할 수 없습니다.',order:0,stack:true}));
+ Object.entries(s.skillBooks).forEach(([id,quantity])=>add({category:'skillbooks',sourceId:id,name:bookName(id),quantity,iconId:'skillbooks',learned:s.learned.includes(id),description:skillBookFor(id)?.description??'사용하면 해당 기술을 배웁니다. 원정 중에는 사용할 수 없습니다.',facts:skillBookFor(id)?[skillBookFor(id)!.grade+' 등급',skillBookFor(id)!.type==='active'?'액티브 스킬':'패시브 스킬']:undefined,order:0,stack:true}));
  APPEARANCES.forEach(a=>add({category:'cosmetics',sourceId:a.id,name:a.name,quantity:s.cosmetics.appearanceItems[a.id]||0,iconId:'cosmetics',registered:s.cosmetics.unlockedAppearanceIds.includes(a.id),description:a.description+' · '+a.sourceLabel,order:0,stack:true}));
  Object.entries(s.lootItems).forEach(([id,quantity])=>add({category:'other',sourceId:id,name:id==='enhancement_stone'?'강화석':id==='job_draw_ticket'?'직능 뽑기권':id,quantity,iconId:'other',description:id==='job_draw_ticket'?'직능 기록실에서 1개당 직능 기록 1회 열람에 사용합니다. 원정단 상점에서 획득합니다.':id==='enhancement_stone'?'장비 강화에 사용하는 공용 재료입니다. 장비 분해와 탑 전리품으로 획득합니다.':'안전 귀환으로 보관한 영구 아이템입니다.',order:id==='enhancement_stone'?-100:0,stack:true}));return out;
 }

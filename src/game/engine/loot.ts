@@ -1,3 +1,4 @@
+import {skillBookFor} from '../skills/books';
 ﻿import type {ExpeditionLoot, GameState} from '../types';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADES} from '../data/equipment';
 import {SKILLS,TOWERS,towerIds,CONFIG} from '../data/config';
@@ -17,7 +18,7 @@ export const lootTotals = (loot: ExpeditionLoot) => ({
   skillBooks: sumCounts(loot.skillBooks),
   equipment: loot.equipment?.length??0,
 });
-export const bookName = (id: string) => (SKILLS.find(s => s.id === id)?.name || id) + ' 스킬북';
+export const bookName = (id: string) => skillBookFor(id)?.name ?? ((SKILLS.find(s => s.id === id)?.name || id) + ' 스킬북');
 /** Labels are shared by live loot, immutable result receipts, and logs. */
 export function lootLines(loot: ExpeditionLoot): string[] {
   const lines: string[] = [];

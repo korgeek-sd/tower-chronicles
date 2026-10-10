@@ -4,8 +4,8 @@ import {GRADES,SKILL_TREE_CATALOG,type TreeWeapon,type TreeType,type TreeSkill} 
 import './skillTree.css';
 const weapons:[TreeWeapon,string][]=[['sword','검'],['bow','활'],['staff','스태프'],['any','공통']];
 const statusNames={learned:'습득 완료',available:'습득 재료 보유',locked:'미습득'};
-type Props={game:GameState;onHome:()=>void;initialWeapon?:TreeWeapon;initialType?:TreeType};
-export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='active'}:Props){
+type Props={game:GameState;onHome:()=>void;initialWeapon?:TreeWeapon;initialType?:TreeType;onLearn?:(id:string)=>void;busy?:boolean;error?:string;loginRequired?:boolean;onRefresh?:()=>void};
+export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='active',onLearn,busy=false,error='',loginRequired=false,onRefresh}:Props){
  const [weapon,setWeapon]=useState<TreeWeapon>(initialWeapon),[type,setType]=useState<TreeType>(initialType),[selection,setSelection]=useState<string|null>(null),[family,setFamily]=useState<string|null>(null),[grade,setGrade]=useState<string>('all');
  const shown=SKILL_TREE_CATALOG.filter(s=>s.weapon===weapon&&s.type===type),families=[...new Set(shown.map(s=>s.family))];
  const activeFamily=family&&families.includes(family)?family:weapon==='any'&&type==='passive'?'all':families[0];
@@ -27,10 +27,12 @@ export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='
    <span className="tc-skill-codex-effect">{s.effect}</span>
    <span className="tc-skill-codex-meta"><span>{s.type==='active'?`MP ${s.mp}`:'상시 적용'}</span><em>{statusNames[status(s)]}{game.skills.includes(s.id)?' · 장착':''}</em></span>
   </button>)}{!visible.length&&<p className="tc-skill-codex-empty">이 등급의 스킬이 없습니다.</p>}</div>
+  {error&&<div className="tc-skill-learn-message" role="alert">{error}{onRefresh&&<button disabled={busy} onClick={onRefresh}>현황 다시 확인</button>}</div>}
   {skill&&<section className="tc-skill-tree-detail" aria-label="선택한 스킬 상세" aria-live="polite">
    <header><b className="tc-skill-grade" data-grade={skill.grade}>{skill.grade}</b><h2>{skill.name}</h2><small>{statusNames[status(skill)]}</small></header>
    <p>{skill.effect}</p>
    <dl><div><dt>{skill.type==='passive'?'효과':'위력'}</dt><dd>{skill.power}</dd></div><div><dt>소모 MP</dt><dd>{skill.mp}</dd></div><div><dt>{skill.type==='passive'?'적용':'발동확률'}</dt><dd>{skill.type==='passive'?'상시':`${skill.chance}%`}</dd></div><div><dt>스킬북</dt><dd>{books(skill)}권</dd></div></dl>
+   <button className="tc-skill-learn" disabled={busy||!onLearn||learned(skill)||books(skill)<1||!!game.expedition} onClick={()=>onLearn?.(skill.id)}>{busy?'처리 중…':learned(skill)?'습득 완료':loginRequired?'로그인 후 습득':game.expedition?'귀환 후 습득 가능':'습득 · 스킬북 1권'}</button>
   </section>}
  </section>;
 }

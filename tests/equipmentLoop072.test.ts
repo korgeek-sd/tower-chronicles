@@ -18,7 +18,7 @@ test('EQUIPMENT LOOP 03: retired enhancement screen cannot run in the active app
 test('EQUIPMENT LOOP 04: skill tree is accessible from the camp and routed to its grid screen',()=>{
  const core=read('src/components/mobile/CoreScreens.tsx'),main=read('src/main.tsx');
  assert.match(core,/\|'skills'/);
- assert.match(main,/<SkillTreeScreen game=\{game\}/);
+ assert.match(main,/<SkillBooksPage key=/);
  assert.match(main,/page==='skills'/);
  const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function TowersScreen'));
  assert.doesNotMatch(home,/title:'전투 스킬'/);

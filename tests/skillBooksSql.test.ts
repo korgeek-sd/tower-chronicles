@@ -1,0 +1,22 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {PGlite} from '@electric-sql/pglite';import {SKILL_BOOKS} from '../src/game/skills/books';
+const uid='11111111-1111-4111-8111-111111111111';
+test('skill book server catalog learns once, rejects invalid ownership and rolls back failed persistence',async()=>{const db=new PGlite();try{
+ await db.exec(`create schema private;create schema auth;create role anon;create role authenticated;create table auth.users(id uuid primary key);insert into auth.users values('${uid}');
+ create table public.game_saves(user_id uuid primary key,payload jsonb,app_version text);insert into public.game_saves values('${uid}','{"expedition":null,"learned":["heavy"]}','0.1.93');
+ create table private.market_assets(user_id uuid,item_id text,quantity bigint,updated_at timestamptz,primary key(user_id,item_id));insert into private.market_assets values('${uid}','skillbook:sword_strike_c',10,now());
+ create table private.player_wallets(user_id uuid primary key);insert into private.player_wallets values('${uid}');create table private.online_expeditions(user_id uuid,status text);
+ create function private.village_life_user(uuid,bigint,text,text) returns uuid language plpgsql as $$begin if $2<>1 or $1 is null then raise exception 'GAME_SESSION_LOST';end if;return $1;end$$;
+ create function private.sync_market_economy_from_latest_save(uuid) returns void language plpgsql as $$begin end$$;
+ create function private.cloud_record_json(uuid) returns jsonb language sql as $$select '{}'::jsonb$$;
+ create function private.persist_client_payload_with_server_economy(uuid,jsonb,text) returns void language plpgsql as $$begin update public.game_saves set payload=$2 where user_id=$1;end$$;`);
+ await db.exec(readFileSync(new URL('../supabase/migrations/20261010064836_skillbook_catalog_learning.sql',import.meta.url),'utf8'));
+ const rows=(await db.query<{skill_id:string;name:string}>('select skill_id,name from private.skill_book_catalog')).rows;assert.equal(rows.length,80);for(const book of SKILL_BOOKS)assert.ok(rows.some(r=>r.skill_id===book.skillId&&r.name===book.name));
+ const call=async(id:string,generation=1)=> (await db.query<{result:any}>(`select public.learn_catalog_skill($1,$2,'client','device',$3) result`,[uid,generation,id])).rows[0].result;
+ let result=await call('sword_strike_c');assert.equal(result.books.sword_strike_c,9);assert.deepEqual(result.learned,['sword_strike_c']);assert.equal((await call('sword_strike_c')).books.sword_strike_c,9);
+ assert.deepEqual((await db.query<{payload:any}>('select payload from public.game_saves')).rows[0].payload.learned.sort(),['heavy','sword_strike_c']);
+ await assert.rejects(call('sword_strike_b'),/SKILL_BOOK_EMPTY/);await assert.rejects(call('fake'),/SKILL_UNKNOWN/);await assert.rejects(call('sword_strike_c',2),/GAME_SESSION_LOST/);
+ await db.exec(`insert into private.market_assets values('${uid}','skillbook:sword_strike_b',1,now());insert into private.online_expeditions values('${uid}','ACTIVE');`);await assert.rejects(call('sword_strike_b'),/SKILL_EXPEDITION_BLOCKED/);await db.exec('delete from private.online_expeditions');
+ await db.exec(`create or replace function private.persist_client_payload_with_server_economy(uuid,jsonb,text) returns void language plpgsql as $$begin raise exception 'SAVE_FAILED';end$$;`);await assert.rejects(call('sword_strike_b'),/SAVE_FAILED/);assert.equal((await db.query<{quantity:number}>(`select quantity from private.market_assets where item_id='skillbook:sword_strike_b'`)).rows[0].quantity,1);assert.equal((await db.query(`select * from private.learned_catalog_skills where skill_id='sword_strike_b'`)).rows.length,0);
+ await db.exec('set role anon');await assert.rejects(db.query(`select public.get_skill_book_state('${uid}',1,'client','device')`),/permission denied/);await db.exec('reset role');
+ assert.equal((await db.query<{rls:boolean}>(`select relrowsecurity rls from pg_class where oid='private.learned_catalog_skills'::regclass`)).rows[0].rls,true);
+ }finally{await db.close();}});

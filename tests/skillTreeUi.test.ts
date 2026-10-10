@@ -14,3 +14,12 @@ test('common passive collection contains the two SSR skills and locked details r
  assert.match(html,/귀환자의 맹세/);assert.match(html,/여섯 번째 각인/);assert.match(html,/최대 HP/);assert.doesNotMatch(html,/undefined|NaN/);
  const css=readFileSync(new URL('../src/components/skills/skillTree.css',import.meta.url),'utf8');assert.match(css,/repeat\(2/);assert.match(css,/min-height:44px/);assert.match(css,/safe-area-inset/);
 });
+test('catalog learning requires a book and active online action, with pending and learned guards',()=>{
+ const game=initialState();game.skillBooks.sword_strike_c=2;
+ const render=(extra:Record<string,unknown>)=>renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{},...extra}));
+ assert.match(render({onLearn:()=>{}}),/class="tc-skill-learn"[^>]*>습득 · 스킬북 1권/);
+ assert.doesNotMatch(render({onLearn:()=>{}}),/class="tc-skill-learn" disabled/);
+ assert.match(render({onLearn:()=>{},busy:true}),/class="tc-skill-learn" disabled/);
+ assert.match(render({loginRequired:true}),/로그인 후 습득/);
+ game.learned.push('sword_strike_c');assert.match(render({onLearn:()=>{}}),/class="tc-skill-learn" disabled/);
+});

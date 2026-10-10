@@ -1,3 +1,4 @@
+import {skillBookFor} from '../../game/skills/books';
 import {autoEquip,bestEquipmentIds,isEquipmentUpgrade} from '../../game/engine/equipmentAutoEquip';
 import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../../game/life/inventory';
 import type {FoodId} from '../../game/life/crafting';
@@ -23,7 +24,7 @@ import {EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 const PAGE_SIZE=36;
 
 
-export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
+export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,onSkills,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;onSkills?:()=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
  const gridRef=useRef<HTMLDivElement>(null);
  const [pageSize,setPageSize]=useState(PAGE_SIZE);
  const [gridRows,setGridRows]=useState(6);
@@ -38,7 +39,8 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  let action:(()=>void)|undefined,label='',disabled=false;
  if(item?.category==='equipment'){action=()=>setGame(s=>item.equipped?unequip(s,item.sourceId):equip(s,item.sourceId));label=game.expedition?'원정 중 변경 불가':item.equipped?'장착 해제':'장착';disabled=!!game.expedition;}
  if(item?.lifeProduct&&item.category==='foods'){action=()=>life.consume(item.lifeProduct as FoodId);label=life.busy?'사용 처리 중…':'음식 먹기 · +30회';disabled=life.disabled;}
- if(item?.category==='skillbooks'){action=()=>setGame(s=>useSkillBook(s,item.sourceId));label=item.learned?'습득 완료':game.expedition?'원정 중 사용 불가':'사용하여 학습';disabled=!!item.learned||!!game.expedition||!SKILLS.some(s=>s.id===item.sourceId);}
+ if(item?.category==='skillbooks'&&skillBookFor(item.sourceId)){action=onSkills;label='스킬트리에서 습득';disabled=!onSkills;}
+ else if(item?.category==='skillbooks'){action=()=>setGame(s=>useSkillBook(s,item.sourceId));label=item.learned?'습득 완료':game.expedition?'원정 중 사용 불가':'사용하여 학습';disabled=!!item.learned||!!game.expedition||!SKILLS.some(s=>s.id===item.sourceId);}
  if(item?.category==='cosmetics'){action=()=>setGame(s=>registerAppearance(s,item.sourceId));label=item.registered?'등록 완료':'외형 등록';disabled=!!item.registered;}
  const selectedEquipment=item?.category==='equipment'&&item.modern?(game.equipmentItems??[]).find(value=>value.id===item.sourceId):undefined;
  const marketItemId=item?marketItemIdForInventory(game,item):null;
