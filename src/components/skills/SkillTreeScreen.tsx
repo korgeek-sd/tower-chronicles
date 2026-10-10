@@ -31,7 +31,7 @@ export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='
   <div className="tc-skill-codex-grid" aria-label="스킬 도감">{visible.map(s=><button key={s.id} className="tc-skill-codex-card" data-status={status(s)} aria-pressed={skill?.id===s.id} aria-expanded={skill?.id===s.id} aria-label={`${s.name} · ${s.grade} · ${statusNames[status(s)]} · 스킬북 ${books(s)}권`} onClick={()=>setSelection(current=>nextSkillSelection(current,s.id))}>
    <span className="tc-skill-codex-title"><b className="tc-skill-grade" data-grade={s.grade}>{s.grade}</b><strong>{s.name}{learned(s)&&<span className="tc-skill-plus"> +{level(s)}</span>}</strong></span>
    <span className="tc-skill-codex-effect">{enhancedSkill(s,level(s)).effect}</span>
-   <span className="tc-skill-codex-meta"><span>{s.type==='active'?`MP ${s.mp}`:'상시 적용'}</span><em>{learned(s)?'습득 · ':''}스킬북 {books(s)}권{game.skills.includes(s.id)?' · 장착':''}</em></span>
+   <span className="tc-skill-codex-meta"><span>{s.type==='active'?`MP ${s.mp}`:'상시 적용'}</span><em><span className="tc-skill-status-mark" aria-hidden="true">{status(s)==='learned'?'✓':status(s)==='available'?'◆':'×'}</span><span className="tc-skill-status-text">{learned(s)?'습득 · ':status(s)==='available'?'가능 · ':'미습득 · '}스킬북 {books(s)}권{game.skills.includes(s.id)?' · 장착':''}</span></em></span>
   </button>)}{!visible.length&&<p className="tc-skill-codex-empty">이 등급의 스킬이 없습니다.</p>}</div>
   {error&&<div className="tc-skill-learn-message" role="alert">{error}{onRefresh&&<button disabled={busy} onClick={onRefresh}>현황 다시 확인</button>}</div>}
   {skill&&<section className="tc-skill-tree-detail" aria-label="선택한 스킬 상세" aria-live="polite">

@@ -79,3 +79,21 @@ test('skill list shows exact owned skillbook counts instead of material availabi
  assert.match(learnedHtml,/보급검 베기 · C · 습득 완료 · 스킬북 7권/);
  assert.match(learnedHtml,/습득 · 스킬북 7권/);
 });
+
+test('skill cards distinguish learned, learnable and locked by visible status markers and scoped colors',()=>{
+ const game=initialState();
+ game.learned=['sword_strike_c'];
+ game.skillBooks={sword_strike_b:3,sword_strike_c:2};
+ const html=renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{}}));
+ for(const status of ['learned','available','locked'])assert.match(html,new RegExp('data-status="'+status+'"'));
+ assert.match(html,/class="tc-skill-status-mark" aria-hidden="true">✓<\/span><span class="tc-skill-status-text">습득 · 스킬북 2권/);
+ assert.match(html,/class="tc-skill-status-mark" aria-hidden="true">◆<\/span><span class="tc-skill-status-text">가능 · 스킬북 3권/);
+ assert.match(html,/class="tc-skill-status-mark" aria-hidden="true">×<\/span><span class="tc-skill-status-text">미습득 · 스킬북 0권/);
+ assert.doesNotMatch(html,/<img|<svg/);
+ const css=readFileSync(new URL('../src/components/skills/skillTree.css',import.meta.url),'utf8');
+ for(const state of ['learned','available','locked']){
+  assert.match(css,new RegExp('button\\.tc-skill-codex-card\\[data-status='+state+'\\]\\{[^}]*background:linear-gradient'));
+  assert.match(css,new RegExp('button\\.tc-skill-codex-card\\[data-status='+state+'\\]\\[aria-pressed=true\\]'));
+ }
+ assert.match(css,/\.tc-skill-codex-grid\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});

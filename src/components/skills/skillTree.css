@@ -32,3 +32,76 @@
 .tc-skill-actions .tc-skill-action-buttons button{width:100%;min-width:0;min-height:44px;margin:0;padding:5px 4px;font-size:12px}
 .tc-skill-actions .tc-skill-market{color:#e7c582;border-color:#8b7147;background:#29251d}
 .tc-skill-actions .tc-skill-market:disabled{opacity:.6;cursor:default}
+
+
+/* Skill codex ownership states: rarity badge colors remain independent. */
+.tc-skill-tree button.tc-skill-codex-card{
+ position:relative;
+ border-width:1px;
+ border-style:solid;
+ border-radius:4px;
+ transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease;
+}
+.tc-skill-tree button.tc-skill-codex-card[data-status=learned]{
+ background:linear-gradient(160deg,#263529 0%,#1c271f 100%);
+ border-color:#708f72;
+ box-shadow:inset 3px 0 #87a87b;
+ color:#e8eee0;
+}
+.tc-skill-tree button.tc-skill-codex-card[data-status=available]{
+ background:linear-gradient(160deg,#392c1d 0%,#2b231a 100%);
+ border-color:#ae8b52;
+ box-shadow:inset 3px 0 #d3aa5b;
+ color:#f0e3c9;
+}
+.tc-skill-tree button.tc-skill-codex-card[data-status=locked]{
+ background:linear-gradient(160deg,#232220 0%,#1a1918 100%);
+ border-color:#4c4943;
+ box-shadow:inset 3px 0 #615d54;
+ color:#a8a39a;
+}
+.tc-skill-codex-card[data-status=locked] .tc-skill-codex-effect{color:#928c83}
+.tc-skill-codex-card[data-status=locked] .tc-skill-codex-title strong{color:#ada89e}
+.tc-skill-codex-card[data-status=learned] .tc-skill-codex-title strong{color:#e2eedf}
+.tc-skill-codex-card[data-status=available] .tc-skill-codex-title strong{color:#f3dfb5}
+.tc-skill-codex-card .tc-skill-codex-meta em{
+ display:inline-flex;
+ align-items:center;
+ gap:4px;
+ min-width:0;
+ font-style:normal;
+ font-variant-numeric:tabular-nums;
+}
+.tc-skill-codex-card .tc-skill-status-mark{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ width:15px;
+ height:15px;
+ flex:0 0 15px;
+ border:1px solid currentColor;
+ border-radius:3px;
+ font-size:11px;
+ font-weight:800;
+ line-height:1;
+}
+.tc-skill-codex-card[data-status=learned] .tc-skill-status-mark{color:#b6dca9;background:#36513a}
+.tc-skill-codex-card[data-status=available] .tc-skill-status-mark{color:#f0ce88;background:#5d4729}
+.tc-skill-codex-card[data-status=locked] .tc-skill-status-mark{color:#97918a;background:#36332f}
+.tc-skill-codex-card .tc-skill-status-text{white-space:nowrap}
+.tc-skill-tree button.tc-skill-codex-card[aria-pressed=true]{
+ outline:2px solid #e3c27b;
+ outline-offset:-2px;
+ border-color:#e3c27b;
+ filter:brightness(1.12);
+}
+.tc-skill-tree button.tc-skill-codex-card[data-status=learned][aria-pressed=true]{box-shadow:inset 3px 0 #b8d9a2,0 0 0 1px #a6be92}
+.tc-skill-tree button.tc-skill-codex-card[data-status=available][aria-pressed=true]{box-shadow:inset 3px 0 #efc975,0 0 0 1px #d7b475}
+.tc-skill-tree button.tc-skill-codex-card[data-status=locked][aria-pressed=true]{box-shadow:inset 3px 0 #98938c,0 0 0 1px #b4a17b}
+@media(max-width:380px){
+ .tc-skill-codex-card .tc-skill-codex-meta em{gap:2px;font-size:9px}
+ .tc-skill-codex-card .tc-skill-status-mark{width:13px;height:13px;flex-basis:13px;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-skill-tree button.tc-skill-codex-card{transition:none}
+}
