@@ -96,3 +96,12 @@
 .tc-hunt-heading{flex-wrap:wrap;gap:8px}
 .tc-hunt-preview-toggle{font-size:12px;padding:7px 10px;white-space:nowrap}
 .tc-hunt-preview-toggle[aria-pressed="true"]{border-color:#b99762;color:#f0d49f;background:#34281b}
+
+/* Show the hound's full combat stat panel under its reference art on mobile. */
+.tc-hunt-art-preview-grid .tc-hunt-fighter.enemy .tc-hunt-fighter-info{gap:8px;min-height:118px}
+.tc-hunt-art-preview-grid .tc-hunt-stats{font-size:11px;gap:8px}
+.tc-hunt-art-preview-grid .tc-hunt-stats b{color:#e6dfcf}
+.tc-hunt-art-preview-grid .tc-hunt-hp{width:100%;min-width:0}
+.tc-hunt-art-preview-grid .tc-hunt-hp>div:first-child{font-size:10px;margin-bottom:4px;gap:4px}
+.tc-hunt-art-preview-grid .tc-hunt-hp b{font-size:10px;white-space:nowrap}
+.tc-hunt-art-preview-grid .tc-hunt-hp [role=progressbar]{height:10px}

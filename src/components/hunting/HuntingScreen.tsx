@@ -53,7 +53,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
     <div className="tc-hunt-art-preview-heading"><div><strong>외형 비교 미리보기</strong><small>실제 사냥 UI 크기로 두 이미지를 확인하세요.</small></div><a href="./">일반 화면</a></div>
     <div className="tc-hunt-art-preview-grid">
       <article className="tc-hunt-fighter tc-hunt-panel player"><div className="tc-hunt-art"><img src={assetUrl(previewJob)} alt="참고 직업 외형"/></div><div className="tc-hunt-fighter-info"><h2>직업 외형</h2><small>제공해주신 여성 검사 이미지</small></div></article>
-      <article className="tc-hunt-fighter tc-hunt-panel enemy"><div className="tc-hunt-art"><img src={assetUrl("assets/monsters/new/plains/grave_digger_hound.png")} alt={previewHound.name}/></div><div className="tc-hunt-fighter-info"><h2>{previewHound.name}</h2><small>실제 외곽 평야 등장 몬스터</small></div></article>
+      <article className="tc-hunt-fighter tc-hunt-panel enemy" aria-label={previewHound.name+' 몬스터 정보'}><div className="tc-hunt-art"><img src={assetUrl("assets/monsters/new/plains/grave_digger_hound.png")} alt={previewHound.name}/></div><div className="tc-hunt-fighter-info"><h2>{previewHound.name}</h2><div className="tc-hunt-stats"><span>공격 <b>{previewHound.attack}</b></span><span>방어 <b>{previewHound.defense}</b></span></div><Hp label={previewHound.name+' 미리보기'} value={previewHound.hp} max={previewHound.hp}/><small>외곽 평야 · 기본 능력치</small></div></article>
     </div>
     <p>외형 비교 전용입니다. 캐릭터 외형 설정이나 보상·사냥 확률은 변경하지 않습니다. 사냥을 진행하면 몬스터 10종 중 하나가 등장합니다.</p>
   </section>}

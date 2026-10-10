@@ -25,6 +25,14 @@ test('preview link compares supplied job and actual hound in hunting screen, wit
  assert.match(preview,/무덤파는 들개 · 직업 외형 비교/);
  assert.match(preview,/assets\/characters\/preview\/grave_hound_job_reference.jpg/);
  assert.match(preview,/assets\/monsters\/new\/plains\/grave_digger_hound.png/);
+ const hound=HUNT_MONSTERS.plains[0];
+ assert.match(preview,/aria-label="무덤파는 들개 몬스터 정보"/);
+ assert.match(preview,new RegExp('<h2>'+hound.name+'</h2>'));
+ assert.match(preview,new RegExp('<span>공격 <b>'+hound.attack+'</b></span>'));
+ assert.match(preview,new RegExp('<span>방어 <b>'+hound.defense+'</b></span>'));
+ assert.match(preview,new RegExp('aria-label="'+hound.name+' 미리보기 HP"[^>]*aria-valuemax="'+hound.hp+'"[^>]*aria-valuenow="'+hound.hp+'"'));
+ assert.match(preview,/외곽 평야 · 기본 능력치/);
+ assert.doesNotMatch(normal,/무덤파는 들개 미리보기 HP/);
  assert.doesNotMatch(normal,/외형 비교 미리보기/);
  assert.doesNotMatch(normal,/assets\/characters\/preview\/grave_hound_job_reference.jpg/);
 });
