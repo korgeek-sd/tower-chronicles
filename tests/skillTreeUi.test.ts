@@ -56,3 +56,12 @@ test('tapping the active skill again closes both details and enhancement, and ta
  assert.match(css,/\.tc-skill-tree \.tc-skill-tree-tabs button[^}]*height:24px;min-height:24px/);
  assert.match(css,/\.tc-skill-tree \.tc-skill-tree-families button[^}]*height:24px;min-height:24px/);
 });
+
+test('skill cards keep compact intrinsic-height rows aligned to the top, including short viewports',()=>{
+ const css=readFileSync(new URL('../src/components/skills/skillTree.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-skill-codex-grid\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\);grid-template-rows:none;grid-auto-rows:minmax\(88px,max-content\);align-content:start/);
+ assert.match(css,/\.tc-skill-codex-grid\{gap:4px;grid-auto-rows:minmax\(78px,max-content\)\}/);
+ assert.match(css,/\.tc-skill-codex-grid\{grid-auto-rows:minmax\(70px,max-content\)\}/);
+ assert.doesNotMatch(css,/grid-template-rows:repeat\(3,minmax\(44px,1fr\)\)/);
+ assert.match(css,/\.tc-skill-codex-grid\{overflow:auto\}/);
+});
