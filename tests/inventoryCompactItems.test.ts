@@ -8,8 +8,8 @@ import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../src/game/life/i
 import {selectInventory,categoryNames} from '../src/game/inventoryView';
 import {InventoryItemArt,InventoryStackCount} from '../src/components/inventory/InventoryDetailSheet';
 
-test('current inventory offers the six requested categories and keeps challenge tickets in other',()=>{
- assert.deepEqual(LIFE_INVENTORY_CATEGORIES.map(c=>categoryNames[c]),['전체','장비','재료','포션','음식','기타']);
+test('current inventory offers equipment, skillbooks and life categories and keeps challenge tickets in other',()=>{
+ assert.deepEqual(LIFE_INVENTORY_CATEGORIES.map(c=>categoryNames[c]),['전체','장비','스킬북','재료','포션','음식','기타']);
  const life:any={materials:{herb:20},products:{challenge_ticket:5,potion:1234,attack_food:2}};
  const items=unifiedInventoryView(initialState(),life);
  assert.equal(selectInventory(items,'other')[0]?.lifeProduct,'challenge_ticket');
