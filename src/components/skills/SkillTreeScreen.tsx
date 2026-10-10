@@ -37,11 +37,13 @@ export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='
    <header><b className="tc-skill-grade" data-grade={skill.grade}>{skill.grade}</b><h2>{skill.name}{learned(skill)&&<span className="tc-skill-plus"> +{level(skill)}</span>}</h2><small>{statusNames[status(skill)]}</small></header>
    <p>{current?.effect}</p>
    <dl><div><dt>{skill.type==='passive'?'효과':'위력'}</dt><dd>{current?.power}</dd></div><div><dt>소모 MP</dt><dd>{skill.mp}</dd></div><div><dt>{skill.type==='passive'?'적용':'발동확률'}</dt><dd>{skill.type==='passive'?'상시':`${skill.chance}%`}</dd></div><div><dt>스킬북</dt><dd>{books(skill)}권</dd></div></dl>
-   <button className="tc-skill-learn" disabled={busy||!onLearn||learned(skill)||books(skill)<1||!!game.expedition} onClick={()=>onLearn?.(skill.id)}>{busy?'처리 중…':learned(skill)?'습득 완료':loginRequired?'로그인 후 습득':game.expedition?'귀환 후 습득 가능':'습득 · 스킬북 1권'}</button>
-   {learned(skill)&&<div className="tc-skill-upgrade" aria-label="스킬 강화">
-    {cost&&next?<><p>강화 +{cost.level} · 기본 대비 효과 +{cost.bonus}%</p><p>{skill.type==='passive'?'효과':'위력'} {current?.power} → {next.power}</p>{current?.effect!==next.effect&&<p>{next.effect}</p>}<p>필요: 스킬북 {cost.books}권 · {cost.gold.toLocaleString('ko-KR')} 골드</p><p>보유: 스킬북 {books(skill)}권 · {game.market.gold.toLocaleString('ko-KR')} 골드</p></>:<p>최대 강화 +3 · 기본 대비 효과 +15%</p>}
-    <button className="tc-skill-enhance" disabled={busy||!onEnhance||!cost||books(skill)<(cost?.books??0)||game.market.gold<(cost?.gold??0)||!!game.expedition} onClick={()=>onEnhance?.(skill.id,level(skill))}>{busy?'처리 중…':!cost?'최대 강화 +3':loginRequired?'로그인 후 강화':game.expedition?'귀환 후 강화 가능':`강화 +${cost.level}`}</button>
-   </div>}
+   {learned(skill)&&cost&&next&&<div className="tc-skill-upgrade" aria-label="강화 효과 미리보기"><p>강화 +{cost.level} · 기본 대비 효과 +{cost.bonus}%</p><p>{skill.type==='passive'?'효과':'위력'} {current?.power} → {next.power}</p>{current?.effect!==next.effect&&<p>{next.effect}</p>}</div>}
   </section>}
+  {skill&&<footer className="tc-skill-actions" aria-label="스킬 습득 및 강화">
+   {learned(skill)?<>
+    {cost?<div className="tc-skill-action-cost"><span>필요: 스킬북 {cost.books}권 · {cost.gold.toLocaleString('ko-KR')} 골드</span><small>보유: {books(skill)}권 · {game.market.gold.toLocaleString('ko-KR')} 골드</small></div>:<p>최대 강화 +3 · 기본 대비 효과 +15%</p>}
+    <button className="tc-skill-enhance" disabled={busy||!onEnhance||!cost||books(skill)<(cost?.books??0)||game.market.gold<(cost?.gold??0)||!!game.expedition} onClick={()=>onEnhance?.(skill.id,level(skill))}>{busy?'처리 중…':!cost?'최대 강화 +3':loginRequired?'로그인 후 강화':game.expedition?'귀환 후 강화 가능':`강화 +${cost.level}`}</button>
+   </>:<button className="tc-skill-learn" disabled={busy||!onLearn||learned(skill)||books(skill)<1||!!game.expedition} onClick={()=>onLearn?.(skill.id)}>{busy?'처리 중…':learned(skill)?'습득 완료':loginRequired?'로그인 후 습득':game.expedition?'귀환 후 습득 가능':'습득 · 스킬북 1권'}</button>}
+  </footer>}
  </section>;
 }

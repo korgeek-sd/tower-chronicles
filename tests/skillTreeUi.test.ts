@@ -21,7 +21,17 @@ test('catalog learning requires a book and active online action, with pending an
  assert.doesNotMatch(render({onLearn:()=>{}}),/class="tc-skill-learn" disabled/);
  assert.match(render({onLearn:()=>{},busy:true}),/class="tc-skill-learn" disabled/);
  assert.match(render({loginRequired:true}),/로그인 후 습득/);
- game.learned.push('sword_strike_c');assert.match(render({onLearn:()=>{}}),/class="tc-skill-learn" disabled/);
+ game.learned.push('sword_strike_c');assert.doesNotMatch(render({onLearn:()=>{}}),/class="tc-skill-learn"/);
+});
+test('enhance and learn actions stay outside the scrollable detail in a nonshrinking bottom bar',()=>{
+ const game=initialState();game.learned.push('sword_strike_c');game.skillBooks.sword_strike_c=10;game.market.gold=10000;
+ const html=renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{},onEnhance:()=>{}}));
+ assert.match(html,/<\/section><footer class="tc-skill-actions"/);
+ const footer=html.slice(html.indexOf('<footer class="tc-skill-actions"'));
+ assert.match(footer,/스킬북 2권/);assert.match(footer,/500 골드/);assert.match(footer,/class="tc-skill-enhance"/);
+ const css=readFileSync(new URL('../src/components/skills/skillTree.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-skill-actions\{[^}]*flex-shrink:0/);
+ assert.match(css,/\.tc-skill-codex-grid\{[^}]*overflow:auto/);
 });
 test('learned skills show enhancement cost, next effect and +3 resource guards',()=>{
  const game=initialState();game.learned.push('sword_strike_c');game.skillBooks.sword_strike_c=10;game.market.gold=10000;
