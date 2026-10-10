@@ -32,8 +32,9 @@ export interface HuntingState {statAllocation?:StatAllocation;statPoints?:number
 export const initialHuntingState=(now=Date.now()):HuntingState=>({skills:['heavy','guard','quick'],vitality:100,recoveredAt:now,experience:0,mastery:0,lastResult:null,statAllocation:{...EMPTY_STAT_ALLOCATION},statResets:0});
 export function recoverVitality(state:HuntingState,now:number):HuntingState {
  const elapsed=Math.max(0,now-state.recoveredAt),ticks=Math.floor(elapsed/VITALITY_INTERVAL);
- const vitality=Math.min(VITALITY_CAP,state.vitality+ticks);
- return {...state,vitality,recoveredAt:vitality===VITALITY_CAP?Math.max(now,state.recoveredAt):state.recoveredAt+ticks*VITALITY_INTERVAL};
+ // One-time bonus vitality may exceed the natural regeneration cap. Never discard it on refresh.
+ const vitality=state.vitality>=VITALITY_CAP?state.vitality:Math.min(VITALITY_CAP,state.vitality+ticks);
+ return {...state,vitality,recoveredAt:vitality>=VITALITY_CAP?Math.max(now,state.recoveredAt):state.recoveredAt+ticks*VITALITY_INTERVAL};
 }
 /** Confirmed long-term curve: requirement for level L -> L+1. */
 export function huntingExperienceToNextLevel(level:number):number {
