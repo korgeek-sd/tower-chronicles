@@ -31,7 +31,7 @@ export function HuntingPage({game,setGame,now,lease,userId,nickname,onPrepare,on
     pending.current=null;if(pendingKey)localStorage.removeItem(pendingKey);
    }else{
     const resolved=resolveHunt(state,map,stats(game),state.skills,now);localStorage.setItem(GUEST_KEY,JSON.stringify(resolved.state));setState(resolved.state);
-    setGame(current=>{const next=structuredClone(current),m=HUNT_MAPS.find(x=>x.id===map)!;next.silver+=resolved.result.silver;next.materials[m.tower][0]+=resolved.result.materialCount;return next;});
+    setGame(current=>{const next=structuredClone(current),m=HUNT_MAPS.find(x=>x.id===map)!;if(resolved.result.equipment)next.equipmentItems.push(resolved.result.equipment);next.silver+=resolved.result.silver;next.materials[m.tower][0]+=resolved.result.materialCount;return next;});
    }
   }catch(e){if(alive.current)setError(e instanceof Error?e.message:'사냥을 처리하지 못했습니다.');}
   finally{onPending(false);lock.current=false;if(alive.current)setBusy(false);}

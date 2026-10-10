@@ -1,4 +1,5 @@
-import type {Tower} from '../types';
+import {rollHuntingEquipment} from './equipmentDrops';
+import type {EquipmentItem,Tower} from '../types';
 export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
 export const HUNT_MAPS=[
@@ -16,7 +17,7 @@ export function combatStats(input:CombatInput):CombatStats {
  return {hp:Math.max(1,finite(input.hp,1)),attack:Math.max(0,finite(input.attack,0)),defense:Math.max(0,finite(input.defense,0)),critChance:Math.max(0,Math.min(1,finite(input.critChance,.05))),critDamage:Math.max(1,finite(input.critDamage,1.5)),armorPenetration:Math.max(0,Math.min(1,finite(input.armorPenetration,0)))};
 }
 export interface HuntTurn {turn:number;lines:string[];playerHp:number;monsterHp:number}
-export interface HuntResult {startHp?:number;recoveredHp?:number;potionsUsed?:number;requestId?:string;mapId:HuntMapId;outcome:'victory'|'defeat';player:CombatStats;playerHp:number;monsterHp:number;turns:HuntTurn[];silver:number;exp:number;mastery:number;materialCount:number;createdAt:number}
+export interface HuntResult {equipment?:EquipmentItem|null;startHp?:number;recoveredHp?:number;potionsUsed?:number;requestId?:string;mapId:HuntMapId;outcome:'victory'|'defeat';player:CombatStats;playerHp:number;monsterHp:number;turns:HuntTurn[];silver:number;exp:number;mastery:number;materialCount:number;createdAt:number}
 export const HUNT_SKILLS=[{id:'heavy',name:'강타',description:'공격력 180% 피해 · 3턴마다 사용'},{id:'guard',name:'방어',description:'HP 50% 이하 · 이번 턴 받는 피해 50% 감소 · 4턴마다 사용'},{id:'quick',name:'속공',description:'공격력 120% 피해 · 2턴마다 사용'}];
 export interface HuntingState {currentHp?:number|null;maxHp?:number|null;potions?:number;foodTurns?:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
 export const initialHuntingState=(now=Date.now()):HuntingState=>({skills:['heavy','guard','quick'],vitality:100,recoveredAt:now,experience:0,mastery:0,lastResult:null});
@@ -73,6 +74,8 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  const postPotions=Math.min(potions,Math.ceil(player.hp-hp));potions-=postPotions;
  const recoveredHp=Math.max(1,Math.min(player.hp,hp+postPotions));
  for(const food of ['attack_food','defense_food','experience_food'] as const)foods[food]=Math.max(0,(foods[food]??0)-1);
- const result:HuntResult={startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,turns,silver:win?map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
+ const draw=(size:number)=>Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*size);
+ const equipment=win?rollHuntingEquipment(mapId,draw(1000000),draw(9)):null;
+ const result:HuntResult={equipment,startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,turns,silver:win?map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
  return {state:{...state,currentHp:recoveredHp,maxHp:player.hp,potions,foodTurns:foods,vitality:state.vitality-1,experience:state.experience+result.exp,mastery:state.mastery+result.mastery,lastResult:result},result};
 }
