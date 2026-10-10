@@ -41,7 +41,8 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const previewJob='assets/characters/preview/grave_hound_job_reference.jpg';
  const previewHound=HUNT_MONSTERS.plains[0];
  // Normal hunting should show the equipped job, not the starter cosmetic portrait.
- const art=previewMode?previewJob:playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle;
+ // Temporary in-battle style match only for the grave-digging hound: keep all other job appearances unchanged.
+ const art=(previewMode||result?.monster?.id==='grave_digger_hound')?previewJob:playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle;
  // Older saved results may lack image or use stale image paths; prefer current catalog art by ID.
  const activeMonster=Object.values(HUNT_MONSTERS).flat().find(m=>m.id===enemy.id);
  const enemyArt=enemy.id==='grave_digger_hound'
