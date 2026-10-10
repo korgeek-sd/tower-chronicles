@@ -36,7 +36,7 @@ test('enhance and learn actions stay outside the scrollable detail in a nonshrin
 });
 test('learned skills show enhancement cost, next effect and +3 resource guards',()=>{
  const game=initialState();game.learned.push('sword_strike_c');game.skillBooks.sword_strike_c=10;game.market.gold=10000;
- const render=(extra:Record<string,unknown>)=>renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{},onEnhance:()=>{},...extra}));
+ const render=(extra:Record<string,unknown>)=>renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{},initialSkillId:'sword_strike_c',onEnhance:()=>{},...extra}));
  assert.match(render({}),/강화 \+1/);assert.match(render({}),/스킬북 2권/);assert.match(render({}),/500 골드/);assert.match(render({}),/78.75%/);
  assert.doesNotMatch(render({}),/class="tc-skill-enhance" disabled/);
  game.market.gold=0;assert.match(render({}),/class="tc-skill-enhance" disabled/);
