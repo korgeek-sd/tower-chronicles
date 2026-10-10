@@ -61,7 +61,8 @@ export const damage=(attack:number,defense:number,multiplier=1,armorPenetration=
 export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random){
  const map=HUNT_MAPS.find(m=>m.id===mapId);if(!map)throw Error('알 수 없는 지역입니다.');
  const state=recoverVitality(before,now);if(state.vitality<1)throw Error('활력이 부족합니다.');
- const player=combatStats(applyStatAllocation(input,normalizeStatAllocation(state.statAllocation))),foods={...state.foodTurns};
+ const allocated=normalizeStatAllocation(state.statAllocation);
+ const player=combatStats(usedStatPoints(allocated)>0?applyStatAllocation(input,allocated):input),foods={...state.foodTurns};
  if((foods.attack_food??0)>0)player.attack*=1.1;
  if((foods.defense_food??0)>0)player.defense*=1.1;
  let potions=Math.max(0,Math.floor(state.potions??0));
