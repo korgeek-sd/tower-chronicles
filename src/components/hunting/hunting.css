@@ -72,3 +72,5 @@
 @media(prefers-reduced-motion:reduce){.tc-hunt-slash{display:none}.tc-hunt-arrived .tc-hunt-art img,.tc-hunt-reward-arrived,.tc-hunt-reward-arrived .tc-hunt-value,.tc-hunt .tc-hunt-working,.tc-hunt-tracking .tc-glyph,.tc-hunt-working>.tc-glyph{animation:none}}
 
 .tc-hunt-level-up{color:#e6c375!important;font-weight:700;font-size:15px!important;letter-spacing:.02em}
+
+.tc-hunt-monster-skill{display:flex;flex-direction:column;gap:3px;margin:0;font-size:11px;line-height:1.4;color:#d4b18a}.tc-hunt-monster-skill strong{font-size:12px;font-weight:600}.tc-hunt-monster-skill small{font-size:10px;color:#bca992}.tc-hunt-action.enemy:has(.tc-hunt-damage){font-variant-numeric:tabular-nums}

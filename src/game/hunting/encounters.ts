@@ -1,6 +1,7 @@
 import type {HuntMapId} from './model';
+import type {MonsterSkill} from './monsterSkills';
 export interface HuntMonster {id:string;name:string;image:string}
-export interface HuntMonsterSnapshot extends HuntMonster {hp:number;attack:number;defense:number}
+export interface HuntMonsterSnapshot extends HuntMonster {hp:number;attack:number;defense:number;skill?:MonsterSkill}
 const red=(id:string,name:string):HuntMonster=>({id,name,image:`assets/monsters/redfang/${id}.png`});
 const ore=(id:string,name:string):HuntMonster=>({id,name,image:`assets/monsters/iron-t1/${id}.png`});
 export const HUNT_MONSTERS:Record<HuntMapId,readonly HuntMonster[]>={

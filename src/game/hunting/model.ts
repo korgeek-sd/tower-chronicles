@@ -1,5 +1,6 @@
 import {chooseHuntMonster,type HuntMonsterSnapshot} from './encounters';
 import {rollHuntingEquipment} from './equipmentDrops';
+import {HUNT_MONSTER_SKILLS,resolveMonsterAction} from './monsterSkills';
 import type {EquipmentItem,Tower} from '../types';
 export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
@@ -70,7 +71,8 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  const prePotions=Math.min(potions,Math.ceil(player.hp-hp));potions-=prePotions;hp=Math.min(player.hp,hp+prePotions);
  const startHp=hp;
  const previous=state.lastResult?.monster?.id??HUNT_MAPS.find(m=>m.id===state.lastResult?.mapId)?.monsterId;
- const monster:HuntMonsterSnapshot={...chooseHuntMonster(mapId,previous,rng()),hp:map.hp,attack:map.attack,defense:map.defense};
+ const encountered=chooseHuntMonster(mapId,previous,rng());
+ const monster:HuntMonsterSnapshot={...encountered,hp:map.hp,attack:map.attack,defense:map.defense,skill:HUNT_MONSTER_SKILLS[encountered.id]};
  let mhp=monster.hp;const turns:HuntTurn[]=[],cooldowns:Record<string,number>={};
  for(let turn=1;turn<=100&&hp>0&&mhp>0;turn++){
   const lines:string[]=[];let guard=false;
@@ -78,7 +80,7 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
   if(skill==='guard'){guard=true;cooldowns.guard=turn+4;lines.push('탐사자의 방어! 이번 턴 피해 50% 감소');}
   else if(skill) {const mult=skill==='heavy'?1.8:skill==='quick'?1.2:1,critical=rng()<(player.critChance??.05),hit=damage(player.attack,map.defense,mult*(critical?player.critDamage:1),player.armorPenetration);mhp=Math.max(0,mhp-hit);if(skill)cooldowns[skill]=turn+(skill==='heavy'?3:2);lines.push(`탐사자의 ${skill==='heavy'?'강타':skill==='quick'?'속공':'공격'}! ${hit} 피해${critical?' · 치명타':''}`);}
   else lines.push('탐사자의 대기 · 사용 가능한 스킬 없음');
-  if(mhp>0){const hit=damage(map.attack,player.defense,guard?.5:1);hp=Math.max(0,hp-hit);lines.push(`${monster.name}의 공격! ${hit} 피해`);}
+  if(mhp>0){const action=resolveMonsterAction(monster.id,monster.name,turn,map.attack,player.defense,guard,mhp,monster.hp);hp=Math.max(0,hp-action.damage);mhp=Math.min(monster.hp,mhp+action.heal);lines.push(action.line);}
   turns.push({turn,lines,playerHp:hp,monsterHp:mhp});
  }
  const win=mhp===0&&hp>0;
