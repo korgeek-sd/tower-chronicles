@@ -1,0 +1,4 @@
+{
+  "forest": {"hp": 165, "attack": 18, "defense": 12},
+  "mine": {"hp": 245, "attack": 24, "defense": 22}
+}

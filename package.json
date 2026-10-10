@@ -8,7 +8,8 @@
         "typecheck": "tsc --noEmit",
         "build": "tsc --noEmit && vite build",
         "pretest": "node --import ./tests/register.mjs scripts/generateCombatSqlCatalog.ts && node scripts/buildCombatV2Migration.mjs",
-        "test": "node --import ./tests/register.mjs --test tests/*.test.ts"
+        "test": "node --import ./tests/register.mjs --test tests/*.test.ts",
+        "balance:hunting": "node --import ./tests/register.mjs scripts/balance/huntingBalance.ts"
     },
     "dependencies": {
         "@malilion/block-ui-react": "0.6.1",
