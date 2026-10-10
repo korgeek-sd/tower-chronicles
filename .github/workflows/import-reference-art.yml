@@ -1,0 +1,39 @@
+name: Import user reference art (one time)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-reference-art.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.event.head_commit.message == 'chore: stage one-time user art importer'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download approved image assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/monsters/new/plains public/assets/characters/preview
+          curl -fLSs --retry 3 --max-time 75 'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/9f079fc178d470f1d9441806112b5f4011cdb2648f6c8d69e0edeca817fa1e72.png' -o public/assets/monsters/new/plains/grave_digger_hound.png
+          curl -fLSs --retry 3 --max-time 75 'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/c75b82e03076d60e4ef01217b64148108cd396711212cc6280f989d486e45c52.jpg' -o public/assets/characters/preview/grave_hound_job_reference.jpg
+          file public/assets/monsters/new/plains/grave_digger_hound.png public/assets/characters/preview/grave_hound_job_reference.jpg
+          test "$(od -An -tx1 -N8 public/assets/monsters/new/plains/grave_digger_hound.png | tr -d ' \n')" = '89504e470d0a1a0a'
+          test "$(od -An -tx1 -N3 public/assets/characters/preview/grave_hound_job_reference.jpg | tr -d ' \n')" = 'ffd8ff'
+          test "$(wc -c < public/assets/monsters/new/plains/grave_digger_hound.png)" -gt 100000
+          test "$(wc -c < public/assets/characters/preview/grave_hound_job_reference.jpg)" -gt 50000
+      - name: Commit the two binary images and remove temporary importer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/monsters/new/plains/grave_digger_hound.png public/assets/characters/preview/grave_hound_job_reference.jpg
+          git rm .github/workflows/import-reference-art.yml
+          git commit -m 'assets: add grave-digging hound and job comparison originals'
+          git push origin HEAD:main
