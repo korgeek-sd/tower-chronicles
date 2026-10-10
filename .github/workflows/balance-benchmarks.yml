@@ -1,0 +1,31 @@
+name: Tower Balance Benchmarks
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/balance-benchmarks.yml'
+      - 'scripts/balance/**'
+      - '.agents/skills/tower-balance/**'
+      - 'src/game/hunting/**'
+      - 'src/game/data/equipment.ts'
+      - 'tests/huntingBalanceTool.test.ts'
+  workflow_dispatch:
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Run fixed-seed balance benchmarks
+        run: node --import ./tests/register.mjs scripts/balance/runBenchmark.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: balance-benchmark-csv
+          path: balance-output/*.csv
+          if-no-files-found: warn
