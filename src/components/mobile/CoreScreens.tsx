@@ -23,6 +23,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname}:{nickname?:string;g
  const routeCaption=game.expedition?'전리품은 안전 귀환 전까지 임시 보관됩니다.':game.lastExpedition?.outcome==='returned'?'최근 귀환 기록과 획득물을 요약합니다.':'다음 출정을 준비하세요.';
  const quick=[
   {id:'craft',glyph:'craft',title:'제작',subtitle:'포션 · 음식 · 도전권',action:()=>onMove('craft')},
+  {id:'skills',glyph:'skills',title:'스킬트리',subtitle:'등급 · 습득 현황',action:()=>onMove('skills')},
   {id:'jobs-list',glyph:'jobs',title:'직능목록',subtitle:`보유 직능 ${game.ownedJobIds.length}종`,action:()=>onOpenJobs('list')},
   {id:'gold-exchange',glyph:'market',title:'골드 거래소',subtitle:'Gold ↔ Silver',action:()=>onMove('gold-exchange')},
   {id:'seal',glyph:'association',title:'협회 인장',subtitle:'20회 주조 · 30단계',action:()=>onMove('seal')},

@@ -15,12 +15,13 @@ test('EQUIPMENT LOOP 02: inventory has no enhancement actions',()=>{const invent
 
 test('EQUIPMENT LOOP 03: retired enhancement screen cannot run in the active app',()=>{assert.doesNotMatch(read('src/main.tsx'),/<EnhancementScreen/);});
 
-test('EQUIPMENT LOOP 04: skill screen remains implemented after camp shortcut removal',()=>{
+test('EQUIPMENT LOOP 04: skill tree is accessible from the camp and routed to its grid screen',()=>{
  const core=read('src/components/mobile/CoreScreens.tsx'),main=read('src/main.tsx');
  assert.match(core,/\|'skills'/);
- assert.match(core,/export function SkillsScreen/);
+ assert.match(main,/<SkillTreeScreen game=\{game\}/);
  assert.match(main,/page==='skills'/);
  const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function TowersScreen'));
  assert.doesNotMatch(home,/title:'전투 스킬'/);
- assert.doesNotMatch(home,/onMove\('skills'\)/);
+ assert.match(home,/title:'스킬트리'/);
+ assert.match(home,/onMove\('skills'\)/);
 });
