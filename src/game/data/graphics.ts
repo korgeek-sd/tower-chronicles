@@ -46,7 +46,11 @@ export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower]
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
 const ASSET_REVISIONS:Readonly<Record<string,string>>={'assets/characters/jobs/duelist.webp':'e4991963','assets/characters/jobs/unity_apostle.webp':'unity-hd-20261006'};
 export const assetUrl=(path:string)=>{
- const normalized=path.replace(/^\/+/, '');
+ const source=path.replace(/^[/]+/, '');
+ const artReplacement:Readonly<Record<string,string>>={
+  'assets/monsters/new/plains/grave_digger_hound.svg':'assets/monsters/new/plains/grave_digger_hound.png',
+ };
+ const normalized=artReplacement[source]??source;
  const revision=ASSET_REVISIONS[normalized]??(normalized.startsWith('assets/characters/jobs/')?'jobs-hd-20261006':undefined);
  return './'+normalized+(revision?'?v='+revision:'');
 };

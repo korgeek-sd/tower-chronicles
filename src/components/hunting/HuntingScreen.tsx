@@ -9,11 +9,11 @@ import {stats} from '../../game/engine/state';
 import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
 import {equipmentItemName,EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
 import {Glyph} from '../../ui/mobile';
-type Props={game:GameState;hunting:HuntingState|null;now:number;busy:boolean;error?:string;nickname?:string;onHunt:(id:HuntMapId)=>void;onSettings:()=>void;onRetry?:()=>void};
+type Props={game:GameState;hunting:HuntingState|null;now:number;busy:boolean;error?:string;nickname?:string;onHunt:(id:HuntMapId)=>void;onSettings:()=>void;onRetry?:()=>void;previewAppearance?:boolean};
 function Hp({label,value,max}:{label:string;value:number;max:number}){
  return <div className="tc-hunt-hp"><div><span>HP</span><b>{Math.round(value).toLocaleString()} / {Math.round(max).toLocaleString()}</b></div><div role="progressbar" aria-label={label+' HP'} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}><i style={{width:Math.max(0,Math.min(100,value/max*100))+'%'}}/></div></div>;
 }
-export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRetry}:Props){
+export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRetry,previewAppearance}:Props){
  const feel=useGameFeel();
  const [submitting,setSubmitting]=React.useState(false),[feedbackRevision,setFeedbackRevision]=React.useState(0);
  const huntingNow=busy||submitting;
@@ -35,11 +35,22 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const resultKey=result?.requestId??`${result?.createdAt}:${enemy.id}`;
  const seconds=state?Math.max(0,Math.ceil((VITALITY_INTERVAL-Math.max(0,now-state.recoveredAt))/1000)):0;
  const {level,exp,nextExp}=huntingProgress(state?.experience??0);
- const art=playerGraphicFor(game.cosmetics.selectedAppearanceId).image.idle;
+ const previewMode=previewAppearance??(typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('artPreview')==='grave-hound');
+ const previewJob='assets/characters/preview/grave_hound_job_reference.jpg';
+ const previewHound=HUNT_MONSTERS.plains[0];
+ const art=previewMode?previewJob:playerGraphicFor(game.cosmetics.selectedAppearanceId).image.idle;
  return <section className={'tc-hunt'+(motionOff?' tc-hunt-motion-off':'')} aria-label="즉시 사냥" aria-busy={huntingNow} data-hunt-revision={feedbackRevision}>
   <header className="tc-hunt-heading"><div><small>노바르 외곽</small><h1>{view==='result'?'사냥 결과':'사냥터'}</h1></div><span>Lv. {level}</span>{view==='result'&&<button onClick={()=>setView('regions')}>사냥터로 <span aria-hidden="true">›</span></button>}</header>
   <div className="tc-hunt-vitality tc-hunt-panel"><Glyph name="haste"/><strong>활력 <b>{state?.vitality??'—'}</b><small> / 100</small></strong><div className="tc-hunt-energy" role="progressbar" aria-label="활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state?.vitality??0}><i style={{width:(state?.vitality??0)+'%'}}/></div><span>{!state?'불러오는 중':state.vitality===100?'충전 완료':`회복 ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}</span></div>
   <div className="tc-hunt-selection" hidden={view!=='regions'}>
+  {previewMode&&<section className="tc-hunt-art-preview" aria-label="무덤파는 들개 · 직업 외형 비교">
+    <div className="tc-hunt-art-preview-heading"><div><strong>외형 비교 미리보기</strong><small>실제 사냥 UI 크기로 두 이미지를 확인하세요.</small></div><a href="./">일반 화면</a></div>
+    <div className="tc-hunt-art-preview-grid">
+      <article className="tc-hunt-fighter tc-hunt-panel player"><div className="tc-hunt-art"><img src={assetUrl(previewJob)} alt="참고 직업 외형"/></div><div className="tc-hunt-fighter-info"><h2>직업 외형</h2><small>제공해주신 여성 검사 이미지</small></div></article>
+      <article className="tc-hunt-fighter tc-hunt-panel enemy"><div className="tc-hunt-art"><img src={assetUrl(previewHound.image)} alt={previewHound.name}/></div><div className="tc-hunt-fighter-info"><h2>{previewHound.name}</h2><small>실제 외곽 평야 등장 몬스터</small></div></article>
+    </div>
+    <p>외형 비교 전용입니다. 캐릭터 외형 설정이나 보상·사냥 확률은 변경하지 않습니다. 사냥을 진행하면 몬스터 10종 중 하나가 등장합니다.</p>
+  </section>}
   <nav className="tc-hunt-cards" aria-label="사냥 지역">
    {[...HUNT_MAPS].reverse().map((m,i)=><button key={m.id} className={'tc-hunt-card tc-feel-press '+(selected===m.id?'selected':'')} data-game-feel="press" aria-pressed={selected===m.id} disabled={huntingNow} onClick={()=>setSelected(m.id)} style={{backgroundImage:`linear-gradient(90deg,rgba(10,12,10,.88),rgba(10,12,10,.15)),url(${assetUrl('assets/backgrounds/hunting/world-map.webp')})`,backgroundSize:'100% 100%,100% 500%',backgroundPosition:`center,center ${i*25}%`}}><span><strong>{m.name}</strong><small>추천 레벨 {m.recommendedLevel}</small></span><span className="tc-hunt-card-state" aria-hidden="true">{selected===m.id?'선택됨':'›'}</span></button>)}
   </nav>
