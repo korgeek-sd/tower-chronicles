@@ -1,89 +1,78 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import React from 'react';
-import {renderToStaticMarkup} from 'react-dom/server';
-import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
-import {HUNT_MAPS,damage,initialHuntingState,resolveHunt} from '../src/game/hunting/model';
-import {HUNT_MONSTER_SKILLS,resolveMonsterAction} from '../src/game/hunting/monsterSkills';
-import {HuntingScreen} from '../src/components/hunting/HuntingScreen';
-import {initialState} from '../src/game/engine/state';
 import {PGlite} from '@electric-sql/pglite';
-
-const sql=()=>readFileSync(new URL('../supabase/migrations/20261010150000_hunting_monster_skills.sql',import.meta.url),'utf8');
-test('every monster encounter has one distinct authored skill without changing map-wide battle base',()=>{
- const known=new Set(Object.values(HUNT_MONSTERS).flat().map(m=>m.id));
- assert.equal(known.size,11);
- assert.deepEqual(new Set(Object.keys(HUNT_MONSTER_SKILLS)),known);
- for(const map of HUNT_MAPS)for(const m of HUNT_MONSTERS[map.id]){
-  const skill=HUNT_MONSTER_SKILLS[m.id];
-  assert.ok(skill.name&&skill.description);assert.ok(skill.interval>=2&&skill.interval<=4);
-  assert.ok(skill.multiplier>0&&skill.hits>=1&&skill.hits<=2);
+import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
+import {HUNT_MAPS,initialHuntingState,resolveHunt} from '../src/game/hunting/model';
+import {monsterSkillAt,resolveMonsterAction,damageOverTime,playerAttackFactor,playerDefenseFactor,blocksPlayerSkill,takeMonsterShield} from '../src/game/hunting/monsterSkills';
+const sql=()=>readFileSync(new URL('../supabase/migrations/20261011100000_new_hunting_monsters.sql',import.meta.url),'utf8');
+test('all five maps have ten unique NEW monsters with exactly three authored skills',()=>{
+ const ids=new Set<string>();const names=new Set<string>();let count=0;
+ for(const map of HUNT_MAPS){
+  assert.equal(HUNT_MONSTERS[map.id].length,10);
+  for(const m of HUNT_MONSTERS[map.id]){
+   assert.ok(!ids.has(m.id));ids.add(m.id);assert.ok(!names.has(m.name));names.add(m.name);
+   assert.ok(m.image.startsWith('assets/monsters/new/'));
+   assert.ok(m.hp>0&&m.attack>0&&m.defense>=0);
+   assert.equal(m.skills.length,3);
+   for(const s of m.skills){assert.ok(s.name.length>1&&s.power>=0&&s.hits>=1&&s.hits<=3);count++;}
+   assert.deepEqual([1,2,3,4,5,6,7,8].map(t=>monsterSkillAt(m,t).name),[0,1,0,2,0,1,0,2].map(i=>m.skills[i].name));
+  }
  }
- const first=resolveHunt(initialHuntingState(0),'plains',{hp:1000,attack:30,defense:40},['heavy'],0,()=>.99);
- assert.equal(first.result.monster?.hp,HUNT_MAPS[0].hp);
- assert.deepEqual(first.result.monster?.skill,HUNT_MONSTER_SKILLS.hide_gnawer);
+ assert.equal(ids.size,50);assert.equal(count,150);
+ for(const old of ['hide_gnawer','wasteland_boar','carrion_vulture','goblin_miner','fang_nest'])assert.equal(ids.has(old),false);
 });
-test('signature skills proc on schedule, regular monster strikes and player guard remain valid',()=>{
- const props={monsterId:'hide_gnawer',monsterName:'하이에나',attack:12,defense:7,monsterHp:35,monsterMaxHp:90};
- const args=(turn:number,guard=false)=>resolveMonsterAction(props.monsterId,props.monsterName,turn,props.attack,props.defense,guard,props.monsterHp,props.monsterMaxHp);
- assert.equal(args(1).skillName,null);assert.equal(args(2).skillName,null);
- assert.equal(args(1).damage,damage(12,7));
- assert.equal(args(3).skillName,'찢어 물기');
- assert.equal(args(3).damage,damage(12,7,1.3));
- assert.ok(args(3,true).damage<args(3).damage);
- assert.equal(args(6).skillName,'찢어 물기');
- assert.equal(args(4).skillName,null);
+test('all three skills affect real guest hunting turns and each monster has its own stats',()=>{
+ for(const map of HUNT_MAPS){
+  for(const index of [0,4,9]){
+   const result=resolveHunt(initialHuntingState(0),map.id,{hp:20000,attack:0,defense:100},[],0,()=>index/10+.001).result;
+   const monster=result.monster!;
+   assert.equal(monster.hp,HUNT_MONSTERS[map.id][index].hp);
+   assert.equal(monster.attack,HUNT_MONSTERS[map.id][index].attack);
+   assert.ok(result.turns[0].lines.some(s=>s.includes(monster.skills[0].name)));
+   assert.ok(result.turns[1].lines.some(s=>s.includes(monster.skills[1].name)));
+   assert.ok(result.turns[3].lines.some(s=>s.includes(monster.skills[2].name)));
+  }
+ }
 });
-test('double hit guards both strikes, and bat lifesteal is capped by missing HP',()=>{
- const strike=resolveMonsterAction('pack_vanguard','선봉',4,42,28,false,100,250);
- const guarded=resolveMonsterAction('pack_vanguard','선봉',4,42,28,true,100,250);
- assert.equal(strike.hits,2);
- assert.equal(strike.damage,2*damage(42,28,.85));
- assert.equal(guarded.damage,2*damage(42,28,.85*.5));
- assert.match(strike.line,/2연타/);
- const drain=resolveMonsterAction('mine_bat','박쥐',4,60,0,false,50,90);
- assert.equal(drain.heal,Math.min(40,Math.floor(drain.damage*.5)));
- assert.match(drain.line,/흡혈 송곳니/);assert.match(drain.line,/HP \+/);
- assert.equal(resolveMonsterAction('mine_bat','박쥐',4,60,0,false,90,90).heal,0);
+test('persistent debuffs, damage over time, shield, reflect and skill block are predictable',()=>{
+ const m=HUNT_MONSTERS.forest[0];
+ const e={bleed:.12,bleedUntil:3,attack_down:.2,attack_downUntil:2,defense_down:.2,defense_downUntil:2,silenceUntil:2,shield:.4,reflect:.2};
+ assert.equal(damageOverTime(e,2,18)[0].damage,2);
+ assert.equal(damageOverTime(e,4,18).length,0);
+ assert.equal(playerAttackFactor(e,2),.8);
+ assert.equal(playerDefenseFactor(e,3),1);
+ assert.equal(blocksPlayerSkill(e,2),true);
+ const impact=takeMonsterShield(50,e);
+ assert.equal(impact.hit,30);assert.equal(impact.reflected,6);
+ assert.equal(impact.effects.shield,0);
+ const action=resolveMonsterAction(m,2,30,false,80,{});
+ assert.equal(action.skillName,m.skills[1].name);
+ assert.ok(action.effects.attack_down!==undefined || action.effects.shield!==undefined || action.effects.vulnerable!==undefined);
 });
-test('skills run during actual guest instant hunt and monster info renders in battle result',()=>{
- const state=resolveHunt(initialHuntingState(0),'plains',{hp:1000,attack:0,defense:7},[],0,()=>.5).state;
- const result=state.lastResult!;
- assert.ok(result.turns.length>=3);
- assert.ok(result.turns[0].lines.some(t=>t.includes('하이에나의 공격')));
- assert.ok(result.turns[2].lines.some(t=>t.includes('찢어 물기')));
- const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:state,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
- assert.match(html,/고유 스킬 · 찢어 물기/);
- assert.match(html,/3턴마다 공격력 130% 피해/);
-});
-test('live SQL skill metadata and special/regular attack results equal TypeScript across all monsters',async()=>{
+test('SQL catalog / deterministic action and client combat calculations agree across 150 skills',async()=>{
  const db=new PGlite();
  try{
   await db.exec("create schema private;create role anon;create role authenticated;");
-  // The function signature and rounding use the canonical hunting_damage formula.
   await db.exec(`create function private.hunting_damage(p_attack numeric,p_defense numeric,p_multiplier numeric,p_pen numeric) returns numeric language sql immutable as $$
    select greatest(1,floor(greatest(0,p_attack)*p_multiplier*100/(100+greatest(0,p_defense)*(1-greatest(0,least(1,p_pen)))))) $$;`);
   await db.exec(sql().split('CREATE OR REPLACE FUNCTION public.hunt_once')[0]);
-  for(const [id,skill] of Object.entries(HUNT_MONSTER_SKILLS)){
-   const metadata=(await db.query<{v:unknown}>('select private.hunting_monster_skill_info($1) v',[id])).rows[0].v;
-   assert.deepEqual(metadata,skill,id+' metadata');
-   for(const turn of [1,2,3,4,6,8,12])for(const guard of [false,true]){
-    const expected=resolveMonsterAction(id,'몬스터',turn,42,28,guard,30,100);
-    const {rows}=await db.query<{v:any}>('select private.hunting_monster_attack($1,$2,$3::numeric,$4::numeric,$5::boolean,$6::numeric,$7::numeric) v',[id,turn,42,28,guard,30,100]);
-    assert.equal(Number(rows[0].v.damage),expected.damage,`${id} turn ${turn} guard=${guard}`);
-    assert.equal(Number(rows[0].v.heal),expected.heal,`${id} heal turn ${turn}`);
-    assert.equal(rows[0].v.skillName,expected.skillName);
-    assert.equal(rows[0].v.hits,expected.hits);
+  for(const [map,monsters] of Object.entries(HUNT_MONSTERS)){
+   for(const monster of monsters){
+    const server=(await db.query<{monster:any}>("select item monster from jsonb_array_elements(private.hunting_monster_catalog()->$1) item where item->>'id'=$2",[map,monster.id])).rows[0].monster;
+    assert.deepEqual(server,monster);
+    for(const turn of [1,2,4])for(const guard of [false,true]){
+     const effects={attack_buff:.2,vulnerable:.2};
+     const expected=resolveMonsterAction(monster,turn,42,guard,monster.hp-10,effects);
+     const r=(await db.query<{action:any}>("select private.hunting_monster_action($1::jsonb,$2,$3::numeric,$4,$5::numeric,$6::jsonb) action",[JSON.stringify(monster),turn,42,guard,monster.hp-10,JSON.stringify(effects)])).rows[0].action;
+     assert.equal(Number(r.damage),expected.damage,monster.id+' turn '+turn);
+     assert.equal(Number(r.heal),expected.heal,monster.id+' heal');
+     assert.equal(r.line,expected.line,monster.id+' text');
+     assert.deepEqual(r.effects,expected.effects,monster.id+' effect');
+    }
    }
   }
-  const check=(await db.query<{v:any}>("select private.hunting_monster_attack('missing',4,30,10,false,30,100) v")).rows[0].v;
-  assert.equal(check.skillName,null);
-  assert.equal((await db.query<{yes:boolean}>("select has_function_privilege('anon','private.hunting_monster_attack(text,integer,numeric,numeric,boolean,numeric,numeric)','EXECUTE') yes")).rows[0].yes,false);
-  const fullSql=sql();
-  assert.match(fullSql,/monster:=monster\|\|jsonb_build_object\('skill'/);
-  assert.match(fullSql,/monster_action:=private\.hunting_monster_attack/);
-  assert.match(fullSql,/monster_action->>'heal'/);
-  assert.match(fullSql,/create or replace function private\.hunting_monster_skill_info/);
+  assert.equal((await db.query<{priv:boolean}>("select has_function_privilege('anon','private.hunting_monster_catalog()','EXECUTE') priv")).rows[0].priv,false);
+  assert.ok(sql().includes("private.hunting_monster_action(monster,turn_no"));
  }finally{await db.close();}
 });

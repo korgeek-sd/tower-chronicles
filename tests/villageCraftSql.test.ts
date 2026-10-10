@@ -25,6 +25,7 @@ await db.exec(readFileSync(new URL('../supabase/migrations/20261010120432_huntin
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010122549_hunting_equipment_drops.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010123745_hunting_varied_encounters.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/migrations/20261010150000_hunting_monster_skills.sql',import.meta.url),'utf8'));
+await db.exec(readFileSync(new URL('../supabase/migrations/20261011100000_new_hunting_monsters.sql',import.meta.url),'utf8'));
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
 const get=()=>call('get_village_life');const action=(kind:string,item:string,count=1,request=id(),town='city')=>call('village_life_action',[request,town,kind,item,count]);
@@ -57,7 +58,7 @@ for(const critical of [0,1]){
  const prior={...initialHuntingState(0),lastResult:{monster:{id:excluded.id}} as any};
  const guest=resolveHunt(prior,'mine',fighter,['heavy','guard','quick'],0,()=>calls++===0?roll:.5);
  assert.equal(guest.result.monster?.id,server.result.monster.id);
- assert.deepEqual(guest.result.monster?.skill,server.result.monster.skill);
+ assert.deepEqual(guest.result.monster?.skills,server.result.monster.skills);
  assert.deepEqual(server.result.player,guest.result.player);
  assert.deepEqual(server.result.turns.map((t:any)=>({...t,lines:t.lines.map((line:string)=>line.replace(server.result.monster.name,guest.result.monster!.name))})),guest.result.turns);
  assert.equal(server.result.outcome,guest.result.outcome);
@@ -68,7 +69,7 @@ for(const pen of [-1,0,.5,1,2]){
  assert.equal(sqlHit,damage(100,100,1,pen));
 }
 await db.exec(`update private.hunting_states set skills=array[]::text[],current_hp=180;`);
-const waiting=await call('hunt_once',[id(),'plains']);assert.equal(waiting.result.monsterHp,90);assert.ok(waiting.result.turns[0].lines[0].includes('대기'));
+const waiting=await call('hunt_once',[id(),'plains']);assert.equal(waiting.result.monsterHp,waiting.result.monster.hp);assert.ok(waiting.result.turns[0].lines[0].includes('대기'));
 assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('authenticated','private.hunting_damage(numeric,numeric,numeric,numeric)','EXECUTE') ok")).rows[0].ok,false);
 const wreq=id();await action('well','well',1,wreq);assert.equal((await get()).health.hp,null);assert.equal((await action('well','well',1,wreq)).replayed,true);await assert.rejects(()=>action('well','well'),/WELL_COOLDOWN/);
 await db.exec(`insert into private.market_assets values('${u}','equipment_v2:drop',1,'{"grade":"rare","tier":3}',now());`);const dis=await call('dismantle_online_equipment',['drop']);assert.equal(dis.splitStones,6);assert.equal((await get()).materials.stone,1006);await action('craft','challenge_ticket');assert.equal((await get()).products.challenge_ticket,1);

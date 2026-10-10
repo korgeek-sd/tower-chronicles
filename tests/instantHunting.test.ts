@@ -38,7 +38,7 @@ test('skill cooldowns wait without basic attacks and invalid skills do not attac
  assert.equal(r.result.turns[1].monsterHp,r.result.turns[0].monsterHp);
  assert.ok(r.result.turns[1].lines[0].includes('대기'));
  const empty=resolveHunt(initialHuntingState(0),'plains',fighter,['unknown'],0,()=>0);
- assert.equal(empty.result.monsterHp,90);assert.equal(empty.result.outcome,'defeat');
+ assert.equal(empty.result.monsterHp,empty.result.monster!.hp);assert.equal(empty.result.outcome,'defeat');
 });
 test('guest HP, food and potions persist once per hunt without mutating input',()=>{
  const before={...initialHuntingState(0),currentHp:1,potions:300,foodTurns:{attack_food:2,defense_food:1,experience_food:1}};

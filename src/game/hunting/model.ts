@@ -1,15 +1,15 @@
 import {chooseHuntMonster,type HuntMonsterSnapshot} from './encounters';
 import {rollHuntingEquipment} from './equipmentDrops';
-import {HUNT_MONSTER_SKILLS,resolveMonsterAction} from './monsterSkills';
+import {resolveMonsterAction,damageOverTime,playerAttackFactor,playerDefenseFactor,blocksPlayerSkill,takeMonsterShield,type MonsterEffects} from './monsterSkills';
 import type {EquipmentItem,Tower} from '../types';
 export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
 export const HUNT_MAPS=[
- {id:'plains' as const,name:'외곽 평야',recommendedLevel:'1–19',tower:'leather' as Tower,monsterId:'hide_gnawer',monsterName:'가죽 갉는 하이에나',hp:90,attack:12,defense:5,silver:1000,silverMax:1200,exp:100,materialName:'1T 가죽'},
- {id:'forest' as const,name:'어두운 숲',recommendedLevel:'20–39',tower:'leather' as Tower,monsterId:'thorn_jackal',monsterName:'가시 자칼',hp:130,attack:18,defense:8,silver:1600,silverMax:2000,exp:250,materialName:'1T 가죽'},
- {id:'mine' as const,name:'폐광',recommendedLevel:'40–59',tower:'ore' as Tower,monsterId:'goblin_miner',monsterName:'고블린 광부',hp:180,attack:24,defense:14,silver:2500,silverMax:3100,exp:600,materialName:'1T 철광석'},
- {id:'fortress' as const,name:'무너진 성채',recommendedLevel:'60–79',tower:'leather' as Tower,monsterId:'pack_vanguard',monsterName:'무리 선봉',hp:250,attack:32,defense:20,silver:3800,silverMax:4600,exp:1400,materialName:'1T 가죽'},
- {id:'ruins' as const,name:'심층 유적',recommendedLevel:'80–100',tower:'leather' as Tower,monsterId:'fang_nest',monsterName:'송곳니 둥지',hp:340,attack:42,defense:28,silver:5500,silverMax:6500,exp:3000,materialName:'1T 가죽'},
+ {id:'plains' as const,name:'외곽 평야',recommendedLevel:'1–19',tower:'leather' as Tower,monsterId:'grave_digger_hound',monsterName:'무덤파는 들개',hp:90,attack:12,defense:5,silver:1000,silverMax:1200,exp:100,materialName:'1T 가죽'},
+ {id:'forest' as const,name:'어두운 숲',recommendedLevel:'20–39',tower:'leather' as Tower,monsterId:'inverted_blossom_stag',monsterName:'거꾸로 핀 꽃사슴',hp:130,attack:18,defense:8,silver:1600,silverMax:2000,exp:250,materialName:'1T 가죽'},
+ {id:'mine' as const,name:'폐광',recommendedLevel:'40–59',tower:'ore' as Tower,monsterId:'glass_lung_miner',monsterName:'유리폐 광부',hp:180,attack:24,defense:14,silver:2500,silverMax:3100,exp:600,materialName:'1T 철광석'},
+ {id:'fortress' as const,name:'무너진 성채',recommendedLevel:'60–79',tower:'leather' as Tower,monsterId:'kneeling_sentinel',monsterName:'무릎 꿇은 파수상',hp:250,attack:32,defense:20,silver:3800,silverMax:4600,exp:1400,materialName:'1T 가죽'},
+ {id:'ruins' as const,name:'심층 유적',recommendedLevel:'80–100',tower:'leather' as Tower,monsterId:'erased_name_keeper',monsterName:'지워진 이름꾼',hp:340,attack:42,defense:28,silver:5500,silverMax:6500,exp:3000,materialName:'1T 가죽'},
 ];
 /** Current combat uses six stats; legacy expedition Stats remains save-compatible. */
 export interface CombatStats {hp:number;attack:number;defense:number;critChance:number;critDamage:number;armorPenetration:number}
@@ -72,15 +72,17 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  const startHp=hp;
  const previous=state.lastResult?.monster?.id??HUNT_MAPS.find(m=>m.id===state.lastResult?.mapId)?.monsterId;
  const encountered=chooseHuntMonster(mapId,previous,rng());
- const monster:HuntMonsterSnapshot={...encountered,hp:map.hp,attack:map.attack,defense:map.defense,skill:HUNT_MONSTER_SKILLS[encountered.id]};
- let mhp=monster.hp;const turns:HuntTurn[]=[],cooldowns:Record<string,number>={};
+ const monster:HuntMonsterSnapshot={...encountered};
+ let mhp=monster.hp;const turns:HuntTurn[]=[],cooldowns:Record<string,number>={};let effects:MonsterEffects={};
  for(let turn=1;turn<=100&&hp>0&&mhp>0;turn++){
   const lines:string[]=[];let guard=false;
-  const skill=skills.find(id=>id&&['heavy','guard','quick'].includes(id)&&!(cooldowns[id]>turn)&&(id!=='guard'||hp/player.hp<=.5));
+  for(const dot of damageOverTime(effects,turn,monster.attack)){hp=Math.max(0,hp-dot.damage);lines.push('탐사자가 '+(dot.name==='bleed'?'출혈':dot.name==='burn'?'화상':'중독')+'로 '+dot.damage+' 피해');}
+  if(hp<=0){turns.push({turn,lines,playerHp:hp,monsterHp:mhp});break;}
+  const skill=blocksPlayerSkill(effects,turn)?undefined:skills.find(id=>id&&['heavy','guard','quick'].includes(id)&&!(cooldowns[id]>turn)&&(id!=='guard'||hp/player.hp<=.5));
   if(skill==='guard'){guard=true;cooldowns.guard=turn+4;lines.push('탐사자의 방어! 이번 턴 피해 50% 감소');}
-  else if(skill) {const mult=skill==='heavy'?1.8:skill==='quick'?1.2:1,critical=rng()<(player.critChance??.05),hit=damage(player.attack,map.defense,mult*(critical?player.critDamage:1),player.armorPenetration);mhp=Math.max(0,mhp-hit);if(skill)cooldowns[skill]=turn+(skill==='heavy'?3:2);lines.push(`탐사자의 ${skill==='heavy'?'강타':skill==='quick'?'속공':'공격'}! ${hit} 피해${critical?' · 치명타':''}`);}
-  else lines.push('탐사자의 대기 · 사용 가능한 스킬 없음');
-  if(mhp>0){const action=resolveMonsterAction(monster.id,monster.name,turn,map.attack,player.defense,guard,mhp,monster.hp);hp=Math.max(0,hp-action.damage);mhp=Math.min(monster.hp,mhp+action.heal);lines.push(action.line);}
+  else if(skill) {const mult=skill==='heavy'?1.8:skill==='quick'?1.2:1,critical=rng()<(player.critChance??.05),raw=damage(player.attack*playerAttackFactor(effects,turn),monster.defense,mult*(critical?player.critDamage:1),player.armorPenetration),impact=takeMonsterShield(raw,effects),hit=impact.hit;effects=impact.effects;mhp=Math.max(0,mhp-hit);hp=Math.max(0,hp-impact.reflected);if(skill)cooldowns[skill]=turn+(skill==='heavy'?3:2);lines.push(`탐사자의 ${skill==='heavy'?'강타':skill==='quick'?'속공':'공격'}! ${hit} 피해${critical?' · 치명타':''}`);}
+  else lines.push(blocksPlayerSkill(effects,turn)?'탐사자의 스킬이 봉인·지연되어 행동할 수 없음':'탐사자의 대기 · 사용 가능한 스킬 없음');
+  if(mhp>0&&hp>0){const action=resolveMonsterAction(monster,turn,player.defense*playerDefenseFactor(effects,turn),guard,mhp,effects);hp=Math.max(0,hp-action.damage);mhp=Math.min(monster.hp,mhp+action.heal);effects=action.effects;lines.push(action.line);}
   turns.push({turn,lines,playerHp:hp,monsterHp:mhp});
  }
  const win=mhp===0&&hp>0;

@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import {HUNT_MAPS,combatStats,applyStatAllocation,initialHuntingState,resolveHunt,statPointsForLevel,type CombatInput,type HuntMapId,type StatAllocation} from '../../src/game/hunting/model';
 import {EQUIPMENT_SLOTS,equipmentItemStats} from '../../src/game/data/equipment';
 import {HUNT_EQUIPMENT_RATES} from '../../src/game/hunting/equipmentDrops';
+import {HUNT_MONSTERS} from '../../src/game/hunting/encounters';
 import type {EquipmentGrade,EquipmentKind,Slot} from '../../src/game/types';
 
 export type BuildName='balanced'|'offense'|'defense'|'critical';
@@ -116,11 +117,10 @@ function checkOptions(options:BalanceOptions){
 const mean=(v:number[])=>v.length?v.reduce((a,b)=>a+b,0)/v.length:0;
 const percentile90=(v:number[])=>v.length?[...v].sort((a,b)=>a-b)[Math.ceil(v.length*.9)-1]:0;
 function withMonsterOverride<T>(mapId:HuntMapId,override:MonsterOverride|undefined,fn:()=>T):T {
- const monster=HUNT_MAPS.find(m=>m.id===mapId)!;
- const old={hp:monster.hp,attack:monster.attack,defense:monster.defense};
+ const pool=HUNT_MONSTERS[mapId],old=pool.map(m=>({hp:m.hp,attack:m.attack,defense:m.defense}));
  const value=override?.[mapId];
- if(value)Object.assign(monster,value);
- try{return fn();}finally{Object.assign(monster,old);}
+ if(value)for(const monster of pool)Object.assign(monster,value);
+ try{return fn();}finally{pool.forEach((monster,i)=>Object.assign(monster,old[i]));}
 }
 export function simulateBalance(options:Partial<BalanceOptions>={}):BalanceRow[] {
  const config={...DEFAULT_BALANCE_OPTIONS,...options};
