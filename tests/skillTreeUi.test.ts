@@ -23,3 +23,13 @@ test('catalog learning requires a book and active online action, with pending an
  assert.match(render({loginRequired:true}),/로그인 후 습득/);
  game.learned.push('sword_strike_c');assert.match(render({onLearn:()=>{}}),/class="tc-skill-learn" disabled/);
 });
+test('learned skills show enhancement cost, next effect and +3 resource guards',()=>{
+ const game=initialState();game.learned.push('sword_strike_c');game.skillBooks.sword_strike_c=10;game.market.gold=10000;
+ const render=(extra:Record<string,unknown>)=>renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{},onEnhance:()=>{},...extra}));
+ assert.match(render({}),/강화 \+1/);assert.match(render({}),/스킬북 2권/);assert.match(render({}),/500 골드/);assert.match(render({}),/78.75%/);
+ assert.doesNotMatch(render({}),/class="tc-skill-enhance" disabled/);
+ game.market.gold=0;assert.match(render({}),/class="tc-skill-enhance" disabled/);
+ game.market.gold=10000;game.skillBooks.sword_strike_c=1;assert.match(render({}),/class="tc-skill-enhance" disabled/);
+ game.skillBooks.sword_strike_c=10;game.skillEnhancements={sword_strike_c:3};assert.match(render({}),/최대 강화 \+3/);assert.match(render({}),/86.25%/);assert.match(render({}),/class="tc-skill-enhance" disabled/);
+ assert.match(render({busy:true}),/class="tc-skill-enhance" disabled/);
+});

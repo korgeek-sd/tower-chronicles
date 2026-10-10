@@ -172,8 +172,9 @@ const validEquipmentV2=(x:unknown)=>{
  if(Object.keys(x).some(key=>!EQUIPMENT_SLOTS.includes(key as any)))return false;
  return EQUIPMENT_SLOTS.every(key=>x[key]===null||typeof x[key]==='string');
 };
+const validSkillEnhancements=(x:unknown)=>obj(x)&&Object.values(x).every(v=>finite(v)&&Number.isInteger(v)&&v>=0&&v<=3);
 function validV23(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {
- if(!obj(x)||x.version!==23||!Array.isArray(x.items)||x.items.length!==0||!Array.isArray(x.equipmentItems)||!x.equipmentItems.every(validEquipmentItemV2)||!validEquipmentV2(x.equipped))return false;
+ if(!obj(x)||x.version!==23||(x.skillEnhancements!==undefined&&!validSkillEnhancements(x.skillEnhancements))||!Array.isArray(x.items)||x.items.length!==0||!Array.isArray(x.equipmentItems)||!x.equipmentItems.every(validEquipmentItemV2)||!validEquipmentV2(x.equipped))return false;
  return validV22({...x,version:22,items:[]},catalog);
 }
 export function validSave(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):x is GameState {return validV23(x,catalog);}

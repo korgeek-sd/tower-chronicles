@@ -16,3 +16,5 @@
 .tc-skill-grade-select{display:none}@media(max-height:700px){.tc-skill-grade-select{display:block;min-height:44px;max-width:90px;background:#1b1813;border:1px solid #716044;color:#eee5d4;font:inherit;font-size:11px}.tc-skill-tree-families{flex-wrap:nowrap}}
 
 .tc-skill-learn{width:100%;margin-top:6px;color:#e7c582!important}.tc-skill-learn:disabled{opacity:.6;cursor:default}.tc-skill-learn-message{margin:0;font-size:11px;color:#ebbd9c;flex-shrink:0}
+
+.tc-skill-plus{font-size:.8em;color:#dfc389;white-space:nowrap}.tc-skill-upgrade{border-top:1px solid #5a4c35;margin-top:7px;padding-top:4px}.tc-skill-enhance{width:100%;margin-top:4px;color:#e7c582!important}.tc-skill-enhance:disabled{opacity:.6;cursor:default}

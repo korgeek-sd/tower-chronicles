@@ -8,4 +8,21 @@ The UI disables learning while loading, without books, after learning, in an exp
 
 Validation: PGlite executes the migration against the existing interface fixture and checks all 80 catalog entries, consumption, replay, lease rejection, active expeditions, rollback and anonymous RPC denial. Render tests cover learning guards and image-free cards; inventory names/grades and legacy navigation remain covered.
 
-This adds book registration, inventory/market naming, ownership and learning. It does not add drop tables, automatic combat kits, six active/three passive loadout slots or enhancement actions. No test books are granted by the migration.
+This adds book registration, inventory/market naming, ownership, learning and enhancement. It does not add drop tables, automatic combat kits or six active/three passive loadout slots. No test books are granted by the migrations.
+
+## Enhancement to +3
+
+The skill detail shows the current level, the next effect amount and required/owned books and gold. A learned skill can be upgraded to +3 with guaranteed success: +1 consumes 2 books, +2 consumes 3, +3 consumes 5 of that exact skill. Including initial learning, reaching +3 needs 11 books. Base effect amounts increase by 5%, 10%, 15%; MP cost, trigger chance, durations, cooldowns and hit counts remain unchanged. Percent amounts retain two decimal places; fixed MP recovery rounds to the nearest integer. A zero base effect remains zero.
+
+| Grade | +1 gold | +2 gold | +3 gold |
+| --- | ---: | ---: | ---: |
+| C | 500 | 1,000 | 2,000 |
+| B | 1,000 | 2,000 | 4,000 |
+| A | 2,000 | 4,000 | 8,000 |
+| S | 4,000 | 8,000 | 16,000 |
+| SR | 8,000 | 16,000 | 32,000 |
+| SSR | 16,000 | 32,000 | 64,000 |
+
+`enhance_catalog_skill` checks the active lease and ownership, then locks save → wallet → ownership → book balance. Books, gold, the private enhancement level and cloud save are changed atomically. The request carries the expected current level: replaying a completed stage returns fresh state without another charge; skipping ahead fails. +3, insufficient resources and an active expedition block new upgrades. Client-provided levels are replaced by `private.skill_progress_payload` inside the existing canonical economy function; save uploads and other economy actions cannot overwrite server levels. `skillEnhancements` is an optional version-23 field for old-save compatibility. The UI consumes authoritative snapshot levels and gold and disables repeated clicks while awaiting a response.
+
+The 80 catalog skills still await combat-loadout integration. These enhanced catalog values are persisted and displayed, but this change does not retrofit them into the old three-slot combat kit.
