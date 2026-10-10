@@ -1,4 +1,4 @@
-import {writeFileSync,mkdirSync} from 'node:fs';
+import {writeFileSync,mkdirSync,readFileSync} from 'node:fs';
 import {allocationForBuild,buildPlayer,balanceCsv,simulateBalance,recommendedMap,type BalanceRow} from './huntingBalance';
 import {HUNT_MAPS,huntingExperienceToNextLevel} from '../../src/game/hunting/model';
 import {HUNT_EQUIPMENT_RATES} from '../../src/game/hunting/equipmentDrops';
@@ -39,4 +39,19 @@ writeFileSync('balance-output/duel.csv',balanceCsv(duel)+'\n');
 writeFileSync('balance-output/endurance.csv',balanceCsv(entryEndurance)+'\n');
 writeFileSync('balance-output/zero-potions.csv',balanceCsv(zero)+'\n');
 writeFileSync('balance-output/transitions.csv',balanceCsv(mapTransitions)+'\n');
-console.log('RESULT_COUNT '+JSON.stringify({duel:duel.length,endurance:entryEndurance.length,zero:zero.length,transitions:mapTransitions.length}));
+
+const candidate=JSON.parse(readFileSync('scripts/balance/candidate-2026-10-10.json','utf8'));
+const candidateDuel=simulateBalance({levels:ENTRIES,builds:[...BUILDS],gears:['under','standard','high'],maps:'recommended',runs:1000,seed:20261010,potions:10000,mode:'duel',candidate});
+report('CANDIDATE DUEL 1000 REPEATS EACH',candidateDuel);
+const candidateEndurance=simulateBalance({levels:ENTRIES,builds:[...BUILDS],gears:['under','standard'],maps:'recommended',runs:15,seed:20261010,potions:1200,mode:'endurance',candidate});
+report('CANDIDATE 100-VITALITY STREAKS 1200 POTIONS',candidateEndurance);
+writeFileSync('balance-output/candidate-duel.csv',balanceCsv(candidateDuel)+'\n');
+writeFileSync('balance-output/candidate-endurance.csv',balanceCsv(candidateEndurance)+'\n');
+const allLevels=[...Array(100)].map((_,index)=>index+1);
+const allGrowth=allLevels.flatMap(level=>[...BUILDS].flatMap(build=>[...GEARS].map(gear=>{
+ const p=buildPlayer(level,build,gear);
+ return [level,build,gear,p.stage,p.points.hp,p.points.attack,p.points.defense,p.points.crit,p.final.hp,p.final.attack,p.final.defense,p.final.critChance,p.final.critDamage,p.final.armorPenetration].join(',');
+})));
+writeFileSync('balance-output/player-levels-1-100.csv',['level,build,gear,equipment,pointsHP,pointsAttack,pointsDefense,pointsCrit,hp,attack,defense,critChance,critDamage,armorPenetration',...allGrowth].join('\n')+'\n');
+console.log('RESULT_COUNT '+JSON.stringify({duel:duel.length,endurance:entryEndurance.length,zero:zero.length,transitions:mapTransitions.length,candidateDuel:candidateDuel.length,candidateEndurance:candidateEndurance.length,growth:allGrowth.length}));
+

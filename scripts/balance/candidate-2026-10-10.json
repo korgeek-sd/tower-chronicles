@@ -1,0 +1,7 @@
+{
+  "plains": {"hp": 125, "attack": 7, "defense": 7},
+  "forest": {"hp": 190, "attack": 11, "defense": 12},
+  "mine": {"hp": 270, "attack": 15, "defense": 20},
+  "fortress": {"hp": 380, "attack": 20, "defense": 28},
+  "ruins": {"hp": 520, "attack": 26, "defense": 40}
+}
