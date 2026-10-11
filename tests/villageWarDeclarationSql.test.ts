@@ -7,7 +7,7 @@ const migration=readFileSync(new URL('../supabase/migrations/20261011220000_vill
 const leader='11111111-1111-4111-8111-111111111111';
 const member='22222222-2222-4222-8222-222222222222';
 const guild='33333333-3333-4333-8333-333333333333';
-const id=n=>`44444444-4444-4444-8444-${String(n).padStart(12,'0')}`;
+const id=(n:number)=>`44444444-4444-4444-8444-${String(n).padStart(12,'0')}`;
 
 test('server declaration costs exactly 100 tickets, is once per guild/town/week, rejects non-leaders, and replays safely',async()=>{
  const db=new PGlite();
@@ -30,8 +30,8 @@ test('server declaration costs exactly 100 tickets, is once per guild/town/week,
      'bidClosesAt','2026-10-16T13:00:00Z','battleStartsAt','2026-10-17T13:00:00Z')
      from private.test_phase $$;`);
   await db.exec(migration);
-  const args=(u,...rest)=>[u,1,'client','device',...rest];
-  const call=async(fn,ps)=>{const p=ps.map((_,i)=>'$'+(i+1)).join(',');return (await db.query(`select public.${fn}(${p}) result`,ps)).rows[0].result;};
+  const args=(u:string,...rest:(string|number)[])=>[u,1,'client','device',...rest];
+  const call=async(fn:string,ps:(string|number)[])=>{const p=ps.map((_,i)=>'$'+(i+1)).join(',');return (await db.query(`select public.${fn}(${p}) result`,ps)).rows[0].result;};
   const state=await call('get_village_war_declarations',args(leader));
   assert.equal(state.tickets,250);assert.equal(state.myRole,'LEADER');assert.equal(state.declarations.length,0);
   const first=await call('declare_village_war',args(leader,id(1),'herb-1'));
