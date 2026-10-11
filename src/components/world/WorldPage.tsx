@@ -15,13 +15,13 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
  const [state,setState]=useState<VillageLifeState|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[view,setView]=useState<'map'|'life'|'craft'>(initialView),[count,setCount]=useState(1),[recipe,setRecipe]=useState<ProductId>('potion'),[pending,setPending]=useState<GatherRequest|LifeActionRequest|null>(null),[offset,setOffset]=useState(0);
  const [craftResult,setCraftResult]=useState<ConfirmedCraftResult|null>(null);
  const [war,setWar]=useState<VillageWarState|null>(null),[warBusy,setWarBusy]=useState(false),[warError,setWarError]=useState(''),[warPending,setWarPending]=useState<{id:string;townId:string}|null>(null);
- const alive=useRef(true),lock=useRef(false),warLock=useRef(false),resetRetryAt=useRef(0),key=userId?'tower-life-pending:'+userId:null,warKey=userId?'tower-war-declaration-pending:'+userId:null;
+ const alive=useRef(true),lock=useRef(false),warLock=useRef(false),warRevision=useRef(0),resetRetryAt=useRef(0),key=userId?'tower-life-pending:'+userId:null,warKey=userId?'tower-war-declaration-pending:'+userId:null;
  const accept=(s:VillageLifeState)=>{if(alive.current){setState(s);setOffset(s.serverNow-Date.now());}};
- async function refreshWar(){if(!lease||!userId||warLock.current)return;try{const s=await getVillageWarDeclarations(lease);if(alive.current){setWar(s);if(!warPending)setWarError('');}}catch(e){if(alive.current)setWarError(e instanceof Error?e.message:'선전포고 현황을 불러오지 못했습니다.');}}
+ async function refreshWar(){if(!lease||!userId||warLock.current)return;const revision=warRevision.current;try{const s=await getVillageWarDeclarations(lease);if(alive.current&&!warLock.current&&revision===warRevision.current){setWar(s);if(!warPending)setWarError('');}}catch(e){if(alive.current&&!warLock.current&&revision===warRevision.current)setWarError(e instanceof Error?e.message:'선전포고 현황을 불러오지 못했습니다.');}}
  async function declareWar(townId:string,retry?:{id:string;townId:string}){
   if(!lease||!userId||warLock.current||warPending&&!retry||pending)return;
   const request=retry??{id:crypto.randomUUID(),townId};
-  warLock.current=true;setWarBusy(true);setWarError('');
+  warLock.current=true;warRevision.current++;setWarBusy(true);setWarError('');
   if(!retry){if(warKey)localStorage.setItem(warKey,JSON.stringify(request));setWarPending(request);}
   try{
    const result=await declareVillageWar(lease,request);
