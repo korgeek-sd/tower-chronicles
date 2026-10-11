@@ -85,3 +85,12 @@ test('appearance list shows stats and related collection links with ownership fi
  assert.ok(html.includes('착용 중'));
  assert.ok(!html.includes('능력 사용 가능'));
 });
+
+test('appearance list uses portrait-sized art and keeps supplied colors when unowned',()=>{
+ const css=readFileSync(new URL('../src/components/mobile/cosmetics-catalog.css',import.meta.url),'utf8');
+ assert.match(css,/listing-mode \.tc-cosmetics-icon\{[^}]*width:80px[^}]*height:108px/);
+ assert.match(css,/listing-mode \.tc-cosmetics-icon img\{[^}]*object-fit:cover/);
+ assert.match(css,/\.tc-cosmetics-icon\.has-art\{[^}]*filter:none[^}]*opacity:1/);
+ const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
+ assert.match(source,/artReady\?' has-art':''/);
+});

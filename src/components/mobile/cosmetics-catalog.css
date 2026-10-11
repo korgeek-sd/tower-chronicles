@@ -171,3 +171,14 @@
 .tc-cosmetics-catalog.listing-mode{grid-template-rows:48px 34px 20px 34px 35px 44px minmax(0,1fr) 31px}
 .tc-cosmetics-catalog.listing-mode .tc-cosmetics-items{overflow-y:auto;grid-template-rows:repeat(4,minmax(100px,1fr))}
 @media(max-height:740px){.tc-cosmetics-catalog.listing-mode{grid-template-rows:38px 31px 18px 30px 32px 44px minmax(0,1fr) 29px}}
+
+/* Supplied full-body artwork needs a portrait viewport, including unowned entries. */
+.tc-cosmetics-catalog.listing-mode .tc-cosmetics-item{grid-template-columns:80px minmax(0,1fr) 65px;min-height:124px;align-items:center}
+.tc-cosmetics-catalog.listing-mode .tc-cosmetics-icon{width:80px;height:108px;overflow:hidden}
+.tc-cosmetics-catalog.listing-mode .tc-cosmetics-icon img{width:100%;height:100%;object-fit:cover;object-position:center}
+.tc-cosmetics-item:not(.owned) .tc-cosmetics-icon.has-art{filter:none;opacity:1}
+.tc-cosmetics-catalog.listing-mode .tc-cosmetics-items{grid-template-rows:repeat(4,minmax(124px,1fr))}
+@media(max-width:360px){
+ .tc-cosmetics-catalog.listing-mode .tc-cosmetics-item{grid-template-columns:72px minmax(0,1fr) 52px;gap:5px}
+ .tc-cosmetics-catalog.listing-mode .tc-cosmetics-icon{width:72px;height:98px}
+}
