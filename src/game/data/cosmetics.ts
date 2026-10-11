@@ -176,6 +176,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"검은 긴 머리와 낡은 작업복, 거대한 망치와 낫을 지닌 혁명가.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"mechanic",name:"메카닉",rarity:"C",imagePath:"assets/characters/appearances/mechanic-aa2683a5ad70.webp",
+  description:"고글과 공구 가방을 착용하고 렌치와 정밀 기계를 다루는 정비사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
