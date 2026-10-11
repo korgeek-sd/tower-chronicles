@@ -80,6 +80,8 @@ test('appearance list shows stats and related collection links with ownership fi
  assert.ok(html.includes('외형 보유 필터'));
  assert.ok(html.includes('관련 컬렉션'));
  assert.ok(html.includes('(예정)'));
+ assert.ok(html.includes('착용 효과'));
+ assert.ok(html.includes('착용한 외형 1개만 적용'));
  assert.ok(html.includes('착용 중'));
  assert.ok(!html.includes('능력 사용 가능'));
 });

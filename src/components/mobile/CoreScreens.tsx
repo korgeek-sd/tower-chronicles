@@ -267,7 +267,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     </section>
     <p className="tc-collection-disclaimer">65개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
    </>:<>
-    <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>외형 능력치는 향후 업데이트 예정</small></div>
+    <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>착용한 외형 1개만 적용 · 효과 적용 예정</small></div>
     <div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={appearanceRarity===r} onClick={()=>{setAppearanceRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
     </div>
@@ -278,7 +278,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem">
        <div className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</div>
-       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small>{isSelected?'착용 중':isOwned?'보유':'미보유'} · {a.sourceLabel}</small><span>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':'기본 외형 · 추가 능력치 없음'}</span><button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button></div>
+       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small>{isSelected?'착용 중':isOwned?'보유':'미보유'} · {a.sourceLabel}</small><span>{a.proposedBonus?'착용 효과 · '+appearanceBonusLabel(a.proposedBonus)+' (예정)':'착용 효과 없음'}</span><button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button></div>
        <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':'착용'}</button>
       </article>;
      })}
