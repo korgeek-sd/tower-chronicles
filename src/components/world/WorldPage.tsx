@@ -27,6 +27,7 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
    const result=await declareVillageWar(lease,request);
    if(!alive.current)return;
    setWar(result.state);if(warKey)localStorage.removeItem(warKey);setWarPending(null);
+   void getVillageLife(lease).then(accept).catch(()=>{});
    setWarError('');
   }catch(e){
    if(!alive.current)return;
@@ -54,7 +55,7 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
   lock.current=true;setBusy(true);setError('');
   try{if(!retry){if(key)localStorage.setItem(key,JSON.stringify(r));setPending(r);}
    const response=await villageLifeAction(lease,r);if(!alive.current)return;accept(response.state);if(key)localStorage.removeItem(key);setPending(null);
-   if(r.action==='craft')setCraftResult({requestId:r.id,product:r.item as ProductId,quantity:response.result.quantity});
+   if(r.action==='craft'){setCraftResult({requestId:r.id,product:r.item as ProductId,quantity:response.result.quantity});if(r.item==='challenge_ticket')void refreshWar();}
    setMessage(r.action==='well'?'우물에서 HP를 완전히 회복했습니다.':r.action==='food'?`${PRODUCT_NAMES[r.item as FoodId]} 사용 · 지속 +30회`:`${PRODUCT_NAMES[r.item as ProductId]} +${response.result.quantity.toLocaleString()} · 행동력 −${response.result.actionPointsSpent}`);
   }catch(e){if(alive.current){if(e instanceof VillageLifeRejected){if(key)localStorage.removeItem(key);setPending(null);}setError(e instanceof Error?e.message:'생활 결과를 다시 확인해 주세요.');}}
   finally{lock.current=false;if(alive.current)setBusy(false);}
