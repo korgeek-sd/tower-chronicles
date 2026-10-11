@@ -191,6 +191,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"백색 날개와 빛나는 후광, 은빛 갑옷을 두르고 검과 성서를 든 전사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"seraphim",name:"세라핌",rarity:"A",imagePath:"assets/characters/appearances/seraphim-f20daf44dec1.webp",
+  description:"수많은 눈과 겹겹의 흑백 날개, 가시 후광과 사슬 장식으로 이루어진 천사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
