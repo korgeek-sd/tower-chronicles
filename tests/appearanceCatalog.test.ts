@@ -64,6 +64,6 @@ test('cosmetic menu displays collection count, planned-only bonus disclosure and
  assert.match(html,/미보유/);
  assert.match(html,/먼지길 방랑자/);
  const css=readFileSync(new URL('../src/components/mobile/cosmetics-catalog.css',import.meta.url),'utf8');
- assert.match(css,/grid-template-rows:35px auto 31px minmax\(0,1fr\) 32px/);
+ assert.match(css,/\.tc-cosmetics-catalog\{[^}]*grid-template-rows:56px 34px 34px 35px/);
  assert.match(css,/\.tc-cosmetics-items\{[^}]*grid-template-rows:repeat\(4,minmax\(0,1fr\)\)/);
 });
