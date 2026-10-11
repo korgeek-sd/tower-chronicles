@@ -433,7 +433,7 @@ function App(){
    {page==='enhancement'&&<p>장비 강화는 종료되었습니다.</p>}
    {page==='market'&&<MarketScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} intent={marketIntent} onIntentConsumed={()=>setMarketIntent(null)} onReturnToInventory={returnToInventory} onReturnToEnhancement={returnToEnhancement} onReturnToSkill={returnToSkill}/>}
    {page==='gold-exchange'&&<GoldExchangeScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
-   {page==='seal'&&<SealScreen game={game} setGame={setGame} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('협회 인장');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
+   {page==='seal'&&<SealScreen game={game} setGame={setGame} onlineAccount={!!onlineSession} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('협회 인장');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
    {page==='association'&&<AssociationScreen
     onOccupation={()=>setPage('occupation')}
     game={game}
