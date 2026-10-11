@@ -123,7 +123,14 @@ export function VillageWarBattleScreen({game,nickname,lease,onLegacy,initialWar=
   </div>
   <section className="tc-vwb-feed" aria-live="polite">
    <div><b>전투 기록</b><button type="button" onClick={()=>setRecordsOpen(true)}>더보기 ›</button></div>
-   {preview?<ul><li><span>22:14</span><b>철의맹세</b><span>수비자에게 {previewResult?'12':'12'}% 피해</span></li><li><span>22:11</span><b>새벽별</b><span>제3전선 방어</span></li></ul>:<p>{error||'아직 표시할 전투 기록이 없습니다. 수비대와 서버 전투 연결 후 기록이 표시됩니다.'}</p>}
+   {preview?<ul>
+    {previewResult&&<li><span>22:15</span><b>철의맹세</b><span>제{frontId}전선 공격 · 수비자 HP 감소</span></li>}
+    <li><span>22:14</span><b>철의맹세</b><span>제3전선 공격 · 수비자에게 12% 피해</span></li>
+    <li><span>22:11</span><b>새벽별</b><span>제3전선 수비 성공</span></li>
+    <li><span>22:08</span><b>붉은달</b><span>제1전선 공격 · 수비자에게 8% 피해</span></li>
+    <li><span>22:05</span><b>철의맹세</b><span>제4전선 방어 성공</span></li>
+    <li><span>22:03</span><b>암흑단</b><span>제5전선 점령</span></li>
+   </ul>:<p>{error||'아직 표시할 전투 기록이 없습니다. 수비대와 서버 전투 연결 후 기록이 표시됩니다.'}</p>}
   </section>
   {!preview&&<p className="tc-vwb-status">{loading?'전장 상태를 조회하는 중…':phase==='BATTLE'?(myDeclaration?'선전포고 완료 · 수비대 편성 및 전투 서버 연결 전':'선전포고한 길드만 공격 가능'):phase==='BIDDING'?'선전포고 기간 · 마을 이동에서 길드장이 참가 등록':phase==='LOCKED'?'선전포고 마감 · 전쟁 시작 대기':'다음 점령전 대기'} · 도전권 {war?.tickets.toLocaleString()??'—'}장</p>}
   {previewResult&&preview&&<div className="tc-vwb-preview-result" role="status">시안 전투 완료 · 수비자 HP 74% → 62% (서버 미반영)</div>}
