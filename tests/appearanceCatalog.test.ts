@@ -50,11 +50,11 @@ test('Corsair appears as a B-grade appearance with its existing illustrated game
  assert.equal(pirate?.rarity,'B');
  assert.equal(pirate?.collectionId,undefined);
  assert.equal(pirate?.artStatus,'ready');
- assert.equal(pirate?.imagePath,'assets/characters/jobs/corsair.webp');
+ assert.match(pirate?.imagePath??'',/^assets\/characters\/appearances\/corsair-[a-f0-9]{12}\.webp$/);
  assert.equal(pirate?.proposedBonus?.stat,'attack');
  assert.equal(pirate?.proposedBonus?.percent,APPEARANCE_PROPOSED_PERCENT.B);
  assert.equal(pirate?.tradeable,false);
- assert.ok(existsSync(new URL('../public/assets/characters/jobs/corsair.webp',import.meta.url)));
+ assert.ok(existsSync(new URL('../public/'+pirate!.imagePath,import.meta.url)));
  assert.equal(playerGraphicFor('corsair').image.idle,pirate?.imagePath);
  assert.ok(validateAppearanceCatalog());
 });
@@ -62,9 +62,9 @@ test('cosmetic catalog stores proposed bonuses only; they do not change player c
  const s=initialState();const before=stats(s);
  assert.deepEqual(s.cosmetics.unlockedAppearanceIds,['default']);
  for(const appearance of APPEARANCES.filter(x=>x.rarity)){
-  if(appearance.id==='corsair'){
-   assert.equal(appearance.artStatus,'ready');
-   assert.equal(appearance.imagePath,'assets/characters/jobs/corsair.webp');
+  if(appearance.artStatus==='ready'){
+   assert.ok(appearance.imagePath);
+   assert.ok(existsSync(new URL('../public/'+appearance.imagePath,import.meta.url)));
   }else{
    assert.equal(appearance.artStatus,'pending');
    assert.equal(appearance.imagePath,undefined,'pending art must not borrow a job illustration');
