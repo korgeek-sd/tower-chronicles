@@ -44,12 +44,13 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  const mainFacilities=[
   {id:'craft',glyph:'craft',name:'제작',action:()=>onMove('craft')},
   {id:'skills',glyph:'skills',name:'스킬트리',action:()=>onMove('skills')},
-  {id:'stats',glyph:'skill',name:'스탯 분배',action:()=>onMove('stats')},
+  {id:'appearance-summon',glyph:'jobs',name:'외형 소환',action:()=>onOpenJobs('register')},
   {id:'gold-exchange',glyph:'market',name:'골드 거래소',action:()=>onMove('gold-exchange')},
   {id:'occupation',glyph:'towers',name:'점령전',action:()=>onMove('occupation')},
   {id:'mail',glyph:'mail',name:'우편함',action:onOpenMail}
  ];
  const extraFacilities=[
+  {id:'stats',glyph:'skill',name:'스탯 분배',action:()=>onMove('stats')},
   {id:'bestiary',glyph:'bestiary',name:'생물록',action:()=>onMove('bestiary')},
   {id:'cosmetics',glyph:'cosmetics',name:'컬렉션',action:()=>onMove('cosmetics')},
   {id:'jobs-list',glyph:'jobs',name:'외형 목록',action:()=>onOpenJobs('list')},
