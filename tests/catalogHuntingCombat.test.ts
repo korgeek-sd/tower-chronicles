@@ -88,3 +88,21 @@ test('server uses authenticated learned records and atomic receipts; there is no
  for(const word of ['public.hunt_once','private.learned_catalog_skills','public.save_hunting_preset','private.refresh_hunting_state','current_mp=mp_now','mp_now:=mp_max','private.hunting_monster_action','private.hunting_equipment_drop','private.hunting_stat_reset_receipts','maxMp'])assert.ok(sql.includes(word),word);
  assert.ok(!sql.includes('MP 포션'));
 });
+
+test('rift defense reduction and volley hit count match authored families and enhancement levels',()=>{
+ const p={hp:300,attack:100,defense:20,critChance:0,critDamage:1.5,armorPenetration:0};
+ let state=initialCatalogCombat(p,200,[],{},'staff');state.monsterHp=10000;
+ const rift=castCatalogSkill('staff_rift_a',3,1,state,p,60,()=>.1)!;
+ assert.ok(Math.abs(rift.state.monsterDefenseDown-.092)<1e-9,'A rift must reduce defense by 8% boosted 15%, not by damage power 145%');
+ const volleyState=initialCatalogCombat(p,400,[],{},'bow');volleyState.monsterHp=10000;
+ const volley=castCatalogSkill('bow_volley_ssr',0,1,volleyState,p,100,()=>.1)!;
+ assert.match(volley.line,/4연타/);
+ assert.ok(volley.hit>=1&&volley.state.monsterHp<10000);
+ const master=initialCatalogCombat(p,200,['bow_mastery_ssr','sixth_mark_ssr'],{bow_mastery_ssr:3,sixth_mark_ssr:3},'bow');
+ assert.ok(master.passiveAccuracy>.1);
+ assert.ok(master.sixthPrepRatio>.15);
+ const oath=initialCatalogCombat(p,200,['return_oath_ssr'],{return_oath_ssr:3},'sword');
+ assert.ok(oath.oathShieldRatio>.15);
+ const precision=readFileSync(new URL('../supabase/migrations/20261011195000_hunting_catalog_effect_precision.sql',import.meta.url),'utf8');
+ for(const term of ['for hit_index in 1..hit_count','(array[3,5,8,11,15,20])','passive_accuracy*100','oath_shield_bonus'])assert.ok(precision.includes(term));
+});
