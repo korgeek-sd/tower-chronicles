@@ -123,3 +123,79 @@
 .tc-hunt-monster-ability-list strong{font-size:13px;color:#e5c991}
 .tc-hunt-monster-ability-list p{font-size:12px;color:#cbbdaa;margin:5px 0 0;line-height:1.5}
 @media(max-height:760px){.tc-hunt-result-page>.tc-hunt-fighter.enemy .tc-hunt-fighter-info{gap:6px;padding:6px 9px}.tc-hunt-monster-title h2{font-size:16px}.tc-hunt .tc-hunt-skill-open{min-height:28px}}
+
+
+/*
+ * Stable instant-hunt portrait slots.
+ * Both combatants must occupy identical, viewport-bounded rows. Previously
+ * flex: 1 1 0 gave the remaining height to the two portraits, so any change
+ * to rewards, enemy label or screen chrome made the art jump between hunts.
+ * Keep images intrinsically contained; do not scale the card to image pixels.
+ */
+.tc-hunt-result-page{
+ --tc-hunt-combat-card-height:clamp(112px,18svh,176px);
+}
+.tc-hunt-result-page > .tc-hunt-fighter,
+.tc-hunt-result-page > .tc-hunt-fighter.enemy{
+ box-sizing:border-box;
+ flex:0 0 var(--tc-hunt-combat-card-height);
+ height:var(--tc-hunt-combat-card-height);
+ min-height:var(--tc-hunt-combat-card-height);
+ max-height:var(--tc-hunt-combat-card-height);
+ grid-template-columns:32% minmax(0,1fr);
+ width:100%;
+}
+.tc-hunt-result-page > .tc-hunt-fighter > .tc-hunt-art{
+ position:relative;
+ width:100%;
+ height:100%;
+ min-height:0;
+ max-height:100%;
+ min-width:0;
+ overflow:hidden;
+ padding:0;
+}
+.tc-hunt-result-page > .tc-hunt-fighter > .tc-hunt-art > img{
+ position:absolute;
+ inset:0;
+ display:block;
+ box-sizing:border-box;
+ width:100%;
+ height:100%;
+ max-width:100%;
+ max-height:100%;
+ object-fit:contain;
+ object-position:center center;
+}
+.tc-hunt-result-page > .tc-hunt-fighter > .tc-hunt-fighter-info{
+ box-sizing:border-box;
+ height:100%;
+ min-height:0;
+ max-height:100%;
+ overflow:hidden;
+}
+/* Reserve name, stats and HP in a fixed row even for a long monster name. */
+.tc-hunt-result-page .tc-hunt-fighter-info{
+ gap:5px;
+ padding:7px 9px;
+}
+.tc-hunt-result-page .tc-hunt-monster-title h2{
+ display:-webkit-box!important;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+ line-clamp:2;
+ overflow:hidden;
+}
+@media (min-width:700px){
+ .tc-hunt-result-page{--tc-hunt-combat-card-height:clamp(152px,20svh,204px);}
+}
+@media (max-height:640px){
+ .tc-hunt-result-page{--tc-hunt-combat-card-height:108px;}
+ .tc-hunt-result-page .tc-hunt-fighter-info{gap:4px;padding:5px 8px;}
+}
+@media (max-height:540px){
+ .tc-hunt-result-page{--tc-hunt-combat-card-height:94px;}
+ .tc-hunt-result-page .tc-hunt-fighter-info{gap:3px;padding:3px 7px;}
+ .tc-hunt-result-page .tc-hunt-monster-title h2{font-size:13px;}
+ .tc-hunt-result-page .tc-hunt-skill-open{min-height:25px;padding:2px 5px;}
+}
