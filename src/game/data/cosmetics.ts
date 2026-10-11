@@ -171,6 +171,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"곰돌이 후드와 포근한 갈색 코트를 입은 모험가.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"proletaria",name:"프롤레타리아",rarity:"A",imagePath:"assets/characters/appearances/proletaria-04b3cd8ec79f.webp",
+  description:"검은 긴 머리와 낡은 작업복, 거대한 망치와 낫을 지닌 혁명가.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
