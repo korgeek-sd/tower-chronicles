@@ -47,3 +47,29 @@
  .tc-region-details>header{border:0}.tc-region-facts{margin:0;align-items:center}
  .tc-region-stocks{margin:0;align-items:center}.tc-region-actions button{font-size:10px}
 }
+
+/* War declaration uses the existing 11-town board; do not turn it into a scrollable map. */
+.tc-region-board{position:relative}
+.tc-region-war-status{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#bcb09c;margin:4px 0}
+.tc-region-war-status b{color:#e2c796;font-weight:600}
+.tc-region-actions .tc-region-declare{background:linear-gradient(#8d4336,#51231e);border-color:#b98558;color:#ffe0b6;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.tc-region-declare small{font-size:9px;font-weight:400;color:#f3c6a7}
+.tc-region-declare-note{font-size:9px;line-height:1.2;color:#c4a989;margin:4px 0 0}
+.tc-region-declare-note.done{color:#acc8a4}
+.tc-region-confirm-backdrop{position:absolute;inset:0;z-index:18;display:grid;place-items:center;padding:15px;background:#050806df}
+.tc-region-confirm{width:min(100%,360px);padding:17px 15px;background:linear-gradient(145deg,#30281c,#151714);border:1px solid #9c7950;box-shadow:0 14px 42px #000b;color:#efdfc4}
+.tc-region-confirm>small{font:9px monospace;letter-spacing:.2em;color:#ba9b67}
+.tc-region-confirm h2{margin:5px 0 14px;font:700 23px Georgia,"Noto Serif KR",serif;color:#f2dbad}
+.tc-region-confirm p{font-size:12px;line-height:1.6;color:#d1c4ae;margin:10px 0}
+.tc-region-confirm>div:not([role]){display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #514332;font-size:12px}
+.tc-region-confirm strong{color:#f0c48b}
+.tc-region-confirm footer{display:flex;gap:8px;margin-top:16px}
+.tc-region-confirm footer button{flex:1;min-height:44px;color:#e4d4b8;border:1px solid #705943;background:#252b2a;font-size:12px}
+.tc-region-confirm footer .tc-region-confirm-accept{background:#74372d;border-color:#b07d53;color:#f4dbb7}
+.tc-region-confirm footer button:disabled{opacity:.5}
+@container travel-page (max-height:560px){
+ .tc-region-war-status{margin:2px 0;font-size:9px}
+ .tc-region-declare-note{margin:2px 0 0;font-size:8px}
+ .tc-region-declare small{font-size:8px}
+}
+@media(max-width:380px){.tc-region-declare small{display:none}.tc-region-actions button{font-size:11px}}
