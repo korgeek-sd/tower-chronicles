@@ -13,13 +13,13 @@ import {
  appearanceCollectionById,appearanceCollectionProgress,validateAppearanceCatalog
 } from '../src/game/data/cosmetics';
 
-test('cosmetic archive has forty collectible appearances plus the original starter',()=>{
- assert.equal(APPEARANCES.length,41);
- assert.equal(APPEARANCES.filter(x=>x.rarity).length,40);
+test('cosmetic archive includes forty themed appearances plus the standalone C-grade Arquebus',()=>{
+ assert.equal(APPEARANCES.length,42);
+ assert.equal(APPEARANCES.filter(x=>x.rarity).length,41);
  assert.equal(APPEARANCE_COLLECTIONS.length,8);
  assert.deepEqual(APPEARANCE_RARITIES,['C','B','A','SR','SSR']);
  assert.ok(validateAppearanceCatalog());
- assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,41);
+ assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,42);
  assert.equal(APPEARANCES[0].id,DEFAULT_APPEARANCE_ID);
 });
 test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()=>{
@@ -30,9 +30,19 @@ test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()
   assert.equal(appearanceCollectionById(collection.id),collection);
  }
  for(const rarity of APPEARANCE_RARITIES){
-  assert.equal(APPEARANCES.filter(x=>x.rarity===rarity).length,8);
+  assert.equal(APPEARANCES.filter(x=>x.rarity===rarity).length,rarity==='C'?9:8);
   assert.equal(typeof APPEARANCE_PROPOSED_PERCENT[rarity],'number');
  }
+});
+test('Arquebus is a standalone C-grade appearance without unlocking or replacing existing collection slots',()=>{
+ const musketeer=appearanceById('arquebus');
+ assert.equal(musketeer?.name,'아르케부스');
+ assert.equal(musketeer?.rarity,'C');
+ assert.equal(musketeer?.collectionId,undefined);
+ assert.equal(musketeer?.proposedBonus?.stat,'attack');
+ assert.equal(musketeer?.artStatus,'pending');
+ assert.equal(musketeer?.imagePath,undefined);
+ assert.equal(APPEARANCE_COLLECTIONS.flatMap(c=>c.appearanceIds).length,40);
 });
 test('cosmetic catalog stores proposed bonuses only; they do not change player combat stats',()=>{
  const s=initialState();const before=stats(s);
