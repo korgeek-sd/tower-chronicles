@@ -199,3 +199,19 @@
  .tc-hunt-result-page .tc-hunt-monster-title h2{font-size:13px;}
  .tc-hunt-result-page .tc-hunt-skill-open{min-height:25px;padding:2px 5px;}
 }
+
+/* Blue MP gauge directly below HP. Unavailable mana is visibly dormant until the
+   online hunting combat implements a real MP resource; do not invent 100/100. */
+.tc-hunt-mp{width:100%;min-width:0;flex-shrink:0}
+.tc-hunt-mp>div:first-child{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;margin-bottom:3px;line-height:1.2}
+.tc-hunt-mp span{color:#87baf4}
+.tc-hunt-mp b{font-size:10px;white-space:nowrap;color:#b8d7f8;font-variant-numeric:tabular-nums}
+.tc-hunt-mp [role=progressbar]{box-sizing:border-box;height:10px;background:#121d30;border:1px solid #335d8c;border-radius:5px;padding:2px;overflow:hidden}
+.tc-hunt-mp i{display:block;height:100%;background:linear-gradient(90deg,#2368c5,#5cafff);border-radius:3px}
+.tc-hunt-mp-unavailable [role=progressbar]{background:linear-gradient(90deg,#102035,#172943);border-color:#36516d}
+.tc-hunt-mp-unavailable b{color:#7f9dbb}
+.tc-hunt-result-page .tc-hunt-fighter-info{gap:4px}
+.tc-hunt-result-page .tc-hunt-hp>div:first-child{margin-bottom:3px}
+.tc-hunt-result-page .tc-hunt-hp [role=progressbar],.tc-hunt-result-page .tc-hunt-mp [role=progressbar]{height:9px}
+@media (max-height:800px){.tc-hunt-result-page .tc-hunt-equipment{display:none}}
+@media (max-height:640px){.tc-hunt-result-page .tc-hunt-fighter-info{gap:3px}.tc-hunt-result-page .tc-hunt-mp>div:first-child{margin-bottom:2px}}
