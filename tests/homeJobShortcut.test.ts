@@ -5,8 +5,8 @@ import {readFileSync} from 'node:fs';
 test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
- assert.match(home,/title:'제작'/);
- assert.match(home,/subtitle:'포션 · 음식 · 도전권'/);
+ assert.match(home,/name:'제작'/);
+ assert.match(home,/id:'craft'/);
  assert.match(home,/onMove\('craft'\)/);
  assert.doesNotMatch(home,/title:'직능등록'/);
  assert.doesNotMatch(home,/title:'외형'/);
@@ -16,8 +16,8 @@ test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
 test('HOME JOB SHORTCUT 02: existing job shortcut opens the job list instead of duplicating the gacha entry',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
- assert.match(home,/title:'직능목록'/);
- assert.match(home,/game\.ownedJobIds\.length/);
+ assert.match(home,/name:'직능목록'/);
+ assert.match(home,/id:'jobs-list'/);
  assert.match(home,/onOpenJobs\('list'\)/);
 });
 
@@ -36,14 +36,14 @@ test('HOME JOB SHORTCUT 03: app routes the selected home shortcut to the request
 test('HOME FACILITY 04: base camp removes retired enhancement shortcut',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
- assert.match(home,/title:'골드 거래소'/);
- assert.match(home,/subtitle:'Gold ↔ Silver'/);
+ assert.match(home,/name:'골드 거래소'/);
+ assert.match(home,/id:'gold-exchange'/);
  assert.match(home,/onMove\('gold-exchange'\)/);
  assert.doesNotMatch(home,/title:'강화'/);
  assert.doesNotMatch(home,/subtitle:'장비 강화'/);
  assert.doesNotMatch(home,/onMove\('enhancement'\)/);
  assert.doesNotMatch(home,/title:'전투 스킬'/);
- assert.match(home,/title:'스킬트리'/);
+ assert.match(home,/name:'스킬트리'/);
  assert.match(home,/onMove\('skills'\)/);
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
  assert.match(main,/page==='enhancement'/);

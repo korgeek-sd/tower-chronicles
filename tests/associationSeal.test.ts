@@ -68,7 +68,7 @@ test('ASSOCIATION SEAL 05: seal bonuses are included in authoritative combat sta
 test('ASSOCIATION SEAL 06: camp shortcut and app route are connected',()=>{
  const home=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
- assert.match(home,/title:'협회 인장'/);
+ assert.match(home,/id:'seal',glyph:'association',name:'협회 인장'/);
  assert.match(home,/onMove\('seal'\)/);
  assert.match(main,/import \{SealScreen\}/);
  assert.match(main,/page==='seal'/);

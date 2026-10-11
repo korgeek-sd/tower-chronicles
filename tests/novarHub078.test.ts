@@ -6,22 +6,23 @@ const core=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',impor
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function TowersScreen'));
 
-test('NOVAR HUB 0.1.78 01: dossier and expedition summary use live game data',()=>{
- assert.match(home,/tc-camp-dossier-title/);
- assert.match(home,/모험가 기록/);
- assert.match(home,/tc-camp-weapon-icon/);
- assert.match(home,/lootTotals\(loot\)/);
- assert.match(home,/game\.lastExpedition/);
- assert.match(home,/tc-camp-loot/);
+test('NOVAR HUB V2: profile and always-on chat use real character and hunting values',()=>{
+ assert.match(home,/tc-camp-v2-dossier/);
+ assert.match(home,/jobById\(game.currentJobId\)/);
+ assert.match(home,/stats\(game,equipped\)/);
+ assert.match(home,/getHuntingState\(lease\)/);
+ assert.match(home,/huntStatus\?\.maxMp/);
+ assert.match(home,/huntStatus\?\.vitality/);
+ assert.match(home,/tc-camp-chat-dock/);
 });
-
-test('NOVAR HUB 0.1.78 02: existing facility routes and primary CTA remain wired',()=>{
+test('NOVAR HUB V2: major actions and every former utility route remain connected',()=>{
  for(const title of ['제작','직능목록','골드 거래소','협회 인장','점령전','생물록','우편함','설정'])
-  assert.ok(home.includes(`title:'${title}'`),title);
- assert.match(home,/onClick=\{\(\)=>onMove\(game\.expedition\?'battle':'hunt'\)\}/);
+  assert.ok(home.includes(`name:'${title}'`),title);
+ for(const route of ['craft','skills','stats','gold-exchange','occupation','bestiary','inventory','settings','seal'])
+  assert.ok(home.includes(`onMove('${route}')`),route);
+ assert.match(home,/onClick=\{\(\)=>onMove\(game.expedition\?'battle':'hunt'\)\}/);
  assert.match(home,/data-game-feel="press"/);
 });
-
 test('NOVAR HUB 0.1.78 03: concept styling stays asset-free and compacts on short phones',()=>{
  assert.match(css,/v0\.1\.78 — NOVAR DOSSIER HUB/);
  assert.match(css,/\.tc-camp-dossier-title\{/);
