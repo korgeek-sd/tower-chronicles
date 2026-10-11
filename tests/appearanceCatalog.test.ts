@@ -60,7 +60,7 @@ test('cosmetic menu displays collection count, planned-only bonus disclosure and
  assert.match(html,/0 \/ 65/);
  assert.match(html,/도감 효과는 미적용/);
  assert.match(html,/외형 목록/);
- assert.match(html,/도감 세트/);
+ assert.match(html,/컬렉션/);
  assert.match(html,/미보유/);
  assert.match(html,/먼지길 방랑자/);
  const css=readFileSync(new URL('../src/components/mobile/cosmetics-catalog.css',import.meta.url),'utf8');
