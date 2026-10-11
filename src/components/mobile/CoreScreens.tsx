@@ -172,7 +172,7 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
   return()=>document.removeEventListener('keydown',escape);
  },[appearanceDetails,relatedAppearance]);
  return <Screen eyebrow="APPEARANCE COLLECTION" title="외형 컬렉션" className="tc-cosmetics-catalog-screen" meta={<span>{ownedCount} / {collectible.length} 수집</span>}>
-  <div className="tc-cosmetics-catalog">
+  <div className={"tc-cosmetics-catalog"+(tab==="collection"?"":" listing-mode")}>
    <div className="tc-collection-top" style={{backgroundImage:"linear-gradient(90deg,#17130edc,#14100cb5),url("+assetUrl('assets/backgrounds/hunting/world-map.webp')+")"}}>
     <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
     <span>탑의 기록 <b>외형 컬렉션</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
