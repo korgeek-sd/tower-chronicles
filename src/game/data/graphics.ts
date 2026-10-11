@@ -14,7 +14,7 @@ export interface MonsterGraphic {
 export interface PlayerGraphic {id:string;image:{idle?:string};display:{scale:number;offsetX:number;offsetY:number}}
 export const SCENE_CONFIG={hitDurationMs:200,damageDurationMs:650,maxDamageLabels:5};
 export const PLAYER_GRAPHIC:PlayerGraphic={id:DEFAULT_APPEARANCE_ID,image:{idle:APPEARANCES[0].imagePath},display:{scale:1.25,offsetX:-1,offsetY:0}};
-export const playerGraphicFor=(appearanceId:string):PlayerGraphic=>{const appearance=appearanceById(appearanceId)??APPEARANCES[0];return {...PLAYER_GRAPHIC,id:appearance.id,image:{idle:appearance.imagePath}};};
+export const playerGraphicFor=(appearanceId:string):PlayerGraphic=>{const appearance=appearanceById(appearanceId)??APPEARANCES[0];return {...PLAYER_GRAPHIC,id:appearance.id,image:{idle:appearance.imagePath??APPEARANCES[0].imagePath}};};
 export const playerGraphicForJob=(jobId:string|null,appearanceId:string):PlayerGraphic=>{
  const job=jobById(jobId);
  return job?.visualAssetKey
