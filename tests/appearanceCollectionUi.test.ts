@@ -47,7 +47,7 @@ test('portrait catalogue renders list and selected detail, favorites, rarity, te
  const game=initialState();
  const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game,setGame:()=>{}}));
  assert.match(html,/컬렉션/);
- assert.match(html,/도감 세트/);
+ assert.match(html,/외형 목록/);
  assert.match(html,/잿빛의 생존자들/);
  assert.match(html,/최대 HP \+100/);
  assert.match(html,/도감 효과는 미적용/);
