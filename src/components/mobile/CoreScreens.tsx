@@ -50,7 +50,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  ];
  const extraFacilities=[
   {id:'bestiary',glyph:'bestiary',name:'생물록',action:()=>onMove('bestiary')},
-  {id:'cosmetics',glyph:'cosmetics',name:'외형 도감',action:()=>onMove('cosmetics')},
+  {id:'cosmetics',glyph:'cosmetics',name:'컬렉션',action:()=>onMove('cosmetics')},
   {id:'jobs-list',glyph:'jobs',name:'직능목록',action:()=>onOpenJobs('list')},
   {id:'seal',glyph:'association',name:'협회 인장',action:()=>onMove('seal')},
   {id:'association',glyph:'association',name:'원정단',action:()=>onMove('association')},
