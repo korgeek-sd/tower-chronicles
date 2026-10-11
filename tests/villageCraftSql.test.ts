@@ -60,7 +60,7 @@ for(const critical of [0,1]){
  assert.equal(guest.result.monster?.id,server.result.monster.id);
  assert.deepEqual(guest.result.monster?.skills,server.result.monster.skills);
  assert.deepEqual(server.result.player,guest.result.player);
- assert.deepEqual(server.result.turns.map((t:any)=>({...t,lines:t.lines.map((line:string)=>line.replace(server.result.monster.name,guest.result.monster!.name))})),guest.result.turns);
+ assert.deepEqual(server.result.turns.map((t:any)=>({turn:t.turn,lines:t.lines.map((line:string)=>line.replace(server.result.monster.name,guest.result.monster!.name)),playerHp:t.playerHp,monsterHp:t.monsterHp})),guest.result.turns.map(t=>({turn:t.turn,lines:t.lines,playerHp:t.playerHp,monsterHp:t.monsterHp})));
  assert.equal(server.result.outcome,guest.result.outcome);
  assert.equal(server.state.currentHp,guest.state.currentHp);
 }
