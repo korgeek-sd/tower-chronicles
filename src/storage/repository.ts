@@ -97,6 +97,7 @@ export function validV4(x:unknown):x is Obj {
 function uniqueStrings(x:unknown):x is string[]{return strings(x)&&new Set(x).size===x.length;}
 export function validCosmetics(x:unknown,catalog:CosmeticsCatalog=COSMETICS_CATALOG):boolean {
  if(!obj(x)||!uniqueStrings(x.unlockedAppearanceIds)||!uniqueStrings(x.unlockedTitleIds)||!record(x.appearanceItems)||typeof x.selectedAppearanceId!=='string')return false;
+ if(x.summonTickets!==undefined&&!count(x.summonTickets))return false;
  if(!x.unlockedAppearanceIds.includes(x.selectedAppearanceId)||!appearanceById(x.selectedAppearanceId,catalog))return false;
  if(!x.unlockedAppearanceIds.every(id=>!!appearanceById(id,catalog))||!Object.keys(x.appearanceItems as Obj).every(id=>!!appearanceById(id,catalog)))return false;
  if(!x.unlockedTitleIds.every(id=>!!titleById(id,catalog)))return false;

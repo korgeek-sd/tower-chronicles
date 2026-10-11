@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {appearanceSummonTickets} from '../../game/engine/appearanceSummonTickets';
 import type {GameState} from '../../game/types';
 import {jobById} from '../../game/jobs/catalog';
 import {assetUrl} from '../../game/data/graphics';
@@ -27,8 +28,8 @@ export function AppearanceSummonScreen({game,onList}:{game:GameState;onList:()=>
     <span className="tc-summon-preview-note">기존 캐릭터 이미지 미리보기</span>
    </section>
    <section className="tc-summon-feature" aria-live="polite"><small>APPEARANCE PREVIEW</small><h2>{selected.displayName}</h2><div><span>착용 효과</span><b>능력치 확정 예정</b></div></section>
-   <div className="tc-summon-wallet"><div><Glyph name="gold"/><span>보유 골드<b>{game.market.gold.toLocaleString()}</b></span></div><div><Glyph name="ticket"/><span>외형 소환권<b>준비 중</b></span></div></div>
-   <div className="tc-summon-actions"><button type="button" disabled><strong>1회 소환</strong><small>비용 확정 예정</small></button><button type="button" disabled><strong>10회 소환</strong><small>비용 확정 예정</small></button><button type="button" disabled><strong>소환권 사용</strong><small>준비 중</small></button></div>
+   <div className="tc-summon-wallet"><div><Glyph name="gold"/><span>보유 골드<b>{game.market.gold.toLocaleString()}</b></span></div><div><Glyph name="ticket"/><span>외형 소환권<b>{appearanceSummonTickets(game).toLocaleString()}장</b></span></div></div>
+   <div className="tc-summon-actions"><button type="button" disabled><strong>1회 소환</strong><small>비용 확정 예정</small></button><button type="button" disabled><strong>10회 소환</strong><small>비용 확정 예정</small></button><button type="button" disabled><strong>소환권 사용</strong><small>1회 · 1장</small></button></div>
    <p className="tc-summon-status" role="status">외형 소환 서버 연결 준비 중</p>
    <div className="tc-summon-utilities"><button type="button" onClick={()=>setPanel('history')}><Glyph name="bestiary"/>소환 기록</button><button type="button" onClick={()=>setPanel('rates')}><Glyph name="search"/>확률 정보</button></div>
   </div>

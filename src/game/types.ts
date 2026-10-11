@@ -41,7 +41,7 @@ export type AssociationRole='LEADER'|'MEMBER';export type AssociationPolicy='OPE
 export type CraftJobStatus='QUEUED'|'CRAFTING'|'COMPLETED_UNCLAIMED'|'CANCELLED';export interface CraftJob {jobId:string;recipeId:string;itemId:string;kind:string;tier:number;quantity:number;field:Field;status:CraftJobStatus;queuedAt:number;startedAt:number|null;completesAt:number|null;durationMs:number;consumedMaterials:number;consumedSilver:number}export interface CraftingState {jobs:CraftJob[];nextJobId:number}
 export interface Mastery {unlocked:number; progress:number; crafts:number}
 export interface GearMastery {unlockedTier:number;progress:number}
-export interface Cosmetics {unlockedAppearanceIds:string[];selectedAppearanceId:string;appearanceItems:Record<string,number>;unlockedTitleIds:string[];selectedTitleId:string|null}
+export interface Cosmetics {summonTickets?:number;unlockedAppearanceIds:string[];selectedAppearanceId:string;appearanceItems:Record<string,number>;unlockedTitleIds:string[];selectedTitleId:string|null}
 export interface BestiaryProgress {encounters:number;defeats:number}
 export interface BestiaryState {entries:Record<string,BestiaryProgress>}
 export interface ExpeditionLoot {silver:number;materials:Record<Tower,number[]>;tickets:Record<Tower,number[]>;skillBooks:Record<string,number>;items:Record<string,number>;equipment?:EquipmentItem[]}
