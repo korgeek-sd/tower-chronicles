@@ -442,7 +442,8 @@ function App(){
     onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('원정단');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
    />}
    {page==='occupation'&&<OccupationWarEntry game={game} nickname={playerNickname} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
-   {page==='jobs'&&<JobsScreen
+   {page==='jobs'&&jobsEntryTab==='list'&&<CosmeticsScreen game={game} setGame={setGame} initialTab="appearance" onlineAccount={!!onlineSession} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('컬렉션');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/> }
+   {page==='jobs'&&jobsEntryTab!=='list'&&<JobsScreen
     game={game}
     setGame={setGame}
     onSelectJob={onlineSession&&gameSessionPhase==='active'?jobId=>void selectOnlineJobNow(jobId):undefined}

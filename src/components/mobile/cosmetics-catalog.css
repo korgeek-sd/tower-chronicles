@@ -158,3 +158,16 @@
 .tc-collection-modal-content [role=alert]{color:#e3a49a}
 @media(max-height:740px){.tc-collection-required-item>.tc-collection-gear-token{min-height:25px;height:min(37px,60%)}}
 @media(max-height:590px){.tc-collection-required-item>.tc-collection-gear-token{min-height:20px;height:min(28px,65%)}}
+
+/* Appearance list: preserve rows and pagination, expose collection relevance. */
+.tc-appearance-ownership{display:flex;align-items:center;gap:4px;min-width:0}
+.tc-appearance-ownership button{min-width:44px;min-height:44px;padding:0 10px;border:1px solid #645944;background:#111716;color:#c7bca8;font-size:11px}
+.tc-appearance-ownership button[aria-pressed=true]{border-color:#c49a57;background:#382b1e;color:#ffe0a4}
+.tc-appearance-ownership>span{margin-left:auto;color:#c7bca8;font-size:10px}
+.tc-appearance-related{align-self:start;min-height:44px;border:0;background:transparent;color:#d5b57d;padding:0 2px;font-size:10px;text-align:left}
+.tc-cosmetics-item:not(.owned) .tc-cosmetics-icon{filter:grayscale(.7);opacity:.6}
+.tc-cosmetics-item .tc-cosmetics-equip{min-height:44px;min-width:44px}
+.tc-cosmetics-item-body{min-width:0}
+.tc-cosmetics-catalog.listing-mode{grid-template-rows:48px 34px 20px 34px 35px 44px minmax(0,1fr) 31px}
+.tc-cosmetics-catalog.listing-mode .tc-cosmetics-items{overflow-y:auto;grid-template-rows:repeat(4,minmax(100px,1fr))}
+@media(max-height:740px){.tc-cosmetics-catalog.listing-mode{grid-template-rows:38px 31px 18px 30px 32px 44px minmax(0,1fr) 29px}}

@@ -52,7 +52,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  const extraFacilities=[
   {id:'bestiary',glyph:'bestiary',name:'생물록',action:()=>onMove('bestiary')},
   {id:'cosmetics',glyph:'cosmetics',name:'컬렉션',action:()=>onMove('cosmetics')},
-  {id:'jobs-list',glyph:'jobs',name:'직능목록',action:()=>onOpenJobs('list')},
+  {id:'jobs-list',glyph:'jobs',name:'외형 목록',action:()=>onOpenJobs('list')},
   {id:'seal',glyph:'association',name:'협회 인장',action:()=>onMove('seal')},
   {id:'association',glyph:'association',name:'원정단',action:()=>onMove('association')},
   {id:'inventory',glyph:'equipment',name:'장비 확인',action:()=>onMove('inventory')},
@@ -127,8 +127,8 @@ function CollectionToken({id,owned,mini=false,onOpen}:{id:string;owned:boolean;m
  const props={className:'tc-collection-token '+(owned?'is-owned ':'is-missing ')+'rarity-'+(a?.rarity??'C')+(mini?' is-mini':''),title:(a?.name??id)+' · '+(owned?'보유':'미보유'), 'data-appearance-id':id};
  return onOpen?<button type="button" {...props} aria-label={(a?.name??id)+' · '+(owned?'보유':'미보유')+' 상세 정보'} onClick={e=>{e.stopPropagation();onOpen(id);}}>{content}</button>:<span {...props}>{content}</span>;
 }
-export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
- const [tab,setTab]=useState<'collection'|'appearance'>('collection');
+export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord,initialTab='collection'}:{initialTab?:'collection'|'appearance';game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
+ const [tab,setTab]=useState<'collection'|'appearance'>(initialTab);
  const [rarity,setRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const [query,setQuery]=useState('');
  const [status,setStatus]=useState<'all'|'near'|'complete'|'incomplete'|'tracked'>('all');
@@ -139,6 +139,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const [appearanceDetails,setAppearanceDetails]=useState<string|null>(null);
  const [relatedAppearance,setRelatedAppearance]=useState<string|null>(null);
  const [page,setPage]=useState(0);
+ const [ownership,setOwnership]=useState<'all'|'owned'|'missing'>('all');
  const [appearanceRarity,setAppearanceRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const [serverRegistrations,setServerRegistrations]=useState<string[]>([]);
  const [registrationLoading,setRegistrationLoading]=useState(false);
@@ -175,7 +176,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  });
  const selected:AppearanceSet=relevant.find(s=>s.id===selectedSetId)??relevant[0]??APPEARANCE_SETS[0];
  const progress=collectionSetProgress(selected,owned,registeredIds);
- const appearances=APPEARANCES.filter(a=>appearanceRarity==='ALL'||a.rarity===appearanceRarity).filter(a=>!query.trim()||a.name.includes(query.trim()));
+ const appearances=APPEARANCES.filter(a=>ownership==='all'||(ownership==='owned'?ownedSet.has(a.id):!ownedSet.has(a.id))).filter(a=>appearanceRarity==='ALL'||a.rarity===appearanceRarity).filter(a=>!query.trim()||a.name.includes(query.trim()));
  const viewCount=appearances.length;
  const pages=Math.max(1,Math.ceil(viewCount/4)),safePage=Math.min(page,pages-1);
  const changeTab=(next:'collection'|'appearance')=>{setTab(next);setPage(0);setQuery('');};
@@ -209,11 +210,11 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
   document.addEventListener('keydown',escape);
   return()=>document.removeEventListener('keydown',escape);
  },[appearanceDetails,relatedAppearance]);
- return <Screen eyebrow="APPEARANCE COLLECTION" title="컬렉션" className="tc-cosmetics-catalog-screen" meta={<span>{completeCount} / {APPEARANCE_SETS.length} 완성</span>}>
+ return <Screen eyebrow="APPEARANCE COLLECTION" title={tab==='appearance'?'외형 도감':'컬렉션'} className="tc-cosmetics-catalog-screen" meta={<span>{completeCount} / {APPEARANCE_SETS.length} 완성</span>}>
   <div className={"tc-cosmetics-catalog"+(tab==="collection"?"":" listing-mode")}>
    <div className="tc-collection-top">
     <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
-    <span>탑의 기록 <b>컬렉션</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
+    <span>탑의 기록 <b>{tab==='appearance'?'외형 도감':'컬렉션'}</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
    </div>
    <Segments items={[['collection','컬렉션'],['appearance','외형 목록']] as const} value={tab} onChange={changeTab} label="컬렉션 보기"/>
    {tab==='collection'?<>
@@ -271,13 +272,14 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={appearanceRarity===r} onClick={()=>{setAppearanceRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
     </div>
     <div className="tc-collection-tools single"><label className="tc-collection-search"><Glyph name="search"/><input aria-label="외형 검색" placeholder="외형 이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/></label></div>
+    <div className="tc-appearance-ownership" role="group" aria-label="외형 보유 필터">{([['all','전체'],['owned','보유'],['missing','미보유']] as const).map(([id,label])=><button type="button" key={id} aria-pressed={ownership===id} onClick={()=>{setOwnership(id);setPage(0);}}>{label}</button>)}<span>보유 {owned.length} / {APPEARANCES.length}</span></div>
     <div className="tc-cosmetics-items" role="list" aria-label="외형 목록">
      {appearances.slice(safePage*4,safePage*4+4).map(a=>{
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem">
        <div className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</div>
-       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small>{isSelected?'착용 중':isOwned?'보유':'미보유'} · {a.sourceLabel}</small><span>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':a.description}</span></div>
-       <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'적용 중':!isOwned?'미보유':!artReady?'준비 중':'적용'}</button>
+       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small>{isSelected?'착용 중':isOwned?'보유':'미보유'} · {a.sourceLabel}</small><span>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':'기본 외형 · 추가 능력치 없음'}</span><button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button></div>
+       <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':'착용'}</button>
       </article>;
      })}
      {viewCount===0&&<p className="tc-cosmetics-empty">표시할 항목이 없어.</p>}

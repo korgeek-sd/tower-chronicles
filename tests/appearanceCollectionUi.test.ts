@@ -74,3 +74,12 @@ test('portrait catalogue renders list and selected detail, favorites, rarity, te
   assert.ok(token[1].includes(`tc-equipment-grade-${requirement.grade}`));
  }
 });
+
+test('appearance list shows stats and related collection links with ownership filters',()=>{
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance'}));
+ assert.ok(html.includes('외형 보유 필터'));
+ assert.ok(html.includes('관련 컬렉션'));
+ assert.ok(html.includes('(예정)'));
+ assert.ok(html.includes('착용 중'));
+ assert.ok(!html.includes('능력 사용 가능'));
+});
