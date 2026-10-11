@@ -6,6 +6,7 @@ import {monsterFor} from '../../game/engine/drops';
 import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,appearanceBonusLabel,type AppearanceRarity} from '../../game/data/cosmetics';
 import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collectionEquipmentLabel,type AppearanceSet} from '../../game/data/appearanceSets';
 import './cosmetics-catalog.css';
+import {EquipmentArt} from '../inventory/EquipmentArt';
 import {selectAppearance} from '../../game/engine/cosmetics';
 import {registerCollectionEquipment} from '../../game/engine/collection';
 import {getCollectionEquipmentRegistrations,registerOnlineCollectionEquipment} from '../../online/collection';
@@ -232,7 +233,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
        <span className="tc-collection-row-emblem" aria-hidden="true">✦</span>
        <span className="tc-collection-row-name"><strong>{s.name}</strong><small>{COLLECTION_RARITY_NAMES[s.rarity]} · {p.complete?'완성':'미완성'}</small></span>
        <span className="tc-collection-row-bonus">{collectionSetBonusLabel(s)}<small>효과 예정</small></span>
-       <span className="tc-collection-row-tokens">{s.appearanceIds.map(id=><CollectionToken key={id} id={id} owned={ownedSet.has(id)} mini/>)}<span className={'tc-collection-gear-token is-mini '+(registeredIds.has(s.id)?'is-owned':'is-missing')} title={collectionEquipmentLabel(s.equipment)+' · '+(registeredIds.has(s.id)?'등록':'미등록')}><Glyph name="armor"/></span></span>
+       <span className="tc-collection-row-tokens">{s.appearanceIds.map(id=><CollectionToken key={id} id={id} owned={ownedSet.has(id)} mini/>)}<span className={'tc-collection-gear-token is-mini '+(registeredIds.has(s.id)?'is-owned':'is-missing')} title={collectionEquipmentLabel(s.equipment)+' · '+(registeredIds.has(s.id)?'등록':'미등록')}><EquipmentArt kind={s.equipment.kind} grade={s.equipment.grade}/></span></span>
        <span className="tc-collection-row-count">{p.count}/{p.total}</span>
        <span className="tc-collection-row-arrow" aria-hidden="true">›</span>
       </button>;
@@ -254,7 +255,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
         const a=appearanceById(id),has=ownedSet.has(id);
         return <div className="tc-collection-required-item" key={id}><CollectionToken id={id} owned={has} onOpen={setAppearanceDetails}/><span title={a?.name}>{a?.name??id}</span><small className={has?'is-owned':'is-missing'}>{has?'자동 등록':'미보유'}</small></div>;
        })}
-       <div className="tc-collection-required-item"><button type="button" className={'tc-collection-gear-token '+(registeredIds.has(selected.id)?'is-owned':'is-missing')} aria-label={collectionEquipmentLabel(selected.equipment)+' · '+(registeredIds.has(selected.id)?'등록 완료':'등록 필요')} onClick={()=>{setRegisterPanel(true);setRegisterItemId('');setRegistrationError('');}}><Glyph name="armor"/></button><span title={collectionEquipmentLabel(selected.equipment)}>{collectionEquipmentLabel(selected.equipment)}</span><small className={registeredIds.has(selected.id)?'is-owned':'is-missing'}>{registeredIds.has(selected.id)?'등록 완료':'미등록'}</small></div>
+       <div className="tc-collection-required-item"><button type="button" className={'tc-collection-gear-token '+(registeredIds.has(selected.id)?'is-owned':'is-missing')} aria-label={collectionEquipmentLabel(selected.equipment)+' · '+(registeredIds.has(selected.id)?'등록 완료':'등록 필요')} onClick={()=>{setRegisterPanel(true);setRegisterItemId('');setRegistrationError('');}}><EquipmentArt kind={selected.equipment.kind} grade={selected.equipment.grade}/></button><span title={collectionEquipmentLabel(selected.equipment)}>{collectionEquipmentLabel(selected.equipment)}</span><small className={registeredIds.has(selected.id)?'is-owned':'is-missing'}>{registeredIds.has(selected.id)?'등록 완료':'미등록'}</small></div>
       </div>
      </div>
      <div className="tc-collection-detail-actions">

@@ -63,3 +63,14 @@ test('portrait catalogue renders list and selected detail, favorites, rarity, te
  assert.match(css,/\.tc-collection-list\{[^}]*overflow-y:auto/);
  assert.match(css,/\.tc-collection-detail\{[^}]*min-height:0/);
 });
+
+ test('collection equipment tokens reuse inventory artwork for each required kind and grade',()=>{
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
+ const tokens=[...html.matchAll(/<(?:span|button)[^>]*class="tc-collection-gear-token[^" ]*(?: [^"]*)?"[^>]*>(.*?)<\/(?:span|button)>/g)];
+ assert.equal(tokens.length,APPEARANCE_SETS.length+1);
+ for(const [index,token] of tokens.entries()){
+  const requirement=APPEARANCE_SETS[index<APPEARANCE_SETS.length?index:0].equipment;
+  assert.ok(token[1].includes(`assets/ui/equipment/${requirement.kind}.png`));
+  assert.ok(token[1].includes(`tc-equipment-grade-${requirement.grade}`));
+ }
+});
