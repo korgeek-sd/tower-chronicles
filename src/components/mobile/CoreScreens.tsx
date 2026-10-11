@@ -3,10 +3,14 @@ import type {GameState,Tower,Potion} from '../../game/types';
 import {CONFIG,POTIONS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
 import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
 import {monsterFor} from '../../game/engine/drops';
-import {APPEARANCES,APPEARANCE_RARITIES,TITLES,appearanceById,appearanceBonusLabel,titleById,type AppearanceRarity} from '../../game/data/cosmetics';
-import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,type AppearanceSet} from '../../game/data/appearanceSets';
+import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,appearanceBonusLabel,type AppearanceRarity} from '../../game/data/cosmetics';
+import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collectionEquipmentLabel,type AppearanceSet} from '../../game/data/appearanceSets';
 import './cosmetics-catalog.css';
-import {selectAppearance,selectTitle} from '../../game/engine/cosmetics';
+import {selectAppearance} from '../../game/engine/cosmetics';
+import {registerCollectionEquipment} from '../../game/engine/collection';
+import {getCollectionEquipmentRegistrations,registerOnlineCollectionEquipment} from '../../online/collection';
+import type {CloudSaveRecord} from '../../online/cloudSave';
+import {EQUIPMENT_GRADE_NAMES,equipmentDefinition} from '../../game/data/equipment';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
 import {jobById} from '../../game/jobs/catalog';
 import {assetUrl} from '../../game/data/graphics';
@@ -122,8 +126,8 @@ function CollectionToken({id,owned,mini=false,onOpen}:{id:string;owned:boolean;m
  const props={className:'tc-collection-token '+(owned?'is-owned ':'is-missing ')+'rarity-'+(a?.rarity??'C')+(mini?' is-mini':''),title:(a?.name??id)+' · '+(owned?'보유':'미보유'), 'data-appearance-id':id};
  return onOpen?<button type="button" {...props} aria-label={(a?.name??id)+' · '+(owned?'보유':'미보유')+' 상세 정보'} onClick={e=>{e.stopPropagation();onOpen(id);}}>{content}</button>:<span {...props}>{content}</span>;
 }
-export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
- const [tab,setTab]=useState<'collection'|'appearance'|'title'>('collection');
+export function CosmeticsScreen({game,setGame,onlineLease=null,onServerRecord}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
+ const [tab,setTab]=useState<'collection'|'appearance'>('collection');
  const [rarity,setRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const [query,setQuery]=useState('');
  const [status,setStatus]=useState<'all'|'near'|'complete'|'incomplete'|'tracked'>('all');
@@ -135,67 +139,100 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
  const [relatedAppearance,setRelatedAppearance]=useState<string|null>(null);
  const [page,setPage]=useState(0);
  const [appearanceRarity,setAppearanceRarity]=useState<'ALL'|AppearanceRarity>('ALL');
+ const [serverRegistrations,setServerRegistrations]=useState<string[]>([]);
+ const [registrationLoading,setRegistrationLoading]=useState(false);
+ const [registrationError,setRegistrationError]=useState('');
+ const [registerPanel,setRegisterPanel]=useState(false);
+ const [registerItemId,setRegisterItemId]=useState('');
+ const [registering,setRegistering]=useState(false);
+ useEffect(()=>{
+  if(!onlineLease){setServerRegistrations([]);setRegistrationLoading(false);return;}
+  let live=true;setRegistrationLoading(true);setRegistrationError('');
+  void getCollectionEquipmentRegistrations(onlineLease).then(rows=>{if(live)setServerRegistrations(rows.map(r=>r.setId));}).catch(e=>{if(live)setRegistrationError(e instanceof Error?e.message:'등록 기록을 불러오지 못했습니다.');}).finally(()=>{if(live)setRegistrationLoading(false);});
+  return()=>{live=false;};
+ },[onlineLease?.leaseId,onlineLease?.generation]);
+ const registeredIds=new Set(onlineLease?serverRegistrations:Object.keys(game.collectionRegisteredItems??{}));
  const owned=game.cosmetics.unlockedAppearanceIds;
  const ownedSet=new Set(owned);
  const collectible=APPEARANCES.filter(a=>a.rarity);
  const ownedCount=collectible.filter(a=>ownedSet.has(a.id)).length;
- const completeCount=APPEARANCE_SETS.filter(s=>collectionSetProgress(s,owned).complete).length;
+ const completeCount=APPEARANCE_SETS.filter(s=>collectionSetProgress(s,owned,registeredIds).complete).length;
  const relevant=APPEARANCE_SETS.filter(s=>{
-  const p=collectionSetProgress(s,owned);
+  const p=collectionSetProgress(s,owned,registeredIds);
   if(rarity!=='ALL'&&s.rarity!==rarity)return false;
   if(status==='near'&&(p.complete||p.total-p.count!==1))return false;
   if(status==='complete'&&!p.complete)return false;
   if(status==='incomplete'&&p.complete)return false;
   if(status==='tracked'&&!trackedIds.includes(s.id))return false;
   const key=query.trim().toLocaleLowerCase();
-  return !key||s.name.toLocaleLowerCase().includes(key)||s.description.toLocaleLowerCase().includes(key)||s.appearanceIds.some(id=>appearanceById(id)?.name.toLocaleLowerCase().includes(key));
+  return !key||s.name.toLocaleLowerCase().includes(key)||s.description.toLocaleLowerCase().includes(key)||s.appearanceIds.some(id=>appearanceById(id)?.name.toLocaleLowerCase().includes(key))||collectionEquipmentLabel(s.equipment).toLocaleLowerCase().includes(key);
  }).sort((a,b)=>{
-  const ap=collectionSetProgress(a,owned),bp=collectionSetProgress(b,owned);
+  const ap=collectionSetProgress(a,owned,registeredIds),bp=collectionSetProgress(b,owned,registeredIds);
   if(sort==='nearest')return (ap.total-ap.count)-(bp.total-bp.count)||a.id.localeCompare(b.id);
   if(sort==='bonus')return b.reward.value-a.reward.value||a.id.localeCompare(b.id);
   return APPEARANCE_SETS.indexOf(a)-APPEARANCE_SETS.indexOf(b);
  });
  const selected:AppearanceSet=relevant.find(s=>s.id===selectedSetId)??relevant[0]??APPEARANCE_SETS[0];
- const progress=collectionSetProgress(selected,owned);
+ const progress=collectionSetProgress(selected,owned,registeredIds);
  const appearances=APPEARANCES.filter(a=>appearanceRarity==='ALL'||a.rarity===appearanceRarity).filter(a=>!query.trim()||a.name.includes(query.trim()));
- const titles=TITLES.filter(t=>game.cosmetics.unlockedTitleIds.includes(t.id));
- const viewCount=tab==='appearance'?appearances.length:titles.length;
+ const viewCount=appearances.length;
  const pages=Math.max(1,Math.ceil(viewCount/4)),safePage=Math.min(page,pages-1);
- const changeTab=(next:'collection'|'appearance'|'title')=>{setTab(next);setPage(0);setQuery('');};
+ const changeTab=(next:'collection'|'appearance')=>{setTab(next);setPage(0);setQuery('');};
  const toggle=(id:string,values:string[],setter:React.Dispatch<React.SetStateAction<string[]>>)=>setter(values.includes(id)?values.filter(x=>x!==id):[...values,id]);
  const selectedMissing=selected.appearanceIds.find(id=>!ownedSet.has(id))??selected.appearanceIds[0];
  const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
+ const eligibleItems=game.equipmentItems.filter(item=>item.kind===selected.equipment.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id));
+ const registerReady=!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!registrationError&&!game.expedition;
+ async function submitRegistration(){
+  if(!registerReady||!registerItemId)return;
+  const id=registerItemId,setId=selected.id;
+  setRegistering(true);setRegistrationError('');
+  try{
+   if(onlineLease){
+    if(!onServerRecord)throw Error('서버 저장 동기화를 사용할 수 없습니다.');
+    const result=await registerOnlineCollectionEquipment(onlineLease,setId,id);
+    onServerRecord(result.record,'컬렉션 장비 등록 완료');
+    setServerRegistrations(v=>v.includes(setId)?v:[...v,setId]);
+   }else setGame(state=>registerCollectionEquipment(state,setId,id));
+   setRegisterPanel(false);setRegisterItemId('');
+  }catch(error){
+   setRegistrationError(error instanceof Error?error.message:'등록 결과를 확인하지 못했습니다.');
+   if(onlineLease){
+    try{const rows=await getCollectionEquipmentRegistrations(onlineLease);setServerRegistrations(rows.map(r=>r.setId));}catch{}
+   }
+  }finally{setRegistering(false);}
+ }
  useEffect(()=>{
   if(!appearanceDetails&&!relatedAppearance)return;
   const escape=(e:KeyboardEvent)=>{if(e.key==='Escape'){setAppearanceDetails(null);setRelatedAppearance(null);}};
   document.addEventListener('keydown',escape);
   return()=>document.removeEventListener('keydown',escape);
  },[appearanceDetails,relatedAppearance]);
- return <Screen eyebrow="APPEARANCE COLLECTION" title="외형 컬렉션" className="tc-cosmetics-catalog-screen" meta={<span>{ownedCount} / {collectible.length} 수집</span>}>
+ return <Screen eyebrow="APPEARANCE COLLECTION" title="컬렉션" className="tc-cosmetics-catalog-screen" meta={<span>{completeCount} / {APPEARANCE_SETS.length} 완성</span>}>
   <div className={"tc-cosmetics-catalog"+(tab==="collection"?"":" listing-mode")}>
    <div className="tc-collection-top">
     <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
-    <span>탑의 기록 <b>외형 컬렉션</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
+    <span>탑의 기록 <b>컬렉션</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
    </div>
-   <Segments items={[['collection','도감 세트'],['appearance','외형 목록'],['title','칭호']] as const} value={tab} onChange={changeTab} label="외형 컬렉션 보기"/>
+   <Segments items={[['collection','컬렉션'],['appearance','외형 목록']] as const} value={tab} onChange={changeTab} label="컬렉션 보기"/>
    {tab==='collection'?<>
     <div className="tc-collection-grade-tabs" role="group" aria-label="컬렉션 등급">
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" className={'tc-feel-press'+(rarity===r?' active':'')} data-rarity={r} aria-pressed={rarity===r} onClick={()=>{setRarity(r);setSelectedSetId('');}}>{r==='ALL'?'전체':COLLECTION_RARITY_NAMES[r]}</button>)}
     </div>
     <div className="tc-collection-tools">
-     <label className="tc-collection-search"><Glyph name="search"/><input aria-label="컬렉션 검색" placeholder="컬렉션 이름을 입력하세요." value={query} onChange={e=>setQuery(e.target.value)}/></label>
+     <label className="tc-collection-search"><Glyph name="search"/><input aria-label="컬렉션 검색" placeholder="컬렉션·외형·장비 검색" value={query} onChange={e=>setQuery(e.target.value)}/></label>
      <select aria-label="컬렉션 진행 필터" value={status} onChange={e=>{setStatus(e.target.value as typeof status);setSelectedSetId('');}}><option value="all">전체</option><option value="near">완성 임박</option><option value="incomplete">미완성</option><option value="complete">완성</option><option value="tracked">추적 중</option></select>
      <select aria-label="컬렉션 정렬" value={sort} onChange={e=>setSort(e.target.value as typeof sort)}><option value="default">기본 정렬</option><option value="nearest">완성순</option><option value="bonus">보상순</option></select>
     </div>
-    <div className="tc-collection-heading"><span>컬렉션 리스트 <b>{relevant.length}</b></span><span>컬렉션 효과</span><span>필요 외형 (보유 / 전체)</span></div>
-    <div className="tc-collection-list" role="list" aria-label="외형 컬렉션 목록">
+    <div className="tc-collection-heading"><span>컬렉션 리스트 <b>{relevant.length}</b></span><span>컬렉션 효과</span><span>필요 외형·장비 (등록 / 전체)</span></div>
+    <div className="tc-collection-list" role="list" aria-label="컬렉션 목록">
      {relevant.map(s=>{
       const p=collectionSetProgress(s,owned);
       return <button type="button" role="listitem" key={s.id} className={'tc-collection-row tc-feel-press'+(selected.id===s.id?' selected':'')+(p.complete?' completed':'')} data-set-id={s.id} aria-current={selected.id===s.id?'true':undefined} onClick={()=>setSelectedSetId(s.id)}>
        <span className="tc-collection-row-emblem" aria-hidden="true">✦</span>
        <span className="tc-collection-row-name"><strong>{s.name}</strong><small>{COLLECTION_RARITY_NAMES[s.rarity]} · {p.complete?'완성':'미완성'}</small></span>
        <span className="tc-collection-row-bonus">{collectionSetBonusLabel(s)}<small>효과 예정</small></span>
-       <span className="tc-collection-row-tokens">{s.appearanceIds.map(id=><CollectionToken key={id} id={id} owned={ownedSet.has(id)} mini/>)}</span>
+       <span className="tc-collection-row-tokens">{s.appearanceIds.map(id=><CollectionToken key={id} id={id} owned={ownedSet.has(id)} mini/>)}<span className={'tc-collection-gear-token is-mini '+(registeredIds.has(s.id)?'is-owned':'is-missing')} title={collectionEquipmentLabel(s.equipment)+' · '+(registeredIds.has(s.id)?'등록':'미등록')}><Glyph name="armor"/></span></span>
        <span className="tc-collection-row-count">{p.count}/{p.total}</span>
        <span className="tc-collection-row-arrow" aria-hidden="true">›</span>
       </button>;
@@ -208,31 +245,32 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
        <button type="button" className={favoriteIds.includes(selected.id)?'is-favorite':''} aria-label={favoriteIds.includes(selected.id)?'즐겨찾기 해제':'즐겨찾기 추가'} aria-pressed={favoriteIds.includes(selected.id)} onClick={()=>toggle(selected.id,favoriteIds,setFavoriteIds)}>★</button>
       </div>
       <p className="tc-collection-detail-story">{selected.description}</p>
-      <div className="tc-collection-detail-stat"><small>컬렉션 효과 · 완성 시 보상 (예정)</small><strong>{collectionSetBonusLabel(selected)}</strong><span>도감 효과는 미적용 · 착용과 관계없이 수집 여부로 계산</span></div>
+      <div className="tc-collection-detail-stat"><small>컬렉션 효과 · 완성 시 보상 (예정)</small><strong>{collectionSetBonusLabel(selected)}</strong><span>도감 효과는 미적용 · 외형 자동 반영 / 장비 1개 소모 등록</span></div>
      </div>
      <div className="tc-collection-detail-requirements">
-      <div className="tc-collection-detail-label"><strong>필요 외형 <em>({progress.count}/{progress.total})</em></strong><span>{progress.complete?'수집 조건 완료 · 효과 미적용':'부족한 외형 '+(progress.total-progress.count)+'종'}</span></div>
+      <div className="tc-collection-detail-label"><strong>필요 외형·장비 <em>({progress.count}/{progress.total})</em></strong><span>{progress.complete?'등록 조건 완료 · 효과 미적용':'남은 조건 '+(progress.total-progress.count)+'개'}</span></div>
       <div className="tc-collection-required">
        {selected.appearanceIds.map(id=>{
         const a=appearanceById(id),has=ownedSet.has(id);
-        return <div className="tc-collection-required-item" key={id}><CollectionToken id={id} owned={has} onOpen={setAppearanceDetails}/><span title={a?.name}>{a?.name??id}</span><small className={has?'is-owned':'is-missing'}>{has?'보유':'미보유'}</small></div>;
+        return <div className="tc-collection-required-item" key={id}><CollectionToken id={id} owned={has} onOpen={setAppearanceDetails}/><span title={a?.name}>{a?.name??id}</span><small className={has?'is-owned':'is-missing'}>{has?'자동 등록':'미보유'}</small></div>;
        })}
+       <div className="tc-collection-required-item"><button type="button" className={'tc-collection-gear-token '+(registeredIds.has(selected.id)?'is-owned':'is-missing')} aria-label={collectionEquipmentLabel(selected.equipment)+' · '+(registeredIds.has(selected.id)?'등록 완료':'등록 필요')} onClick={()=>{setRegisterPanel(true);setRegisterItemId('');setRegistrationError('');}}><Glyph name="armor"/></button><span title={collectionEquipmentLabel(selected.equipment)}>{collectionEquipmentLabel(selected.equipment)}</span><small className={registeredIds.has(selected.id)?'is-owned':'is-missing'}>{registeredIds.has(selected.id)?'등록 완료':'미등록'}</small></div>
       </div>
      </div>
      <div className="tc-collection-detail-actions">
       <button type="button" className="tc-collection-action tc-feel-press" aria-pressed={trackedIds.includes(selected.id)} onClick={()=>toggle(selected.id,trackedIds,setTrackedIds)}><Glyph name="search"/>{trackedIds.includes(selected.id)?'추적 해제':'추적'}</button>
       <button type="button" className="tc-collection-action tc-feel-press" onClick={()=>setRelatedAppearance(selectedMissing)}><Glyph name="bestiary"/>관련 컬렉션</button>
-      <button type="button" className="tc-collection-action primary tc-feel-press" onClick={()=>setAppearanceDetails(selectedMissing)}><Glyph name="cosmetics"/>외형 확인</button>
+      <button type="button" className="tc-collection-action primary tc-feel-press" onClick={()=>{setRegisterPanel(true);setRegisterItemId('');setRegistrationError('');}} disabled={registeredIds.has(selected.id)}><Glyph name="armor"/>{registeredIds.has(selected.id)?'장비 등록 완료':'장비 등록'}</button>
      </div>
     </section>
-    <p className="tc-collection-disclaimer">65개 조합 · 능력치 수치는 설계값이며 아직 전투에 적용되지 않습니다.</p>
+    <p className="tc-collection-disclaimer">65개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
    </>:<>
     <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>외형 능력치는 향후 업데이트 예정</small></div>
     <div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={appearanceRarity===r} onClick={()=>{setAppearanceRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
     </div>
     <div className="tc-collection-tools single"><label className="tc-collection-search"><Glyph name="search"/><input aria-label="외형 검색" placeholder="외형 이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/></label></div>
-    <div className="tc-cosmetics-items" role="list" aria-label={tab==='appearance'?'외형 목록':'칭호 목록'}>
+    <div className="tc-cosmetics-items" role="list" aria-label="외형 목록">
      {tab==='appearance'?appearances.slice(safePage*4,safePage*4+4).map(a=>{
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem">
@@ -240,11 +278,28 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
        <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small>{isSelected?'착용 중':isOwned?'보유':'미보유'} · {a.sourceLabel}</small><span>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':a.description}</span></div>
        <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'적용 중':!isOwned?'미보유':!artReady?'준비 중':'적용'}</button>
       </article>;
-     }):titles.slice(safePage*4,safePage*4+4).map(t=><article className="tc-cosmetics-item" role="listitem" key={t.id}><div className="tc-cosmetics-icon"><Glyph name="bestiary"/></div><div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title"><b>「{t.name}」</b></div><small>{t.description}</small></div><button type="button" className="tc-cosmetics-equip" disabled={!!game.expedition||game.cosmetics.selectedTitleId===t.id} onClick={()=>setGame(s=>selectTitle(s,t.id))}>{game.cosmetics.selectedTitleId===t.id?'적용 중':'적용'}</button></article>)}
+     })}
      {viewCount===0&&<p className="tc-cosmetics-empty">표시할 항목이 없어.</p>}
     </div>
     <Pager page={safePage} count={pages} onChange={setPage}/>
    </>}
+   {registerPanel&&<div className="tc-collection-modal-backdrop" role="presentation" onClick={()=>{if(!registering)setRegisterPanel(false);}}>
+     <section className="tc-collection-modal" role="dialog" aria-modal="true" aria-label="컬렉션 장비 등록" onClick={e=>e.stopPropagation()}>
+      <header><h2>컬렉션 장비 등록</h2><button type="button" disabled={registering} aria-label="닫기" onClick={()=>setRegisterPanel(false)}>×</button></header>
+      <div className="tc-collection-modal-content">
+       <strong>{selected.name}</strong>
+       <p>필요 장비: {collectionEquipmentLabel(selected.equipment)}</p>
+       {registeredIds.has(selected.id)?<p>이미 등록한 컬렉션이야. 등록한 아이템은 인벤토리에서 소모되었어.</p>:<>
+        <p>등록 시 선택한 장비 1개가 영구 소모되며 되돌릴 수 없어. 외형은 해금 상태만 확인하고 소모하지 않아.</p>
+        <div className="tc-collection-register-items" role="group" aria-label="소모할 장비 선택">
+         {eligibleItems.length===0?<p>장착하지 않은 해당 등급·종류의 장비가 없어. 인벤토리에서 장착을 해제하거나 장비를 획득해 줘.</p>:eligibleItems.map(item=><button type="button" key={item.id} className={registerItemId===item.id?'active':''} aria-pressed={registerItemId===item.id} disabled={registering} onClick={()=>setRegisterItemId(item.id)}><Glyph name={equipmentDefinition(item.kind).slot==='weapon'?'sword':'armor'}/>{EQUIPMENT_GRADE_NAMES[item.grade]} {equipmentDefinition(item.kind).name} +{item.enhancement}</button>)}
+        </div>
+        {registrationError&&<p role="alert">{registrationError}</p>}
+        <button type="button" className="tc-collection-register-confirm tc-feel-press" disabled={!registerItemId||!registerReady} onClick={()=>void submitRegistration()}>{registering?'서버 등록 처리 중…':registrationLoading?'등록 내역 확인 중…':'장비 1개 소모하여 영구 등록'}</button>
+       </>}
+      </div>
+     </section>
+    </div>}
    {(appearanceDetails||relatedAppearance)&&<div className="tc-collection-modal-backdrop" role="presentation" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}}>
     <section className="tc-collection-modal" role="dialog" aria-modal="true" aria-label={appearanceDetails?'외형 상세 정보':'관련 컬렉션'} onClick={e=>e.stopPropagation()}>
      <header><h2>{appearanceDetails?'외형 상세':'관련 컬렉션'}</h2><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}} aria-label="닫기">×</button></header>
