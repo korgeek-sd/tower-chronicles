@@ -182,7 +182,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const selectedMissing=selected.appearanceIds.find(id=>!ownedSet.has(id))??selected.appearanceIds[0];
  const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
  const eligibleItems=game.equipmentItems.filter(item=>item.kind===selected.equipment.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id));
- const registerReady=!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!game.expedition;
+ const registerReady=(!onlineAccount||!!onlineLease)&&!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!game.expedition;
  async function submitRegistration(){
   if(!registerReady||!registerItemId)return;
   const id=registerItemId,setId=selected.id;
