@@ -1,28 +1,143 @@
-/* Dark-fantasy cosmetic catalog — fixed mobile viewport, no catalog-page scroll. */
-.tc-cosmetics-catalog-screen .tc-screen-body{overflow:hidden;min-height:0}
-.tc-cosmetics-catalog{display:grid;grid-template-rows:35px auto 31px minmax(0,1fr) 32px;gap:6px;height:100%;min-height:0;padding:0 1px 2px}
-.tc-cosmetics-catalog>.tc-segments{min-width:0}.tc-cosmetics-catalog>.tc-segments button{min-height:35px;font-size:10px}
-.tc-cosmetics-meta{display:flex;justify-content:space-between;align-items:center;gap:6px;min-width:0;border-left:2px solid #aa8c56;background:linear-gradient(90deg,#312719,#181a17);padding:6px 8px}
-.tc-cosmetics-meta>span{flex:1;min-width:0;color:#bcb6a6;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-cosmetics-meta b{color:#efdbb1;font-size:11px}.tc-cosmetics-meta>small{width:46%;color:#a7a18f;font-size:9px;text-align:right;line-height:1.3}
-.tc-cosmetics-filters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;min-width:0}.tc-cosmetics-filters button{height:31px;min-width:0;padding:0 1px;border:1px solid #49443a;background:#141817;color:#929488;font-weight:700;font-size:10px}.tc-cosmetics-filters button[aria-pressed=true]{background:#33281c;border-color:#bb9657;color:#f2d7a0;box-shadow:inset 0 -2px #be9657}.tc-cosmetics-filters button[data-rarity=SSR][aria-pressed=true]{border-color:#d59b67;color:#ffd1a9}
-.tc-cosmetics-category-info{display:grid;align-items:center;padding:0 8px;border:1px solid #413c31;background:#1b1c18;font-size:10px;color:#bbaa8c;min-width:0}
-.tc-cosmetics-items{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;min-height:0;overflow:hidden}
-.tc-cosmetics-item{display:grid;grid-template-columns:49px minmax(0,1fr) 52px;align-items:center;gap:8px;min-width:0;min-height:0;padding:7px;border:1px solid #454941;background:linear-gradient(120deg,#19201e,#0d1010);overflow:hidden}
-.tc-cosmetics-item.owned{border-color:#766a50;background:linear-gradient(120deg,#2c2a21,#131716)}
-.tc-cosmetics-item.equipped{border-color:#cca56a;box-shadow:inset 2px 0 #c69c5f}
-.tc-cosmetics-icon{width:47px;height:52px;display:grid;place-items:center;border:1px solid #67583f;background:radial-gradient(circle,#3c3327 0%,#101412 70%);color:#9e8c6b;font-size:22px;overflow:hidden}
-.tc-cosmetics-icon img{width:100%;height:100%;object-fit:contain;image-rendering:auto}
+/* Tower Chronicles: portrait collection registry with in-place detail view.
+   All content stays inside the existing 520px mobile game viewport. */
+.tc-cosmetics-catalog-screen .tc-screen-body{min-height:0;overflow:hidden}
+.tc-cosmetics-catalog{--col-gold:#d4aa68;--col-line:#57452e;height:100%;min-height:0;display:grid;grid-template-rows:56px 34px 34px 35px 20px minmax(0,1.06fr) minmax(0,1.34fr) 15px;gap:3px;padding:2px 3px 0;background:radial-gradient(ellipse at 50% 7%,#49311c60,transparent 43%),linear-gradient(#121310,#0b100f);position:relative;overflow:hidden;color:#ddcfb7}
+.tc-cosmetics-catalog button,.tc-cosmetics-catalog select,.tc-cosmetics-catalog input{font-family:inherit}
+.tc-cosmetics-catalog button:focus-visible,.tc-cosmetics-catalog select:focus-visible,.tc-cosmetics-catalog input:focus-visible{outline:2px solid #ffcf7c;outline-offset:1px;z-index:3}
+.tc-cosmetics-catalog button:disabled{cursor:not-allowed}
+.tc-collection-top{display:flex;gap:11px;align-items:center;min-width:0;background-size:cover;background-position:50% 32%;border:1px solid #856740;box-shadow:inset 0 0 0 1px #32251a,0 3px 15px #0009;padding:4px 10px}
+.tc-collection-top-mark{display:grid;place-items:center;flex:0 0 40px;height:40px;border:1px solid #b99051;border-radius:50%;box-shadow:inset 0 0 10px #a87f4a53,0 0 12px #a87f4a38;color:#e9bf78;font-size:26px}
+.tc-collection-top>span:last-child{display:grid;gap:1px;min-width:0;color:#bba782;font-size:9px}
+.tc-collection-top b{font:700 clamp(15px,4.2vw,20px)/1.15 Georgia,"Noto Serif KR",serif;letter-spacing:.04em;color:#f7dcaa;text-shadow:1px 2px 3px #000}
+.tc-collection-top small{font-size:9px;color:#c6b391}
+.tc-cosmetics-catalog>.tc-segments{min-width:0;height:34px;border:1px solid #62533c;background:#161613}
+.tc-cosmetics-catalog>.tc-segments button{min-height:32px;padding:2px 5px;font-size:11px;color:#aea797}
+.tc-cosmetics-catalog>.tc-segments button[aria-selected=true]{color:#ffe2ae;background:linear-gradient(#4d321e,#32251a);box-shadow:inset 0 -2px #d6a65b}
+.tc-collection-grade-tabs{min-width:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px}
+.tc-collection-grade-tabs button{height:34px;min-width:0;border:1px solid #494338;background:linear-gradient(#161816,#0d100e);color:#aba398;font-size:10px;font-weight:700;padding:0 1px}
+.tc-collection-grade-tabs button.active{border-color:#c49a57;color:#ffe0a4;background:linear-gradient(#5e3b21,#332318);box-shadow:inset 0 -2px #e2b66d}
+.tc-collection-grade-tabs [data-rarity=SSR].active{color:#ffdca2;border-color:#e9b264}
+.tc-collection-tools{display:grid;grid-template-columns:minmax(0,1fr) 96px 96px;gap:4px;min-height:0}
+.tc-collection-tools.single{grid-template-columns:minmax(0,1fr)}
+.tc-collection-search{display:flex;min-width:0;align-items:center;gap:6px;background:#0d1312;border:1px solid #645944;padding:0 7px;color:#c6a96f}
+.tc-collection-search .tc-glyph{font-size:15px;flex-shrink:0}
+.tc-collection-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#e8d6b8;font-size:10px;height:33px;line-height:33px}
+.tc-collection-search input::placeholder{color:#82827c}
+.tc-collection-tools select{width:100%;min-width:0;border:1px solid #6c5940;border-radius:0;background:#211d18;color:#ddd0b4;font-size:10px;padding:0 3px}
+.tc-collection-heading{display:grid;grid-template-columns:minmax(88px,1.13fr) minmax(72px,.75fr) minmax(95px,1.5fr);gap:5px;align-items:center;padding:0 7px;color:#bdab8d;background:#1e1b17;border-bottom:1px solid #7f6038;border-top:1px solid #50402e;font-size:9px;white-space:nowrap;overflow:hidden}
+.tc-collection-heading b{font-size:9px;color:#e7c389}
+.tc-collection-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#aa8054 #191713;display:flex;flex-direction:column;gap:2px;border:1px solid #50402d;background:#080d0cbf;padding:2px}
+.tc-collection-row{flex:0 0 52px;min-height:52px;width:100%;display:grid;grid-template-columns:21px minmax(0,1.14fr) minmax(62px,.75fr) minmax(0,1.38fr) 27px 8px;gap:3px;align-items:center;border:1px solid #33382f;color:#eee0c7;background:linear-gradient(90deg,#201d19,#101515);padding:3px 4px;min-width:0;text-align:left}
+.tc-collection-row.selected{background:linear-gradient(95deg,#493522,#1b1b15 58%,#211b12);border-color:#d9a857;box-shadow:inset 0 0 0 1px #8c652f,0 0 9px #ba813237}
+.tc-collection-row.completed{border-color:#76613a}
+.tc-collection-row-emblem{display:grid;place-items:center;color:#c3a16b;font-size:20px;text-shadow:0 0 8px #a67b39}
+.tc-collection-row.completed .tc-collection-row-emblem{color:#f6d27d}
+.tc-collection-row-name{display:grid;gap:3px;min-width:0}
+.tc-collection-row-name strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 10px/1.25 Georgia,"Noto Serif KR",serif;color:#eee0c7}
+.tc-collection-row-name small{font-size:9px;color:#9d9689}
+.tc-collection-row-bonus{min-width:0;display:grid;gap:2px;color:#71d1a5;font-weight:700;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-collection-row-bonus small{color:#a09681;font-size:8px;font-weight:400}
+.tc-collection-row-tokens{min-width:0;display:flex;align-items:center;gap:2px;overflow:hidden}
+.tc-collection-token{position:relative;display:grid;place-items:center;flex:0 0 auto;width:40px;height:45px;padding:2px;border:1px solid #665742;background:radial-gradient(ellipse at 50% 35%,#4e3e2b,#0b1110 70%);color:#b8a380;overflow:hidden}
+.tc-collection-token .tc-glyph{font-size:23px;opacity:.75}
+.tc-collection-token img{width:100%;height:100%;object-fit:contain}
+.tc-collection-token.is-missing{border-color:#454a43;filter:grayscale(1);background:linear-gradient(#171918,#0b0e0d);color:#5d635f}
+.tc-collection-token.is-owned{border-color:#dcaa55;box-shadow:inset 0 0 0 1px #7f6132,0 0 6px #f3ae4259;color:#ead19e}
+.tc-collection-token.rarity-B.is-owned{border-color:#8fba98}.tc-collection-token.rarity-A.is-owned{border-color:#8caed4}.tc-collection-token.rarity-SR.is-owned{border-color:#b59bde}.tc-collection-token.rarity-SSR.is-owned{border-color:#e7af67}
+.tc-collection-token-check,.tc-collection-token-lock{position:absolute;right:2px;bottom:0;font-weight:900;font-size:14px;line-height:1;color:#ffd18a;text-shadow:0 1px #000}
+.tc-collection-token-lock{font-size:11px;color:#80807a}.tc-collection-token-rank{position:absolute;left:1px;top:1px;font:700 8px ui-monospace,monospace;color:#e6cd9b}
+.tc-collection-token.is-mini{width:clamp(15px,3.6vw,22px);height:clamp(20px,4.3vw,27px);padding:1px}
+.tc-collection-token.is-mini .tc-glyph{font-size:clamp(10px,2.5vw,16px)}
+.tc-collection-token.is-mini .tc-collection-token-check{font-size:10px}.tc-collection-token.is-mini .tc-collection-token-lock{font-size:9px}
+.tc-collection-row-count{text-align:center;color:#cdb991;font:700 9px ui-monospace,monospace}
+.tc-collection-row-arrow{font-size:18px;color:#b8a078}
+.tc-collection-none{padding:20px 10px;text-align:center;font-size:11px;color:#a8a398;margin:0}
+.tc-collection-detail{min-height:0;display:grid;grid-template-rows:minmax(0,1.1fr) minmax(0,1fr) 43px;overflow:hidden;border:1px solid #927044;box-shadow:inset 0 0 0 1px #3d2d1b,0 0 11px #b18b3924;background:#0e1110}
+.tc-collection-detail-hero{min-height:0;position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:3px;background-position:56% 50%;background-size:cover;border-bottom:1px solid #6c502e;padding:6px 9px}
+.tc-collection-detail-title{display:flex;justify-content:space-between;gap:5px;align-items:center}
+.tc-collection-detail-title>div{display:flex;gap:7px;align-items:center;min-width:0}
+.tc-collection-detail-sigil{display:grid;place-items:center;font-size:27px;color:#c5a064;flex:0 0 29px;text-shadow:0 0 12px #d2a25388}
+.tc-collection-detail-title small{font:8px ui-monospace,monospace;color:#a89981}
+.tc-collection-detail-title h2{font:700 clamp(14px,4vw,19px)/1.1 Georgia,"Noto Serif KR",serif;color:#f8deb0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0 0}
+.tc-collection-detail-title button{min-height:34px;min-width:34px;border:1px solid #64523b;background:#151714;color:#8f8674;font-size:22px}
+.tc-collection-detail-title button.is-favorite{color:#ffd17d;border-color:#bc8d51}
+.tc-collection-detail-story{margin:0;align-self:center;color:#d3c6b0;font-size:10px;line-height:1.35;max-width:75%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-shadow:0 1px 3px #000}
+.tc-collection-detail-stat{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:5px 6px 2px;background:linear-gradient(90deg,#070b0bba,#10151270);border-top:1px solid #765c35;min-width:0}
+.tc-collection-detail-stat small{font-size:9px;color:#d5bb8b}
+.tc-collection-detail-stat strong{font:700 14px Georgia,"Noto Serif KR",serif;color:#5fe2ab;white-space:nowrap}
+.tc-collection-detail-stat span{font-size:8px;color:#b0a391;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-collection-detail-requirements{min-height:0;display:grid;grid-template-rows:21px minmax(0,1fr);gap:2px;padding:4px 8px 3px}
+.tc-collection-detail-label{display:flex;justify-content:space-between;align-items:center;gap:5px;min-width:0}
+.tc-collection-detail-label strong{font-size:10px;color:#e4c18a}.tc-collection-detail-label em{font-style:normal;color:#e7b197}
+.tc-collection-detail-label>span{font-size:9px;color:#baaa91}
+.tc-collection-required{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;min-height:0}
+.tc-collection-required-item{min-height:0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.tc-collection-required-item>.tc-collection-token{width:min(100%,49px);height:min(55px,65%);min-height:31px}
+.tc-collection-required-item>.tc-collection-token .tc-glyph{font-size:21px}
+.tc-collection-required-item>span{font-size:9px;color:#d9c9a9;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-collection-required-item>small{font-size:9px;font-weight:700}.tc-collection-required-item>small.is-owned{color:#79c59b}.tc-collection-required-item>small.is-missing{color:#b97c76}
+.tc-collection-detail-actions{display:grid;grid-template-columns:1fr 1.24fr 1fr;gap:4px;padding:4px 6px;border-top:1px solid #5b462e}
+.tc-collection-action{display:flex;justify-content:center;align-items:center;gap:5px;min-height:35px;border:1px solid #6e604a;background:linear-gradient(#272923,#121715);color:#e3d1b0;font-size:10px;white-space:nowrap}
+.tc-collection-action[aria-pressed=true]{border-color:#65b49a;color:#b7e2c5}.tc-collection-action.primary{background:linear-gradient(#976635,#603c1f);border-color:#daa461;color:#ffe2aa;font-weight:700}
+.tc-collection-action .tc-glyph{font-size:14px}
+.tc-collection-disclaimer{margin:0;text-align:center;color:#948c80;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-cosmetics-catalog.listing-mode{grid-template-rows:56px 34px auto 34px minmax(0,1fr) 31px}
+.tc-cosmetics-meta{display:flex;justify-content:space-between;gap:6px;align-items:center;min-width:0;border:1px solid #685437;background:#211d18;padding:5px 9px;font-size:10px;color:#c6b7a0}.tc-cosmetics-meta b{color:#eed6aa}.tc-cosmetics-meta small{font-size:9px;color:#9e9585;max-width:52%;text-align:right}
+.tc-cosmetics-filters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}.tc-cosmetics-filters button{min-height:31px;background:#171a16;color:#afaa9b;border:1px solid #4b483d}.tc-cosmetics-filters button[aria-pressed=true]{background:#50351f;color:#f2daaf;border-color:#d1a465}
+.tc-cosmetics-items{display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:4px;min-height:0;overflow:hidden}
+.tc-cosmetics-item{display:grid;grid-template-columns:46px minmax(0,1fr) 65px;gap:8px;align-items:center;padding:5px 7px;min-height:0;min-width:0;border:1px solid #454941;background:linear-gradient(120deg,#19201e,#0d100f)}
+.tc-cosmetics-item.owned{border-color:#8c6d48}.tc-cosmetics-item.equipped{border-color:#ddad61;box-shadow:inset 2px 0 #e1b573}
+.tc-cosmetics-icon{display:grid;place-items:center;width:44px;height:51px;border:1px solid #6b5339;background:#1b1e1a;color:#b5a27e;font-size:22px}
+.tc-cosmetics-icon img{width:100%;height:100%;object-fit:contain}
 .tc-cosmetics-icon.rarity-B{border-color:#678d77}.tc-cosmetics-icon.rarity-A{border-color:#6988b0}.tc-cosmetics-icon.rarity-SR{border-color:#987cb5}.tc-cosmetics-icon.rarity-SSR{border-color:#ce955e}
-.tc-cosmetics-item-body{display:grid;gap:4px;min-width:0;min-height:0;align-content:center}
-.tc-cosmetics-item-title{display:flex;align-items:center;gap:5px;min-width:0}.tc-cosmetics-item-title>b{color:#e6ddc9;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-cosmetics-grade{display:grid;place-items:center;flex:0 0 auto;min-width:22px;height:18px;padding:0 3px;font:700 9px ui-monospace,monospace;color:#d5c8ae;background:#292a24;border:1px solid #57574a}
-.tc-cosmetics-grade.rarity-B{color:#a2d0a7;border-color:#4c6c53}.tc-cosmetics-grade.rarity-A{color:#a8c5e6;border-color:#526c8c}.tc-cosmetics-grade.rarity-SR{color:#d0afe7;border-color:#795b99}.tc-cosmetics-grade.rarity-SSR{color:#f5c08e;border-color:#b9844c}
-.tc-cosmetics-item-body>small{font-size:9px;color:#a1a496;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-cosmetics-item-body>span{font-size:9px;color:#baa783;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-cosmetics-equip{height:40px;min-width:0;white-space:nowrap;border:1px solid #846e47;background:#32291c;color:#e8d1a1;font-size:9px;padding:0 3px}.tc-cosmetics-equip:disabled{opacity:1;border-color:#3e423b;background:#1b211d;color:#797d74}.tc-cosmetics-item.equipped .tc-cosmetics-equip:disabled{color:#d6bb84;border-color:#9a8155}
-.tc-cosmetics-collection{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;min-height:0;border:1px solid #615139;background:linear-gradient(135deg,#2a251c,#121717);padding:8px}
-.tc-cosmetics-collection-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.tc-cosmetics-collection-head>b{font:700 13px Georgia,"Noto Serif KR",serif;color:#ead5ae}.tc-cosmetics-collection-head>span{font-size:11px;color:#c4b18c}.tc-cosmetics-collection>small{color:#acaaa0;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-cosmetics-collection-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.tc-cosmetics-collection-slots>span{height:18px;display:grid;place-items:center;border:1px solid #464640;background:#111515;color:#83857d}.tc-cosmetics-collection-slots>span.collected{background:#53422c;color:#f1d5a0;border-color:#ba935f}.tc-cosmetics-collection-slots b{font-size:9px}
-.tc-cosmetics-collection>strong{font-size:9px;color:#d0b17f;font-weight:500}.tc-cosmetics-empty{grid-row:1/-1;display:grid;place-items:center;color:#888d84;font-size:12px;margin:0}
-.tc-cosmetics-catalog>.tc-pager{margin-top:0}.tc-cosmetics-catalog>.tc-pager button{height:31px;min-height:31px}
-@media(max-height:650px){.tc-cosmetics-catalog{gap:3px;grid-template-rows:31px auto 28px minmax(0,1fr) 31px}.tc-cosmetics-meta{padding:4px 6px}.tc-cosmetics-catalog>.tc-segments button{min-height:31px}.tc-cosmetics-filters button{height:28px}.tc-cosmetics-item{padding:4px;grid-template-columns:39px minmax(0,1fr) 46px;gap:5px}.tc-cosmetics-icon{width:37px;height:41px}.tc-cosmetics-item-body{gap:2px}.tc-cosmetics-item-body>span{font-size:8px}.tc-cosmetics-item-body>small{font-size:8px}.tc-cosmetics-equip{height:34px}.tc-cosmetics-collection{gap:3px;padding:5px}.tc-cosmetics-collection-slots>span{height:16px}}
-@media(max-width:360px){.tc-cosmetics-meta>small{font-size:8px}.tc-cosmetics-item{grid-template-columns:37px minmax(0,1fr) 43px;gap:5px}.tc-cosmetics-icon{width:35px;height:42px}.tc-cosmetics-item-title>b{font-size:10px}.tc-cosmetics-grade{min-width:18px;font-size:8px}.tc-cosmetics-equip{font-size:8px}}
+.tc-cosmetics-item-body{min-width:0;display:grid;gap:4px;align-content:center}
+.tc-cosmetics-item-title{display:flex;gap:4px;align-items:center;min-width:0}.tc-cosmetics-item-title>b{font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#f0dec0}
+.tc-cosmetics-grade{font:700 9px ui-monospace,monospace;color:#edc993;border:1px solid #725d40;padding:3px}
+.tc-cosmetics-item-body small,.tc-cosmetics-item-body>span{font-size:9px;color:#b2ae9f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-cosmetics-equip{min-height:42px;padding:0 3px;background:#4c3421;color:#f0d4a2;border:1px solid #b18a54;font-size:10px}
+.tc-cosmetics-equip:disabled{color:#96948a;background:#24231d;border-color:#45473c;opacity:1}
+.tc-cosmetics-empty{grid-row:1/-1;display:grid;place-items:center;color:#b3aa95}
+.tc-cosmetics-catalog>.tc-pager{align-self:stretch}.tc-cosmetics-catalog>.tc-pager button{height:31px}
+.tc-collection-modal-backdrop{position:absolute;inset:0;z-index:30;display:grid;place-items:center;background:#030504df;padding:12px}
+.tc-collection-modal{width:100%;max-height:85%;min-height:150px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;overflow:hidden;border:1px solid #c49c62;background:linear-gradient(#2a241b,#0a1110);padding:14px;box-shadow:0 20px 45px #000}
+.tc-collection-modal header{display:flex;align-items:center;justify-content:space-between}.tc-collection-modal h2{font:700 18px Georgia,"Noto Serif KR",serif;color:#efdaa9;margin:0}.tc-collection-modal header button{width:44px;height:44px;border:1px solid #6b5741;background:#171716;color:#fff0cd;font-size:24px}
+.tc-collection-modal-content{overflow-y:auto;min-height:0;display:grid;align-content:start;gap:9px;font-size:11px;color:#cfc3ae}.tc-collection-modal-content>strong{font-size:15px;color:#f2d5a7}.tc-collection-modal-content p{line-height:1.5;margin:0}.tc-collection-modal-content>button,.tc-collection-related-list button{min-height:44px;border:1px solid #64523a;background:#251e18;color:#e8c997;font-size:12px}
+.tc-collection-related-list{display:grid;gap:5px;max-height:230px;overflow-y:auto}
+.tc-collection-related-list button{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;text-align:left}.tc-collection-related-list strong{max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-collection-related-list span{color:#90cbae;font-size:10px}
+@media(max-height:740px){
+ .tc-cosmetics-catalog{grid-template-rows:42px 31px 29px 32px 17px minmax(0,1fr) minmax(0,1.2fr) 13px;gap:2px}
+ .tc-cosmetics-catalog.listing-mode{grid-template-rows:42px 31px auto 30px minmax(0,1fr) 29px}
+ .tc-collection-top-mark{height:30px;flex-basis:30px;font-size:20px}.tc-collection-top{padding:3px 7px}
+ .tc-collection-top b{font-size:15px}.tc-collection-top small{font-size:8px}
+ .tc-cosmetics-catalog>.tc-segments,.tc-cosmetics-catalog>.tc-segments button{min-height:31px;height:31px}
+ .tc-collection-grade-tabs button{height:29px}.tc-collection-search input{height:31px;line-height:31px}
+ .tc-collection-row{flex-basis:45px;min-height:45px}
+ .tc-collection-detail{grid-template-rows:minmax(0,1fr) minmax(0,.95fr) 39px}
+ .tc-collection-detail-hero{padding:4px 7px}.tc-collection-detail-story{font-size:9px}
+ .tc-collection-detail-title h2{font-size:14px}.tc-collection-detail-sigil{font-size:20px}
+ .tc-collection-detail-stat{padding:1px 4px}.tc-collection-detail-stat strong{font-size:12px}
+ .tc-collection-detail-requirements{grid-template-rows:17px minmax(0,1fr);padding:2px 5px}
+ .tc-collection-required-item>.tc-collection-token{min-height:25px;height:min(37px,60%)}
+ .tc-collection-required-item>span,.tc-collection-required-item>small{font-size:8px}
+ .tc-collection-detail-actions{padding:2px 4px}.tc-collection-action{min-height:34px}
+ .tc-cosmetics-item{padding:3px 5px}.tc-cosmetics-icon{height:39px}
+}
+@media(max-height:590px){
+ .tc-cosmetics-catalog{grid-template-rows:36px 29px 26px 30px 14px minmax(0,.9fr) minmax(0,1.15fr) 12px;gap:2px}
+ .tc-collection-row{flex-basis:41px;min-height:41px}.tc-collection-detail{grid-template-rows:minmax(0,.8fr) minmax(0,1fr) 35px}
+ .tc-collection-detail-story{display:none}.tc-collection-detail-stat span{display:none}
+ .tc-collection-detail-hero{grid-template-rows:auto minmax(0,1fr)}.tc-collection-detail-actions{padding:1px 3px}.tc-collection-action{min-height:31px}
+ .tc-collection-top-mark{display:none}.tc-collection-top{padding:2px 7px}.tc-collection-top b{font-size:14px}
+ .tc-cosmetics-catalog>.tc-segments,.tc-cosmetics-catalog>.tc-segments button{height:29px;min-height:29px}.tc-collection-grade-tabs button{height:26px}
+ .tc-collection-tools select{font-size:9px}.tc-collection-search input{height:29px;line-height:29px}
+ .tc-collection-detail-title button{min-height:26px;min-width:26px}.tc-collection-required-item>.tc-collection-token{min-height:20px;height:min(28px,65%)}
+}
+@media(max-width:400px){
+ .tc-collection-tools{grid-template-columns:minmax(0,1fr) 73px 73px;gap:3px}
+ .tc-collection-heading{grid-template-columns:minmax(88px,1.1fr) minmax(60px,.8fr) minmax(90px,1.2fr);font-size:8px;padding:0 4px}
+ .tc-collection-row{grid-template-columns:15px minmax(0,1.1fr) minmax(51px,.75fr) minmax(0,1.12fr) 22px 6px;gap:2px;padding:2px}
+ .tc-collection-row-name strong{font-size:9px}.tc-collection-row-bonus{font-size:9px}.tc-collection-row-emblem{font-size:16px}.tc-collection-row-count{font-size:8px}
+ .tc-collection-detail-actions{gap:2px}.tc-collection-action{font-size:9px}
+ .tc-collection-required-item>span{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.tc-cosmetics-catalog *{transition:none!important;animation:none!important}}
