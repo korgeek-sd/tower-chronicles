@@ -126,7 +126,7 @@ function CollectionToken({id,owned,mini=false,onOpen}:{id:string;owned:boolean;m
  const props={className:'tc-collection-token '+(owned?'is-owned ':'is-missing ')+'rarity-'+(a?.rarity??'C')+(mini?' is-mini':''),title:(a?.name??id)+' · '+(owned?'보유':'미보유'), 'data-appearance-id':id};
  return onOpen?<button type="button" {...props} aria-label={(a?.name??id)+' · '+(owned?'보유':'미보유')+' 상세 정보'} onClick={e=>{e.stopPropagation();onOpen(id);}}>{content}</button>:<span {...props}>{content}</span>;
 }
-export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
+export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
  const [tab,setTab]=useState<'collection'|'appearance'>('collection');
  const [rarity,setRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const [query,setQuery]=useState('');
