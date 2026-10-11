@@ -70,9 +70,9 @@
 .tc-collection-detail-label{display:flex;justify-content:space-between;align-items:center;gap:5px;min-width:0}
 .tc-collection-detail-label strong{font-size:10px;color:#e4c18a}.tc-collection-detail-label em{font-style:normal;color:#e7b197}
 .tc-collection-detail-label>span{font-size:9px;color:#baaa91}
-.tc-collection-required{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;min-height:0}
+.tc-collection-required{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;min-height:0}
 .tc-collection-required-item{min-height:0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.tc-collection-required-item>.tc-collection-token{width:min(100%,49px);height:min(55px,65%);min-height:31px}
+.tc-collection-required-item>.tc-collection-token{width:min(100%,47px);height:min(55px,65%);min-height:31px}
 .tc-collection-required-item>.tc-collection-token .tc-glyph{font-size:21px}
 .tc-collection-required-item>span{font-size:9px;color:#d9c9a9;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-collection-required-item>small{font-size:9px;font-weight:700}.tc-collection-required-item>small.is-owned{color:#79c59b}.tc-collection-required-item>small.is-missing{color:#b97c76}
@@ -141,3 +141,20 @@
  .tc-collection-required-item>span{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){.tc-cosmetics-catalog *{transition:none!important;animation:none!important}}
+
+/* Mixed appearance + equipment registrations in the same collection row. */
+.tc-collection-gear-token{display:grid;place-items:center;position:relative;flex:0 0 auto;width:40px;height:45px;border:1px solid #5f5d55;background:linear-gradient(#2b2b29,#0c1311);color:#b5a083;overflow:hidden}
+.tc-collection-gear-token .tc-glyph{font-size:23px}
+.tc-collection-gear-token.is-mini{width:clamp(15px,3.6vw,22px);height:clamp(20px,4.3vw,27px)}
+.tc-collection-gear-token.is-mini .tc-glyph{font-size:clamp(11px,2.6vw,17px)}
+.tc-collection-gear-token.is-owned{border-color:#d5aa5f;background:linear-gradient(#55402a,#221a12);color:#ffdb9c;box-shadow:0 0 7px #e9aa5344}
+.tc-collection-gear-token.is-missing{color:#77746c;border-color:#414440;filter:grayscale(.65)}
+.tc-collection-required-item>.tc-collection-gear-token{width:min(100%,47px);height:min(55px,65%);min-height:31px;cursor:pointer}
+.tc-collection-register-items{max-height:190px;overflow-y:auto;display:grid;gap:4px;min-height:0}
+.tc-collection-register-items button{min-height:46px;padding:7px;display:flex;align-items:center;gap:8px;text-align:left;background:#23251e;color:#e5d5b8;border:1px solid #6b614b;font-size:11px}
+.tc-collection-register-items button.active{background:#514027;border-color:#edc078;color:#ffe5ae}
+.tc-collection-register-confirm{min-height:46px;border:1px solid #e3b36b;background:linear-gradient(#876037,#4e301e);color:#ffeac7;font-weight:700;font-size:12px}
+.tc-collection-register-confirm:disabled{color:#988775;border-color:#615542;background:#28231f}
+.tc-collection-modal-content [role=alert]{color:#e3a49a}
+@media(max-height:740px){.tc-collection-required-item>.tc-collection-gear-token{min-height:25px;height:min(37px,60%)}}
+@media(max-height:590px){.tc-collection-required-item>.tc-collection-gear-token{min-height:20px;height:min(28px,65%)}}
