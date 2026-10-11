@@ -10,7 +10,9 @@ test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
  assert.match(home,/onMove\('craft'\)/);
  assert.doesNotMatch(home,/title:'직능등록'/);
  assert.doesNotMatch(home,/title:'외형'/);
- assert.doesNotMatch(home,/onMove\('cosmetics'\)/);
+ assert.match(home,/id:'cosmetics'/);
+ assert.match(home,/name:'외형 도감'/);
+ assert.match(home,/onMove\('cosmetics'\)/);
 });
 
 test('HOME JOB SHORTCUT 02: existing job shortcut opens the job list instead of duplicating the gacha entry',()=>{
