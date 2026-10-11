@@ -182,7 +182,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onServerRecord}:{
  const selectedMissing=selected.appearanceIds.find(id=>!ownedSet.has(id))??selected.appearanceIds[0];
  const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
  const eligibleItems=game.equipmentItems.filter(item=>item.kind===selected.equipment.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id));
- const registerReady=!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!registrationError&&!game.expedition;
+ const registerReady=!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!game.expedition;
  async function submitRegistration(){
   if(!registerReady||!registerItemId)return;
   const id=registerItemId,setId=selected.id;
@@ -271,7 +271,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onServerRecord}:{
     </div>
     <div className="tc-collection-tools single"><label className="tc-collection-search"><Glyph name="search"/><input aria-label="외형 검색" placeholder="외형 이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/></label></div>
     <div className="tc-cosmetics-items" role="list" aria-label="외형 목록">
-     {tab==='appearance'?appearances.slice(safePage*4,safePage*4+4).map(a=>{
+     {appearances.slice(safePage*4,safePage*4+4).map(a=>{
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem">
        <div className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</div>
