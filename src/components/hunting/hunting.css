@@ -225,3 +225,259 @@
 .tc-hunt-preset footer{display:flex;gap:8px;flex-wrap:wrap;position:sticky;bottom:0;background:#181816;padding:8px 0 calc(5px + env(safe-area-inset-bottom))}
 .tc-hunt-preset footer button{flex:1}
 .tc-hunt .tc-hunt-config-toggle{font-size:11px;padding:6px 8px;min-width:63px;flex-shrink:0}
+
+
+/*
+ * One-viewport hunting results (portrait + compact landscape).
+ * The outer game shell already reserves its top/status/bottom bars.
+ * Only the result view is packed, leaving the five-map screen unchanged.
+ * The two fighter rows share the height LEFT AFTER rewards and controls.
+ */
+.tc-main.tc-hunt-main > .tc-hunt[data-view="result"]{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+  gap:4px;
+  padding:0;
+}
+.tc-hunt[data-view="result"] > .tc-hunt-vitality{
+  display:none;
+}
+.tc-hunt[data-view="result"] > .tc-hunt-heading{
+  display:flex;
+  flex:0 0 38px;
+  min-height:0;
+  height:38px;
+  gap:5px;
+  flex-wrap:nowrap;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-heading > div:first-child{min-width:0;flex:0 0 auto}
+.tc-hunt[data-view="result"] .tc-hunt-heading h1{
+  font-size:17px;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.tc-hunt[data-view="result"] .tc-hunt-heading > span.tc-hunt-level{
+  margin-left:0;
+  flex:0 0 auto;
+  font-size:11px;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-vitality{
+  margin-left:auto;
+  flex:0 1 auto;
+  min-width:0;
+  color:#ddc594;
+  white-space:nowrap;
+  font-size:11px;
+  font-variant-numeric:tabular-nums;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-vitality b{color:#f1dab0}
+.tc-hunt[data-view="result"] .tc-hunt-heading button{
+  flex:0 0 auto;
+  min-width:0;
+  min-height:32px;
+  height:32px;
+  padding:4px 7px;
+  font-size:11px;
+  gap:2px;
+  white-space:nowrap;
+}
+.tc-hunt[data-view="result"] > .tc-hunt-result-page{
+  flex:1 1 0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(80px,90px);
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr) auto auto;
+  align-content:stretch;
+  gap:4px;
+  height:auto;
+  min-height:0;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-page > .tc-hunt-fighter,
+.tc-hunt[data-view="result"] .tc-hunt-result-page > .tc-hunt-fighter.enemy{
+  grid-column:1 / -1;
+  box-sizing:border-box;
+  flex:none;
+  align-self:stretch;
+  height:100%;
+  min-height:0;
+  max-height:100%;
+  width:100%;
+  grid-template-columns:32% minmax(0,1fr);
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-page > .tc-hunt-fighter > .tc-hunt-art{
+  box-sizing:border-box;
+  width:100%;
+  height:100%;
+  max-height:100%;
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-page > .tc-hunt-fighter > .tc-hunt-art > img{
+  position:absolute;
+  width:100%;
+  height:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+.tc-hunt[data-view="result"] .tc-hunt-fighter-info{
+  min-height:0;
+  height:100%;
+  max-height:100%;
+  padding:5px 8px;
+  gap:3px;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-fighter h2{font-size:15px;line-height:1.2}
+.tc-hunt[data-view="result"] .tc-hunt-monster-title{min-height:18px}
+.tc-hunt[data-view="result"] .tc-hunt-stats{font-size:10px;gap:7px;line-height:1.2}
+.tc-hunt[data-view="result"] .tc-hunt-hp,
+.tc-hunt[data-view="result"] .tc-hunt-mp{flex:0 0 auto;min-width:0}
+.tc-hunt[data-view="result"] .tc-hunt-hp > div:first-child,
+.tc-hunt[data-view="result"] .tc-hunt-mp > div:first-child{
+  margin-bottom:2px;
+  font-size:10px;
+  line-height:1.15;
+}
+.tc-hunt[data-view="result"] .tc-hunt-hp [role=progressbar],
+.tc-hunt[data-view="result"] .tc-hunt-mp [role=progressbar]{height:8px}
+.tc-hunt[data-view="result"] .tc-hunt-equipment{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-result-page > .tc-hunt-result{
+  grid-column:1;
+  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-content:center;
+  gap:1px;
+  padding:5px 7px;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result h2{
+  font-size:14px;
+  line-height:1.15;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result > div{min-width:0}
+.tc-hunt[data-view="result"] .tc-hunt-result p{
+  font-size:10px;
+  line-height:1.2;
+  margin:0;
+  overflow-wrap:anywhere;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result span{
+  display:block;
+  font-size:10px;
+  line-height:1.25;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.tc-hunt[data-view="result"] .tc-hunt-records-button{
+  grid-column:2;
+  align-self:stretch;
+  justify-self:stretch;
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:5px 6px;
+  font-size:11px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  text-align:center;
+  white-space:nowrap;
+}
+.tc-hunt[data-view="result"] .tc-hunt-records-button span{
+  font-size:10px;
+  line-height:1.1;
+}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(132px,48%);
+  align-items:center;
+  gap:7px;
+  min-height:52px;
+  padding:5px 7px;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock > div{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  min-width:0;
+  gap:5px;
+  margin:0;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock > div > strong{
+  display:block;
+  min-width:0;
+  flex:1;
+  font-size:12px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock > div > small{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock > div .tc-glyph{width:16px;height:16px}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock > .tc-hunt-next{
+  min-width:0;
+  width:100%;
+  height:42px;
+  min-height:42px;
+  padding:5px 8px;
+  gap:5px;
+  justify-content:center;
+}
+.tc-hunt[data-view="result"] .tc-hunt-next strong{font-size:15px}
+.tc-hunt[data-view="result"] .tc-hunt-next small{font-size:10px;padding-left:6px}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock > p{
+  grid-column:1 / -1;
+  margin:0;
+  font-size:10px;
+  line-height:1.2;
+}
+/* On small phones prioritize readable HP/MP, the monster name, and the next-hunt action. */
+@media (max-width:380px){
+  .tc-hunt[data-view="result"] .tc-hunt-heading > span.tc-hunt-level{display:none}
+  .tc-hunt[data-view="result"] .tc-hunt-heading button{padding-inline:5px;font-size:10px}
+  .tc-hunt[data-view="result"] .tc-hunt-repeat-dock{grid-template-columns:minmax(0,1fr) minmax(116px,49%);gap:4px}
+  .tc-hunt[data-view="result"] .tc-hunt-next .tc-glyph{display:none}
+  .tc-hunt[data-view="result"] .tc-hunt-next small{font-size:9px}
+}
+@media (max-height:640px){
+  .tc-main.tc-hunt-main > .tc-hunt[data-view="result"]{gap:3px}
+  .tc-hunt[data-view="result"] > .tc-hunt-heading{height:32px;flex-basis:32px}
+  .tc-hunt[data-view="result"] > .tc-hunt-result-page{gap:3px}
+  .tc-hunt[data-view="result"] .tc-hunt-fighter-info{gap:2px;padding:3px 7px}
+  .tc-hunt[data-view="result"] .tc-hunt-fighter h2{font-size:13px;line-height:1.1}
+  .tc-hunt[data-view="result"] .tc-hunt-monster-title{min-height:15px}
+  .tc-hunt[data-view="result"] .tc-hunt-stats{font-size:10px}
+  .tc-hunt[data-view="result"] .tc-hunt-hp > div:first-child,
+  .tc-hunt[data-view="result"] .tc-hunt-mp > div:first-child{font-size:9px;margin-bottom:1px}
+  .tc-hunt[data-view="result"] .tc-hunt-hp [role=progressbar],
+  .tc-hunt[data-view="result"] .tc-hunt-mp [role=progressbar]{height:7px}
+  .tc-hunt[data-view="result"] .tc-hunt-result-page > .tc-hunt-result{padding:4px 6px}
+  .tc-hunt[data-view="result"] .tc-hunt-records-button{padding:3px}
+  .tc-hunt[data-view="result"] .tc-hunt-repeat-dock{min-height:48px;padding:3px 6px}
+  .tc-hunt[data-view="result"] .tc-hunt-repeat-dock > .tc-hunt-next{height:40px;min-height:40px}
+}
+@media (max-height:520px){
+  .tc-hunt[data-view="result"] .tc-hunt-monster-title h2{font-size:12px}
+  .tc-hunt[data-view="result"] .tc-hunt-skill-open{min-height:23px;height:23px;padding:2px 4px;font-size:10px}
+  .tc-hunt[data-view="result"] .tc-hunt-result h2{font-size:12px}
+  .tc-hunt[data-view="result"] .tc-hunt-result p,
+  .tc-hunt[data-view="result"] .tc-hunt-result span{font-size:9px}
+  .tc-hunt[data-view="result"] .tc-hunt-repeat-dock{min-height:44px}
+  .tc-hunt[data-view="result"] .tc-hunt-repeat-dock > .tc-hunt-next{min-height:36px;height:36px}
+}
