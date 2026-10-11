@@ -20,7 +20,7 @@ function Mp({label,value,max}:{label:string;value?:number|null;max?:number|null}
  const current=available?Math.min(capacity,Math.max(0,Math.round(value))):0;
  return <div className={'tc-hunt-mp'+(available?'':' tc-hunt-mp-unavailable')}><div><span>MP</span><b>{available?current.toLocaleString()+' / '+capacity.toLocaleString():'미사용'}</b></div><div role="progressbar" aria-label={label+' MP'} aria-valuemin={0} aria-valuemax={capacity} aria-valuenow={current} aria-valuetext={available?undefined:'마나 시스템 미적용'}><i style={{width:(current/capacity*100)+'%'}}/></div></div>;
 }
-export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRetry,previewAppearance}:Props){
+export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRetry,onSettings,previewAppearance}:Props){
  const feel=useGameFeel();
  const [submitting,setSubmitting]=React.useState(false),[feedbackRevision,setFeedbackRevision]=React.useState(0);
  const huntingNow=busy||submitting;
@@ -56,7 +56,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
   ?assetUrl('assets/monsters/new/plains/grave_digger_hound.png')
   :assetUrl(activeMonster?.image??enemy.image??HUNT_MONSTERS.plains[0].image);
  return <section className={'tc-hunt'+(motionOff?' tc-hunt-motion-off':'')} aria-label="즉시 사냥" aria-busy={huntingNow} data-hunt-revision={feedbackRevision}>
-  <header className="tc-hunt-heading"><div><small>노바르 외곽</small><h1>{view==='result'?'사냥 결과':'사냥터'}</h1></div><span>Lv. {level}</span><button type="button" className="tc-hunt-preview-toggle" aria-pressed={previewMode} onClick={()=>setPreviewOpen(value=>!value)}>{previewMode?'비교 닫기':'외형 비교'}</button>{view==='result'&&<button onClick={()=>setView('regions')}>사냥터로 <span aria-hidden="true">›</span></button>}</header>
+  <header className="tc-hunt-heading"><div><small>노바르 외곽</small><h1>{view==='result'?'사냥 결과':'사냥터'}</h1></div><span>Lv. {level}</span><button type="button" className="tc-hunt-config-toggle" onClick={onSettings}>전투 세팅</button><button type="button" className="tc-hunt-preview-toggle" aria-pressed={previewMode} onClick={()=>setPreviewOpen(value=>!value)}>{previewMode?'비교 닫기':'외형 비교'}</button>{view==='result'&&<button onClick={()=>setView('regions')}>사냥터로 <span aria-hidden="true">›</span></button>}</header>
   <div className="tc-hunt-vitality tc-hunt-panel"><Glyph name="haste"/><strong>활력 <b>{state?.vitality.toLocaleString()??'—'}</b><small>{state&&state.vitality>100?' (추가 지급)':' / 100'}</small></strong><div className="tc-hunt-energy" role="progressbar" aria-label="활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100,state?.vitality??0)}><i style={{width:Math.min(100,state?.vitality??0)+'%'}}/></div><span>{!state?'불러오는 중':state.vitality>100?'추가 지급 활력 사용 중':state.vitality===100?'충전 완료':`회복 ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}</span></div>
   {previewMode&&view==='regions'&&<section className="tc-hunt-art-preview" aria-label="무덤파는 들개 · 직업 외형 비교">
     <div className="tc-hunt-art-preview-heading"><div><strong>외형 비교 미리보기</strong><small>실제 사냥 UI 크기로 두 이미지를 확인하세요.</small></div><a href="./">일반 화면</a></div>

@@ -22,8 +22,13 @@ test('player and enemy MP gauges appear directly under their respective HP bars'
   assert.ok(section.includes('aria-label="'+label+' HP"'),label+' health');
   assert.ok(section.includes('aria-label="'+label+' MP"'),label+' mana');
   assert.ok(section.indexOf('aria-label="'+label+' MP"')>section.indexOf('aria-label="'+label+' HP"'),label+' MP after HP');
-  assert.match(section,/MP<\/span><b>미사용<\/b>/);
-  assert.match(section,/aria-valuetext="마나 시스템 미적용"/);
+  if(label==='탐사자'){
+   assert.match(section,/MP<\/span><b>100 \/ 100<\/b>/);
+   assert.doesNotMatch(section,/aria-valuetext="마나 시스템 미적용"/);
+  }else{
+   assert.match(section,/MP<\/span><b>미사용<\/b>/);
+   assert.match(section,/aria-valuetext="마나 시스템 미적용"/);
+  }
  }
 });
 test('available mana values are shown truthfully, clamped and remain present after a fight',()=>{

@@ -2,6 +2,7 @@ import {chooseHuntMonster,type HuntMonsterSnapshot} from './encounters';
 import {rollHuntingEquipment} from './equipmentDrops';
 import {resolveMonsterAction,damageOverTime,playerAttackFactor,playerDefenseFactor,blocksPlayerSkill,takeMonsterShield,type MonsterEffects} from './monsterSkills';
 import type {EquipmentItem,Tower} from '../types';
+import {catalogSkill,initialCatalogCombat,castCatalogSkill,applyCatalogTurnStart,takeCatalogMonsterDamage,maxHuntingMp,validSkillForWeapon,type HuntingWeapon,type SkillLevels} from './catalogCombat';
 export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
 export const HUNT_MAPS=[
@@ -18,13 +19,13 @@ export function combatStats(input:CombatInput):CombatStats {
  const finite=(n:number|undefined,fallback:number)=>Number.isFinite(n)?n!:fallback;
  return {hp:Math.max(1,finite(input.hp,1)),attack:Math.max(0,finite(input.attack,0)),defense:Math.max(0,finite(input.defense,0)),critChance:Math.max(0,Math.min(1,finite(input.critChance,.05))),critDamage:Math.max(1,finite(input.critDamage,1.5)),armorPenetration:Math.max(0,Math.min(1,finite(input.armorPenetration,0)))};
 }
-export interface HuntTurn {turn:number;lines:string[];playerHp:number;monsterHp:number}
+export interface HuntTurn {turn:number;lines:string[];playerHp:number;monsterHp:number;playerMp?:number}
 export interface HuntResult {playerMp?:number|null;playerMaxMp?:number|null;monsterMp?:number|null;monsterMaxMp?:number|null;monster?:HuntMonsterSnapshot;equipment?:EquipmentItem|null;startHp?:number;recoveredHp?:number;potionsUsed?:number;requestId?:string;mapId:HuntMapId;outcome:'victory'|'defeat';player:CombatStats;playerHp:number;monsterHp:number;turns:HuntTurn[];silver:number;exp:number;mastery:number;materialCount:number;createdAt:number}
 export const HUNT_SKILLS=[{id:'heavy',name:'강타',description:'공격력 180% 피해 · 3턴마다 사용'},{id:'guard',name:'방어',description:'HP 50% 이하 · 이번 턴 받는 피해 50% 감소 · 4턴마다 사용'},{id:'quick',name:'속공',description:'공격력 120% 피해 · 2턴마다 사용'}];
-export type StatAllocation={hp:number;attack:number;defense:number;crit:number};
-export const EMPTY_STAT_ALLOCATION:StatAllocation={hp:0,attack:0,defense:0,crit:0};
-export function normalizeStatAllocation(value:unknown):StatAllocation { const v=(value&&typeof value==='object'?value:{}) as Record<string,unknown>;return {hp:Math.max(0,Math.floor(Number(v.hp)||0)),attack:Math.max(0,Math.floor(Number(v.attack)||0)),defense:Math.max(0,Math.floor(Number(v.defense)||0)),crit:Math.max(0,Math.min(10,Math.floor(Number(v.crit)||0)))}; }
-export function usedStatPoints(a:StatAllocation){return a.hp+a.attack+a.defense+a.crit;}
+export type StatAllocation={hp:number;attack:number;defense:number;crit:number;mp?:number};
+export const EMPTY_STAT_ALLOCATION:StatAllocation={hp:0,attack:0,defense:0,crit:0,mp:0};
+export function normalizeStatAllocation(value:unknown):StatAllocation { const v=(value&&typeof value==='object'?value:{}) as Record<string,unknown>;return {hp:Math.max(0,Math.floor(Number(v.hp)||0)),attack:Math.max(0,Math.floor(Number(v.attack)||0)),defense:Math.max(0,Math.floor(Number(v.defense)||0)),crit:Math.max(0,Math.min(10,Math.floor(Number(v.crit)||0))),mp:Math.max(0,Math.floor(Number(v.mp)||0))}; }
+export function usedStatPoints(a:StatAllocation){return a.hp+a.attack+a.defense+a.crit+(a.mp??0);}
 export function statPointsForLevel(level:number){return Math.max(0,Math.min(99,Math.floor(level)-1));}
 export function statResetCost(level:number,resets:number){return resets===0?0:10000+Math.max(1,Math.min(100,Math.floor(level)))*1000;}
 export function applyStatAllocation(player:CombatInput,alloc:StatAllocation):CombatInput {return {...player,hp:player.hp+alloc.hp*12,attack:player.attack+alloc.attack,defense:player.defense+alloc.defense*2,critChance:Math.min(.6,(player.critChance??.05)+alloc.crit*.02)};}
@@ -60,31 +61,50 @@ export function huntingProgress(experience:number){
 }
 export const damage=(attack:number,defense:number,multiplier=1,armorPenetration=0)=>Math.max(1,Math.floor(attack*multiplier*100/(100+Math.max(0,defense)*(1-Math.max(0,Math.min(1,armorPenetration))))));
 /** Guest-only resolver. Online results always originate in hunt_once. */
-export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random){
+export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random,levels:SkillLevels={},weapon:HuntingWeapon='sword'){
  const map=HUNT_MAPS.find(m=>m.id===mapId);if(!map)throw Error('알 수 없는 지역입니다.');
  const state=recoverVitality(before,now);if(state.vitality<1)throw Error('활력이 부족합니다.');
  const allocated=normalizeStatAllocation(state.statAllocation);
  const player=combatStats(usedStatPoints(allocated)>0?applyStatAllocation(input,allocated):input),foods={...state.foodTurns};
+ const passiveIds=skills.filter((id):id is string=>!!id&&catalogSkill(id)?.type==='passive');
+ let catalog=initialCatalogCombat(player,maxHuntingMp(allocated),passiveIds,levels,weapon);
+ player.hp=catalog.maxHp;
  if((foods.attack_food??0)>0)player.attack*=1.1;
  if((foods.defense_food??0)>0)player.defense*=1.1;
  let potions=Math.max(0,Math.floor(state.potions??0));
  let hp=Math.max(1,Math.min(player.hp,state.currentHp??player.hp));
  const prePotions=Math.min(potions,Math.ceil(player.hp-hp));potions-=prePotions;hp=Math.min(player.hp,hp+prePotions);
  const startHp=hp;
+ catalog.hp=hp;
  const previous=state.lastResult?.monster?.id??HUNT_MAPS.find(m=>m.id===state.lastResult?.mapId)?.monsterId;
  const encountered=chooseHuntMonster(mapId,previous,rng());
  const monster:HuntMonsterSnapshot={...encountered};
- let mhp=monster.hp;const turns:HuntTurn[]=[],cooldowns:Record<string,number>={};let effects:MonsterEffects={};
+ let mhp=monster.hp;catalog.monsterHp=mhp;
+ const turns:HuntTurn[]=[],cooldowns:Record<string,number>={};let effects:MonsterEffects={};
  for(let turn=1;turn<=100&&hp>0&&mhp>0;turn++){
   const lines:string[]=[];let guard=false;
+  catalog=applyCatalogTurnStart({...catalog,hp,monsterHp:mhp},turn);hp=catalog.hp;mhp=catalog.monsterHp;
   for(const dot of damageOverTime(effects,turn,monster.attack)){hp=Math.max(0,hp-dot.damage);lines.push('탐사자가 '+(dot.name==='bleed'?'출혈':dot.name==='burn'?'화상':'중독')+'로 '+dot.damage+' 피해');}
-  if(hp<=0){turns.push({turn,lines,playerHp:hp,monsterHp:mhp});break;}
-  const skill=blocksPlayerSkill(effects,turn)?undefined:skills.find(id=>id&&['heavy','guard','quick'].includes(id)&&!(cooldowns[id]>turn)&&(id!=='guard'||hp/player.hp<=.5));
-  if(skill==='guard'){guard=true;cooldowns.guard=turn+4;lines.push('탐사자의 방어! 이번 턴 피해 50% 감소');}
+  if(hp<=0){turns.push({turn,lines,playerHp:hp,monsterHp:mhp,playerMp:catalog.mp});break;}
+  const skill=blocksPlayerSkill(effects,turn)?undefined:skills.find(id=>{
+   if(!id||catalogSkill(id)?.type==='passive'||(cooldowns[id]??0)>turn)return false;
+   const definition=catalogSkill(id);
+   if(definition)return validSkillForWeapon(definition,weapon)&&definition.mp<=catalog.mp&&
+    (definition.family!=='heal'||hp/player.hp<.95)&&
+    (definition.family!=='restore'||catalog.mp<catalog.maxMp)&&
+    (definition.family!=='shield'||catalog.shield<player.hp*.1)&&
+    (definition.family!=='prepare'||catalog.prep===0);
+   return ['heavy','guard','quick'].includes(id)&&(id!=='guard'||hp/player.hp<=.5);
+  });
+  if(skill&&catalogSkill(skill)){
+   const cast=castCatalogSkill(skill,levels[skill]??0,turn,{...catalog,hp,monsterHp:mhp},player,monster.defense,rng,effects.shield??0,effects.reflect??0,playerAttackFactor(effects,turn));
+   if(cast){catalog=cast.state;hp=catalog.hp;mhp=catalog.monsterHp;cooldowns[skill]=turn+cast.cooldown;lines.push(cast.line);if(cast.hit>0)effects={...effects,shield:0,reflect:0};}
+  }
+  else if(skill==='guard'){guard=true;cooldowns.guard=turn+4;lines.push('탐사자의 방어! 이번 턴 피해 50% 감소');}
   else if(skill) {const mult=skill==='heavy'?1.8:skill==='quick'?1.2:1,critical=rng()<(player.critChance??.05),raw=damage(player.attack*playerAttackFactor(effects,turn),monster.defense,mult*(critical?player.critDamage:1),player.armorPenetration),impact=takeMonsterShield(raw,effects),hit=impact.hit;effects=impact.effects;mhp=Math.max(0,mhp-hit);hp=Math.max(0,hp-impact.reflected);if(skill)cooldowns[skill]=turn+(skill==='heavy'?3:2);lines.push(`탐사자의 ${skill==='heavy'?'강타':skill==='quick'?'속공':'공격'}! ${hit} 피해${critical?' · 치명타':''}`);}
   else lines.push(blocksPlayerSkill(effects,turn)?'탐사자의 스킬이 봉인·지연되어 행동할 수 없음':'탐사자의 대기 · 사용 가능한 스킬 없음');
-  if(mhp>0&&hp>0){const action=resolveMonsterAction(monster,turn,player.defense*playerDefenseFactor(effects,turn),guard,mhp,effects);hp=Math.max(0,hp-action.damage);mhp=Math.min(monster.hp,mhp+action.heal);effects=action.effects;lines.push(action.line);}
-  turns.push({turn,lines,playerHp:hp,monsterHp:mhp});
+  if(mhp>0&&hp>0){const action=resolveMonsterAction(monster,turn,player.defense*playerDefenseFactor(effects,turn),guard,mhp,effects);const defended=takeCatalogMonsterDamage({...catalog,hp,monsterHp:mhp},action.damage,turn);catalog=defended.state;hp=catalog.hp;mhp=Math.min(monster.hp,mhp+action.heal);effects=action.effects;lines.push(action.line);}
+  turns.push({turn,lines,playerHp:hp,monsterHp:mhp,playerMp:catalog.mp});
  }
  const win=mhp===0&&hp>0;
  const postPotions=Math.min(potions,Math.ceil(player.hp-hp));potions-=postPotions;
@@ -92,6 +112,6 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  for(const food of ['attack_food','defense_food','experience_food'] as const)foods[food]=Math.max(0,(foods[food]??0)-1);
  const draw=(size:number)=>Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*size);
  const equipment=win?rollHuntingEquipment(mapId,draw(1000000),draw(9)):null;
- const result:HuntResult={monster,requestId:crypto.randomUUID(),equipment,startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,turns,silver:win?map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
- return {state:{...state,currentHp:recoveredHp,maxHp:player.hp,potions,foodTurns:foods,vitality:state.vitality-1,experience:state.experience+result.exp,mastery:state.mastery+result.mastery,lastResult:result},result};
+ const result:HuntResult={monster,requestId:crypto.randomUUID(),equipment,startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,playerMp:catalog.mp,playerMaxMp:catalog.maxMp,turns,silver:win?map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
+ return {state:{...state,currentHp:recoveredHp,maxHp:player.hp,currentMp:catalog.mp,maxMp:catalog.maxMp,potions,foodTurns:foods,vitality:state.vitality-1,experience:state.experience+result.exp,mastery:state.mastery+result.mastery,lastResult:result},result};
 }

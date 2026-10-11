@@ -215,3 +215,13 @@
 .tc-hunt-result-page .tc-hunt-hp [role=progressbar],.tc-hunt-result-page .tc-hunt-mp [role=progressbar]{height:9px}
 @media (max-height:800px){.tc-hunt-result-page .tc-hunt-equipment{display:none}}
 @media (max-height:640px){.tc-hunt-result-page .tc-hunt-fighter-info{gap:3px}.tc-hunt-result-page .tc-hunt-mp>div:first-child{margin-bottom:2px}}
+
+/* Catalog combat loadout: 6 active and 3 passive slots. */
+.tc-hunt-preset{display:flex;flex-direction:column;gap:8px;box-sizing:border-box;overflow-y:auto}
+.tc-hunt-preset h3{font-size:13px;margin:5px 0 2px;color:#e8ca8f}
+.tc-hunt-preset label{min-height:40px;border-top:1px solid #353329;gap:8px}
+.tc-hunt-preset label>b{color:#b8ad92;font-size:11px;min-width:33px}
+.tc-hunt-preset select{flex:1;min-width:0;max-width:100%;padding:7px 8px;font-size:12px;background:#24231f;color:#f5e6c8;border:1px solid #68583a;border-radius:5px}
+.tc-hunt-preset footer{display:flex;gap:8px;flex-wrap:wrap;position:sticky;bottom:0;background:#181816;padding:8px 0 calc(5px + env(safe-area-inset-bottom))}
+.tc-hunt-preset footer button{flex:1}
+.tc-hunt .tc-hunt-config-toggle{font-size:11px;padding:6px 8px;min-width:63px;flex-shrink:0}
