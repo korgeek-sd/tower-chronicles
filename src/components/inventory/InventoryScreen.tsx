@@ -39,6 +39,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  let action:(()=>void)|undefined,label='',disabled=false;
  if(item?.category==='equipment'){action=()=>setGame(s=>item.equipped?unequip(s,item.sourceId):equip(s,item.sourceId));label=game.expedition?'원정 중 변경 불가':item.equipped?'장착 해제':'장착';disabled=!!game.expedition;}
  if(item?.lifeProduct&&item.category==='foods'){action=()=>life.consume(item.lifeProduct as FoodId);label=life.busy?'사용 처리 중…':'음식 먹기 · +30회';disabled=life.disabled;}
+ if(item?.lifeProduct==='vitality_potion'){action=life.consumeVitality;label=life.busy?'사용 처리 중…':'사용 · 활력 +100';disabled=life.disabled;}
  if(item?.category==='skillbooks'&&skillBookFor(item.sourceId)){action=onSkills;label='스킬트리에서 습득';disabled=!onSkills;}
  else if(item?.category==='skillbooks'){action=()=>setGame(s=>useSkillBook(s,item.sourceId));label=item.learned?'습득 완료':game.expedition?'원정 중 사용 불가':'사용하여 학습';disabled=!!item.learned||!!game.expedition||!SKILLS.some(s=>s.id===item.sourceId);}
  if(item?.category==='cosmetics'){action=()=>setGame(s=>registerAppearance(s,item.sourceId));label=item.registered?'등록 완료':'외형 등록';disabled=!!item.registered;}
@@ -77,6 +78,6 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
-  {item&&<InventoryDetailSheet item={item} status={item.category==='foods'?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={item.category==='foods'&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
+  {item&&<InventoryDetailSheet item={item} status={(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }

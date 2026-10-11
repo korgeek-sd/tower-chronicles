@@ -13,11 +13,12 @@ export function useInventoryLife(userId:string|null,lease:GameplayLease|null){
   try{if(!retry){if(key)localStorage.setItem(key,JSON.stringify(request));pendingRef.current=request;setPending(request);}
    const response='action' in request?await villageLifeAction(lease,request):await gatherVillage(lease,request);
    if(!alive.current)return;setState(response.state);if(key)localStorage.removeItem(key);pendingRef.current=null;setPending(null);
-   setMessage('action' in request&&request.action==='food'?`${PRODUCT_NAMES[request.item as FoodId]} 사용 · 지속 +30회`:'이전 생활 결과를 확인했습니다.');
+   setMessage('action' in request?(request.action==='vitality'?'활력 100 회복 완료':request.action==='food'?`${PRODUCT_NAMES[request.item as FoodId]} 사용 · 지속 +30회`:'이전 생활 결과를 확인했습니다.'):'이전 생활 결과를 확인했습니다.');
   }catch(e){if(alive.current){if(e instanceof VillageLifeRejected){if(key)localStorage.removeItem(key);pendingRef.current=null;setPending(null);}setError(e instanceof Error?e.message:'아이템 사용 결과를 다시 확인해 주세요.');}}
   finally{lock.current=false;if(alive.current)setBusy(false);}
  }
  const consume=(item:FoodId)=>{if(!state||!lease||!userId||pendingRef.current)return;void execute({id:crypto.randomUUID(),town:state.location,action:'food',item,count:1});};
+ const consumeVitality=()=>{if(!state||!lease||!userId||pendingRef.current)return;void execute({id:crypto.randomUUID(),town:state.location,action:'vitality',item:'vitality_potion',count:1});};
  const retry=()=>{const r=pendingRef.current;if(r)void execute(r,true);else void refresh();};
- return {state,busy,pending,error,message,consume,retry,refresh,disabled:busy||!!pending||!lease||!userId};
+ return {state,busy,pending,error,message,consume,consumeVitality,retry,refresh,disabled:busy||!!pending||!lease||!userId};
 }

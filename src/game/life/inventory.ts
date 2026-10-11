@@ -19,5 +19,7 @@ export function unifiedInventoryView(game:GameState,life:VillageLifeState|null):
   if(r.id==='potion')facts.push('회복 HP 1 / 1개','사용 일반 사냥 자동 회복');
   items.push({key:'life:product:'+r.id,category:food?'foods':r.id==='potion'?'potions':'other',sourceId:'life:'+r.id,lifeProduct:r.id as ProductId,name:PRODUCT_NAMES[r.id],quantity,iconId:food?'health':r.id==='potion'?'potions':'tickets',description:r.description+(food?' · 세 종류 동시 적용, 같은 음식은 지속 횟수만 늘어납니다.':''),facts,order,stack:true});
  }
+ const vitalityPotions=life.products?.vitality_potion??0;
+ if(vitalityPotions>0)items.push({key:'life:product:vitality_potion',category:'potions',sourceId:'life:vitality_potion',lifeProduct:'vitality_potion',name:'활력 회복 포션',quantity:vitalityPotions,iconId:'potions',description:'사용 시 활력 100 회복 · 거래 불가 · 특별 보상 및 과제 보상',facts:['활력 +100','거래 불가'],order:99,stack:true});
  return items;
 }
