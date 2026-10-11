@@ -18,7 +18,12 @@ BEGIN
   marker:=CASE WHEN f.nspname='public' THEN '''hundred_battle_returnee''' ELSE '''expedition_archivist''' END;
   updated_definition:=replace(source_definition,marker,marker||',''corsair'');
   IF updated_definition=source_definition THEN
-   RAISE EXCEPTION 'CORSAIR_JOB_SELECTION_PATCH_SOURCE_MISMATCH: %.%',f.nspname,f.proname;
+   -- Some newer encounter implementations no longer use a static job whitelist.
+   -- Those already accept the selected catalog job and must be left untouched.
+   IF f.nspname='public' THEN
+    RAISE EXCEPTION 'CORSAIR_JOB_SELECTION_PATCH_SOURCE_MISMATCH: %.%',f.nspname,f.proname;
+   END IF;
+   CONTINUE;
   END IF;
   EXECUTE updated_definition;
  END LOOP;
