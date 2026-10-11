@@ -11,7 +11,7 @@ test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
  assert.doesNotMatch(home,/title:'직능등록'/);
  assert.doesNotMatch(home,/title:'외형'/);
  assert.match(home,/id:'cosmetics'/);
- assert.match(home,/name:'외형 도감'/);
+ assert.match(home,/name:'컬렉션'/);
  assert.match(home,/onMove\('cosmetics'\)/);
 });
 
