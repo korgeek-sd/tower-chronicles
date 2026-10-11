@@ -3,7 +3,8 @@ import type {GameState,Tower,Potion} from '../../game/types';
 import {CONFIG,POTIONS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
 import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
 import {monsterFor} from '../../game/engine/drops';
-import {APPEARANCES,APPEARANCE_COLLECTIONS,APPEARANCE_RARITIES,TITLES,appearanceById,appearanceBonusLabel,appearanceCollectionProgress,appearanceCollectionById,titleById,type AppearanceRarity} from '../../game/data/cosmetics';
+import {APPEARANCES,APPEARANCE_RARITIES,TITLES,appearanceById,appearanceBonusLabel,titleById,type AppearanceRarity} from '../../game/data/cosmetics';
+import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,type AppearanceSet} from '../../game/data/appearanceSets';
 import './cosmetics-catalog.css';
 import {selectAppearance,selectTitle} from '../../game/engine/cosmetics';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
@@ -110,59 +111,150 @@ export function SkillsScreen({game,setGame}:{game:GameState;setGame:React.Dispat
  </Screen>;
 }
 
+const COLLECTION_RARITY_NAMES:Record<AppearanceRarity,string>={C:'일반',B:'고급',A:'희귀',SR:'영웅',SSR:'전설'};
+function CollectionToken({id,owned,mini=false,onOpen}:{id:string;owned:boolean;mini?:boolean;onOpen?:(id:string)=>void}){
+ const a=appearanceById(id),imageReady=!!a?.imagePath&&a?.artStatus==='ready';
+ const content=<>
+  {imageReady?<img src={assetUrl(a!.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}
+  {owned?<span className="tc-collection-token-check" aria-hidden="true">✓</span>:<span className="tc-collection-token-lock" aria-hidden="true">◇</span>}
+  {!mini&&<span className="tc-collection-token-rank">{a?.rarity??'C'}</span>}
+ </>;
+ const props={className:'tc-collection-token '+(owned?'is-owned ':'is-missing ')+'rarity-'+(a?.rarity??'C')+(mini?' is-mini':''),title:(a?.name??id)+' · '+(owned?'보유':'미보유'), 'data-appearance-id':id};
+ return onOpen?<button type="button" {...props} aria-label={(a?.name??id)+' · '+(owned?'보유':'미보유')+' 상세 정보'} onClick={e=>{e.stopPropagation();onOpen(id);}}>{content}</button>:<span {...props}>{content}</span>;
+}
 export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>}){
- const [tab,setTab]=useState<'appearance'|'collection'|'title'>('appearance');
+ const [tab,setTab]=useState<'collection'|'appearance'|'title'>('collection');
  const [rarity,setRarity]=useState<'ALL'|AppearanceRarity>('ALL');
+ const [query,setQuery]=useState('');
+ const [status,setStatus]=useState<'all'|'near'|'complete'|'incomplete'|'tracked'>('all');
+ const [sort,setSort]=useState<'default'|'nearest'|'bonus'>('default');
+ const [selectedSetId,setSelectedSetId]=useState<string>(APPEARANCE_SETS[0].id);
+ const [trackedIds,setTrackedIds]=useState<string[]>([]);
+ const [favoriteIds,setFavoriteIds]=useState<string[]>([]);
+ const [appearanceDetails,setAppearanceDetails]=useState<string|null>(null);
+ const [relatedAppearance,setRelatedAppearance]=useState<string|null>(null);
  const [page,setPage]=useState(0);
- const PAGE=4;
+ const [appearanceRarity,setAppearanceRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const owned=game.cosmetics.unlockedAppearanceIds;
+ const ownedSet=new Set(owned);
  const collectible=APPEARANCES.filter(a=>a.rarity);
- const ownedCount=collectible.filter(a=>owned.includes(a.id)).length;
- const appearances=APPEARANCES.filter(a=>rarity==='ALL'||a.rarity===rarity);
+ const ownedCount=collectible.filter(a=>ownedSet.has(a.id)).length;
+ const completeCount=APPEARANCE_SETS.filter(s=>collectionSetProgress(s,owned).complete).length;
+ const relevant=APPEARANCE_SETS.filter(s=>{
+  const p=collectionSetProgress(s,owned);
+  if(rarity!=='ALL'&&s.rarity!==rarity)return false;
+  if(status==='near'&&(p.complete||p.total-p.count!==1))return false;
+  if(status==='complete'&&!p.complete)return false;
+  if(status==='incomplete'&&p.complete)return false;
+  if(status==='tracked'&&!trackedIds.includes(s.id))return false;
+  const key=query.trim().toLocaleLowerCase();
+  return !key||s.name.toLocaleLowerCase().includes(key)||s.description.toLocaleLowerCase().includes(key)||s.appearanceIds.some(id=>appearanceById(id)?.name.toLocaleLowerCase().includes(key));
+ }).sort((a,b)=>{
+  const ap=collectionSetProgress(a,owned),bp=collectionSetProgress(b,owned);
+  if(sort==='nearest')return (ap.total-ap.count)-(bp.total-bp.count)||a.id.localeCompare(b.id);
+  if(sort==='bonus')return b.reward.value-a.reward.value||a.id.localeCompare(b.id);
+  return APPEARANCE_SETS.indexOf(a)-APPEARANCE_SETS.indexOf(b);
+ });
+ const selected:AppearanceSet=relevant.find(s=>s.id===selectedSetId)??relevant[0]??APPEARANCE_SETS[0];
+ const progress=collectionSetProgress(selected,owned);
+ const appearances=APPEARANCES.filter(a=>appearanceRarity==='ALL'||a.rarity===appearanceRarity).filter(a=>!query.trim()||a.name.includes(query.trim()));
  const titles=TITLES.filter(t=>game.cosmetics.unlockedTitleIds.includes(t.id));
- const count=tab==='appearance'?appearances.length:tab==='collection'?APPEARANCE_COLLECTIONS.length:titles.length;
- const pages=Math.max(1,Math.ceil(count/PAGE)),safe=Math.min(page,pages-1),offset=safe*PAGE;
- const shownAppearances=appearances.slice(offset,offset+PAGE);
- const shownCollections=APPEARANCE_COLLECTIONS.slice(offset,offset+PAGE);
- const shownTitles=titles.slice(offset,offset+PAGE);
- const chooseTab=(next:'appearance'|'collection'|'title')=>{setTab(next);setPage(0);};
- return <Screen eyebrow="APPEARANCE ARCHIVE" title="외형 도감" className="tc-cosmetics-catalog-screen" meta={<span>{ownedCount} / {collectible.length} 수집</span>}>
+ const viewCount=tab==='appearance'?appearances.length:titles.length;
+ const pages=Math.max(1,Math.ceil(viewCount/4)),safePage=Math.min(page,pages-1);
+ const changeTab=(next:'collection'|'appearance'|'title')=>{setTab(next);setPage(0);setQuery('');};
+ const toggle=(id:string,values:string[],setter:React.Dispatch<React.SetStateAction<string[]>>)=>setter(values.includes(id)?values.filter(x=>x!==id):[...values,id]);
+ const selectedMissing=selected.appearanceIds.find(id=>!ownedSet.has(id))??selected.appearanceIds[0];
+ const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
+ useEffect(()=>{
+  if(!appearanceDetails&&!relatedAppearance)return;
+  const escape=(e:KeyboardEvent)=>{if(e.key==='Escape'){setAppearanceDetails(null);setRelatedAppearance(null);}};
+  document.addEventListener('keydown',escape);
+  return()=>document.removeEventListener('keydown',escape);
+ },[appearanceDetails,relatedAppearance]);
+ return <Screen eyebrow="APPEARANCE COLLECTION" title="외형 컬렉션" className="tc-cosmetics-catalog-screen" meta={<span>{ownedCount} / {collectible.length} 수집</span>}>
   <div className="tc-cosmetics-catalog">
-   <Segments items={[['appearance','외형 목록'],['collection','도감 세트'],['title','칭호']] as const} value={tab} onChange={chooseTab} label="외형 메뉴"/>
-   <div className="tc-cosmetics-meta">
-    <span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span>
-    <small>능력치·도감 효과는 향후 업데이트 예정</small>
+   <div className="tc-collection-top" style={{backgroundImage:"linear-gradient(90deg,#17130edc,#14100cb5),url("+assetUrl('assets/backgrounds/hunting/world-map.webp')+")"}}>
+    <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
+    <span>탑의 기록 <b>외형 컬렉션</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
    </div>
-   {tab==='appearance'?<div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
-    {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={rarity===r} onClick={()=>{setRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
-   </div>:<div className="tc-cosmetics-category-info">{tab==='collection'?'테마별 5종을 모아 도감을 완성하세요.':'획득한 칭호를 변경할 수 있습니다.'}</div>}
-   <div className="tc-cosmetics-items" role="list" aria-label={tab==='appearance'?'외형 카탈로그':tab==='collection'?'외형 도감 세트':'칭호 목록'}>
-    {tab==='appearance'?shownAppearances.map(a=>{
-     const isOwned=owned.includes(a.id);
-     const isSelected=game.cosmetics.selectedAppearanceId===a.id;
-     const artReady=!!a.imagePath&&a.artStatus!=='pending';
-     const theme=a.collectionId?appearanceCollectionById(a.collectionId):null;
-     return <article className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem" key={a.id} data-appearance-id={a.id}>
-      <div className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</div>
-      <div className="tc-cosmetics-item-body">
-       <div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div>
-       <small>{theme?.name??'기본 외형'} · {isSelected?'착용 중':isOwned?'보유':'미보유'}</small>
-       <span>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':a.description}</span>
+   <Segments items={[['collection','도감 세트'],['appearance','외형 목록'],['title','칭호']] as const} value={tab} onChange={changeTab} label="외형 컬렉션 보기"/>
+   {tab==='collection'?<>
+    <div className="tc-collection-grade-tabs" role="group" aria-label="컬렉션 등급">
+     {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" className={'tc-feel-press'+(rarity===r?' active':'')} data-rarity={r} aria-pressed={rarity===r} onClick={()=>{setRarity(r);setSelectedSetId('');}}>{r==='ALL'?'전체':COLLECTION_RARITY_NAMES[r]}</button>)}
+    </div>
+    <div className="tc-collection-tools">
+     <label className="tc-collection-search"><Glyph name="search"/><input aria-label="컬렉션 검색" placeholder="컬렉션 이름을 입력하세요." value={query} onChange={e=>setQuery(e.target.value)}/></label>
+     <select aria-label="컬렉션 진행 필터" value={status} onChange={e=>{setStatus(e.target.value as typeof status);setSelectedSetId('');}}><option value="all">전체</option><option value="near">완성 임박</option><option value="incomplete">미완성</option><option value="complete">완성</option><option value="tracked">추적 중</option></select>
+     <select aria-label="컬렉션 정렬" value={sort} onChange={e=>setSort(e.target.value as typeof sort)}><option value="default">기본 정렬</option><option value="nearest">완성순</option><option value="bonus">보상순</option></select>
+    </div>
+    <div className="tc-collection-heading"><span>컬렉션 리스트 <b>{relevant.length}</b></span><span>컬렉션 효과</span><span>필요 외형 (보유 / 전체)</span></div>
+    <div className="tc-collection-list" role="list" aria-label="외형 컬렉션 목록">
+     {relevant.map(s=>{
+      const p=collectionSetProgress(s,owned);
+      return <button type="button" role="listitem" key={s.id} className={'tc-collection-row tc-feel-press'+(selected.id===s.id?' selected':'')+(p.complete?' completed':'')} data-set-id={s.id} aria-current={selected.id===s.id?'true':undefined} onClick={()=>setSelectedSetId(s.id)}>
+       <span className="tc-collection-row-emblem" aria-hidden="true">✦</span>
+       <span className="tc-collection-row-name"><strong>{s.name}</strong><small>{COLLECTION_RARITY_NAMES[s.rarity]} · {p.complete?'완성':'미완성'}</small></span>
+       <span className="tc-collection-row-bonus">{collectionSetBonusLabel(s)}<small>효과 예정</small></span>
+       <span className="tc-collection-row-tokens">{s.appearanceIds.map(id=><CollectionToken key={id} id={id} owned={ownedSet.has(id)} mini/>)}</span>
+       <span className="tc-collection-row-count">{p.count}/{p.total}</span>
+       <span className="tc-collection-row-arrow" aria-hidden="true">›</span>
+      </button>;
+     })}
+     {relevant.length===0&&<p className="tc-collection-none">조건에 맞는 컬렉션이 없어. 필터를 바꿔봐.</p>}
+    </div>
+    <section className="tc-collection-detail" aria-label="선택한 컬렉션 상세" data-selected-set-id={selected.id}>
+     <div className="tc-collection-detail-hero" style={{backgroundImage:"linear-gradient(90deg,#17130fe8 0%,#17130f99 56%,#11141993 100%),url("+assetUrl('assets/backgrounds/hunting/world-map.webp')+")"}}>
+      <div className="tc-collection-detail-title"><div><span className="tc-collection-detail-sigil" aria-hidden="true">✥</span><div><small>COLLECTION RECORD · {COLLECTION_RARITY_NAMES[selected.rarity]}</small><h2>{selected.name}</h2></div></div>
+       <button type="button" className={favoriteIds.includes(selected.id)?'is-favorite':''} aria-label={favoriteIds.includes(selected.id)?'즐겨찾기 해제':'즐겨찾기 추가'} aria-pressed={favoriteIds.includes(selected.id)} onClick={()=>toggle(selected.id,favoriteIds,setFavoriteIds)}>★</button>
       </div>
-      <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'적용 중':!isOwned?'미보유':!artReady?'준비 중':'적용'}</button>
-     </article>;
-    }):tab==='collection'?shownCollections.map(collection=>{
-     const progress=appearanceCollectionProgress(collection,owned);
-     return <article className="tc-cosmetics-collection" role="listitem" key={collection.id} data-collection-id={collection.id}>
-      <div className="tc-cosmetics-collection-head"><b>{collection.name}</b><span>{progress.count} / {progress.total}</span></div>
-      <small>{collection.description}</small>
-      <div className="tc-cosmetics-collection-slots" aria-label={collection.name+' 수집 현황'}>{collection.appearanceIds.map((id,i)=><span key={id} className={owned.includes(id)?'collected':''} title={appearanceById(id)?.name}><b>{APPEARANCE_RARITIES[i]}</b></span>)}</div>
-      <strong>{progress.complete?'완성':'완성 보너스 (예정)'} · {appearanceBonusLabel(collection.proposedCompletionBonus)}</strong>
-     </article>;
-    }):shownTitles.map(t=><article className="tc-cosmetics-item" role="listitem" key={t.id}><div className="tc-cosmetics-icon"><Glyph name="registration"/></div><div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title"><b>「{t.name}」</b></div><small>{t.description}</small></div><button type="button" className="tc-cosmetics-equip" disabled={!!game.expedition||game.cosmetics.selectedTitleId===t.id} onClick={()=>setGame(s=>selectTitle(s,t.id))}>{game.cosmetics.selectedTitleId===t.id?'적용 중':'적용'}</button></article>)}
-    {count===0&&<p className="tc-cosmetics-empty">획득한 칭호가 없습니다.</p>}
-   </div>
-   <Pager page={safe} count={pages} onChange={setPage}/>
+      <p className="tc-collection-detail-story">{selected.description}</p>
+      <div className="tc-collection-detail-stat"><small>컬렉션 효과 · 완성 시 보상 (예정)</small><strong>{collectionSetBonusLabel(selected)}</strong><span>도감 효과는 미적용 · 착용과 관계없이 수집 여부로 계산</span></div>
+     </div>
+     <div className="tc-collection-detail-requirements">
+      <div className="tc-collection-detail-label"><strong>필요 외형 <em>({progress.count}/{progress.total})</em></strong><span>{progress.complete?'수집 조건 완료 · 효과 미적용':'부족한 외형 '+(progress.total-progress.count)+'종'}</span></div>
+      <div className="tc-collection-required">
+       {selected.appearanceIds.map(id=>{
+        const a=appearanceById(id),has=ownedSet.has(id);
+        return <div className="tc-collection-required-item" key={id}><CollectionToken id={id} owned={has} onOpen={setAppearanceDetails}/><span title={a?.name}>{a?.name??id}</span><small className={has?'is-owned':'is-missing'}>{has?'보유':'미보유'}</small></div>;
+       })}
+      </div>
+     </div>
+     <div className="tc-collection-detail-actions">
+      <button type="button" className="tc-collection-action tc-feel-press" aria-pressed={trackedIds.includes(selected.id)} onClick={()=>toggle(selected.id,trackedIds,setTrackedIds)}><Glyph name="search"/>{trackedIds.includes(selected.id)?'추적 해제':'추적'}</button>
+      <button type="button" className="tc-collection-action tc-feel-press" onClick={()=>setRelatedAppearance(selectedMissing)}><Glyph name="bestiary"/>관련 컬렉션</button>
+      <button type="button" className="tc-collection-action primary tc-feel-press" onClick={()=>setAppearanceDetails(selectedMissing)}><Glyph name="cosmetics"/>외형 확인</button>
+     </div>
+    </section>
+    <p className="tc-collection-disclaimer">65개 조합 · 능력치 수치는 설계값이며 아직 전투에 적용되지 않습니다.</p>
+   </>:<>
+    <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>외형 능력치는 향후 업데이트 예정</small></div>
+    <div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
+     {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={appearanceRarity===r} onClick={()=>{setAppearanceRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
+    </div>
+    <div className="tc-collection-tools single"><label className="tc-collection-search"><Glyph name="search"/><input aria-label="외형 검색" placeholder="외형 이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/></label></div>
+    <div className="tc-cosmetics-items" role="list" aria-label={tab==='appearance'?'외형 목록':'칭호 목록'}>
+     {tab==='appearance'?appearances.slice(safePage*4,safePage*4+4).map(a=>{
+      const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
+      return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem">
+       <div className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</div>
+       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small>{isSelected?'착용 중':isOwned?'보유':'미보유'} · {a.sourceLabel}</small><span>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':a.description}</span></div>
+       <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'적용 중':!isOwned?'미보유':!artReady?'준비 중':'적용'}</button>
+      </article>;
+     }):titles.slice(safePage*4,safePage*4+4).map(t=><article className="tc-cosmetics-item" role="listitem" key={t.id}><div className="tc-cosmetics-icon"><Glyph name="bestiary"/></div><div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title"><b>「{t.name}」</b></div><small>{t.description}</small></div><button type="button" className="tc-cosmetics-equip" disabled={!!game.expedition||game.cosmetics.selectedTitleId===t.id} onClick={()=>setGame(s=>selectTitle(s,t.id))}>{game.cosmetics.selectedTitleId===t.id?'적용 중':'적용'}</button></article>)}
+     {viewCount===0&&<p className="tc-cosmetics-empty">표시할 항목이 없어.</p>}
+    </div>
+    <Pager page={safePage} count={pages} onChange={setPage}/>
+   </>}
+   {(appearanceDetails||relatedAppearance)&&<div className="tc-collection-modal-backdrop" role="presentation" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}}>
+    <section className="tc-collection-modal" role="dialog" aria-modal="true" aria-label={appearanceDetails?'외형 상세 정보':'관련 컬렉션'} onClick={e=>e.stopPropagation()}>
+     <header><h2>{appearanceDetails?'외형 상세':'관련 컬렉션'}</h2><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}} aria-label="닫기">×</button></header>
+     {appearanceDetails?(()=>{
+      const a=appearanceById(appearanceDetails);
+      const included=APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(appearanceDetails));
+      return <div className="tc-collection-modal-content"><strong>{a?.name??'외형 정보 없음'}</strong><p>{a?.description??''}</p><p>{a?.rarity?COLLECTION_RARITY_NAMES[a.rarity]+' · ':''}{ownedSet.has(appearanceDetails)?'보유 중':'미보유'} · 이미지 {a?.artStatus==='ready'?'등록됨':'제작 예정'}</p><p>관련 컬렉션 {included.length}개 · 획득은 외형 뽑기 구현 후 가능합니다.</p><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(appearanceDetails);}}>이 외형이 필요한 도감 보기 ›</button></div>;
+     })():<div className="tc-collection-modal-content"><p>{appearanceById(relatedAppearance!)?.name} 외형이 필요한 컬렉션</p><div className="tc-collection-related-list">{related.map(set=><button type="button" key={set.id} onClick={()=>{setRarity('ALL');setStatus('all');setQuery('');setSelectedSetId(set.id);setRelatedAppearance(null);}}><strong>{set.name}</strong><span>{collectionSetBonusLabel(set)} · {collectionSetProgress(set,owned).count}/{set.appearanceIds.length}</span></button>)}</div></div>}
+    </section>
+   </div>}
   </div>
  </Screen>;
 }
