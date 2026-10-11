@@ -19,6 +19,7 @@ export function marketItemIdForEquipment(item:EquipmentItem):string|null{
  return item.id===V2_STARTER_EQUIPMENT_ID?null:equipmentMarketKey(item);
 }
 export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
+ if(item.lifeProduct==='challenge_ticket')return 'other:challenge_ticket';
  if(item.lifeMaterial||item.lifeProduct)return null;
  if(item.category==='equipment'){
   if(item.modern){
@@ -128,10 +129,11 @@ export function currentMarketCatalog(s:GameState):MarketItem[]{
   if(existing){existing.name=book.name;existing.description=book.description;existing.skillBookGrade=book.grade;}
   else{const item:MarketItem={id:book.itemId,name:book.name,available:0,category:'skillbooks',description:book.description,skillBookGrade:book.grade};catalog.push(item);known.set(book.itemId,item);}
  }
- for(const id of ['split_stone','job_draw_ticket'])if(!catalog.some(item=>item.id==='other:'+id))catalog.push({id:'other:'+id,name:id==='job_draw_ticket'?'직능 뽑기권':'분해석',available:0,category:'other',description:'거래 가능한 아이템입니다.'});
- return catalog.filter(item=>item.category==='skillbooks'||item.modernEquipment||['material:ore:1','material:leather:1','other:split_stone','other:job_draw_ticket'].includes(item.id)).map(item=>{
+ for(const id of ['split_stone','job_draw_ticket','challenge_ticket'])if(!catalog.some(item=>item.id==='other:'+id))catalog.push({id:'other:'+id,name:id==='challenge_ticket'?'점령전 도전권':id==='job_draw_ticket'?'직능 뽑기권':'분해석',available:0,category:'other',description:'거래 가능한 아이템입니다.'});
+ return catalog.filter(item=>item.category==='skillbooks'||item.modernEquipment||['material:ore:1','material:leather:1','other:split_stone','other:job_draw_ticket','other:challenge_ticket'].includes(item.id)).map(item=>{
   if(item.id==='material:ore:1')return {...item,name:'철광석',description:'원정에서 획득한 제작 재료입니다.'};
   if(item.id==='material:leather:1')return {...item,name:'가죽',description:'원정에서 획득한 제작 재료입니다.'};
+  if(item.id==='other:challenge_ticket')return {...item,name:'점령전 도전권',description:'점령전 참여에 사용하는 거래 가능한 도전권입니다.'};
   if(item.id==='other:split_stone')return {...item,name:'분해석',category:'materials',description:'장비를 분해하여 얻는 도전권 제작 재료입니다.'};
   return item;
  });
