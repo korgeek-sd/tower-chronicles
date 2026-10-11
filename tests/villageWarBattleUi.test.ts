@@ -30,7 +30,18 @@ test('server mode never invents a garrison, HP or enables a PvP attack without a
 test('viewport keeps selection, fighters, action and compact records in an unclipped grid',()=>{
  const css=readFileSync(new URL('../src/components/occupation/village-war-battle.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-vwb\s*\{[^}]*height:100%/);
- assert.match(css,/grid-template-rows:[^;]*minmax\(0,1fr\)/);
+ assert.match(css,/grid-template-rows:[^;]*minmax\(0,1\.4fr\) auto minmax\(0,1\.8fr\)/);
+ assert.match(css,/\.tc-vwb\[data-war-preview=true\]\{grid-template-rows:[^}]*minmax\(0,1\.35fr\) auto minmax\(0,1\.8fr\)/);
+ assert.match(css,/\.tc-vwb-feed ul\{[^}]*overflow-y:auto/);
+ assert.match(css,/\.tc-vwb-art img\{[^}]*width:100%;height:100%/);
  assert.match(css,/\.tc-vwb-fronts\s*\{[^}]*grid-template-columns:repeat\(5/);
  assert.match(css,/\.tc-vwb-fighters\s*\{[^}]*grid-template-columns:repeat\(2/);
+});
+
+test('war battle preview uses expanded visible log with at least five recent events',()=>{
+ const html=renderToStaticMarkup(React.createElement(VillageWarBattleScreen,{game:initialState(),nickname:'테스트',initialWar:war,initialPreview:true}));
+ const rows=html.match(/<li>/g)??[];
+ assert.ok(rows.length>=5,'preview should show five or more recent battles');
+ assert.match(html,/제1전선 공격/);
+ assert.match(html,/제5전선 점령/);
 });
