@@ -1,13 +1,14 @@
 import type {LifeTown} from '../../online/villageLife';
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import type {VillageWarState} from '../../online/villageWar';
 import {Glyph} from '../../ui/mobile';
 import {WORLD_TOWNS,canTravel,townKindLabel,type TownKind,type WorldTown} from './worldMap';
 import './region-board.css';
 export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints,onLife,war,onDeclareWar,warBusy=false,warPending=false,warError}:{currentId:string;onTravel:(id:string)=>void;towns?:LifeTown[];busy?:boolean;actionPoints?:number;onLife?:()=>void;war?:VillageWarState|null;onDeclareWar?:(id:string)=>void;warBusy?:boolean;warPending?:boolean;warError?:string}){
+ const cancelRef=useRef<HTMLButtonElement|null>(null);
  const data=towns??WORLD_TOWNS;
  const [selectedId,setSelectedId]=useState(currentId),[filter,setFilter]=useState<'all'|TownKind>('all'),[message,setMessage]=useState(''),[confirmTown,setConfirmTown]=useState<string|null>(null);
- useEffect(()=>{if(!confirmTown)return;const close=(event:KeyboardEvent)=>{if(event.key==='Escape')setConfirmTown(null);};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[confirmTown]);
+ useEffect(()=>{if(!confirmTown)return;const previous=document.activeElement as HTMLElement|null;cancelRef.current?.focus();const close=(event:KeyboardEvent)=>{if(event.key==='Escape')setConfirmTown(null);};window.addEventListener('keydown',close);return()=>{window.removeEventListener('keydown',close);previous?.focus();};},[confirmTown]);
  const current=data.find(t=>t.id===currentId)??data.find(t=>t.id==='city')??data[0];
  if(!current)return <section className="tc-region-board"><h1>마을 이동</h1><p role="status">마을 정보를 다시 확인해 주세요.</p></section>;
  const selected=data.find(t=>t.id===selectedId)??current,city=data.find(t=>t.kind==='city');
@@ -43,14 +44,14 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
    <p className="tc-region-footnote">{towns?'매일 00시 행동력·마을 생산량 초기화':'미리보기 · 소유·세율·생산량은 예시 데이터'}</p>
   </section>
   {confirmTown&&war&&<div className="tc-region-confirm-backdrop" role="presentation" onClick={()=>setConfirmTown(null)}>
-   <div className="tc-region-confirm" role="dialog" aria-modal="true" aria-labelledby="tc-war-confirm-title" onClick={e=>e.stopPropagation()}>
+   <div className="tc-region-confirm" role="dialog" aria-modal="true" aria-labelledby="tc-war-confirm-title" aria-describedby="tc-war-confirm-desc" onClick={e=>e.stopPropagation()}>
     <small>WAR DECLARATION</small>
     <h2 id="tc-war-confirm-title">선전포고 확인</h2>
     <p><b>{data.find(t=>t.id===confirmTown)?.name}</b>에 이번 주 선전포고합니다.</p>
     <div><span>소모 도전권</span><strong>100장</strong></div>
     <div><span>현재 보유</span><strong>{war.tickets.toLocaleString()}장</strong></div>
-    <p>등록 후 취소 및 환불이 불가능합니다. 전쟁 시간에 해당 마을의 길드원 전투 참가 권한이 활성화됩니다.</p>
-    <footer><button type="button" onClick={()=>setConfirmTown(null)}>취소</button><button type="button" className="tc-region-confirm-accept tc-feel-press" disabled={busy||warBusy||warPending||!canDeclare||war.tickets<100||declaredByMe(confirmTown)} onClick={()=>{onDeclareWar?.(confirmTown);setConfirmTown(null);}}>도전권 100장 사용</button></footer>
+    <p id="tc-war-confirm-desc">등록 후 취소 및 환불이 불가능합니다. 전쟁 시간에 해당 마을의 길드원 전투 참가 권한이 활성화됩니다.</p>
+    <footer><button ref={cancelRef} type="button" onClick={()=>setConfirmTown(null)}>취소</button><button type="button" className="tc-region-confirm-accept tc-feel-press" disabled={busy||warBusy||warPending||!canDeclare||war.tickets<100||declaredByMe(confirmTown)} onClick={()=>{onDeclareWar?.(confirmTown);setConfirmTown(null);}}>도전권 100장 사용</button></footer>
    </div>
   </div>}
  </section>;
