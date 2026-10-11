@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const screen=readFileSync(new URL('../src/components/occupation/OccupationScreen.tsx',import.meta.url),'utf8');
+const entry=readFileSync(new URL('../src/components/occupation/OccupationWarEntry.tsx',import.meta.url),'utf8');
 const online=readFileSync(new URL('../src/online/occupation.ts',import.meta.url),'utf8');
 const core=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
 const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
@@ -10,7 +11,9 @@ const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
 test('OCCUPATION UI 01: home exposes an occupation facility and AppPage route',()=>{
  assert.match(core,/'occupation'/);
  assert.match(core,/점령전/);
- assert.match(main,/OccupationScreen/);
+ assert.match(main,/OccupationWarEntry/);
+ assert.match(entry,/VillageWarBattleScreen/);
+ assert.match(entry,/OccupationScreen/);
  assert.match(main,/page==='occupation'/);
 });
 
