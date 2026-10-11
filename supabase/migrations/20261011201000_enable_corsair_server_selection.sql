@@ -16,7 +16,7 @@ BEGIN
   source_definition:=pg_get_functiondef(f.oid);
   IF strpos(source_definition,'''corsair''')>0 THEN CONTINUE; END IF;
   marker:=CASE WHEN f.nspname='public' THEN '''hundred_battle_returnee''' ELSE '''expedition_archivist''' END;
-  updated_definition:=replace(source_definition,marker,marker||',''corsair'');
+  updated_definition:=replace(source_definition,marker,marker||','||quote_literal('corsair'));
   IF updated_definition=source_definition THEN
    -- Some newer encounter implementations no longer use a static job whitelist.
    -- Those already accept the selected catalog job and must be left untouched.
