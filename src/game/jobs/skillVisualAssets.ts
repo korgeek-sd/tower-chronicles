@@ -33,6 +33,10 @@ export const SKILL_VISUAL_ASSETS:Readonly<Record<string,string>>={
  duelist_skill_1:'assets/ui/skills/duelist/duelist_skill_1.webp',
  duelist_skill_2:'assets/ui/skills/duelist/duelist_skill_2.webp',
  duelist_skill_3:'assets/ui/skills/duelist/duelist_skill_3.webp',
+ // Shared existing icons until distinct Corsair skill art is produced.
+ corsair_skill_1:'assets/ui/skills/tracker/tracker_skill_1.webp',
+ corsair_skill_2:'assets/ui/skills/duelist/duelist_skill_1.webp',
+ corsair_skill_3:'assets/ui/skills/tracker/tracker_skill_3.webp',
  vanguard_explorer_skill_1:'assets/ui/skills/vanguard_explorer/vanguard_explorer_skill_1.webp',
  vanguard_explorer_skill_2:'assets/ui/skills/vanguard_explorer/vanguard_explorer_skill_2.webp',
  vanguard_explorer_skill_3:'assets/ui/skills/vanguard_explorer/vanguard_explorer_skill_3.webp',

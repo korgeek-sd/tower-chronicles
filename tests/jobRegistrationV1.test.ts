@@ -44,10 +44,10 @@ test('JOB REGISTRATION V1 03: progression, residual values, and pickup rate matc
  assert.equal(JOB_PICKUP_RATE,.5);
 });
 
-test('JOB REGISTRATION V1 04: server pool exposes the planned 48 jobs by rarity',()=>{
- const expected={C:8,B:10,A:12,SR:11,SSR:7} as const;
+test('JOB REGISTRATION V1 04: server pool exposes the expanded 49 jobs by rarity',()=>{
+ const expected={C:8,B:11,A:12,SR:11,SSR:7} as const;
  for(const rarity of JOB_RARITIES)assert.equal(JOB_CATALOG.filter(job=>job.rarity===rarity).length,expected[rarity]);
- assert.equal(JOB_CATALOG.length,48);
+ assert.equal(JOB_CATALOG.length,49);
 });
 
 test('JOB REGISTRATION V1 05: migration keeps RNG and payment server-authoritative with no pity path',()=>{

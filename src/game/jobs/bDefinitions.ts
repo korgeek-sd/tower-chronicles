@@ -642,5 +642,75 @@ export const B_JOB_DEFINITIONS:JobCombatDefinition[]=[
         ]
       }
     ]
+  },
+  {
+    "jobId": "corsair",
+    "resource": {
+      "id": "combat",
+      "initialValue": 0,
+      "maxValue": 4
+    },
+    "passives": [],
+    "skills": [
+      {
+        "id": "corsair_skill_1",
+        "name": "해적식 사격",
+        "description": "공격력 115% 단일 피해, 전투 자원 +1",
+        "cooldown": 1,
+        "resource": {
+          "kind": "GENERATOR",
+          "gain": 1
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1.15
+          }
+        ]
+      },
+      {
+        "id": "corsair_skill_2",
+        "name": "커틀라스 베기",
+        "description": "공격력 100% 피해, 2턴간 출혈",
+        "cooldown": 3,
+        "resource": {
+          "kind": "NEUTRAL"
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 1,
+            "baseMultiplier": 1
+          },
+          {
+            "kind": "APPLY_EFFECT",
+            "target": "TARGET",
+            "effectId": "bleed",
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "corsair_skill_3",
+        "name": "약탈의 연사",
+        "description": "공격력 120%씩 2회 피해, 전투 자원 -2",
+        "cooldown": 3,
+        "resource": {
+          "kind": "SPENDER",
+          "cost": {
+            "mode": "FIXED",
+            "amount": 2
+          }
+        },
+        "effectActions": [
+          {
+            "kind": "DIRECT_ATTACK",
+            "hits": 2,
+            "baseMultiplier": 1.2
+          }
+        ]
+      }
+    ]
   }
 ];
