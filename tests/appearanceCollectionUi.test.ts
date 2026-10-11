@@ -32,8 +32,9 @@ test('first collection includes appearance 1, 3 and 13 with a fixed maximum HP +
  assert.deepEqual(first.reward,{stat:'hp',value:100});
  assert.equal(collectionSetBonusLabel(first),'최대 HP +100');
  const p=collectionSetProgress(first,[APPEARANCES[1].id,APPEARANCES[3].id]);
- assert.deepEqual(p,{count:2,total:3,complete:false});
- assert.deepEqual(collectionSetProgress(first,[...first.appearanceIds]),{count:3,total:3,complete:true});
+ assert.deepEqual(p,{count:2,total:4,complete:false});
+ assert.deepEqual(collectionSetProgress(first,[...first.appearanceIds]),{count:3,total:4,complete:false});
+ assert.deepEqual(collectionSetProgress(first,[...first.appearanceIds],new Set([first.id])),{count:4,total:4,complete:true});
 });
 test('catalogue definition never grants unfinished collection stats or deducts currency',()=>{
  const game=initialState();
@@ -45,13 +46,15 @@ test('catalogue definition never grants unfinished collection stats or deducts c
 test('portrait catalogue renders list and selected detail, favorites, rarity, text search, owned slots and disclosure',()=>{
  const game=initialState();
  const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game,setGame:()=>{}}));
- assert.match(html,/외형 컬렉션/);
+ assert.match(html,/컬렉션/);
  assert.match(html,/도감 세트/);
  assert.match(html,/잿빛의 생존자들/);
  assert.match(html,/최대 HP \+100/);
  assert.match(html,/도감 효과는 미적용/);
  assert.match(html,/컬렉션 검색/);
- assert.match(html,/필요 외형/);
+ assert.match(html,/필요 외형·장비/);
+ assert.match(html,/장비 등록/);
+ assert.doesNotMatch(html,/>칭호</);
  assert.match(html,/먼지길 방랑자/);
  assert.match(html,/미보유/);
  assert.match(html,/data-set-id=/);
