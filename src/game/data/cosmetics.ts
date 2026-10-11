@@ -158,6 +158,13 @@ export const APPEARANCES:AppearanceData[]=[
   description:'검은 화약과 긴 머스킷을 사용하는 고딕 총사. 총검 대신 장거리 사격을 선택했다.',
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'pending'
+ },
+ {
+  id:'corsair',name:'코르세어',rarity:'B',
+  imagePath:'assets/characters/jobs/corsair.webp',
+  description:'황금 장식의 삼각모와 커틀라스, 화승총을 지닌 고딕 해적.',
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'
  }
 ];
 export const TITLES:TitleData[]=[];

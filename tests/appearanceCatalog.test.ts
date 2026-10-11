@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import {initialState,stats} from '../src/game/engine/state';
 import {registerAppearance} from '../src/game/engine/cosmetics';
 import {playerGraphicFor} from '../src/game/data/graphics';
@@ -13,13 +13,13 @@ import {
  appearanceCollectionById,appearanceCollectionProgress,validateAppearanceCatalog
 } from '../src/game/data/cosmetics';
 
-test('cosmetic archive includes forty themed appearances plus the standalone C-grade Arquebus',()=>{
- assert.equal(APPEARANCES.length,42);
- assert.equal(APPEARANCES.filter(x=>x.rarity).length,41);
+test('cosmetic archive includes forty themed appearances, Arquebus and B-grade Corsair',()=>{
+ assert.equal(APPEARANCES.length,43);
+ assert.equal(APPEARANCES.filter(x=>x.rarity).length,42);
  assert.equal(APPEARANCE_COLLECTIONS.length,8);
  assert.deepEqual(APPEARANCE_RARITIES,['C','B','A','SR','SSR']);
  assert.ok(validateAppearanceCatalog());
- assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,42);
+ assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,43);
  assert.equal(APPEARANCES[0].id,DEFAULT_APPEARANCE_ID);
 });
 test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()=>{
@@ -30,7 +30,7 @@ test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()
   assert.equal(appearanceCollectionById(collection.id),collection);
  }
  for(const rarity of APPEARANCE_RARITIES){
-  assert.equal(APPEARANCES.filter(x=>x.rarity===rarity).length,rarity==='C'?9:8);
+  assert.equal(APPEARANCES.filter(x=>x.rarity===rarity).length,rarity==='C'||rarity==='B'?9:8);
   assert.equal(typeof APPEARANCE_PROPOSED_PERCENT[rarity],'number');
  }
 });
@@ -44,12 +44,31 @@ test('Arquebus is a standalone C-grade appearance without unlocking or replacing
  assert.equal(musketeer?.imagePath,undefined);
  assert.equal(APPEARANCE_COLLECTIONS.flatMap(c=>c.appearanceIds).length,40);
 });
+test('Corsair appears as a B-grade appearance with its existing illustrated game asset',()=>{
+ const pirate=appearanceById('corsair');
+ assert.equal(pirate?.name,'코르세어');
+ assert.equal(pirate?.rarity,'B');
+ assert.equal(pirate?.collectionId,undefined);
+ assert.equal(pirate?.artStatus,'ready');
+ assert.equal(pirate?.imagePath,'assets/characters/jobs/corsair.webp');
+ assert.equal(pirate?.proposedBonus?.stat,'attack');
+ assert.equal(pirate?.proposedBonus?.percent,APPEARANCE_PROPOSED_PERCENT.B);
+ assert.equal(pirate?.tradeable,false);
+ assert.ok(existsSync(new URL('../public/assets/characters/jobs/corsair.webp',import.meta.url)));
+ assert.equal(playerGraphicFor('corsair').image.idle,pirate?.imagePath);
+ assert.ok(validateAppearanceCatalog());
+});
 test('cosmetic catalog stores proposed bonuses only; they do not change player combat stats',()=>{
  const s=initialState();const before=stats(s);
  assert.deepEqual(s.cosmetics.unlockedAppearanceIds,['default']);
  for(const appearance of APPEARANCES.filter(x=>x.rarity)){
-  assert.equal(appearance.artStatus,'pending');
-  assert.equal(appearance.imagePath,undefined,'pending art must not borrow a job illustration');
+  if(appearance.id==='corsair'){
+   assert.equal(appearance.artStatus,'ready');
+   assert.equal(appearance.imagePath,'assets/characters/jobs/corsair.webp');
+  }else{
+   assert.equal(appearance.artStatus,'pending');
+   assert.equal(appearance.imagePath,undefined,'pending art must not borrow a job illustration');
+  }
   assert.equal(appearance.sourceLabel,'외형 뽑기 · 준비중');
   assert.equal(appearance.tradeable,false);
   assert.match(appearanceBonusLabel(appearance.proposedBonus!),/ \+\d+%$/);
