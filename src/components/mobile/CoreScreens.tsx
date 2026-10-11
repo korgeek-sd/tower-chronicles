@@ -127,7 +127,7 @@ function CollectionToken({id,owned,mini=false,onOpen}:{id:string;owned:boolean;m
  const props={className:'tc-collection-token '+(owned?'is-owned ':'is-missing ')+'rarity-'+(a?.rarity??'C')+(mini?' is-mini':''),title:(a?.name??id)+' · '+(owned?'보유':'미보유'), 'data-appearance-id':id};
  return onOpen?<button type="button" {...props} aria-label={(a?.name??id)+' · '+(owned?'보유':'미보유')+' 상세 정보'} onClick={e=>{e.stopPropagation();onOpen(id);}}>{content}</button>:<span {...props}>{content}</span>;
 }
-export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord,initialTab='collection'}:{initialTab?:'collection'|'appearance';game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
+export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord,initialTab='collection',onSummon}:{onSummon?:()=>void;initialTab?:'collection'|'appearance';game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
  const [tab,setTab]=useState<'collection'|'appearance'>(initialTab);
  const [rarity,setRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const [query,setQuery]=useState('');
@@ -216,7 +216,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
     <span>탑의 기록 <b>{tab==='appearance'?'외형 도감':'컬렉션'}</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
    </div>
-   <Segments items={[['collection','컬렉션'],['appearance','외형 목록']] as const} value={tab} onChange={changeTab} label="컬렉션 보기"/>
+   {tab==='appearance'&&onSummon?<Segments items={[['summon','외형 소환'],['appearance','외형 목록']] as const} value="appearance" onChange={value=>{if(value==='summon')onSummon();}} label="외형 메뉴"/>:<Segments items={[['collection','컬렉션'],['appearance','외형 목록']] as const} value={tab} onChange={changeTab} label="컬렉션 보기"/>}
    {tab==='collection'?<>
     <div className="tc-collection-grade-tabs" role="group" aria-label="컬렉션 등급">
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" className={'tc-feel-press'+(rarity===r?' active':'')} data-rarity={r} aria-pressed={rarity===r} onClick={()=>{setRarity(r);setSelectedSetId('');}}>{r==='ALL'?'전체':COLLECTION_RARITY_NAMES[r]}</button>)}

@@ -1,0 +1,29 @@
+.tc-appearance-summon-screen .tc-screen-body{overflow:hidden;min-height:0}
+.tc-appearance-summon{height:100%;min-height:0;display:grid;grid-template-rows:36px minmax(0,1fr) 80px 60px 65px 18px 44px;gap:6px;color:var(--ink);background:radial-gradient(ellipse at 50% 35%,#48352355,transparent 62%),#0b0f0e;padding:4px}
+.tc-summon-stage{position:relative;min-height:0;overflow:hidden;border:1px solid #655239;background:radial-gradient(ellipse at 50% 76%,#b4854630,transparent 47%),linear-gradient(#0b0e0e,#1b1c1750,#11140f)}
+.tc-summon-arches{position:absolute;inset:6% 3% 10%;display:flex;gap:5%}
+.tc-summon-arches i{flex:1;border:7px double #564b343d;border-radius:50% 50% 0 0;box-shadow:inset 0 0 35px #000b}
+.tc-summon-figures{position:absolute;inset:0 2% 18px;display:grid;grid-template-columns:1fr 1.25fr 1fr;align-items:end;gap:0}
+.tc-summon-figure{height:80%;min-height:44px;min-width:0;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:end;padding:0;color:#b6aa92;transition:filter .18s,opacity .18s;opacity:.65;filter:brightness(.75)}
+.tc-summon-figure img{display:block;width:100%;height:calc(100% - 24px);min-height:0;object-fit:contain;object-position:center bottom}
+.tc-summon-figure span{height:24px;display:grid;place-items:center;font-size:10px;white-space:nowrap}
+.tc-summon-figure.is-focused{height:98%;opacity:1;filter:brightness(1.12) drop-shadow(0 0 7px #c69b493a);color:#f0d6a0}
+.tc-summon-figure:focus-visible{outline:2px solid var(--brass-hi);outline-offset:-2px}
+.tc-summon-preview-note{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:9px;color:#9f9584}
+.tc-summon-feature{text-align:center;display:grid;align-content:center;gap:5px;border:1px solid #74603d;background:linear-gradient(110deg,#272016,#121613,#272016)}
+.tc-summon-feature>small{font-size:8px;letter-spacing:.16em;color:#a9997b}
+.tc-summon-feature h2{font:700 19px Georgia,'Noto Serif KR',serif;margin:0;color:#f0d5a0}
+.tc-summon-feature>div{display:flex;justify-content:center;gap:12px;font-size:10px}.tc-summon-feature b{color:#c1b49c;font-weight:400}
+.tc-summon-wallet{display:grid;grid-template-columns:1fr 1fr;border:1px solid #65543a;background:#171915}
+.tc-summon-wallet>div{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0}.tc-summon-wallet>div+div{border-left:1px solid #65543a}
+.tc-summon-wallet .tc-glyph{font-size:23px;color:#c6a365}.tc-summon-wallet span{display:grid;gap:3px;font-size:10px;color:#b3a992}.tc-summon-wallet b{font:700 17px Georgia,serif;color:#ead4ae}
+.tc-summon-actions{display:grid;grid-template-columns:1fr 1fr .85fr;gap:5px}
+.tc-summon-actions button{min-height:44px;min-width:0;border:1px solid #967442;background:linear-gradient(#442822,#291e19);color:#d8c5a6;display:grid;align-content:center;gap:5px;opacity:.7}
+.tc-summon-actions button:last-child{background:linear-gradient(#272c2a,#151b19);border-color:#68644f}
+.tc-summon-actions strong{font-size:13px}.tc-summon-actions small{font-size:9px}
+.tc-summon-status{margin:0;text-align:center;align-self:center;color:#ad9e85;font-size:9px}
+.tc-summon-utilities{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tc-summon-utilities button{min-height:44px;border:1px solid #6b593c;background:#141915;color:#d6c4a4;font-size:11px;display:flex;align-items:center;justify-content:center;gap:8px}
+.tc-summon-modal-backdrop{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#000b;padding:20px}
+.tc-summon-modal{width:min(420px,100%);padding:16px;border:1px solid #a48650;background:#151b17;color:#ddceb3;box-sizing:border-box}.tc-summon-modal header{display:flex;justify-content:space-between;align-items:center}.tc-summon-modal h2{font-size:17px;margin:0}.tc-summon-modal header button{min-height:44px;min-width:44px;background:none;color:inherit;border:0;font-size:24px}.tc-summon-modal p{font-size:12px;line-height:1.6}
+@media(max-height:700px){.tc-appearance-summon{grid-template-rows:32px minmax(0,1fr) 65px 50px 58px 16px 44px;gap:4px}.tc-summon-feature h2{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.tc-summon-figure{transition:none}}

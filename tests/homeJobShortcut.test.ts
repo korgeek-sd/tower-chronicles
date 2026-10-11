@@ -29,7 +29,8 @@ test('HOME JOB SHORTCUT 03: app routes the selected home shortcut to the request
  assert.match(main,/const \[jobsEntryTab,setJobsEntryTab\]=useState<JobTab>\('register'\)/);
  assert.match(main,/function openJobs\(tab:JobTab\)/);
  assert.match(main,/onOpenJobs=\{openJobs\}/);
- assert.match(main,/initialTab=\{jobsEntryTab\}/);
+ assert.match(main,/jobsEntryTab==='list'&&<CosmeticsScreen/);
+ assert.match(main,/jobsEntryTab==='register'&&<AppearanceSummonScreen/);
  assert.match(jobs,/initialTab='register'/);
  assert.match(jobs,/useState<JobTab>\(initialTab\)/);
 });
