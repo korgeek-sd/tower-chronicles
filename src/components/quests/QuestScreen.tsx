@@ -10,7 +10,7 @@ export function QuestScreen({onMove}:{onMove:(page:AppPage)=>void}){
  // Assignment/progress/reward claiming are server-owned and not connected yet.
  const quests=tab==='daily'?DAILY_QUESTS.slice(0,3):WEEKLY_QUESTS;
  return <Screen title="의뢰" className="tc-quest-screen">
-  <div className="tc-quest-board">
+  <div className={'tc-quest-board '+(tab==='weekly'?'is-weekly':'')}>
    <Segments items={[['daily','일일'],['weekly','주간']] as const} value={tab} onChange={setTab} label="의뢰 기간"/>
    <div className="tc-quest-reset"><span>배정 예시 · 서버 연결 준비 중</span><span>{tab==='daily'?'매일 00시':'월요일 00시'} 초기화 · 한국시간</span></div>
    <div className="tc-quest-list" aria-label={tab==='daily'?'일일 의뢰 배정 예시':'주간 의뢰 목록'}>{quests.map(([name,target,page,glyph])=><article className="tc-quest-row" key={name}>
