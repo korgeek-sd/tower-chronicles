@@ -45,6 +45,7 @@ import {GoldExchangeScreen} from './components/market/GoldExchangeScreen';
 import {SealScreen} from './components/seal/SealScreen';
 import {AssociationScreen} from './components/association/AssociationScreen';
 import {OccupationWarEntry} from './components/occupation/OccupationWarEntry';
+import {QuestScreen} from './components/quests/QuestScreen';
 import {type JobTab} from './components/JobsScreen';
 import {AppearanceSummonScreen} from './components/appearance/AppearanceSummonScreen';
 import {SettingsDialog} from './components/SettingsDialog';
@@ -448,11 +449,12 @@ function App(){
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}
    {page==='settings'&&<SettingsDialog key={onlineSession?.userId??'guest'} onRewardMail={()=>setMailUnread(n=>n+1)} session={onlineSession} nickname={playerNickname} details={<SaveManagement game={game} storage={gameStorage} onImported={acceptImportedSave} session={onlineSession} syncStatus={cloudSyncStatus} syncRevision={cloudRevision} syncMessage={cloudSyncMessage} onLogout={logoutOnline}/>} syncStatus={cloudSyncStatus} syncMessage={cloudSyncMessage} onLogout={logoutOnline} onClose={()=>move('home')}/>}
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame} onSummon={()=>{setJobsEntryTab('register');setPage('jobs');}} onlineAccount={!!onlineSession} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('컬렉션');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
+   {page==='quests'&&<QuestScreen onMove={move}/>}
    {page==='shop'&&<ShopScreen game={game}/>}
 
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'} inlineAtHome={page==='home'}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;

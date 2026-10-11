@@ -1,0 +1,26 @@
+import React,{useState} from 'react';
+import {Glyph,Screen,Segments} from '../../ui/mobile';
+import type {AppPage} from '../mobile/CoreScreens';
+import './quests.css';
+export const DAILY_QUESTS=[['사냥 승리 30회',30,'hunt','sword'],['제작 10회',10,'craft','craft'],['채집 30회',30,'world','materials'],['거래소 구입 3회',3,'market','market'],['원정단 기부 3회',3,'association','association']] as const;
+export const WEEKLY_QUESTS=[['사냥 승리 300회',300,'hunt','sword'],['제작 50회',50,'craft','craft'],['채집 150회',150,'world','materials'],['일일 의뢰 완료 10개',10,'quests','bestiary'],['주간 의뢰 4개 모두 완료',4,'quests','bestiary']] as const;
+const rewards=[['potions','활력 포션','1개','3개'],['ticket','외형 소환권','5장','15장'],['health','체력 포션','100개','300개'],['craft','랜덤 음식','3개','10개'],['skills','C~A 스킬북','1권','3권'],['tickets','도전권','3개','10개']] as const;
+export function QuestScreen({onMove}:{onMove:(page:AppPage)=>void}){
+ const [tab,setTab]=useState<'daily'|'weekly'>('daily');
+ // Assignment/progress/reward claiming are server-owned and not connected yet.
+ const quests=tab==='daily'?DAILY_QUESTS.slice(0,3):WEEKLY_QUESTS;
+ return <Screen title="의뢰" className="tc-quest-screen">
+  <div className="tc-quest-board">
+   <Segments items={[['daily','일일'],['weekly','주간']] as const} value={tab} onChange={setTab} label="의뢰 기간"/>
+   <div className="tc-quest-reset"><span>배정 예시 · 서버 연결 준비 중</span><span>{tab==='daily'?'매일 00시':'월요일 00시'} 초기화 · 한국시간</span></div>
+   <div className="tc-quest-list" aria-label={tab==='daily'?'일일 의뢰 배정 예시':'주간 의뢰 목록'}>{quests.map(([name,target,page,glyph])=><article className="tc-quest-row" key={name}>
+    <div className="tc-quest-symbol"><Glyph name={glyph}/></div>
+    <div className="tc-quest-objective"><strong>{name}</strong><div className="tc-quest-track" aria-hidden="true"/><small>진행도 확인 대기 / {target}</small></div>
+    <div className="tc-quest-mystery"><Glyph name="inventory"/><b>?</b><small>랜덤 보상</small></div>
+    <div className="tc-quest-buttons"><button type="button" onClick={()=>onMove(page)}>이동 ›</button><button type="button" disabled>보상 받기</button></div>
+   </article>)}</div>
+   <section className="tc-quest-rewards" aria-label="랜덤 보상 안내"><h2>보상 안내</h2><div>{rewards.map(([glyph,name,daily,weekly])=><div key={name}><Glyph name={glyph}/><strong>{name}</strong><small>{tab==='daily'?daily:weekly}</small></div>)}</div><p>각 의뢰 완료 시 1종 지급 · 보상 종류 중복 없음</p><small>활력 포션 거래 불가 · 도전권 거래 가능</small></section>
+   <p className="tc-quest-note">{tab==='daily'?'매일 5종 중 서로 다른 의뢰 3개 배정':'주간 의뢰 5개 · 일일과 별도로 보상 추첨'}</p>
+  </div>
+ </Screen>;
+}

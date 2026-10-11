@@ -22,7 +22,7 @@ import {getHuntingState} from '../../online/hunting';
 import type {GameplayLease} from '../../online/gameSession';
 import {huntingLevel,type HuntingState} from '../../game/hunting/model';
 
-export type AppPage='craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
+export type AppPage='quests'|'craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
@@ -50,6 +50,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
   {id:'mail',glyph:'mail',name:'우편함',action:onOpenMail}
  ];
  const extraFacilities=[
+  {id:'quests',glyph:'bestiary',name:'의뢰',action:()=>onMove('quests')},
   {id:'stats',glyph:'skill',name:'스탯 분배',action:()=>onMove('stats')},
   {id:'bestiary',glyph:'bestiary',name:'생물록',action:()=>onMove('bestiary')},
   {id:'cosmetics',glyph:'cosmetics',name:'컬렉션',action:()=>onMove('cosmetics')},
