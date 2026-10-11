@@ -173,7 +173,7 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
  },[appearanceDetails,relatedAppearance]);
  return <Screen eyebrow="APPEARANCE COLLECTION" title="외형 컬렉션" className="tc-cosmetics-catalog-screen" meta={<span>{ownedCount} / {collectible.length} 수집</span>}>
   <div className={"tc-cosmetics-catalog"+(tab==="collection"?"":" listing-mode")}>
-   <div className="tc-collection-top" style={{backgroundImage:"linear-gradient(90deg,#17130edc,#14100cb5),url("+assetUrl('assets/backgrounds/hunting/world-map.webp')+")"}}>
+   <div className="tc-collection-top">
     <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
     <span>탑의 기록 <b>외형 컬렉션</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
    </div>
@@ -203,7 +203,7 @@ export function CosmeticsScreen({game,setGame}:{game:GameState;setGame:React.Dis
      {relevant.length===0&&<p className="tc-collection-none">조건에 맞는 컬렉션이 없어. 필터를 바꿔봐.</p>}
     </div>
     <section className="tc-collection-detail" aria-label="선택한 컬렉션 상세" data-selected-set-id={selected.id}>
-     <div className="tc-collection-detail-hero" style={{backgroundImage:"linear-gradient(90deg,#17130fe8 0%,#17130f99 56%,#11141993 100%),url("+assetUrl('assets/backgrounds/hunting/world-map.webp')+")"}}>
+     <div className="tc-collection-detail-hero">
       <div className="tc-collection-detail-title"><div><span className="tc-collection-detail-sigil" aria-hidden="true">✥</span><div><small>COLLECTION RECORD · {COLLECTION_RARITY_NAMES[selected.rarity]}</small><h2>{selected.name}</h2></div></div>
        <button type="button" className={favoriteIds.includes(selected.id)?'is-favorite':''} aria-label={favoriteIds.includes(selected.id)?'즐겨찾기 해제':'즐겨찾기 추가'} aria-pressed={favoriteIds.includes(selected.id)} onClick={()=>toggle(selected.id,favoriteIds,setFavoriteIds)}>★</button>
       </div>
