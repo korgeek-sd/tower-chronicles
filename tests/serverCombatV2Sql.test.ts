@@ -176,7 +176,7 @@ test('remaining C online kits execute fifteen skills and use attack healing and 
   const before=(await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a;
   await db.exec(read('../supabase/migrations/20261007041705_register_remaining_c_combat_skills.sql'));
   await db.exec(read('../supabase/migrations/20261007041705_register_remaining_c_combat_skills.sql'));
-  const after=(await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a;assert.deepEqual(after,before);assert.equal(Object.keys(after.jobs).length,48);
+  const after=(await db.query<{a:any}>('select private.combat_v2_catalog() a')).rows[0].a;assert.deepEqual(after,before);assert.equal(Object.keys(after.jobs).length,49);assert.equal(after.jobs.corsair?.jobId,'corsair');
   const invoke=async(job:string,i:number,extra={})=>(await db.query<{a:any}>("select to_jsonb(private.combat_v2_job_skill(jsonb_populate_record(null::private.online_combat_states,$1::jsonb),$2,1)) a",[JSON.stringify(combat({job_id:job,crit_chance:0,player_hp:90,job_resource:4,...extra})),job+'_skill_'+i])).rows[0].a;
   for(const job of ['excavator','reclaimer','green_crown_pilgrim','porter','guide'])for(let i=1;i<=3;i++){
    const r=await invoke(job,i);assert.ok(r.player_hp>0,job);

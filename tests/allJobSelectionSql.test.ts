@@ -21,6 +21,9 @@ test('server selection permits all owned catalog jobs while retaining ownership 
   await db.exec(readFileSync(new URL('../supabase/migrations/20261005061203_b_rank_job_selection.sql',import.meta.url),'utf8'));
   const migration=readFileSync(new URL('../supabase/migrations/20261005073737_all_owned_job_selection.sql',import.meta.url),'utf8');
   await db.exec(migration);
+  const corsairMigration=readFileSync(new URL('../supabase/migrations/20261011201000_enable_corsair_server_selection.sql',import.meta.url),'utf8');
+  await db.exec(corsairMigration);
+  await db.exec(corsairMigration);
   const select=(id:string|null)=>db.query("SELECT public.select_online_job(NULL,1,'client','device',$1) AS result",[id]);
   await assert.rejects(select('executor'),/JOB_NOT_OWNED/);
   for(const job of JOB_CATALOG){
