@@ -152,7 +152,13 @@ export const APPEARANCES:AppearanceData[]=[
   id,name,description,rarity:APPEARANCE_RARITIES[i],collectionId:collection.id,
   proposedBonus:{stat:collection.stat,percent:APPEARANCE_PROPOSED_PERCENT[APPEARANCE_RARITIES[i]]},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'pending' as const
- })))
+ }))),
+ {
+  id:'arquebus',name:'아르케부스',rarity:'C',
+  description:'검은 화약과 긴 머스킷을 사용하는 고딕 총사. 총검 대신 장거리 사격을 선택했다.',
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'pending'
+ }
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
@@ -185,6 +191,6 @@ export function validateAppearanceCatalog(appearances:readonly AppearanceData[]=
  }
  return appearances.every(a=>a.id===DEFAULT_APPEARANCE_ID
   ?a.artStatus==='ready'&&!!a.imagePath
-  :assigned.has(a.id)&&!!a.name&&!!a.description&&!!a.proposedBonus&&a.proposedBonus.percent>0&&(a.artStatus==='pending'?a.imagePath===undefined:!!a.imagePath));
+  :(assigned.has(a.id)||(!a.collectionId&&!!a.rarity))&&!!a.name&&!!a.description&&!!a.proposedBonus&&a.proposedBonus.percent>0&&(a.artStatus==='pending'?a.imagePath===undefined:!!a.imagePath));
 }
 if(!validateAppearanceCatalog())throw Error('외형 카탈로그 구성 오류');
