@@ -307,7 +307,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onServerRecord}:{
       const a=appearanceById(appearanceDetails);
       const included=APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(appearanceDetails));
       return <div className="tc-collection-modal-content"><strong>{a?.name??'외형 정보 없음'}</strong><p>{a?.description??''}</p><p>{a?.rarity?COLLECTION_RARITY_NAMES[a.rarity]+' · ':''}{ownedSet.has(appearanceDetails)?'보유 중':'미보유'} · 이미지 {a?.artStatus==='ready'?'등록됨':'제작 예정'}</p><p>관련 컬렉션 {included.length}개 · 획득은 외형 뽑기 구현 후 가능합니다.</p><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(appearanceDetails);}}>이 외형이 필요한 도감 보기 ›</button></div>;
-     })():<div className="tc-collection-modal-content"><p>{appearanceById(relatedAppearance!)?.name} 외형이 필요한 컬렉션</p><div className="tc-collection-related-list">{related.map(set=><button type="button" key={set.id} onClick={()=>{setRarity('ALL');setStatus('all');setQuery('');setSelectedSetId(set.id);setRelatedAppearance(null);}}><strong>{set.name}</strong><span>{collectionSetBonusLabel(set)} · {collectionSetProgress(set,owned).count}/{set.appearanceIds.length}</span></button>)}</div></div>}
+     })():<div className="tc-collection-modal-content"><p>{appearanceById(relatedAppearance!)?.name} 외형이 필요한 컬렉션</p><div className="tc-collection-related-list">{related.map(set=><button type="button" key={set.id} onClick={()=>{setRarity('ALL');setStatus('all');setQuery('');setSelectedSetId(set.id);setRelatedAppearance(null);}}><strong>{set.name}</strong><span>{collectionSetBonusLabel(set)} · {collectionSetProgress(set,owned,registeredIds).count}/{set.appearanceIds.length}</span></button>)}</div></div>}
     </section>
    </div>}
   </div>
