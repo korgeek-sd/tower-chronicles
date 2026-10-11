@@ -20,7 +20,7 @@ begin
  s.recovered_at:=case when s.vitality>=100 then greatest(stamp,s.recovered_at) else s.recovered_at+ticks*interval '300 seconds' end;
  update private.hunting_states set vitality=s.vitality,recovered_at=s.recovered_at where user_id=u;
  return jsonb_build_object('vitality',s.vitality,'recoveredAt',extract(epoch from s.recovered_at)*1000,'experience',s.experience,'mastery',s.mastery,'skills',to_jsonb(s.skills),'lastResult',s.last_result,'combatStats',private.combat_equipment_stats(u,(select jsonb_set(payload,'{expedition}',jsonb_build_object('equipment',payload->'equipped'),true) from public.game_saves where user_id=u)),'statAllocation',s.stat_allocation,'statResets',s.stat_resets,'statPoints',greatest(0,private.hunting_level(s.experience)-1-coalesce((s.stat_allocation->>'hp')::integer,0)-coalesce((s.stat_allocation->>'attack')::integer,0)-coalesce((s.stat_allocation->>'defense')::integer,0)-coalesce((s.stat_allocation->>'crit')::integer,0)-coalesce((s.stat_allocation->>'mp')::integer,0)),'currentHp',s.current_hp,'maxHp',s.max_hp,'currentMp',s.current_mp,'maxMp',100+10*coalesce((s.stat_allocation->>'mp')::integer,0),'potions',coalesce((select (l.products->>'potion')::bigint from private.village_life_players l where l.user_id=u),0),'foodTurns',coalesce((select l.food_turns from private.village_life_players l where l.user_id=u),'{}'::jsonb));
-end $function$
+end $function$;
 
 
 CREATE OR REPLACE FUNCTION public.allocate_hunting_stats(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_allocation jsonb)
@@ -64,7 +64,7 @@ begin
    where user_id=u;
  end if;
  return jsonb_build_object('state',private.refresh_hunting_state(u),'record',private.cloud_record_json(u));
-end $function$
+end $function$;
 
 
 CREATE OR REPLACE FUNCTION public.reset_hunting_stats(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid)
@@ -102,7 +102,7 @@ begin
  insert into private.hunting_stat_reset_receipts(user_id,request_id,cost) values(u,p_request_id,charged);
  if charged>0 then perform private.persist_client_payload_with_server_economy(u,s.payload,'0.1.93');end if;
  return jsonb_build_object('state',private.refresh_hunting_state(u),'record',private.cloud_record_json(u),'cost',charged,'replayed',false);
-end $function$
+end $function$;
 
 
 CREATE OR REPLACE FUNCTION public.save_hunting_preset(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_skills text[])
@@ -131,7 +131,7 @@ begin
  perform private.refresh_hunting_state(u);
  update private.hunting_states set skills=p_skills where user_id=u;
  return private.refresh_hunting_state(u)||jsonb_build_object('serverNow',extract(epoch from now())*1000);
-end $function$
+end $function$;
 
 
 CREATE OR REPLACE FUNCTION public.hunt_once(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_map_id text)
@@ -358,5 +358,5 @@ begin
  insert into private.hunting_receipts(user_id,request_id,map_id,result) values(u,p_request_id,p_map_id,result);
  perform private.persist_client_payload_with_server_economy(u,s.payload,'0.1.93');
  return jsonb_build_object('state',private.refresh_hunting_state(u),'result',result,'record',private.cloud_record_json(u),'replayed',false,'serverNow',stamp);
-end $function$
+end $function$;
 
