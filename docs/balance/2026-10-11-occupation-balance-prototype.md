@@ -1,19 +1,19 @@
 # Tower Chronicles — occupation war balance prototype (2026-10-11)
 
 > **Read-only simulation, not a production occupation-war feature or validated live-Supabase result.**  
-> Source inspected: repository head \`3f72270b44856059da3674358765e538df30f388\` before these report/script commits.  
-> Reproduce: \`node scripts/balance/occupationBalance.mjs\` and \`node --test tests/occupationBalancePrototype.test.mjs\`.
+> Source inspected: repository head `3f72270b44856059da3674358765e538df30f388` before these report/script commits.  
+> Reproduce: `node scripts/balance/occupationBalance.mjs` and `node --test tests/occupationBalancePrototype.test.mjs`.
 
 ## Current source and planned target are different
 
-Production at inspection has 3 occupation fronts (LEFT/CENTER/RIGHT), public-merit bidding, Saturday 22:00–22:30 KST timed battle and manual BASIC/GUARD duels; see \`src/game/occupation/rules.ts\`, \`src/components/occupation/OccupationScreen.tsx\`, and \`src/online/occupation.ts\`. The new 5-front, 11-village, rostered PvP is **not implemented**. Village life has 10 resource towns and city \`city\`, but ownership/tax remain neutral on the actual server; \`src/components/world/worldMap.ts\` ownership labels are fixtures.
+Production at inspection has 3 occupation fronts (LEFT/CENTER/RIGHT), public-merit bidding, Saturday 22:00–22:30 KST timed battle and manual BASIC/GUARD duels; see `src/game/occupation/rules.ts`, `src/components/occupation/OccupationScreen.tsx`, and `src/online/occupation.ts`. The new 5-front, 11-village, rostered PvP is **not implemented**. Village life has 10 resource towns and city `city`, but ownership/tax remain neutral on the actual server; `src/components/world/worldMap.ts` ownership labels are fixtures.
 
-Hunting uses shared physical damage \`max(1,floor(ATK × skill multiplier × critical multiplier ×100/(100+DEF×(1−penetration))))\`, critical chance, attacker-first turns and priority-based automatic skills. Current catalog has healing, shield, damage-over-time, buffs, MP costs and passives. The prototype only models the legacy Heavy (180%, cooldown 3), Guard (HP <=50%, cooldown 4), Quick (120%, cooldown 2) skill priority, one action per fighter/turn, 100 turns cap, and full HP for each attacking challenge. Defender HP **persists between challenges**, defender MP and attackers reset (prototype contains no MP-dependent skills). **The actual 80 skill effects are absent; these results are not a true PvP balance guarantee.**
+Hunting uses shared physical damage `max(1,floor(ATK × skill multiplier × critical multiplier ×100/(100+DEF×(1−penetration))))`, critical chance, attacker-first turns and priority-based automatic skills. Current catalog has healing, shield, damage-over-time, buffs, MP costs and passives. The prototype only models the legacy Heavy (180%, cooldown 3), Guard (HP <=50%, cooldown 4), Quick (120%, cooldown 2) skill priority, one action per fighter/turn, 100 turns cap, and full HP for each attacking challenge. Defender HP **persists between challenges**, defender MP and attackers reset (prototype contains no MP-dependent skills). **The actual 80 skill effects are absent; these results are not a true PvP balance guarantee.**
 
 ## Proposed starting rules (not deployed)
 
 - 11 independently contestable locations; 5 fronts per location; 5 defender slots/front = 25 garrison slots.
-- Attack challenge costs 1 **existing** \`challenge_ticket\`; attacker has 30s character cooldown.
+- Attack challenge costs 1 **existing** `challenge_ticket`; attacker has 30s character cooldown.
 - Sequential eligible defender on each front; residual HP persists across failed attempts; once all five fall, claimant installs frozen garrison snapshots at full HP.
 - PvP starts at full MP; player character HP for hunts, potion supplies, PvE food effects and normal vitality remain separate.
 - Saturday 22:00–22:30 KST; hold all five fronts continuously for five minutes, otherwise settle by owned fronts. Multi-guild tiebreaks and lane claim races require authoritative SQL locks and a dedicated decision.
@@ -22,7 +22,7 @@ Hunting uses shared physical damage \`max(1,floor(ATK × skill multiplier × cri
 
 ## 1,000 seeded uncontested wars per scenario (seed 20261011)
 
-Fixture stats are **hypothetical baseline equipment** from \`docs/balance/2026-10-10-hunting-balance-report.md\` — not actual player inventory statistics. A PvP match starts with current defender HP and attacker's full HP. Damage respects the production physical damage formula but **not full skill behavior**.
+Fixture stats are **hypothetical baseline equipment** from `docs/balance/2026-10-10-hunting-balance-report.md` — not actual player inventory statistics. A PvP match starts with current defender HP and attacker's full HP. Damage respects the production physical damage formula but **not full skill behavior**.
 
 | Attacker → defender | Average ticket attempts | Median attempts | P90 attempts | Minimum ideal capture time: 5 concurrent members |
 |---|---:|---:|---:|---:|
@@ -39,7 +39,7 @@ Every benchmark reached all 25 defenders within the 600-attempt *simulator* cap.
 
 ### Participation sensitivity
 
-For 45 attempts to clear 25 defenders, ideal arrival bound = \`(ceil(attempts/members)-1)×30s+5s\`; add an uninterrupted five-minute hold:
+For 45 attempts to clear 25 defenders, ideal arrival bound = `(ceil(attempts/members)-1)×30s+5s`; add an uninterrupted five-minute hold:
 
 | Concurrent attackers | Lower bound to clear | Plus hold |
 |---|---:|---:|
@@ -53,9 +53,9 @@ These are **optimistic lower bounds**. They assume perfect coordination, instant
 
 ## Ticket economy — critical blocker
 
-Current \`src/game/life/crafting.ts\` recipe consumes 10 split stones per craft action and yields **one** challenge ticket before mastery modifiers. Split stones per dismantled equipment grade = [1, 3, 6, 10, 15]. Actual equipment drop per victorious hunt (in millionths) is documented by \`src/game/hunting/equipmentDrops.ts\`: plains [13000,2000,0,0,0]; forest [13000,3000,500,0,0]; mine [13000,3500,900,100,0]; fortress [13000,4000,1300,200,0]; ruins [13000,4500,1600,350,116].
+Current `src/game/life/crafting.ts` recipe consumes 10 split stones per craft action and yields **one** challenge ticket before mastery modifiers. Split stones per dismantled equipment grade = [1, 3, 6, 10, 15]. Actual equipment drop per victorious hunt (in millionths) is documented by `src/game/hunting/equipmentDrops.ts`: plains [13000,2000,0,0,0]; forest [13000,3000,500,0,0]; mine [13000,3500,900,100,0]; fortress [13000,4000,1300,200,0]; ruins [13000,4500,1600,350,116].
 
-Expected material is \`sum(drop_millionths × split_stones_by_grade)/1,000,000\`, **conditional on hunting victory and every drop being dismantled**. It does not include unmodeled ticket giveaways/trading. Current recipe assumes 0% crafting bonus; more crafting mastery increases production up to +50%.
+Expected material is `sum(drop_millionths × split_stones_by_grade)/1,000,000`, **conditional on hunting victory and every drop being dismantled**. It does not include unmodeled ticket giveaways/trading. Current recipe assumes 0% crafting bonus; more crafting mastery increases production up to +50%.
 
 | Hunting map | Expected stones per victory | Estimated weekly tickets, 5 members × 100 victories/day × 7d, current yield |
 |---|---:|---:|
