@@ -13,13 +13,14 @@ import {
  appearanceCollectionById,appearanceCollectionProgress,validateAppearanceCatalog
 } from '../src/game/data/cosmetics';
 
-test('cosmetic archive includes forty themed appearances, Arquebus and B-grade Corsair',()=>{
- assert.equal(APPEARANCES.length,43);
- assert.equal(APPEARANCES.filter(x=>x.rarity).length,42);
+test('cosmetic archive preserves forty themed appearances and supports standalone additions',()=>{
+ assert.equal(APPEARANCES.filter(x=>x.collectionId).length,40);
+ assert.equal(APPEARANCES.filter(x=>x.rarity).length,APPEARANCES.length-1);
+ assert.ok(APPEARANCES.filter(x=>x.rarity).every(x=>APPEARANCE_RARITIES.includes(x.rarity!)));
  assert.equal(APPEARANCE_COLLECTIONS.length,8);
  assert.deepEqual(APPEARANCE_RARITIES,['C','B','A','SR','SSR']);
  assert.ok(validateAppearanceCatalog());
- assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,43);
+ assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,APPEARANCES.length);
  assert.equal(APPEARANCES[0].id,DEFAULT_APPEARANCE_ID);
 });
 test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()=>{
@@ -30,7 +31,7 @@ test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()
   assert.equal(appearanceCollectionById(collection.id),collection);
  }
  for(const rarity of APPEARANCE_RARITIES){
-  assert.equal(APPEARANCES.filter(x=>x.rarity===rarity).length,rarity==='C'||rarity==='B'?9:8);
+  assert.equal(APPEARANCES.filter(x=>x.collectionId&&x.rarity===rarity).length,8);
   assert.equal(typeof APPEARANCE_PROPOSED_PERCENT[rarity],'number');
  }
 });
