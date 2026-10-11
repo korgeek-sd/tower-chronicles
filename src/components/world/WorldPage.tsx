@@ -3,6 +3,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {getVillageLife,travelVillage,gatherVillage,villageLifeAction,validGatherRequest,VillageLifeRejected,LIFE_MATERIAL_NAMES,type VillageLifeState,type GatherRequest,type LifeResource,type LifeMaterial} from '../../online/villageLife';
 import {WorldMapScreen} from './WorldMapScreen';
+import {getVillageWarDeclarations,declareVillageWar,validWarDeclarationRequest,WarDeclarationRejected,type VillageWarState} from '../../online/villageWar';
 import {LifeScreen} from './LifeScreen';
 import {CraftScreen,type ConfirmedCraftResult} from './CraftScreen';
 type Props={userId:string|null;lease:GameplayLease|null;now:number;onInventory?:()=>void;onHome?:()=>void;initialView?:'map'|'craft'};
@@ -13,12 +14,33 @@ export function VillageLifeNotice({error,pending,busy,canRetry,onRetry}:{error:s
 export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'}:Props){
  const [state,setState]=useState<VillageLifeState|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[view,setView]=useState<'map'|'life'|'craft'>(initialView),[count,setCount]=useState(1),[recipe,setRecipe]=useState<ProductId>('potion'),[pending,setPending]=useState<GatherRequest|LifeActionRequest|null>(null),[offset,setOffset]=useState(0);
  const [craftResult,setCraftResult]=useState<ConfirmedCraftResult|null>(null);
- const alive=useRef(true),lock=useRef(false),resetRetryAt=useRef(0),key=userId?'tower-life-pending:'+userId:null;
+ const [war,setWar]=useState<VillageWarState|null>(null),[warBusy,setWarBusy]=useState(false),[warError,setWarError]=useState(''),[warPending,setWarPending]=useState<{id:string;townId:string}|null>(null);
+ const alive=useRef(true),lock=useRef(false),warLock=useRef(false),resetRetryAt=useRef(0),key=userId?'tower-life-pending:'+userId:null,warKey=userId?'tower-war-declaration-pending:'+userId:null;
  const accept=(s:VillageLifeState)=>{if(alive.current){setState(s);setOffset(s.serverNow-Date.now());}};
+ async function refreshWar(){if(!lease||!userId||warLock.current)return;try{const s=await getVillageWarDeclarations(lease);if(alive.current){setWar(s);if(!warPending)setWarError('');}}catch(e){if(alive.current)setWarError(e instanceof Error?e.message:'선전포고 현황을 불러오지 못했습니다.');}}
+ async function declareWar(townId:string,retry?:{id:string;townId:string}){
+  if(!lease||!userId||warLock.current||warPending&&!retry||pending)return;
+  const request=retry??{id:crypto.randomUUID(),townId};
+  warLock.current=true;setWarBusy(true);setWarError('');
+  if(!retry){if(warKey)localStorage.setItem(warKey,JSON.stringify(request));setWarPending(request);}
+  try{
+   const result=await declareVillageWar(lease,request);
+   if(!alive.current)return;
+   setWar(result.state);if(warKey)localStorage.removeItem(warKey);setWarPending(null);
+   setWarError('');
+  }catch(e){
+   if(!alive.current)return;
+   if(e instanceof WarDeclarationRejected){if(warKey)localStorage.removeItem(warKey);setWarPending(null);}
+   setWarError(e instanceof Error?e.message:'선전포고 결과를 확인하지 못했습니다. 재확인이 필요합니다.');
+  }finally{warLock.current=false;if(alive.current)setWarBusy(false);}
+ }
  async function refresh(){if(lock.current||!lease||!userId)return;lock.current=true;setBusy(true);try{accept(await getVillageLife(lease));if(alive.current)setError('');}catch(e){if(alive.current)setError(e instanceof Error?e.message:'생활 상태를 불러오지 못했습니다.');}finally{lock.current=false;if(alive.current)setBusy(false);}}
- useEffect(()=>{alive.current=true;if(key)try{const raw=localStorage.getItem(key);if(raw){const r=JSON.parse(raw);if(validGatherRequest(r)||validLifeAction(r)){setPending(r);setMessage('이전 생활 결과를 다시 확인해 주세요.');}else localStorage.removeItem(key);}}catch{}void refresh();return()=>{alive.current=false;};},[]);
+ useEffect(()=>{alive.current=true;if(key)try{const raw=localStorage.getItem(key);if(raw){const r=JSON.parse(raw);if(validGatherRequest(r)||validLifeAction(r)){setPending(r);setMessage('이전 생활 결과를 다시 확인해 주세요.');}else localStorage.removeItem(key);}}catch{}
+  if(warKey)try{const raw=localStorage.getItem(warKey);if(raw){const r=JSON.parse(raw);if(validWarDeclarationRequest(r)){setWarPending(r);setWarError('이전 선전포고 결과를 재확인해 주세요.');}else localStorage.removeItem(warKey);}}catch{}
+  void refresh();void refreshWar();return()=>{alive.current=false;};},[]);
  useEffect(()=>{if(state&&now+offset>=state.nextResetAt&&now>=resetRetryAt.current&&!lock.current){resetRetryAt.current=now+15000;void refresh();}},[now,state?.nextResetAt,offset]);
- useEffect(()=>{const focus=()=>void refresh();window.addEventListener('focus',focus);return()=>window.removeEventListener('focus',focus);},[]);
+ useEffect(()=>{if(lease&&userId)void refreshWar();},[lease?.leaseId,userId]);
+ useEffect(()=>{const focus=()=>{void refresh();void refreshWar();};window.addEventListener('focus',focus);return()=>window.removeEventListener('focus',focus);},[]);
  async function travel(town:string){if(lock.current||pending||!lease)return;lock.current=true;setBusy(true);setError('');try{accept(await travelVillage(lease,town));if(alive.current)setMessage('마을 이동을 저장했습니다.');}catch(e){if(alive.current)setError(e instanceof Error?e.message:'이동 결과를 다시 확인해 주세요.');}finally{lock.current=false;if(alive.current)setBusy(false);}}
  async function gather(resource:LifeResource,retry?:GatherRequest){if(lock.current||!lease||!state||pending&&!retry)return;const r=retry??{id:crypto.randomUUID(),town:state.location,resource,count};lock.current=true;setBusy(true);setError('');try{
   if(!retry){if(key)localStorage.setItem(key,JSON.stringify(r));setPending(r);}
@@ -43,6 +65,7 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
  const disabled=busy||!lease||!!pending;
  return <div className="tc-world-page">
   <VillageLifeNotice error={error} pending={!!pending} busy={busy} canRetry={!!lease} onRetry={retryPending}/>
-  {view==='craft'?<section className={'tc-life tc-craft-page'+((error||pending&&!busy)?' tc-craft-notice':'')} aria-label="아이템 제작"><header className="tc-life-header"><div><small>{state.towns.find(t=>t.id===state.location)?.name} · 행동력 {state.actionPoints}/100</small><h1>제작 공방</h1></div><div className="tc-life-navigation"><button className="tc-action secondary" disabled={busy} onClick={()=>void refresh()} aria-label="재고 새로고침">↻</button><button className="tc-action secondary" onClick={onInventory}>가방</button><button className="tc-action secondary" onClick={onHome}>거점</button></div></header><CraftScreen state={state} confirmedResult={craftResult} busy={disabled} count={count} recipe={recipe} onRecipe={setRecipe} onCount={setCount} onCraft={id=>void action('craft',id)} onTravel={id=>void travel(id)} onMap={()=>{setMessage('');setView('map');}}/></section>:view==='map'?<WorldMapScreen currentId={state.location} towns={state.towns} busy={disabled} actionPoints={state.actionPoints} onTravel={id=>void travel(id)} onLife={()=>{setMessage('');setView(initialView==='craft'?'craft':'life');}}/>:<LifeScreen state={state} busy={disabled} count={count} now={now+offset} message={message} onCount={setCount} onGather={r=>void gather(r)} onBack={()=>setView('map')} onRefresh={()=>void refresh()} onInventory={onInventory} onWell={()=>void action('well','well')}/>}
+  {warPending&&view==='map'&&<div className="tc-life-error" role="alert"><span>이전 선전포고 결과를 확인해야 합니다.</span><button disabled={warBusy||!lease} onClick={()=>void declareWar(warPending.townId,warPending)}>선전포고 결과 재확인</button></div>}
+  {view==='craft'?<section className={'tc-life tc-craft-page'+((error||pending&&!busy)?' tc-craft-notice':'')} aria-label="아이템 제작"><header className="tc-life-header"><div><small>{state.towns.find(t=>t.id===state.location)?.name} · 행동력 {state.actionPoints}/100</small><h1>제작 공방</h1></div><div className="tc-life-navigation"><button className="tc-action secondary" disabled={busy} onClick={()=>void refresh()} aria-label="재고 새로고침">↻</button><button className="tc-action secondary" onClick={onInventory}>가방</button><button className="tc-action secondary" onClick={onHome}>거점</button></div></header><CraftScreen state={state} confirmedResult={craftResult} busy={disabled} count={count} recipe={recipe} onRecipe={setRecipe} onCount={setCount} onCraft={id=>void action('craft',id)} onTravel={id=>void travel(id)} onMap={()=>{setMessage('');setView('map');}}/></section>:view==='map'?<WorldMapScreen currentId={state.location} towns={state.towns} busy={disabled||warBusy} actionPoints={state.actionPoints} war={war} warError={warError} warBusy={warBusy} warPending={!!warPending} onDeclareWar={id=>void declareWar(id)} onTravel={id=>void travel(id)} onLife={()=>{setMessage('');setView(initialView==='craft'?'craft':'life');}}/>:<LifeScreen state={state} busy={disabled} count={count} now={now+offset} message={message} onCount={setCount} onGather={r=>void gather(r)} onBack={()=>setView('map')} onRefresh={()=>void refresh()} onInventory={onInventory} onWell={()=>void action('well','well')}/>}
  </div>;
 }
