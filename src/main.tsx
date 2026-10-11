@@ -44,7 +44,7 @@ import type {MarketIntent} from './components/market/marketNavigation';
 import {GoldExchangeScreen} from './components/market/GoldExchangeScreen';
 import {SealScreen} from './components/seal/SealScreen';
 import {AssociationScreen} from './components/association/AssociationScreen';
-import {OccupationScreen} from './components/occupation/OccupationScreen';
+import {OccupationWarEntry} from './components/occupation/OccupationWarEntry';
 import {JobsScreen,type JobTab} from './components/JobsScreen';
 import {SettingsDialog} from './components/SettingsDialog';
 import {applySettings} from './settings/preferences';
@@ -441,7 +441,7 @@ function App(){
     onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}
     onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('원정단');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
    />}
-   {page==='occupation'&&<OccupationScreen onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
+   {page==='occupation'&&<OccupationWarEntry game={game} nickname={playerNickname} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='jobs'&&<JobsScreen
     game={game}
     setGame={setGame}
