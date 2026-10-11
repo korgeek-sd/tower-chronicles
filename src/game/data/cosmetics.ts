@@ -201,6 +201,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"거대한 눈을 중심으로 수많은 눈이 박힌 백금빛 고리와 사슬 장식이 교차하는 천사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"cain",name:"카인",rarity:"SR",imagePath:"assets/characters/appearances/cain-4fa9381195d0.webp",
+  description:"이마에 붉은 표식을 새기고 돌칼과 사슬에 묶인 돌을 든 방랑자.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
