@@ -16,7 +16,7 @@ test('NOVAR HUB V2: profile and always-on chat use real character and hunting va
  assert.match(home,/tc-camp-chat-dock/);
 });
 test('NOVAR HUB V2: major actions and every former utility route remain connected',()=>{
- for(const title of ['제작','직능목록','골드 거래소','협회 인장','점령전','생물록','우편함','설정'])
+ for(const title of ['제작','외형 목록','골드 거래소','협회 인장','점령전','생물록','우편함','설정'])
   assert.ok(home.includes(`name:'${title}'`),title);
  for(const route of ['craft','skills','stats','gold-exchange','occupation','bestiary','inventory','settings','seal'])
   assert.ok(home.includes(`onMove('${route}')`),route);

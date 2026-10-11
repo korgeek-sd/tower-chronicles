@@ -18,7 +18,7 @@ test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
 test('HOME JOB SHORTCUT 02: existing job shortcut opens the job list instead of duplicating the gacha entry',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
- assert.match(home,/name:'직능목록'/);
+ assert.match(home,/name:'외형 목록'/);
  assert.match(home,/id:'jobs-list'/);
  assert.match(home,/onOpenJobs\('list'\)/);
 });
