@@ -1,18 +1,22 @@
 import {useEffect,useRef,useState} from 'react';
+import {createPortal} from 'react-dom';
 import {loadChatAssociation,type ChatAssociation,loadChatMessages,sendChatMessage,subscribeChatMessages,mergeChatMessages,validateChatBody,type ChatMessage,type ChatStatus} from '../online/chat';
 import './world-chat.css';
-export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname?:string;enabled:boolean}){
+export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:string|null;nickname?:string;enabled:boolean;inlineAtHome?:boolean}){
+ const [inlineHost,setInlineHost]=useState<HTMLElement|null>(null);
+ useEffect(()=>{setInlineHost(inlineAtHome?document.getElementById('tc-camp-chat-dock'):null);},[inlineAtHome]);
  const [open,setOpen]=useState(false),[messages,setMessages]=useState<ChatMessage[]>([]),[status,setStatus]=useState<ChatStatus>('connecting');
  const [draft,setDraft]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[unread,setUnread]=useState(0),[loading,setLoading]=useState(false),[retry,setRetry]=useState(0),[cooldown,setCooldown]=useState(false);
  const [association,setAssociation]=useState<ChatAssociation|null>(null),[channel,setChannel]=useState<'world'|'association'>('world');
  const associationId=channel==='association'?association?.id??null:null;
  const channelName=channel==='association'?'원정단 채팅':'전체 채팅';
- useEffect(()=>{if(!enabled)return;let disposed=false;const check=()=>void loadChatAssociation().then(a=>{if(!disposed){setAssociation(a);if(!a)setChannel('world');}}).catch(()=>{});check();const timer=open?setInterval(check,30000):null;return()=>{disposed=true;if(timer)clearInterval(timer);};},[enabled,open]);
+ const isInline=inlineAtHome&&inlineHost!==null&&!open;
+ useEffect(()=>{if(!enabled)return;let disposed=false;const check=()=>void loadChatAssociation().then(a=>{if(!disposed){setAssociation(a);if(!a)setChannel('world');}}).catch(()=>{});check();const timer=open||inlineAtHome?setInterval(check,30000):null;return()=>{disposed=true;if(timer)clearInterval(timer);};},[enabled,open,inlineAtHome]);
  useEffect(()=>{const show=()=>{setOpen(true);void loadChatAssociation().then(a=>{setAssociation(a);if(a)setChannel('association');}).catch(()=>{});};window.addEventListener('tower-open-association-chat',show);return()=>window.removeEventListener('tower-open-association-chat',show);},[]);
  const [viewport,setViewport]=useState<{height:number;top:number}|null>(null);
- const openRef=useRef(open),busyRef=useRef(false),scroller=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),entry=useRef<HTMLButtonElement>(null);
+ const openRef=useRef(open),inlineRef=useRef(inlineAtHome),busyRef=useRef(false),scroller=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),entry=useRef<HTMLButtonElement>(null);
  const request=useRef<{body:string;id:string}|null>(null),cooldownTimer=useRef<ReturnType<typeof setTimeout>|null>(null),nearBottom=useRef(true),loadGeneration=useRef(0);
- openRef.current=open;
+ openRef.current=open;inlineRef.current=inlineAtHome;
  useEffect(()=>{
   if(!enabled||!userId)return;
   let disposed=false;setMessages([]);setStatus('connecting');setDraft('');request.current=null;
@@ -26,7 +30,7 @@ export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname
   const stop=subscribeChatMessages(userId,message=>{
    if(disposed)return;
    setMessages(old=>mergeChatMessages(old,[message]));
-   if(!openRef.current&&message.userId!==userId)setUnread(n=>Math.min(99,n+1));
+   if(!openRef.current&&!inlineRef.current&&message.userId!==userId)setUnread(n=>Math.min(99,n+1));
   },next=>{if(disposed)return;setStatus(next);if(next==='subscribed')void load();},associationId);
   const resume=()=>{if(document.visibilityState==='visible')void load();};
   document.addEventListener('visibilitychange',resume);
@@ -35,7 +39,7 @@ export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname
  useEffect(()=>{if(!open||!window.visualViewport)return;const v=window.visualViewport;const update=()=>setViewport({height:v.height,top:v.offsetTop});update();v.addEventListener('resize',update);v.addEventListener('scroll',update);return()=>{v.removeEventListener('resize',update);v.removeEventListener('scroll',update);setViewport(null);};},[open]);
  useEffect(()=>()=>{if(cooldownTimer.current)clearTimeout(cooldownTimer.current);},[]);
  useEffect(()=>{if(open){nearBottom.current=true;setUnread(0);input.current?.focus();scroller.current?.scrollTo({top:scroller.current.scrollHeight});}},[open]);
- useEffect(()=>{if(open&&nearBottom.current)scroller.current?.scrollTo({top:scroller.current.scrollHeight});},[messages,open]);
+ useEffect(()=>{if((open||isInline)&&nearBottom.current)scroller.current?.scrollTo({top:scroller.current.scrollHeight});},[messages,open,isInline]);
  const close=()=>{setOpen(false);entry.current?.focus();};
  async function send(){
   if(!enabled||!userId||busyRef.current||cooldown)return;
@@ -50,7 +54,16 @@ export function WorldChat({userId,nickname,enabled}:{userId:string|null;nickname
   finally{busyRef.current=false;setBusy(false);input.current?.focus();}
  }
  return <>
-  <button ref={entry} className="tc-chat-entry" aria-label={unread?`전체 채팅, 새 메시지 ${unread}개`:'전체 채팅'} aria-expanded={open} onClick={()=>setOpen(true)}>채팅{unread>0&&<b>{unread}</b>}</button>
+  {isInline&&inlineHost&&createPortal(<section className="tc-chat-inline" aria-label="노바르 실시간 채팅">
+   <header className="tc-chat-inline-heading"><strong>노바르 채팅</strong><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'연결 중'}</span><button type="button" className="tc-chat-inline-expand" onClick={()=>setOpen(true)}>확대 ↗</button></header>
+   <nav className="tc-chat-inline-channels" aria-label="채팅 채널"><button type="button" aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button type="button" disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단'}</button></nav>
+   <div className="tc-chat-inline-messages" ref={scroller} role="log" aria-label={channelName+' 메시지'} aria-live="polite" onScroll={()=>{const el=scroller.current;if(el)nearBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<60;}}>
+    {!enabled?<p className="tc-chat-inline-hint">{userId?'플레이 세션에 연결하면 채팅할 수 있습니다.':'Google 로그인 후 채팅할 수 있습니다.'}</p>:loading&&messages.length===0?<p className="tc-chat-inline-hint">채팅 불러오는 중…</p>:messages.length===0?<p className="tc-chat-inline-hint">첫 메시지를 남겨보세요.</p>:messages.map(m=><article key={m.id} className={m.userId===userId?'mine':''}><b>{m.nickname}</b><span>{m.body}</span><time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</time></article>)}
+   </div>
+   {error&&<div className="tc-chat-inline-error" role="alert">{error}<button type="button" onClick={()=>setRetry(n=>n+1)}>재연결</button></div>}
+   <form className="tc-chat-inline-form" onSubmit={e=>{e.preventDefault();void send();}}><input ref={input} value={draft} disabled={!enabled||busy} maxLength={200} autoComplete="off" aria-label="채팅 메시지" placeholder={enabled?'채팅 메시지 입력...':'로그인 후 이용 가능'} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&e.nativeEvent.isComposing)e.preventDefault();}}/><button disabled={!enabled||busy||cooldown||!!validateChatBody(draft).error}>{busy?'전송 중':'전송'}</button></form>
+  </section>,inlineHost)}
+  {!inlineAtHome&&<button ref={entry} className="tc-chat-entry" aria-label={unread?`전체 채팅, 새 메시지 ${unread}개`:'전체 채팅'} aria-expanded={open} onClick={()=>setOpen(true)}>채팅{unread>0&&<b>{unread}</b>}</button>}
   {open&&<div className="tc-chat-backdrop" style={viewport?{top:viewport.top,height:viewport.height,bottom:'auto'}:undefined} onClick={close}><section className="tc-chat-panel" style={viewport?{maxHeight:viewport.height}:undefined} role="dialog" aria-modal="true" aria-labelledby="tc-chat-title" onClick={e=>e.stopPropagation()} onKeyDown={e=>{
    if(e.key==='Escape')close();
    if(e.key==='Tab'){const items=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled)'));const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}

@@ -16,3 +16,45 @@
 .tc-battle-mode>.tc-chat-entry:hover,.tc-battle-mode>.tc-chat-entry:focus-visible,.tc-event-mode>.tc-chat-entry:hover,.tc-event-mode>.tc-chat-entry:focus-visible{opacity:1}
 .tc-chat-channels{display:flex;gap:5px;padding:7px 12px;border-bottom:1px solid #373c30}.tc-chat-channels button{min-height:36px;padding:0 12px;border:1px solid #5d634c;background:#171d15;color:#b4b99f;font-size:11px}.tc-chat-channels button[aria-pressed=true]{background:#39432b;color:#e1d7b8;border-color:#87916c}
 @media(prefers-reduced-motion:reduce){.tc-chat-entry{transition:none}.tc-chat-entry[data-dragging=true]{transform:none}}
+
+/* Reuse the single WorldChat subscription in a permanently mounted home dock.
+ * The modal and floating entry remain intact on other screens. */
+.tc-chat-inline{
+ height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+ background:radial-gradient(ellipse at 100% 50%,#3d302218,transparent 65%),#111311;
+ color:#d8c6a4;font-family:system-ui,sans-serif;
+}
+.tc-chat-inline-heading{
+ height:31px;min-height:31px;display:flex;align-items:center;gap:8px;
+ padding:4px 9px;border-bottom:1px solid #55432c;background:linear-gradient(90deg,#251e19,#141815);
+}
+.tc-chat-inline-heading strong{font:700 13px "Noto Serif KR",Georgia,serif;color:#f1d5a3;white-space:nowrap}
+.tc-chat-inline-heading .tc-chat-status{margin-left:auto;font-size:9px;white-space:nowrap}
+.tc-chat-inline-expand{flex:0 0 auto;min-height:26px;padding:2px 6px;border:1px solid #745d3a;background:#292820;color:#e5ca9b;font-size:10px}
+.tc-chat-inline-channels{height:29px;min-height:29px;display:flex;gap:3px;padding:2px 8px;border-bottom:1px solid #352f28}
+.tc-chat-inline-channels button{flex:1;min-width:0;min-height:23px;padding:1px 5px;border:1px solid #53432e;background:#20201a;color:#bcb19a;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-chat-inline-channels button[aria-pressed=true]{border-color:#a5844f;background:#655039;color:#fff0c8}
+.tc-chat-inline-channels button:disabled{opacity:.5}
+.tc-chat-inline-messages{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:3px 8px;scrollbar-width:thin;scrollbar-color:#5d4c36 #161713}
+.tc-chat-inline-messages article{display:grid;grid-template-columns:minmax(55px,28%) minmax(0,1fr) auto;gap:5px;align-items:start;padding:4px 0;border-bottom:1px solid #41392b77;font-size:10px;line-height:1.3}
+.tc-chat-inline-messages article b{min-width:0;color:#d6b77f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-chat-inline-messages article:nth-child(3n+2) b{color:#92b3de}
+.tc-chat-inline-messages article:nth-child(3n+3) b{color:#a5c990}
+.tc-chat-inline-messages article.mine b{color:#e4cf90}
+.tc-chat-inline-messages article span{min-width:0;color:#e0d5c0;overflow-wrap:anywhere;white-space:pre-wrap}
+.tc-chat-inline-messages article time{font-size:9px;color:#8f8879;white-space:nowrap}
+.tc-chat-inline-hint{margin:7px 2px;color:#b3a992;font-size:10px}
+.tc-chat-inline-error{display:flex;gap:5px;align-items:center;padding:2px 6px;color:#e8b7a3;font-size:9px}
+.tc-chat-inline-error button{border:1px solid #85634d;background:#392a21;color:#e0bd8b;font-size:9px}
+.tc-chat-inline-form{flex:0 0 39px;display:flex;align-items:center;gap:5px;padding:4px 7px;border-top:1px solid #655035;background:#181a17}
+.tc-chat-inline-form input{flex:1;min-width:0;height:30px;padding:3px 8px;font-size:12px;border:1px solid #64543c;border-radius:3px;outline-offset:0;background:#0e1010;color:#efe0c6}
+.tc-chat-inline-form input:disabled{opacity:.65}
+.tc-chat-inline-form button{flex:0 0 57px;height:30px;min-height:30px;padding:0 6px;border:1px solid #b9925a;background:linear-gradient(#795a34,#3d2c20);font-size:12px;color:#fff1ce}
+.tc-chat-inline-form button:disabled{opacity:.5}
+@media(max-height:640px){
+ .tc-chat-inline-heading{height:27px;min-height:27px}
+ .tc-chat-inline-channels{height:25px;min-height:25px}
+ .tc-chat-inline-form{flex-basis:33px;padding:2px 5px}
+ .tc-chat-inline-form input,.tc-chat-inline-form button{height:27px;min-height:27px}
+ .tc-chat-inline-messages article{padding:3px 0}
+}

@@ -3401,3 +3401,105 @@ html,body,#root{
 .tc-camp-links [data-facility="mail"],.tc-camp-links [data-facility="settings"]{min-height:44px}
 .tc-camp-mail-dot{display:inline-block;width:6px;height:6px;margin-left:6px;border-radius:50%;background:#8f3c32;vertical-align:middle}
 .tc-camp-with-world{grid-template-rows:minmax(210px,1fr) auto auto auto;overflow-y:auto;overscroll-behavior:contain}
+
+/* Novar home V2 — illustration-led lobby, fixed live chat at the foot of the shell.
+ * Scoped so other pages and the original camp components keep their existing styles. */
+.tc-camp-v2-screen{min-height:0;overflow:hidden}
+.tc-camp-v2-screen .tc-screen-body{min-height:0;overflow:hidden;padding-top:5px}
+.tc-camp-v2{
+ height:100%;min-height:0;display:grid;
+ grid-template-rows:minmax(75px,1.1fr) minmax(65px,.82fr) minmax(139px,1.5fr) minmax(135px,2.2fr);
+ gap:6px;overflow:hidden;
+ color:#e9dcc5;
+}
+.tc-camp-v2 button{font-family:inherit;cursor:pointer}
+.tc-camp-v2 button:focus-visible{outline:2px solid #e8be70;outline-offset:2px}
+.tc-camp-v2-dossier{
+ display:grid;grid-template-columns:minmax(56px,24%) minmax(0,1fr) 21px;
+ gap:7px;align-items:center;min-height:0;overflow:hidden;padding:5px 7px;
+ border:1px solid #846340;border-radius:5px;
+ background:radial-gradient(ellipse at 16% 85%,#75503355,transparent 55%),linear-gradient(125deg,#241c18,#131514);
+ box-shadow:inset 0 0 0 1px #d7ae5840,0 2px 9px #0009;
+}
+.tc-camp-v2-portrait{
+ width:100%;height:100%;min-height:0;overflow:hidden;display:grid;place-items:center;
+ background:linear-gradient(180deg,#2c261f,#101312);border:1px solid #705b41;color:#c9a66a;
+}
+.tc-camp-v2-portrait img{width:100%;height:100%;object-fit:contain;object-position:center center}
+.tc-camp-v2-portrait>.tc-glyph{font-size:36px}
+.tc-camp-v2-bio{display:flex;flex-direction:column;align-items:stretch;min-width:0;gap:3px}
+.tc-camp-v2-bio>strong{font:700 clamp(14px,3.8vw,19px)/1.15 "Noto Serif KR",Georgia,serif;color:#f3d9a3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-camp-v2-bio>span{font-size:10px;color:#baaf9b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-camp-v2-bio>span small{font-size:9px;color:#e0c07c;margin-left:4px}
+.tc-camp-v2-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin-top:3px}
+.tc-camp-v2-stats>span{min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 1px;background:#0c1213aa;border:1px solid #504533}
+.tc-camp-v2-stats b{font-size:9px;color:#ad9b79}
+.tc-camp-v2-stats strong{font:700 clamp(11px,3vw,14px)/1.15 ui-monospace,monospace;color:#f1debc;white-space:nowrap}
+.tc-camp-v2-stats>span:first-child b{color:#dc7c75}
+.tc-camp-v2-profile-link{align-self:stretch;min-width:0;border:0;background:transparent;color:#dbbc7c;font-size:22px}
+.tc-camp-v2-primary{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
+.tc-camp-v2-primary button{
+ display:grid;grid-template-columns:25px minmax(0,1fr) 12px;align-items:center;gap:4px;
+ min-width:0;min-height:0;height:100%;padding:5px 7px;text-align:left;
+ border:1px solid #b68b54;border-radius:5px;
+ background:linear-gradient(110deg,#6e332cf2,#251814fa);
+ box-shadow:inset 0 0 0 1px #e0b36e40,inset 0 -3px #26120e,0 2px 6px #0008;
+ color:#fae3b8;
+}
+.tc-camp-v2-primary .tc-camp-v2-world{background:linear-gradient(110deg,#5a4b2c,#1b2422);border-color:#907e56}
+.tc-camp-v2-primary .tc-glyph{font-size:22px;justify-self:center;color:#f5c785}
+.tc-camp-v2-primary button span{min-width:0;display:flex;flex-direction:column;gap:4px}
+.tc-camp-v2-primary button b{font:700 clamp(13px,3.6vw,17px)/1.1 "Noto Serif KR",Georgia,serif;white-space:nowrap}
+.tc-camp-v2-primary button small{font-size:9px;color:#c8b39b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-camp-v2-primary i{font-size:21px;font-style:normal;color:#e9c681}
+.tc-camp-v2-facilities{
+ position:relative;min-height:0;display:grid;grid-template-rows:25px minmax(0,1fr);
+ gap:3px;padding:5px 6px 7px;
+ border:1px solid #79603d;border-radius:4px;
+ background:linear-gradient(180deg,#30271c,#151513);
+ box-shadow:inset 0 0 0 1px #d2a35d22;
+}
+.tc-camp-v2-facility-heading{display:flex;justify-content:space-between;align-items:center;gap:4px;min-width:0;padding-inline:3px}
+.tc-camp-v2-facility-heading>b{font:700 12px "Noto Serif KR",Georgia,serif;color:#e7c794}
+.tc-camp-v2-facility-heading button{padding:2px 6px;font-size:10px;color:#dec48b;background:transparent;border:0}
+.tc-camp-v2-quick{min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:4px}
+.tc-camp-v2-quick button{
+ position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ padding:3px 2px;border:1px solid #6a573e;border-radius:3px;background:linear-gradient(#292a25,#141c1a);
+ color:#e2d1ac;box-shadow:inset 0 0 0 1px #deb56616;
+}
+.tc-camp-v2-quick button .tc-glyph{font-size:clamp(18px,4vw,23px);line-height:1;color:#d5b16f}
+.tc-camp-v2-quick button>span:nth-child(2){font-size:clamp(9px,2.7vw,11px);font-weight:700;white-space:nowrap}
+.tc-camp-v2-quick button>small{position:absolute;top:2px;right:3px;padding:1px 3px;border-radius:9px;background:#a34434;color:#fff;font-size:9px}
+.tc-camp-v2-extra{
+ position:absolute;top:32px;inset-inline:6px;z-index:8;max-height:calc(100% - 38px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;
+ overflow-y:auto;padding:5px;background:#1b1b17;border:1px solid #8d6b40;box-shadow:0 8px 25px #000e;
+}
+.tc-camp-v2-extra button{display:flex;align-items:center;gap:6px;min-height:38px;padding:4px 6px;background:#282922;border:1px solid #655537;color:#ebd7ac;text-align:left;font-size:11px}
+.tc-camp-v2-extra .tc-glyph{color:#d5ad68}
+.tc-camp-v2-extra-access{display:none}
+.tc-camp-v2-chat-dock{
+ min-height:0;height:100%;overflow:hidden;background:#0c1110;
+ border:1px solid #90734d;border-radius:5px;box-shadow:0 -2px 8px #0007;
+}
+@media(max-height:740px){
+ .tc-camp-v2{grid-template-rows:minmax(62px,1fr) minmax(58px,.78fr) minmax(118px,1.45fr) minmax(115px,2fr);gap:4px}
+ .tc-camp-v2-bio{gap:1px}
+ .tc-camp-v2-stats{margin-top:1px}
+ .tc-camp-v2-primary button{padding:4px}
+ .tc-camp-v2-facilities{grid-template-rows:20px minmax(0,1fr);padding:3px 5px 5px}
+ .tc-camp-v2-quick button .tc-glyph{font-size:18px}
+}
+@media(max-height:590px){
+ .tc-camp-v2{grid-template-rows:minmax(55px,.9fr) minmax(48px,.7fr) minmax(98px,1.35fr) minmax(95px,1.9fr);gap:3px}
+ .tc-camp-v2-stats strong{font-size:10px}
+ .tc-camp-v2-primary button small{display:none}
+ .tc-camp-v2-quick button{gap:0}
+ .tc-camp-v2-quick button .tc-glyph{font-size:16px}
+ .tc-camp-v2-quick button>span:nth-child(2){font-size:9px}
+}
+@media(max-width:340px){
+ .tc-camp-v2-primary button{grid-template-columns:20px minmax(0,1fr) 8px}
+ .tc-camp-v2-primary .tc-glyph{font-size:18px}
+ .tc-camp-v2-primary button b{font-size:12px}
+}

@@ -1,4 +1,4 @@
-import React,{useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState,Tower,Potion} from '../../game/types';
 import {CONFIG,POTIONS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
 import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
@@ -11,54 +11,71 @@ import {assetUrl} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
+import {getHuntingState} from '../../online/hunting';
+import type {GameplayLease} from '../../online/gameSession';
+import {huntingLevel,type HuntingState} from '../../game/hunting/model';
 
 export type AppPage='craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop';
 
-export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void}){
- const equipment=game.expedition?.equipment??game.equipped,st=stats(game,equipment),weaponId=weaponOf(game,equipment),weapon=WEAPONS[weaponId],equippedWeapon=equippedItem(game,'weapon',equipment),job=jobById(game.currentJobId);
- const highestReturn=Math.max(...towerIds.map(t=>game.exploration.highestReturned[t]));
- const loot=game.expedition?.loot??game.lastExpedition?.loot,lootSummary=loot?lootTotals(loot):{materials:0,tickets:0,skillBooks:0,equipment:0},routeKills=game.expedition?.kills??game.lastExpedition?.kills??0;
- const routeTitle=game.expedition?'진행 중인 원정':game.lastExpedition?'최근 원정':'탐험 기록';
- const routeText=game.expedition?`${TOWERS[game.expedition.tower].name} · ${game.expedition.floor}층 원정 중`:game.lastExpedition?`${TOWERS[game.lastExpedition.tower].name} · ${game.lastExpedition.floor}층 ${game.lastExpedition.outcome==='returned'?'안전 귀환':'원정 종료'}`:highestReturn?`최고 ${highestReturn}층에서 안전 귀환`:'첫 원정을 앞두고';
- const routeCaption=game.expedition?'전리품은 안전 귀환 전까지 임시 보관됩니다.':game.lastExpedition?.outcome==='returned'?'최근 귀환 기록과 획득물을 요약합니다.':'다음 출정을 준비하세요.';
- const quick=[
-  {id:'craft',glyph:'craft',title:'제작',subtitle:'포션 · 음식 · 도전권',action:()=>onMove('craft')},
-  {id:'skills',glyph:'skills',title:'스킬트리',subtitle:'등급 · 습득 현황',action:()=>onMove('skills')},
-  {id:'jobs-list',glyph:'jobs',title:'직능목록',subtitle:`보유 직능 ${game.ownedJobIds.length}종`,action:()=>onOpenJobs('list')},
-  {id:'gold-exchange',glyph:'market',title:'골드 거래소',subtitle:'Gold ↔ Silver',action:()=>onMove('gold-exchange')},
-  {id:'seal',glyph:'association',title:'협회 인장',subtitle:'20회 주조 · 30단계',action:()=>onMove('seal')},
-  {id:'occupation',glyph:'towers',title:'점령전',subtitle:'3전선 · 토 22:00',action:()=>onMove('occupation')},
-  {id:'stats',glyph:'skill',title:'스탯 분배',subtitle:'능력치 확인 · 포인트 배분',action:()=>onMove('stats')},
-  {id:'hunt',glyph:'sword',title:'사냥터',subtitle:'지역 선택 · 즉시 사냥',action:()=>onMove('hunt')},
-  {id:'bestiary',glyph:'bestiary',title:'생물록',subtitle:'발견한 생물',action:()=>onMove('bestiary')},
-  {id:'mail',glyph:'mail',title:'우편함',subtitle:mailUnread?`미확인 우편 ${mailUnread}개`:'거래 · 보상 · 공지',action:onOpenMail},
-  {id:'settings',glyph:'settings',title:'설정',subtitle:'계정 · 저장 · 환경',action:()=>onMove('settings')},
+export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
+ const [showAllFacilities,setShowAllFacilities]=useState(false);
+ const [huntStatus,setHuntStatus]=useState<Pick<HuntingState,'vitality'|'maxHp'|'maxMp'|'experience'>|null>(null);
+ useEffect(()=>{
+  let cancelled=false;
+  if(lease){
+   void getHuntingState(lease).then(state=>{if(!cancelled)setHuntStatus(state);}).catch(()=>{if(!cancelled)setHuntStatus(null);});
+  }else if(!userId){
+   try{const raw=localStorage.getItem('tower-instant-hunting-guest-v1');const stored=raw?JSON.parse(raw) as HuntingState:null;
+    setHuntStatus(stored&&typeof stored.vitality==='number'?stored:null);
+   }catch{setHuntStatus(null);}
+  }else setHuntStatus(null);
+  return()=>{cancelled=true;};
+ },[lease?.leaseId,lease?.generation,userId]);
+ const equipped=game.expedition?.equipment??game.equipped;
+ const st=stats(game,equipped),weaponId=weaponOf(game,equipped),job=jobById(game.currentJobId);
+ const portrait=job?.visualAssetKey?assetUrl(job.visualAssetKey):null;
+ const mainFacilities=[
+  {id:'craft',glyph:'craft',name:'제작',action:()=>onMove('craft')},
+  {id:'skills',glyph:'skills',name:'스킬트리',action:()=>onMove('skills')},
+  {id:'stats',glyph:'skill',name:'스탯 분배',action:()=>onMove('stats')},
+  {id:'gold-exchange',glyph:'market',name:'골드 거래소',action:()=>onMove('gold-exchange')},
+  {id:'occupation',glyph:'towers',name:'점령전',action:()=>onMove('occupation')},
+  {id:'mail',glyph:'mail',name:'우편함',action:onOpenMail}
  ];
- return <Screen title="노바르 거점" className="tc-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
-  <div className="tc-camp tc-camp-with-world">
-   <section className="tc-camp-dossier" aria-label="모험가 기록">
-    <header className="tc-camp-dossier-title"><Glyph name="association"/><b>모험가 기록</b><small>{game.expedition?'EXPEDITION':'NOVAR DOSSIER'}</small></header>
-    <div className="tc-camp-profile">
-     <div className={'tc-camp-crest'+(job?.visualAssetKey?' has-job-art':'')} aria-hidden="true">{job?.visualAssetKey?<img src={assetUrl(job.visualAssetKey)} alt=""/>:<><span/><Glyph name={weaponId}/></>}</div>
-     <div className="tc-camp-identity"><small>{job?(nickname?job.displayName:'현재 직능'):'직능 미선택'}{job&&<span>{job.rarity}</span>}</small><h2>{nickname??job?.displayName??'모험가'}</h2><p>{weapon.description}</p></div>
-     <button className="tc-camp-weapon tc-feel-press" data-game-feel="press" onClick={()=>onMove('inventory')}><small>장착 무기</small><span className="tc-camp-weapon-icon"><Glyph name={weaponId}/></span><b>{equippedWeapon?itemName(equippedWeapon):'미장착'}</b><em>장비 확인 ›</em></button>
-    </div>
-    <dl className="tc-camp-stats"><div><dt>최대 체력</dt><dd>{Math.round(st.hp)}</dd></div><div><dt>공격</dt><dd>{Math.round(st.attack)}</dd></div><div><dt>방어</dt><dd>{Math.round(st.defense)}</dd></div><div><dt>공격속도</dt><dd>{st.speed.toFixed(2)}</dd></div></dl>
-   </section>
-   <section className="tc-camp-expedition" aria-label="원정">
-    <div className="tc-camp-expedition-copy">
-     <div className="tc-camp-route"><Glyph name="towers"/><div><small>{routeTitle}</small><b>{routeText}</b><p>{routeCaption}</p></div></div>
-     <div className="tc-camp-loot" aria-label={game.expedition?'현재 원정 획득물':'최근 원정 기록'}>
-      <span><Glyph name="market"/><small>Silver</small><b>{(loot?.silver??0).toLocaleString()}</b></span>
-      <span><Glyph name="materials"/><small>재료</small><b>{lootSummary.materials}</b></span>
-      <span><Glyph name="equipment"/><small>장비</small><b>{lootSummary.equipment}</b></span>
-      <span><Glyph name="sword"/><small>처치</small><b>{routeKills}</b></span>
+ const extraFacilities=[
+  {id:'bestiary',glyph:'bestiary',name:'생물록',action:()=>onMove('bestiary')},
+  {id:'jobs-list',glyph:'jobs',name:'직능목록',action:()=>onOpenJobs('list')},
+  {id:'seal',glyph:'association',name:'협회 인장',action:()=>onMove('seal')},
+  {id:'association',glyph:'association',name:'원정단',action:()=>onMove('association')},
+  {id:'inventory',glyph:'equipment',name:'장비 확인',action:()=>onMove('inventory')},
+  {id:'settings',glyph:'settings',name:'설정',action:()=>onMove('settings')}
+ ];
+ return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
+  <div className="tc-camp-v2" aria-label="노바르 거점 로비">
+   <section className="tc-camp-v2-dossier" aria-label="캐릭터 정보">
+    <div className="tc-camp-v2-portrait">{portrait?<img src={portrait} alt="현재 직업 캐릭터"/>:<Glyph name={weaponId}/>}</div>
+    <div className="tc-camp-v2-bio">
+     <strong>{nickname??'모험가'}</strong>
+     <span>{job?.displayName??'직업 미선택'} {job?.rarity&&<small>{job.rarity}</small>} · Lv.{huntStatus?huntingLevel(huntStatus.experience):'—'}</span>
+     <div className="tc-camp-v2-stats">
+      <span><b>HP</b><strong>{Math.round(huntStatus?.maxHp??st.hp).toLocaleString()}</strong></span>
+      <span><b>MP</b><strong>{huntStatus?.maxMp?.toLocaleString()??'—'}</strong></span>
+      <span><b>활력</b><strong>{huntStatus?.vitality.toLocaleString()??'—'}</strong></span>
      </div>
     </div>
-    <button className="tc-camp-depart tc-feel-press" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span>{game.expedition?'원정으로 돌아가기':'사냥하기'}</span><span aria-hidden="true">›</span></button>
+    <button type="button" className="tc-camp-v2-profile-link" aria-label="캐릭터 스탯 확인" onClick={()=>onMove('stats')}>›</button>
    </section>
-   <button className="tc-action tc-feel-press" onClick={()=>onMove('world')}>마을 이동 · 10개 마을과 중앙 도시 ›</button>
-   <nav className="tc-camp-links" aria-label="거점 시설">{quick.map(item=><button className="tc-feel-press" data-game-feel="press" data-facility={item.id} key={item.id} aria-label={item.id==='mail'&&mailUnread?`우편함 · 미확인 우편 ${mailUnread}개`:undefined} onClick={item.action}><span className="tc-camp-link-icon"><Glyph name={item.glyph}/></span><span><b>{item.title}{item.id==='mail'&&mailUnread>0&&<span className="tc-camp-mail-dot" aria-hidden="true"/>}</b><small>{item.subtitle}</small></span><i aria-hidden="true">›</i></button>)}</nav>
+   <nav className="tc-camp-v2-primary" aria-label="주요 행동">
+    <button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span><b>{game.expedition?'원정 복귀':'사냥하기'}</b><small>{game.expedition?'진행 중인 원정으로':'사냥터에서 전투 시작'}</small></span><i>›</i></button>
+    <button type="button" className="tc-camp-v2-world tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/><span><b>마을 이동</b><small>10개 마을 · 중앙 도시</small></span><i>›</i></button>
+   </nav>
+   <section className="tc-camp-v2-facilities" aria-label="거점 시설">
+    <div className="tc-camp-v2-facility-heading"><b>거점 시설</b><button type="button" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'접기':'전체 시설'} <span aria-hidden="true">›</span></button></div>
+    <nav className="tc-camp-v2-quick" aria-label="주요 시설">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/><span>{item.name}</span>{item.id==='mail'&&mailUnread>0&&<small aria-label={'미확인 우편 '+mailUnread+'개'}>{mailUnread}</small>}</button>)}</nav>
+    {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설">{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
+    {!showAllFacilities&&<span className="tc-camp-v2-extra-access" data-facility="bestiary" aria-hidden="true"/>}
+   </section>
+   <section id="tc-camp-chat-dock" className="tc-camp-v2-chat-dock" aria-label="거점 실시간 채팅"/>
   </div>
  </Screen>;
 }
