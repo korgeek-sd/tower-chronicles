@@ -114,3 +114,21 @@ test('appearance cards expose ownership and equipped state without changing avai
  assert.match(html,/class="tc-appearance-state">미보유<\/span>/);
  assert.match(html,/disabled=""[^>]*>미보유<\/button>/);
 });
+
+
+test('mobile collection detail stays in document flow without covering required cards or action buttons',()=>{
+ const css=readFileSync(new URL('../src/components/mobile/iron-catalog.css',import.meta.url),'utf8');
+ const catalog=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)\s*\{([^}]*)\}/)?.[1]??'';
+ assert.match(catalog,/display:\s*flex/,'collection view needs natural vertical layout');
+ assert.match(catalog,/flex-direction:\s*column/,'collection sections should stack vertically');
+ assert.match(catalog,/overflow-y:\s*auto/,'short screens must scroll rather than clip details');
+ const list=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)>\.tc-collection-list\s*\{([^}]*)\}/)?.[1]??'';
+ assert.match(list,/overflow-y:\s*auto/,'the 65 entries must remain independently scrollable');
+ const detail=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)>\.tc-collection-detail\s*\{([^}]*)\}/)?.[1]??'';
+ assert.match(detail,/display:\s*flex/,'detail must not compress its cards into fixed grid rows');
+ assert.match(detail,/flex-direction:\s*column/);
+ assert.match(detail,/height:\s*auto/);
+ assert.match(detail,/overflow:\s*visible/);
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
+ assert.ok(html.indexOf('tc-collection-required')<html.indexOf('tc-collection-detail-actions'),'requirement cards must precede action buttons');
+});
