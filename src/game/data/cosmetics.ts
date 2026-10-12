@@ -231,6 +231,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"굽은 뿔과 붉은 꼬리를 지니고 거대한 창을 든 악마.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"puppeteer",name:"인형술사",rarity:"SSR",imagePath:"assets/characters/appearances/puppeteer-69a01b8c8f3e.webp",
+  description:"검은 베일과 긴 은발을 지니고 붉은 실로 관절 인형을 조종하는 인형술사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
