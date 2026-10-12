@@ -25,6 +25,16 @@ test('every existing skill grade has its own color, including the S grade',()=>{
  });
  assert.equal(new Set(colors).size,GRADES.length);
 });
+test('compact filters reserve room for six cards and effect text cannot flex-shrink',()=>{
+ const css=readFileSync(new URL('../src/components/skills/iron-skill-tree.css',import.meta.url),'utf8');
+ for(const group of ['tabs','types','families']){
+  assert.match(css,new RegExp('\\.tc-skill-tree-'+group+' button[^}]*min-height:28px'));
+ }
+ assert.match(css,/\.tc-skill-grade-select\{[^}]*min-height:28px/);
+ assert.match(css,/\.tc-skill-codex-effect\{[^}]*line-height:1\.4;min-height:1\.4em;flex-shrink:0/);
+ assert.match(css,/\.tc-skill-codex-grid\{[^}]*flex:1 1 auto;min-height:0;grid-auto-rows:minmax\(86px,max-content\)/);
+ assert.match(css,/button\.tc-skill-codex-card\{[^}]*display:grid/);
+});
 test('skill browse content scrolls independently of the learn, enhance and market bar',()=>{
  const game=initialState();game.learned=['sword_strike_c'];game.skillBooks={sword_strike_c:10};game.market.gold=10000;
  const html=renderToStaticMarkup(React.createElement(SkillTreeScreen,{game,onHome:()=>{},initialSkillId:'sword_strike_c',onEnhance:()=>{},onMarket:()=>{}}));
