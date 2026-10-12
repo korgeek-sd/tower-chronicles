@@ -161,7 +161,6 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const ownedSet=new Set(owned);
  const collectible=APPEARANCES.filter(a=>a.rarity);
  const ownedCount=collectible.filter(a=>ownedSet.has(a.id)).length;
- const completeCount=APPEARANCE_SETS.filter(s=>collectionSetProgress(s,owned,registeredIds).complete).length;
  const relevant=APPEARANCE_SETS.filter(s=>{
   const p=collectionSetProgress(s,owned,registeredIds);
   if(rarity!=='ALL'&&s.rarity!==rarity)return false;
