@@ -94,3 +94,23 @@ test('appearance list uses portrait-sized art and keeps supplied colors when uno
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  assert.match(source,/artReady\?' has-art':''/);
 });
+
+test('metal collection exposes rarity independently from ownership and selected collection',()=>{
+ const game=initialState();game.cosmetics.unlockedAppearanceIds.push(APPEARANCES[1].id);
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game,setGame:()=>{}}));
+ assert.match(html,/tc-iron-catalog/);
+ for(const rarity of APPEARANCE_RARITIES)assert.match(html,new RegExp('data-rarity="'+rarity+'"'));
+ assert.match(html,/tc-collection-token is-owned rarity-C[^>]*data-rarity="C"/);
+ assert.match(html,/tc-collection-token is-missing rarity-B[^>]*data-rarity="B"/);
+ assert.match(html,/aria-current="true"/);
+ assert.match(html,/자동 등록/);
+});
+
+test('appearance cards expose ownership and equipped state without changing available actions',()=>{
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance'}));
+ assert.match(html,/data-owned="true" data-equipped="true"/);
+ assert.match(html,/data-owned="false" data-equipped="false"/);
+ assert.match(html,/class="tc-appearance-state">착용 중<\/span>/);
+ assert.match(html,/class="tc-appearance-state">미보유<\/span>/);
+ assert.match(html,/disabled=""[^>]*>미보유<\/button>/);
+});
