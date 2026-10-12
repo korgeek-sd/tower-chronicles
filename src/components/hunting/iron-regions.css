@@ -34,7 +34,7 @@
 .tc-hunt[data-view="regions"] .tc-hunt-region-info{min-height:44px;padding:2px 0;border:0;background:transparent;font-size:12px;color:#ebcf94;text-decoration:underline;text-underline-offset:3px}
 .tc-hunt[data-view="regions"] .tc-hunt-enter{min-height:64px;border:4px solid transparent;border-image:var(--region-active) 24 fill stretch;border-radius:0;background:#211912;padding:4px;font-size:17px}
 .tc-hunt[data-view="regions"] .tc-hunt-enter:disabled{border-image-source:var(--region-disabled)}
-.tc-hunt[data-view="regions"] .tc-hunt-hint{flex-shrink:0;font-size:10px;line-height:1.3}
+.tc-hunt[data-view="regions"] .tc-hunt-hint{flex-shrink:0;min-height:44px;padding-right:68px;display:flex;flex-direction:column;justify-content:center;font-size:10px;line-height:1.3}
 .tc-hunt[data-view="regions"] button:focus-visible{outline:2px solid #f2ce88;outline-offset:-2px}
 .tc-hunt-region-dialog{width:min(440px,calc(100vw - 24px));max-height:calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:10px;color:#eee0c2;background:#151713;border:4px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/panel.webp') 24 fill stretch;overflow:hidden}
 .tc-hunt-region-dialog::backdrop{background:#000b}

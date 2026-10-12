@@ -7,6 +7,7 @@ import {initialState} from '../src/game/engine/state';
 import {initialHuntingState,resolveHunt,HUNT_MAPS} from '../src/game/hunting/model';
 import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
 import {HUNT_EQUIPMENT_RATES} from '../src/game/hunting/equipmentDrops';
+import {readFileSync} from 'node:fs';
 
 test('selected region details use the actual encounter pool and absolute equipment rates',()=>{
  for(const map of HUNT_MAPS){
@@ -28,4 +29,8 @@ test('region entry availability follows vitality and pending state, independentl
   const enter=html.match(/<button class="tc-hunt-enter[^>]*>/)?.[0]??'';
   assert.equal(enter.includes('disabled=""'),busy||!hunting||hunting.vitality===0);
  }
+});
+test('region footer reserves the closed chat footprint below the entry action',()=>{
+ const css=readFileSync('src/components/hunting/iron-regions.css','utf8');
+ assert.match(css,/\.tc-hunt\[data-view="regions"\] \.tc-hunt-hint\{[^}]*min-height:44px;[^}]*padding-right:68px/);
 });
