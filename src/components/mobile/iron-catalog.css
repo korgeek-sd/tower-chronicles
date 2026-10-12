@@ -76,3 +76,55 @@
 .tc-iron-catalog-screen .tc-collection-modal{padding:10px;max-height:90%;max-width:496px}
 .tc-iron-catalog-screen .tc-collection-register-confirm{min-height:46px}
 @media(max-width:360px){.tc-iron-catalog-screen .tc-cosmetics-item{gap:5px}.tc-iron-catalog-screen .tc-collection-tools{grid-template-columns:minmax(0,1fr) 68px 68px}.tc-iron-catalog-screen .tc-collection-action{font-size:9px}.tc-iron-catalog-screen .tc-collection-action .tc-glyph{font-size:11px}}
+
+
+/* Portrait collection overflow repair.
+   The shared game shell has a finite height, but collection requirements and
+   44px touch actions must keep their intrinsic height. Scroll the collection
+   view instead of squeezing the detail's children into overlapping grid rows.
+   The independent appearance-list layout remains unchanged. */
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode){
+ display:flex;
+ flex-direction:column;
+ min-height:0;
+ height:100%;
+ overflow-y:auto;
+ overflow-x:hidden;
+ overscroll-behavior-y:contain;
+ -webkit-overflow-scrolling:touch;
+}
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>*{
+ flex-shrink:0;
+}
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-list{
+ flex:0 0 clamp(112px,22dvh,174px);
+ min-height:112px;
+ max-height:174px;
+ overflow-y:auto;
+}
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-detail{
+ display:flex;
+ flex-direction:column;
+ height:auto;
+ min-height:0;
+ overflow:visible;
+}
+.tc-iron-catalog-screen .tc-collection-detail-hero,
+.tc-iron-catalog-screen .tc-collection-detail-requirements,
+.tc-iron-catalog-screen .tc-collection-detail-actions{
+ flex:0 0 auto;
+}
+.tc-iron-catalog-screen .tc-collection-required{
+ grid-auto-rows:minmax(88px,auto);
+ align-items:start;
+}
+.tc-iron-catalog-screen .tc-collection-required-item{
+ min-height:0;
+ height:auto;
+ padding:3px 0 5px;
+ justify-content:flex-start;
+}
+.tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-token,
+.tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-gear-token{
+ flex:0 0 52px;
+}
