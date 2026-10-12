@@ -164,3 +164,27 @@ test('hidden collection header does not collapse its screen body to the shared 4
  assert.match(appearances,/class="tc-cosmetics-items"/);
  assert.match(appearances,/외형 소환/);
 });
+
+
+test('collection keeps the list full-height and opens its details only as an accessible bottom sheet',()=>{
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
+ const css=readFileSync(new URL('../src/components/mobile/iron-catalog.css',import.meta.url),'utf8');
+ const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
+ assert.match(html,/class="tc-collection-list"[^>]*role="list"/);
+ assert.match(html,/aria-haspopup="dialog"/);
+ assert.match(html,/class="tc-collection-sheet-backdrop" hidden=""/);
+ assert.match(html,/class="tc-collection-sheet" role="dialog" aria-modal="true"/);
+ assert.match(html,/aria-label="컬렉션 상세 닫기"/);
+ assert.match(html,/class="tc-collection-detail-actions"/);
+ assert.match(html,/장비 등록/);
+ assert.match(source,/setDetailOpen\(true\)/);
+ assert.match(source,/setDetailOpen\(false\)/);
+ assert.match(source,/onTouchEnd=/,'the sheet grip supports a downward swipe');
+ assert.match(css,/\.tc-collection-sheet-backdrop\[hidden\]\s*\{[^}]*display:\s*none\s*!important/);
+ assert.match(css,/\.tc-collection-sheet-backdrop\s*\{[^}]*position:\s*fixed/);
+ assert.match(css,/\.tc-collection-sheet\s*\{[^}]*max-height:/);
+ assert.match(css,/\.tc-collection-sheet-scroll\s*\{[^}]*overflow-y:\s*auto/);
+ const list=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)>\.tc-collection-list\s*\{([^}]*)\}/)?.[1]??'';
+ assert.match(list,/flex:\s*1 1 auto/);
+ assert.match(list,/overflow-y:\s*auto/);
+});
