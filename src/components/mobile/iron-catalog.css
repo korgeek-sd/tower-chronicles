@@ -132,7 +132,7 @@
 
 /* Compact, single-viewport collection and appearance archive.
    Only the collection list / appearance cards scroll; the catalog itself does not. */
-.tc-iron-catalog-screen{grid-template-rows:minmax(0,1fr)}
+.tc-screen.tc-iron-catalog-screen{grid-template-rows:minmax(0,1fr)}
 .tc-iron-catalog-screen>.tc-screen-body{padding-top:0}
 .tc-iron-catalog-screen .tc-cosmetics-catalog{
  gap:3px;
