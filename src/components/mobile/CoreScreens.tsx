@@ -213,12 +213,9 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
   document.addEventListener('keydown',escape);
   return()=>document.removeEventListener('keydown',escape);
  },[appearanceDetails,relatedAppearance]);
- return <Screen eyebrow="APPEARANCE COLLECTION" title={tab==='appearance'?'외형 도감':'컬렉션'} className="tc-cosmetics-catalog-screen tc-iron-catalog-screen" meta={<span>{completeCount} / {APPEARANCE_SETS.length} 완성</span>}>
+ return <Screen title={tab==='appearance'?'외형 도감':'컬렉션'} className="tc-cosmetics-catalog-screen tc-iron-catalog-screen" hideHeader>
   <div className={"tc-cosmetics-catalog tc-iron-catalog"+(tab==="collection"?"":" listing-mode")}>
-   <div className="tc-collection-top">
-    <span className="tc-collection-top-mark"><Glyph name="bestiary"/></span>
-    <span>탑의 기록 <b>{tab==='appearance'?'외형 도감':'컬렉션'}</b><small>COLLECTION ARCHIVE · 완성 {completeCount} / {APPEARANCE_SETS.length}</small></span>
-   </div>
+
    {tab==='appearance'&&onSummon?<Segments items={[['summon','외형 소환'],['appearance','외형 목록']] as const} value="appearance" onChange={value=>{if(value==='summon')onSummon();}} label="외형 메뉴"/>:<Segments items={[['collection','컬렉션'],['appearance','외형 목록']] as const} value={tab} onChange={changeTab} label="컬렉션 보기"/>}
    {tab==='collection'?<>
     <div className="tc-collection-grade-tabs" role="group" aria-label="컬렉션 등급">
