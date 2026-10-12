@@ -16,6 +16,7 @@
 .tc-iron-skill-tree [data-grade=C]{--skill-rarity:#aaa69b}
 .tc-iron-skill-tree [data-grade=B]{--skill-rarity:#79ad83}
 .tc-iron-skill-tree [data-grade=A]{--skill-rarity:#7da8cb}
+.tc-iron-skill-tree [data-grade=S]{--skill-rarity:#77b4b8}
 .tc-iron-skill-tree [data-grade=SR]{--skill-rarity:#ad8ac5}
 .tc-iron-skill-tree [data-grade=SSR]{--skill-rarity:#d3ad63}
 .tc-iron-skill-tree .tc-skill-grade{border-color:var(--skill-rarity);color:var(--skill-rarity);background:#090c0e;min-width:28px;min-height:26px;font-size:11px}
