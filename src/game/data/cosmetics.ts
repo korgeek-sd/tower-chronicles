@@ -236,6 +236,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"검은 베일과 긴 은발을 지니고 붉은 실로 관절 인형을 조종하는 인형술사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"rat_king",name:"쥐들의 왕",rarity:"SR",imagePath:"assets/characters/appearances/rat_king-6235951d18fb.webp",
+  description:"낡은 왕관과 해진 로브를 걸치고 쥐 무리를 거느리며 왕홀을 든 쥐들의 왕.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
