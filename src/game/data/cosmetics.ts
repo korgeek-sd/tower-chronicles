@@ -241,6 +241,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"낡은 왕관과 해진 로브를 걸치고 쥐 무리를 거느리며 왕홀을 든 쥐들의 왕.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"association_archivist",name:"협회 기록관",rarity:"C",imagePath:"assets/characters/appearances/association_archivist-302de6b19223.webp",
+  description:"금속 기록필과 두꺼운 기록서를 들고 두루마리를 지닌 협회의 기록관.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
