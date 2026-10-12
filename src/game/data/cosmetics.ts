@@ -221,6 +221,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"검은 비늘과 거대한 날개에 사슬과 적갈색 장식을 두른 고대의 용.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"bahamut",name:"바하무트",rarity:"SSR",imagePath:"assets/characters/appearances/bahamut-46b347b4f9b6.webp",
+  description:"검은 비늘과 적갈색 지느러미를 지닌 거대한 고대 물고기.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
