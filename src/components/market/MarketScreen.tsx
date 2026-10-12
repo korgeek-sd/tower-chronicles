@@ -1,3 +1,4 @@
+import './iron-market.css';
 import {MarketGradeFilters,marketGradeMatches} from './MarketGradeFilters';
 import {SkillBookArt} from '../inventory/SkillBookArt';
 import React,{useEffect,useMemo,useState} from 'react';
@@ -138,7 +139,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
   const bestAsk=getBestAsk(game,item.id),bestBid=getBestBid(game,item.id);
   const current=trendByItem.get(item.id)?.last??bestAsk??bestBid;
   const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(game.silver/p):item.available):0;
-  return <Screen eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
+  return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
    <div className="tc-market-v4-trade">
     <section className="tc-market-v4-tradehead">
      <span className="tc-market-v2-icon"><ProductArt item={item}/></span>
@@ -156,8 +157,8 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
 
     <section className="tc-market-v4-orderform">
      <div className="tc-market-v2-fields">
-      <label><small>가격</small><input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label>
-      <label><small>수량</small><input inputMode="numeric" value={qty} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
+      <label><small>가격</small><input aria-label="주문 가격" inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label>
+      <label><small>수량</small><input aria-label="주문 수량" inputMode="numeric" value={qty} onChange={e=>setQty(e.target.value.replace(/\D/g,''))}/><span>개</span></label>
      </div>
      <div className="tc-market-v3-presets" aria-label="주문 수량 비율">{[10,25,50,75,100].map(percent=><button key={percent} disabled={maxOrderQty<=0} onClick={()=>applyPercent(percent)}>{percent===100?'MAX':percent+'%'}</button>)}</div>
      <div className="tc-market-v2-total"><span>{side==='BUY'?'예상 예치금':'지정 판매금액'}</span><b>{Number.isFinite(p*q)?money(p*q):'—'}</b></div>
@@ -178,7 +179,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
   const current=trend.last??fallback.last??bestAsk??bestBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
-  return <Screen eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):returnSkillId&&onReturnToSkill?onReturnToSkill(returnSkillId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':returnSkillId?'‹ 스킬트리':'시장'}</button>}>
+  return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):returnSkillId&&onReturnToSkill?onReturnToSkill(returnSkillId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':returnSkillId?'‹ 스킬트리':'시장'}</button>}>
    <div className="tc-market-v2-detail tc-market-v4-detail">
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">
@@ -220,7 +221,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
   </Screen>;
  }
 
- return <Screen eyebrow="SILVER SCALE / LOCAL" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
+ return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / LOCAL" title="은저울 거래소" meta={<span>{game.silver.toLocaleString()} S</span>}>
   <div className={"tc-market-v2 tc-market-v3 tc-market-v4"+(category==='equipment'||category==='skillbooks'?" has-grade-filter":"")+" tab-"+tab}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);}} label="거래소 메뉴"/>
 
