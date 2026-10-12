@@ -116,19 +116,32 @@ test('appearance cards expose ownership and equipped state without changing avai
 });
 
 
-test('mobile collection detail stays in document flow without covering required cards or action buttons',()=>{
- const css=readFileSync(new URL('../src/components/mobile/iron-catalog.css',import.meta.url),'utf8');
- const catalog=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)\s*\{([^}]*)\}/)?.[1]??'';
- assert.match(catalog,/display:\s*flex/,'collection view needs natural vertical layout');
- assert.match(catalog,/flex-direction:\s*column/,'collection sections should stack vertically');
- assert.match(catalog,/overflow-y:\s*auto/,'short screens must scroll rather than clip details');
- const list=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)>\.tc-collection-list\s*\{([^}]*)\}/)?.[1]??'';
- assert.match(list,/overflow-y:\s*auto/,'the 65 entries must remain independently scrollable');
- const detail=css.match(/\.tc-iron-catalog-screen \.tc-cosmetics-catalog:not\(\.listing-mode\)>\.tc-collection-detail\s*\{([^}]*)\}/)?.[1]??'';
- assert.match(detail,/display:\s*flex/,'detail must not compress its cards into fixed grid rows');
- assert.match(detail,/flex-direction:\s*column/);
- assert.match(detail,/height:\s*auto/);
- assert.match(detail,/overflow:\s*visible/);
+test('collection has no duplicate screen header or archive title',()=>{
  const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
- assert.ok(html.indexOf('tc-collection-required')<html.indexOf('tc-collection-detail-actions'),'requirement cards must precede action buttons');
+ assert.doesNotMatch(html,/APPEARANCE COLLECTION/);
+ assert.doesNotMatch(html,/tc-screen-head/);
+ assert.doesNotMatch(html,/tc-collection-top/);
+ assert.match(html,/role="tablist"[^>]*aria-label="컬렉션 보기"/);
+ const appearance=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance'}));
+ assert.doesNotMatch(appearance,/tc-screen-head|tc-collection-top/);
+ assert.match(appearance,/외형 목록/);
+});
+
+test('compact collection shell keeps detail and actions visible without whole-page scrolling',()=>{
+ const css=readFileSync(new URL('../src/components/mobile/iron-catalog.css',import.meta.url),'utf8');
+ const catalog=css.match(/\\.tc-iron-catalog-screen \\.tc-cosmetics-catalog:not\\(\\.listing-mode\\)\\s*\\{([^}]*)\\}/)?.[1]??'';
+ assert.match(catalog,/display:\\s*flex/);
+ assert.match(catalog,/flex-direction:\\s*column/);
+ assert.match(catalog,/overflow-y:\\s*hidden/,'do not scroll the entire collection screen');
+ const list=css.match(/\\.tc-iron-catalog-screen \\.tc-cosmetics-catalog:not\\(\\.listing-mode\\)>\\.tc-collection-list\\s*\\{([^}]*)\\}/)?.[1]??'';
+ assert.match(list,/flex:\\s*1 1 auto/,'collection list must consume the remaining viewport');
+ assert.match(list,/overflow-y:\\s*auto/,'only the collection records scroll');
+ const detail=css.match(/\\.tc-iron-catalog-screen \\.tc-cosmetics-catalog:not\\(\\.listing-mode\\)>\\.tc-collection-detail\\s*\\{([^}]*)\\}/)?.[1]??'';
+ assert.match(detail,/display:\\s*flex/);
+ assert.match(detail,/flex-direction:\\s*column/);
+ assert.match(detail,/height:\\s*auto/);
+ const appearance=css.match(/\\.tc-iron-catalog-screen \\.tc-cosmetics-catalog\\.listing-mode\\s*\\{([^}]*)\\}/)?.[1]??'';
+ assert.match(appearance,/overflow-y:\\s*hidden/,'appearance pagination stays in the viewport');
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
+ assert.ok(html.indexOf('tc-collection-required')<html.indexOf('tc-collection-detail-actions'));
 });
