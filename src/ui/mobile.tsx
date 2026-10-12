@@ -47,9 +47,9 @@ export function Glyph({name,className=''}:{name:string;className?:string}){
  return <span className={'tc-glyph '+className} aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" focusable="false"><path d={ICON_PATHS[ICON_ALIASES[name]??name]??ICON_PATHS.other}/></svg></span>;
 }
 
-export function Screen({eyebrow,title,meta,children,className=''}:{eyebrow?:string;title:string;meta?:React.ReactNode;children:React.ReactNode;className?:string}){
- return <section className={'tc-screen '+className}>
-  <header className="tc-screen-head"><div>{eyebrow&&<small>{eyebrow}</small>}<h1>{title}</h1></div>{meta&&<div className="tc-screen-meta">{meta}</div>}</header>
+export function Screen({eyebrow,title,meta,children,className='',hideHeader=false}:{eyebrow?:string;title:string;meta?:React.ReactNode;children:React.ReactNode;className?:string;hideHeader?:boolean}){
+ return <section className={'tc-screen '+className} aria-label={hideHeader?title:undefined}>
+  {!hideHeader&&<header className="tc-screen-head"><div>{eyebrow&&<small>{eyebrow}</small>}<h1>{title}</h1></div>{meta&&<div className="tc-screen-meta">{meta}</div>}</header>}
   <div className="tc-screen-body">{children}</div>
  </section>;
 }
