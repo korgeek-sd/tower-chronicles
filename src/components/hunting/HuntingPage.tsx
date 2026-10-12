@@ -9,6 +9,7 @@ import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import {HuntingScreen} from './HuntingScreen';
 import './hunting.css';
+import './iron-regions.css';
 const GUEST_KEY='tower-instant-hunting-guest-v1';
 function loadGuest():HuntingState {try{const raw=localStorage.getItem(GUEST_KEY);if(raw){const s=JSON.parse(raw);if(Number.isInteger(s.vitality)&&s.vitality>=0&&s.vitality<=100&&Number.isFinite(s.recoveredAt)&&Number.isFinite(s.experience)&&Number.isFinite(s.mastery)&&Array.isArray(s.skills))return s;}}catch{}return initialHuntingState();}
 type Props={game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;now:number;lease:GameplayLease|null;userId:string|null;nickname?:string;onPrepare:()=>Promise<void>;onPending:(pending:boolean)=>void;onRecord:(record:CloudSaveRecord)=>void};

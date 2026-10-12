@@ -7,7 +7,8 @@ import type {GameState} from '../../game/types';
 import {HUNT_MAPS,huntingProgress,huntingLevel,recoverVitality,VITALITY_INTERVAL,type HuntingState,type HuntMapId} from '../../game/hunting/model';
 import {stats} from '../../game/engine/state';
 import {assetUrl,playerGraphicForJob} from '../../game/data/graphics';
-import {equipmentItemName,EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
+import {equipmentItemName,EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADES,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
+import {HUNT_EQUIPMENT_RATES} from '../../game/hunting/equipmentDrops';
 import {Glyph} from '../../ui/mobile';
 type Props={game:GameState;hunting:HuntingState|null;now:number;busy:boolean;error?:string;nickname?:string;onHunt:(id:HuntMapId)=>void;onSettings:()=>void;onRetry?:()=>void;previewAppearance?:boolean};
 function Hp({label,value,max}:{label:string;value:number;max:number}){
@@ -38,6 +39,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  React.useEffect(()=>{if(error){pendingHunt.current=false;setSubmitting(false);}},[error]);
  function startHunt(id:HuntMapId=selected){if(huntingNow||pendingHunt.current||!hunting||hunting.vitality<1||game.expedition)return;previousResult.current=hunting?.lastResult;pendingHunt.current=true;setSubmitting(true);feel.play('hunt.start');onHunt(id);}
  const logDialog=React.useRef<HTMLDialogElement>(null);
+ const regionDialog=React.useRef<HTMLDialogElement>(null);
  const monsterSkillDialog=React.useRef<HTMLDialogElement>(null);
  const state=hunting?recoverVitality(hunting,now):null,result=state?.lastResult,map=HUNT_MAPS.find(m=>m.id===result?.mapId),player=result?.player??stats(game);
  const enemy=result?.monster??{...HUNT_MONSTERS[map?.id??'plains'][0],hp:map?.hp??1,attack:map?.attack??0,defense:map?.defense??0};
@@ -45,6 +47,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const seconds=state?Math.max(0,Math.ceil((VITALITY_INTERVAL-Math.max(0,now-state.recoveredAt))/1000)):0;
  const {level,exp,nextExp}=huntingProgress(state?.experience??0);
  const previewMode=previewAppearance??previewOpen;
+ const entryStatus=huntingNow?'사냥 중…':!state?'불러오는 중':game.expedition?'원정 진행 중':state.vitality<1?'활력 부족':'입장 가능';
  const previewJob='assets/characters/preview/grave_hound_job_reference.jpg';
  const previewHound=HUNT_MONSTERS.plains[0];
  // Normal hunting should show the equipped job, not the starter cosmetic portrait.
@@ -55,7 +58,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const enemyArt=enemy.id==='grave_digger_hound'
   ?assetUrl('assets/monsters/new/plains/grave_digger_hound.png')
   :assetUrl(activeMonster?.image??enemy.image??HUNT_MONSTERS.plains[0].image);
- return <section className={'tc-hunt'+(motionOff?' tc-hunt-motion-off':'')} data-view={view} aria-label="즉시 사냥" aria-busy={huntingNow} data-hunt-revision={feedbackRevision}>
+ return <section className={'tc-hunt'+(motionOff?' tc-hunt-motion-off':'')} data-view={view} data-art-preview={previewMode} aria-label="즉시 사냥" aria-busy={huntingNow} data-hunt-revision={feedbackRevision}>
   <header className="tc-hunt-heading"><div><small>노바르 외곽</small><h1>{view==='result'?'사냥 결과':'사냥터'}</h1></div>{view==='result'&&<span className="tc-hunt-result-vitality" aria-label={'활력 '+(state?.vitality??0)}>활력 <b>{state?.vitality.toLocaleString()??'—'}</b></span>}<span className="tc-hunt-level">Lv. {level}</span><button type="button" className="tc-hunt-config-toggle" onClick={onSettings}>전투 세팅</button>{view==='regions'&&<button type="button" className="tc-hunt-preview-toggle" aria-pressed={previewMode} onClick={()=>setPreviewOpen(value=>!value)}>{previewMode?'비교 닫기':'외형 비교'}</button>}{view==='result'&&<button className="tc-hunt-back" onClick={()=>setView('regions')}>사냥터로 <span aria-hidden="true">›</span></button>}</header>
   <div className="tc-hunt-vitality tc-hunt-panel"><Glyph name="haste"/><strong>활력 <b>{state?.vitality.toLocaleString()??'—'}</b><small>{state&&state.vitality>100?' (추가 지급)':' / 100'}</small></strong><div className="tc-hunt-energy" role="progressbar" aria-label="활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100,state?.vitality??0)}><i style={{width:Math.min(100,state?.vitality??0)+'%'}}/></div><span>{!state?'불러오는 중':state.vitality>100?'추가 지급 활력 사용 중':state.vitality===100?'충전 완료':`회복 ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}</span></div>
   {previewMode&&view==='regions'&&<section className="tc-hunt-art-preview" aria-label="무덤파는 들개 · 직업 외형 비교">
@@ -68,13 +71,20 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
   </section>}
   <div className="tc-hunt-selection" hidden={view!=='regions'}>
   <nav className="tc-hunt-cards" aria-label="사냥 지역">
-   {[...HUNT_MAPS].reverse().map((m,i)=><button key={m.id} className={'tc-hunt-card tc-feel-press '+(selected===m.id?'selected':'')} data-game-feel="press" aria-pressed={selected===m.id} disabled={huntingNow} onClick={()=>setSelected(m.id)} style={{backgroundImage:`linear-gradient(90deg,rgba(10,12,10,.88),rgba(10,12,10,.15)),url(${assetUrl('assets/backgrounds/hunting/world-map.webp')})`,backgroundSize:'100% 100%,100% 500%',backgroundPosition:`center,center ${i*25}%`}}><span><strong>{m.name}</strong><small>추천 레벨 {m.recommendedLevel}</small></span><span className="tc-hunt-card-state" aria-hidden="true">{selected===m.id?'선택됨':'›'}</span></button>)}
+   {[...HUNT_MAPS].reverse().map((m,i)=><button key={m.id} className={'tc-hunt-card tc-feel-press '+(selected===m.id?'selected':'')} data-game-feel="press" aria-pressed={selected===m.id} disabled={huntingNow} onClick={()=>setSelected(m.id)} style={{backgroundImage:`linear-gradient(90deg,rgba(10,12,10,.88),rgba(10,12,10,.15)),url(${assetUrl('assets/backgrounds/hunting/world-map.webp')})`,backgroundSize:'100% 100%,100% 500%',backgroundPosition:`center,center ${i*25}%`}}><span><strong>{m.name}</strong><small>추천 레벨 {m.recommendedLevel}</small></span><span className="tc-hunt-card-state" aria-hidden="true">{selected===m.id?'선택됨':entryStatus}</span></button>)}
   </nav>
-  <section className="tc-hunt-destination tc-hunt-panel" aria-label="선택한 사냥터"><div><h2>{destination.name}</h2><p>추천 레벨 {destination.recommendedLevel}</p><small>경험치 {destination.exp} · 실버 {destination.silver.toLocaleString()}~{destination.silverMax.toLocaleString()}</small></div><button className="tc-hunt-enter tc-feel-press" data-game-feel="press" disabled={huntingNow||!state||state.vitality<1||!!game.expedition} onClick={()=>startHunt()}>{huntingNow?'사냥 중…':'입장하기'} <small>활력 1</small></button></section>
+  <section className="tc-hunt-destination tc-hunt-panel" aria-label="선택한 사냥터"><div><h2>{destination.name}</h2><p>추천 레벨 {destination.recommendedLevel}</p><small>경험치 {destination.exp} · 실버 {destination.silver.toLocaleString()}~{destination.silverMax.toLocaleString()}</small><button type="button" className="tc-hunt-region-info" onClick={()=>regionDialog.current?.showModal()}>몬스터·드롭 정보</button></div><button className="tc-hunt-enter tc-feel-press" data-game-feel="press" disabled={huntingNow||!state||state.vitality<1||!!game.expedition} onClick={()=>startHunt()}>{huntingNow?'사냥 중…':'입장하기'} <small>활력 1</small></button></section>
   <p className="tc-hunt-hint">{huntingNow?'전투 결과를 확인하고 있습니다…':game.expedition?'진행 중인 원정을 마친 후 사냥할 수 있습니다.':state?.vitality===0?'활력이 부족합니다. 회복 후 다시 사냥하세요.':'지역을 선택하고 입장하면 즉시 사냥 결과가 표시됩니다.'}{state?.potions!==undefined&&<small className="tc-hunt-life-status">{`포션 ${state.potions.toLocaleString()} · `}{(['attack_food','defense_food','experience_food'] as const).filter(id=>(state.foodTurns?.[id]??0)>0).map(id=>`${id==='attack_food'?'공격':id==='defense_food'?'방어':'경험치'} ${state.foodTurns?.[id]}회`).join(' · ')||'음식 효과 없음'}</small>}</p>
   {error&&<div className="tc-hunt-error" role="alert">{error}{onRetry&&<button onClick={onRetry} disabled={huntingNow}>다시 확인</button>}</div>}
   {result&&<button className="tc-hunt-log-button" onClick={()=>setView('result')}>최근 사냥 결과 <span>{result.outcome==='victory'?'승리':'패배'}</span></button>}
   </div>
+  <dialog ref={regionDialog} className="tc-hunt-region-dialog" aria-label="사냥터 상세 정보">
+   <header><h2>{destination.name}</h2><button type="button" onClick={()=>regionDialog.current?.close()}>닫기</button></header>
+   <div className="tc-hunt-region-details">
+    <section><h3>등장 몬스터 · {HUNT_MONSTERS[selected].length}종</h3><ul>{HUNT_MONSTERS[selected].map(monster=><li key={monster.id}>{monster.name}</li>)}</ul></section>
+    <section><h3>장비 드롭 · 승리 1회 기준</h3><dl>{EQUIPMENT_GRADES.map((grade,index)=><div key={grade}><dt>{EQUIPMENT_GRADE_NAMES[grade]}</dt><dd>{HUNT_EQUIPMENT_RATES[selected][index]/10000}%</dd></div>)}</dl><p>해당 등급의 장비 9종 중 하나가 무작위로 나옵니다. 추천 레벨은 입장 제한이 아닙니다.</p></section>
+   </div>
+  </dialog>
   <section className="tc-hunt-result-page" aria-label="사냥 결과" hidden={view!=='result'}>
   <article className="tc-hunt-fighter tc-hunt-panel player"><div className="tc-hunt-art">{art&&<img src={assetUrl(art)} alt="탐사자"/>}</div><div className="tc-hunt-fighter-info"><h2>{nickname??'탐사자'}</h2><div className="tc-hunt-stats"><span>공격 <b>{Math.round(player.attack)}</b></span><span>방어 <b>{Math.round(player.defense)}</b></span></div><div className="tc-hunt-equipment">{(['weapon','armor'] as const).map(slot=>{const item=game.equipmentItems.find(i=>i.id===game.equipped[slot]);return <span key={slot}>{item?EQUIPMENT_DEFINITIONS[item.kind].name:slot==='weapon'?'무기 없음':'방어구 없음'}</span>;})}</div><Hp label="탐사자" value={state?.currentHp===null?player.hp:state?.currentHp??result?.playerHp??player.hp} max={player.hp}/><Mp label="탐사자" value={state?.currentMp??result?.playerMp} max={state?.maxMp??result?.playerMaxMp}/></div></article>
   {result&&map?<><article key={resultKey} data-monster-id={enemy.id} className={'tc-hunt-fighter tc-hunt-panel enemy'+(feedbackRevision?' tc-hunt-arrived':'')}><div className="tc-hunt-art"><img src={enemyArt} alt={enemy.name}/></div>{huntingNow&&<div className="tc-hunt-tracking" role="status"><Glyph name="sword"/><span>새 몬스터 추적 중…</span></div>}{!huntingNow&&feedbackRevision>0&&<i className="tc-hunt-slash" aria-hidden="true"/>}<div className="tc-hunt-fighter-info"><div className="tc-hunt-monster-title"><h2>{enemy.name}</h2>{result.monster?.skills&&<button className="tc-hunt-skill-open" type="button" onClick={()=>monsterSkillDialog.current?.showModal()}>스킬 보기</button>}</div><div className="tc-hunt-stats"><span>공격 <b>{enemy.attack}</b></span><span>방어 <b>{enemy.defense}</b></span></div><Hp label={enemy.name} value={result.monsterHp} max={enemy.hp}/><Mp label={enemy.name} value={result.monsterMp} max={result.monsterMaxMp}/></div></article>
