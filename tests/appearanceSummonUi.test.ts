@@ -25,3 +25,13 @@ test('summon navigation connects both codex entries and compact viewport layout'
  assert.ok(css.includes('minmax(0,1fr)'));
  assert.ok(css.includes('prefers-reduced-motion'));
 });
+test('iron summon footer keeps the real ticket balance and disabled actions with collection navigation',()=>{
+ const game=initialState();game.cosmetics.summonTickets=23;const before=JSON.stringify(game);
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game,onList:()=>{},onCollection:()=>{}}));
+ assert.match(html,/tc-iron-summon-screen/);
+ const footer=html.slice(html.indexOf('<footer class="tc-summon-footer"'));
+ assert.match(footer,/외형 소환권/);assert.match(footer,/23장/);assert.match(footer,/1회 소환/);assert.match(footer,/10회 소환/);assert.match(footer,/소환권 사용/);
+ assert.equal((footer.match(/disabled=""/g)??[]).length,3);
+ assert.match(footer,/컬렉션/);assert.match(footer,/서버 연결 준비 중/);
+ assert.equal(JSON.stringify(game),before);
+});

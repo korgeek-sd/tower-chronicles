@@ -1,0 +1,44 @@
+/* Real balances and disabled summon actions; preview artwork keeps its colors. */
+.tc-screen.tc-iron-summon-screen{--summon-panel:url('../../../public/assets/ui/iron-bronze/panel.webp');--summon-button:url('../../../public/assets/ui/iron-bronze/button.webp');--summon-active:url('../../../public/assets/ui/iron-bronze/button-active.webp');--summon-disabled:url('../../../public/assets/ui/iron-bronze/button-disabled.webp');grid-template-rows:32px minmax(0,1fr)}
+.tc-screen.tc-iron-summon-screen .tc-screen-head{align-items:center;padding:0 0 4px}
+.tc-screen.tc-iron-summon-screen .tc-screen-head small{display:none}
+.tc-screen.tc-iron-summon-screen .tc-screen-head h1{margin:0;font-size:18px}
+.tc-screen.tc-iron-summon-screen .tc-screen-body{padding-top:5px}
+.tc-screen.tc-iron-summon-screen .tc-appearance-summon{grid-template-rows:28px minmax(100px,1fr) 50px auto;gap:5px;padding:2px;background:#0c0f10;color:#e6d6b8}
+.tc-screen.tc-iron-summon-screen .tc-segments{height:28px;min-height:28px;gap:4px;border:0;background:none}
+.tc-screen.tc-iron-summon-screen .tc-segments button,.tc-screen.tc-iron-summon-screen .tc-summon-utilities button,.tc-screen.tc-iron-summon-screen .tc-summon-modal button{border:3px solid transparent;border-image:var(--summon-button) 24 fill stretch;background:none;box-shadow:none;border-radius:0;color:#e6d6b8}
+.tc-screen.tc-iron-summon-screen .tc-segments button{height:28px;min-height:28px;padding:1px 4px;font-size:11px}
+.tc-screen.tc-iron-summon-screen .tc-segments button[aria-selected=true]{border-image-source:var(--summon-active);color:#f5ddb4}
+.tc-screen.tc-iron-summon-screen .tc-summon-stage,.tc-screen.tc-iron-summon-screen .tc-summon-feature,.tc-screen.tc-iron-summon-screen .tc-summon-wallet,.tc-screen.tc-iron-summon-screen .tc-summon-modal{border:5px solid transparent;border-image:var(--summon-panel) 24 fill stretch;background:none;box-shadow:none}
+.tc-screen.tc-iron-summon-screen .tc-summon-arches{display:none}
+.tc-screen.tc-iron-summon-screen .tc-summon-figures{inset:4px 4px 20px;gap:4px}
+.tc-screen.tc-iron-summon-screen .tc-summon-figure{opacity:1;filter:none;color:#c4b69c;transition:none}
+.tc-screen.tc-iron-summon-screen .tc-summon-figure.is-focused{opacity:1;filter:none;color:#f5ddb4}
+.tc-screen.tc-iron-summon-screen .tc-summon-figure span{height:24px;min-height:24px;padding:2px 4px;font-size:10px;line-height:1.3;background:#090c0ed9;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tc-screen.tc-iron-summon-screen .tc-summon-figure.is-focused span{border-bottom:2px solid #d3ad63}
+.tc-screen.tc-iron-summon-screen .tc-summon-preview-note{font-size:9px;color:#b7a88e;line-height:1.3}
+.tc-screen.tc-iron-summon-screen .tc-summon-feature{gap:2px;padding:3px}
+.tc-screen.tc-iron-summon-screen .tc-summon-feature>small{display:none}
+.tc-screen.tc-iron-summon-screen .tc-summon-feature h2{font-size:16px;line-height:1.3}
+.tc-screen.tc-iron-summon-screen .tc-summon-feature>div{font-size:10px;line-height:1.4;color:#c4b69c}
+/* The complete wallet/action/navigation block stays in a reserved bottom row. */
+.tc-screen.tc-iron-summon-screen .tc-summon-footer{display:grid;grid-template-rows:48px 56px auto 32px;gap:4px;min-height:0}
+.tc-screen.tc-iron-summon-screen .tc-summon-wallet{border-width:4px}
+.tc-screen.tc-iron-summon-screen .tc-summon-wallet>div{gap:7px}
+.tc-screen.tc-iron-summon-screen .tc-summon-wallet span{font-size:10px;color:#c4b69c;gap:2px;line-height:1.3}
+.tc-screen.tc-iron-summon-screen .tc-summon-wallet b{font-size:18px;line-height:1.2;color:#ecd1a0}
+.tc-screen.tc-iron-summon-screen .tc-summon-wallet>div:last-child b{color:#f5ddb4}
+.tc-screen.tc-iron-summon-screen .tc-summon-wallet .tc-glyph{font-size:21px}
+.tc-screen.tc-iron-summon-screen .tc-summon-actions{gap:4px}
+.tc-screen.tc-iron-summon-screen .tc-summon-actions button{border:4px solid transparent;border-image:var(--summon-disabled) 24 fill stretch;background:none;box-shadow:none;opacity:1;filter:none;min-height:44px;gap:3px;color:#b8ab96}
+.tc-screen.tc-iron-summon-screen .tc-summon-actions strong{font-size:12px;line-height:1.3}
+.tc-screen.tc-iron-summon-screen .tc-summon-actions small{font-size:10px;line-height:1.3}
+.tc-screen.tc-iron-summon-screen .tc-summon-status{font-size:10px;line-height:1.4;color:#c4b69c}
+.tc-screen.tc-iron-summon-screen .tc-summon-utilities{grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:4px}
+.tc-screen.tc-iron-summon-screen .tc-summon-utilities button{min-height:32px;height:32px;font-size:10px;gap:4px;padding:1px 3px}
+.tc-screen.tc-iron-summon-screen .tc-summon-modal{padding:14px;max-height:calc(100dvh - 40px);overflow-y:auto;color:#e6d6b8}
+.tc-screen.tc-iron-summon-screen .tc-summon-modal h2{font-size:17px;line-height:1.4}
+.tc-screen.tc-iron-summon-screen .tc-summon-modal header button{min-width:44px;min-height:44px}
+.tc-screen.tc-iron-summon-screen .tc-summon-modal>.tc-action{width:100%;min-height:44px;border-image-source:var(--summon-active)}
+.tc-screen.tc-iron-summon-screen button:focus-visible{outline:2px solid #f3ca7b;outline-offset:-2px}
+@media(max-width:360px){.tc-screen.tc-iron-summon-screen .tc-summon-figure span{font-size:9px}.tc-screen.tc-iron-summon-screen .tc-summon-wallet>div{gap:4px}.tc-screen.tc-iron-summon-screen .tc-summon-wallet b{font-size:16px}.tc-screen.tc-iron-summon-screen .tc-summon-actions strong{font-size:11px}}
