@@ -256,6 +256,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"창과 검을 갖추고 노바르 외곽을 지키는 경비대원.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"mining_crew",name:"채굴반",rarity:"C",imagePath:"assets/characters/appearances/mining_crew-5995badd048d.webp",
+  description:"조명이 달린 모자를 쓰고 곡괭이와 등불을 갖춘 채굴반원.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
