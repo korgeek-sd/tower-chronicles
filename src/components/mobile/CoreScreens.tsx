@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState,Tower,Potion} from '../../game/types';
 import {CONFIG,POTIONS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
 import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
@@ -137,6 +137,10 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const [status,setStatus]=useState<'all'|'near'|'complete'|'incomplete'|'tracked'>('all');
  const [sort,setSort]=useState<'default'|'nearest'|'bonus'>('default');
  const [selectedSetId,setSelectedSetId]=useState<string>(APPEARANCE_SETS[0].id);
+ const [detailOpen,setDetailOpen]=useState(false);
+ const detailCloseRef=useRef<HTMLButtonElement|null>(null);
+ const detailTriggerRef=useRef<HTMLButtonElement|null>(null);
+ const sheetSwipeStart=useRef<number|null>(null);
  const [trackedIds,setTrackedIds]=useState<string[]>([]);
  const [favoriteIds,setFavoriteIds]=useState<string[]>([]);
  const [appearanceDetails,setAppearanceDetails]=useState<string|null>(null);
@@ -181,7 +185,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const appearances=APPEARANCES.filter(a=>ownership==='all'||(ownership==='owned'?ownedSet.has(a.id):!ownedSet.has(a.id))).filter(a=>appearanceRarity==='ALL'||a.rarity===appearanceRarity).filter(a=>!query.trim()||a.name.includes(query.trim()));
  const viewCount=appearances.length;
  const pages=Math.max(1,Math.ceil(viewCount/4)),safePage=Math.min(page,pages-1);
- const changeTab=(next:'collection'|'appearance')=>{setTab(next);setPage(0);setQuery('');};
+ const changeTab=(next:'collection'|'appearance')=>{setDetailOpen(false);setTab(next);setPage(0);setQuery('');};
  const toggle=(id:string,values:string[],setter:React.Dispatch<React.SetStateAction<string[]>>)=>setter(values.includes(id)?values.filter(x=>x!==id):[...values,id]);
  const selectedMissing=selected.appearanceIds.find(id=>!ownedSet.has(id))??selected.appearanceIds[0];
  const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
@@ -212,6 +216,29 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
   document.addEventListener('keydown',escape);
   return()=>document.removeEventListener('keydown',escape);
  },[appearanceDetails,relatedAppearance]);
+ useEffect(()=>{
+  if(!detailOpen)return;
+  const trigger=detailTriggerRef.current;
+  detailCloseRef.current?.focus();
+  const onKeyDown=(event:KeyboardEvent)=>{
+   if(document.querySelector('.tc-collection-modal-backdrop'))return;
+   if(event.key==='Escape'){event.preventDefault();setDetailOpen(false);}
+   if(event.key==='Tab'){
+    const dialog=detailCloseRef.current?.closest('[role="dialog"]');
+    if(!dialog)return;
+    const buttons=Array.from(dialog.querySelectorAll<HTMLButtonElement>('button:not([disabled])'));
+    if(!buttons.length)return;
+    const first=buttons[0],last=buttons[buttons.length-1];
+    if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){
+     event.preventDefault();last.focus();
+    }else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){
+     event.preventDefault();first.focus();
+    }
+   }
+  };
+  document.addEventListener('keydown',onKeyDown);
+  return()=>{document.removeEventListener('keydown',onKeyDown);if(trigger?.isConnected)trigger.focus();};
+ },[detailOpen]);
  return <Screen title={tab==='appearance'?'외형 도감':'컬렉션'} className="tc-cosmetics-catalog-screen tc-iron-catalog-screen" hideHeader>
   <div className={"tc-cosmetics-catalog tc-iron-catalog"+(tab==="collection"?"":" listing-mode")}>
 
@@ -229,7 +256,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     <div className="tc-collection-list" role="list" aria-label="컬렉션 목록">
      {relevant.map(s=>{
       const p=collectionSetProgress(s,owned);
-      return <button type="button" role="listitem" key={s.id} className={'tc-collection-row tc-feel-press'+(selected.id===s.id?' selected':'')+(p.complete?' completed':'')} data-set-id={s.id} aria-current={selected.id===s.id?'true':undefined} onClick={()=>setSelectedSetId(s.id)}>
+      return <button type="button" role="listitem" key={s.id} className={'tc-collection-row tc-feel-press'+(selected.id===s.id?' selected':'')+(p.complete?' completed':'')} data-set-id={s.id} aria-current={selected.id===s.id?'true':undefined} aria-haspopup="dialog" aria-expanded={detailOpen&&selected.id===s.id} onClick={event=>{detailTriggerRef.current=event.currentTarget;setSelectedSetId(s.id);setDetailOpen(true);}}>
        <span className="tc-collection-row-emblem" aria-hidden="true">✦</span>
        <span className="tc-collection-row-name"><strong>{s.name}</strong><small>{COLLECTION_RARITY_NAMES[s.rarity]} · {p.complete?'완성':'미완성'}</small></span>
        <span className="tc-collection-row-bonus">{collectionSetBonusLabel(s)}<small>효과 예정</small></span>
@@ -240,8 +267,18 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
      })}
      {relevant.length===0&&<p className="tc-collection-none">조건에 맞는 컬렉션이 없어. 필터를 바꿔봐.</p>}
     </div>
-    <section className="tc-collection-detail" aria-label="선택한 컬렉션 상세" data-selected-set-id={selected.id}>
-     <div className="tc-collection-detail-hero">
+    <div className="tc-collection-sheet-backdrop" hidden={!detailOpen} role="presentation" onClick={()=>setDetailOpen(false)}>
+     <div className="tc-collection-sheet" role="dialog" aria-modal="true" aria-label="선택한 컬렉션 상세" onClick={event=>event.stopPropagation()}>
+      <div className="tc-collection-sheet-handle" aria-hidden="true"
+       onTouchStart={event=>{sheetSwipeStart.current=event.touches[0]?.clientY??null;}}
+       onTouchEnd={event=>{if(sheetSwipeStart.current!==null&&(event.changedTouches[0]?.clientY??0)-sheetSwipeStart.current>70)setDetailOpen(false);sheetSwipeStart.current=null;}}
+       onTouchCancel={()=>{sheetSwipeStart.current=null;}} />
+      <header className="tc-collection-sheet-header"><span>컬렉션 상세정보</span>
+       <button type="button" ref={detailCloseRef} aria-label="컬렉션 상세 닫기" onClick={()=>setDetailOpen(false)}>×</button>
+      </header>
+      <section className="tc-collection-detail" aria-label="선택한 컬렉션 상세" data-selected-set-id={selected.id}>
+       <div className="tc-collection-sheet-scroll">
+        <div className="tc-collection-detail-hero">
       <div className="tc-collection-detail-title"><div><span className="tc-collection-detail-sigil" aria-hidden="true">✥</span><div><small>COLLECTION RECORD · {COLLECTION_RARITY_NAMES[selected.rarity]}</small><h2>{selected.name}</h2></div></div>
        <button type="button" className={favoriteIds.includes(selected.id)?'is-favorite':''} aria-label={favoriteIds.includes(selected.id)?'즐겨찾기 해제':'즐겨찾기 추가'} aria-pressed={favoriteIds.includes(selected.id)} onClick={()=>toggle(selected.id,favoriteIds,setFavoriteIds)}>★</button>
       </div>
@@ -258,12 +295,15 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
        <div className="tc-collection-required-item"><button type="button" className={'tc-collection-gear-token '+(registeredIds.has(selected.id)?'is-owned':'is-missing')} aria-label={collectionEquipmentLabel(selected.equipment)+' · '+(registeredIds.has(selected.id)?'등록 완료':'등록 필요')} onClick={()=>{setRegisterPanel(true);setRegisterItemId('');setRegistrationError('');}}><EquipmentArt kind={selected.equipment.kind} grade={selected.equipment.grade}/></button><span title={collectionEquipmentLabel(selected.equipment)}>{collectionEquipmentLabel(selected.equipment)}</span><small className={registeredIds.has(selected.id)?'is-owned':'is-missing'}>{registeredIds.has(selected.id)?'등록 완료':'미등록'}</small></div>
       </div>
      </div>
+       </div>
      <div className="tc-collection-detail-actions">
       <button type="button" className="tc-collection-action tc-feel-press" aria-pressed={trackedIds.includes(selected.id)} onClick={()=>toggle(selected.id,trackedIds,setTrackedIds)}><Glyph name="search"/>{trackedIds.includes(selected.id)?'추적 해제':'추적'}</button>
       <button type="button" className="tc-collection-action tc-feel-press" onClick={()=>setRelatedAppearance(selectedMissing)}><Glyph name="bestiary"/>관련 컬렉션</button>
       <button type="button" className="tc-collection-action primary tc-feel-press" onClick={()=>{setRegisterPanel(true);setRegisterItemId('');setRegistrationError('');}} disabled={registeredIds.has(selected.id)}><Glyph name="armor"/>{registeredIds.has(selected.id)?'장비 등록 완료':'장비 등록'}</button>
      </div>
-    </section>
+      </section>
+     </div>
+    </div>
     <p className="tc-collection-disclaimer">65개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
    </>:<>
     <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>착용한 외형 1개만 적용 · 효과 적용 예정</small></div>
