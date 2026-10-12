@@ -1,0 +1,54 @@
+/* Presentation only: server costs, quantities and confirmed results stay authoritative. */
+.tc-iron-craft{--craft-panel:url('../../../public/assets/ui/iron-bronze/panel.webp');--craft-button:url('../../../public/assets/ui/iron-bronze/button.webp');--craft-active:url('../../../public/assets/ui/iron-bronze/button-active.webp');--craft-disabled:url('../../../public/assets/ui/iron-bronze/button-disabled.webp');--craft-slot:url('../../../public/assets/ui/iron-bronze/slot.webp');border:5px solid transparent;border-image:var(--craft-panel) 24 fill stretch;background:none;box-shadow:none;padding:6px;gap:5px}
+.tc-craft-page:has(.tc-iron-craft){gap:4px}
+.tc-craft-page:has(.tc-iron-craft)>.tc-life-header{min-height:32px}
+.tc-craft-page:has(.tc-iron-craft) .tc-life-navigation button{min-height:28px;min-width:32px;padding:2px 6px;font-size:11px}
+.tc-iron-craft button,.tc-iron-craft .tc-craft-dialog button{border:4px solid transparent;border-image:var(--craft-button) 24 fill stretch;background:none;box-shadow:none;border-radius:0;color:#e6d6b8}
+.tc-iron-craft .tc-craft-header{gap:6px;min-height:36px;padding-bottom:4px}
+.tc-iron-craft .tc-craft-header button{min-height:32px;max-width:100px;border-width:3px;padding:2px 5px;line-height:1.3}
+.tc-iron-craft .tc-workshop-location>span{font-size:12px;color:#ecd1a0}
+.tc-iron-craft .tc-workshop-location small{font-size:10px;color:#c4b69c;line-height:1.4}
+.tc-iron-craft .tc-craft-ap{min-width:84px}
+.tc-iron-craft .tc-craft-ap>span{font-size:10px;white-space:nowrap}
+.tc-iron-craft .tc-craft-scroll{grid-template-columns:clamp(62px,20%,88px) minmax(0,1fr);gap:5px;overflow:hidden}
+.tc-iron-craft .tc-item-tabs{gap:4px}
+.tc-iron-craft .tc-item-tabs button{border:4px solid transparent;border-image:var(--craft-button) 24 fill stretch;background:none;box-shadow:none;min-height:44px}
+.tc-iron-craft .tc-item-tabs button.active{border-image-source:var(--craft-active);box-shadow:inset 2px 0 #d3ad63}
+.tc-iron-craft .tc-item-tabs button.active:after{display:none}
+.tc-iron-craft .tc-item-tabs .tc-craft-art{inset:0;object-fit:contain;padding-bottom:16px}
+.tc-iron-craft .tc-item-tabs span{padding:3px 1px;font-size:10px;line-height:1.3;background:#090c0edf;color:#e6d6b8}
+.tc-iron-craft .tc-craft-board{border:4px solid transparent;border-image:var(--craft-panel) 24 fill stretch;background:none;box-shadow:none;padding:6px;gap:5px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#756044 #121414}
+.tc-iron-craft .tc-craft-result{min-height:110px;gap:3px}
+.tc-iron-craft .tc-craft-result>small{color:#c4b69c;line-height:1.4}
+.tc-iron-craft .tc-craft-result-halo{min-height:64px}
+.tc-iron-craft .tc-craft-result-halo:before,.tc-iron-craft .tc-craft-result-halo:after{display:none}
+.tc-iron-craft .tc-craft-slot{border:3px solid transparent;border-image:var(--craft-slot) 24 fill stretch;background:none;box-shadow:none;flex-shrink:0}
+.tc-iron-craft .tc-craft-product-slot{max-width:180px;max-height:180px}
+.tc-iron-craft .tc-craft-result h3{font-size:16px;overflow-wrap:anywhere}
+.tc-iron-craft .tc-craft-yield{font-size:18px}
+.tc-iron-craft .tc-craft-owned{color:#c4b69c;line-height:1.4}
+.tc-iron-craft .tc-craft-material{border:4px solid transparent;border-image:var(--craft-panel) 24 fill stretch;background:none;min-height:64px;padding:4px;gap:6px}
+.tc-iron-craft .tc-craft-material strong{color:#a9cfad;line-height:1.4}
+.tc-iron-craft .tc-craft-material[data-sufficient=false] strong{color:#e3a49a}
+.tc-iron-craft .tc-craft-material small,.tc-iron-craft .tc-craft-material strong span{color:#c4b69c}
+.tc-iron-craft .tc-craft-material em{display:block;line-height:1.4}
+.tc-iron-craft .tc-craft-slot.insufficient{box-shadow:inset 0 0 0 1px #b97c76}
+.tc-iron-craft .tc-craft-description{color:#dfd0b8;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.tc-iron-craft .tc-craft-breakdown{flex-wrap:wrap;gap:3px;font-size:10px;color:#c4b69c;line-height:1.4}
+/* Quantity selection and the primary action never enter the scrolling board. */
+.tc-iron-craft>.tc-craft-footer{flex-shrink:0;gap:4px;padding-top:4px;align-items:stretch}
+.tc-iron-craft .tc-life-quantity{gap:3px}
+.tc-iron-craft .tc-life-quantity .tc-craft-section-title{display:flex}
+.tc-iron-craft .tc-life-quantity button{min-height:32px;height:32px;border-width:3px;padding:1px 4px;font-size:11px}
+.tc-iron-craft .tc-life-quantity button[aria-pressed=true]{border-image-source:var(--craft-active);background:none}
+.tc-iron-craft .tc-craft-main{border:4px solid transparent;border-image:var(--craft-active) 24 fill stretch;background:none;box-shadow:none;min-height:44px;padding:4px 8px;font-size:13px}
+.tc-iron-craft .tc-craft-status{font-size:10px;line-height:1.4;min-height:14px;color:#a9cfad}
+.tc-iron-craft[data-craft-state=materials] .tc-craft-status,.tc-iron-craft[data-craft-state=action-points] .tc-craft-status{color:#e3a49a}
+.tc-iron-craft[data-craft-state=location] .tc-craft-status,.tc-iron-craft[data-craft-state=working] .tc-craft-status{color:#e8ca94}
+.tc-iron-craft button:disabled,.tc-iron-craft .tc-craft-dialog button:disabled{border-image-source:var(--craft-disabled);opacity:1;filter:none;color:#a99f8e}
+.tc-iron-craft .tc-craft-dialog{border:6px solid transparent;border-image:var(--craft-panel) 24 fill stretch;background:none;box-shadow:none;padding:16px;color:#e6d6b8}
+.tc-iron-craft .tc-craft-dialog-actions button:last-child{border-image-source:var(--craft-active)}
+.tc-iron-craft .tc-craft-dialog-actions button:disabled{border-image-source:var(--craft-disabled)}
+.tc-iron-craft .tc-craft-reward{border:4px solid transparent;border-image:var(--craft-slot) 24 fill stretch;background:none;box-shadow:none}
+.tc-iron-craft button:focus-visible{outline:2px solid #f3ca7b;outline-offset:-2px}
+@media(max-width:360px){.tc-iron-craft .tc-workshop-location small{font-size:9px}.tc-iron-craft .tc-craft-ap{min-width:72px}.tc-iron-craft .tc-craft-ap>span{font-size:9px}.tc-iron-craft .tc-craft-header button{max-width:72px;font-size:9px}.tc-iron-craft .tc-craft-board{padding:4px}.tc-iron-craft .tc-craft-result h3{font-size:14px}.tc-iron-craft .tc-craft-material strong{font-size:12px}}
