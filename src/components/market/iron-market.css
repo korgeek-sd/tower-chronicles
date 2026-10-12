@@ -60,6 +60,7 @@
 .tc-screen.tc-iron-market-screen .tc-market-v2-submit.sell{border-image-source:var(--market-button);color:#e3a49a}
 .tc-screen.tc-iron-market-screen .tc-market-v2-submit:disabled{border-image-source:var(--market-disabled);opacity:1;filter:none;color:#a99f8e}
 .tc-screen.tc-iron-market-screen .tc-market-v2-bookcols{min-height:0;overflow-y:auto;scrollbar-width:thin}
+.tc-screen.tc-iron-market-screen .tc-market-v2-bookcols>div{grid-template-rows:22px repeat(4,minmax(32px,1fr));overflow-y:auto;scrollbar-width:thin}
 .tc-screen.tc-iron-market-screen .tc-market-v2-bookcols button{min-height:32px;height:32px;font-size:11px;padding:2px 4px}
 .tc-screen.tc-iron-market-screen .tc-market-v2-bookcols button small,.tc-screen.tc-iron-market-screen .tc-market-v2-bookcols b,.tc-screen.tc-iron-market-screen .tc-market-v2-book header,.tc-screen.tc-iron-market-screen .tc-market-v2-book header small{font-size:10px}
 .tc-screen.tc-iron-market-screen .tc-market-v2-empty{font-size:12px;color:#c4b69c}

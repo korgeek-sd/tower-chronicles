@@ -9,6 +9,10 @@ test('local market uses the scoped metal skin while preserving search and grade 
  const html=renderToStaticMarkup(React.createElement(MarketScreen,{game:initialState(),setGame:()=>{}}));
  assert.match(html,/tc-iron-market-screen/);assert.match(html,/거래 품목 검색/);assert.match(html,/스킬북/);assert.match(html,/tc-market-v4-card/);
 });
+test('order book rows retain readable heights and scroll within their columns on short screens',()=>{
+ const css=readFileSync(new URL('../src/components/market/iron-market.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-market-v2-bookcols>div\{grid-template-rows:22px repeat\(4,minmax\(32px,1fr\)\);overflow-y:auto/);
+});
 test('local and server market share the skin on list, detail and order views with labelled order inputs',()=>{
  for(const name of ['MarketScreen','ServerMarketScreen']){
   const source=readFileSync(new URL('../src/components/market/'+name+'.tsx',import.meta.url),'utf8');
