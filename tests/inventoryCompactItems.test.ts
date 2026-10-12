@@ -43,6 +43,18 @@ test('inventory item slots show quantity and equipped status without a loadout p
  assert.match(html,/aria-label="기타"/);
 });
 
+test('metal inventory keeps every equipment grade readable with a separate equipped badge',()=>{
+ const game=initialState();
+ const grades=['common','uncommon','rare','heroic','legendary'] as const;
+ game.equipmentItems=grades.map(grade=>({id:'frame-'+grade,kind:'return_corps_plate_armor' as const,grade,enhancement:0}));
+ game.equipped.armor='frame-rare';
+ const html=renderToStaticMarkup(React.createElement(InventoryScreen,{game,setGame:()=>{},onEnhancement:()=>{}}));
+ assert.match(html,/tc-iron-inventory/);
+ for(const grade of grades)assert.match(html,new RegExp('tc-storage-item-compact grade-'+grade));
+ assert.match(html,/class="tc-storage-equipped-tag" aria-label="장착 중"[^>]*>E<\/em>/);
+ assert.match(html,/aria-label="현재 장비보다 상위 등급"/);
+});
+
 test('stack counts show exact grouped quantities but omit single items and equipment',()=>{
  const items=unifiedInventoryView(initialState(),{materials:{herb:200},products:{potion:3000,attack_food:1}} as any);
  const count=(id:string)=>renderToStaticMarkup(React.createElement(InventoryStackCount,{item:items.find(i=>i.lifeMaterial===id||i.lifeProduct===id)!}));
