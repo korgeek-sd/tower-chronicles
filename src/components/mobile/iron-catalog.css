@@ -268,3 +268,145 @@
  .tc-iron-catalog-screen .tc-collection-detail-requirements,
  .tc-iron-catalog-screen .tc-collection-detail-actions{flex-shrink:0}
 }
+
+
+/* Collection details bottom sheet.
+   The archive itself never scrolls; the list consumes the released height.
+   The detail sheet is fixed to the viewport and is absent from layout when hidden. */
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-list{
+ flex:1 1 auto;
+ min-height:0;
+ max-height:none;
+ overflow-y:auto;
+}
+.tc-iron-catalog-screen .tc-collection-disclaimer{display:none}
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-sheet-backdrop{
+ position:fixed;
+ inset:0;
+ z-index:90;
+ display:flex;
+ align-items:flex-end;
+ justify-content:center;
+ padding:0;
+ background:rgba(2,3,3,.78);
+ overscroll-behavior:contain;
+}
+.tc-iron-catalog-screen .tc-collection-sheet-backdrop[hidden]{display:none!important}
+.tc-iron-catalog-screen .tc-collection-sheet{
+ width:min(100%,520px);
+ height:auto;
+ max-height:min(80dvh,680px);
+ min-height:0;
+ display:grid;
+ grid-template-rows:26px 46px minmax(0,1fr);
+ border:6px solid transparent;
+ border-image:var(--iron-panel) 24 fill stretch;
+ background:#111413;
+ color:var(--catalog-paper);
+ box-shadow:0 -9px 32px #000c;
+ overflow:hidden;
+}
+.tc-iron-catalog-screen .tc-collection-sheet-handle{
+ display:grid;
+ place-items:center;
+ min-height:24px;
+ touch-action:pan-y;
+}
+.tc-iron-catalog-screen .tc-collection-sheet-handle:before{
+ content:"";
+ width:44px;
+ height:4px;
+ border-radius:99px;
+ background:#ab9270;
+}
+.tc-iron-catalog-screen .tc-collection-sheet-header{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ padding:0 7px 3px 10px;
+ border-bottom:1px solid #6b5132;
+ color:#efd5ab;
+ font-size:13px;
+ font-weight:700;
+}
+.tc-iron-catalog-screen .tc-collection-sheet-header button{
+ min-width:44px;
+ width:44px;
+ min-height:44px;
+ border:4px solid transparent;
+ border-image:var(--iron-button) 24 fill stretch;
+ background:none;
+ color:#f3ddb6;
+ font-size:24px;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail{
+ display:grid;
+ grid-template-rows:minmax(0,1fr) auto;
+ height:100%;
+ min-height:0;
+ border:none;
+ background:none;
+ box-shadow:none;
+ overflow:hidden;
+}
+.tc-iron-catalog-screen .tc-collection-sheet-scroll{
+ min-height:0;
+ padding:3px;
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ scrollbar-width:thin;
+ scrollbar-color:#90744c #151918;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-hero{
+ min-height:0;
+ gap:3px;
+ padding:5px 6px;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-story{
+ display:-webkit-box;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:3;
+ max-width:100%;
+ margin:2px 0;
+ line-height:1.35;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-stat span{
+ display:block;
+ white-space:normal;
+ flex-basis:100%;
+ line-height:1.35;
+ font-size:9px;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-requirements{
+ padding:5px 6px 10px;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-label{
+ min-height:23px;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-required{
+ grid-template-columns:repeat(6,minmax(0,1fr));
+ gap:4px;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-actions{
+ min-height:56px;
+ padding:5px 6px max(6px,env(safe-area-inset-bottom));
+ border-top:1px solid #765937;
+ background:#10120f;
+}
+.tc-iron-catalog-screen .tc-collection-sheet .tc-collection-action{
+ min-height:44px;
+ height:auto;
+ white-space:nowrap;
+ font-size:10px;
+}
+.tc-iron-catalog-screen .tc-collection-modal-backdrop{
+ z-index:110;
+}
+@media(max-width:360px){
+ .tc-iron-catalog-screen .tc-collection-sheet .tc-collection-detail-actions{gap:2px}
+ .tc-iron-catalog-screen .tc-collection-sheet .tc-collection-action{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-iron-catalog-screen .tc-collection-sheet{animation:none!important;transition:none!important}
+}
