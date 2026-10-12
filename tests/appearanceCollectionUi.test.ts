@@ -145,3 +145,22 @@ test('compact collection shell keeps detail and actions visible without whole-pa
  const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
  assert.ok(html.indexOf('tc-collection-required')<html.indexOf('tc-collection-detail-actions'));
 });
+
+
+test('hidden collection header does not collapse its screen body to the shared 43px title row',()=>{
+ const base=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ const skin=readFileSync(new URL('../src/components/mobile/iron-catalog.css',import.meta.url),'utf8');
+ assert.match(base,/\.tc-screen\{[^}]*grid-template-rows:43px minmax\(0,1fr\)/);
+ // Compound selector outranks the shared .tc-screen rule regardless of CSS import order.
+ assert.match(skin,/\.tc-screen\.tc-iron-catalog-screen\s*\{[^}]*grid-template-rows:\s*minmax\(0,1fr\)/);
+ const collection=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
+ const appearances=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance',onSummon:()=>{}}));
+ for(const markup of [collection,appearances]){
+  assert.match(markup,/<section class="tc-screen tc-cosmetics-catalog-screen tc-iron-catalog-screen"[^>]*><div class="tc-screen-body">/);
+  assert.doesNotMatch(markup,/class="tc-screen-head"/);
+ }
+ assert.match(collection,/class="tc-collection-list"/);
+ assert.match(appearances,/class="tc-cosmetics-meta"/);
+ assert.match(appearances,/class="tc-cosmetics-items"/);
+ assert.match(appearances,/외형 소환/);
+});
