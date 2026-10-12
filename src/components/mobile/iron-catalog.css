@@ -1,7 +1,7 @@
 /* Shared iron/bronze sprite skin; rarity, ownership and selection stay independent. */
 .tc-iron-catalog-screen{--iron-panel:url('../../../public/assets/ui/iron-bronze/panel.webp');--iron-slot:url('../../../public/assets/ui/iron-bronze/slot.webp');--iron-button:url('../../../public/assets/ui/iron-bronze/button.webp');--iron-active:url('../../../public/assets/ui/iron-bronze/button-active.webp');--iron-disabled:url('../../../public/assets/ui/iron-bronze/button-disabled.webp');--catalog-rarity:#aaa69b;--catalog-paper:#e6d6b8;--catalog-muted:#b39b77}
 .tc-iron-catalog-screen .tc-cosmetics-catalog{grid-template-rows:44px 44px 44px 44px 20px minmax(90px,1fr) auto auto;gap:5px;background:#0c0f10;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#756044 #121414;padding:2px}
-.tc-iron-catalog-screen .tc-cosmetics-catalog.listing-mode{grid-template-rows:44px 44px auto 44px 44px 44px minmax(150px,1fr) 44px}
+.tc-iron-catalog-screen .tc-cosmetics-catalog.listing-mode{grid-template-rows:44px auto 44px 44px 44px minmax(0,1fr) 44px;min-height:0;overflow-y:hidden;gap:3px}
 .tc-iron-catalog-screen .tc-collection-top{border:5px solid transparent;border-image:var(--iron-panel) 24 fill stretch;background:none;box-shadow:none;padding:2px 5px;gap:8px}
 .tc-iron-catalog-screen .tc-collection-top-mark{height:28px;flex-basis:28px;font-size:20px;border:0;box-shadow:none}
 .tc-iron-catalog-screen .tc-collection-top small{display:none}
@@ -88,7 +88,7 @@
  flex-direction:column;
  min-height:0;
  height:100%;
- overflow-y:auto;
+ overflow-y:hidden;
  overflow-x:hidden;
  overscroll-behavior-y:contain;
  -webkit-overflow-scrolling:touch;
@@ -97,9 +97,9 @@
  flex-shrink:0;
 }
 .tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-list{
- flex:0 0 clamp(112px,22dvh,174px);
- min-height:112px;
- max-height:174px;
+ flex:1 1 auto;
+ min-height:54px;
+ max-height:none;
  overflow-y:auto;
 }
 .tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-detail{
@@ -127,4 +127,144 @@
 .tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-token,
 .tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-gear-token{
  flex:0 0 52px;
+}
+
+
+/* Compact, single-viewport collection and appearance archive.
+   Only the collection list / appearance cards scroll; the catalog itself does not. */
+.tc-iron-catalog-screen{grid-template-rows:minmax(0,1fr)}
+.tc-iron-catalog-screen>.tc-screen-body{padding-top:0}
+.tc-iron-catalog-screen .tc-cosmetics-catalog{
+ gap:3px;
+ padding:1px 2px;
+}
+.tc-iron-catalog-screen .tc-cosmetics-catalog>.tc-segments{
+ height:44px;
+ min-height:44px;
+ gap:2px;
+}
+.tc-iron-catalog-screen .tc-collection-grade-tabs{gap:2px}
+.tc-iron-catalog-screen .tc-collection-grade-tabs button{
+ height:44px;
+ min-height:44px;
+ padding:0 1px;
+ font-size:10px;
+}
+.tc-iron-catalog-screen .tc-collection-tools{gap:3px}
+.tc-iron-catalog-screen .tc-collection-search,
+.tc-iron-catalog-screen .tc-collection-tools select{
+ height:44px;
+ min-height:44px;
+ padding-top:0;
+ padding-bottom:0;
+}
+.tc-iron-catalog-screen .tc-collection-search input{
+ height:34px;
+ line-height:34px;
+}
+.tc-iron-catalog-screen .tc-collection-heading{
+ min-height:17px;
+ padding:0 4px;
+}
+.tc-iron-catalog-screen .tc-collection-row{
+ flex-basis:54px;
+ min-height:54px;
+}
+.tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-detail{
+ flex:0 0 auto;
+}
+.tc-iron-catalog-screen .tc-collection-detail-hero{
+ min-height:0;
+ gap:2px;
+ padding:3px 5px;
+}
+.tc-iron-catalog-screen .tc-collection-detail-title h2{
+ font-size:14px;
+ margin-top:1px;
+}
+.tc-iron-catalog-screen .tc-collection-detail-story{
+ max-width:100%;
+ font-size:9px;
+ line-height:1.2;
+ -webkit-line-clamp:1;
+}
+.tc-iron-catalog-screen .tc-collection-detail-stat{
+ min-height:20px;
+ gap:3px;
+ padding:2px 3px;
+}
+.tc-iron-catalog-screen .tc-collection-detail-stat small{font-size:8px}
+.tc-iron-catalog-screen .tc-collection-detail-stat strong{font-size:12px}
+.tc-iron-catalog-screen .tc-collection-detail-stat span{display:none}
+.tc-iron-catalog-screen .tc-collection-detail-requirements{
+ padding:2px 4px;
+}
+.tc-iron-catalog-screen .tc-collection-detail-label{
+ min-height:18px;
+ flex-wrap:nowrap;
+}
+.tc-iron-catalog-screen .tc-collection-detail-label strong,
+.tc-iron-catalog-screen .tc-collection-detail-label>span{font-size:9px}
+.tc-iron-catalog-screen .tc-collection-required{
+ grid-template-columns:repeat(6,minmax(0,1fr));
+ grid-auto-rows:auto;
+ gap:2px;
+}
+.tc-iron-catalog-screen .tc-collection-required-item{
+ min-height:0;
+ height:auto;
+ padding:1px 0 2px;
+ gap:1px;
+}
+.tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-token,
+.tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-gear-token{
+ width:min(100%,44px);
+ height:46px;
+ min-height:46px;
+ flex:0 0 46px;
+}
+.tc-iron-catalog-screen .tc-collection-required-item>span,
+.tc-iron-catalog-screen .tc-collection-required-item>small{
+ font-size:8px;
+ line-height:11px;
+}
+.tc-iron-catalog-screen .tc-collection-detail-actions{
+ min-height:48px;
+ padding:2px 3px;
+ gap:2px;
+}
+.tc-iron-catalog-screen .tc-collection-action{
+ height:44px;
+ min-height:44px;
+}
+.tc-iron-catalog-screen .tc-collection-disclaimer{
+ font-size:8px;
+ line-height:11px;
+}
+.tc-iron-catalog-screen .tc-cosmetics-catalog.listing-mode .tc-cosmetics-items{
+ min-height:0;
+ overflow-y:auto;
+ overscroll-behavior:contain;
+}
+@media(max-height:740px){
+ .tc-iron-catalog-screen .tc-collection-detail-story{display:none}
+ .tc-iron-catalog-screen .tc-collection-detail-hero{padding:2px 4px}
+ .tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-token,
+ .tc-iron-catalog-screen .tc-collection-required-item>.tc-collection-gear-token{
+  height:44px;
+  min-height:44px;
+  flex-basis:44px;
+ }
+}
+@media(max-height:630px){
+ .tc-iron-catalog-screen .tc-collection-disclaimer{display:none}
+ .tc-iron-catalog-screen .tc-collection-heading{min-height:14px;font-size:8px}
+ .tc-iron-catalog-screen .tc-cosmetics-catalog:not(.listing-mode)>.tc-collection-detail{
+  flex:0 1 auto;
+  min-height:0;
+  overflow-y:auto;
+ }
+ .tc-iron-catalog-screen .tc-collection-detail-hero,
+ .tc-iron-catalog-screen .tc-collection-detail-requirements,
+ .tc-iron-catalog-screen .tc-collection-detail-actions{flex-shrink:0}
 }
