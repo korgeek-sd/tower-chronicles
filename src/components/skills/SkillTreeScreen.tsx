@@ -3,6 +3,7 @@ import type {GameState} from '../../game/types';
 import {GRADES,SKILL_TREE_CATALOG,type TreeWeapon,type TreeType,type TreeSkill} from './catalog';
 import {enhancementCost,enhancedSkill,skillEnhancementLevel} from '../../game/skills/enhancement';
 import './skillTree.css';
+import './iron-skill-tree.css';
 const weapons:[TreeWeapon,string][]=[['sword','검'],['bow','활'],['staff','스태프'],['any','공통']];
 const statusNames={learned:'습득',available:'미습득',locked:'미습득'};
 export const nextSkillSelection=(current:string|null,clicked:string):string|null=>current===clicked?null:clicked;
@@ -22,19 +23,21 @@ export function SkillTreeScreen({game,onHome,initialWeapon='sword',initialType='
  const next=skill&&cost?enhancedSkill(skill,cost.level):null;
  const owned=SKILL_TREE_CATALOG.filter(learned).length;
  const reset=()=>{setSelection(null);setFamily(null);setGrade('all');};
- return <section className="tc-skill-tree" aria-label="스킬트리">
+ return <section className="tc-skill-tree tc-iron-skill-tree" aria-label="스킬트리">
   <header className="tc-skill-tree-head"><h1>스킬트리</h1><span>습득 <b>{owned}</b> / 80</span><button onClick={onHome}>거점</button></header>
+  <section className="tc-skill-tree-browser" aria-label="스킬 목록 및 상세">
   <div role="group" className="tc-skill-tree-tabs" aria-label="무기 분류">{weapons.map(([id,name])=><button key={id} aria-pressed={weapon===id} onClick={()=>{setWeapon(id);reset();}}>{name}</button>)}</div>
   <div role="group" className="tc-skill-tree-types" aria-label="스킬 종류">{(['active','passive'] as const).map(id=><button key={id} aria-pressed={type===id} onClick={()=>{setType(id);reset();}}>{id==='active'?'액티브':'패시브'}</button>)}</div>
   <div role="group" className="tc-skill-tree-families" aria-label="스킬 계열">{(weapon==='any'&&type==='passive'?['all',...families]:families).map(id=><button key={id} aria-pressed={activeFamily===id} onClick={()=>{setFamily(id);setSelection(null);}}>{id==='all'?'전체':shown.find(s=>s.family===id)!.familyName}</button>)}<select className="tc-skill-grade-select" aria-label="등급 필터" value={grade} onChange={e=>{setGrade(e.target.value);setSelection(null);}}>{['all',...GRADES].map(id=><option key={id} value={id}>{id==='all'?'전체 등급':id}</option>)}</select></div>
   <div role="group" className="tc-skill-tree-grades" aria-label="등급 필터">{['all',...GRADES].map(id=><button key={id} aria-pressed={grade===id} onClick={()=>{setGrade(id);setSelection(null);}}>{id==='all'?'전체':id}</button>)}</div>
-  <div className="tc-skill-codex-grid" aria-label="스킬 도감">{visible.map(s=><button key={s.id} className="tc-skill-codex-card" data-status={status(s)} aria-pressed={skill?.id===s.id} aria-expanded={skill?.id===s.id} aria-label={`${s.name} · ${s.grade} · ${statusNames[status(s)]} · 소유 스킬북 ${books(s)}권`} onClick={()=>setSelection(current=>nextSkillSelection(current,s.id))}>
+  <div className="tc-skill-codex-grid" aria-label="스킬 도감">{visible.map(s=><button key={s.id} className="tc-skill-codex-card" data-grade={s.grade} data-status={status(s)} aria-pressed={skill?.id===s.id} aria-expanded={skill?.id===s.id} aria-label={`${s.name} · ${s.grade} · ${statusNames[status(s)]} · 소유 스킬북 ${books(s)}권`} onClick={()=>setSelection(current=>nextSkillSelection(current,s.id))}>
    <span className="tc-skill-codex-title"><b className="tc-skill-grade" data-grade={s.grade}>{s.grade}</b><strong>{s.name}{learned(s)&&<span className="tc-skill-plus"> +{level(s)}</span>}</strong></span>
    <span className="tc-skill-codex-effect">{enhancedSkill(s,level(s)).effect}</span>
    <span className="tc-skill-codex-meta"><span>{s.type==='active'?`MP ${s.mp}`:'상시 적용'}</span><em><span className="tc-skill-status-text">{statusNames[status(s)]} · 소유 스킬북 {books(s)}권{game.skills.includes(s.id)?' · 장착':''}</span></em></span>
   </button>)}{!visible.length&&<p className="tc-skill-codex-empty">이 등급의 스킬이 없습니다.</p>}</div>
+  </section>
   {error&&<div className="tc-skill-learn-message" role="alert">{error}{onRefresh&&<button disabled={busy} onClick={onRefresh}>현황 다시 확인</button>}</div>}
-  {skill&&<section className="tc-skill-tree-detail" aria-label="선택한 스킬 상세" aria-live="polite">
+  {skill&&<section className="tc-skill-tree-detail" data-grade={skill.grade} data-status={status(skill)} aria-label="선택한 스킬 상세" aria-live="polite">
    <header><b className="tc-skill-grade" data-grade={skill.grade}>{skill.grade}</b><h2>{skill.name}{learned(skill)&&<span className="tc-skill-plus"> +{level(skill)}</span>}</h2><small>{statusNames[status(skill)]}</small></header>
    <p>{current?.effect}</p>
    <dl><div><dt>{skill.type==='passive'?'효과':'위력'}</dt><dd>{current?.power}</dd></div><div><dt>소모 MP</dt><dd>{skill.mp}</dd></div><div><dt>{skill.type==='passive'?'적용':'발동확률'}</dt><dd>{skill.type==='passive'?'상시':`${skill.chance}%`}</dd></div><div><dt>소유 스킬북</dt><dd>{books(skill)}권</dd></div></dl>

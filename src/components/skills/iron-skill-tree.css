@@ -1,0 +1,52 @@
+/* Reuse the quest/inventory sprites; ownership and rarity have separate cues. */
+.tc-iron-skill-tree{--skill-panel:url('../../../public/assets/ui/iron-bronze/panel.webp');--skill-button:url('../../../public/assets/ui/iron-bronze/button.webp');--skill-active:url('../../../public/assets/ui/iron-bronze/button-active.webp');--skill-disabled:url('../../../public/assets/ui/iron-bronze/button-disabled.webp');--skill-rarity:#aaa69b;gap:6px;background:#0c0f10}
+.tc-iron-skill-tree .tc-skill-tree-head{min-height:44px;gap:8px}
+.tc-iron-skill-tree .tc-skill-tree-head h1{font:700 20px/1.2 Georgia,"Noto Serif KR",serif;color:#efdab6}
+/* Filters/list scroll here; selected details and the action footer stay visible. */
+.tc-iron-skill-tree .tc-skill-tree-browser{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#756044 #121414;padding:2px;scroll-padding-block:6px}
+.tc-iron-skill-tree button,.tc-iron-skill-tree .tc-skill-grade-select{border:4px solid transparent;border-image:var(--skill-button) 24 fill stretch;background:none;border-radius:0;box-shadow:none;min-height:44px;max-height:none;height:auto;color:#e6d6b8;font-size:12px;padding:4px 6px}
+.tc-iron-skill-tree .tc-skill-tree-tabs button,.tc-iron-skill-tree .tc-skill-tree-types button,.tc-iron-skill-tree .tc-skill-tree-families button{min-height:44px;height:44px;max-height:none;font-size:12px;padding:2px 4px}
+.tc-iron-skill-tree .tc-skill-tree-tabs,.tc-iron-skill-tree .tc-skill-tree-types{gap:4px}
+.tc-iron-skill-tree .tc-skill-tree-families{flex-wrap:wrap;gap:4px}
+.tc-iron-skill-tree .tc-skill-tree-families button{flex:1 1 64px;white-space:normal;line-height:1.2}
+.tc-iron-skill-tree .tc-skill-grade-select{display:block;flex:0 0 96px;width:96px;max-width:96px;font:inherit;font-size:11px;min-height:44px}
+.tc-iron-skill-tree .tc-skill-tree-grades{display:none}
+.tc-iron-skill-tree button[aria-pressed=true]{border-image-source:var(--skill-active);background:none;color:#f5ddb4}
+.tc-iron-skill-tree button:disabled{border-image-source:var(--skill-disabled);color:#aaa092!important;opacity:1;cursor:not-allowed}
+.tc-iron-skill-tree [data-grade=C]{--skill-rarity:#aaa69b}
+.tc-iron-skill-tree [data-grade=B]{--skill-rarity:#79ad83}
+.tc-iron-skill-tree [data-grade=A]{--skill-rarity:#7da8cb}
+.tc-iron-skill-tree [data-grade=SR]{--skill-rarity:#ad8ac5}
+.tc-iron-skill-tree [data-grade=SSR]{--skill-rarity:#d3ad63}
+.tc-iron-skill-tree .tc-skill-grade{border-color:var(--skill-rarity);color:var(--skill-rarity);background:#090c0e;min-width:28px;min-height:26px;font-size:11px}
+.tc-iron-skill-tree .tc-skill-codex-grid{flex:1 0 160px;min-height:160px;grid-auto-rows:minmax(106px,max-content);gap:6px;padding:2px;scrollbar-width:thin;scrollbar-color:#756044 #121414}
+.tc-iron-skill-tree button.tc-skill-codex-card{border:5px solid transparent;border-image:var(--skill-panel) 24 fill stretch;border-radius:0;background:none;box-shadow:none;padding:7px;gap:6px;filter:none}
+.tc-iron-skill-tree button.tc-skill-codex-card[data-status=learned]{background:none;box-shadow:inset 3px 0 #87a87b;color:#e2eedf}
+.tc-iron-skill-tree button.tc-skill-codex-card[data-status=available]{background:none;box-shadow:inset 3px 0 #d3aa5b;color:#f3dfb5}
+.tc-iron-skill-tree button.tc-skill-codex-card[data-status=locked]{background:none;box-shadow:inset 3px 0 #615d54;color:#c4baaa}
+.tc-iron-skill-tree button.tc-skill-codex-card[aria-pressed=true]{border-image-source:var(--skill-active);outline:2px solid #e3c27b;outline-offset:-2px;filter:none}
+.tc-iron-skill-tree .tc-skill-codex-title strong{font-size:13px;overflow-wrap:anywhere;line-height:1.3}
+.tc-iron-skill-tree .tc-skill-codex-effect{display:block;font-size:11px;color:#c5b79f}
+.tc-iron-skill-tree .tc-skill-codex-meta{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:11px;color:#c5b79f}
+.tc-iron-skill-tree .tc-skill-codex-meta em{font-size:11px;max-width:100%}
+.tc-iron-skill-tree .tc-skill-status-text{white-space:normal;line-height:1.4;overflow-wrap:anywhere}
+.tc-iron-skill-tree .tc-skill-codex-card[data-status=learned] em{color:#a9cfad}
+.tc-iron-skill-tree .tc-skill-codex-card[data-status=available] em{color:#efd29d}
+.tc-iron-skill-tree .tc-skill-codex-card[data-status=locked] em,.tc-iron-skill-tree .tc-skill-codex-card[data-status=locked] .tc-skill-codex-title strong{color:#c4baaa}
+.tc-iron-skill-tree .tc-skill-tree-detail,.tc-iron-skill-tree .tc-skill-actions{border:5px solid transparent;border-image:var(--skill-panel) 24 fill stretch;background:none;padding:8px;box-shadow:none}
+.tc-iron-skill-tree .tc-skill-tree-detail{flex:0 1 auto;min-height:64px;max-height:30%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#756044 #121414}
+.tc-iron-skill-tree .tc-skill-tree-detail header{flex-wrap:wrap}
+.tc-iron-skill-tree .tc-skill-tree-detail h2{font-size:16px}
+.tc-iron-skill-tree .tc-skill-tree-detail p{color:#c5b79f;font-size:12px;line-height:1.5}
+.tc-iron-skill-tree .tc-skill-tree-detail small{padding:3px 5px;border:1px solid #796344;color:#efdab6}
+.tc-iron-skill-tree .tc-skill-tree-detail[data-status=learned] small{border-color:#708f72;color:#a9cfad}
+.tc-iron-skill-tree .tc-skill-tree-detail dd{font-size:15px}
+.tc-iron-skill-tree .tc-skill-actions{flex-shrink:0;position:relative;z-index:1;gap:6px}
+.tc-iron-skill-tree .tc-skill-action-cost{font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.tc-iron-skill-tree .tc-skill-action-cost small{font-size:11px;color:#c5b79f}
+.tc-iron-skill-tree .tc-skill-actions .tc-skill-learn,.tc-iron-skill-tree .tc-skill-actions .tc-skill-enhance{border-image-source:var(--skill-active)}
+.tc-iron-skill-tree .tc-skill-actions button:disabled{border-image-source:var(--skill-disabled)}
+.tc-iron-skill-tree .tc-skill-action-buttons{gap:6px}
+.tc-iron-skill-tree .tc-skill-learn-message{padding:6px;line-height:1.5}
+.tc-iron-skill-tree button:focus-visible,.tc-iron-skill-tree select:focus-visible{outline:2px solid #f3ca7b;outline-offset:-2px}
+@media(max-width:360px){.tc-iron-skill-tree .tc-skill-codex-title{gap:4px}.tc-iron-skill-tree .tc-skill-codex-title strong{font-size:12px}.tc-iron-skill-tree .tc-skill-codex-card{padding:5px}.tc-iron-skill-tree .tc-skill-action-buttons button{font-size:11px}}
