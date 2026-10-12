@@ -3,3 +3,11 @@ const board:QuestBoard={daily:['hunt','craft','gather'].map((id,i)=>({id,target:
 test('quest screen shows authoritative progress and exactly one action per request',()=>{const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board}));for(const label of ['의뢰','일일','주간','사냥 승리 30회','제작 10회','채집 30회','바로가기','랜덤 보상','0 / 30'])assert.ok(html.includes(label),label);assert.doesNotMatch(html,/보상 안내|배정 예시|서버 연결 준비 중/);assert.equal((html.match(/>바로가기<\/button>/g)??[]).length,3);assert.equal((html.match(/role="progressbar"/g)??[]).length,3);});
 test('completed request replaces shortcut with a single claim button; claimed is disabled',()=>{const next={...board,daily:board.daily.map((q,i)=>({...q,completed:i<2,claimed:i===1,progress:i<2?q.target:0}))};const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},onClaim:()=>{},board:next}));assert.equal((html.match(/>보상받기<\/button>/g)??[]).length,1);assert.equal((html.match(/>바로가기<\/button>/g)??[]).length,1);assert.match(html,/disabled="">수령 완료<\/button>/);});
 test('unloaded quests show no fabricated assignment or claim action',()=>{const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{}}));assert.doesNotMatch(html,/tc-quest-row|>보상받기<|>바로가기</);assert.match(html,/불러오는 중/);});
+test('quest presentation exposes progress, completed and claimed states without relying on color',()=>{
+ const next={...board,daily:board.daily.map((q,i)=>({...q,completed:i>0,claimed:i===2,progress:i>0?q.target:18}))};
+ const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},onClaim:()=>{},board:next}));
+ assert.match(html,/>일일·주간 과제<\/h1>/);
+ assert.match(html,/>일일 과제<\/button>/);assert.match(html,/>주간 과제<\/button>/);
+ for(const label of ['진행 중','완료','수령 완료'])assert.ok(html.includes(`class="tc-quest-state">${label}</span>`),label);
+ assert.equal((html.match(/tc-quest-buttons/g)??[]).length,3);
+});

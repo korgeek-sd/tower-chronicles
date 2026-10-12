@@ -1,0 +1,155 @@
+{
+  "source": "approved iron-bronze component concept, 2026-10-12",
+  "parts": {
+    "panel": {
+      "sourceRect": [
+        12,
+        84,
+        660,
+        422
+      ],
+      "size": [
+        648,
+        338
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "panel.webp"
+    },
+    "row": {
+      "sourceRect": [
+        665,
+        89,
+        1296,
+        187
+      ],
+      "size": [
+        631,
+        98
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "row.webp"
+    },
+    "button": {
+      "sourceRect": [
+        667,
+        325,
+        875,
+        424
+      ],
+      "size": [
+        208,
+        99
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "button.webp"
+    },
+    "button-active": {
+      "sourceRect": [
+        879,
+        325,
+        1084,
+        424
+      ],
+      "size": [
+        205,
+        99
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "button-active.webp"
+    },
+    "button-disabled": {
+      "sourceRect": [
+        1087,
+        325,
+        1296,
+        424
+      ],
+      "size": [
+        209,
+        99
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "button-disabled.webp"
+    },
+    "tab": {
+      "sourceRect": [
+        975,
+        470,
+        1278,
+        564
+      ],
+      "size": [
+        303,
+        94
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "tab.webp"
+    },
+    "slot": {
+      "sourceRect": [
+        1320,
+        141,
+        1539,
+        358
+      ],
+      "size": [
+        219,
+        217
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "slot.webp"
+    },
+    "meter": {
+      "sourceRect": [
+        1320,
+        391,
+        1759,
+        471
+      ],
+      "size": [
+        439,
+        80
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "meter.webp"
+    },
+    "input": {
+      "sourceRect": [
+        831,
+        615,
+        1578,
+        739
+      ],
+      "size": [
+        747,
+        124
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "input.webp"
+    },
+    "dialog": {
+      "sourceRect": [
+        12,
+        451,
+        661,
+        806
+      ],
+      "size": [
+        649,
+        355
+      ],
+      "slice": 24,
+      "displayBorder": 8,
+      "file": "dialog.webp"
+    }
+  }
+}
