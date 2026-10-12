@@ -29,3 +29,11 @@ test('appearance search spans the available row on narrow and wide layouts',()=>
 test('collection dialogs stay pinned to the visible viewport while the catalogue scrolls',()=>{
  for(const height of [590,640,844])assert.equal(computed(['tc-iron-catalog-screen','tc-collection-modal-backdrop'],'position',320,height),'fixed');
 });
+test('collection detail reserves its content height instead of collapsing requirements under the actions',()=>{
+ for(const width of [320,360,390,520])for(const height of [590,640,740,844]){
+  const detail=['tc-iron-catalog-screen','tc-collection-detail'];
+  assert.equal(computed(detail,'min-height',width,height),'max-content');
+  assert.equal(computed(detail,'grid-template-rows',width,height),'auto auto auto');
+  assert.equal(computed(['tc-iron-catalog-screen','tc-cosmetics-catalog'],'overflow-y',width,height),'auto');
+ }
+});
