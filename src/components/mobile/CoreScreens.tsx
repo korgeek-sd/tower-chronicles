@@ -7,6 +7,7 @@ import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,appearanceBonusLabel,type
 import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collectionEquipmentLabel,type AppearanceSet} from '../../game/data/appearanceSets';
 import './cosmetics-catalog.css';
 import './iron-catalog.css';
+import './iron-camp.css';
 import {EquipmentArt} from '../inventory/EquipmentArt';
 import {selectAppearance} from '../../game/engine/cosmetics';
 import {registerCollectionEquipment} from '../../game/engine/collection';
@@ -61,7 +62,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
   {id:'inventory',glyph:'equipment',name:'장비 확인',action:()=>onMove('inventory')},
   {id:'settings',glyph:'settings',name:'설정',action:()=>onMove('settings')}
  ];
- return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
+ return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen tc-iron-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
   <div className="tc-camp-v2" aria-label="노바르 거점 로비">
    <section className="tc-camp-v2-dossier" aria-label="캐릭터 정보">
     <div className="tc-camp-v2-portrait">{portrait?<img src={portrait} alt="현재 직업 캐릭터"/>:<Glyph name={weaponId}/>}</div>

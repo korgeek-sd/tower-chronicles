@@ -1,0 +1,57 @@
+/* Fixed upper sections leave the remaining shell height to the existing chat portal. */
+.tc-iron-camp-screen{
+ --camp-panel:url('../../../public/assets/ui/iron-bronze/panel.webp');
+ --camp-slot:url('../../../public/assets/ui/iron-bronze/slot.webp');
+ --camp-button:url('../../../public/assets/ui/iron-bronze/button.webp');
+ --camp-active:url('../../../public/assets/ui/iron-bronze/button-active.webp');
+}
+.tc-iron-camp-screen .tc-camp-v2{grid-template-rows:96px 64px 154px minmax(0,1fr);gap:6px}
+.tc-iron-camp-screen :is(.tc-camp-v2-dossier,.tc-camp-v2-facilities,.tc-camp-v2-chat-dock){
+ border:4px solid transparent;border-image-source:var(--camp-panel);border-image-slice:24 fill;border-image-repeat:stretch;
+ border-radius:0;background:#141512;box-shadow:none;
+}
+.tc-iron-camp-screen .tc-camp-v2-dossier{grid-template-columns:64px minmax(0,1fr) 44px;padding:4px 6px;gap:6px}
+.tc-iron-camp-screen .tc-camp-v2-portrait{border:3px solid transparent;border-image:var(--camp-slot) 24 fill stretch;background:#131512}
+.tc-iron-camp-screen .tc-camp-v2-portrait img{filter:none}
+.tc-iron-camp-screen .tc-camp-v2-bio{gap:2px}
+.tc-iron-camp-screen .tc-camp-v2-bio>strong{font-size:16px}
+.tc-iron-camp-screen .tc-camp-v2-stats{margin-top:2px;gap:4px}
+.tc-iron-camp-screen .tc-camp-v2-stats>span{padding:2px 1px;background:#101211;border-color:#74603e}
+.tc-iron-camp-screen .tc-camp-v2-stats strong{font-size:clamp(10px,2.8vw,13px);font-variant-numeric:tabular-nums}
+.tc-iron-camp-screen .tc-camp-v2-stats>span:nth-child(2) b{color:#9cbede}
+.tc-iron-camp-screen .tc-camp-v2-stats>span:nth-child(3) b{color:#a6c990}
+.tc-iron-camp-screen .tc-camp-v2-profile-link{min-height:44px;min-width:44px}
+.tc-iron-camp-screen :is(.tc-camp-v2-primary button,.tc-camp-v2-quick button,.tc-camp-v2-extra button){
+ border:4px solid transparent;border-image:var(--camp-button) 24 fill stretch;
+ border-radius:0;background:#161817;box-shadow:none;color:#eee0c2;
+}
+.tc-iron-camp-screen .tc-camp-v2-primary button{min-height:44px;padding:4px;gap:3px}
+.tc-iron-camp-screen .tc-camp-v2-primary .tc-camp-v2-hunt{border-image-source:var(--camp-active)}
+.tc-iron-camp-screen .tc-camp-v2-primary button span{gap:3px}
+.tc-iron-camp-screen .tc-camp-v2-primary button b{font-size:14px}
+.tc-iron-camp-screen .tc-camp-v2-facilities{grid-template-rows:44px minmax(0,1fr);padding:0 4px 4px;gap:2px}
+.tc-iron-camp-screen .tc-camp-v2-facility-heading button{min-height:44px;min-width:72px;padding:3px 6px}
+.tc-iron-camp-screen .tc-camp-v2-quick{gap:4px}
+.tc-iron-camp-screen .tc-camp-v2-quick button{min-height:44px;padding:2px;gap:1px}
+.tc-iron-camp-screen .tc-camp-v2-quick button .tc-glyph{font-size:18px}
+.tc-iron-camp-screen .tc-camp-v2-quick button>span:nth-child(2){font-size:11px}
+.tc-iron-camp-screen .tc-camp-v2-extra{top:44px;max-height:calc(100% - 48px);overflow-y:auto;border:3px solid transparent;border-image:var(--camp-panel) 24 fill stretch;background:#161815;padding:4px;overscroll-behavior:contain}
+.tc-iron-camp-screen .tc-camp-v2-extra button{min-height:44px;padding:3px 5px}
+.tc-iron-camp-screen .tc-camp-v2-chat-dock{min-height:0}
+.tc-iron-camp-screen .tc-chat-inline{background:transparent}
+.tc-iron-camp-screen button:focus-visible{outline:2px solid #f2ce88;outline-offset:-2px}
+@media(max-height:740px){
+ .tc-iron-camp-screen .tc-camp-v2{grid-template-rows:86px 58px 150px minmax(0,1fr);gap:4px}
+}
+@media(max-height:590px){
+ .tc-iron-camp-screen .tc-camp-v2{grid-template-rows:78px 48px 148px minmax(0,1fr);gap:3px}
+ .tc-iron-camp-screen .tc-camp-v2-dossier{grid-template-columns:48px minmax(0,1fr) 44px;padding:2px 4px;gap:4px}
+ .tc-iron-camp-screen .tc-camp-v2-bio{gap:1px}
+ .tc-iron-camp-screen .tc-camp-v2-bio>strong{font-size:14px}
+ .tc-iron-camp-screen .tc-camp-v2-stats{margin-top:0}
+ .tc-iron-camp-screen .tc-camp-v2-primary button small{display:none}
+}
+@media(max-width:340px){
+ .tc-iron-camp-screen .tc-camp-v2-primary button b{font-size:12px}
+ .tc-iron-camp-screen .tc-camp-v2-quick button>span:nth-child(2){font-size:10px}
+}
