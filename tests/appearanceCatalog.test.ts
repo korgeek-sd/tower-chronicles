@@ -87,7 +87,8 @@ test('collection progression is deduplicated and complete only when five members
 test('cosmetic menu displays collection count, planned-only bonus disclosure and unavailable draw',()=>{
  const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{}}));
  assert.match(html,/컬렉션/);
- assert.match(html,/0 \/ 65/);
+ assert.doesNotMatch(html,/0 \/ 65/,'redundant progress header must be removed');
+ assert.doesNotMatch(html,/tc-screen-head|tc-collection-top/);
  assert.match(html,/도감 효과는 미적용/);
  assert.match(html,/외형 목록/);
  assert.match(html,/컬렉션/);
