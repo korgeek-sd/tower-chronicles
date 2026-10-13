@@ -4,8 +4,9 @@ import {HuntingScreen} from '../src/components/hunting/HuntingScreen';import {in
 test('instant hunting shows maps, result, rewards and turn cards with HP snapshots without realtime controls',()=>{
  const game=initialState(),h=resolveHunt(initialHuntingState(0),'plains',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game,hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
- for(const copy of ['평야','숲','폐광','활력','승리','전투 기록','강타'])assert.ok(html.includes(copy));
- assert.match(html,/<dialog[^>]*aria-label="전투 기록"/);assert.match(html,/전투 기록 보기/);assert.doesNotMatch(html,/<dialog[^>]*open=/);assert.doesNotMatch(html,/<details/);assert.match(html,/tc-hunt-turn-card/);assert.match(html,/aria-label="Turn 1 탐사자 HP"/);assert.ok(html.includes(`aria-label="Turn 1 ${h.lastResult!.monster!.name} HP"`));assert.match(html,/tc-hunt-action player/);assert.match(html,/tc-hunt-action enemy/);assert.match(html,/tc-hunt-damage/);assert.doesNotMatch(html,/tc-ref-actions|행동을 선택하세요/);assert.match(html,/aria-label="탐사자 HP"/);
+ for(const copy of ['평야','숲','폐광','활력','승리','사냥 기록','강타'])assert.ok(html.includes(copy));
+ assert.match(html,/role="log"/);assert.doesNotMatch(html,/전투 기록 보기|스킬 보기/);assert.match(html,/data-kind="damage"/);assert.match(html,/1턴/);assert.doesNotMatch(html,/tc-ref-actions|행동을 선택하세요/);assert.match(html,/aria-label="탐사자 HP"/);
+
 });
 test('zero vitality and pending request disable map actions',()=>{
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:{...initialHuntingState(0),vitality:0},now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
@@ -40,13 +41,13 @@ test('entering hunting keeps stored results hidden and uses a page instead of a 
  assert.match(html,/<section[^>]*aria-label="사냥 결과"[^>]*hidden=""/);
 });
 
-test('result stream keeps a records action and the same-region next battle dock',()=>{
+test('result stream keeps inline records and the same-region next battle dock',()=>{
  const h=resolveHunt(initialHuntingState(0),'forest',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
  assert.doesNotMatch(html,/스킬 세팅/);
  assert.match(html,/tc-hunt-repeat-dock/);assert.match(html,/다음 전투/);
  assert.match(html,/aria-label="다음 전투 사냥터"/);
- assert.match(html,/<button[^>]*class="tc-hunt-log-button tc-hunt-records-button"/);assert.doesNotMatch(html,/tc-hunt-result-records/);
+ assert.doesNotMatch(html,/전투 기록 보기|스킬 보기/);assert.match(html,/tc-hunt-stream/);assert.doesNotMatch(html,/tc-hunt-result-records/);
 });
 
 test('repeat battle is disabled while busy, out of vitality, or on an expedition',()=>{

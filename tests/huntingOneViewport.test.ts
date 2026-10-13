@@ -13,7 +13,7 @@ const screenSource=readFileSync(new URL('../src/components/hunting/HuntingScreen
 
 test('hunting results explicitly switch to a distinct single-screen layout while region selection is unchanged',()=>{
  assert.match(screenSource,/data-view=\{view\}/);
- assert.match(screenSource,/view==='result'&&<span className="tc-hunt-result-vitality"/);
+ assert.match(screenSource,/view==='result'&&<HuntingVitality/);
  assert.match(screenSource,/view==='regions'&&<button type="button" className="tc-hunt-preview-toggle"/);
  assert.match(css,/\.tc-main\.tc-hunt-main > \.tc-hunt\[data-view="result"\]\s*\{[^}]*height:100%;[^}]*overflow:hidden/);
  assert.match(css,/\.tc-hunt\[data-view="result"\] > \.tc-hunt-vitality\s*\{\s*display:none/);
@@ -50,7 +50,7 @@ test('every hunting map still offers two sprite frames, HP/MP, rewards, history 
   assert.equal((page.match(/aria-label="[^"]+ HP"/g)??[]).length,2);
   assert.equal((page.match(/aria-label="[^"]+ MP"/g)??[]).length,2);
   assert.match(page,/tc-hunt-stream tc-hunt-panel/);
-  assert.match(page,/tc-hunt-records-button/);
+  assert.doesNotMatch(page,/전투 기록 보기|스킬 보기/);
   assert.match(page,/tc-hunt-repeat-dock/);
   assert.match(page,/다음 전투/);
  }

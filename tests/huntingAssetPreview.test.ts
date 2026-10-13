@@ -69,9 +69,9 @@ test('actual compact monster panel shows name, ATK, DEF and HP before any skill 
  const posStats=card.indexOf('공격 <b>'+result.monster!.attack+'</b>');
  const posHP=card.indexOf('aria-label="'+result.monster!.name+' HP"');
  assert.ok(posName>=0&&posStats>posName&&posHP>posStats,'monster name/stats/HP must appear in that order');
- assert.match(markup,/스킬 보기/);
+ assert.doesNotMatch(markup,/스킬 보기/);
  assert.doesNotMatch(card,/tc-hunt-monster-skill/);
- assert.match(markup,/aria-label="[^"]+ 스킬 정보"/);
- assert.match(markup,/몬스터 스킬/);
- for(const skill of result.monster!.skills)assert.ok(markup.includes(skill.name));
+
+
+
 });

@@ -24,7 +24,7 @@ test('log preserves every actual turn line and reports recovery, gear, XP, silve
  assert.doesNotMatch(old,/HP 물약 0개|장비 획득|경험치 \+/);assert.match(old,/획득 보상 없음/);
 });
 test('stream renders readable chronological combat entries with a keyboard scroll region and latest-record control',()=>{
- const html=renderToStaticMarkup(React.createElement(HuntingCombatLog,{result:sample(),nickname:'검사',active:true,onRecords:()=>{}}));
- assert.match(html,/role="log"/);assert.match(html,/tabindex="0"/);assert.match(html,/최근 10회/);assert.match(html,/최신 기록/);assert.match(html,/전투 기록 보기/);
+ const html=renderToStaticMarkup(React.createElement(HuntingCombatLog,{result:sample(),nickname:'검사',active:true}));
+ assert.match(html,/role="log"/);assert.match(html,/tabindex="0"/);assert.match(html,/최근 10회/);assert.match(html,/최신 기록/);assert.doesNotMatch(html,/전투 기록 보기|스킬 보기/);
  assert.match(html,/사냥 성공/);assert.match(html,/HP 물약/);assert.doesNotMatch(html,/전송|<input/);
 });

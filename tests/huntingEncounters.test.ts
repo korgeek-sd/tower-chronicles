@@ -38,15 +38,16 @@ test('server encounters use the same ten-monster catalogs and skip prior monster
   }
  }finally{await db.close();}
 });
-test('result and battle record render selected monster snapshot and all its skills',async()=>{
+test('result and inline log render the selected monster snapshot and confirmed actions',async()=>{
  const React=await import('react');const {renderToStaticMarkup}=await import('react-dom/server');const {HuntingScreen}=await import('../src/components/hunting/HuntingScreen');const {initialState}=await import('../src/game/engine/state');
  const base=resolveHunt(initialHuntingState(0),'plains',{hp:10000,attack:30,defense:1000},['heavy'],0,()=>.5).state;
  const actual=resolveHunt({...base,vitality:100},'plains',{hp:10000,attack:30,defense:1000},['heavy'],0,()=>.5).state;
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:actual,now:0,busy:true,onHunt:()=>{},onSettings:()=>{}}));
  assert.ok(html.includes(actual.lastResult!.monster!.image));
  assert.ok(html.includes(`data-monster-id="${actual.lastResult!.monster!.id}"`));
- assert.ok(html.includes(`Turn 1 ${actual.lastResult!.monster!.name} HP`));
- for(const skill of actual.lastResult!.monster!.skills)assert.ok(html.includes(skill.name));
+ assert.ok(html.includes(`aria-label="${actual.lastResult!.monster!.name} HP"`));
+ for(const line of actual.lastResult!.turns[0].lines)assert.ok(html.includes(line));
+ assert.doesNotMatch(html,/스킬 보기|전투 기록 보기/);
  assert.ok(html.includes('새 몬스터 추적 중…'));
 });
 test('hunting feedback distinguishes accepted input from server-confirmed completion',async()=>{
