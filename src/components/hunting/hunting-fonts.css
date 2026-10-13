@@ -1,0 +1,23 @@
+/* Self-hosted, Korean-complete DOS fonts. Keep this trial scoped to hunting. */
+@font-face {
+ font-family: 'DOSGothic';
+ src: url('../../assets/fonts/DOSGothic.woff2') format('woff2');
+ font-weight: 400;
+ font-style: normal;
+ font-display: swap;
+}
+@font-face {
+ font-family: 'DOSMyungjo';
+ src: url('../../assets/fonts/DOSMyungjo.woff2') format('woff2');
+ font-weight: 400;
+ font-style: normal;
+ font-display: swap;
+}
+.tc-hunt {
+ font-family: 'DOSGothic', 'Malgun Gothic', sans-serif;
+ font-synthesis: none;
+}
+.tc-hunt :is(button, input, select, textarea) { font-family: inherit; }
+.tc-hunt :is(h1, h2, .tc-hunt-stream > header strong) {
+ font-family: 'DOSMyungjo', 'Malgun Gothic', serif;
+}
