@@ -1,4 +1,5 @@
 import './iron-market.css';
+import {EmptySearchResults} from '../filters/LucianFilters';
 import {MarketGradeFilters,marketGradeMatches} from './MarketGradeFilters';
 import {SkillBookArt} from '../inventory/SkillBookArt';
 import React,{useEffect,useMemo,useState} from 'react';
@@ -74,9 +75,9 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  const [returnInventoryKey,setReturnInventoryKey]=useState<string|null>(null);
  const [returnEnhancementId,setReturnEnhancementId]=useState<string|null>(null);
  const [returnSkillId,setReturnSkillId]=useState<string|null>(null);
- useEffect(()=>{if(!intent)return;setTab('market');setGradeFilter('all');setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
+ useEffect(()=>{if(!intent)return;setTab('market');setGradeFilter([]);setCategory(intent.skillId?'skillbooks':'all');setQuery('');setPage(0);setSelected(intent.itemId);setTradeSide(null);setRange('24H');setQty('1');setReturnInventoryKey(intent.inventoryKey??null);setReturnEnhancementId(intent.enhancementItemId??null);setReturnSkillId(intent.skillId??null);onIntentConsumed?.();},[intent?.itemId,intent?.inventoryKey,intent?.skillId]);
 
- const [gradeFilter,setGradeFilter]=useState('all');
+ const [gradeFilter,setGradeFilter]=useState<string[]>([]);
  const catalog=useMemo(()=>currentMarketCatalog(game),[game]);
  const normalizedQuery=query.trim().toLowerCase();
  const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery,gradeFilter]);
@@ -231,7 +232,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
      <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
      <small>LOCAL</small>
     </div>
-    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter('all');setPage(0);}}>{label}</button>)}</div>
+    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter([]);setPage(0);}}>{label}</button>)}</div>
     <MarketGradeFilters category={category} value={gradeFilter} onChange={grade=>{setGradeFilter(grade);setPage(0);}}/>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
@@ -244,7 +245,11 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
        <i>›</i>
       </button>;
      })}
-     {!shown.length&&<div className="tc-market-v2-empty">검색 조건에 맞는 품목이 없습니다.</div>}
+     {!shown.length&&<EmptySearchResults title="검색 조건에 맞는 품목이 없습니다." actions={[
+ ...(gradeFilter.length?[{label:'등급 필터',count:catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))).length,run:()=>{setGradeFilter([]);setPage(0);}}]:[]),
+ ...(normalizedQuery?[{label:'검색어',count:catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)).length,run:()=>{setQuery('');setPage(0);}}]:[]),
+ ...((gradeFilter.length&&normalizedQuery)?[{label:'모든 검색 조건',count:catalog.filter(entry=>categoryMatch(entry.category,category)).length,run:()=>{setQuery('');setGradeFilter([]);setPage(0);}}]:[])
+ ]}/> }
     </div>
     <Pager page={safeMarketPage} count={marketPages} onChange={setPage}/>
    </>}

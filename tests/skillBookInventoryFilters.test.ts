@@ -42,7 +42,7 @@ test('skillbook grade filters cover each grade without requiring ownership',()=>
  const html=renderToStaticMarkup(React.createElement(MarketGradeFilters,{category:'skillbooks',value:'SR',onChange:()=>{}}));
  assert.match(html,/스킬북 등급/);
  assert.equal((html.match(/<button/g)??[]).length,7);
- assert.match(html,/aria-pressed="true"[^>]*>SR</);
+ assert.match(html,/aria-pressed="true"[^>]*>[^]*?SR</);
  assert.equal(marketGradeMatches({category:'equipment',gear:{grade:'rare'}},'rare'),true);
  assert.equal(marketGradeMatches({category:'equipment',gear:{grade:'rare'}},'SSR'),false);
 });
