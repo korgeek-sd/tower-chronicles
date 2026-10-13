@@ -21,3 +21,12 @@ test('full, bonus and unloaded vitality do not invent an active recovery countdo
  const html=renderToStaticMarkup(React.createElement(HuntingVitality,{hunting:null,now:0}));
  assert.match(html,/불러오는 중/);assert.doesNotMatch(html,/초 후/);
 });
+test('vitality bar shows remaining energy without overflowing for bonus vitality',()=>{
+ for(const value of [0,42,100,835]){
+  const html=renderToStaticMarkup(React.createElement(HuntingVitality,{hunting:{...initialHuntingState(0),vitality:value},now:0}));
+  assert.match(html,/role="progressbar" aria-label="활력"/);
+  assert.ok(html.includes(`aria-valuenow="${Math.min(100,value)}"`));
+  assert.ok(html.includes(`aria-valuetext="활력 ${value.toLocaleString()}${value>100?' · 추가 지급':' / 100'}"`));
+  assert.ok(html.includes(`style="width:${Math.min(100,value)}%"`));
+ }
+});

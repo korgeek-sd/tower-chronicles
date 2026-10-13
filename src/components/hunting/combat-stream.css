@@ -47,6 +47,8 @@
 .tc-hunt-vitality-strip small{font-size:11px;line-height:1.2;color:#d7c6a5}
 .tc-hunt-vitality-strip strong{font-size:26px;line-height:1.1;color:#bfe19f;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tc-hunt-vitality-strip strong span{font-size:10px;color:#c6b895;margin-left:5px;font-weight:400}
+.tc-hunt-vitality-bar{height:4px;margin-top:3px;background:#050805;overflow:hidden}
+.tc-hunt-vitality-bar i{display:block;height:100%;background:#adb786}
 .tc-hunt-vitality-strip .tc-hunt-vitality-clock{align-items:flex-end;text-align:right}
 .tc-hunt-vitality-strip .tc-hunt-vitality-clock strong{font-size:17px;color:#f0d29b}
 .tc-hunt-vitality-strip[data-empty="true"]>div:first-child strong{color:#f29b91}
