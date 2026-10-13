@@ -61,6 +61,7 @@ import {
 import {Glyph} from './ui/mobile';
 import './mobile-game.css';
 import './gameFeel/game-feel.css';
+import './game-fonts.css';
 import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
 
 configureEventMode(new URLSearchParams(location.search).get('events')==='test'?'test':'production');

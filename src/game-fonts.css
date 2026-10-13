@@ -1,0 +1,15 @@
+/* Shared typography for all game screens, dialogs and chat. */
+@font-face {
+ font-family: 'DungGeunMo';
+ src: url('./assets/fonts/DungGeunMo.woff2') format('woff2');
+ font-weight: 400;
+ font-style: normal;
+ font-display: swap;
+}
+:root { --game-font: 'DungGeunMo', 'Malgun Gothic', sans-serif; }
+/* Component font shorthands and lazy CSS must not restore a different face.
+   Override only the family so existing sizes, line heights and spacing remain. */
+:root, body, body * {
+ font-family: var(--game-font) !important;
+ font-synthesis: none;
+}
