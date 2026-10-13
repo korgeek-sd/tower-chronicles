@@ -2,15 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('hunting loads local DOS fonts with attribution and scopes typography to its screen',()=>{
+test('hunting applies Omyu Pretty to titles and body without altering the font or other screens',()=>{
  const css=readFileSync('src/components/hunting/hunting-fonts.css','utf8');
  assert.match(readFileSync('src/components/hunting/HuntingPage.tsx','utf8'),/import '\.\/hunting-fonts\.css'/);
  for(const name of ['DOSGothic','DOSMyungjo']){
-  assert.ok(css.includes(name));
   const font=readFileSync(`src/assets/fonts/${name}.woff2`);
   assert.equal(font.subarray(0,4).toString(),'wOF2');
   assert.ok(font.length<500000,'font download should remain small for mobile');
  }
+ assert.match(css,/font-family: 'OmyuPretty'/);
+ assert.match(css,/https:\/\/cdn\.jsdelivr\.net\/gh\/projectnoonnu\/noonfonts_2304-01@1\.0\/omyu_pretty\.woff2/);
+ assert.doesNotMatch(css,/font-family: 'DOS/);
  assert.match(css,/font-display:\s*swap/);
  assert.match(css,/\.tc-hunt\s*\{/);
  assert.doesNotMatch(css,/(?:^|\n)(?:body|:root)\s*\{/);

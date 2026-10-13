@@ -1,25 +1,18 @@
-/* Self-hosted, Korean-complete DOS fonts. Keep this trial scoped to hunting. */
+/* Omyu Pretty comparison, scoped to hunting. Use the published font unchanged. */
 @font-face {
- font-family: 'DOSGothic';
- src: url('../../assets/fonts/DOSGothic.woff2') format('woff2');
- font-weight: 400;
- font-style: normal;
- font-display: swap;
-}
-@font-face {
- font-family: 'DOSMyungjo';
- src: url('../../assets/fonts/DOSMyungjo.woff2') format('woff2');
+ font-family: 'OmyuPretty';
+ src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2');
  font-weight: 400;
  font-style: normal;
  font-display: swap;
 }
 .tc-hunt {
- font-family: 'DOSGothic', 'Malgun Gothic', sans-serif;
+ font-family: 'OmyuPretty', 'Malgun Gothic', sans-serif;
  font-synthesis: none;
 }
 .tc-hunt :is(button, input, select, textarea) { font-family: inherit; }
 .tc-hunt :is(h1, h2, .tc-hunt-stream > header strong) {
- font-family: 'DOSMyungjo', 'Malgun Gothic', serif;
+ font-family: 'OmyuPretty', 'Malgun Gothic', sans-serif;
 }
 /* Number, label and bar fit inside the existing 62px vitality frame. */
 .tc-hunt-vitality-strip > div:first-child { gap: 1px; }
