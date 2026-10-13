@@ -1,18 +1,18 @@
-/* Omyu Pretty comparison, scoped to hunting. Use the published font unchanged. */
+/* Supplied DungGeunMo, self-hosted and scoped to hunting for comparison. */
 @font-face {
- font-family: 'OmyuPretty';
- src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2');
+ font-family: 'DungGeunMo';
+ src: url('../../assets/fonts/DungGeunMo.woff2') format('woff2');
  font-weight: 400;
  font-style: normal;
  font-display: swap;
 }
 .tc-hunt {
- font-family: 'OmyuPretty', 'Malgun Gothic', sans-serif;
+ font-family: 'DungGeunMo', 'Malgun Gothic', sans-serif;
  font-synthesis: none;
 }
 .tc-hunt :is(button, input, select, textarea) { font-family: inherit; }
 .tc-hunt :is(h1, h2, .tc-hunt-stream > header strong) {
- font-family: 'OmyuPretty', 'Malgun Gothic', sans-serif;
+ font-family: 'DungGeunMo', 'Malgun Gothic', sans-serif;
 }
 /* Number, label and bar fit inside the existing 62px vitality frame. */
 .tc-hunt-vitality-strip > div:first-child { gap: 1px; }

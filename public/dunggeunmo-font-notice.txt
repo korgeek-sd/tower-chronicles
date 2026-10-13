@@ -1,0 +1,8 @@
+둥근모꼴 + Fixedsys / DungGeunMo 1.301
+Source: user-supplied DungGeunMo.ttf
+Font metadata: Public Domain
+Manufacturer: Kil Hyung-jin
+Designers: Kim Jung-tae, Darien Gavin Valentine
+Source website: http://cactus.tistory.com
+
+Original glyphs and character coverage are preserved; only the container was compressed to WOFF2 for web delivery.
