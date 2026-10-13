@@ -104,13 +104,43 @@
 .tc-screen.tc-iron-market-screen .tc-market-v4 .tc-market-grade-filters{height:44px;padding:0;display:block;overflow:hidden}
 .tc-screen.tc-iron-market-screen .tc-market-v4 .tc-lucian-grades .u019-chip{height:44px;min-height:44px;max-height:none;padding:0 16px;font-size:14.5px;line-height:normal;border:0;border-image:none;border-radius:999px;background:var(--ux-surface);color:var(--ux-ink-2);box-shadow:inset 0 0 0 1px var(--ux-line-2)}
 .tc-screen.tc-iron-market-screen .tc-market-v4 .tc-lucian-grades .u019-chip[aria-pressed=true]{background:var(--ux-ink);color:var(--ux-page);padding-left:12px;box-shadow:0 10px 18px -12px var(--ux-shadow-strong)}
-.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(>.tc-inventory-grade-filter){--filter-categories-height:44px;grid-template-rows:44px var(--filter-categories-height) 44px minmax(0,1fr) 44px}
-.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page:has(>.tc-inventory-grade-filter){grid-template-rows:44px var(--filter-categories-height) 44px minmax(0,1fr)}
-.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(>.tc-inventory-grade-filter):has(.tc-storage-tools){grid-template-rows:44px var(--filter-categories-height) 44px auto minmax(0,1fr) 44px}
-.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page:has(>.tc-inventory-grade-filter):has(.tc-storage-tools){grid-template-rows:44px var(--filter-categories-height) 44px auto minmax(0,1fr)}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(>.tc-inventory-grade-filter){--filter-categories-height:44px;grid-template-rows:44px var(--filter-categories-height) var(--filter-grade-height,44px) minmax(0,1fr) 44px}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page:has(>.tc-inventory-grade-filter){grid-template-rows:44px var(--filter-categories-height) var(--filter-grade-height,44px) minmax(0,1fr)}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(>.tc-inventory-grade-filter):has(.tc-storage-tools){grid-template-rows:44px var(--filter-categories-height) var(--filter-grade-height,44px) auto minmax(0,1fr) 44px}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page:has(>.tc-inventory-grade-filter):has(.tc-storage-tools){grid-template-rows:44px var(--filter-categories-height) var(--filter-grade-height,44px) auto minmax(0,1fr)}
 @media(max-width:380px){.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(>.tc-inventory-grade-filter){--filter-categories-height:92px}}
 @media(prefers-reduced-motion:reduce){.tc-lucian-grades *,.tc-lucian-empty *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 /* Existing rarity colors must not reduce contrast on selected gold chips. */
 .tc-screen .tc-lucian-grades .u019-chip[aria-pressed=true]{background:var(--ux-ink);color:var(--ux-page);box-shadow:0 10px 18px -12px var(--ux-shadow-strong);padding-left:12px}
 .tc-screen.tc-iron-market-screen .tc-lucian-empty .u092-sg{border:0;border-image:none;border-radius:14px;background:var(--ux-surface-2);color:var(--ux-ink-2);box-shadow:none;height:46px;min-height:46px;padding:0 12px 0 8px;font-size:13px}
 .tc-screen .tc-lucian-grades .u019-chip[aria-pressed=true]{color:var(--ux-page)!important}
+
+/* All grades remain visible: two compact rows on narrow phones, one on wider screens. */
+.u019.tc-lucian-grades{height:auto;overflow:visible}
+.tc-lucian-grades .u019-list{display:grid;grid-template-columns:repeat(var(--grade-columns),minmax(44px,1fr));height:auto;gap:4px;overflow:visible;scrollbar-width:none}
+.tc-screen .tc-lucian-grades .u019-chip{justify-content:center;width:100%;min-width:44px;padding:0 3px;font-size:11px;white-space:nowrap}
+.tc-screen .tc-lucian-grades .u019-chip[aria-pressed=true]{padding-left:3px}
+.tc-lucian-grades .u019-chip i{height:14px}
+.tc-lucian-grades .u019-chip[aria-pressed=true] i{width:12px;margin-right:3px}
+.tc-lucian-grades .u019-chip svg{width:12px;height:12px}
+.tc-screen.tc-iron-market-screen .tc-market-v4 .tc-market-grade-filters{height:auto;min-height:44px;overflow:visible}
+.tc-screen.tc-iron-market-screen .tc-market-v4 .tc-lucian-grades .u019-chip{padding:0 3px;font-size:11px;min-width:44px}
+.tc-screen.tc-iron-market-screen .tc-market-v4 .tc-lucian-grades .u019-chip[aria-pressed=true]{padding-left:3px}
+.tc-screen.tc-iron-market-screen .tc-market-v4.tab-market.has-grade-filter{grid-template-rows:28px 34px 28px auto minmax(0,1fr) 32px}
+.u092.tc-lucian-empty{overflow:hidden;display:flex;justify-content:center;padding:4px}
+.tc-lucian-empty .u092-art{width:100px;height:52px}
+.tc-lucian-empty .u092-nt{font-size:13px;line-height:1.35;margin-top:4px}
+.tc-lucian-empty .u092-ns{font-size:11px;line-height:1.3;margin-top:3px}
+.tc-lucian-empty .u092-sgs{margin-top:6px;gap:4px}
+.tc-lucian-empty .u092-sg,.tc-screen.tc-iron-market-screen .tc-lucian-empty .u092-sg{height:44px;min-height:44px;font-size:11px;padding:0 6px}
+.tc-lucian-empty .u092-sg s{padding:0 6px;font-size:10px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-lucian-empty .u092-none{min-height:0;flex-shrink:0}
+@media(max-width:419px){
+ .tc-lucian-grades .u019-list{grid-template-columns:repeat(4,minmax(44px,1fr))}
+ .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board:has(>.tc-inventory-grade-filter){--filter-grade-height:92px}
+}
+@media(max-height:650px){.tc-lucian-empty .u092-art{height:32px;width:74px}.tc-lucian-empty .u092-ns{display:none}.tc-lucian-empty .u092-nt{font-size:12px}}
+/* Market legacy height breakpoints must reserve both filter rows. */
+.tc-screen.tc-iron-market-screen .tc-market-v4.tab-market.has-grade-filter{grid-template-rows:28px 34px 28px var(--market-grade-height,44px) minmax(0,1fr) 32px!important}
+@media(max-width:419px){.tc-screen.tc-iron-market-screen .tc-market-v4.tab-market.has-grade-filter{--market-grade-height:92px}.tc-screen.tc-iron-market-screen .tc-market-v4 .tc-market-grade-filters{height:92px!important}}
+@media(max-height:650px){.tc-lucian-empty .u092-art{display:none}.tc-lucian-empty .u092-nt{margin-top:0;font-size:11px}}
