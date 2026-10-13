@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {HuntingScreen} from '../src/components/hunting/HuntingScreen';
+import {initialState} from '../src/game/engine/state';
+import {initialHuntingState} from '../src/game/hunting/model';
 
 test('result frames preserve original combat art and the repeat-destination scenery',()=>{
  const page=readFileSync('src/components/hunting/HuntingPage.tsx','utf8');
@@ -18,4 +23,9 @@ test('next-hunt controls retain a full touch target and avoid the closed chat fo
  assert.match(css,/\.tc-hunt-repeat-dock\{[^}]*padding:4px 70px 4px 6px/);
  assert.match(css,/\.tc-hunt-next\{[^}]*min-height:44px/);
  assert.match(css,/\.tc-hunt-result span\{[^}]*white-space:normal/,'earned gear names must remain readable');
+});
+test('unselected default appearance has an honest placeholder instead of a missing image request',()=>{
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:initialHuntingState(0),now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.doesNotMatch(html,/assets\/player\/default\.png/);
+ assert.match(html,/외형 미선택/);
 });
