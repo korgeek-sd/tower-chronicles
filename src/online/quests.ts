@@ -1,3 +1,4 @@
+import {PRODUCT_NAMES} from '../game/life/crafting';
 import {getFreshSession} from './auth';
 import {getDeviceId,type CloudSaveRecord} from './cloudSave';
 import {supabaseConfig} from './config';
@@ -21,4 +22,4 @@ async function rpc<T>(name:string,lease:GameplayLease,userId:string,extra:Record
 export const getQuests=(lease:GameplayLease,userId:string)=>rpc<QuestBoard>('get_quests',lease,userId);
 export const claimQuest=(lease:GameplayLease,userId:string,r:QuestClaim)=>rpc<QuestClaimResult>('claim_quest',lease,userId,{p_period:r.period,p_day:r.day,p_quest_id:r.id});
 export function validQuestClaim(value:unknown):value is QuestClaim{if(!value||typeof value!=='object')return false;const r=value as QuestClaim;return (r.period==='daily'||r.period==='weekly')&&typeof r.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(r.day)&&['hunt','craft','gather','market','donate','daily','all'].includes(r.id);}
-export function questRewardSummary(rewards:QuestReward[]){const totals=new Map<string,number>();for(const r of rewards)totals.set(r.name,(totals.get(r.name)??0)+r.quantity);return [...totals].map(([name,quantity])=>`${name} ${quantity}개`).join(' · ');}
+export function questRewardSummary(rewards:QuestReward[]){const totals=new Map<string,number>();for(const r of rewards){const name=r.item==='defense_food'||r.item==='experience_food'?PRODUCT_NAMES[r.item]:r.name;totals.set(name,(totals.get(name)??0)+r.quantity);}return [...totals].map(([name,quantity])=>`${name} ${quantity}개`).join(' · ');}
