@@ -1,0 +1,56 @@
+/* Variant 1: small, equal combatants above one chronological scroll region. */
+.tc-hunt[data-view="result"]>.tc-hunt-result-page{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:108px minmax(0,1fr) auto;gap:5px}
+.tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter,
+.tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter.enemy{grid-column:auto;grid-row:1;grid-template-columns:clamp(40px,12vw,64px) minmax(0,1fr);height:100%;min-height:0;max-height:100%}
+.tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter.player{grid-column:1}
+.tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter.enemy{grid-column:2}
+.tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter .tc-hunt-fighter-info{padding:3px 4px;gap:3px;justify-content:center}
+.tc-hunt[data-view="result"] .tc-hunt-fighter h2{font-size:12px;line-height:1.2;overflow-wrap:anywhere}
+.tc-hunt[data-view="result"] .tc-hunt-fighter-info>h2{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.tc-hunt[data-view="result"] .tc-hunt-stats{font-size:9px;gap:4px;flex-wrap:nowrap}
+.tc-hunt[data-view="result"] :is(.tc-hunt-hp,.tc-hunt-mp) b{font-size:9px}
+.tc-hunt[data-view="result"] :is(.tc-hunt-hp,.tc-hunt-mp)>div:first-child{font-size:9px;gap:2px;margin-bottom:1px}
+.tc-hunt[data-view="result"] .tc-hunt-hp [role=progressbar],
+.tc-hunt[data-view="result"] .tc-hunt-mp [role=progressbar]{height:7px}
+.tc-hunt[data-view="result"] .tc-hunt-art-placeholder{font-size:9px;gap:3px}
+.tc-hunt[data-view="result"] .tc-hunt-art-placeholder .tc-glyph{width:30px;height:30px;font-size:30px}
+.tc-hunt[data-view="result"] .tc-hunt-monster-title{min-height:0}
+.tc-hunt[data-view="result"] .tc-hunt-slash{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-stream{grid-column:1 / -1;grid-row:2;position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;border:4px solid transparent;border-image:var(--result-panel) 24 fill stretch;border-radius:0;background:#131512}
+.tc-hunt-stream>header{display:flex;align-items:center;justify-content:space-between;gap:5px;flex:0 0 auto;padding:2px 6px;border-bottom:1px solid #6c5838}
+.tc-hunt-stream>header>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tc-hunt-stream>header strong{font-size:13px;color:#ead1a1}
+.tc-hunt-stream>header small{font-size:9px;color:#c3b494}
+.tc-hunt-stream-tools{display:flex;gap:3px;flex-shrink:0}
+.tc-hunt[data-view="result"] .tc-hunt-stream .tc-hunt-records-button{grid-column:auto;width:auto;height:44px;min-height:44px;font-size:10px;padding:2px 5px}
+.tc-hunt[data-view="result"] .tc-hunt-stream .tc-hunt-records-button span{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-stream .tc-hunt-skill-open{height:44px;min-height:44px;font-size:10px;padding:2px 5px}
+.tc-hunt-stream-feed{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 8px 56px;scrollbar-width:thin;scrollbar-color:#8e7146 #151612;overflow-anchor:none}
+.tc-hunt-stream-feed:focus-visible{outline:2px solid #e8c67f;outline-offset:-2px}
+.tc-hunt-stream-battle{padding:2px 0 8px}
+.tc-hunt-stream-battle+.tc-hunt-stream-battle{border-top:1px solid #8c7146;padding-top:8px}
+.tc-hunt-stream-battle h3{display:flex;justify-content:space-between;align-items:start;gap:6px;margin:4px 0 6px;font-size:12px;line-height:1.4;color:#f0d29b}
+.tc-hunt-stream-battle h3 small{font-size:9px;color:#b9ac94;white-space:nowrap;font-weight:400}
+.tc-hunt-stream-battle p{display:flex;gap:6px;margin:0;padding:4px 0;font-size:12px;line-height:1.5;color:#e0d5bf;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.tc-hunt-stream-battle p>span{min-width:0}
+.tc-hunt-stream-turn{flex:0 0 27px;font-size:10px;color:#9d9688;line-height:1.8}
+.tc-hunt-stream-battle .tc-hunt-stream-encounter{font-size:11px;color:#adc9df}
+.tc-hunt-stream-battle [data-kind="damage"]{color:#f29b91}
+.tc-hunt-stream-battle [data-kind="heal"]{color:#a4d7aa}
+.tc-hunt-stream-battle [data-kind="reward"]{color:#ecd092}
+.tc-hunt-stream-battle [data-kind="victory"]{color:#e9c77d;font-weight:700;border-top:1px solid #6f5936;margin-top:5px;padding-top:7px}
+.tc-hunt-stream-battle [data-kind="defeat"]{color:#f0a29b;font-weight:700;border-top:1px solid #735049;margin-top:5px;padding-top:7px}
+.tc-hunt[data-view="result"] .tc-hunt-stream-latest{position:absolute;right:6px;bottom:6px;min-height:44px;padding:3px 9px;border:3px solid transparent;border-image:var(--result-button) 24 fill stretch;border-radius:0;background:#161914;color:#dfc795;font-size:11px}
+.tc-hunt[data-view="result"] .tc-hunt-stream-latest[data-unread="true"]{border-image-source:var(--result-active);color:#ffe4ab}
+.tc-hunt-stream-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.tc-hunt[data-view="result"] .tc-hunt-repeat-dock{grid-row:3}
+@media(max-height:640px){
+ .tc-hunt[data-view="result"]>.tc-hunt-result-page{grid-template-rows:90px minmax(0,1fr) auto;gap:3px}
+ .tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter .tc-hunt-fighter-info{gap:1px;padding:2px 3px}
+ .tc-hunt-stream-battle p{padding:3px 0;font-size:11px}
+}
+@media(max-width:360px){
+ .tc-hunt[data-view="result"] .tc-hunt-result-page>.tc-hunt-fighter{grid-template-columns:36px minmax(0,1fr)}
+ .tc-hunt[data-view="result"] .tc-hunt-stats{display:none}
+ .tc-hunt-stream-battle h3 small{display:none}
+}

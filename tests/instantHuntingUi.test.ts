@@ -40,13 +40,13 @@ test('entering hunting keeps stored results hidden and uses a page instead of a 
  assert.match(html,/<section[^>]*aria-label="사냥 결과"[^>]*hidden=""/);
 });
 
-test('result layout shows a separate records button and the same-region next battle dock',()=>{
+test('result stream keeps a records action and the same-region next battle dock',()=>{
  const h=resolveHunt(initialHuntingState(0),'forest',{hp:180,attack:18,defense:7,speed:10},['heavy'],0,()=>.5).state;
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
  assert.doesNotMatch(html,/스킬 세팅/);
  assert.match(html,/tc-hunt-repeat-dock/);assert.match(html,/다음 전투/);
  assert.match(html,/aria-label="다음 전투 사냥터"/);
- assert.match(html,/<button class="tc-hunt-log-button tc-hunt-records-button"/);assert.doesNotMatch(html,/tc-hunt-result-records/);
+ assert.match(html,/<button[^>]*class="tc-hunt-log-button tc-hunt-records-button"/);assert.doesNotMatch(html,/tc-hunt-result-records/);
 });
 
 test('repeat battle is disabled while busy, out of vitality, or on an expedition',()=>{
@@ -65,7 +65,7 @@ test('hunting victory shows earned gear and potions without basic material rewar
  assert.doesNotMatch(html,/1T 가죽|1T 철광석/);
  assert.doesNotMatch(html,/재료 × [0-9]+|· 재료</);
  assert.match(html,/장비 획득/);
- assert.match(html,/포션 0개 사용/);
+ assert.match(html,/HP 물약 0개 사용/);
  assert.match(html,/경험치/);
  assert.match(html,/실버/);
 });

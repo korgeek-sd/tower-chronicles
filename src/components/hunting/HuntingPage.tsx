@@ -11,6 +11,7 @@ import {HuntingScreen} from './HuntingScreen';
 import './hunting.css';
 import './iron-regions.css';
 import './iron-results.css';
+import './combat-stream.css';
 const GUEST_KEY='tower-instant-hunting-guest-v1';
 function loadGuest():HuntingState {try{const raw=localStorage.getItem(GUEST_KEY);if(raw){const s=JSON.parse(raw);if(Number.isInteger(s.vitality)&&s.vitality>=0&&s.vitality<=100&&Number.isFinite(s.recoveredAt)&&Number.isFinite(s.experience)&&Number.isFinite(s.mastery)&&Array.isArray(s.skills))return s;}}catch{}return initialHuntingState();}
 type Props={game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;now:number;lease:GameplayLease|null;userId:string|null;nickname?:string;onPrepare:()=>Promise<void>;onPending:(pending:boolean)=>void;onRecord:(record:CloudSaveRecord)=>void};
@@ -58,7 +59,7 @@ export function HuntingPage({game,setGame,now,lease,userId,nickname,onPrepare,on
   finally{onPending(false);lock.current=false;if(alive.current)setBusy(false);}
  }
  async function savePreset(){if(lock.current||!state)return;if(!validateCombatPreset(draft,game.learned,weapon)){setError('최대 액티브 6개·패시브 3개, 배운 스킬과 장착 무기를 확인하세요.');return;}lock.current=true;setBusy(true);try{if(userId&&lease){const result=await saveHuntingPreset(lease,draft);if(!alive.current)return;accept(result);}else{const next={...state,skills:draft};localStorage.setItem(GUEST_KEY,JSON.stringify(next));setState(next);}setSettings(false);setError('');}catch(e){setError(e instanceof Error?e.message:'세팅을 저장하지 못했습니다.');}finally{lock.current=false;setBusy(false);}}
- return <><HuntingScreen game={game} hunting={state} now={now+offset} busy={busy||!!userId&&!lease} nickname={nickname} error={error} onHunt={id=>void hunt(id)} onSettings={()=>{setDraft(state?.skills??[]);setSettings(v=>!v);}} onRetry={()=>{if(pending.current&&state)void hunt(pending.current.map);else void refresh();}}/>
+ return <><HuntingScreen historyScope={userId??'guest'} game={game} hunting={state} now={now+offset} busy={busy||!!userId&&!lease} nickname={nickname} error={error} onHunt={id=>void hunt(id)} onSettings={()=>{setDraft(state?.skills??[]);setSettings(v=>!v);}} onRetry={()=>{if(pending.current&&state)void hunt(pending.current.map);else void refresh();}}/>
 
  {settings&&<section className="tc-hunt-preset tc-hunt-panel" aria-label="전투 세팅">
   <h2>자동전투 스킬 세팅</h2>
