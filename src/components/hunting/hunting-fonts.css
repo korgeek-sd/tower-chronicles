@@ -21,3 +21,7 @@
 .tc-hunt :is(h1, h2, .tc-hunt-stream > header strong) {
  font-family: 'DOSMyungjo', 'Malgun Gothic', serif;
 }
+/* Number, label and bar fit inside the existing 62px vitality frame. */
+.tc-hunt-vitality-strip > div:first-child { gap: 1px; }
+.tc-hunt-vitality-strip > div:first-child strong { font-size: 24px; line-height: 1; }
+.tc-hunt-vitality-strip .tc-hunt-vitality-bar { margin-top: 2px; }
