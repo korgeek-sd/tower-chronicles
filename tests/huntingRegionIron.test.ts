@@ -34,3 +34,12 @@ test('region footer reserves the closed chat footprint below the entry action',(
  const css=readFileSync('src/components/hunting/iron-regions.css','utf8');
  assert.match(css,/\.tc-hunt\[data-view="regions"\] \.tc-hunt-hint\{[^}]*min-height:44px;[^}]*padding-right:68px/);
 });
+test('scenic region cards keep their map backgrounds visible inside both frame states',()=>{
+ const css=readFileSync('src/components/hunting/iron-regions.css','utf8');
+ const card=css.match(/\.tc-hunt\[data-view="regions"\] \.tc-hunt-card\{([^}]*)\}/)?.[1]??'';
+ assert.match(card,/border-image:var\(--region-button\) 24 stretch/);
+ assert.doesNotMatch(card,/\bfill\b/,'frame centers must not paint over the scenic background');
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:initialHuntingState(0),now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.equal((html.match(/world-map\.webp/g)??[]).length,5);
+ assert.match(css,/\.tc-hunt\[data-view="regions"\] \.tc-hunt-card\.selected\{border-image-source:var\(--region-active\)/);
+});

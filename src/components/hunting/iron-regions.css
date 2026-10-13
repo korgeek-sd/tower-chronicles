@@ -18,7 +18,7 @@
 .tc-hunt[data-view="regions"] .tc-hunt-selection{gap:4px;min-height:0}
 .tc-hunt[data-view="regions"] .tc-hunt-cards{min-height:0;flex:1 1 0;grid-template-rows:repeat(5,minmax(44px,1fr));gap:4px}
 .tc-hunt[data-view="regions"] .tc-hunt-card{
- border:4px solid transparent;border-image:var(--region-button) 24 fill stretch;
+ border:4px solid transparent;border-image:var(--region-button) 24 stretch;
  border-radius:0;padding:4px 10px;min-height:44px;box-shadow:none;
 }
 .tc-hunt[data-view="regions"] .tc-hunt-card.selected{border-image-source:var(--region-active);box-shadow:none}
