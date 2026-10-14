@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {villageWarWindow} from '../src/game/occupation/villageWarRules';
+const at=(t:string)=>Date.parse('2026-10-17T'+t+'+09:00');
+test('new siege has five-minute deployment and sixty-minute battle without changing legacy schedule',()=>{assert.equal(villageWarWindow(at('21:54:59')).phase,'WAITING');assert.equal(villageWarWindow(at('21:55:00')).phase,'DEPLOYMENT');assert.equal(villageWarWindow(at('21:59:59')).phase,'DEPLOYMENT');assert.equal(villageWarWindow(at('22:00:00')).phase,'BATTLE');assert.equal(villageWarWindow(at('22:59:59')).phase,'BATTLE');assert.equal(villageWarWindow(at('23:00:00')).phase,'ENDED');assert.equal(villageWarWindow(at('22:00:00')).cycleKey,'2026-10-12');});

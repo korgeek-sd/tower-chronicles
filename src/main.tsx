@@ -444,7 +444,7 @@ function App(){
     onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}
     onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('원정단');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}
    />}
-   {page==='occupation'&&<OccupationWarEntry game={game} nickname={playerNickname} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
+   {page==='occupation'&&<OccupationWarEntry userId={onlineSession?.userId??null} game={game} nickname={playerNickname} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null}/>}
    {page==='jobs'&&jobsEntryTab==='list'&&<CosmeticsScreen game={game} setGame={setGame} initialTab="appearance" onSummon={()=>setJobsEntryTab('register')} onlineAccount={!!onlineSession} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('컬렉션');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/> }
    {page==='jobs'&&jobsEntryTab==='register'&&<AppearanceSummonScreen game={game} onList={()=>setJobsEntryTab('list')} onCollection={()=>move('cosmetics')}/> }
    {page==='bestiary'&&<BestiaryScreen game={game} onBack={()=>setPage('home')}/>}

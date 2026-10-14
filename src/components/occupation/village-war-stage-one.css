@@ -1,0 +1,16 @@
+.tc-village-stage-shell{height:100%;min-height:0;display:grid;grid-template-rows:44px minmax(0,1fr);gap:6px;}
+.tc-village-stage-controls{display:flex;gap:6px;min-width:0;}
+.tc-village-stage-controls select{flex:1;min-width:0;background:#1c1811;color:#e5d2aa;border:1px solid #806b4d;font:inherit;}
+.tc-village-stage-controls button,.tc-village-stage button{min-height:44px;min-width:44px;border:1px solid #806b4d;border-radius:3px;background:#282117;color:#e3cca3;font:inherit;font-size:12px;padding:5px 8px;}
+.tc-village-stage{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:6px;min-height:0;padding:8px;border:3px solid #786045;background:#181712;color:#e1ceaa;}
+.tc-village-stage header{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.tc-village-stage h2{font-size:19px;margin:4px 0;}.tc-village-stage header small{font-size:11px;color:#bba47c;}
+.tc-village-stage-summary{margin:0;font-size:12px;color:#bead8b;}
+.tc-village-stage-fronts{display:grid;grid-template-rows:repeat(5,minmax(44px,1fr));gap:5px;min-height:0;}
+.tc-village-stage-fronts article{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 6px;border:1px solid #665238;background:#242018;min-height:0;}
+.tc-village-stage-fronts article>div{min-width:0;}.tc-village-stage-fronts strong{display:inline;margin-left:8px;font-size:12px;}.tc-village-stage-fronts article small{display:block;font-size:11px;margin-top:3px;color:#bba989;}
+.tc-village-stage-fronts article>button{flex-shrink:0;max-width:115px;}.tc-village-stage button:disabled{color:#938974;background:#171713;}
+.tc-village-stage footer>div{display:flex;gap:6px;}.tc-village-stage footer button{flex:1;}.tc-village-stage footer>small{display:block;font-size:10px;margin-top:5px;color:#a6967a;}
+.tc-village-stage footer p{margin:0 0 5px;font-size:11px;line-height:1.4;color:#edc18c;}
+.tc-village-stage :focus-visible{outline:2px solid #f3ca7b;outline-offset:1px;}
+@media(max-height:620px){.tc-village-stage{gap:4px;padding:5px;}.tc-village-stage h2{font-size:16px;}.tc-village-stage-fronts article{padding:2px 4px;}.tc-village-stage-fronts strong{font-size:11px;}}

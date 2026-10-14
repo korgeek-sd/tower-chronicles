@@ -28,12 +28,26 @@ const messages:Record<string,string>={
  WAR_DECLARATION_CLOSED:'지금은 선전포고 등록 기간이 아닙니다.',
  WAR_TOWN_INVALID:'선택한 마을을 다시 확인해 주세요.',
  WAR_ALREADY_DECLARED:'이번 주 이 마을에 이미 선전포고했습니다.',
- WAR_TICKETS_SHORT:'도전권 100장이 부족합니다.',
+ WAR_TICKETS_SHORT:'도전권이 부족합니다.',
+ WAR_FEATURE_DISABLED:'공성전 1차 기능은 내부 검증 중입니다.',
+ WAR_PHASE_INVALID:'배치 또는 점령 가능한 시간이 아닙니다.',
+ WAR_EVENT_BUSY:'전장 상태를 처리 중입니다. 다시 확인해 주세요.',
+ WAR_FRONT_BUSY:'다른 공격이 진행 중입니다. 도전권은 차감되지 않았습니다.',
+ WAR_ACTOR_BUSY:'다른 행동이 진행 중입니다. 도전권은 차감되지 않았습니다.',
+ WAR_REQUEST_BUSY:'기존 요청을 처리 중입니다. 같은 요청의 결과를 다시 확인해 주세요.',
+ WAR_EVENT_CHANGED:'전쟁 회차가 변경되었습니다. 현재 전선을 다시 선택해 주세요.',WAR_DEFENDER_CHANGED:'수비자가 변경되었습니다. 전선을 다시 확인해 주세요.',
+ WAR_FRONT_NOT_EMPTY:'이미 수비자가 있는 전선입니다.',
+ WAR_FRONT_EMPTY:'이미 비어 있는 전선입니다.',
+ WAR_OWNER_REQUIRED:'현재 소유 길드원만 수비를 배치할 수 있습니다.',
+ WAR_NOT_DECLARED:'선전포고한 길드만 점령할 수 있습니다.',
+ WAR_ALREADY_DEFENDING:'이미 다른 전선을 수비 중입니다.',
+ WAR_ATTACK_COOLDOWN:'공격 대기 시간이 남아 있습니다.',
 };
-export class WarDeclarationRejected extends Error{}
-async function rpc<T>(name:string,lease:GameplayLease,extra:Record<string,unknown>={}):Promise<T>{
+export class WarDeclarationRejected extends Error{constructor(message:string,readonly code?:string){super(message);}}
+async function rpc<T>(name:string,lease:GameplayLease,extra:Record<string,unknown>={},expectedUserId?:string):Promise<T>{
  if(!supabaseConfig)throw Error('온라인 설정을 불러오지 못했습니다.');
  const session=await getFreshSession();if(!session)throw Error('Google 로그인이 필요합니다.');
+ if(expectedUserId&&session.userId!==expectedUserId)throw Error('접속 계정이 변경되었습니다. 이전 계정의 요청은 실행하지 않았습니다.');
  const response=await fetch(supabaseConfig.url+'/rest/v1/rpc/'+name,{
   method:'POST',
   headers:{apikey:supabaseConfig.publishableKey,Authorization:'Bearer '+session.accessToken,'Content-Type':'application/json'},
@@ -41,7 +55,7 @@ async function rpc<T>(name:string,lease:GameplayLease,extra:Record<string,unknow
  });
  const text=await response.text();
  if(!response.ok){
-  for(const [code,message] of Object.entries(messages))if(text.includes(code))throw new WarDeclarationRejected(message);
+  for(const [code,message] of Object.entries(messages))if(text.includes(code))throw new WarDeclarationRejected(message,code);
   throw Error('선전포고 요청 결과를 확인하지 못했습니다. 다시 확인해 주세요.');
  }
  const current=await getFreshSession();
@@ -56,3 +70,14 @@ export function validWarDeclarationRequest(value:unknown):value is {id:string;to
  return typeof v.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.id)&&
  typeof v.townId==='string'&&/^(city|herb-[1-5]|farm-[1-5])$/.test(v.townId);
 }
+
+export interface VillageWarFront{frontId:number;defenderUserId:string|null;defenderName:string|null;associationId:string|null;associationName:string|null;defenderEpoch:number;revision:number;hp:number|null;maxHp:number|null;mp:number|null;maxMp:number|null;occupiedAt:string|null}
+export interface VillageWarStageOneState{enabled:boolean;serverNow:number;phase:'WAITING'|'DEPLOYMENT'|'BATTLE'|'ENDED';eventId?:string;cycleKey?:string;deploymentStartsAt?:string;battleStartsAt?:string;battleEndsAt?:string;ownerAssociationId?:string|null;myAssociationId?:string|null;myRole?:'LEADER'|'MEMBER'|null;tickets?:number;nextAttackAt?:string|null;myDefendingFront?:{eventId:string;frontId:number}|null;canAttack?:boolean;fronts:VillageWarFront[]}
+export type VillageWarStageAction='PLACE'|'REMOVE'|'CLAIM_EMPTY';
+export interface VillageWarStageRequest{id:string;eventId:string;userId:string;townId:string;frontId:number;expectedEpoch:number;action:VillageWarStageAction}
+export interface VillageWarStageResult{state:VillageWarStageOneState;result:{action:VillageWarStageAction;frontId:number;defenderEpoch:number;ticketsSpent:number;cooldownUntil:string|null};replayed:boolean}
+export const getVillageWarState=(lease:GameplayLease,townId:string)=>rpc<VillageWarStageOneState>('get_village_war_state',lease,{p_town_id:townId});
+const stageMutation=(name:string,lease:GameplayLease,r:VillageWarStageRequest)=>rpc<VillageWarStageResult>(name,lease,{p_request_id:r.id,p_expected_event_id:r.eventId,p_town_id:r.townId,p_front_id:r.frontId,p_expected_epoch:r.expectedEpoch},r.userId);
+export const placeVillageWarDefender=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('place_village_war_defender',lease,r);
+export const removeVillageWarDefender=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('remove_village_war_defender',lease,r);
+export const claimEmptyVillageWarFront=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('claim_empty_village_war_front',lease,r);
