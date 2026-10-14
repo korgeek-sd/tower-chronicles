@@ -15,3 +15,114 @@
 .tc-village-stage :focus-visible{outline:2px solid #f3ca7b;outline-offset:1px;}
 @media(max-height:620px){.tc-village-stage{gap:4px;padding:5px;}.tc-village-stage h2{font-size:16px;}.tc-village-stage-fronts article{padding:2px 4px;}.tc-village-stage-fronts strong{font-size:11px;}}
 .tc-village-stage-status{min-width:0}.tc-village-scores{display:flex;flex-wrap:wrap;gap:3px 8px;font-size:11px;margin-top:5px;max-height:58px;overflow:auto}.tc-village-scores small{flex-basis:100%;color:#bba989}.tc-village-stage-fronts article{overflow:hidden}.tc-village-stage-fronts article>div{overflow:hidden}.tc-village-stage-fronts article strong,.tc-village-stage-fronts article small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tc-village-records{font-size:11px;margin-bottom:5px}.tc-village-records summary{cursor:pointer;min-height:32px;padding:7px 0}.tc-village-records ol{padding-left:20px;max-height:100px;overflow:auto}.tc-village-records li{margin-bottom:5px}.tc-village-combat-result{height:100%;min-height:0;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) 48px;gap:8px;padding:10px;border:3px solid #786045;background:#181712;color:#e1ceaa}.tc-village-combat-result h2{font-size:20px;margin:4px 0}.tc-village-combat-result p{font-size:12px;margin:4px 0}.tc-village-combat-vitals{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tc-village-combat-vitals article{min-width:0;padding:8px;background:#242018;border:1px solid #665238}.tc-village-combat-vitals b,.tc-village-combat-vitals span{display:block;font-size:12px;overflow-wrap:anywhere}.tc-village-combat-vitals progress{width:100%;height:10px;accent-color:#a2864e}.tc-village-combat-log{min-height:0;overflow:auto;padding:0 8px 0 24px;margin:0;font-size:12px}.tc-village-combat-log li{padding:5px 0}.tc-village-combat-log span{display:block;margin-top:3px}.tc-village-combat-result button{font:inherit;min-height:44px;background:#282117;color:#e3cca3;border:1px solid #806b4d}.tc-village-combat-result :focus-visible{outline:2px solid #f3ca7b}.tc-village-stage footer:has(details[open]){max-height:180px;overflow:auto}@media(max-height:620px){.tc-village-stage-fronts article small{font-size:10px;margin-top:1px}.tc-village-combat-result{gap:5px;padding:6px}.tc-village-combat-result h2{font-size:17px}}
+
+
+/* Stage 3: compact, server-backed five-front battlefield. */
+.tc-village-stage-v3{
+ grid-template-rows:auto auto auto auto minmax(0,1fr) auto auto;
+ gap:3px;padding:6px;overflow:hidden;position:relative;min-width:0;
+}
+.tc-village-stage-v3 .tc-village-war-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.tc-village-war-head>div:first-child{min-width:0}
+.tc-village-war-head h2{margin:0;font-size:18px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-village-war-head small,.tc-village-war-timer small{font-size:9px;color:#a99675}
+.tc-village-war-timer{text-align:right;display:flex;flex-direction:column;align-items:end;flex:none}
+.tc-village-war-timer strong{font-size:17px;font-variant-numeric:tabular-nums;color:#edcf85}
+.tc-village-war-score-head{display:flex;align-items:center;gap:6px;min-width:0;font-size:11px;color:#dbc8a1}
+.tc-village-war-score-head span{flex:1;color:#bba47c;font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-village-stage-v3 .tc-village-war-score-head button,.tc-village-stage-v3 .tc-village-war-feed-head button{
+ flex:none;min-width:44px;min-height:30px;padding:2px 5px;background:#2c251a;font-size:10px
+}
+.tc-village-leaderboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:0}
+.tc-village-rank{display:grid;grid-template-rows:auto auto auto;gap:1px;min-width:0;padding:4px 5px;border:1px solid #584b36;background:linear-gradient(140deg,#2f281d,#201c17)}
+.tc-village-rank.is-my-guild{border-color:#b79957;background:#302a1e}
+.tc-village-rank small{font-size:9px;color:#af9a78;white-space:nowrap}
+.tc-village-rank b{font-size:11px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-village-rank strong{text-align:right;font-size:14px;font-variant-numeric:tabular-nums;color:#f1cc80;line-height:1.1}
+.tc-village-rank em{font-style:normal;font-size:9px;margin-left:2px;color:#bead8b}
+.tc-village-no-scores{grid-column:1/-1;margin:0!important;text-align:center;padding:12px 4px;border:1px solid #584b36;color:#bca783;font-size:11px}
+.tc-village-lanes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;min-width:0}
+.tc-village-stage-v3 .tc-village-lane{display:flex;flex-direction:column;justify-content:space-around;align-items:center;min-width:0;min-height:58px;padding:4px 2px;gap:2px;border:1px solid #60513b;background:#28241e;color:#d7c19e;border-radius:3px}
+.tc-village-lane b{font-size:16px;line-height:1}
+.tc-village-lane b small{font-size:9px;font-weight:400;margin-left:1px}
+.tc-village-lane-guild{max-width:100%;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#b7a589}
+.tc-village-stage-v3 .tc-village-lane.is-ours{border-color:#6e9066}
+.tc-village-stage-v3 .tc-village-lane.is-enemy{border-color:#94644f}
+.tc-village-stage-v3 .tc-village-lane.is-selected{border:2px solid #e4bd74;background:#473723;box-shadow:inset 0 0 0 1px #5b4930}
+.tc-village-lane-track{display:block;width:90%;height:4px;background:#423428}
+.tc-village-lane-track i{display:block;height:100%;background:#b57455}
+.tc-village-lane.is-ours .tc-village-lane-track i{background:#89a578}
+.tc-village-selected-front{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:5px;min-width:0;min-height:0;padding:8px;border:1px solid #806548;background:linear-gradient(#2c261e,#1c1a16)}
+.tc-village-selected-head{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.tc-village-selected-head>div:first-child{min-width:0}
+.tc-village-selected-head small{font-size:10px;color:#c4a676}
+.tc-village-selected-head h3{font-size:17px;margin:1px 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-village-selected-head p{margin:0;font-size:11px;color:#c8b695;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-village-selected-head p b{color:#f0dfba}
+.tc-village-shield{display:grid;place-items:center;width:43px;height:43px;flex:none;font-size:28px;border:2px solid #6d6452;transform:rotate(0);color:#bba98a;background:#292620;clip-path:polygon(50% 0,100% 15%,95% 72%,50% 100%,5% 72%,0 15%)}
+.tc-village-shield.ally{color:#a9cf8a;border-color:#80a579;background:#263326}
+.tc-village-shield.foe{color:#e6ad8a;border-color:#ba856b;background:#3c2925}
+.tc-village-selected-vitals{display:grid;gap:5px;align-content:center;min-width:0;min-height:0}
+.tc-village-vital{display:grid;grid-template-columns:22px minmax(0,1fr) 83px;align-items:center;gap:5px;font-size:11px}
+.tc-village-vital>b{font-size:10px;text-align:right;font-variant-numeric:tabular-nums}
+.tc-village-vital progress{width:100%;height:9px;appearance:none;border:1px solid #6b5640;background:#171411}
+.tc-village-vital progress::-webkit-progress-bar{background:#171411}
+.tc-village-vital progress.hp::-webkit-progress-value{background:#b76c57}
+.tc-village-vital progress.mp::-webkit-progress-value{background:#5d9cb9}
+.tc-village-vital progress.hp::-moz-progress-bar{background:#b76c57}
+.tc-village-vital progress.mp::-moz-progress-bar{background:#5d9cb9}
+.tc-village-selected-vitals>p{font-size:11px;color:#bca988;margin:0;line-height:1.35}
+.tc-village-selected-action{min-width:0}
+.tc-village-stage-v3 .tc-village-primary{display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;min-height:44px;padding:4px;background:#785033;border:1px solid #b78c59;font-size:14px;font-weight:bold;color:#ffecce}
+.tc-village-stage-v3 .tc-village-primary small{font-size:10px;font-weight:normal;color:#f1d1a1}
+.tc-village-stage-v3 .tc-village-primary:disabled{background:#27231e;border-color:#6c5d4b;color:#928774}
+.tc-village-stage-v3 .tc-village-primary:disabled small{color:#928774}
+.tc-village-war-feed{min-height:0;min-width:0;border-top:1px solid #554631;padding-top:2px}
+.tc-village-war-feed-head{display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.tc-village-mini-records{display:grid;gap:2px}
+.tc-village-mini-records p{display:flex;min-width:0;gap:6px;margin:0;font-size:10px;line-height:1.4;color:#c6b18d}
+.tc-village-mini-records time{flex:none;color:#a49375}
+.tc-village-mini-records b{flex:none;color:#e3c17d}
+.tc-village-mini-records span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-village-empty-records{margin:0;font-size:10px;color:#a49375}
+.tc-village-stage-v3 .tc-village-war-footer{display:flex;gap:4px;align-items:center;justify-content:space-between;flex-wrap:wrap;min-width:0}
+.tc-village-war-footer span{font-size:10px;color:#c5b397;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-village-war-footer span b{color:#f1d28e}
+.tc-village-stage-v3 .tc-village-war-footer>div{display:flex;gap:3px;flex:none}
+.tc-village-stage-v3 .tc-village-war-footer button{min-height:30px;min-width:44px;font-size:10px;padding:2px 5px}
+.tc-village-war-footer>p{flex-basis:100%;width:100%;margin:0!important;max-height:32px;overflow:auto}
+.tc-village-dialog-backdrop{position:fixed;inset:0;z-index:1500;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,.75);padding:12px}
+.tc-village-dialog{display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;width:min(100%,450px);max-height:min(78vh,650px);min-height:160px;padding:12px;background:#201c17;border:3px solid #8f744d;color:#e9d5ae;box-shadow:0 10px 45px #000}
+.tc-village-dialog header{display:flex;align-items:center;justify-content:space-between}
+.tc-village-dialog header h3{font-size:18px;margin:0}
+.tc-village-dialog header small{font-size:10px;color:#bca17a}
+.tc-village-dialog-list{overflow:auto;min-height:0;display:grid;align-content:start;gap:6px;margin:0}
+.tc-village-dialog-score{display:grid;grid-template-columns:36px minmax(0,1fr) 45px 68px;align-items:center;gap:4px;min-height:46px;padding:7px;background:#2e271e;border:1px solid #5e4e36;font-size:12px}
+.tc-village-dialog-score span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-village-dialog-score strong{text-align:right;color:#ecc77d;font-variant-numeric:tabular-nums}
+.tc-village-dialog-records{padding:0;list-style:none}
+.tc-village-dialog-records li{display:flex;gap:10px;padding:8px;background:#2e271e;border:1px solid #5e4e36;font-size:11px}
+.tc-village-dialog-records li time{color:#b5a17e;flex:none}
+.tc-village-dialog-records li p{margin:4px 0}
+.tc-village-dialog-records li small{color:#b5a17e}
+.tc-village-no-front{font-size:12px;color:#baa786}
+@media(max-width:350px){
+ .tc-village-stage-v3{padding:4px;gap:2px}
+ .tc-village-war-head h2{font-size:16px}
+ .tc-village-lanes{gap:2px}
+ .tc-village-lane-guild{font-size:8px}
+ .tc-village-selected-front{padding:5px}
+ .tc-village-war-score-head span{font-size:9px}
+ .tc-village-vital{grid-template-columns:20px minmax(0,1fr) 70px}
+}
+@media(max-height:640px){
+ .tc-village-stage-v3{gap:2px;padding:4px}
+ .tc-village-stage-v3 .tc-village-lane{min-height:46px;padding:2px}
+ .tc-village-rank{padding:2px 4px}
+ .tc-village-rank strong{font-size:12px}
+ .tc-village-selected-front{gap:2px;padding:5px}
+ .tc-village-shield{width:32px;height:32px;font-size:21px}
+ .tc-village-selected-head h3{font-size:15px}
+ .tc-village-selected-vitals{gap:2px}
+ .tc-village-war-feed .tc-village-mini-records p:nth-child(n+2){display:none}
+}
