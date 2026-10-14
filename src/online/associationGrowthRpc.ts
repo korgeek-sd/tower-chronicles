@@ -8,8 +8,8 @@ export const associationLeaseArgs=(lease:GameplayLease)=>({p_lease_id:lease.leas
 export function associationGrowthError(raw:string){
  const messages:Record<string,string>={
   ASSOCIATION_NOT_JOINED:'소속 원정단이 없습니다.',
-  ASSOCIATION_DONATION_INVALID:'실버는 10,000, 골드는 100 단위로 기부해 주세요.',
-  ASSOCIATION_DONATION_LIMIT:'오늘 기부 한도에 도달했습니다.',
+  ASSOCIATION_DONATION_INVALID:'실버는 10,000, 골드는 100, 도전권은 1장 단위로 기부해 주세요.',
+  ASSOCIATION_DONATION_LIMIT:'오늘 기부 한도에 도달했습니다. (도전권 최대 100장)',
   ASSOCIATION_BALANCE_SHORTAGE:'기부할 재화가 부족합니다.',
   ASSOCIATION_CONTRIBUTION_SHORTAGE:'공헌도가 부족합니다.',
   ASSOCIATION_PURCHASE_LIMIT:'이번 기간의 구매 한도에 도달했습니다.',
