@@ -6,6 +6,7 @@ import {PGlite} from '@electric-sql/pglite';
 const base=readFileSync(new URL('../supabase/migrations/20261014124500_guild_boss_rewards_contribution_auction.sql',import.meta.url),'utf8');
 const extension=readFileSync(new URL('../supabase/migrations/20261014221800_guild_auction_leader_registration_recovery_relist.sql',import.meta.url),'utf8');
 const membershipRecovery=readFileSync(new URL('../supabase/migrations/20261014224300_guild_auction_former_member_gear_recovery.sql',import.meta.url),'utf8');
+const releaseEscrow=readFileSync(new URL('../supabase/migrations/20261014225900_guild_auction_release_escrow_uniqueness.sql',import.meta.url),'utf8');
 const leader='11111111-1111-4111-8111-111111111111';
 const member='22222222-2222-4222-8222-222222222222';
 const guild='33333333-3333-4333-8333-333333333333';
@@ -49,7 +50,7 @@ test('guild leader-only registration escrows server gear; cancellation, unsold r
    ...[1,2,3].map(i=>"insert into private.market_assets(user_id,item_id,quantity,gear) values('"+leader+"','equipment_v2:"+item(i)+"',1,'"+gear(i)+"');"),
    "insert into private.market_assets(user_id,item_id,quantity,gear) values('"+member+"','equipment_v2:"+item(4)+"',1,'"+gear(4)+"');"
   ].join('\n'));
-  await db.exec(base);await db.exec(extension);await db.exec(membershipRecovery);
+  await db.exec(base);await db.exec(extension);await db.exec(membershipRecovery);await db.exec(releaseEscrow);
   const rpc=async(name:string,args:any[])=>(await db.query<{r:any}>('select public.'+name+'('+args.map((_,i)=>i===0?'$1::uuid':i===3?'$4::uuid':i===4&&name==='register_guild_auction_item'?'$5::text':i===4?'$5::uuid':i===5?'$6::bigint':'$'+(i+1)).join(',')+') r',args)).rows[0].r;
   const register=async(u:string,n:number,it:number,price:number)=>(await db.query<{r:any}>(
     'select public.register_guild_auction_item($1::uuid,1,$2,$3,$4::uuid,$5,$6::bigint) r',
