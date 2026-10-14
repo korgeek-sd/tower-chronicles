@@ -20,11 +20,11 @@ const clock=(date:string)=>{
 };
 function Vital({name,current,max}:{name:'HP'|'MP';current:number|null;max:number|null}){
  const value=ratio(current,max);
- return <div className="tc-village-vital"><span>{name}</span><progress className={name.toLowerCase()} aria-label={'수비자 '+name} max={100} value={value??0}/><b>{current===null||max===null?'—':current+' / '+max}</b></div>;
+ return <div className="tc-village-vital"><span>{name}</span><progress className={name.toLowerCase()} aria-label={'수비자 '+name+' '+(current??'—')+' / '+(max??'—')} max={100} value={value??0}/><b>{current===null||max===null?'—':current+' / '+max}</b></div>;
 }
-function FrontButton({front,selected,onSelect,myGuild}:{front:VillageWarFront;selected:boolean;onSelect:()=>void;myGuild:string|null|undefined}){
+function FrontButton({front,selected,onSelect,myGuild,phase}:{front:VillageWarFront;selected:boolean;onSelect:()=>void;myGuild:string|null|undefined;phase:string}){
  const occupied=!!front.defenderUserId,ours=!!myGuild&&front.associationId===myGuild,percentage=ratio(front.hp,front.maxHp);
- return <button type="button" className={'tc-village-lane '+(selected?'is-selected ':'')+(occupied?(ours?'is-ours':'is-enemy'):'is-empty')} aria-pressed={selected} aria-label={'제'+front.frontId+'전선 · '+(front.associationName??'중립')} onClick={onSelect}>
+ return <button type="button" className={'tc-village-lane '+(selected?'is-selected ':'')+(occupied?(ours?'is-ours':'is-enemy'):'is-empty')} aria-pressed={selected} aria-label={'제'+front.frontId+'전선 · '+(front.associationName??(phase==='BATTLE'?'빈 전선 점령':'중립'))} onClick={onSelect}>
   <b>{front.frontId}<small>전선</small></b>
   <span className="tc-village-lane-guild">{occupied?(ours?'우리 길드':front.associationName??'점령 중'):'중립'}</span>
   <span className="tc-village-lane-track"><i style={{width:(percentage??0)+'%'}}/></span>
@@ -54,7 +54,7 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
  const isDefender=!!selected?.defenderUserId;
  const ownsPlacement=!!selected&&owner&&phase==='DEPLOYMENT';
  const status=state.myDefendingFront?'현재 수비 중':cooldown>0?'공격 대기 '+cooldown+'초':(state.tickets??0)<1?'도전권 부족':'공격 가능';
- const actionText=phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?'배치 해제':'수비자 배치'):'수비 배치 대기'):
+ const actionText=phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?'배치 해제':'내 캐릭터 배치'):'수비 배치 대기'):
   phase==='BATTLE'?(isDefender?(isOurs?'우리 길드 수비 중':state.stageTwo?'즉시 전투':'자동 PvP 연결 전'):'빈 전선 점령'):
   settled?'종료된 전쟁':'전쟁 시작 대기';
  const actionAllowed=!!selected&&(phase==='DEPLOYMENT'?ownsPlacement&&(isDefender?state.myRole==='LEADER':!state.myDefendingFront)&&!locked:
@@ -76,7 +76,7 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
   </div>
   <Scores scores={scores} myGuild={state.myAssociationId}/>
   <nav className="tc-village-lanes" aria-label="공성전 5개 전선 선택">
-   {state.fronts.map(front=><FrontButton key={front.frontId} front={front} selected={selected?.frontId===front.frontId} onSelect={()=>setSelection(front.frontId)} myGuild={state.myAssociationId}/>)}
+   {state.fronts.map(front=><FrontButton key={front.frontId} front={front} selected={selected?.frontId===front.frontId} onSelect={()=>setSelection(front.frontId)} myGuild={state.myAssociationId} phase={phase}/>)}
   </nav>
   {selected?<section className="tc-village-selected-front" aria-label={'제'+selected.frontId+'전선 현황'}>
    <div className="tc-village-selected-head">
