@@ -10,7 +10,7 @@ const remaining=(t:string,now:number)=>{
  const d=Math.floor(seconds/86400),h=Math.floor(seconds%86400/3600),m=Math.floor(seconds%3600/60);
  return d?d+'일 '+h+'시간':h+'시간 '+m+'분';
 };
-export function GuildBossPanel({lease,associationId,expedition}:{lease:GameplayLease;associationId:string;expedition:boolean}){
+export function GuildBossPanel({lease,associationId,expedition,onAuction}:{lease:GameplayLease;associationId:string;expedition:boolean;onAuction?:()=>void}){
  const [state,setState]=useState<GuildBossState|null>(null);
  const [kind,setKind]=useState<GuildBossKind>('DAILY');
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState<GuildBossAttackResult|null>(null);
@@ -75,13 +75,14 @@ export function GuildBossPanel({lease,associationId,expedition}:{lease:GameplayL
     <div className="tc-guild-boss-result-head"><b>전투 결과 · {result.combat.outcome==='defeated'?'캐릭터 쓰러짐':'전투 종료'}</b><button type="button" onClick={()=>setResult(null)}>닫기</button></div>
     <strong>이번 피해량 {num(result.damage)}</strong><span>보스 남은 HP {num(result.remainingHp)} / {num(result.maxHp)}</span>
     <details><summary>자동전투 기록 · {result.combat.turns.length}턴</summary><div className="tc-guild-boss-turns">{result.combat.turns.map(t=><p key={t.turn}><small>{t.turn}턴</small> {t.lines.join(' · ')}</p>)}</div></details>
-    {result.defeated&&<p>보스 토벌 성공! 경매 전리품과 개인 보상은 다음 개발 단계에서 연결됩니다.</p>}
+    {result.defeated&&<p>보스 토벌 성공! 참여 보상과 전리품 경매는 경매장에서 확인하세요.</p>}
    </div>}
    <div className="tc-guild-boss-ranks">
     <div className="tc-guild-boss-ranks-title"><b>피해량 순위</b><small>길드 전체 {num(boss.totalAttacks)}회 공격</small></div>
     {boss.leaderboard.length?boss.leaderboard.slice(0,5).map((member,i)=><div key={member.userId} className="tc-guild-boss-rank"><b>{i+1}</b><span>{member.name}</span><strong>{num(member.damage)}</strong><small>{member.attacks}회</small></div>):<p>아직 공격한 길드원이 없습니다.</p>}
    </div>
-   <small className="tc-guild-boss-disclaimer">서버가 피해량과 공격 횟수를 관리합니다. 기존 장비·스킬·스킬 강화가 적용되며 사냥 활력·HP·MP는 소모하지 않습니다. 보상과 경매 등록은 추후 연결됩니다.</small>
+   {onAuction&&<button type="button" className="tc-guild-boss-attack" onClick={onAuction}>보상·길드 경매장 확인 ›</button>}
+   <small className="tc-guild-boss-disclaimer">서버가 피해량과 공격 횟수를 관리합니다. 기존 장비·스킬·스킬 강화가 적용되며 사냥 활력·HP·MP는 소모하지 않습니다.</small>
   </>}
  </section>;
 }
