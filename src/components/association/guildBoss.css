@@ -1,0 +1,26 @@
+.tc-guild-boss{display:flex;flex-direction:column;min-height:0;overflow-y:auto;gap:9px;padding:8px 7px 16px;color:#ead7ad;background:#171710;font-size:11px}
+.tc-guild-boss button{font:inherit;cursor:pointer}.tc-guild-boss button:disabled{opacity:.48;cursor:default}
+.tc-guild-boss-selector{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:none}.tc-guild-boss-selector button{min-height:43px;border:1px solid #786342;background:#262118;color:#a99676;font-weight:600}
+.tc-guild-boss-selector button[aria-selected=true]{color:#f4deb2;border-color:#c49b59;background:#453322}.tc-guild-boss-selector small{display:block;font-size:9px;color:#ac9571;margin-top:2px;font-weight:400}
+.tc-guild-boss-heading{display:flex;justify-content:space-between;align-items:center;gap:6px}.tc-guild-boss-heading small{font-size:9px;color:#b79562;letter-spacing:1px}
+.tc-guild-boss-heading h2{font-size:18px;line-height:1.2;margin:3px 0 0}.tc-guild-boss-tag{flex:none;border:1px solid #aa6a55;color:#e5ac8b;padding:4px 7px;font-size:10px}.tc-guild-boss-tag.complete{border-color:#819263;color:#b8ce9a}
+.tc-guild-boss-art{position:relative;min-height:125px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;overflow:hidden;border:1px solid #564630;background:radial-gradient(ellipse at 50% 35%,#54382a 0%,#27211e 52%,#12110e 100%)}
+.tc-guild-boss-art.weekly{background:radial-gradient(ellipse at 50% 35%,#44334f 0%,#25202a 52%,#12110f 100%)}
+.tc-guild-boss-sigil{position:absolute;font-size:132px;line-height:1;opacity:.11;color:#efb96a;transform:rotate(18deg)}.tc-guild-boss-art.weekly .tc-guild-boss-sigil{color:#d5a7f6}
+.tc-guild-boss-art>div{position:relative;text-align:center;display:grid;gap:3px;text-shadow:1px 2px 4px #000}.tc-guild-boss-art>div small{color:#baa27f;font-size:10px;letter-spacing:2px}
+.tc-guild-boss-art>div b{font-size:20px;color:#f0dbb7}.tc-guild-boss-time{position:absolute;bottom:8px;right:9px;color:#c3a984;font-size:10px}
+.tc-guild-boss-health>div:first-child{display:flex;justify-content:space-between;gap:6px;align-items:center;padding-bottom:7px}.tc-guild-boss-health strong{font-size:11px}.tc-guild-boss-health b{font-size:13px;font-variant-numeric:tabular-nums}.tc-guild-boss-health small{font-size:10px;color:#98866d}
+.tc-guild-boss-track{height:13px;background:#2d201e;border:1px solid #815a48;overflow:hidden}.tc-guild-boss-track i{display:block;height:100%;background:linear-gradient(90deg,#7b2f32,#c25c55);transition:width .18s}
+.tc-guild-boss-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.tc-guild-boss-stats>div{display:grid;min-width:0;gap:4px;padding:9px 4px;text-align:center;background:#242017;border:1px solid #4f4030}
+.tc-guild-boss-stats small{font-size:9px;color:#b5a283}.tc-guild-boss-stats strong{font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}.tc-guild-boss-stats strong span{font-size:10px;color:#aa9574}
+.tc-guild-boss-attack{min-height:50px;background:#734a28;color:#f9e4bf;border:1px solid #c09352;font-size:15px!important;font-weight:700!important}
+.tc-guild-boss-reset{font-size:10px;color:#b4a080;line-height:1.5;text-align:center}
+.tc-guild-boss-ranks{background:#201c16;border:1px solid #594730;padding:8px;display:grid;gap:4px}.tc-guild-boss-ranks-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:5px;border-bottom:1px solid #584730}
+.tc-guild-boss-ranks-title b{font-size:12px}.tc-guild-boss-ranks-title small{font-size:9px;color:#ad9674}.tc-guild-boss-rank{display:flex;align-items:center;gap:8px;padding:5px 3px;border-bottom:1px solid #362e25}
+.tc-guild-boss-rank>b{width:14px;color:#d6ae74}.tc-guild-boss-rank span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tc-guild-boss-rank strong{font-variant-numeric:tabular-nums}.tc-guild-boss-rank small{color:#99866b}
+.tc-guild-boss-ranks>p{color:#a7977d;font-size:11px;margin:5px}.tc-guild-boss-disclaimer{font-size:10px;line-height:1.5;color:#96856d}
+.tc-guild-boss-result{display:grid;gap:6px;border:1px solid #ac8854;background:#33281a;padding:10px}.tc-guild-boss-result-head{display:flex;justify-content:space-between;align-items:center}
+.tc-guild-boss-result-head button{background:none;border:0;color:#d7bf91;min-height:30px}.tc-guild-boss-result>strong{font-size:16px;color:#f2d49c}.tc-guild-boss-result>span{font-size:11px}
+.tc-guild-boss-result details{font-size:11px}.tc-guild-boss-result summary{cursor:pointer;min-height:32px}.tc-guild-boss-turns{max-height:160px;overflow:auto}.tc-guild-boss-turns p{margin:3px 0;border-bottom:1px solid #4e3e2e;padding:5px 2px;font-size:10px;line-height:1.5}
+.tc-guild-boss-turns small{color:#e3b77a}.tc-guild-boss-error{border:1px solid #926448;color:#efbf9e;padding:8px;display:grid;gap:5px}.tc-guild-boss-error button{border:1px solid #946f42;background:#3a2b1d;color:#ebd8b2;min-height:36px}
+@media(max-width:350px){.tc-guild-boss-stats strong{font-size:13px}.tc-guild-boss-art{min-height:105px}}
