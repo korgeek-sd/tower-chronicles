@@ -22,9 +22,9 @@ function Vital({name,current,max}:{name:'HP'|'MP';current:number|null;max:number
  const value=ratio(current,max);
  return <div className="tc-village-vital"><span>{name}</span><progress className={name.toLowerCase()} aria-label={'수비자 '+name+' '+(current??'—')+' / '+(max??'—')} max={100} value={value??0}/><b>{current===null||max===null?'—':current+' / '+max}</b></div>;
 }
-function FrontButton({front,selected,onSelect,myGuild,phase}:{front:VillageWarFront;selected:boolean;onSelect:()=>void;myGuild:string|null|undefined;phase:string}){
+function FrontButton({front,selected,onSelect,myGuild,phase,canDeploy}:{front:VillageWarFront;selected:boolean;onSelect:()=>void;myGuild:string|null|undefined;phase:string;canDeploy:boolean}){
  const occupied=!!front.defenderUserId,ours=!!myGuild&&front.associationId===myGuild,percentage=ratio(front.hp,front.maxHp);
- return <button type="button" className={'tc-village-lane '+(selected?'is-selected ':'')+(occupied?(ours?'is-ours':'is-enemy'):'is-empty')} aria-pressed={selected} aria-label={'제'+front.frontId+'전선 · '+(front.associationName??(phase==='BATTLE'?'빈 전선 점령':'중립'))} onClick={onSelect}>
+ return <button type="button" className={'tc-village-lane '+(selected?'is-selected ':'')+(occupied?(ours?'is-ours':'is-enemy'):'is-empty')} aria-pressed={selected} aria-label={'제'+front.frontId+'전선 · '+(front.associationName??(phase==='BATTLE'?'빈 전선 점령':phase==='DEPLOYMENT'&&canDeploy?'내 캐릭터 배치':'중립'))} onClick={onSelect}>
   <b>{front.frontId}<small>전선</small></b>
   <span className="tc-village-lane-guild">{occupied?(ours?'우리 길드':front.associationName??'점령 중'):'중립'}</span>
   <span className="tc-village-lane-track"><i style={{width:(percentage??0)+'%'}}/></span>
@@ -76,7 +76,7 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
   </div>
   <Scores scores={scores} myGuild={state.myAssociationId}/>
   <nav className="tc-village-lanes" aria-label="공성전 5개 전선 선택">
-   {state.fronts.map(front=><FrontButton key={front.frontId} front={front} selected={selected?.frontId===front.frontId} onSelect={()=>setSelection(front.frontId)} myGuild={state.myAssociationId} phase={phase}/>)}
+   {state.fronts.map(front=><FrontButton key={front.frontId} front={front} selected={selected?.frontId===front.frontId} onSelect={()=>setSelection(front.frontId)} myGuild={state.myAssociationId} phase={phase} canDeploy={owner}/>)}
   </nav>
   {selected?<section className="tc-village-selected-front" aria-label={'제'+selected.frontId+'전선 현황'}>
    <div className="tc-village-selected-head">
