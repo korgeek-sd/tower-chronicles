@@ -8,8 +8,11 @@ import {marketItems} from '../src/game/market/marketService';
 test('donations use the agreed exchange and reject partial or invalid units',()=>{
  assert.equal(associationDonationGain('silver',10000),100);
  assert.equal(associationDonationGain('gold',100),200);
+ assert.equal(associationDonationGain('ticket',1),10);
+ assert.equal(associationDonationGain('ticket',100),1000);
  for(const amount of [0,-100,NaN,Infinity,100.5,101])assert.throws(()=>associationDonationGain('gold',amount));
  assert.throws(()=>associationDonationGain('silver',9999));
+ assert.throws(()=>associationDonationGain('ticket',1.5));
 });
 test('daily and weekly limits reset at Korean midnight and Monday',()=>{
  assert.equal(associationPeriodStart('DAILY',Date.parse('2026-10-01T14:59:59Z')),'2026-10-01');
