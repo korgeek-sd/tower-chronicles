@@ -30,6 +30,8 @@ const messages:Record<string,string>={
  WAR_ALREADY_DECLARED:'이번 주 이 마을에 이미 선전포고했습니다.',
  WAR_TICKETS_SHORT:'도전권이 부족합니다.',
  WAR_FEATURE_DISABLED:'공성전 1차 기능은 내부 검증 중입니다.',
+ WAR_ENDED:'전쟁이 종료되었습니다. 도전권은 차감되지 않았습니다.',
+ WAR_SAME_GUILD:'같은 원정단의 전선은 공격할 수 없습니다.',
  WAR_PHASE_INVALID:'배치 또는 점령 가능한 시간이 아닙니다.',
  WAR_EVENT_BUSY:'전장 상태를 처리 중입니다. 다시 확인해 주세요.',
  WAR_FRONT_BUSY:'다른 공격이 진행 중입니다. 도전권은 차감되지 않았습니다.',
@@ -72,12 +74,18 @@ export function validWarDeclarationRequest(value:unknown):value is {id:string;to
 }
 
 export interface VillageWarFront{frontId:number;defenderUserId:string|null;defenderName:string|null;associationId:string|null;associationName:string|null;defenderEpoch:number;revision:number;hp:number|null;maxHp:number|null;mp:number|null;maxMp:number|null;occupiedAt:string|null}
-export interface VillageWarStageOneState{enabled:boolean;serverNow:number;phase:'WAITING'|'DEPLOYMENT'|'BATTLE'|'ENDED';eventId?:string;cycleKey?:string;deploymentStartsAt?:string;battleStartsAt?:string;battleEndsAt?:string;ownerAssociationId?:string|null;myAssociationId?:string|null;myRole?:'LEADER'|'MEMBER'|null;tickets?:number;nextAttackAt?:string|null;myDefendingFront?:{eventId:string;frontId:number}|null;canAttack?:boolean;fronts:VillageWarFront[]}
-export type VillageWarStageAction='PLACE'|'REMOVE'|'CLAIM_EMPTY';
+export interface VillageWarStageOneState{stageTwo?:boolean;scores?:VillageWarScore[];settledAt?:string|null;winnerAssociationId?:string|null;recentBattles?:VillageWarBattleRecord[];enabled:boolean;serverNow:number;phase:'WAITING'|'DEPLOYMENT'|'BATTLE'|'ENDED';eventId?:string;cycleKey?:string;deploymentStartsAt?:string;battleStartsAt?:string;battleEndsAt?:string;ownerAssociationId?:string|null;myAssociationId?:string|null;myRole?:'LEADER'|'MEMBER'|null;tickets?:number;nextAttackAt?:string|null;myDefendingFront?:{eventId:string;frontId:number}|null;canAttack?:boolean;fronts:VillageWarFront[]}
+export type VillageWarStageAction='PLACE'|'REMOVE'|'CLAIM_EMPTY'|'ATTACK';
 export interface VillageWarStageRequest{id:string;eventId:string;userId:string;townId:string;frontId:number;expectedEpoch:number;action:VillageWarStageAction}
-export interface VillageWarStageResult{state:VillageWarStageOneState;result:{action:VillageWarStageAction;frontId:number;defenderEpoch:number;ticketsSpent:number;cooldownUntil:string|null};replayed:boolean}
+export interface VillageWarStageResult{state:VillageWarStageOneState;result:{action:VillageWarStageAction;frontId:number;defenderEpoch:number;ticketsSpent:number;cooldownUntil:string|null;battle?:VillageWarCombatResult};replayed:boolean}
 export const getVillageWarState=(lease:GameplayLease,townId:string)=>rpc<VillageWarStageOneState>('get_village_war_state',lease,{p_town_id:townId});
 const stageMutation=(name:string,lease:GameplayLease,r:VillageWarStageRequest)=>rpc<VillageWarStageResult>(name,lease,{p_request_id:r.id,p_expected_event_id:r.eventId,p_town_id:r.townId,p_front_id:r.frontId,p_expected_epoch:r.expectedEpoch},r.userId);
 export const placeVillageWarDefender=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('place_village_war_defender',lease,r);
 export const removeVillageWarDefender=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('remove_village_war_defender',lease,r);
 export const claimEmptyVillageWarFront=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('claim_empty_village_war_front',lease,r);
+
+export interface VillageWarScore{associationId:string;associationName:string|null;points:number;fronts:number}
+export interface VillageWarCombatTurn{turn:number;lines:string[];attackerHp:number;attackerMp:number;defenderHp:number;defenderMp:number}
+export interface VillageWarCombatResult{outcome:'CAPTURE'|'DEFENDED';attackerName:string;defenderName:string;attackerHp:number;attackerMp:number;attackerMaxHp:number;attackerMaxMp:number;defenderHp:number;defenderMp:number;defenderMaxHp:number;defenderMaxMp:number;defenderReward:number;turns:VillageWarCombatTurn[]}
+export interface VillageWarBattleRecord{battleId:string;frontId:number;createdAt:string;attackerName:string;defenderName:string;outcome:'CAPTURE'|'DEFENDED';defenderHp:number;defenderReward:number}
+export const attackVillageWarFront=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('attack_village_war_front',lease,r);

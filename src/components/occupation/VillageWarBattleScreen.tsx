@@ -1,3 +1,4 @@
+import {VillageWarCombatResult} from './VillageWarCombatResult';
 import {useVillageWarStageOne} from './useVillageWarStageOne';
 import {VillageWarDeploymentPanel} from './VillageWarDeploymentPanel';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
@@ -79,7 +80,8 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
  const deadline=phase==='BIDDING'?war?.bidClosesAt:war?.battleStartsAt;
  const battleRemains=phase==='BATTLE'?remaining(war?.battleStartsAt?new Date(Date.parse(war.battleStartsAt)+30*60000).toISOString():undefined,now):'30:00';
  function chooseFront(id:number){setFrontId(id);setPreviewResult(false);}
- if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell"><div className="tc-village-stage-controls"><select aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select><button onClick={()=>setPreview(true)}>UI 시안 보기</button></div><VillageWarDeploymentPanel state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/></section>;
+ if(stage.battle&&!preview)return <VillageWarCombatResult battle={stage.battle} onClose={stage.closeBattle}/>;
+ if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell"><div className="tc-village-stage-controls"><select aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select><button onClick={()=>setPreview(true)}>UI 시안 보기</button></div><VillageWarDeploymentPanel state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/></section>;
  return <section className="tc-vwb" aria-label="영지 점령전 전투" data-war-preview={preview}>
   <header className="tc-vwb-header">
    <div className="tc-vwb-title"><small>GUILD WAR · TERRITORY</small><h1>{town.name} 점령전</h1></div>
