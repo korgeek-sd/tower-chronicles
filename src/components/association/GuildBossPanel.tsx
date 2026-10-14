@@ -17,7 +17,7 @@ const attackLabel=(boss:GuildBossInfo,busy:boolean,expedition:boolean)=>{
  if(expedition)return '원정 중 공격 불가';
  return '보스 공격';
 };
-const asset=(p:string)=>import.meta.env.BASE_URL+p;
+const asset=(p:string)=>(import.meta.env?.BASE_URL??'/')+p;
 const raidImage={
  DAILY:asset('assets/monsters/iron-bosses/deep_hoist_overseer.png'),
  WEEKLY:asset('assets/monsters/iron-bosses/echo_devourer.png'),
