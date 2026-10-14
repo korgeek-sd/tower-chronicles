@@ -54,7 +54,7 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
  const isDefender=!!selected?.defenderUserId;
  const ownsPlacement=!!selected&&owner&&phase==='DEPLOYMENT';
  const status=state.myDefendingFront?'현재 수비 중':cooldown>0?'공격 대기 '+cooldown+'초':(state.tickets??0)<1?'도전권 부족':'공격 가능';
- const actionText=phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?'배치 해제':'내 캐릭터 배치'):'수비 배치 대기'):
+ const actionText=phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?(state.myRole==='LEADER'?'배치 해제':'수비 배치 완료'):'내 캐릭터 배치'):'수비 배치 대기'):
   phase==='BATTLE'?(isDefender?(isOurs?'우리 길드 수비 중':state.stageTwo?'즉시 전투':'자동 PvP 연결 전'):'빈 전선 점령'):
   settled?'종료된 전쟁':'전쟁 시작 대기';
  const actionAllowed=!!selected&&(phase==='DEPLOYMENT'?ownsPlacement&&(isDefender?state.myRole==='LEADER':!state.myDefendingFront)&&!locked:
