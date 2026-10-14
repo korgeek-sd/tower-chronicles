@@ -40,7 +40,8 @@ test('treasury UI is read-only; headquarters donations award contribution and fi
  assert.match(html,/원정단 금고/);
  assert.match(html,/불러오는 중/);
  const source=readFileSync(new URL('../src/components/association/AssociationWarehousePanel.tsx',import.meta.url),'utf8');
- for(const value of ['공용 실버','공용 골드','공용 도전권'])assert.match(source,new RegExp(value));
+ for(const value of ["name:'실버'","name:'골드'","name:'도전권'"])assert.ok(source.includes(value));
+ assert.match(source,/공용 \{item.name\}/);
  assert.match(source,/사냥 수익 분담/);
  assert.doesNotMatch(source,/depositAssociationWarehouse|기부하기/);
  const supply=readFileSync(new URL('../src/components/association/AssociationSupplyPanel.tsx',import.meta.url),'utf8');
