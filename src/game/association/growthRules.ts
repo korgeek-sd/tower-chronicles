@@ -1,9 +1,9 @@
 import {ASSOCIATION_LEVEL_TABLE} from './progression';
 
-export function associationDonationGain(currency:'silver'|'gold',amount:number){
- const unit=currency==='silver'?10000:100;
+export function associationDonationGain(currency:'silver'|'gold'|'ticket',amount:number){
+ const unit=currency==='silver'?10000:currency==='gold'?100:1;
  if(!Number.isSafeInteger(amount)||amount<=0||amount%unit!==0)throw Error('기부 단위를 확인해 주세요.');
- return amount/unit*(currency==='silver'?100:200);
+ return amount/unit*(currency==='silver'?100:currency==='gold'?200:10);
 }
 
 export function associationPeriodStart(period:'DAILY'|'WEEKLY',at:number){
