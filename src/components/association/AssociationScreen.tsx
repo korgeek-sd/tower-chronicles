@@ -144,7 +144,7 @@ function OnlineAssociationScreen({
   <div className="tc-assoc tc-assoc-online tc-assoc-hq">
    <section className="tc-assoc-banner"><span className="tc-assoc-banner-seal"><Glyph name="association"/></span><div className="tc-assoc-banner-copy"><small>{current.recordNumber}</small><b>{current.name}</b><p>{current.description||'등록된 소개가 없습니다.'}</p></div><div className="tc-assoc-banner-meta"><span><small>단장</small><b>{memberLabel(current.leaderUserId)}</b></span><span><small>단원</small><b>{current.members.length}/{current.memberLimit}</b></span></div></section>
    <Segments items={visibleTabs} value={visibleTabs.some(([id])=>id===tab)?tab:'overview'} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
-   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
+   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='overview'&&<section className="tc-assoc-overview">
     <AssociationSupplyPanel key={current.associationId+'growth'} lease={lease} mode="growth" refreshKey={current.activity[0]?.activityId} expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>
