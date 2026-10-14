@@ -17,6 +17,7 @@ test('raids produce one guild auction, bids escrow and refund contribution, winn
    'create schema private; create schema auth; create role anon; create role authenticated;',
    'create table auth.users(id uuid primary key);',
    'create table private.online_associations(association_id uuid primary key,status text not null);',
+   'alter table private.online_associations add column leader_user_id uuid;',
    'create table private.online_association_members(association_id uuid,user_id uuid primary key);',
    'create table private.online_association_member_progression(association_id uuid,user_id uuid,contribution_point bigint,updated_at timestamptz default now(),primary key(association_id,user_id));',
    'create table private.guild_boss_encounters(encounter_id uuid primary key,association_id uuid,kind text,boss_name text,remaining_hp bigint,defeated_at timestamptz);',
