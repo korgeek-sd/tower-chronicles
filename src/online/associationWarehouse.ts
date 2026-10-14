@@ -7,7 +7,7 @@ import {GameSessionLostError,type GameplayLease} from './gameSession';
 export type WarehouseCurrency='SILVER'|'GOLD'|'TICKET';
 export interface WarehouseEntry {
  entryId:number;
- operation:'DEPOSIT'|'WAR_DECLARATION'|'HUNT_TAX'|'EXPEDITION_TAX';
+ operation:'DEPOSIT'|'WAR_DECLARATION'|'HUNT_TAX'|'EXPEDITION_TAX'|'LEADER_DEPOSIT'|'LEADER_WITHDRAW';
  currency:WarehouseCurrency;
  amount:number;
  balanceAfter:number;
@@ -28,10 +28,12 @@ export interface AssociationWarehouse {
  ledger:WarehouseEntry[];
 }
 const errorMessages:Record<string,string>={
- WAREHOUSE_INPUT_INVALID:'기부 수량은 1부터 10억까지 입력할 수 있습니다.',
+ WAREHOUSE_INPUT_INVALID:'입출금은 1부터 10억까지, 메모는 100자 이내로 입력해 주세요.',
  WAREHOUSE_BALANCE_SHORTAGE:'개인 보유 재화가 부족합니다.',
- WAREHOUSE_REQUEST_CONFLICT:'이전 기부 요청과 내용이 다릅니다. 잔액을 확인해 주세요.',
- WAREHOUSE_DURING_EXPEDITION:'안전 귀환 후 길드 창고에 기부할 수 있습니다.',
+ WAREHOUSE_TREASURY_SHORTAGE:'길드 금고 잔액이 부족합니다.',
+ WAREHOUSE_LEADER_ONLY:'원정단장만 금고에 입출금할 수 있습니다.',
+ WAREHOUSE_REQUEST_CONFLICT:'이전 입출금 요청과 내용이 다릅니다. 거래 기록을 확인해 주세요.',
+ WAREHOUSE_DURING_EXPEDITION:'안전 귀환 후 금고에 입출금할 수 있습니다.',
  ASSOCIATION_NOT_JOINED:'원정단에 가입한 후 이용할 수 있습니다.',
  CLOUD_SAVE_REQUIRED:'저장된 캐릭터 정보가 없습니다.',
  SERVER_WALLET_REQUIRED:'서버 지갑을 찾지 못했습니다.',
@@ -60,3 +62,19 @@ async function rpc<T>(lease:GameplayLease,name:string,extra:Record<string,unknow
 }
 export const loadAssociationWarehouse=(lease:GameplayLease)=>
  rpc<AssociationWarehouse>(lease,'get_association_warehouse');
+
+export type WarehouseDirection='DEPOSIT'|'WITHDRAW';
+export interface WarehouseTransferInput {
+ requestId:string;direction:WarehouseDirection;currency:WarehouseCurrency;amount:number;note:string;
+}
+export interface WarehouseTransferResponse {warehouse:AssociationWarehouse;record:CloudSaveRecord;replayed:boolean;ledgerEntryId?:number}
+export interface WarehouseHistoryPage {ledger:WarehouseEntry[];hasMore:boolean}
+export const transferAssociationTreasury=(lease:GameplayLease,input:WarehouseTransferInput)=>
+ rpc<WarehouseTransferResponse>(lease,'transfer_association_treasury',{
+  p_request_id:input.requestId,p_direction:input.direction,p_currency:input.currency,
+  p_amount:input.amount,p_note:input.note,
+ });
+export const loadAssociationWarehouseHistory=(lease:GameplayLease,beforeId:number|null=null,withdrawalsOnly=false)=>
+ rpc<WarehouseHistoryPage>(lease,'get_association_warehouse_history',{
+  p_before_id:beforeId,p_withdrawals_only:withdrawalsOnly,
+ });
