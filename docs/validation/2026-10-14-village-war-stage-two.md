@@ -4,7 +4,7 @@ Implementation extends approved five-front rules. Authoritative server PvP reads
 
 ## Evidence
 
-- Full suite: `npm test` — **1233/1233 passed**, no failures.
+- Full suite: `npm test` — **1234/1234 passed**, no failures.
 - Production build: `npm run build` — passed; existing bundle-size advisory remains.
 - Real PostgreSQL **17.6** with separate connections: six scenarios passed: occupied-front lock, independent fronts simultaneously held, settlement against an in-flight attack, attack against exclusive settlement, same UUID replay, wallet contention and rollback.
 - Dedicated stage-two tests cover real skill rotation, all 80 authored definitions, MP/weapon/enhancement, HP carryover, replacement epochs, reward exactly once, precise cutoff, historical rate change, offline settlement, cross-town defender release, private execution permissions, recovery, names and rendered UI.
@@ -23,3 +23,5 @@ Implementation extends approved five-front rules. Authoritative server PvP reads
 - Production combat was not artificially started and no real player tickets were consumed during validation. The first scheduled war provides the live gameplay check.
 
 Release: commit/push frontend, confirm Pages success, then enable the feature and verify the setting and cron. The old three-front occupation implementation is unchanged.
+
+Release verification: UI commit e6ed137 passed GitHub CI and Pages build/deploy. The follow-up interval-boundary migration uses one authoritative handover timestamp for both interval edges; its reproducer failed before the fix and passed afterward. Final focused tests: 16/16; final full suite: 1234/1234; PostgreSQL parallel scenarios: 6/6; build passed. Both production migrations and the active cron job were verified before feature activation.

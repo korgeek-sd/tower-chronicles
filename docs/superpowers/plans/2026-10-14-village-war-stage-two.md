@@ -26,6 +26,8 @@
 Base: 5f6c3bf. Existing dirty checkout preserved; work occurs in the clean resumed worktree.
 Ruling: Pre-approved second-stage rules and direct implementation request authorize native execution without repeating design approvals.
 
-Tasks 1–3: complete. Real PostgreSQL multi-connection checks: 6/6. Full suite: 1233/1233; build and diff check pass. Independent review findings fixed with regression tests; final evidence and release limitation are recorded in docs/validation/2026-10-14-village-war-stage-two.md.
+Tasks 1–3: complete. Real PostgreSQL multi-connection checks: 6/6. Full suite: 1234/1234; build and diff check pass. Independent review findings fixed with regression tests; final evidence and release limitation are recorded in docs/validation/2026-10-14-village-war-stage-two.md.
 Ruling: Same step function executes attacker first, then defender, per round. DOT starts the following round. This fills unspecified initiative consistently; cost if changed later is a PvP balance change.
 Ruling: Mobile screenshots are unavailable in this environment; rendering and action-condition checks are the verified UI evidence. This does not imply mobile visual verification.
+
+Task 4: complete — production schema and interval-boundary correction applied; private privileges verified; cron execution succeeded; frontend CI and Pages deployment passed; feature activation verified separately. Final full suite 1234/1234, focused 16/16, PostgreSQL parallel 6/6.

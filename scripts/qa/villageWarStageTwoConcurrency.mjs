@@ -20,6 +20,7 @@ try{
   await c.query(math.slice(math.indexOf('create or replace function private.hunting_damage'),math.indexOf('revoke all on function private.hunting_damage')));
   await c.query(read('../../supabase/migrations/20261014040726_village_war_stage_one.sql'));
   await c.query(read('../../supabase/migrations/20261014054540_village_war_stage_two.sql'));
+  await c.query(read('../../supabase/migrations/20261014062204_village_war_interval_boundary.sql'));
  }
  assert.equal((await c.query('select value from private.war_test_marker')).rows[0].value,'isolated-village-war-test');
  await c.query(`create table if not exists private.qa_clock(t timestamptz);truncate private.qa_clock;insert into private.qa_clock values('2026-10-17T13:01:00Z');create or replace function private.village_war_clock() returns timestamptz language sql volatile as $$select t from private.qa_clock$$;create or replace function private.village_war_random() returns float8 language sql as $$select .4::float8$$;update private.village_war_settings set enabled=true;insert into private.village_war_declarations values('2026-10-12','city','22222222-2222-4222-8222-222222222222') on conflict do nothing;`);

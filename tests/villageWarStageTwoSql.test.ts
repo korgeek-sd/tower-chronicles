@@ -18,6 +18,7 @@ export async function fixture(){
  await db.exec(stats.slice(start,stats.indexOf('revoke all on function private.hunting_damage',start)));
  await db.exec(read('../supabase/migrations/20261014040726_village_war_stage_one.sql'));
  await db.exec(read('../supabase/migrations/20261014054540_village_war_stage_two.sql'));
+ await db.exec(read('../supabase/migrations/20261014062204_village_war_interval_boundary.sql'));
  await db.exec(`create table private.qa_clock(t timestamptz);insert into private.qa_clock values('2026-10-17T13:00:00Z');create or replace function private.village_war_clock() returns timestamptz language sql volatile as $$select t from private.qa_clock$$;update private.village_war_settings set enabled=true;`);
  return db;
 }
@@ -121,4 +122,10 @@ test('DOT starts next round and legacy guard halves exactly one incoming attack'
 test('threshold sweep reconstructs a rate change before a delayed settlement',async()=>{const db=await fixture();const s=await state(db);
  await db.exec(`insert into private.village_war_intervals(event_id,front_id,association_id,starts_at,ends_at) select '${s.eventId}',n,'33333333-3333-4333-8333-333333333333','2026-10-17T13:00:00Z','2026-10-17T13:14:00Z' from generate_series(1,3)n;insert into private.village_war_intervals(event_id,front_id,association_id,starts_at) select '${s.eventId}',n,'33333333-3333-4333-8333-333333333333','2026-10-17T13:14:00Z' from generate_series(1,5)n;update private.qa_clock set t='2026-10-17T13:55:00Z';`);
  const end=await state(db);assert.equal(Date.parse(end.settledAt),Date.parse('2026-10-17T13:35:36Z'));assert.equal(Number(end.scores[0].points),150);
+});
+
+test('ownership transfer uses one timestamp for old interval end and new interval start',async()=>{const db=await fixture();await claim(db,100,1,3);const s=await state(db);
+ await db.exec(`update private.qa_clock set t='2026-10-17T13:00:00.999999Z';update private.village_war_fronts set association_id='22222222-2222-4222-8222-222222222222',occupied_at='2026-10-17T13:00:00.250000Z' where event_id='${s.eventId}' and front_id=1;`);
+ const spans=(await db.query<any>('select starts_at,ends_at from private.village_war_intervals where event_id=$1 and front_id=1 order by interval_id',[s.eventId])).rows;
+ assert.equal(spans[0].ends_at.getTime(),spans[1].starts_at.getTime());
 });
