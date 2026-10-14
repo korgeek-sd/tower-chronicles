@@ -84,6 +84,25 @@ test('a resolved attack shows a compact result, with long turn logs still folded
  const mismatched=show({...base,encounterId:'bbbb0000-0000-4000-8000-000000000002'},result);
  assert.doesNotMatch(mismatched,/이번 공격 피해/);
 });
+test('second violet raid mockup keeps four stats, compact results and no vertical page scroll',()=>{
+ const html=show({...base,kind:'WEEKLY',name:'심연의 파수자',maxHp:24000,remainingHp:12000,totalAttacks:35});
+ assert.match(html,/WEEKLY RAID/);
+ assert.match(html,/길드 총 공격/);
+ assert.match(html,/35<small>회<\/small>/);
+ assert.match(html,/최근 전투 결과/);
+ assert.match(html,/tc-boss-art-figure/);
+ assert.match(html,/턴별 전투 기록/);
+ const css=readFileSync(new URL('../src/components/association/guildBoss.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-assoc-hq\.tc-assoc-raid-view\{/);
+ assert.match(css,/grid-template-rows:38px minmax\(0,1fr\)/);
+ assert.match(css,/\.tc-guild-boss\{[\s\S]*?overflow:hidden/);
+ assert.match(css,/\.tc-boss-popover-scroll\{[\s\S]*?overflow-y:auto/);
+ assert.match(css,/@media\(max-height:620px\)/);
+ assert.doesNotMatch(css,/\.tc-guild-boss\{[^}]*overflow-y:auto/);
+ const assoc=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
+ assert.match(assoc,/tab!=='boss'&&<section className="tc-assoc-banner">/);
+ assert.match(assoc,/tc-assoc-raid-view/);
+});
 test('loading boss UI has both boss choices and a live refresh action',()=>{
  const html=renderToStaticMarkup(React.createElement(GuildBossPanel,{
   lease:{leaseId:'test',generation:1,expiresAt:'',clientInstanceId:'test'},associationId:'guild',expedition:false
