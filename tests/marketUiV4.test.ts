@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('MARKET UI V4 01: market entry is search-first with five compact filters',()=>{
+test('MARKET UI V4 01: market entry has a filter dialog and five compact categories',()=>{
  const online=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  const local=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  for(const source of [online,local]){
-  assert.match(source,/거래 품목 검색/);
+  assert.match(source,/<MarketFilterDialog/);
+  assert.match(source,/aria-label="필터" aria-haspopup="dialog"/);
+  assert.doesNotMatch(source,/<MarketGradeFilters|tc-market-v4-search/);
   assert.match(source,/type Category='all'.*'equipment'.*'materials'.*'skillbooks'.*'other'/);
   assert.match(source,/\['all','전체'\]/);
   assert.match(source,/\['equipment','장비'\]/);

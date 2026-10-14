@@ -67,3 +67,18 @@
 .tc-screen.tc-iron-market-screen .tc-market-v2-orders .name b,.tc-screen.tc-iron-market-screen .tc-market-v4-storage b,.tc-screen.tc-iron-market-screen .tc-market-v2-status b{font-size:11px}
 .tc-screen.tc-iron-market-screen .tc-market-v2-orders .name small,.tc-screen.tc-iron-market-screen .tc-market-v4-storage small,.tc-screen.tc-iron-market-screen .tc-market-v2-status small,.tc-screen.tc-iron-market-screen .tc-floor-risk{font-size:10px;line-height:1.4}
 @media(max-width:360px){.tc-screen.tc-iron-market-screen .tc-market-v4-card{grid-template-columns:30px minmax(0,1fr) 66px 6px}.tc-screen.tc-iron-market-screen .tc-market-v4-card .tc-market-v3-spark{display:none}.tc-screen.tc-iron-market-screen .tc-market-v4-card .name b{font-size:10px}.tc-screen.tc-iron-market-screen .tc-market-v4-tradehead strong{font-size:10px}}
+/* Closed filters occupy one compact toolbar; grades only appear in the modal. */
+.tc-screen.tc-iron-market-screen .tc-market-v4.tab-market{grid-template-rows:28px 44px 28px minmax(0,1fr) 32px;}
+.tc-market-filter-toolbar{display:flex;align-items:center;gap:6px;min-width:0;}
+.tc-market-filter-toolbar>span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;color:#c4b69c;}
+.tc-market-filter-toolbar>small{font-size:9px;color:#b7a88e;}
+.tc-screen.tc-iron-market-screen .tc-market-filter-toolbar>button{min-height:44px;padding:5px 10px;display:flex;align-items:center;gap:5px;}
+.tc-screen.tc-iron-market-screen .tc-market-filter-dialog .tc-filter-panel button{min-height:44px;border:1px solid #806b4d;border-image:none;border-radius:3px;background:#171813;font-size:14px;box-shadow:none;}
+.tc-screen.tc-iron-market-screen .tc-market-filter-dialog .tc-filter-panel header button{font-size:24px;}
+.tc-screen.tc-iron-market-screen .tc-market-filter-dialog .u019-chip[aria-pressed=true]{background:#e6c17b;color:#171511;}
+.tc-screen.tc-iron-market-screen .tc-market-filter-dialog .tc-filter-panel .tc-filter-done{background:#e3bd72;color:#201b12;}
+@media(max-height:600px){
+ .tc-screen.tc-iron-market-screen .tc-market-v4-list{grid-template-rows:repeat(5,minmax(44px,1fr));}
+ .tc-screen.tc-iron-market-screen .tc-market-v4-card{min-height:44px;padding:2px;}
+ .tc-screen.tc-iron-market-screen .tc-market-v2-mini{width:28px;height:28px;}
+}

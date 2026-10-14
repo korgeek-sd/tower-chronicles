@@ -1,6 +1,7 @@
 import './iron-market.css';
 import {EmptySearchResults} from '../filters/LucianFilters';
-import {MarketGradeFilters,marketGradeMatches} from './MarketGradeFilters';
+import {marketGradeMatches} from './MarketGradeFilters';
+import {MarketFilterDialog,marketGradeSummary,sortMarketCatalog,type MarketSort} from './MarketFilterDialog';
 import {SkillBookArt} from '../inventory/SkillBookArt';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
@@ -64,6 +65,9 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
  const [query,setQuery]=useState('');
+ const [filtersOpen,setFiltersOpen]=useState(false);
+ const filterButton=useRef<HTMLButtonElement>(null);
+ const [sort,setSort]=useState<MarketSort>('default');
  const [selected,setSelected]=useState<string|null>(null);
  const [tradeSide,setTradeSide]=useState<Side|null>(null);
  const [range,setRange]=useState<RangeKey>('24H');
@@ -136,7 +140,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const [gradeFilter,setGradeFilter]=useState<string[]>([]);
  const catalog=useMemo(()=>currentMarketCatalog(view),[view]);
  const normalizedQuery=query.trim().toLowerCase();
- const filtered=useMemo(()=>catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),[catalog,category,normalizedQuery,gradeFilter]);
+ const filtered=useMemo(()=>sortMarketCatalog(catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),sort),[catalog,category,normalizedQuery,gradeFilter,sort]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
  const safeMarketPage=Math.min(page,marketPages-1);
  const shown=pageSlice(filtered,safeMarketPage);
@@ -291,17 +295,13 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  }
 
  return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / ONLINE" title="은저울 거래소" meta={<span>{snapshot.wallet.silver.toLocaleString()} S</span>}>
-  <div className={"tc-market-v2 tc-market-v3 tc-market-v4 has-order-policy"+(category==='equipment'||category==='skillbooks'?" has-grade-filter":"")+" tab-"+tab+(tradePulse?" tc-market-trade-pulse":"")}>
+  {filtersOpen&&<MarketFilterDialog category={category} query={query} sort={sort} grades={gradeFilter} returnFocus={filterButton} onQuery={value=>{setQuery(value);setPage(0);}} onSort={value=>{setSort(value);setPage(0);}} onGrades={value=>{setGradeFilter(value);setPage(0);}} onReset={()=>{setQuery('');setGradeFilter([]);setSort('default');setPage(0);}} onClose={()=>setFiltersOpen(false)}/>}
+  <div className={"tc-market-v2 tc-market-v3 tc-market-v4 has-order-policy"+" tab-"+tab+(tradePulse?" tc-market-trade-pulse":"")}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);setError('');}} label="온라인 거래소 메뉴"/>
 
    {tab==='market'&&<>
-    <div className="tc-market-v4-search">
-     <span aria-hidden="true">⌕</span>
-     <input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}} placeholder="거래 품목 검색" aria-label="거래 품목 검색"/>
-     <button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button>
-    </div>
+    <div className="tc-market-filter-toolbar"><span role="status">{marketGradeSummary(category,gradeFilter)} · {filtered.length}종{query.trim()?' · 검색 중':''}</span><button className={'tc-market-demo-toggle '+(demoMode?'active':'')} onClick={()=>setDemoMode(value=>!value)}>{demoMode?'DEMO ON':live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</button><button ref={filterButton} aria-label="필터" aria-haspopup="dialog" aria-expanded={filtersOpen} className={query.trim()||gradeFilter.length||sort!=='default'?'active':''} onClick={()=>setFiltersOpen(true)}><Glyph name="filter"/> 필터</button></div>
     <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter([]);setSelected(null);setTradeSide(null);setPage(0);}}>{label}</button>)}</div>
-    <MarketGradeFilters category={category} value={gradeFilter} onChange={grade=>{setGradeFilter(grade);setPage(0);}}/>
     <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
      {shown.map(entry=>{
       const ask=getBestAsk(view,entry.id),bid=getBestBid(view,entry.id),realTrend=trendByItem.get(entry.id)??makeTrend([]);
