@@ -19,11 +19,12 @@ import './hq.css';
 import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildBossPanel} from './GuildBossPanel';
+import {GuildAuctionPanel} from './GuildAuctionPanel';
 
 type LocalTab='overview'|'members'|'activity'|'manage';
 const localTabs=[['overview','본부'],['members','단원'],['activity','기록'],['manage','관리']] as const;
-type ServerTab='shop'|'overview'|'boss'|'warehouse'|'members'|'applications'|'activity'|'manage';
-const serverTabs=[['overview','본부'],['boss','보스전'],['shop','상점'],['warehouse','금고'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
+type ServerTab='shop'|'overview'|'boss'|'auction'|'warehouse'|'members'|'applications'|'activity'|'manage';
+const serverTabs=[['overview','본부'],['boss','보스전'],['auction','경매'],['shop','상점'],['warehouse','금고'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
 const PAGE_SIZE=5;
 
 export function AssociationScreen({
@@ -145,7 +146,8 @@ function OnlineAssociationScreen({
   <div className="tc-assoc tc-assoc-online tc-assoc-hq">
    <section className="tc-assoc-banner"><span className="tc-assoc-banner-seal"><Glyph name="association"/></span><div className="tc-assoc-banner-copy"><small>{current.recordNumber}</small><b>{current.name}</b><p>{current.description||'등록된 소개가 없습니다.'}</p></div><div className="tc-assoc-banner-meta"><span><small>단장</small><b>{memberLabel(current.leaderUserId)}</b></span><span><small>단원</small><b>{current.members.length}/{current.memberLimit}</b></span></div></section>
    <Segments items={visibleTabs} value={visibleTabs.some(([id])=>id===tab)?tab:'overview'} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
-   {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition}/>}
+   {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
+   {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
    {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='overview'&&<section className="tc-assoc-overview">
