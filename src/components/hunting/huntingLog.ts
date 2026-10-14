@@ -18,6 +18,7 @@ export function huntLogEntries(result:HuntResult,nickname='탐사자'):HuntLogEn
  entries.push({kind:result.outcome==='victory'?'victory':'defeat',text:result.outcome==='victory'?'승리! · 사냥 성공':'사냥 실패 · 획득 보상 없음'});
  if(result.outcome==='victory'){
   entries.push({kind:'reward',text:`경험치 +${result.exp.toLocaleString()} · 실버 +${result.silver.toLocaleString()} · 숙련도 +${result.mastery.toLocaleString()}`});
+  if((result.guildTax??0)>0)entries.push({kind:'reward',text:`원정단 세금 ${result.guildTax!.toLocaleString()} 실버 → 공용 금고 자동 적립`});
   if(result.equipment)entries.push({kind:'reward',text:'장비 획득 · '+equipmentItemName(result.equipment)});
  }
  if(result.recoveredHp!==undefined&&result.recoveredHp>result.playerHp)entries.push({kind:'heal',text:`전투 후 HP ${(result.recoveredHp-result.playerHp).toLocaleString()} 회복`});
