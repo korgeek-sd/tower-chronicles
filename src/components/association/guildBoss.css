@@ -1,26 +1,127 @@
-.tc-guild-boss{display:flex;flex-direction:column;min-height:0;overflow-y:auto;gap:9px;padding:8px 7px 16px;color:#ead7ad;background:#171710;font-size:11px}
-.tc-guild-boss button{font:inherit;cursor:pointer}.tc-guild-boss button:disabled{opacity:.48;cursor:default}
-.tc-guild-boss-selector{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:none}.tc-guild-boss-selector button{min-height:43px;border:1px solid #786342;background:#262118;color:#a99676;font-weight:600}
-.tc-guild-boss-selector button[aria-selected=true]{color:#f4deb2;border-color:#c49b59;background:#453322}.tc-guild-boss-selector small{display:block;font-size:9px;color:#ac9571;margin-top:2px;font-weight:400}
-.tc-guild-boss-heading{display:flex;justify-content:space-between;align-items:center;gap:6px}.tc-guild-boss-heading small{font-size:9px;color:#b79562;letter-spacing:1px}
-.tc-guild-boss-heading h2{font-size:18px;line-height:1.2;margin:3px 0 0}.tc-guild-boss-tag{flex:none;border:1px solid #aa6a55;color:#e5ac8b;padding:4px 7px;font-size:10px}.tc-guild-boss-tag.complete{border-color:#819263;color:#b8ce9a}
-.tc-guild-boss-art{position:relative;min-height:125px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;overflow:hidden;border:1px solid #564630;background:radial-gradient(ellipse at 50% 35%,#54382a 0%,#27211e 52%,#12110e 100%)}
-.tc-guild-boss-art.weekly{background:radial-gradient(ellipse at 50% 35%,#44334f 0%,#25202a 52%,#12110f 100%)}
-.tc-guild-boss-sigil{position:absolute;font-size:132px;line-height:1;opacity:.11;color:#efb96a;transform:rotate(18deg)}.tc-guild-boss-art.weekly .tc-guild-boss-sigil{color:#d5a7f6}
-.tc-guild-boss-art>div{position:relative;text-align:center;display:grid;gap:3px;text-shadow:1px 2px 4px #000}.tc-guild-boss-art>div small{color:#baa27f;font-size:10px;letter-spacing:2px}
-.tc-guild-boss-art>div b{font-size:20px;color:#f0dbb7}.tc-guild-boss-time{position:absolute;bottom:8px;right:9px;color:#c3a984;font-size:10px}
-.tc-guild-boss-health>div:first-child{display:flex;justify-content:space-between;gap:6px;align-items:center;padding-bottom:7px}.tc-guild-boss-health strong{font-size:11px}.tc-guild-boss-health b{font-size:13px;font-variant-numeric:tabular-nums}.tc-guild-boss-health small{font-size:10px;color:#98866d}
-.tc-guild-boss-track{height:13px;background:#2d201e;border:1px solid #815a48;overflow:hidden}.tc-guild-boss-track i{display:block;height:100%;background:linear-gradient(90deg,#7b2f32,#c25c55);transition:width .18s}
-.tc-guild-boss-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.tc-guild-boss-stats>div{display:grid;min-width:0;gap:4px;padding:9px 4px;text-align:center;background:#242017;border:1px solid #4f4030}
-.tc-guild-boss-stats small{font-size:9px;color:#b5a283}.tc-guild-boss-stats strong{font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}.tc-guild-boss-stats strong span{font-size:10px;color:#aa9574}
-.tc-guild-boss-attack{min-height:50px;background:#734a28;color:#f9e4bf;border:1px solid #c09352;font-size:15px!important;font-weight:700!important}
-.tc-guild-boss-reset{font-size:10px;color:#b4a080;line-height:1.5;text-align:center}
-.tc-guild-boss-ranks{background:#201c16;border:1px solid #594730;padding:8px;display:grid;gap:4px}.tc-guild-boss-ranks-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:5px;border-bottom:1px solid #584730}
-.tc-guild-boss-ranks-title b{font-size:12px}.tc-guild-boss-ranks-title small{font-size:9px;color:#ad9674}.tc-guild-boss-rank{display:flex;align-items:center;gap:8px;padding:5px 3px;border-bottom:1px solid #362e25}
-.tc-guild-boss-rank>b{width:14px;color:#d6ae74}.tc-guild-boss-rank span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.tc-guild-boss-rank strong{font-variant-numeric:tabular-nums}.tc-guild-boss-rank small{color:#99866b}
-.tc-guild-boss-ranks>p{color:#a7977d;font-size:11px;margin:5px}.tc-guild-boss-disclaimer{font-size:10px;line-height:1.5;color:#96856d}
-.tc-guild-boss-result{display:grid;gap:6px;border:1px solid #ac8854;background:#33281a;padding:10px}.tc-guild-boss-result-head{display:flex;justify-content:space-between;align-items:center}
-.tc-guild-boss-result-head button{background:none;border:0;color:#d7bf91;min-height:30px}.tc-guild-boss-result>strong{font-size:16px;color:#f2d49c}.tc-guild-boss-result>span{font-size:11px}
-.tc-guild-boss-result details{font-size:11px}.tc-guild-boss-result summary{cursor:pointer;min-height:32px}.tc-guild-boss-turns{max-height:160px;overflow:auto}.tc-guild-boss-turns p{margin:3px 0;border-bottom:1px solid #4e3e2e;padding:5px 2px;font-size:10px;line-height:1.5}
-.tc-guild-boss-turns small{color:#e3b77a}.tc-guild-boss-error{border:1px solid #926448;color:#efbf9e;padding:8px;display:grid;gap:5px}.tc-guild-boss-error button{border:1px solid #946f42;background:#3a2b1d;color:#ebd8b2;min-height:36px}
-@media(max-width:350px){.tc-guild-boss-stats strong{font-size:13px}.tc-guild-boss-art{min-height:105px}}
+/* Guild raid V2: compact portrait layout; all raid rules and boss art are unchanged. */
+.tc-guild-boss{
+ --boss-border:#635037;--boss-muted:#b1a082;--boss-bright:#f2d7a4;
+ --boss-panel:#201b16;display:flex;flex-direction:column;gap:7px;
+ min-width:0;min-height:0;height:100%;overflow-y:auto;overscroll-behavior:contain;
+ padding:7px 7px 10px;background:#16140f;color:#ead7b5;font-size:11px;
+ scrollbar-width:thin;scrollbar-color:#614d31 transparent
+}
+.tc-guild-boss *{box-sizing:border-box}
+.tc-guild-boss button{font:inherit;cursor:pointer}
+.tc-guild-boss button:disabled{cursor:default;opacity:.56}
+.tc-boss-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 37px;gap:6px;flex:none}
+.tc-boss-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;min-width:0}
+.tc-boss-tabs button{min-width:0;min-height:44px;text-align:left;padding:5px 11px;border:1px solid #635039;
+ background:#241f17;color:#b5a080}
+.tc-boss-tabs button.selected{background:#3a2b1d;border-color:#b48b52;color:#f5dba8;box-shadow:inset 0 -2px #ac7e40}
+.tc-boss-tabs strong{display:block;font-size:12px;font-weight:700;white-space:nowrap}
+.tc-boss-tabs small{display:block;font-size:10px;margin-top:3px;color:#bca17b;font-variant-numeric:tabular-nums}
+.tc-boss-refresh{height:44px;width:37px;background:#2a2118;color:#e6c48b;border:1px solid #746042;font-size:23px!important;line-height:1}
+.tc-boss-loading{display:grid;gap:9px;place-items:center;padding:20px 9px;text-align:center;color:#bea987;border:1px solid #5c4931;background:#211b14}
+.tc-boss-loading button{padding:10px;border:1px solid #967548;color:#edcda0;background:#332516}
+.tc-boss-body{display:flex;flex-direction:column;gap:7px;min-height:0}
+.tc-boss-arena{position:relative;isolation:isolate;overflow:hidden;min-height:150px;
+ padding:10px 11px 9px;border:1px solid #755139;
+ background:radial-gradient(ellipse at 77% 42%,rgba(113,66,42,.27),transparent 49%),linear-gradient(135deg,#281e17,#171310 70%);
+ display:flex;flex-direction:column;justify-content:space-between;gap:8px}
+.tc-boss-weekly .tc-boss-arena{border-color:#68536d;background:radial-gradient(ellipse at 75% 40%,rgba(109,68,115,.26),transparent 50%),linear-gradient(135deg,#25202a,#161314 70%)}
+.tc-boss-arena::before{content:'';position:absolute;right:-31px;top:28px;width:125px;height:125px;
+ transform:rotate(45deg);border:1px solid rgba(211,170,111,.16);box-shadow:0 0 0 13px rgba(211,170,111,.025);
+ pointer-events:none;z-index:-1}
+.tc-boss-arena-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tc-boss-eyebrow{font-size:9px;letter-spacing:.11em;color:#c6a778}
+.tc-boss-eyebrow>span{color:#735d42}
+.tc-boss-status{flex:none;font-size:9px;color:#f2c19d;border:1px solid #9d6749;background:#33231b;padding:4px 6px}
+.tc-boss-status.done{border-color:#66825d;color:#c0d69f;background:#1f2b20}
+.tc-boss-identity{display:flex;gap:10px;align-items:center;justify-content:space-between;min-width:0}
+.tc-boss-title{min-width:0;flex:1}
+.tc-boss-title h2{font-size:19px;line-height:1.2;margin:0 0 5px;color:#f5e0b7;letter-spacing:.01em;overflow-wrap:anywhere}
+.tc-boss-title p{margin:0;font-size:10px;line-height:1.3;color:#b8a185}
+.tc-boss-mark{flex:none;display:grid;place-items:center;width:53px;height:53px;
+ clip-path:polygon(50% 0,90% 22%,100% 68%,50% 100%,0 68%,10% 22%);
+ background:#32271e;border:1px solid #987448;color:#be915b}
+.tc-boss-mark span{font-size:32px;line-height:1;filter:drop-shadow(0 1px 0 #0c0804)}
+.tc-boss-weekly .tc-boss-mark{background:#332839;color:#a993c1}
+.tc-boss-health{display:grid;gap:5px;min-width:0}
+.tc-boss-health-label{display:flex;align-items:baseline;justify-content:space-between;gap:5px;font-size:10px}
+.tc-boss-health-label>span{color:#d4b18a;font-weight:700}
+.tc-boss-health-label strong{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap;color:#f7e0cb}
+.tc-boss-health-label small{color:#c09d7f;font-size:10px}
+.tc-boss-track{height:13px;border:1px solid #a65d48;background:#2e1c1a;overflow:hidden}
+.tc-boss-track span{display:block;height:100%;background:linear-gradient(180deg,#cf6856 0%,#8a352d 100%);transition:width .2s}
+.tc-boss-track span[style*="width:0%"]{background:transparent}
+.tc-boss-health-foot{display:flex;justify-content:space-between;gap:7px;color:#bda389;font-size:9px;font-variant-numeric:tabular-nums}
+.tc-boss-health-foot>span:last-child{text-align:right}
+.tc-boss-dashboard{display:grid;grid-template-columns:1.07fr 1.09fr .9fr;gap:5px}
+.tc-boss-dashboard>div{min-width:0;background:#252018;border:1px solid #55452f;padding:7px 6px;display:flex;flex-direction:column;gap:5px}
+.tc-boss-dashboard>div>span{font-size:10px;color:#bea788;white-space:nowrap}
+.tc-boss-dashboard strong{font-size:15px;line-height:1.2;font-variant-numeric:tabular-nums;color:#f2d7a2;overflow:hidden;text-overflow:ellipsis}
+.tc-boss-dashboard strong small{font-size:10px;color:#c4aa84}
+.tc-boss-attempt-pips{display:flex;gap:3px;margin-top:auto}
+.tc-boss-attempt-pips span{height:5px;flex:1;min-width:0;background:#4c4233}
+.tc-boss-attempt-pips span.ready{background:#d5a65c}
+.tc-boss-action{position:sticky;bottom:0;z-index:3;background:#16140f;padding-top:1px;display:grid;gap:5px;box-shadow:0 7px #16140f}
+.tc-boss-attack{display:flex;gap:9px;align-items:center;justify-content:center;min-height:50px;width:100%;
+ border:1px solid #d5a66a;background:linear-gradient(180deg,#75512c,#54371e);color:#ffe5b6;
+ font-size:15px!important;font-weight:700!important;box-shadow:inset 0 1px rgba(255,242,185,.21)}
+.tc-boss-attack:not(:disabled):active{transform:translateY(1px);filter:brightness(1.2)}
+.tc-boss-attack:disabled{background:#3e362b;border-color:#675948}
+.tc-boss-attack-icon{font-size:19px}
+.tc-boss-attack small{font-size:10px;font-weight:400;color:#e9c996;margin-left:8px}
+.tc-boss-reset{display:flex;justify-content:space-between;gap:8px;color:#af9b7c;font-size:9px;line-height:1.4}
+.tc-boss-result{display:grid;gap:7px;padding:9px 10px;border:1px solid #a88452;background:#2e271c}
+.tc-boss-result-header{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#eed4a0}
+.tc-boss-result-header button{border:0;background:transparent;color:#d6b783;font-size:20px;line-height:20px;min-width:28px;min-height:28px}
+.tc-boss-result-numbers{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tc-boss-result-numbers>div{display:grid;gap:3px;background:#1b1914;padding:7px}
+.tc-boss-result-numbers span{font-size:10px;color:#baa485}
+.tc-boss-result-numbers strong{font-size:16px;font-variant-numeric:tabular-nums;color:#ebbf77}
+.tc-boss-turn-details{border-top:1px solid #53442c;padding-top:4px}
+.tc-boss-turn-details summary{display:flex;align-items:center;justify-content:space-between;gap:5px;min-height:32px;color:#d8bd94;cursor:pointer;font-size:11px}
+.tc-boss-turn-details summary span{font-size:10px;color:#bea57e}
+.tc-boss-turn-details>div{max-height:180px;overflow:auto}
+.tc-boss-turn-details p{margin:0;padding:6px 1px;display:flex;gap:8px;border-top:1px solid #443927;font-size:10px;line-height:1.5}
+.tc-boss-turn-details p b{color:#e4b76c;flex:0 0 21px}
+.tc-boss-turn-details p span{flex:1;overflow-wrap:anywhere}
+.tc-boss-result-reward{min-height:38px;border:1px solid #a0804e;color:#f3d39a;background:#47321e;font-size:11px}
+.tc-boss-error{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:8px;border:1px solid #a46e56;background:#35241d;color:#f0b49f;font-size:10px;line-height:1.5}
+.tc-boss-error span{flex:1}
+.tc-boss-error button{flex:none;min-height:32px;padding:0 8px;color:#f2c5a5;border:1px solid #a46e56;background:#493124;font-size:10px}
+.tc-boss-leaderboard{border:1px solid var(--boss-border);background:var(--boss-panel)}
+.tc-boss-leaderboard>summary{min-height:42px;padding:7px 9px;display:flex;align-items:center;gap:7px;cursor:pointer;list-style:none}
+.tc-boss-leaderboard>summary::-webkit-details-marker{display:none}
+.tc-boss-ranking-icon{display:grid;place-items:center;width:23px;height:23px;border:1px solid #76603f;color:#d3ae71;font-size:15px;flex:none}
+.tc-boss-ranking-title{font-size:11px;font-weight:700;white-space:nowrap;color:#e5d1ac}
+.tc-boss-ranking-preview{margin-left:auto;color:#a99575;font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:right;min-width:0}
+.tc-boss-chevron{font-size:20px;color:#ac936c;line-height:1;margin-left:2px;transform:translateY(-3px)}
+.tc-boss-leaderboard[open] .tc-boss-chevron{transform:rotate(180deg) translateY(3px)}
+.tc-boss-ranking-list{border-top:1px solid #4f402d;padding:2px 8px 7px}
+.tc-boss-ranking-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto 34px;gap:6px;padding:6px 3px;align-items:center;border-bottom:1px solid #3c3126;font-size:10px}
+.tc-boss-ranking-row>b{color:#d5ae70}
+.tc-boss-ranking-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-boss-ranking-row>strong{font-variant-numeric:tabular-nums;color:#e2c699}
+.tc-boss-ranking-row>small{color:#b5a185;text-align:right}
+.tc-boss-ranking-list>p{padding:8px 2px;color:#ab997c}
+.tc-boss-ranking-total{font-size:9px;color:#bba786;padding:7px 2px 0;text-align:right}
+.tc-boss-auction-link{width:100%;display:flex;justify-content:space-between;align-items:center;gap:5px;min-height:37px;
+ padding:0 11px;background:#211d17;border:1px solid #58462d;color:#dcc49b;font-size:11px}
+.tc-boss-auction-link>span:last-child{font-size:20px;line-height:1}
+.tc-boss-footnote{margin:1px 0 0;font-size:9px;line-height:1.5;color:#9f8c72}
+@media(max-width:370px){
+ .tc-boss-arena{min-height:139px;padding:9px}
+ .tc-boss-title h2{font-size:17px}
+ .tc-boss-title p{font-size:9px}
+ .tc-boss-dashboard>div>span{font-size:9px}
+ .tc-boss-dashboard strong{font-size:13px}
+ .tc-boss-dashboard{grid-template-columns:1.1fr 1fr .9fr}
+ .tc-boss-ranking-title{font-size:10px}
+ .tc-boss-ranking-preview{font-size:9px}
+}
+@media(max-height:740px){
+ .tc-guild-boss{gap:5px;padding:5px}
+ .tc-boss-body{gap:5px}
+ .tc-boss-arena{min-height:131px}
+ .tc-boss-dashboard>div{padding:5px}
+ .tc-boss-attack{min-height:44px}
+ .tc-boss-footnote{display:none}
+}
