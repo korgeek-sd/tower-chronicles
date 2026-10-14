@@ -24,7 +24,7 @@ const base:any={
  recentBattles:[{battleId:'receipt',frontId:1,createdAt:'2026-10-17T13:18:00Z',attackerName:'검객',defenderName:'방패기사',outcome:'DEFENDED',defenderHp:90,defenderReward:1}]
 };
 const render=(state:any,callbacks:Record<string,unknown>={})=>renderToStaticMarkup(React.createElement(VillageWarDeploymentPanel,{
- state,userId:user,busy:false,pending:null,error:'',now:date,
+ state,userId:user,busy:false,pending:null,error:'',now:state.serverNow,
  onPlace:()=>{},onRemove:()=>{},onClaim:()=>{},onAttack:()=>{},onRetry:()=>{},onRefresh:()=>{},...callbacks
 } as any));
 
