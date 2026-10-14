@@ -13,7 +13,7 @@ export function InventoryFilterDialog({category,query,sort,filter,onQuery,onSort
  useEffect(()=>{const el=dialog.current;if(!el)return;const trigger=returnFocus.current;el.showModal();el.querySelector<HTMLInputElement>('input[type="search"]')?.focus();return()=>{el.close();trigger?.focus({preventScroll:true});};},[returnFocus]);
  const statusLabel=category==='equipment'?'장착 중':category==='skillbooks'?'미습득':category==='cosmetics'?'미등록':'';
  const hasGrades=category==='equipment'||category==='skillbooks';
- return <dialog ref={dialog} className="tc-inventory-filter-dialog" aria-label="가방 필터" onCancel={e=>{e.preventDefault();onClose();}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+ return <dialog ref={dialog} className="tc-inventory-filter-dialog" aria-label="가방 필터" onKeyDown={e=>{if(e.key!=='Tab')return;const controls=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled)'));const first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}} onCancel={e=>{e.preventDefault();onClose();}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
   <div className="tc-filter-panel">
    <header><b>필터</b><button aria-label="필터 닫기" onClick={onClose}>×</button></header>
    <input type="search" aria-label="아이템 검색" placeholder="이름 검색" value={query} onChange={e=>onQuery(e.target.value)}/>
