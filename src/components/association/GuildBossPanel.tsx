@@ -137,7 +137,7 @@ export function GuildBossPanel({lease,associationId,expedition,onAuction}:{
  lease:GameplayLease;associationId:string;expedition:boolean;onAuction?:()=>void;
 }){
  const [state,setState]=useState<GuildBossState|null>(null);
- const [kind,setKind]=useState<GuildBossKind>('DAILY');
+ const [kind,setKind]=useState<GuildBossKind>('WEEKLY');
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
  const [result,setResult]=useState<GuildBossAttackResult|null>(null);
  const [time,setTime]=useState(()=>Date.now());
