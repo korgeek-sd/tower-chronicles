@@ -51,6 +51,7 @@ test('guild leader-only registration escrows server gear; cancellation, unsold r
    "insert into private.market_assets(user_id,item_id,quantity,gear) values('"+member+"','equipment_v2:"+item(4)+"',1,'"+gear(4)+"');"
   ].join('\n'));
   await db.exec(base);await db.exec(extension);await db.exec(membershipRecovery);await db.exec(releaseEscrow);
+  await db.exec(readFileSync(new URL('../supabase/migrations/20261014233000_guild_request_boundary_clock.sql',import.meta.url),'utf8'));
   const rpc=async(name:string,args:any[])=>(await db.query<{r:any}>('select public.'+name+'('+args.map((_,i)=>i===0?'$1::uuid':i===3?'$4::uuid':i===4&&name==='register_guild_auction_item'?'$5::text':i===4?'$5::uuid':i===5?'$6::bigint':'$'+(i+1)).join(',')+') r',args)).rows[0].r;
   const register=async(u:string,n:number,it:number,price:number)=>(await db.query<{r:any}>(
     'select public.register_guild_auction_item($1::uuid,1,$2,$3,$4::uuid,$5,$6::bigint) r',

@@ -45,6 +45,8 @@ test('raids produce one guild auction, bids escrow and refund contribution, winn
    "insert into private.guild_boss_encounters values('"+eid+"','"+guild+"','WEEKLY','테스트 보스',1,null);"
   ].join('\n'));
   await db.exec(migration);
+  const boundary=new URL('../supabase/migrations/20261014233000_guild_request_boundary_clock.sql',import.meta.url);
+  await db.exec(readFileSync(boundary,'utf8'));
   await db.exec("update private.guild_boss_encounters set remaining_hp=0,defeated_at=now() where encounter_id='"+eid+"';");
   let row=(await db.query<{listing_id:string}>('select listing_id from private.guild_auction_listings')).rows;
   assert.equal(row.length,1);
@@ -77,5 +79,11 @@ test('raids produce one guild auction, bids escrow and refund contribution, winn
   assert.equal((await db.query<{n:number}>('select count(*)::int n from private.guild_boss_reward_claims')).rows[0].n,1);
   const life=(await db.query<{products:any}>('select products from private.village_life_players where user_id=$1::uuid',[v])).rows[0].products;
   assert.equal(life.potion,30);assert.equal(life.vitality_potion,1);
- }finally{await db.close();}
+  // A request can wait for a lock past the deadline; transaction now() stays frozen.
+  await db.exec("begin; insert into private.guild_auction_listings(association_id,source,gear,starting_bid,started_at,ends_at) values('"+guild+"','BOSS','{}',1,now()-interval '1 hour',clock_timestamp()+interval '100 milliseconds');");
+  const late=(await db.query<{id:string}>("select listing_id id from private.guild_auction_listings where gear='{}'::jsonb")).rows[0].id;
+  await new Promise(resolve=>setTimeout(resolve,250));
+  await assert.rejects(()=>db.query('select public.bid_guild_auction($1::uuid,1,$2,$3,$4::uuid,$5::uuid,1::bigint)',[u,'c','d',request(30),late]),/GUILD_AUCTION_CLOSED/);
+  await db.exec('rollback');
+ }finally{await db.exec('rollback').catch(()=>{});await db.close();}
 });

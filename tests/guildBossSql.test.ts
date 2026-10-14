@@ -51,6 +51,8 @@ test('guild boss SQL keeps shared damage, daily quota, idempotency and KST cycle
    "insert into private.learned_catalog_skills values('"+u+"','sword_mastery_c',2);"
   ].join('\n'));
   await db.exec(migration);await db.exec(fix);
+  const boundary=new URL('../supabase/migrations/20261014233000_guild_request_boundary_clock.sql',import.meta.url);
+  await db.exec(readFileSync(boundary,'utf8'));
   const dates=await db.query<{boss_day:string;boss_week:string}>('select private.guild_boss_cycle_start($1,$2::timestamptz) as boss_day,private.guild_boss_cycle_start($3,$4::timestamptz) as boss_week',['DAILY','2026-10-14T15:00:00Z','WEEKLY','2026-10-18T00:00:00Z']);
   assert.equal(new Date(dates.rows[0].boss_day).toISOString(),'2026-10-14T15:00:00.000Z');
   assert.equal(new Date(dates.rows[0].boss_week).toISOString(),'2026-10-16T15:00:00.000Z');
@@ -74,5 +76,23 @@ test('guild boss SQL keeps shared damage, daily quota, idempotency and KST cycle
   assert.ok(row.remaining_hp>=0);assert.equal(row.total_attacks,7);
   const priv=(await db.query<{anon:boolean;member:boolean}>("select has_function_privilege('anon','public.attack_guild_boss(uuid,bigint,text,text,uuid,text)','EXECUTE') anon,has_function_privilege('authenticated','public.attack_guild_boss(uuid,bigint,text,text,uuid,text)','EXECUTE') member")).rows[0];
   assert.equal(priv.anon,false);assert.equal(priv.member,true);
- }finally{await db.close();}
+  // Expiry must use the clock after waiting, not transaction start time.
+  await db.exec('begin');
+  await db.query("update private.guild_boss_encounters set cycle_end=clock_timestamp()+interval '100 milliseconds' where encounter_id=$1::uuid",[boss.encounterId]);
+  await new Promise(resolve=>setTimeout(resolve,250));
+  await assert.rejects(()=>attack(v,40),/GUILD_BOSS_EXPIRED/);
+  await db.exec('rollback');
+  // Queued same-user requests cannot exceed five daily attempts.
+  const burst=await Promise.allSettled(Array.from({length:6},(_,i)=>attack(v,50+i)));
+  assert.equal(burst.filter(x=>x.status==='fulfilled').length,4);
+  assert.equal(burst.filter(x=>x.status==='rejected').length,2);
+  for(const r of burst)if(r.status==='rejected')assert.match(String(r.reason),/GUILD_BOSS_ATTACK_LIMIT/);
+  // Two finishing requests must produce one kill and never negative shared HP.
+  await db.exec("update private.guild_boss_encounters set remaining_hp=1 where kind='WEEKLY';");
+  const finish=await Promise.allSettled([attack(u,70,'WEEKLY'),attack(v,71,'WEEKLY')]);
+  assert.equal(finish.filter(x=>x.status==='fulfilled').length,1);
+  assert.equal(finish.filter(x=>x.status==='rejected').length,1);
+  const killed=(await db.query<{hp:number;attacks:number}>("select remaining_hp::int hp,total_attacks::int attacks from private.guild_boss_encounters where kind='WEEKLY'")).rows[0];
+  assert.equal(killed.hp,0);assert.equal(killed.attacks,2);
+ }finally{await db.exec('rollback').catch(()=>{});await db.close();}
 });
