@@ -43,3 +43,7 @@
 .tc-assoc-hq>.tc-segments{min-width:0}
 .tc-assoc-hq>.tc-segments button{min-width:0;padding-left:2px;padding-right:2px}
 @media(max-width:350px){.tc-warehouse{padding:5px;gap:6px}.tc-warehouse-deposit,.tc-warehouse-ledger{padding:7px}.tc-warehouse-balance strong{font-size:12px}.tc-assoc-hq>.tc-segments button{font-size:10px}}
+
+.tc-warehouse-source{border:1px solid #695337;background:#242018;padding:10px;color:#c6b18d}
+.tc-warehouse-source b{font-size:12px;color:#f0d2a0}
+.tc-warehouse-source p{font-size:11px;line-height:1.45;margin:6px 0}
