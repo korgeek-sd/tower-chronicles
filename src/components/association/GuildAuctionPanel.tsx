@@ -74,10 +74,10 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
   });
  };
  const register=()=>void mutate(async()=>{
-  const itemId=selectedGear;
-  const bid=Number(startPrice);
-  if(!itemId||!Number.isSafeInteger(bid)||bid<1||bid>1000000000)return;
   const key='tc-guild-auction-register:'+associationId;
+  const itemId=pendingRegistration?.itemId??selectedGear;
+  const bid=pendingRegistration?.bid??Number(startPrice);
+  if(!itemId||!Number.isSafeInteger(bid)||bid<1||bid>1000000000)return;
   const request=pendingRegistration??{requestId:crypto.randomUUID(),itemId,bid};
   if(!pendingRegistration)window.sessionStorage.setItem(key,JSON.stringify(request));
   setPendingRegistration(request);
