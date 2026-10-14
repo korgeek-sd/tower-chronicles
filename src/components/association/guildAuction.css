@@ -7,3 +7,18 @@
 .tc-ga-item-copy{display:grid;gap:4px;flex:1;min-width:0}.tc-ga-item-copy b{font-size:12px;overflow-wrap:anywhere}.tc-ga-item-copy small{color:#a89779;font-size:10px}.tc-ga-status{flex:none;color:#dfbd86;font-size:10px;white-space:nowrap}
 .tc-ga-bids{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #55432a;padding-top:9px}.tc-ga-bids>span{display:grid;gap:3px;color:#a9987c;font-size:10px}.tc-ga-bids b{color:#e9cd99;font-size:12px}.tc-ga-top{margin:0;color:#b6d49a;font-size:10px}.tc-ga-action{display:flex;gap:8px;align-items:end}.tc-ga-action label{flex:1;min-width:0;color:#c4ad83;font-size:10px;display:grid;gap:5px}.tc-ga-action input{width:100%;height:39px;background:#18160f;color:#f4dfae;border:1px solid #645038;border-radius:0;padding:0 8px;font-size:14px}.tc-ga-action button{height:39px;min-height:39px;white-space:nowrap}.tc-ga-empty{padding:25px 8px;text-align:center;background:#211e18;border:1px dashed #675338;color:#ab9777;line-height:1.5}.tc-ga-notice{margin:0;border:1px solid #577358;color:#bed9b9;padding:9px}.tc-ga-error{border:1px solid #875849;color:#e9ae9c;padding:9px;display:flex;align-items:center;gap:8px;justify-content:space-between}
 @media(max-width:370px){.tc-ga-grade{width:40px;height:40px}.tc-ga-item{gap:5px}.tc-ga-status{font-size:9px}.tc-ga-reward article{flex-wrap:wrap}.tc-ga-bids b{font-size:11px}}
+
+
+.tc-ga-register{display:grid;gap:8px;border:1px solid #ad8852;background:#282017;padding:11px}
+.tc-ga-register>.tc-ga-section-title small{max-width:61%;text-align:right}
+.tc-ga-register>p{margin:0;color:#cbb391;font-size:10px;line-height:1.5}
+.tc-ga-register label,.tc-ga-management label{display:grid;gap:5px;color:#cab491;font-size:10px;min-width:0;flex:1}
+.tc-ga-register select,.tc-ga-register input,.tc-ga-management input{width:100%;min-height:38px;box-sizing:border-box;background:#17150f;border:1px solid #776042;color:#f2daa8;padding:6px 8px;font-size:12px}
+.tc-ga-register>button{min-height:45px;font-weight:700}
+.tc-ga-register>.tc-ga-section-title{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.tc-ga-management{display:flex;align-items:end;justify-content:flex-end;gap:8px;border-top:1px solid #51422f;padding-top:8px}
+.tc-ga-management button{min-width:145px;flex:none;font-size:11px}
+.tc-ga-pending{display:grid;gap:6px;padding:9px;color:#edca96;border:1px solid #8c6142;background:#30241d;font-size:10px;line-height:1.5}
+.tc-ga-pending button{font-size:10px}
+.tc-ga-lot.closed:has(.tc-ga-management){opacity:1}
+@media(max-width:370px){.tc-ga-management{flex-wrap:wrap}.tc-ga-management button{width:100%}}
