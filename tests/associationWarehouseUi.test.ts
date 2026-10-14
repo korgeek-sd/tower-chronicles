@@ -34,7 +34,7 @@ test('declaring war consumes guild tickets rather than leader tickets and record
  assert.doesNotMatch(declaration,/update private\.village_life_players/);
  assert.match(migration,/'guildTickets'/);
 });
-test('treasury UI is read-only; headquarters donations award contribution and fill shared storage',()=>{
+test('treasury transfers are leader-only while headquarters donations still award contribution',()=>{
  const lease:any={leaseId:'test',generation:1,clientInstanceId:'client'};
  const html=renderToStaticMarkup(React.createElement(AssociationWarehousePanel,{lease,associationId:'guild'}));
  assert.match(html,/원정단 금고/);
@@ -44,6 +44,12 @@ test('treasury UI is read-only; headquarters donations award contribution and fi
  assert.match(source,/공용 \{item.name\}/);
  assert.match(source,/사냥 수익 분담/);
  assert.doesNotMatch(source,/depositAssociationWarehouse|기부하기/);
+ assert.match(source,/state.myRole==='LEADER'/);
+ assert.match(source,/길드장 전용/);
+ assert.match(source,/인출 내역만/);
+ assert.match(source,/loadAssociationWarehouseHistory/);
+ assert.match(source,/transferAssociationTreasury/);
+ assert.match(source,/공헌도 미지급/);
  const supply=readFileSync(new URL('../src/components/association/AssociationSupplyPanel.tsx',import.meta.url),'utf8');
  assert.match(supply,/도전권 기부/);
  assert.match(supply,/공용 금고 적립/);
