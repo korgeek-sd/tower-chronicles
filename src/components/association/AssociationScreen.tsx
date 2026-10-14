@@ -148,7 +148,7 @@ function OnlineAssociationScreen({
    <Segments items={visibleTabs} value={visibleTabs.some(([id])=>id===tab)?tab:'overview'} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
    {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
    {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
-   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId}/>}
+   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='overview'&&<section className="tc-assoc-overview">
     <AssociationSupplyPanel key={current.associationId+'growth'} lease={lease} mode="growth" refreshKey={current.activity[0]?.activityId} expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>
