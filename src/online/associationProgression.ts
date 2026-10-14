@@ -11,8 +11,11 @@ export interface AssociationProgression {
  totalGoldDonation:number;
  dailySilverDonation:number;
  dailyGoldDonation:number;
+ dailyTicketDonation:number;
+ personalTickets:number;
  dailySilverLimit:number;
  dailyGoldLimit:number;
+ dailyTicketLimit:number;
  dailyResetAt:string;
 }
 
@@ -21,7 +24,7 @@ export interface AssociationDonationResult {
  record:CloudSaveRecord;
 }
 
-export const donateToAssociation=(lease:GameplayLease,input:{currency:'silver'|'gold';amount:number},requestId:string=crypto.randomUUID())=>
+export const donateToAssociation=(lease:GameplayLease,input:{currency:'silver'|'gold'|'ticket';amount:number},requestId:string=crypto.randomUUID())=>
  rpc<AssociationDonationResult>('donate_to_association',{...args(lease),p_request_id:requestId,p_currency:input.currency,p_amount:input.amount});
 
 export const loadAssociationProgression=(lease:GameplayLease)=>
