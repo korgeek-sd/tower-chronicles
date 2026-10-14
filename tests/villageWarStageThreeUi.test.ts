@@ -45,11 +45,41 @@ test('front action obeys friendly-fire and authorization/cooldown constraints',(
  const allied=render({...base,fronts:base.fronts.map((f:any,i:number)=>i===0?{...f,associationId:'ours'}:f)});
  assert.match(allied,/우리 길드 수비 중/);
  assert.match(allied,/class="tc-village-primary tc-feel-press" disabled=""/);
- for(const state of [{...base,tickets:0},{...base,nextAttackAt:'2026-10-17T13:20:30Z'},{...base,myDefendingFront:{eventId:base.eventId,frontId:4}}]){
+ for(const state of [{...base,tickets:0},{...base,myDefendingFront:{eventId:base.eventId,frontId:4}}]){
   const html=render(state);
   assert.match(html,/class="tc-village-primary tc-feel-press" disabled=""/);
  }
  assert.match(render({...base,canAttack:false}),/class="tc-village-primary tc-feel-press" disabled=""/);
+});
+test('30-second server cooldown lives on the attack button and fills to expiry',()=>{
+ const end='2026-10-17T13:20:30Z';
+ for(const [elapsed,remaining,progress] of [[0,30,0],[3,27,10],[15,15,50],[29,1,97]]){
+  const state={...base,nextAttackAt:end,serverNow:date+elapsed*1000};
+  const html=render(state);
+  assert.match(html,new RegExp('재공격까지 '+remaining+'초'));
+  assert.match(html,/class="tc-village-primary tc-feel-press is-cooling" disabled=""/);
+  assert.match(html,/aria-label="공격 대기 진행률"/);
+  assert.match(html,new RegExp('aria-valuenow="'+elapsed+'"'));
+  assert.match(html,new RegExp('width:'+progress+'%'));
+  assert.match(html,/대기 시간이 끝나면 다시 공격할 수 있습니다/);
+ }
+ const ready=render({...base,nextAttackAt:end,serverNow:date+30000});
+ assert.match(ready,/즉시 전투/);
+ assert.doesNotMatch(ready,/재공격까지|tc-village-cooldown-track/);
+ assert.match(ready,/class="tc-village-primary tc-feel-press">/);
+});
+test('cooldown is shared across fronts, while friendly and deployment actions keep their labels',()=>{
+ const end='2026-10-17T13:20:30Z';
+ const cooling={...base,nextAttackAt:end};
+ assert.match(render(cooling),/재공격까지 30초/);
+ const emptySelectedFirst={...cooling,fronts:[{...base.fronts[0],defenderUserId:null,associationId:null,associationName:null,hp:null,maxHp:null,mp:null,maxMp:null},...base.fronts.slice(1)]};
+ assert.match(render(emptySelectedFirst),/재공격까지 30초/);
+ const allied={...cooling,fronts:base.fronts.map((f:any,i:number)=>i===0?{...f,associationId:'ours'}:f)};
+ assert.match(render(allied),/우리 길드 수비 중/);
+ assert.doesNotMatch(render(allied),/재공격까지 30초/);
+ const deployment={...base,phase:'DEPLOYMENT',serverNow:Date.parse('2026-10-17T12:56:00Z'),ownerAssociationId:'ours',myRole:'LEADER',nextAttackAt:end};
+ assert.match(render(deployment),/배치 해제/);
+ assert.doesNotMatch(render(deployment),/재공격까지/);
 });
 test('deployment remains leader-only for removing an existing defender',()=>{
  const state={...base,phase:'DEPLOYMENT',serverNow:Date.parse('2026-10-17T12:56:00Z'),ownerAssociationId:'ours',myRole:'LEADER'};

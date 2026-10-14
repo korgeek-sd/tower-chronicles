@@ -52,9 +52,12 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
  const winner=state.scores?.find(s=>s.associationId===state.winnerAssociationId)?.associationName??'원정단';
  const isOurs=!!selected&&!!state.myAssociationId&&selected.associationId===state.myAssociationId;
  const isDefender=!!selected?.defenderUserId;
+ const cooling=phase==='BATTLE'&&cooldown>0&&!!selected&&(!isDefender||!isOurs);
+ const cooldownElapsed=30-Math.min(30,cooldown);
+ const cooldownProgress=Math.round(cooldownElapsed/30*100);
  const ownsPlacement=!!selected&&owner&&phase==='DEPLOYMENT';
  const status=state.myDefendingFront?'현재 수비 중':cooldown>0?'공격 대기 '+cooldown+'초':(state.tickets??0)<1?'도전권 부족':'공격 가능';
- const actionText=phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?(state.myRole==='LEADER'?'배치 해제':'수비 배치 완료'):'내 캐릭터 배치'):'수비 배치 대기'):
+ const actionText=cooling?`재공격까지 ${cooldown}초`:phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?(state.myRole==='LEADER'?'배치 해제':'수비 배치 완료'):'내 캐릭터 배치'):'수비 배치 대기'):
   phase==='BATTLE'?(isDefender?(isOurs?'우리 길드 수비 중':state.stageTwo?'즉시 전투':'자동 PvP 연결 전'):'빈 전선 점령'):
   settled?'종료된 전쟁':'전쟁 시작 대기';
  const actionAllowed=!!selected&&(phase==='DEPLOYMENT'?ownsPlacement&&(isDefender?state.myRole==='LEADER':!state.myDefendingFront)&&!locked:
@@ -63,7 +66,7 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
   if(phase==='DEPLOYMENT')isDefender?onRemove(selected):onPlace(selected);
   else if(phase==='BATTLE')isDefender?onAttack?.(selected):onClaim(selected);
  };
- const actionHint=phase==='DEPLOYMENT'?'시작 전 5분 동안만 편성 가능':phase==='BATTLE'?'도전권 1장 · 개인 대기 30초': '전쟁 종료 후에는 공격할 수 없습니다';
+ const actionHint=cooling?'대기 시간이 끝나면 다시 공격할 수 있습니다':phase==='DEPLOYMENT'?'시작 전 5분 동안만 편성 가능':phase==='BATTLE'?'도전권 1장 · 개인 대기 30초':'전쟁 종료 후에는 공격할 수 없습니다';
  const title=phase==='DEPLOYMENT'?'수비 배치':phase==='BATTLE'?'전선 쟁탈전':settled?(state.winnerAssociationId?winner+' 승리':'전쟁 종료 · 소유권 유지'):'전쟁 준비';
  return <section className="tc-village-stage tc-village-stage-v3" aria-label="5전선 공성전 실시간 전황">
   <header className="tc-village-war-head">
@@ -91,8 +94,9 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
      <p>비어 있는 전선입니다. 전쟁 중 도전권 1장으로 즉시 점령할 수 있습니다.</p>}
    </div>
    <div className="tc-village-selected-action">
-    <button type="button" className="tc-village-primary tc-feel-press" disabled={!actionAllowed} onClick={act}>
-     {actionText}<small>{actionHint}</small>
+    <button type="button" className={"tc-village-primary tc-feel-press"+(cooling?" is-cooling":"")} disabled={!actionAllowed} onClick={act}>
+     <span className="tc-village-primary-label">{actionText}</span><small>{actionHint}</small>
+     {cooling&&<span className="tc-village-cooldown-track" role="progressbar" aria-label="공격 대기 진행률" aria-valuemin={0} aria-valuemax={30} aria-valuenow={cooldownElapsed}><i style={{width:cooldownProgress+"%"}}/></span>}
     </button>
    </div>
   </section>:<div className="tc-village-no-front">전선 정보를 확인하는 중입니다.</div>}
