@@ -18,6 +18,15 @@ export function associationGrowthError(raw:string){
   ASSOCIATION_TICKET_SHORTAGE:'직능 뽑기권이 부족합니다.',
   ASSOCIATION_ITEM_NOT_FOUND:'판매 중인 상품을 찾을 수 없습니다.',
   ASSOCIATION_REQUEST_CONFLICT:'이미 처리된 요청입니다. 상태를 새로 확인해 주세요.',
+  GUILD_AUCTION_INVALID_BID:'입찰 금액 또는 요청값이 올바르지 않습니다.',
+  GUILD_AUCTION_REQUEST_CONFLICT:'이전 입찰 요청과 금액이 다릅니다. 경매를 새로 확인해 주세요.',
+  GUILD_AUCTION_BID_TOO_LOW:'최소 입찰 금액 이상으로 입력해 주세요.',
+  GUILD_AUCTION_CLOSED:'종료되었거나 이용할 수 없는 경매입니다.',
+  GUILD_AUCTION_NOT_WINNER:'경매가 아직 진행 중이거나 낙찰 대상이 아닙니다.',
+  GUILD_BOSS_REWARD_UNAVAILABLE:'아직 처치되지 않았거나 수령할 수 없는 보상입니다.',
+  GUILD_BOSS_REWARD_NOT_ELIGIBLE:'해당 보스전 참여 기록이 없어 보상을 받을 수 없습니다.',
+  GUILD_BOSS_EXPEDITION_ACTIVE:'원정 중에는 보상 또는 장비를 수령할 수 없습니다.',
+
  };
  for(const [code,message] of Object.entries(messages))if(raw.includes(code))return message;
  return '원정단 요청에 실패했습니다. 다시 시도해 주세요.';
