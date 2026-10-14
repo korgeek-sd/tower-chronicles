@@ -7,7 +7,7 @@ import {GameSessionLostError,type GameplayLease} from './gameSession';
 export type WarehouseCurrency='SILVER'|'GOLD'|'TICKET';
 export interface WarehouseEntry {
  entryId:number;
- operation:'DEPOSIT'|'WAR_DECLARATION';
+ operation:'DEPOSIT'|'WAR_DECLARATION'|'HUNT_TAX'|'EXPEDITION_TAX';
  currency:WarehouseCurrency;
  amount:number;
  balanceAfter:number;
@@ -27,7 +27,6 @@ export interface AssociationWarehouse {
  personalTickets:number;
  ledger:WarehouseEntry[];
 }
-export interface WarehouseDepositResult {warehouse:AssociationWarehouse;record:CloudSaveRecord;replayed:boolean}
 const errorMessages:Record<string,string>={
  WAREHOUSE_INPUT_INVALID:'기부 수량은 1부터 10억까지 입력할 수 있습니다.',
  WAREHOUSE_BALANCE_SHORTAGE:'개인 보유 재화가 부족합니다.',
@@ -61,7 +60,3 @@ async function rpc<T>(lease:GameplayLease,name:string,extra:Record<string,unknow
 }
 export const loadAssociationWarehouse=(lease:GameplayLease)=>
  rpc<AssociationWarehouse>(lease,'get_association_warehouse');
-export const depositAssociationWarehouse=(lease:GameplayLease,request:{id:string;currency:WarehouseCurrency;amount:number})=>
- rpc<WarehouseDepositResult>(lease,'deposit_association_warehouse',{
-  p_request_id:request.id,p_currency:request.currency,p_amount:request.amount,
- });
