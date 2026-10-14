@@ -17,6 +17,11 @@ const attackLabel=(boss:GuildBossInfo,busy:boolean,expedition:boolean)=>{
  if(expedition)return '원정 중 공격 불가';
  return '보스 공격';
 };
+const asset=(p:string)=>import.meta.env.BASE_URL+p;
+const raidImage={
+ DAILY:asset('assets/monsters/iron-bosses/deep_hoist_overseer.png'),
+ WEEKLY:asset('assets/monsters/iron-bosses/echo_devourer.png'),
+} as const;
 
 export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,onReload,onDismiss,onAuction}:{
  boss:GuildBossInfo;now:number;result:GuildBossAttackResult|null;busy:boolean;expedition:boolean;error:string;
@@ -29,75 +34,102 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
  const disabled=busy||defeated||remainingAttempts===0||expedition;
  const latest=result?.encounterId===boss.encounterId?result:null;
  const first=boss.leaderboard[0];
+ const close=(event:React.MouseEvent<HTMLButtonElement>)=>{
+  event.currentTarget.closest('details')?.removeAttribute('open');
+ };
  return <div className={'tc-boss-body '+(daily?'tc-boss-daily':'tc-boss-weekly')}>
   <div className="tc-boss-arena">
+   <div className="tc-boss-art-glow" aria-hidden="true"/>
+   <div className="tc-boss-art-figure" aria-hidden="true" style={{backgroundImage:'url("'+raidImage[boss.kind]+'")'}}/>
    <div className="tc-boss-arena-top">
-    <span className="tc-boss-eyebrow">{daily?'DAILY RAID':'WEEKLY RAID'} <span aria-hidden="true">/</span> {daily?'일일 토벌':'주간 토벌'}</span>
+    <span className="tc-boss-eyebrow">{daily?'DAILY RAID':'WEEKLY RAID'}</span>
     <span className={'tc-boss-status '+(defeated?'done':'')}>{defeated?'토벌 성공':'토벌 진행 중'}</span>
    </div>
    <div className="tc-boss-identity">
     <div className="tc-boss-title">
      <h2>{boss.name}</h2>
-     <p>{daily?'매일 00:00 새로운 보스 등장':'매주 토요일 00:00 새로운 보스 등장'}</p>
+     <p>{daily?'매일 00:00 새로운 보스 등장':'토요일 00:00 새로운 보스 등장'}</p>
+     <span className="tc-boss-countdown">{defeated?'다음 보스 등장 대기':'교체까지 '+remaining(boss.cycleEnd,now)}</span>
     </div>
     <div className="tc-boss-mark" aria-hidden="true"><span>✦</span></div>
    </div>
    <div className="tc-boss-health" aria-label="길드 공동 보스 체력">
-    <div className="tc-boss-health-label"><span>보스 HP</span><strong>{num(boss.remainingHp)}<small> / {num(boss.maxHp)}</small></strong></div>
-    <div className="tc-boss-track" role="progressbar" aria-label="보스 남은 체력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}>
-     <span style={{width:pct+'%'}}/>
+    <div className="tc-boss-health-label"><span>BOSS HP</span><strong>{num(boss.remainingHp)}<small> / {num(boss.maxHp)}</small></strong></div>
+    <div className="tc-boss-health-meter">
+     <div className="tc-boss-track" role="progressbar" aria-label="보스 남은 체력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}>
+      <span style={{width:pct+'%'}}/>
+     </div>
+     <strong>{pct.toFixed(1)}%</strong>
     </div>
-    <div className="tc-boss-health-foot"><span>HP {pct.toFixed(1)}%</span><span>{defeated?'다음 보스 등장 대기':'교체까지 '+remaining(boss.cycleEnd,now)}</span></div>
    </div>
   </div>
-  <div className="tc-boss-dashboard">
-   <div className="tc-boss-attempts">
-    <span>오늘 남은 공격</span>
-    <strong>{remainingAttempts}<small> / 5회</small></strong>
+  <div className="tc-boss-dashboard" aria-label="보스전 현황">
+   <div className="tc-boss-attempts"><span>오늘 남은 공격</span><strong>{remainingAttempts}<small> / 5회</small></strong>
     <div className="tc-boss-attempt-pips" aria-label={'공격 가능 '+remainingAttempts+'회'}>
      {[0,1,2,3,4].map(i=><span key={i} className={i<remainingAttempts?'ready':'used'}/>)}
     </div>
    </div>
    <div className="tc-boss-damage"><span>내 누적 피해</span><strong>{num(boss.myDamage)}</strong></div>
    <div className="tc-boss-participants"><span>참여 길드원</span><strong>{num(boss.participants)}<small>명</small></strong></div>
+   <div className="tc-boss-total"><span>길드 총 공격</span><strong>{num(boss.totalAttacks)}<small>회</small></strong></div>
   </div>
+  <section className="tc-boss-result" aria-label="최근 전투 결과" role={latest?'status':undefined}>
+   <div className="tc-boss-result-header">
+    <b>최근 전투 결과</b>
+    {latest&&<button type="button" onClick={onDismiss} aria-label="전투 결과 닫기">×</button>}
+   </div>
+   {latest?<div className="tc-boss-result-numbers">
+    <div><span>이번 공격 피해</span><strong>+{num(latest.damage)}</strong></div>
+    <div><span>남은 보스 HP</span><strong>{num(latest.remainingHp)}</strong></div>
+   </div>:<div className="tc-boss-result-empty">보스를 공격하면 이곳에 피해량과 결과가 표시됩니다.</div>}
+  </section>
   <div className="tc-boss-action">
    <button type="button" className="tc-boss-attack" disabled={disabled} onClick={onFight}>
     <span aria-hidden="true" className="tc-boss-attack-icon">⚔</span>
     <span>{attackLabel(boss,busy,expedition)}</span>
     {!disabled&&<small>{remainingAttempts}회 가능</small>}
+    <span className="tc-boss-attack-chevron" aria-hidden="true">›</span>
    </button>
    <div className="tc-boss-reset"><span>공격 횟수는 매일 00:00 초기화</span><span>활력 소모 없음</span></div>
   </div>
-  {error&&<div className="tc-boss-error" role="alert"><span>{error}</span><button type="button" disabled={busy} onClick={onReload}>상태 확인</button></div>}
-  {latest&&<section className="tc-boss-result" role="status" aria-label="최근 전투 결과">
-   <div className="tc-boss-result-header"><b>{latest.defeated?'토벌 성공':'공격 완료'}</b><button type="button" onClick={onDismiss} aria-label="전투 결과 닫기">×</button></div>
-   <div className="tc-boss-result-numbers">
-    <div><span>이번 공격 피해</span><strong>+{num(latest.damage)}</strong></div>
-    <div><span>남은 보스 HP</span><strong>{num(latest.remainingHp)}</strong></div>
-   </div>
-   <details className="tc-boss-turn-details">
-    <summary>턴별 전투 기록 <span>{latest.combat.turns.length}턴 보기</span></summary>
-    <div>{latest.combat.turns.map(t=><p key={t.turn}><b>{t.turn}T</b><span>{t.lines.join(' · ')}</span></p>)}</div>
+  {error&&<div className="tc-boss-error" role="alert">
+   <span>{error}</span><button type="button" disabled={busy} onClick={onReload}>상태 확인</button>
+  </div>}
+  <div className="tc-boss-expansion-grid">
+   <details className="tc-boss-leaderboard">
+    <summary><span className="tc-boss-ranking-icon" aria-hidden="true">♜</span>
+     <span className="tc-boss-ranking-title">길드 피해량 순위</span>
+     <span className="tc-boss-ranking-preview">{first?'1위 '+first.name+' · '+num(first.damage):'기록 없음'}</span>
+     <span className="tc-boss-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div className="tc-boss-popover tc-boss-ranking-list">
+     <header><b>길드 피해량 순위</b><button type="button" onClick={close} aria-label="피해량 순위 닫기">닫기 ×</button></header>
+     <div className="tc-boss-popover-scroll">
+      {boss.leaderboard.length?boss.leaderboard.slice(0,10).map((member,i)=><div className="tc-boss-ranking-row" key={member.userId}>
+       <b>{i+1}</b><span>{member.name}</span><strong>{num(member.damage)}</strong><small>{member.attacks}회</small>
+      </div>):<p>아직 참여한 길드원이 없습니다.</p>}
+     </div>
+     <div className="tc-boss-ranking-total">길드 전체 누적 공격 {num(boss.totalAttacks)}회</div>
+    </div>
    </details>
-   {latest.defeated&&onAuction&&<button type="button" className="tc-boss-result-reward" onClick={onAuction}>토벌 보상·경매 확인 ›</button>}
-  </section>}
-  <details className="tc-boss-leaderboard">
-   <summary>
-    <span className="tc-boss-ranking-icon" aria-hidden="true">≡</span>
-    <span className="tc-boss-ranking-title">길드 피해량 순위</span>
-    <span className="tc-boss-ranking-preview">{first?'1위 '+first.name+' · '+num(first.damage):'첫 공격을 기다리는 중'}</span>
-    <span className="tc-boss-chevron" aria-hidden="true">⌄</span>
-   </summary>
-   <div className="tc-boss-ranking-list">
-    {boss.leaderboard.length?boss.leaderboard.slice(0,10).map((member,i)=><div className="tc-boss-ranking-row" key={member.userId}>
-     <b>{i+1}</b><span>{member.name}</span><strong>{num(member.damage)}</strong><small>{member.attacks}회</small>
-    </div>):<p>아직 참여한 길드원이 없습니다.</p>}
-    <div className="tc-boss-ranking-total">길드 전체 누적 공격 {num(boss.totalAttacks)}회</div>
-   </div>
-  </details>
-  {onAuction&&<button type="button" className="tc-boss-auction-link" onClick={onAuction}><span>토벌 보상 · 길드 경매장</span><span aria-hidden="true">›</span></button>}
-  <p className="tc-boss-footnote">길드원 피해량이 공유 HP에 누적됩니다. 보스 HP와 공격 횟수는 서버에서 관리합니다.</p>
+   <details className="tc-boss-turn-details">
+    <summary><span className="tc-boss-ranking-icon" aria-hidden="true">☷</span><span className="tc-boss-ranking-title">턴별 전투 기록</span>
+     <span className="tc-boss-ranking-preview">{latest?latest.combat.turns.length+'턴 보기':'기록 없음'}</span>
+     <span className="tc-boss-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div className="tc-boss-popover tc-boss-turn-list">
+     <header><b>턴별 전투 기록</b><button type="button" onClick={close} aria-label="전투 기록 닫기">닫기 ×</button></header>
+     <div className="tc-boss-popover-scroll">
+      {latest?latest.combat.turns.map(t=><p key={t.turn}><b>{t.turn}T</b><span>{t.lines.join(' · ')}</span></p>):<p>이 보스에게 공격한 뒤 기록을 확인할 수 있습니다.</p>}
+     </div>
+     {latest?.defeated&&onAuction&&<button type="button" className="tc-boss-result-reward" onClick={onAuction}>토벌 보상·경매 확인 ›</button>}
+    </div>
+   </details>
+  </div>
+  {onAuction&&<button type="button" className="tc-boss-auction-link" onClick={onAuction}>
+   <span>토벌 보상 · 길드 경매장</span><span aria-hidden="true">›</span>
+  </button>}
+  <p className="tc-boss-footnote">길드원 피해량은 공유 HP에 누적됩니다.</p>
  </div>;
 }
 
@@ -145,7 +177,7 @@ export function GuildBossPanel({lease,associationId,expedition,onAuction}:{
   finally{busyRef.current=false;if(mounted.current)setBusy(false);}
  };
  const selectKind=(next:GuildBossKind)=>{if(busyRef.current)return;setKind(next);setResult(null);setError('');};
- return <section className="tc-guild-boss" aria-label="원정단 보스전">
+ return <section className={'tc-guild-boss '+(kind==='WEEKLY'?'is-weekly':'is-daily')} aria-label="원정단 보스전">
   <header className="tc-boss-toolbar">
    <div className="tc-boss-tabs" role="group" aria-label="보스 종류">
     {(['DAILY','WEEKLY'] as GuildBossKind[]).map(k=>{
