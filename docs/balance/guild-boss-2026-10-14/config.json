@@ -1,0 +1,62 @@
+{
+  "revision": "fc3c19b6d0501ccd7fd55d8922389928319a8f25",
+  "levels": [
+    1,
+    20,
+    40,
+    60,
+    80,
+    100
+  ],
+  "grades": [
+    "common",
+    "uncommon",
+    "rare",
+    "heroic",
+    "legendary"
+  ],
+  "screenRuns": 1,
+  "refinedRuns": 128,
+  "sensitivityRuns": 32,
+  "precisionRuns": 1000,
+  "seedSchedule": "setseed(((trial_index*48271+20261014)%2147483647)/2147483647), reset independently before each fight; paired across scenarios",
+  "engine": "production PostgreSQL guild_boss_combat loaded unchanged into PGlite",
+  "independentFullHpMp": true,
+  "sealLevel": 0,
+  "food": "none (not applied by boss engine)",
+  "counts": 2769,
+  "trials": 10692,
+  "sourceHashes": [
+    {
+      "name": "fixed_equipment_stats",
+      "path": "supabase/migrations/20261008142245_fixed_equipment_catalog.sql",
+      "sha256": "4983132c81581c9474afe2b624806945da030b435e6d4451f9e4ce42db7ffb15"
+    },
+    {
+      "name": "association_seal_bonus_json",
+      "path": "supabase/migrations/20260927114500_association_seal_v1.sql",
+      "sha256": "6ec8202fa18a201f4f75622ebab87b592032b14097d97e5c9934f137a5b5ec17"
+    },
+    {
+      "name": "combat_equipment_stats",
+      "path": "supabase/migrations/20261010130000_hunting_stat_allocation.sql",
+      "sha256": "621d2c8979f5c46db29a255a7a8def2a4045ba6121bdadff620e275fa9fa8c06"
+    },
+    {
+      "name": "hunting_damage",
+      "path": "supabase/migrations/20261008100000_hunting_six_stats.sql",
+      "sha256": "2bcbae41bccfa2dc160b54707d8518477134b18a3761a62a29cc8b7dc88ccd64"
+    },
+    {
+      "name": "hunting_skill_spec",
+      "path": "supabase/migrations/20261011194500_hunting_catalog_combat.sql",
+      "sha256": "2c4724a70c49d72a254a0c5a4508015c8c73ff16489d499e8697383cfa5f7e64"
+    },
+    {
+      "name": "guild_boss_combat",
+      "path": "supabase/migrations/20261014113600_guild_boss_daily_weekly.sql",
+      "sha256": "a7d34821546caffd45da4b4e5cb6fe6362a09ab936c9091a321b6440f8a38fcb"
+    }
+  ],
+  "caveat": "Trials execute sequentially with per-trial seeded PostgreSQL RNG. Guild-day estimates use mean damage and equal hypothetical members; no live player distributions."
+}

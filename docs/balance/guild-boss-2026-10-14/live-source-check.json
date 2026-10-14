@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-10-14",
+  "revision": "fc3c19b6d0501ccd7fd55d8922389928319a8f25",
+  "project": "zecdhceihrdwdkdykxhx",
+  "functions": [
+    {
+      "name": "combat_equipment_stats",
+      "bodyMatches": true
+    },
+    {
+      "name": "guild_boss_combat",
+      "bodyMatches": true
+    },
+    {
+      "name": "hunting_damage",
+      "bodyMatches": true
+    },
+    {
+      "name": "hunting_skill_spec",
+      "bodyMatches": true
+    }
+  ],
+  "note": "Whitespace-normalized function bodies from repository SQL match live definitions; no live player inventory was read."
+}

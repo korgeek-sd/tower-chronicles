@@ -1,0 +1,24 @@
+{
+  "scenarioCount": 2769,
+  "retainedTrials": 10692,
+  "checks": [
+    "unique scenario/seed",
+    "group sample counts",
+    "reported damage means match raw trials",
+    "damage clamped to boss HP",
+    "zero vitality/potion consumption",
+    "valid stat budget and crit cap",
+    "critical build invests no MP",
+    "single-trial screening has no mean CI",
+    "representative 128-seed prefix matches expanded 1000-seed runs",
+    "gzip round-trip",
+    "portable snapshot rerunner reproduces 16 retained seeded rows"
+  ],
+  "scope": "Local modeling only; no live numerical changes.",
+  "hashes": {
+    "engine.sql": "7b6b75716e32c016584e7b53beb2e4e5b123601b0435a7c350f1f3706ad06579",
+    "trials.csv": "bec2ce36d4e1eb7ac0a0a4e3ecccb928a81729a12a8ab132bc0bb0efd4560dc3",
+    "summary.json": "9ee09dd6adafebde86fafe12a6b842e6b9a8ab17e815d277135ff3d5b408d26b",
+    "run.mjs": "743fdb0019579019ebee0c621b94c32b6c3ac35f2a0e3be7e2f357d055ac6dea"
+  }
+}
