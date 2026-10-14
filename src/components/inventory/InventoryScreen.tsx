@@ -20,7 +20,9 @@ import {marketItemIdForInventory} from '../../game/market/marketService';
 import type {MarketIntent} from '../market/marketNavigation';
 
 import './iron-inventory.css';
-import {GradeChips,EmptySearchResults,equipmentGradeOptions,bookGradeOptions} from '../filters/LucianFilters';
+import {EmptySearchResults} from '../filters/LucianFilters';
+
+import {InventoryFilterDialog,inventoryGradeSummary} from './InventoryFilterDialog';
 
 import {EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 
@@ -29,6 +31,7 @@ const PAGE_SIZE=36;
 
 export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,onSkills,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;onSkills?:()=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
  const gridRef=useRef<HTMLDivElement>(null);
+ const filterButton=useRef<HTMLButtonElement>(null);
  const [pageSize,setPageSize]=useState(PAGE_SIZE);
  const [gridRows,setGridRows]=useState(6);
  useEffect(()=>{const grid=gridRef.current;if(!grid)return;const observer=new ResizeObserver(([entry])=>{const rows=Math.max(1,Math.floor((entry.contentRect.height+4)/48));setGridRows(rows);setPageSize(rows*6);});observer.observe(grid);return ()=>observer.disconnect();},[]);
@@ -68,16 +71,13 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
    setGame(s=>({...s,notice:error instanceof Error?error.message:'장비 분해에 실패했습니다.'}));
   }finally{setBusy(false);}
  };
- const tierVisible=['all','equipment','materials','tickets'].includes(category);
- const statusLabel=category==='equipment'?'장착 중':category==='skillbooks'?'미습득':category==='cosmetics'?'미등록':'';
+
  function comparisonFor(sourceId:string){return equipmentStatComparison(game,sourceId);}
  return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory tc-iron-inventory">
   <div className="tc-ref-inventory tc-inventory-v081 tc-storage-only">
    <section className={'tc-storage-board'+(pages===1?' tc-storage-single-page':'')}>
-    <div className="tc-storage-head"><div><small>QUARTERMASTER STORAGE</small><b>인벤토리</b><em role="status">{life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${visible.length}종`}</em></div>{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className="tc-auto-equip" title="무기 종류 유지 · 상위 등급 장착" disabled={!!game.expedition||busy||bestEquipmentIds(game).length===0} onClick={()=>setGame(autoEquip)}>자동 장착</button><button className={toolsOpen?'active':''} onClick={()=>setToolsOpen(v=>!v)} aria-label="검색과 정렬"><Glyph name="filter"/> 정렬</button></div>
+    <div className="tc-storage-head"><div><small>QUARTERMASTER STORAGE</small><b>인벤토리</b><em role="status">{life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${inventoryGradeSummary(category,filter.grades??[])} · ${visible.length}종`}</em></div>{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className="tc-auto-equip" title="무기 종류 유지 · 상위 등급 장착" disabled={!!game.expedition||busy||bestEquipmentIds(game).length===0} onClick={()=>setGame(autoEquip)}>자동 장착</button><button ref={filterButton} className={toolsOpen||query||filter.grades?.length||filter.tier||filter.status?'active':''} onClick={()=>setToolsOpen(true)} aria-label="필터" aria-haspopup="dialog" aria-expanded={toolsOpen}><Glyph name="filter"/> 필터</button></div>
     <div className="tc-storage-categories">{categorySet.map(c=><button key={c} aria-selected={category===c} aria-label={categoryNames[c]} onClick={()=>{setCategory(c);setSelected(null);setFilter({tier:0,status:false});setPage(0);}}><Glyph name={c==='foods'?'health':c}/><small>{categoryNames[c]}</small></button>)}</div>
-    {(category==='equipment'||category==='skillbooks')&&<GradeChips className="tc-inventory-grade-filter" label={category==='equipment'?'장비 등급':'스킬북 등급'} options={category==='equipment'?equipmentGradeOptions:bookGradeOptions} value={filter.grades??[]} onChange={grades=>{setFilter({...filter,grades});setSelected(null);setPage(0);}}/>}
-    {toolsOpen&&<div className="tc-storage-tools"><input aria-label="아이템 검색" placeholder="이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/><select aria-label="정렬" value={sort} onChange={e=>setSort(e.target.value as InventorySort)}><option value="default">기본 정렬</option><option value="name">이름순</option><option value="tier">티어 높은순</option><option value="quantity">수량 많은순</option></select>{tierVisible&&<select aria-label="티어 필터" value={filter.tier} onChange={e=>{setFilter({...filter,tier:+e.target.value});setPage(0);}}>{[0,1,2,3,4,5].map(t=><option key={t} value={t}>{t?'T'+t:'전체 티어'}</option>)}</select>}{statusLabel&&<label><input type="checkbox" checked={filter.status} onChange={e=>setFilter({...filter,status:e.target.checked})}/>{statusLabel}</label>}</div>}
     <div ref={gridRef} className="tc-storage-grid tc-storage-dense" style={{gridTemplateRows:`repeat(${gridRows},minmax(0,1fr))`}}>{!shown.length&&<EmptySearchResults title={query.trim()||filter.grades?.length||filter.tier||filter.status?'검색 조건에 맞는 아이템이 없습니다.':'보관된 아이템이 없습니다.'} actions={[
  ...(filter.grades?.length?[{label:'등급 필터',count:selectInventory(items,category,query,sort,{...filter,grades:[]}).length,run:()=>{setFilter({...filter,grades:[]});setPage(0);}}]:[]),
  ...(query.trim()?[{label:'검색어',count:selectInventory(items,category,'',sort,filter).length,run:()=>{setQuery('');setPage(0);}}]:[]),
@@ -86,6 +86,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
+  {toolsOpen&&<InventoryFilterDialog category={category} query={query} sort={sort} filter={filter} returnFocus={filterButton} onQuery={value=>{setQuery(value);setPage(0);}} onSort={value=>{setSort(value);setPage(0);}} onFilter={value=>{setFilter(value);setSelected(null);setPage(0);}} onReset={()=>{setQuery('');setSort('default');setFilter({tier:0,status:false});setPage(0);}} onClose={()=>setToolsOpen(false)}/>}
   {item&&<InventoryDetailSheet item={item} status={(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }

@@ -1,0 +1,22 @@
+.tc-inventory-filter-dialog{width:min(340px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);padding:0;color:#ddcda3;background:#24221b;border:5px solid #756047;border-radius:4px;box-shadow:0 12px 40px #000b;font-family:inherit;}
+.tc-inventory-filter-dialog::backdrop{background:#0009;}
+.tc-filter-panel{display:grid;gap:10px;padding:12px;background:linear-gradient(#28261fe8,#171813ed),url('/assets/ui/iron-bronze/panel.webp') center/cover;}
+.tc-filter-panel header,.tc-filter-panel footer{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.tc-filter-panel header b{font-size:20px;}
+.tc-filter-panel button,.tc-filter-panel select,.tc-filter-panel input[type=search]{min-height:44px;min-width:0;font:inherit;color:inherit;background:#171813;border:1px solid #806b4d;border-radius:3px;padding:8px 10px;}
+.tc-filter-panel header button{width:44px;font-size:24px;}
+.tc-filter-panel input[type=search],.tc-filter-panel select{width:100%;}
+.tc-filter-panel small{display:block;margin-bottom:7px;font-size:12px;color:#b9ac8c;}
+.tc-filter-extra{display:flex;gap:10px;align-items:center;}
+.tc-filter-extra:empty{display:none;}
+.tc-filter-extra>*{flex:1;}
+.tc-filter-extra label{display:flex;align-items:center;gap:6px;min-height:44px;white-space:nowrap;}
+.tc-filter-extra input{width:20px;height:20px;accent-color:#e2bd72;}
+.tc-inventory-filter-dialog .tc-filter-popup-grades{margin:0;padding:0;min-height:0;height:auto;}
+.tc-inventory-filter-dialog .tc-filter-popup-grades .u019-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;height:auto;overflow:visible;}
+.tc-inventory-filter-dialog .tc-filter-popup-grades .u019-chip{width:100%;height:44px;min-height:44px;min-width:0;padding:6px;border-radius:3px;font-size:14px;gap:4px;}
+.tc-inventory-filter-dialog .tc-filter-popup-grades .u019-check{width:14px;height:14px;}
+.tc-filter-panel footer button{flex:1;}
+.tc-filter-panel footer .tc-filter-done{background:#e3bd72;color:#201b12;font-weight:bold;}
+.tc-filter-panel :focus-visible{outline:2px solid #f5d78e;outline-offset:2px;}
+@media(max-height:600px){.tc-filter-panel{gap:7px;padding:9px;}.tc-filter-panel small{margin-bottom:4px;}}
