@@ -47,3 +47,21 @@
 .tc-warehouse-source{border:1px solid #695337;background:#242018;padding:10px;color:#c6b18d}
 .tc-warehouse-source b{font-size:12px;color:#f0d2a0}
 .tc-warehouse-source p{font-size:11px;line-height:1.45;margin:6px 0}
+
+
+.tc-warehouse-owner{font-size:10px;color:#e3c587;border:1px solid #9a7c46;padding:6px 8px;white-space:nowrap}
+.tc-warehouse-transfer{padding:10px;background:#221b14;border:1px solid #937249;display:grid;gap:9px}
+.tc-warehouse-direction{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.tc-warehouse-direction button{min-height:36px;font-size:12px}
+.tc-warehouse-direction button.active,.tc-warehouse-history-filter button.active{color:#f8dda8;background:#62482b;border-color:#ce9f5d;font-weight:700}
+.tc-warehouse-transfer input[type="text"]{font-size:12px}
+.tc-warehouse-pending{border:1px solid #9a684c;background:#2f231e;padding:9px;display:grid;gap:8px;font-size:11px;line-height:1.5;color:#f3c29a}
+.tc-warehouse-pending button{font-size:11px}
+.tc-warehouse-history-filter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.tc-warehouse-history-filter button{min-height:34px;font-size:11px}
+.tc-warehouse-ledger-rows{max-height:260px}
+.tc-warehouse-ledger-rows article.withdrawal{background:#37251e;border-left:3px solid #c58166;padding-left:8px}
+.tc-warehouse-ledger-rows article.withdrawal b{color:#f0bb9e}
+.tc-warehouse-ledger-rows article small{white-space:normal;overflow:visible;line-height:1.45}
+.tc-warehouse-more{font-size:11px}
+.tc-warehouse .tc-warehouse-transfer button,.tc-warehouse .tc-warehouse-history-filter button{cursor:pointer}
