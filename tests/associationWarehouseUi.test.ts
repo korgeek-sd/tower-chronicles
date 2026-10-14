@@ -34,18 +34,18 @@ test('declaring war consumes guild tickets rather than leader tickets and record
  assert.doesNotMatch(declaration,/update private\.village_life_players/);
  assert.match(migration,/'guildTickets'/);
 });
-test('warehouse UI has three shared assets, donation controls, ledger and no private withdrawal',()=>{
+test('treasury UI is read-only; headquarters donations award contribution and fill shared storage',()=>{
  const lease:any={leaseId:'test',generation:1,clientInstanceId:'client'};
- const html=renderToStaticMarkup(React.createElement(AssociationWarehousePanel,{lease,associationId:'guild',expedition:false,onRecord:()=>{},onChanged:()=>{}}));
+ const html=renderToStaticMarkup(React.createElement(AssociationWarehousePanel,{lease,associationId:'guild'}));
  assert.match(html,/원정단 금고/);
  assert.match(html,/불러오는 중/);
- const screen=readFileSync(new URL('../src/components/association/AssociationWarehousePanel.tsx',import.meta.url),'utf8');
- for(const label of ['실버','골드','도전권'])assert.match(screen,new RegExp(label));
- assert.match(screen,/personalTickets/);
- assert.match(screen,/창고 기록/);
- assert.match(screen,/pendingGrowthRequest/);
- assert.doesNotMatch(screen,/withdrawAssociationWarehouse|출금하기/);
+ const source=readFileSync(new URL('../src/components/association/AssociationWarehousePanel.tsx',import.meta.url),'utf8');
+ for(const value of ['공용 실버','공용 골드','공용 도전권'])assert.match(source,new RegExp(value));
+ assert.match(source,/사냥 수익 분담/);
+ assert.doesNotMatch(source,/depositAssociationWarehouse|기부하기/);
+ const supply=readFileSync(new URL('../src/components/association/AssociationSupplyPanel.tsx',import.meta.url),'utf8');
+ assert.match(supply,/도전권 기부/);
+ assert.match(supply,/공용 금고 적립/);
  const entry=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
  assert.match(entry,/\['warehouse','금고'\]/);
- assert.match(entry,/AssociationWarehousePanel/);
 });
