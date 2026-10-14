@@ -17,7 +17,7 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
  const declaredByMe=(id:string)=>!!war?.myAssociationId&&declarationsFor(id).some(d=>d.associationId===war.myAssociationId);
  const canDeclare=!!onDeclareWar&&war?.phase==='BIDDING'&&war.myRole==='LEADER';
  const selectedDeclarations=declarationsFor(selected.id);
- const declarationNote=war?.phase!=='BIDDING'?'선전포고 기간이 아닙니다':war.myRole!=='LEADER'?'길드장만 선전포고 가능':declaredByMe(selected.id)?'내 길드 선전포고 완료':war.tickets<100?'도전권이 100장보다 부족합니다':'마을당 도전권 100장 · 취소 및 환불 불가';
+ const declarationNote=war?.phase!=='BIDDING'?'선전포고 기간이 아닙니다':war.myRole!=='LEADER'?'길드장만 선전포고 가능':declaredByMe(selected.id)?'내 길드 선전포고 완료':(war.guildTickets??0)<100?'공용 도전권이 100장보다 부족합니다':'마을당 공용 도전권 100장 · 취소 및 환불 불가';
  const resource=(kind:TownKind)=>kind==='city'?'약초 · 농업':kind==='herb'?'약초':'농업';
  const glyph=(kind:TownKind)=>kind==='city'?'association':kind==='herb'?'kaleon':'farm';
  const select=(id:string)=>{setSelectedId(id);setMessage('');};
@@ -32,10 +32,10 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
   <section className="tc-region-details" aria-label="선택한 마을 정보">
    <header><Glyph name={glyph(selected.kind)}/><div><small>{townKindLabel(selected.kind)}</small><h2>{selected.name}</h2></div><span>{here?'현재 위치':'이동 가능'}</span></header>
    <div className="tc-region-facts"><div><small>점령 길드</small><b>{selected.owner}</b></div><div><small>생산물 세율</small><b>{selected.tax}%</b></div><div><small>생활 자원</small><b>{resource(selected.kind)}</b></div></div>
-   {war&&<div className="tc-region-war-status"><span>선전포고 <b>{selectedDeclarations.length}개 길드</b></span><span>보유 도전권 <b>{war.tickets.toLocaleString()}장</b></span></div>}
+   {war&&<div className="tc-region-war-status"><span>선전포고 <b>{selectedDeclarations.length}개 길드</b></span><span>공용 도전권 <b>{(war.guildTickets??0).toLocaleString()}장</b></span></div>}
    <div className="tc-region-stocks">{(selected.kind==='city'?['herb','farm']:[selected.kind]).map(kind=>{const remaining=kind==='herb'?liveTown?.herbRemaining:liveTown?.farmRemaining,capacity=kind==='herb'?liveTown?.herbCapacity:liveTown?.farmCapacity;return <div key={kind}><span>{kind==='herb'?'약초':'농산물'} 잔여량</span><b>{remaining?.toLocaleString()??'30,000'} / {capacity?.toLocaleString()??'30,000'}</b></div>;})}</div>
    <div className="tc-region-actions">{here&&onLife?<button type="button" aria-label="채집 · 생활하기" className="tc-action tc-feel-press" disabled={busy} onClick={onLife}>채집 · 생활하기</button>:<button type="button" aria-label="이동하기" className="tc-action tc-feel-press" disabled={busy||!reachable} onClick={()=>{if(busy||!canTravel(current.id,selected.id))return;onTravel(selected.id);if(!towns)setMessage(`${selected.name}(으)로 이동했습니다.`);}}>{busy?'처리 중…':here?'현재 위치':`${selected.name} 이동하기`} <span aria-hidden="true">›</span></button>}
-    {war&&war.myRole==='LEADER'&&!declaredByMe(selected.id)&&<button type="button" {...(canDeclare?{'data-action':'declare-war'}:{})} className="tc-action tc-feel-press tc-region-declare" disabled={busy||warBusy||warPending||war.tickets<100||!canDeclare} onClick={()=>setConfirmTown(selected.id)}>선전포고 <small>도전권 100장</small></button>}
+    {war&&war.myRole==='LEADER'&&!declaredByMe(selected.id)&&<button type="button" {...(canDeclare?{'data-action':'declare-war'}:{})} className="tc-action tc-feel-press tc-region-declare" disabled={busy||warBusy||warPending||(war.guildTickets??0)<100||!canDeclare} onClick={()=>setConfirmTown(selected.id)}>선전포고 <small>도전권 100장</small></button>}
     </div>
     {war&&<p className={'tc-region-declare-note'+(declaredByMe(selected.id)?' done':'')}>{declarationNote}</p>}
     {warError&&<p className="tc-region-message" role="alert">{warError}</p>}
@@ -48,10 +48,10 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
     <small>WAR DECLARATION</small>
     <h2 id="tc-war-confirm-title">선전포고 확인</h2>
     <p><b>{data.find(t=>t.id===confirmTown)?.name}</b>에 이번 주 선전포고합니다.</p>
-    <div><span>소모 도전권</span><strong>100장</strong></div>
-    <div><span>현재 보유</span><strong>{war.tickets.toLocaleString()}장</strong></div>
+    <div><span>공용 도전권 소비</span><strong>100장</strong></div>
+    <div><span>길드 창고 보유</span><strong>{(war.guildTickets??0).toLocaleString()}장</strong></div>
     <p id="tc-war-confirm-desc">등록 후 취소 및 환불이 불가능합니다. 전쟁 시간에 해당 마을의 길드원 전투 참가 권한이 활성화됩니다.</p>
-    <footer><button ref={cancelRef} type="button" onClick={()=>setConfirmTown(null)}>취소</button><button type="button" className="tc-region-confirm-accept tc-feel-press" disabled={busy||warBusy||warPending||!canDeclare||war.tickets<100||declaredByMe(confirmTown)} onClick={()=>{onDeclareWar?.(confirmTown);setConfirmTown(null);}}>도전권 100장 사용</button></footer>
+    <footer><button ref={cancelRef} type="button" onClick={()=>setConfirmTown(null)}>취소</button><button type="button" className="tc-region-confirm-accept tc-feel-press" disabled={busy||warBusy||warPending||!canDeclare||(war.guildTickets??0)<100||declaredByMe(confirmTown)} onClick={()=>{onDeclareWar?.(confirmTown);setConfirmTown(null);}}>공용 도전권 100장 사용</button></footer>
    </div>
   </div>}
  </section>;

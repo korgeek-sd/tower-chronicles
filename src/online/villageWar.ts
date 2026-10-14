@@ -16,6 +16,7 @@ export interface VillageWarState{
  myAssociationId:string|null;
  myRole:'LEADER'|'MEMBER'|null;
  tickets:number;
+ guildTickets?:number;
  declarations:VillageWarDeclaration[];
 }
 export interface VillageWarResult{state:VillageWarState;replayed:boolean}
@@ -29,6 +30,7 @@ const messages:Record<string,string>={
  WAR_TOWN_INVALID:'선택한 마을을 다시 확인해 주세요.',
  WAR_ALREADY_DECLARED:'이번 주 이 마을에 이미 선전포고했습니다.',
  WAR_TICKETS_SHORT:'도전권이 부족합니다.',
+ WAR_GUILD_TICKETS_SHORT:'길드 창고의 공용 도전권이 100장보다 부족합니다.',
  WAR_FEATURE_DISABLED:'공성전 1차 기능은 내부 검증 중입니다.',
  WAR_ENDED:'전쟁이 종료되었습니다. 도전권은 차감되지 않았습니다.',
  WAR_SAME_GUILD:'같은 원정단의 전선은 공격할 수 없습니다.',

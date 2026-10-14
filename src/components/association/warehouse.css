@@ -1,0 +1,45 @@
+.tc-warehouse{display:flex;flex-direction:column;min-height:0;overflow-y:auto;gap:9px;padding:8px;background:#181713;color:#e7d7b4}
+.tc-warehouse button{font:inherit;border:1px solid #776042;background:#35291d;color:#ebd5ad;min-height:42px;border-radius:2px}
+.tc-warehouse button:disabled{opacity:.46;cursor:not-allowed}
+.tc-warehouse button:focus-visible,.tc-warehouse input:focus-visible{outline:2px solid #efce88;outline-offset:2px}
+.tc-warehouse-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tc-warehouse-head small{font-size:9px;letter-spacing:1.3px;color:#af9771}
+.tc-warehouse-head h2{font-size:19px;margin:3px 0}
+.tc-warehouse-head p{font-size:10px;margin:0;color:#c2ad89}
+.tc-warehouse-head>button{font-size:10px;padding:0 10px;min-height:36px}
+.tc-warehouse-balances{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.tc-warehouse-balance{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:94px;padding:7px 3px;background:linear-gradient(#30271b,#211c17);border:1px solid #715b3b}
+.tc-warehouse-balance.selected{border-color:#cfad6f}
+.tc-warehouse-currency-symbol{font-size:17px;color:#dabd79}
+.tc-warehouse-balance small{font-size:10px;color:#bda886}
+.tc-warehouse-balance strong{max-width:100%;overflow:hidden;text-overflow:ellipsis;font-size:15px;font-variant-numeric:tabular-nums}
+.tc-warehouse-balance em{font-style:normal;font-size:9px;color:#a89270}
+.tc-warehouse-deposit,.tc-warehouse-ledger{padding:10px;background:#211d17;border:1px solid #695337;display:flex;flex-direction:column;gap:8px}
+.tc-warehouse-panel-title{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.tc-warehouse-panel-title b{font-size:13px}.tc-warehouse-panel-title small{font-size:9px;color:#b7a17e;text-align:right}
+.tc-warehouse-currency-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.tc-warehouse-currency-picker button{font-size:11px;min-height:40px}
+.tc-warehouse-currency-picker button.active{border-color:#e1b879;background:#564129;color:#ffe5ad;font-weight:bold}
+.tc-warehouse-available{display:flex;justify-content:space-between;font-size:11px;color:#c1ad8b}
+.tc-warehouse-available strong{color:#ebd39c;font-variant-numeric:tabular-nums}
+.tc-warehouse-amount{display:grid;gap:4px;font-size:11px;color:#c5b394}
+.tc-warehouse-amount input{width:100%;box-sizing:border-box;min-height:40px;padding:6px 9px;background:#13120f;border:1px solid #806743;color:#f5e0b7;font-size:16px;font-variant-numeric:tabular-nums}
+.tc-warehouse-amount-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.tc-warehouse-amount-presets button{min-height:32px;font-size:11px}
+.tc-warehouse .tc-warehouse-submit{min-height:46px;border-color:#c69a5b;background:#78502e;color:#ffe6b8;font-size:14px;font-weight:700}
+.tc-warehouse-note{margin:0;color:#a99573;font-size:10px;line-height:1.5}
+.tc-warehouse-success{color:#b1d2a2;font-size:11px;margin:0}
+.tc-warehouse-error{color:#eac197;font-size:11px;margin:0}
+.tc-warehouse-ledger-rows{display:grid;gap:4px;max-height:220px;overflow:auto}
+.tc-warehouse-ledger-rows article{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 5px;border-bottom:1px solid #483b29}
+.tc-warehouse-ledger-rows article div{min-width:0;display:grid;gap:3px}
+.tc-warehouse-ledger-rows article b{font-size:11px}
+.tc-warehouse-ledger-rows article small{font-size:9px;color:#a99575;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-warehouse-ledger-rows article strong{white-space:nowrap;flex:none;font-size:11px;font-variant-numeric:tabular-nums}
+.tc-warehouse-ledger-rows article strong.positive{color:#a6ca92}
+.tc-warehouse-ledger-rows article strong.negative{color:#d4a17f}
+.tc-warehouse-empty{color:#ac9777;font-size:11px;margin:8px 0}
+.tc-assoc-hq .tc-hq-economy button{border:0;background:transparent;color:#edc77f;font-size:10px;min-height:32px}
+.tc-assoc-hq>.tc-segments{min-width:0}
+.tc-assoc-hq>.tc-segments button{min-width:0;padding-left:2px;padding-right:2px}
+@media(max-width:350px){.tc-warehouse{padding:5px;gap:6px}.tc-warehouse-deposit,.tc-warehouse-ledger{padding:7px}.tc-warehouse-balance strong{font-size:12px}.tc-assoc-hq>.tc-segments button{font-size:10px}}
