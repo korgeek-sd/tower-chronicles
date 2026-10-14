@@ -16,7 +16,7 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
  const [progress,setProgress]=useState<AssociationProgression|null>(null);
  const [shop,setShop]=useState<OnlineAssociationShopState|null>(null);
  const [period,setPeriod]=useState<AssociationShopReset>('DAILY'),[page,setPage]=useState(0);
- const [currency,setCurrency]=useState<'silver'|'gold'>('silver'),[amount,setAmount]=useState(10000);
+ const [currency,setCurrency]=useState<'silver'|'gold'|'ticket'>('silver'),[amount,setAmount]=useState(10000);
  const [busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[message,setMessage]=useState('');
  const running=useRef(false),mounted=useRef(true);
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
@@ -50,7 +50,7 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
  const donate=()=>mutate(currency+':'+amount,async id=>{
   const next=await donateToAssociation(lease,{currency,amount},id);
   onRecord(next.record,'원정단 기부를 반영했습니다.');onChanged();
-  if(mounted.current){setProgress(next.progression);setMessage('기부 완료 · 경험치와 공헌도를 획득했습니다.');}
+  if(mounted.current){setProgress(next.progression);setMessage('기부 완료 · 공용 금고 적립 · 경험치와 공헌도를 획득했습니다.');}
  });
  const buy=(itemId:string)=>mutate(itemId,async id=>{
   const next=await buyOnlineAssociationShopItem(lease,itemId,id);
@@ -60,16 +60,16 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
  const refresh=async()=>{try{if(mode==='growth')setProgress(await loadAssociationProgression(lease));else setShop(await loadOnlineAssociationShop(lease));setMessage('');}catch(e){setMessage(e instanceof Error?e.message:'정보를 불러오지 못했습니다.');}};
  if(loading||!(mode==='growth'?progress:shop))return <section className="tc-supply"><p role="status">{message||'보급 정보를 불러오는 중입니다.'}</p><button disabled={busy} onClick={()=>void refresh()}>다시 확인</button></section>;
  if(mode==='growth'&&progress){
-  const level=associationLevelProgress(progress.associationExp),used=currency==='silver'?progress.dailySilverDonation:progress.dailyGoldDonation;
-  const limit=currency==='silver'?progress.dailySilverLimit:progress.dailyGoldLimit,balance=currency==='silver'?silver:gold;
+  const level=associationLevelProgress(progress.associationExp),used=currency==='silver'?progress.dailySilverDonation:currency==='gold'?progress.dailyGoldDonation:progress.dailyTicketDonation;
+  const limit=currency==='silver'?progress.dailySilverLimit:currency==='gold'?progress.dailyGoldLimit:progress.dailyTicketLimit,balance=currency==='silver'?silver:currency==='gold'?gold:progress.personalTickets;
   return <section className="tc-supply tc-supply-growth">
    <header><b>원정단 성장 <strong>Lv.{progress.associationLevel}</strong></b><span>공헌도 <b>{progress.contributionPoint.toLocaleString()}</b></span></header>
    <div className="tc-supply-exp" role="progressbar" aria-label="원정단 경험치" aria-valuenow={Math.round(level.percent)} aria-valuemin={0} aria-valuemax={100}><i style={{width:level.percent+'%'}}/></div>
    <small>{progress.associationExp.toLocaleString()} / {level.nextExp.toLocaleString()} EXP {level.level===10?'· 최고 레벨':''}</small>
-   <details className="tc-supply-donation-fold"><summary>원정단에 기부하기 <span>실버·골드</span></summary>
-   <Segments items={[['silver','실버 기부'],['gold','골드 기부']] as const} value={currency} onChange={c=>{setCurrency(c);setAmount(c==='silver'?10000:100);}} label="기부 재화"/>
-   <div className="tc-supply-donate"><label>기부량<select disabled={busy||expedition} value={amount} onChange={e=>setAmount(Number(e.target.value))}>{(currency==='silver'?[10000,20000,30000,40000,50000]:[100,200,500,1000]).map(n=><option key={n} value={n}>{n.toLocaleString()} {currency==='silver'?'Silver':'Gold'}</option>)}</select></label><button disabled={busy||expedition||amount+used>limit||balance<amount} onClick={()=>void donate()}>기부 · +{associationDonationGain(currency,amount)}</button></div>
-   <small>오늘 {used.toLocaleString()} / {limit.toLocaleString()} · 경험치·공헌도 각각 +{associationDonationGain(currency,amount)}</small>
+   <details className="tc-supply-donation-fold"><summary>원정단에 기부하기 <span>실버·골드·도전권</span></summary>
+   <Segments items={[['silver','실버 기부'],['gold','골드 기부'],['ticket','도전권 기부']] as const} value={currency} onChange={c=>{setCurrency(c);setAmount(c==='silver'?10000:c==='gold'?100:10);}} label="기부 재화"/>
+   <div className="tc-supply-donate"><label>기부량<select disabled={busy||expedition} value={amount} onChange={e=>setAmount(Number(e.target.value))}>{(currency==='silver'?[10000,20000,30000,40000,50000]:currency==='gold'?[100,200,500,1000]:[1,5,10,25,50,100]).map(n=><option key={n} value={n}>{n.toLocaleString()} {currency==='silver'?'Silver':currency==='gold'?'Gold':'장'}</option>)}</select></label><button disabled={busy||expedition||amount+used>limit||balance<amount} onClick={()=>void donate()}>기부 · +{associationDonationGain(currency,amount)}</button></div>
+   <small>오늘 {used.toLocaleString()} / {limit.toLocaleString()} · 공용 금고 적립 · 경험치·공헌도 각각 +{associationDonationGain(currency,amount)}</small>
    <small>매일 00:00 초기화 (한국 시간){expedition?' · 안전 귀환 후 이용':''}</small>
    </details>
    {message&&<p role="status">{message}</p>}
