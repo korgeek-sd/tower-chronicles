@@ -126,3 +126,47 @@
  .tc-village-selected-vitals{gap:2px}
  .tc-village-war-feed .tc-village-mini-records p:nth-child(n+2){display:none}
 }
+
+
+/* Stage 3: real PvP result uses the same compact battlefield presentation. */
+.tc-village-combat-result-v3{
+ grid-template-rows:auto minmax(0,1.15fr) auto auto minmax(0,1fr) 44px;
+ gap:5px;overflow:hidden;padding:7px;
+}
+.tc-village-result-header{text-align:center;min-width:0}
+.tc-village-result-header small{font-size:10px;color:#a99472}
+.tc-village-result-header h2{font-size:19px;color:#f1d190;margin:2px 0}
+.tc-village-result-header p{font-size:11px;margin:0;color:#cfb692}
+.tc-village-result-arena{display:grid;grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);align-items:stretch;gap:4px;min-height:0;min-width:0}
+.tc-village-result-fighter{min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto auto;gap:3px;padding:4px;border:1px solid #756146;background:linear-gradient(#302820,#201d18)}
+.tc-village-result-fighter.defender{border-color:#85544a}
+.tc-village-result-art{display:grid;place-items:center;min-height:0;overflow:hidden}
+.tc-village-result-art img{width:100%;height:100%;object-fit:contain}
+.tc-village-result-art>span{font-size:56px;color:#b16e60}
+.tc-village-result-name{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;align-items:baseline;text-align:center;overflow:hidden}
+.tc-village-result-name small{font-size:9px;color:#aa9475}
+.tc-village-result-name b{font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%}
+.tc-village-result-vs{display:grid;place-items:center;font-size:13px;font-weight:bold;color:#e6bb7f}
+.tc-village-result-vitals{display:grid;gap:3px}
+.tc-village-result-vitals>div{display:grid;grid-template-columns:18px minmax(0,1fr) 59px;gap:3px;align-items:center;font-size:9px}
+.tc-village-result-vitals b{text-align:right;font-size:9px;font-variant-numeric:tabular-nums}
+.tc-village-result-vitals progress{width:100%;height:8px;appearance:none;border:1px solid #66533c;background:#161410}
+.tc-village-result-vitals progress::-webkit-progress-bar{background:#161410}
+.tc-village-result-vitals progress.hp::-webkit-progress-value{background:#b76c57}
+.tc-village-result-vitals progress.mp::-webkit-progress-value{background:#5d9cb9}
+.tc-village-result-vitals progress.hp::-moz-progress-bar{background:#b76c57}
+.tc-village-result-vitals progress.mp::-moz-progress-bar{background:#5d9cb9}
+.tc-village-result-outcome{text-align:center;line-height:1.4;font-size:11px!important;color:#e1bd82}
+.tc-village-result-log-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;border-bottom:1px solid #5b4c35;padding-bottom:4px}
+.tc-village-result-log-head span{font-size:10px;color:#b19a77}
+.tc-village-combat-result-v3 .tc-village-combat-log{margin:0;list-style:none;padding:0;min-height:0;overflow:auto}
+.tc-village-combat-result-v3 .tc-village-combat-log li{display:grid;grid-template-columns:35px minmax(0,1fr);gap:5px;border-bottom:1px solid #403729;padding:5px 2px;font-size:11px}
+.tc-village-combat-result-v3 .tc-village-combat-log li>b{color:#e0be7c}
+.tc-village-combat-result-v3 .tc-village-combat-log span{display:block;margin:0 0 2px;line-height:1.35}
+.tc-village-combat-result-v3 .tc-village-result-back{min-height:44px;width:100%;font-weight:bold;font-size:14px;background:#785033;color:#ffecce;border:1px solid #b78c59}
+@media(max-height:620px){
+ .tc-village-combat-result-v3{gap:3px;padding:5px;grid-template-rows:auto minmax(0,1fr) auto auto minmax(0,0.8fr) 44px}
+ .tc-village-result-header h2{font-size:17px}
+ .tc-village-result-header p{display:none}
+ .tc-village-result-art>span{font-size:36px}
+}
