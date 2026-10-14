@@ -38,6 +38,6 @@ test('client declaration is never shown as completed based on preview owners',()
 test('war declaration uses shared tickets and ignores the leader private ticket count',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{},war:{...war,tickets:500,guildTickets:15},onDeclareWar:()=>{}}));
  assert.match(html,/공용 도전권이 100장보다 부족합니다/);
- assert.doesNotMatch(html,/data-action="declare-war" disabled=""/);
+ assert.match(html,/data-action="declare-war"[^>]*disabled=""/);
  assert.match(html,/공용 도전권 <b>15장<\/b>/);
 });
