@@ -51,9 +51,9 @@ test('guild boss SQL keeps shared damage, daily quota, idempotency and KST cycle
    "insert into private.learned_catalog_skills values('"+u+"','sword_mastery_c',2);"
   ].join('\n'));
   await db.exec(migration);await db.exec(fix);
-  const dates=await db.query<{day:string;week:string}>('select private.guild_boss_cycle_start($1,$2::timestamptz) day,private.guild_boss_cycle_start($3,$4::timestamptz) week',['DAILY','2026-10-14T15:00:00Z','WEEKLY','2026-10-18T00:00:00Z']);
-  assert.equal(new Date(dates.rows[0].day).toISOString(),'2026-10-14T15:00:00.000Z');
-  assert.equal(new Date(dates.rows[0].week).toISOString(),'2026-10-16T15:00:00.000Z');
+  const dates=await db.query<{boss_day:string;boss_week:string}>('select private.guild_boss_cycle_start($1,$2::timestamptz) as boss_day,private.guild_boss_cycle_start($3,$4::timestamptz) as boss_week',['DAILY','2026-10-14T15:00:00Z','WEEKLY','2026-10-18T00:00:00Z']);
+  assert.equal(new Date(dates.rows[0].boss_day).toISOString(),'2026-10-14T15:00:00.000Z');
+  assert.equal(new Date(dates.rows[0].boss_week).toISOString(),'2026-10-16T15:00:00.000Z');
   const st=(await db.query<{s:any}>('select private.guild_boss_state_json($1::uuid) s',[u])).rows[0].s;
   assert.equal(st.bosses.length,2);
   const boss=st.bosses.find((x:any)=>x.kind==='DAILY');
