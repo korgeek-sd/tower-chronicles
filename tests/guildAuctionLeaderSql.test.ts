@@ -5,6 +5,7 @@ import {PGlite} from '@electric-sql/pglite';
 
 const base=readFileSync(new URL('../supabase/migrations/20261014124500_guild_boss_rewards_contribution_auction.sql',import.meta.url),'utf8');
 const extension=readFileSync(new URL('../supabase/migrations/20261014221800_guild_auction_leader_registration_recovery_relist.sql',import.meta.url),'utf8');
+const membershipRecovery=readFileSync(new URL('../supabase/migrations/20261014224300_guild_auction_former_member_gear_recovery.sql',import.meta.url),'utf8');
 const leader='11111111-1111-4111-8111-111111111111';
 const member='22222222-2222-4222-8222-222222222222';
 const guild='33333333-3333-4333-8333-333333333333';
@@ -48,7 +49,7 @@ test('guild leader-only registration escrows server gear; cancellation, unsold r
    ...[1,2,3].map(i=>"insert into private.market_assets(user_id,item_id,quantity,gear) values('"+leader+"','equipment_v2:"+item(i)+"',1,'"+gear(i)+"');"),
    "insert into private.market_assets(user_id,item_id,quantity,gear) values('"+member+"','equipment_v2:"+item(4)+"',1,'"+gear(4)+"');"
   ].join('\n'));
-  await db.exec(base);await db.exec(extension);
+  await db.exec(base);await db.exec(extension);await db.exec(membershipRecovery);
   const rpc=async(name:string,args:any[])=>(await db.query<{r:any}>('select public.'+name+'('+args.map((_,i)=>i===0?'$1::uuid':i===3?'$4::uuid':i===4&&name==='register_guild_auction_item'?'$5::text':i===4?'$5::uuid':i===5?'$6::bigint':'$'+(i+1)).join(',')+') r',args)).rows[0].r;
   const register=async(u:string,n:number,it:number,price:number)=>(await db.query<{r:any}>(
     'select public.register_guild_auction_item($1::uuid,1,$2,$3,$4::uuid,$5,$6::bigint) r',
@@ -83,5 +84,11 @@ test('guild leader-only registration escrows server gear; cancellation, unsold r
   assert.equal(updated.status,'OPEN');assert.equal(updated.price,500);
   const permissions=(await db.query<{anon:boolean;member:boolean}>("select has_function_privilege('anon','public.register_guild_auction_item(uuid,bigint,text,text,uuid,text,bigint)','EXECUTE') anon,has_function_privilege('authenticated','public.register_guild_auction_item(uuid,bigint,text,text,uuid,text,bigint)','EXECUTE') member")).rows[0];
   assert.equal(permissions.anon,false);assert.equal(permissions.member,true);
+  // The original seller may reclaim their owned equipment even after leaving the guild.
+  const afterLeaving=await register(leader,3,1,900);
+  await db.query('delete from private.online_association_members where user_id=$1::uuid',[leader]);
+  const former=await recover(leader,afterLeaving.listingId);
+  assert.equal(former.replayed,false);assert.equal(former.state,null);
+  assert.equal((await db.query<{n:number}>('select count(*)::int n from private.market_assets where user_id=$1::uuid and item_id=$2',[leader,'equipment_v2:'+item(1)])).rows[0].n,1);
  }finally{await db.close();}
 });
