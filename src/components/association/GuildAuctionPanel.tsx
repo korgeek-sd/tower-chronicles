@@ -2,6 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import {equipmentItemName,EQUIPMENT_GRADE_NAMES,equipmentItemStats} from '../../game/data/equipment';
+import {GameScrollSelect} from '../../ui/GameScrollSelect';
 import {getGuildAuctionState,bidGuildAuction,claimGuildBossReward,claimGuildAuctionItem,registerGuildAuctionItem,recoverGuildAuctionItem,relistGuildBossAuctionItem,type GuildAuctionState,type GuildAuctionListing} from '../../online/guildAuction';
 import './guildAuction.css';
 
@@ -109,12 +110,19 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
    {state.isLeader&&<section className="tc-ga-register" aria-label="길드장 장비 경매 등록">
     <div className="tc-ga-section-title"><b>길드장 장비 등록</b><small>개인 장비 → 길드 경매 · 공용 실버 사용 없음</small></div>
     <p>장착하지 않은 장비만 등록할 수 있습니다. 입찰 전에는 취소할 수 있으며, 첫 입찰이 들어오면 취소할 수 없습니다.</p>
-    <label>등록할 장비
-     <select value={selectedGear} disabled={busy||!!pendingRegistration} onChange={e=>setSelectedGear(e.target.value)}>
-      <option value="">장비를 선택하세요</option>
-      {state.availableEquipment.map(({itemId,gear})=><option key={itemId} value={itemId}>{equipmentItemName(gear)}</option>)}
-     </select>
-    </label>
+    <div className="tc-ga-equip-field">
+     <span className="tc-ga-equip-label">등록할 장비</span>
+     <GameScrollSelect
+      ariaLabel="경매 등록 장비" value={selectedGear} onChange={setSelectedGear}
+      disabled={busy||!!pendingRegistration} placeholder="장비를 선택하세요"
+      emptyMessage="경매에 등록 가능한 미착용 장비가 없습니다."
+      options={state.availableEquipment.map(({itemId,gear})=>{
+       const stats=equipmentItemStats(gear);
+       const detail=[stats.attack?'공격 +'+stats.attack:null,stats.defense?'방어 +'+stats.defense:null,stats.hp?'HP +'+stats.hp:null].filter(Boolean).join(' · ');
+       return {value:itemId,label:equipmentItemName(gear),grade:gear.grade,gradeLabel:EQUIPMENT_GRADE_NAMES[gear.grade],detail};
+      })}
+     />
+    </div>
     <label>최소 입찰 공헌도
      <input type="number" inputMode="numeric" min="1" max="1000000000" step="1" value={startPrice} disabled={busy||!!pendingRegistration} onChange={e=>setStartPrice(e.target.value)}/>
     </label>
