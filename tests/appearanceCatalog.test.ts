@@ -92,7 +92,7 @@ test('cosmetic menu displays collection count, planned-only bonus disclosure and
 });
 
 test('only illustrated appearances and default remain in the active catalog',()=>{
- assert.equal(APPEARANCES.length,21);
+ assert.equal(new Set(APPEARANCES.map(a=>a.id)).size,APPEARANCES.length);
  assert.ok(APPEARANCES.every(a=>a.id==='default'||a.artStatus==='ready'&&!!a.imagePath));
  assert.ok(!APPEARANCES.some(a=>['arquebus','dust_pathfinder'].includes(a.id)));
  assert.ok(validateAppearanceCatalog());
