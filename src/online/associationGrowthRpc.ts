@@ -26,6 +26,7 @@ export function associationGrowthError(raw:string){
   GUILD_MATERIAL_REQUEST_CONFLICT:'이전 재료 거래 요청과 내용이 다릅니다.',
   GUILD_MATERIAL_PERSONAL_SHORT:'개인 보유 재료가 부족합니다.',
   GUILD_MATERIAL_STOCK_SHORT:'길드 재료 창고의 재고가 부족합니다.',
+  GUILD_MATERIAL_EXPEDITION_ACTIVE:'원정 중에는 재료 입출고와 경매 등록을 할 수 없습니다.',
   GUILD_MATERIAL_AUCTION_INVALID:'재료 경매를 찾을 수 없습니다.',
   GUILD_AUCTION_LEADER_ONLY:'원정단장만 장비를 등록하거나 보스 전리품을 재경매할 수 있습니다.',
   GUILD_AUCTION_INVALID_LISTING:'장비 또는 시작 공헌도 금액이 올바르지 않습니다.',

@@ -122,7 +122,8 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
      <strong>{fmt(balance(item.id,'treasury'))}</strong><em>{item.unit}</em>
     </div>)}
    </div>
-   {state.myRole==='LEADER'&&<section className="tc-warehouse-transfer" aria-label="길드장 금고 입출금">
+   <GuildMaterialsPanel lease={lease} associationId={associationId} expedition={expedition}/>
+    {state.myRole==='LEADER'&&<section className="tc-warehouse-transfer" aria-label="길드장 금고 입출금">
     <div className="tc-warehouse-panel-title"><b>금고 입출금</b><small>길드장 전용 · 공헌도 지급 없음</small></div>
     <div className="tc-warehouse-direction" role="group" aria-label="거래 유형">
      <button type="button" className={direction==='WITHDRAW'?'active':''} onClick={()=>setDirection('WITHDRAW')} disabled={busy}>인출</button>

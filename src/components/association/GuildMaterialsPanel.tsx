@@ -11,7 +11,7 @@ import './guildMaterials.css';
 const format=(n:number)=>Math.max(0,Math.trunc(n)).toLocaleString('ko-KR');
 const pendingKey=(associationId:string)=>'tc-guild-material-transfer:'+associationId;
 type Transfer={requestId:string;direction:'DEPOSIT'|'WITHDRAW';material:GuildMaterial;amount:number};
-export function GuildMaterialsPanel({lease,associationId}:{lease:GameplayLease;associationId:string}){
+export function GuildMaterialsPanel({lease,associationId,expedition=false}:{lease:GameplayLease;associationId:string;expedition?:boolean}){
  const [state,setState]=useState<GuildMaterialsState|null>(null);
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [direction,setDirection]=useState<'DEPOSIT'|'WITHDRAW'>('WITHDRAW');
@@ -58,7 +58,7 @@ export function GuildMaterialsPanel({lease,associationId}:{lease:GameplayLease;a
    <label>수량 · 사용 가능 {format(available??0)}개
     <input type="number" min="1" max="1000000000" inputMode="numeric" value={amount} onChange={e=>setAmount(e.target.value)} disabled={busy}/>
    </label>
-   <button type="button" disabled={busy||!Number.isSafeInteger(Number(amount))||Number(amount)<1||Number(amount)>Math.min(1000000000,available??0)||!!pending} onClick={()=>send()}>
+   <button type="button" disabled={busy||expedition||!Number.isSafeInteger(Number(amount))||Number(amount)<1||Number(amount)>Math.min(1000000000,available??0)||!!pending} onClick={()=>send()}>
     {busy?'처리 중…':direction==='WITHDRAW'?'재료 인출':'재료 입고'}
    </button>
    {pending&&<button type="button" disabled={busy} onClick={()=>send(true)}>이전 입출고 결과 재확인</button>}
