@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import './studio0322-splash.css';
 
-const VIDEO_URL='/assets/studio0322/splash.mp4';
+const VIDEO_URL=import.meta.env.BASE_URL+'assets/studio0322/splash.mp4';
 const MAX_WAIT_MS=5200;
 
 function shouldPlayIntro():boolean {
