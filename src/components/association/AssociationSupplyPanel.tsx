@@ -1,3 +1,4 @@
+import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useRef,useState} from 'react';
 import {Pager,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
@@ -68,7 +69,7 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
    <small>{progress.associationExp.toLocaleString()} / {level.nextExp.toLocaleString()} EXP {level.level===10?'· 최고 레벨':''}</small>
    <details className="tc-supply-donation-fold"><summary>원정단에 기부하기 <span>실버·골드·도전권</span></summary>
    <Segments items={[['silver','실버 기부'],['gold','골드 기부'],['ticket','도전권 기부']] as const} value={currency} onChange={c=>{setCurrency(c);setAmount(c==='silver'?10000:c==='gold'?100:10);}} label="기부 재화"/>
-   <div className="tc-supply-donate"><label>기부량<select disabled={busy||expedition} value={amount} onChange={e=>setAmount(Number(e.target.value))}>{(currency==='silver'?[10000,20000,30000,40000,50000]:currency==='gold'?[100,200,500,1000]:[1,5,10,25,50,100]).map(n=><option key={n} value={n}>{n.toLocaleString()} {currency==='silver'?'Silver':currency==='gold'?'Gold':'장'}</option>)}</select></label><button disabled={busy||expedition||amount+used>limit||balance<amount} onClick={()=>void donate()}>기부 · +{associationDonationGain(currency,amount)}</button></div>
+   <div className="tc-supply-donate"><label>기부량<GameSelect disabled={busy||expedition} value={amount} onChange={e=>setAmount(Number(e.target.value))}>{(currency==='silver'?[10000,20000,30000,40000,50000]:currency==='gold'?[100,200,500,1000]:[1,5,10,25,50,100]).map(n=><option key={n} value={n}>{n.toLocaleString()} {currency==='silver'?'Silver':currency==='gold'?'Gold':'장'}</option>)}</GameSelect></label><button disabled={busy||expedition||amount+used>limit||balance<amount} onClick={()=>void donate()}>기부 · +{associationDonationGain(currency,amount)}</button></div>
    <small>오늘 {used.toLocaleString()} / {limit.toLocaleString()} · 공용 금고 적립 · 경험치·공헌도 각각 +{associationDonationGain(currency,amount)}</small>
    <small>매일 00:00 초기화 (한국 시간){expedition?' · 안전 귀환 후 이용':''}</small>
    </details>

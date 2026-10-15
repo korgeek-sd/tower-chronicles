@@ -1,3 +1,4 @@
+import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {HUNT_SKILLS,HUNT_MAPS,initialHuntingState,resolveHunt,type HuntingState,type HuntMapId} from '../../game/hunting/model';
@@ -66,9 +67,9 @@ export function HuntingPage({game,setGame,now,lease,userId,nickname,onPrepare,on
   <h2>자동전투 스킬 세팅</h2>
   <p>배운 스킬만 장착할 수 있습니다. 위쪽부터 사용 가능한 스킬을 자동 발동합니다. 전투 시작 시 MP 완충 · MP 포션 없음.</p>
   <h3>액티브 스킬 · 최대 {HUNT_ACTIVE_SLOTS}개</h3>
-  {Array.from({length:HUNT_ACTIVE_SLOTS},(_,i)=><label key={'active'+i}><b>{i+1}번</b><select aria-label={'액티브 슬롯 '+(i+1)} disabled={busy} value={activeDraft[i]??''} onChange={e=>changePresetSlot('active',i,e.target.value)}><option value="">비워두기</option>{availableActive.filter(s=>s.id===(activeDraft[i]??'')||!draft.includes(s.id)).map(skill=><option key={skill.id} value={skill.id}>{skill.name} · MP {skill.mp}</option>)}</select></label>)}
+  {Array.from({length:HUNT_ACTIVE_SLOTS},(_,i)=><label key={'active'+i}><b>{i+1}번</b><GameSelect aria-label={'액티브 슬롯 '+(i+1)} disabled={busy} value={activeDraft[i]??''} onChange={e=>changePresetSlot('active',i,e.target.value)}><option value="">비워두기</option>{availableActive.filter(s=>s.id===(activeDraft[i]??'')||!draft.includes(s.id)).map(skill=><option key={skill.id} value={skill.id}>{skill.name} · MP {skill.mp}</option>)}</GameSelect></label>)}
   <h3>패시브 스킬 · 최대 {HUNT_PASSIVE_SLOTS}개</h3>
-  {Array.from({length:HUNT_PASSIVE_SLOTS},(_,i)=><label key={'passive'+i}><b>{i+1}번</b><select aria-label={'패시브 슬롯 '+(i+1)} disabled={busy} value={passiveDraft[i]??''} onChange={e=>changePresetSlot('passive',i,e.target.value)}><option value="">비워두기</option>{availablePassive.filter(s=>s.id===(passiveDraft[i]??'')||!draft.includes(s.id)).map(skill=><option key={skill.id} value={skill.id}>{skill.name} · 상시 효과</option>)}</select></label>)}
+  {Array.from({length:HUNT_PASSIVE_SLOTS},(_,i)=><label key={'passive'+i}><b>{i+1}번</b><GameSelect aria-label={'패시브 슬롯 '+(i+1)} disabled={busy} value={passiveDraft[i]??''} onChange={e=>changePresetSlot('passive',i,e.target.value)}><option value="">비워두기</option>{availablePassive.filter(s=>s.id===(passiveDraft[i]??'')||!draft.includes(s.id)).map(skill=><option key={skill.id} value={skill.id}>{skill.name} · 상시 효과</option>)}</GameSelect></label>)}
   <p>미습득·무기 불일치 스킬은 표시되지 않으며, MP가 부족한 스킬은 자동으로 건너뜁니다.</p>
   <footer><button disabled={busy||!!userId&&!lease} onClick={()=>void savePreset()}>세팅 저장</button><button disabled={busy} onClick={()=>setSettings(false)}>닫기</button></footer>
  </section>}

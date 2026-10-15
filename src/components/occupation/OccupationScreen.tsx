@@ -1,3 +1,4 @@
+import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useMemo,useState} from 'react';
 import type {Tower} from '../../game/types';
 import {TOWERS,towerIds} from '../../game/data/config';
@@ -118,8 +119,8 @@ export function OccupationScreen({onlineLease}:{onlineLease?:GameplayLease|null}
     <section className="tc-panel">
      <div className="tc-panel-title"><b>입장권 기부</b><small>1장 = 해당 탑 공적 1</small></div>
      <div className="tc-occupation-formrow">
-      <select value={tower} onChange={e=>setTower(e.target.value as Tower)}>{towerIds.map(id=><option key={id} value={id}>{TOWERS[id].name}</option>)}</select>
-      <select value={floor} onChange={e=>setFloor(Number(e.target.value))}>{Array.from({length:10},(_,i)=><option value={i+1} key={i+1}>{i+1}F 입장권</option>)}</select>
+      <GameSelect value={tower} onChange={e=>setTower(e.target.value as Tower)}>{towerIds.map(id=><option key={id} value={id}>{TOWERS[id].name}</option>)}</GameSelect>
+      <GameSelect value={floor} onChange={e=>setFloor(Number(e.target.value))}>{Array.from({length:10},(_,i)=><option value={i+1} key={i+1}>{i+1}F 입장권</option>)}</GameSelect>
       <input inputMode="numeric" value={donation} onChange={e=>setDonation(e.target.value.replace(/\D/g,''))}/>
       <button disabled={!state.identity||q<1||busy} onClick={()=>void act(()=>donateOccupationTickets(onlineLease,{tower,floor,quantity:q}))}>기부</button>
      </div>

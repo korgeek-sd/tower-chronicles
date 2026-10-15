@@ -1,3 +1,4 @@
+import {GameSelect} from '../../ui/GameSelect';
 import React,{useMemo,useState} from 'react';
 import type {EquipmentGrade,EquipmentItem,EquipmentKind,GameState} from '../../game/types';
 import {
@@ -99,18 +100,18 @@ export function EquipmentMarketPanel({
     <span>입찰 없음 · 구매자 수수료 없음 · 등록 30일</span>
    </section>
    <div className="tc-equipment-market-filters">
-    <select aria-label="장비 종류" value={kindFilter} onChange={e=>setKindFilter(e.target.value as KindFilter)}>
+    <GameSelect aria-label="장비 종류" value={kindFilter} onChange={e=>setKindFilter(e.target.value as KindFilter)}>
      <option value="all">전체 종류</option>
      {(Object.keys(EQUIPMENT_DEFINITIONS) as EquipmentKind[]).map(kind=><option value={kind} key={kind}>{EQUIPMENT_DEFINITIONS[kind].name}</option>)}
-    </select>
-    <select aria-label="장비 등급" value={gradeFilter} onChange={e=>setGradeFilter(e.target.value as GradeFilter)}>
+    </GameSelect>
+    <GameSelect aria-label="장비 등급" value={gradeFilter} onChange={e=>setGradeFilter(e.target.value as GradeFilter)}>
      <option value="all">전체 등급</option>
      {EQUIPMENT_GRADES.map(grade=><option value={grade} key={grade}>{EQUIPMENT_GRADE_NAMES[grade]}</option>)}
-    </select>
-    <select aria-label="강화 단계" value={String(enhancementFilter)} onChange={e=>setEnhancementFilter(e.target.value==='all'?'all':Number(e.target.value))}>
+    </GameSelect>
+    <GameSelect aria-label="강화 단계" value={String(enhancementFilter)} onChange={e=>setEnhancementFilter(e.target.value==='all'?'all':Number(e.target.value))}>
      <option value="all">전체 강화</option>
      {Array.from({length:11},(_,i)=><option value={i} key={i}>+{i}</option>)}
-    </select>
+    </GameSelect>
    </div>
    <div className="tc-equipment-market-list">
     {listings.map(listing=><article key={listing.listingId} className="tc-equipment-market-row">

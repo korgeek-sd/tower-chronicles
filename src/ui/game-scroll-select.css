@@ -11,7 +11,7 @@
 .tc-game-select-trigger:focus-visible,.tc-game-scroll-option:focus-visible{
  outline:2px solid #d3a4fa;outline-offset:-2px
 }
-.tc-game-select.is-open .tc-game-select button.tc-game-select-trigger{
+.tc-game-select.is-open button.tc-game-select-trigger{
  border-color:#c29cf0;background:#30243d
 }
 .tc-game-select-trigger:disabled{opacity:.5;cursor:default}
@@ -26,7 +26,7 @@
  display:grid;gap:7px;min-width:0
 }
 .tc-game-select-search-wrap{display:flex;align-items:center;gap:7px}
-.tc-game-select .tc-game-select-search-wrap input{
+.tc-game-select-expanded .tc-game-select-search-wrap input{
  min-width:0;flex:1;height:38px;padding:0 9px;background:#100f19;
  border:1px solid #655372;border-radius:0;color:#f3e1c7;font-size:12px
 }
@@ -71,3 +71,21 @@
 }
 @media(max-width:370px){.tc-game-select button.tc-game-scroll-option{gap:7px;padding:6px 7px}.tc-game-scroll-gem{width:27px;height:27px}}
 @media(prefers-reduced-motion:reduce){.tc-game-select-chevron{transition:none}}
+
+/* All pickers are viewport-aware overlays; scroll stays inside the menu. */
+.tc-game-select{min-width:0;max-width:100%}
+.tc-game-select-expanded{display:flex;flex-direction:column;gap:7px;overflow:hidden;box-sizing:border-box;isolation:isolate}
+.tc-game-select-expanded *{box-sizing:border-box}
+.tc-game-scroll-viewport{position:relative;display:flex;min-height:0;flex:1;overflow:hidden;border:1px solid #514462;background:#11121c}
+.tc-game-scroll-viewport .tc-game-scroll-list{flex:1;min-height:0;max-height:min(32dvh,258px);border:0;scrollbar-width:none}
+.tc-game-scroll-viewport .tc-game-scroll-list::-webkit-scrollbar{display:none;width:0}
+.tc-game-scroll-rail{width:11px;flex:none;position:relative;border-left:1px solid #493752;
+ background:repeating-linear-gradient(0deg,#1d1926 0px,#1d1926 5px,#32263f 6px,#32263f 7px);
+ touch-action:none;cursor:pointer;user-select:none}
+.tc-game-scroll-thumb{position:absolute;left:1px;right:1px;top:0;
+ background:linear-gradient(90deg,#694783,#c8a1dc 50%,#74518f);
+ border:1px solid #dfc19e;border-radius:2px;pointer-events:none}
+.tc-game-scroll-option:disabled{opacity:.45;cursor:not-allowed}
+.tc-game-select.is-compact button.tc-game-select-trigger{height:30px;min-height:30px;padding:2px 5px;font-size:10px}
+.tc-game-select.is-compact .tc-game-select-trigger-icon{font-size:11px}
+@media(max-height:480px){.tc-game-select-expanded .tc-game-scroll-hint{display:none}}

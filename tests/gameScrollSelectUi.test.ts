@@ -60,3 +60,25 @@ test('guild auction register uses picker without changing server submission or r
  const css=readFileSync(new URL('../src/components/association/guildAuction.css',import.meta.url),'utf8');
  assert.match(css,/tc-ga-equip-field/);
 });
+
+test('game select adapter supports legacy options and numeric values without native select',()=>{
+ const code=readFileSync(new URL('../src/ui/GameSelect.tsx',import.meta.url),'utf8');
+ assert.match(code,/GameScrollSelect/);
+ assert.match(code,/toOptions\(children\)/);
+ assert.match(code,/onChange\?\.\(\{target:\{value:next\}\}\)/);
+ const pages=['src/components/hunting/HuntingPage.tsx','src/components/market/EquipmentMarketPanel.tsx','src/components/mobile/CoreScreens.tsx'];
+ for(const path of pages){
+  const text=readFileSync(new URL('../'+path,import.meta.url),'utf8');
+  assert.match(text,/<GameSelect/);
+  assert.doesNotMatch(text,/<select(?:\\s|>)/);
+ }
+});
+test('picker uses a visible custom drag rail and a viewport-clamped popup',()=>{
+ const code=readFileSync(new URL('../src/ui/GameScrollSelect.tsx',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/ui/game-scroll-select.css',import.meta.url),'utf8');
+ assert.match(code,/createPortal/);
+ assert.match(code,/visualViewport/);
+ assert.match(code,/closest\('dialog'\)/);
+ assert.match(code,/tc-game-scroll-rail/);
+ assert.match(css,/tc-game-scroll-thumb/);
+});

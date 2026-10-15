@@ -1,3 +1,4 @@
+import {GameSelect} from '../../ui/GameSelect';
 import {VillageWarCombatResult} from './VillageWarCombatResult';
 import {useVillageWarStageOne} from './useVillageWarStageOne';
 import {VillageWarDeploymentPanel} from './VillageWarDeploymentPanel';
@@ -81,14 +82,14 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
  const battleRemains=phase==='BATTLE'?remaining(war?.battleStartsAt?new Date(Date.parse(war.battleStartsAt)+30*60000).toISOString():undefined,now):'30:00';
  function chooseFront(id:number){setFrontId(id);setPreviewResult(false);}
  if(stage.battle&&!preview)return <VillageWarCombatResult battle={stage.battle} onClose={stage.closeBattle} attackerArt={ownArt?assetUrl(ownArt):undefined}/>;
- if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell"><div className="tc-village-stage-controls"><select aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select><button onClick={()=>setPreview(true)}>UI 시안 보기</button></div><VillageWarDeploymentPanel key={townId+':'+stage.state.eventId} state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/></section>;
+ if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell"><div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button onClick={()=>setPreview(true)}>UI 시안 보기</button></div><VillageWarDeploymentPanel key={townId+':'+stage.state.eventId} state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/></section>;
  return <section className="tc-vwb" aria-label="영지 점령전 전투" data-war-preview={preview}>
   <header className="tc-vwb-header">
    <div className="tc-vwb-title"><small>GUILD WAR · TERRITORY</small><h1>{town.name} 점령전</h1></div>
    <div className="tc-vwb-timer"><small>{phase==='BATTLE'?'전쟁 종료까지':phase==='BIDDING'?'선전포고 마감':phase==='LOCKED'?'전쟁 시작까지':'점령전 대기'}</small><strong>{phase==='BATTLE'?battleRemains:deadline?remaining(deadline,now):'—'}</strong></div>
   </header>
   <div className="tc-vwb-controls">
-   <label><span>전장 선택</span><select aria-label="전쟁 마을 선택" value={townId} onChange={e=>{setTownId(e.target.value);setPreviewResult(false);}}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}{t.kind==='city'?' · 중앙도시':''}</option>)}</select></label>
+   <label><span>전장 선택</span><GameSelect aria-label="전쟁 마을 선택" value={townId} onChange={e=>{setTownId(e.target.value);setPreviewResult(false);}}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}{t.kind==='city'?' · 중앙도시':''}</option>)}</GameSelect></label>
    <button type="button" className={preview?'active':''} aria-pressed={preview} onClick={()=>{setPreview(v=>!v);setPreviewResult(false);}}>{preview?'실제 전황 보기':'UI 시안 보기'}</button>
    {onLegacy&&<button type="button" onClick={onLegacy}>구 점령전</button>}
   </div>

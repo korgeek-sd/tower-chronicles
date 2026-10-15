@@ -1,3 +1,4 @@
+import {GameSelect} from '../ui/GameSelect';
 import {loadSettings,reducedMotion} from '../settings/preferences';
 import './job-registration-results.css';
 import {createPortal} from 'react-dom';
@@ -172,8 +173,8 @@ export function JobsScreen({
     <div className="tc-reg-subnav"><Segments items={[['draw','등록'],['records','직능기록'],['rates','확률정보']] as const} value={registerView} onChange={value=>{setRegisterView(value);setMessage('');}} label="직능등록 세부 메뉴"/></div>
     {registerView==='draw'?<div className="tc-registration">
      <section className="tc-reg-pickups" aria-label="집중 열람 직능">
-      <label><span><b>SR 집중 열람</b><small>SR 등장 시 지정 직능 50%</small></span><select disabled={!onlineLease||busy} value={registration?.pickups.sr??''} onChange={e=>void changePickup('sr',e.target.value)}><option value="">미지정</option>{srJobs.map(job=><option key={job.id} value={job.id}>{job.displayName}</option>)}</select></label>
-      <label><span><b>SSR 집중 열람</b><small>SSR 등장 시 지정 직능 50%</small></span><select disabled={!onlineLease||busy} value={registration?.pickups.ssr??''} onChange={e=>void changePickup('ssr',e.target.value)}><option value="">미지정</option>{ssrJobs.map(job=><option key={job.id} value={job.id}>{job.displayName}</option>)}</select></label>
+      <label><span><b>SR 집중 열람</b><small>SR 등장 시 지정 직능 50%</small></span><GameSelect disabled={!onlineLease||busy} value={registration?.pickups.sr??''} onChange={e=>void changePickup('sr',e.target.value)}><option value="">미지정</option>{srJobs.map(job=><option key={job.id} value={job.id}>{job.displayName}</option>)}</GameSelect></label>
+      <label><span><b>SSR 집중 열람</b><small>SSR 등장 시 지정 직능 50%</small></span><GameSelect disabled={!onlineLease||busy} value={registration?.pickups.ssr??''} onChange={e=>void changePickup('ssr',e.target.value)}><option value="">미지정</option>{ssrJobs.map(job=><option key={job.id} value={job.id}>{job.displayName}</option>)}</GameSelect></label>
      </section>
 
      <section className={'tc-reg-vault'+(busy?' is-working':'')} aria-live="polite">
