@@ -1,11 +1,15 @@
-import test from 'node:test';
+import test,{beforeEach,afterEach} from 'node:test';
 import assert from 'node:assert/strict';
 import {initialState,stats} from '../src/game/engine/state';
 import {registerCollectionEquipment} from '../src/game/engine/collection';
-import {APPEARANCE_SETS,collectionSetProgress,collectionEquipmentLabel} from '../src/game/data/appearanceSets';
+import {APPEARANCE_SETS,collectionSetProgress,collectionEquipmentLabel,type AppearanceSet} from '../src/game/data/appearanceSets';
 import {createV2StarterEquipment} from '../src/game/data/equipment';
 import type {EquipmentItem} from '../src/game/types';
 
+// A test-only combination keeps registration mechanics covered while the live catalog is empty.
+const fixture:AppearanceSet={id:'fixture',name:'등록 검증',description:'테스트 전용',appearanceIds:['corsair','teddy','mechanic'],rarity:'B',equipment:{kind:'return_corps_plate_armor',grade:'rare'},reward:{stat:'hp',value:100}};
+beforeEach(()=>{(APPEARANCE_SETS as AppearanceSet[]).push(fixture);});
+afterEach(()=>{(APPEARANCE_SETS as AppearanceSet[]).splice(0);});
 test('equipment + appearance requirements form a single collection without consuming appearance unlocks',()=>{
  const s=APPEARANCE_SETS[0];
  assert.equal(s.appearanceIds.length,3);
@@ -39,9 +43,8 @@ test('a wrong grade, a protected starter and equipped or missing items cannot be
  base.equipped.armor='right';
  assert.equal(registerCollectionEquipment(base,set.id,'right').equipmentItems.length,3);
 });
-test('the hardest tier combines SSR appearances with legendary gear',()=>{
- const legendary=APPEARANCE_SETS.filter(s=>s.rarity==='SSR');
- assert.ok(legendary.length>0);
- assert.ok(legendary.every(s=>s.equipment.grade==='legendary'));
- assert.ok(legendary.every(s=>s.appearanceIds.some(id=>id!=='')));
+test('retired collections cannot consume equipment',()=>{
+ const base=initialState();const done=registerCollectionEquipment(base,'ashen_border_1','starter-v2');
+ assert.deepEqual(done.equipmentItems,base.equipmentItems);
+ assert.match(done.notice??'',/존재하지 않는 컬렉션/);
 });

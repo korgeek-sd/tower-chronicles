@@ -77,21 +77,12 @@ const themed:AppearanceSet[]=APPEARANCE_COLLECTIONS.flatMap((theme,i)=>{
   };
  });
 });
-const featured:AppearanceSet={
- id:'featured_ash_survivors',
- name:'잿빛의 생존자들',
- description:'무너진 탑에서도, 끝까지 살아남은 이들.',
- appearanceIds:[APPEARANCES[1].id,APPEARANCES[3].id,APPEARANCES[13].id],
- rarity:'A',
- equipment:{kind:'return_corps_plate_armor',grade:'rare'},
- reward:{stat:'hp',value:100}
-};
-
-export const APPEARANCE_SETS:readonly AppearanceSet[]=[featured,...themed];
+// All previous combinations required retired, unillustrated appearances.
+export const APPEARANCE_SETS:readonly AppearanceSet[]=themed;
 
 export function validateAppearanceSets(sets:readonly AppearanceSet[]=APPEARANCE_SETS){
  const ids=new Set(APPEARANCES.map(x=>x.id));
- if(sets.length===0||new Set(sets.map(s=>s.id)).size!==sets.length)return false;
+ if(new Set(sets.map(s=>s.id)).size!==sets.length)return false;
  return sets.every(set=>
   !!set.name&&!!set.description&&set.appearanceIds.length>=2&&set.appearanceIds.length<=5&&
   new Set(set.appearanceIds).size===set.appearanceIds.length&&

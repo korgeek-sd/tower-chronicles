@@ -138,7 +138,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const [query,setQuery]=useState('');
  const [status,setStatus]=useState<'all'|'near'|'complete'|'incomplete'|'tracked'>('all');
  const [sort,setSort]=useState<'default'|'nearest'|'bonus'>('default');
- const [selectedSetId,setSelectedSetId]=useState<string>(APPEARANCE_SETS[0].id);
+ const [selectedSetId,setSelectedSetId]=useState<string>(APPEARANCE_SETS[0]?.id??'');
  const [detailOpen,setDetailOpen]=useState(false);
  const detailCloseRef=useRef<HTMLButtonElement|null>(null);
  const detailTriggerRef=useRef<HTMLButtonElement|null>(null);
@@ -182,19 +182,19 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
   if(sort==='bonus')return b.reward.value-a.reward.value||a.id.localeCompare(b.id);
   return APPEARANCE_SETS.indexOf(a)-APPEARANCE_SETS.indexOf(b);
  });
- const selected:AppearanceSet=relevant.find(s=>s.id===selectedSetId)??relevant[0]??APPEARANCE_SETS[0];
- const progress=collectionSetProgress(selected,owned,registeredIds);
+ const selected:AppearanceSet|undefined=relevant.find(s=>s.id===selectedSetId)??relevant[0]??APPEARANCE_SETS[0];
+ const progress=selected?collectionSetProgress(selected,owned,registeredIds):{count:0,total:0,complete:false};
  const appearances=APPEARANCES.filter(a=>ownership==='all'||(ownership==='owned'?ownedSet.has(a.id):!ownedSet.has(a.id))).filter(a=>appearanceRarity==='ALL'||a.rarity===appearanceRarity).filter(a=>!query.trim()||a.name.includes(query.trim()));
  const viewCount=appearances.length;
  const pages=Math.max(1,Math.ceil(viewCount/4)),safePage=Math.min(page,pages-1);
  const changeTab=(next:'collection'|'appearance')=>{setDetailOpen(false);setTab(next);setPage(0);setQuery('');};
  const toggle=(id:string,values:string[],setter:React.Dispatch<React.SetStateAction<string[]>>)=>setter(values.includes(id)?values.filter(x=>x!==id):[...values,id]);
- const selectedMissing=selected.appearanceIds.find(id=>!ownedSet.has(id))??selected.appearanceIds[0];
+ const selectedMissing=selected?.appearanceIds.find(id=>!ownedSet.has(id))??selected?.appearanceIds[0];
  const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
- const eligibleItems=game.equipmentItems.filter(item=>item.kind===selected.equipment.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id));
- const registerReady=(!onlineAccount||!!onlineLease)&&!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!game.expedition;
+ const eligibleItems=selected?game.equipmentItems.filter(item=>item.kind===selected.equipment.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id)):[];
+ const registerReady=!!selected&&(!onlineAccount||!!onlineLease)&&!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!game.expedition;
  async function submitRegistration(){
-  if(!registerReady||!registerItemId)return;
+  if(!selected||!registerReady||!registerItemId)return;
   const id=registerItemId,setId=selected.id;
   setRegistering(true);setRegistrationError('');
   try{
@@ -267,9 +267,9 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
        <span className="tc-collection-row-arrow" aria-hidden="true">›</span>
       </button>;
      })}
-     {relevant.length===0&&<p className="tc-collection-none">조건에 맞는 컬렉션이 없어. 필터를 바꿔봐.</p>}
+     {relevant.length===0&&<p className="tc-collection-none">{APPEARANCE_SETS.length===0?'등록된 컬렉션이 없습니다.':'조건에 맞는 컬렉션이 없어. 필터를 바꿔봐.'}</p>}
     </div>
-    <div className="tc-collection-sheet-backdrop" hidden={!detailOpen} role="presentation" onClick={()=>setDetailOpen(false)}>
+    {selected&&<div className="tc-collection-sheet-backdrop" hidden={!detailOpen} role="presentation" onClick={()=>setDetailOpen(false)}>
      <div className="tc-collection-sheet" role="dialog" aria-modal="true" aria-label="선택한 컬렉션 상세" onClick={event=>event.stopPropagation()}>
       <div className="tc-collection-sheet-handle" aria-hidden="true"
        onTouchStart={event=>{sheetSwipeStart.current=event.touches[0]?.clientY??null;}}
@@ -306,7 +306,8 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       </section>
      </div>
     </div>
-    <p className="tc-collection-disclaimer">65개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
+    }
+    <p className="tc-collection-disclaimer">{APPEARANCE_SETS.length}개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
    </>:<>
     <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>착용한 외형 1개만 적용 · 효과 적용 예정</small></div>
     <div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
@@ -327,7 +328,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     </div>
     <Pager page={safePage} count={pages} onChange={setPage}/>
    </>}
-   {registerPanel&&<div className="tc-collection-modal-backdrop" role="presentation" onClick={()=>{if(!registering)setRegisterPanel(false);}}>
+   {selected&&registerPanel&&<div className="tc-collection-modal-backdrop" role="presentation" onClick={()=>{if(!registering)setRegisterPanel(false);}}>
      <section className="tc-collection-modal" role="dialog" aria-modal="true" aria-label="컬렉션 장비 등록" onClick={e=>e.stopPropagation()}>
       <header><h2>컬렉션 장비 등록</h2><button type="button" disabled={registering} aria-label="닫기" onClick={()=>setRegisterPanel(false)}>×</button></header>
       <div className="tc-collection-modal-content">

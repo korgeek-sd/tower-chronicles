@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {readFileSync,existsSync} from 'node:fs';
+import {APPEARANCE_SETS,validateAppearanceSets} from '../src/game/data/appearanceSets';
 import {initialState,stats} from '../src/game/engine/state';
 import {registerAppearance} from '../src/game/engine/cosmetics';
 import {playerGraphicFor} from '../src/game/data/graphics';
@@ -13,11 +14,11 @@ import {
  appearanceCollectionById,appearanceCollectionProgress,validateAppearanceCatalog
 } from '../src/game/data/cosmetics';
 
-test('cosmetic archive preserves forty themed appearances and supports standalone additions',()=>{
- assert.equal(APPEARANCES.filter(x=>x.collectionId).length,40);
+test('cosmetic archive contains only illustrated standalone appearances',()=>{
+ assert.equal(APPEARANCES.filter(x=>x.collectionId).length,0);
  assert.equal(APPEARANCES.filter(x=>x.rarity).length,APPEARANCES.length-1);
  assert.ok(APPEARANCES.filter(x=>x.rarity).every(x=>APPEARANCE_RARITIES.includes(x.rarity!)));
- assert.equal(APPEARANCE_COLLECTIONS.length,8);
+ assert.equal(APPEARANCE_COLLECTIONS.length,0);
  assert.deepEqual(APPEARANCE_RARITIES,['C','B','A','SR','SSR']);
  assert.ok(validateAppearanceCatalog());
  assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,APPEARANCES.length);
@@ -31,20 +32,11 @@ test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()
   assert.equal(appearanceCollectionById(collection.id),collection);
  }
  for(const rarity of APPEARANCE_RARITIES){
-  assert.equal(APPEARANCES.filter(x=>x.collectionId&&x.rarity===rarity).length,8);
+  assert.equal(APPEARANCES.filter(x=>x.collectionId&&x.rarity===rarity).length,0);
   assert.equal(typeof APPEARANCE_PROPOSED_PERCENT[rarity],'number');
  }
 });
-test('Arquebus is a standalone C-grade appearance without unlocking or replacing existing collection slots',()=>{
- const musketeer=appearanceById('arquebus');
- assert.equal(musketeer?.name,'아르케부스');
- assert.equal(musketeer?.rarity,'C');
- assert.equal(musketeer?.collectionId,undefined);
- assert.equal(musketeer?.proposedBonus?.stat,'attack');
- assert.equal(musketeer?.artStatus,'pending');
- assert.equal(musketeer?.imagePath,undefined);
- assert.equal(APPEARANCE_COLLECTIONS.flatMap(c=>c.appearanceIds).length,40);
-});
+test('unillustrated Arquebus is absent from the active catalog',()=>{assert.equal(appearanceById('arquebus'),undefined);});
 test('Corsair appears as a B-grade appearance with its existing illustrated game asset',()=>{
  const pirate=appearanceById('corsair');
  assert.equal(pirate?.name,'코르세어');
@@ -76,10 +68,10 @@ test('cosmetic catalog stores proposed bonuses only; they do not change player c
   assert.equal(registerAppearance(s,appearance.id).cosmetics.unlockedAppearanceIds.length,1,'catalog must not auto-unlock');
  }
  assert.deepEqual(stats(s),before);
- assert.equal(playerGraphicFor(APPEARANCES[1].id).image.idle,'assets/player/default.png');
+ assert.equal(playerGraphicFor(APPEARANCES[1].id).image.idle,APPEARANCES[1].imagePath);
 });
 test('collection progression is deduplicated and complete only when five members are owned',()=>{
- const collection=APPEARANCE_COLLECTIONS[0];
+ const collection={id:'fixture',name:'테스트',description:'진행도 검증',appearanceIds:APPEARANCES.slice(1,6).map(a=>a.id),proposedCompletionBonus:{stat:'hp' as const,percent:1}};
  assert.deepEqual(appearanceCollectionProgress(collection,['default']),{count:0,total:5,complete:false});
  assert.deepEqual(appearanceCollectionProgress(collection,[collection.appearanceIds[0],collection.appearanceIds[0]]),{count:1,total:5,complete:false});
  assert.deepEqual(appearanceCollectionProgress(collection,[...collection.appearanceIds]),{count:5,total:5,complete:true});
@@ -89,12 +81,31 @@ test('cosmetic menu displays collection count, planned-only bonus disclosure and
  assert.match(html,/컬렉션/);
  assert.doesNotMatch(html,/0 \/ 65/,'redundant progress header must be removed');
  assert.doesNotMatch(html,/tc-screen-head|tc-collection-top/);
- assert.match(html,/도감 효과는 미적용/);
+ assert.match(html,/등록된 컬렉션이 없습니다/);
  assert.match(html,/외형 목록/);
  assert.match(html,/컬렉션/);
- assert.match(html,/미보유/);
- assert.match(html,/먼지길 방랑자/);
+
+ assert.doesNotMatch(html,/먼지길 방랑자/);
  const css=readFileSync(new URL('../src/components/mobile/cosmetics-catalog.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-cosmetics-catalog\{[^}]*grid-template-rows:56px 34px 34px 35px/);
  assert.match(css,/\.tc-cosmetics-items\{[^}]*grid-template-rows:repeat\(4,minmax\(0,1fr\)\)/);
+});
+
+test('only illustrated appearances and default remain in the active catalog',()=>{
+ assert.equal(APPEARANCES.length,21);
+ assert.ok(APPEARANCES.every(a=>a.id==='default'||a.artStatus==='ready'&&!!a.imagePath));
+ assert.ok(!APPEARANCES.some(a=>['arquebus','dust_pathfinder'].includes(a.id)));
+ assert.ok(validateAppearanceCatalog());
+});
+test('removed appearances leave no impossible active collections',()=>{
+ assert.equal(APPEARANCE_COLLECTIONS.length,0);assert.equal(APPEARANCE_SETS.length,0);
+ assert.ok(validateAppearanceSets());
+});
+test('both catalog tabs render safely with no active collections',()=>{
+ for(const initialTab of ['collection','appearance'] as const){
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab}));
+ assert.doesNotMatch(html,/먼지길 방랑자|아르케부스|65개 외형/);
+ if(initialTab==='collection'){assert.match(html,/등록된 컬렉션이 없습니다/);assert.doesNotMatch(html,/장비 1개 소모하여 영구 등록/);}
+ else assert.match(html,/코르세어/);
+ }
 });
