@@ -52,3 +52,5 @@
 .tc-assoc-online.tc-assoc-hq>.tc-segments{grid-template-columns:repeat(6,minmax(0,1fr))}
 .tc-assoc-online.tc-assoc-hq>.tc-segments button{font-size:9.5px}
 .tc-gr-discover{min-height:32px;border:1px solid #816443;background:#282118;color:#e7c590;font-size:11px}
+/* In the pre-membership recruitment view the ranking panel fills the available game pane. */
+.tc-assoc-registry>.tc-gr{flex:1;min-height:0}
