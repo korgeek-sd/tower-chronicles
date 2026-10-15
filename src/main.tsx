@@ -63,6 +63,7 @@ import './mobile-game.css';
 import './gameFeel/game-feel.css';
 import './game-fonts.css';
 import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
+import {Studio0322Splash} from './components/splash/Studio0322Splash';
 
 configureEventMode(new URLSearchParams(location.search).get('events')==='test'?'test':'production');
 
@@ -460,5 +461,5 @@ function App(){
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }
-createRoot(document.getElementById('root')!).render(<GameFeelProvider><App/></GameFeelProvider>);
+createRoot(document.getElementById('root')!).render(<GameFeelProvider><App/><Studio0322Splash/></GameFeelProvider>);
 
