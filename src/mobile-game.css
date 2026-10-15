@@ -10,9 +10,9 @@
 button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brass-hi);outline-offset:2px}
 button:disabled{cursor:not-allowed;opacity:.38}
-.tc-app{width:min(100%,520px);height:100dvh;margin:auto;display:grid;grid-template-rows:calc(var(--top) + env(safe-area-inset-top)) var(--status) minmax(0,1fr) calc(var(--nav) + var(--safe-b));background:var(--iron-0);border-inline:1px solid #222723;overflow:hidden}
+.tc-app{width:min(100%,520px);height:100dvh;margin:auto;display:grid;grid-template-rows:var(--top) var(--status) minmax(0,1fr) calc(var(--nav) + var(--safe-b));background:var(--iron-0);border-inline:1px solid #222723;overflow:hidden}
 .tc-app.tc-battle-mode,.tc-app.tc-event-mode{display:block;max-width:620px;border:0;background:#050707}
-.tc-topbar{padding-top:env(safe-area-inset-top);height:calc(var(--top) + env(safe-area-inset-top));display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding-inline:11px;border-bottom:1px solid var(--line-strong);background:var(--iron-1)}
+.tc-topbar{height:var(--top);display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding-inline:11px;border-bottom:1px solid var(--line-strong);background:var(--iron-1)}
 .tc-brand{display:flex;align-items:center;gap:9px;border:0;background:none;padding:0;min-width:0;text-align:left;color:var(--paper)}
 .tc-brand-mark{width:29px;height:29px;border:1px solid var(--brass);display:grid;place-items:center;font:700 14px Georgia,serif;transform:rotate(45deg)}.tc-brand-mark>i{font-style:normal;transform:rotate(-45deg)}
 .tc-brand b{display:block;font:700 15px/1 Georgia,"Noto Serif KR",serif;letter-spacing:-.02em}.tc-brand small{display:block;margin-top:3px;font:7px/1 ui-monospace,monospace;letter-spacing:.18em;color:var(--muted);white-space:nowrap}

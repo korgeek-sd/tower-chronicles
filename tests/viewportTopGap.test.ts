@@ -13,3 +13,9 @@ test('apple status bar style uses black instead of black-translucent to prevent 
  assert.doesNotMatch(html,/content="black-translucent"/);
  assert.match(html,/name="apple-mobile-web-app-status-bar-style"\s+content="black"/);
 });
+
+test('mobile game css does not add safe-area-inset-top padding or extra height to tc-topbar or tc-app',()=>{
+ const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
+ assert.doesNotMatch(css,/\.tc-topbar\{[^}]*padding-top:\s*env\(safe-area-inset-top\)/,'tc-topbar must not have safe-area padding top');
+ assert.doesNotMatch(css,/\.tc-app\{[^}]*grid-template-rows:\s*calc\([^)]*safe-area-inset-top\)/,'tc-app row 1 must not expand by safe-area-inset-top');
+});
