@@ -70,7 +70,7 @@ test('game select adapter supports legacy options and numeric values without nat
  for(const path of pages){
   const text=readFileSync(new URL('../'+path,import.meta.url),'utf8');
   assert.match(text,/<GameSelect/);
-  assert.doesNotMatch(text,/<select(?:\\s|>)/);
+  assert.doesNotMatch(text,/<select(?:\s|>)/);
  }
 });
 test('picker uses a visible custom drag rail and a viewport-clamped popup',()=>{
