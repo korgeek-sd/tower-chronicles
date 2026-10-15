@@ -20,13 +20,14 @@ import './hq.css';
 import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildTerritoryPanel} from './GuildTerritoryPanel';
+import {GuildRankingPanel} from './GuildRankingPanel';
 import {GuildBossPanel} from './GuildBossPanel';
 import {GuildAuctionPanel} from './GuildAuctionPanel';
 
 type LocalTab='overview'|'members'|'activity'|'manage';
 const localTabs=[['overview','본부'],['members','단원'],['activity','기록'],['manage','관리']] as const;
-type ServerTab='shop'|'overview'|'boss'|'auction'|'warehouse'|'territory'|'members'|'applications'|'activity'|'manage';
-const serverTabs=[['overview','본부'],['boss','보스전'],['auction','경매'],['shop','상점'],['warehouse','금고'],['territory','영지'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
+type ServerTab='shop'|'overview'|'boss'|'auction'|'warehouse'|'territory'|'rankings'|'members'|'applications'|'activity'|'manage';
+const serverTabs=[['overview','본부'],['boss','보스전'],['auction','경매'],['shop','상점'],['warehouse','금고'],['territory','영지'],['rankings','랭킹'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
 const PAGE_SIZE=5;
 
 export function AssociationScreen({
@@ -55,6 +56,7 @@ function OnlineAssociationScreen({
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState('');
  const [tab,setTab]=useState<ServerTab>('overview');
+ const [discoveryRankings,setDiscoveryRankings]=useState(false);
  const [page,setPage]=useState(0);
  const [name,setName]=useState('');
  const [description,setDescription]=useState('');
@@ -107,7 +109,8 @@ function OnlineAssociationScreen({
  const directory=state.directory.filter(e=>(!available||(e.joinPolicy!=='CLOSED'&&e.memberCount<e.memberLimit))&&e.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   return <Screen eyebrow="NOVAR COMPANY REGISTRY / ONLINE" title="원정단 찾기" meta={<span>{game.silver.toLocaleString()} S</span>}>
    <div className="tc-assoc tc-assoc-online tc-assoc-registry">
-    <div className="tc-hq-toolbar"><label>원정단 검색<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="원정단명 검색"/></label><button onClick={()=>setCreating(x=>!x)}>{creating?'목록으로':'원정단 창설'}</button></div>
+    <div className="tc-hq-toolbar"><label>원정단 검색<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="원정단명 검색"/></label><button onClick={()=>{setCreating(x=>!x);setDiscoveryRankings(false);}}>{creating?'목록으로':'원정단 창설'}</button></div>
+     <button type="button" className="tc-gr-discover" onClick={()=>{setDiscoveryRankings(x=>!x);setCreating(false);}}>{discoveryRankings?'모집 게시판으로':'원정단 랭킹 보기'}</button>
     {state.myApplications.length>0&&<div className="tc-hq-waiting">신청 대기 · {state.myApplications.map(x=>x.associationName).join(', ')}</div>}
     {!creating&&<label className="tc-hq-filter"><input type="checkbox" checked={available} onChange={e=>setAvailable(e.target.checked)}/>가입 가능한 원정단만</label>}
     {creating&&<div className="tc-floor-risk tc-assoc-qualification">등록금 {ASSOCIATION_CREATION_FEE_SILVER.toLocaleString()} S</div>}
@@ -120,7 +123,8 @@ function OnlineAssociationScreen({
      </div>
      <button className="tc-action" disabled={game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL'}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
     </section>}
-    {!creating&&<section className="tc-panel tc-assoc-recruitment">
+    {!creating&&discoveryRankings&&<GuildRankingPanel lease={lease}/>}
+     {!creating&&!discoveryRankings&&<section className="tc-panel tc-assoc-recruitment">
      <div className="tc-panel-title"><b>원정단 찾기 · 모집 게시판</b><small>{directory.length}개 원정단</small></div>
      <div className="tc-assoc-directory">
       {directory.map(entry=>{
@@ -150,6 +154,7 @@ function OnlineAssociationScreen({
    <Segments items={visibleTabs} value={visibleTabs.some(([id])=>id===tab)?tab:'overview'} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
    {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
    {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
+   {tab==='rankings'&&<GuildRankingPanel lease={lease}/>}
    {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
    {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}

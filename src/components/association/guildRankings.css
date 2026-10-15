@@ -1,0 +1,54 @@
+/* One viewport, own scrollbar, dense readable guild leaderboard. */
+.tc-gr{min-height:0;min-width:0;display:flex;flex-direction:column;gap:8px;background:#1a1712;border:1px solid #6d5535;padding:9px;color:#e9d4af;overflow:hidden}
+.tc-gr-header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
+.tc-gr-header small{font-size:9px;letter-spacing:.13em;color:#c3a779}
+.tc-gr-header h2{font:700 18px Georgia,'Noto Serif KR',serif;margin:2px 0;color:#f1dbb1}
+.tc-gr-header p{margin:2px 0;font-size:10px;color:#ad9c7e}
+.tc-gr-reload{min-height:35px;border:1px solid #897047;background:#352b20;color:#efdaad;padding:6px 9px;font-size:11px}
+.tc-gr-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:none}
+.tc-gr-modes button{min-height:34px;font-size:11px;color:#b9a589;border:1px solid #55432e;background:#242019}
+.tc-gr-modes button.active{background:#724a2b;border-color:#c59e60;color:#f9e3b6}
+.tc-gr-rule{min-height:14px;margin:0;font-size:10px;color:#c8b28b;white-space:normal;line-height:1.35}
+.tc-gr-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;flex:none}
+.tc-gr-stats>div{display:grid;gap:5px;background:linear-gradient(#2c241a,#1d1b17);border:1px solid #564730;text-align:center;padding:8px 2px;min-width:0}
+.tc-gr-stats small{font-size:9px;color:#baa888}
+.tc-gr-stats b{font-size:15px;color:#ebd2a6;font-variant-numeric:tabular-nums}
+.tc-gr-stats b span{font-size:10px;font-weight:400}
+.tc-gr-search{display:flex;align-items:center;gap:8px;font-size:10px;color:#bcb094;flex:none}
+.tc-gr-search span{flex-shrink:0}
+.tc-gr-search input{flex:1;min-width:0;min-height:34px;border:1px solid #665037;background:#11140f;color:#f4e2bd;padding:0 10px;font-size:12px}
+.tc-gr-list{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#a98556 #211b16;display:grid;align-content:start;gap:4px}
+.tc-gr-list::-webkit-scrollbar{width:5px}
+.tc-gr-list::-webkit-scrollbar-track{background:#211b16}
+.tc-gr-list::-webkit-scrollbar-thumb{border-radius:5px;background:#a98556}
+.tc-gr-entry{border:1px solid #584832;background:#221d18}
+.tc-gr-entry.mine{border-color:#658964;background:#21291f}
+.tc-gr-entry.selected{border-color:#c19b5a}
+.tc-gr-summary{border:0;background:transparent;display:flex;align-items:center;gap:7px;text-align:left;color:inherit;min-width:0;width:100%;min-height:58px;padding:7px 6px}
+.tc-gr-rank{flex:none;display:grid;place-items:center;width:29px;height:33px;background:#302922;color:#c9baa2;border:1px solid #55442c;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.tc-gr-rank.top{color:#f4ddad;border-color:#c09a58;background:linear-gradient(#6b4f2d,#30241a)}
+.tc-gr-rank.top-2{border-color:#9a9d9e;background:linear-gradient(#525b61,#25282a)}
+.tc-gr-rank.top-3{border-color:#b3805d;background:linear-gradient(#674733,#2d211a)}
+.tc-gr-name{flex:1;display:grid;gap:4px;min-width:0}
+.tc-gr-name b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f1d9ad}
+.tc-gr-name small{font-size:9px;color:#bba98b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-gr-metrics{min-width:56px;display:grid;gap:3px;text-align:right}
+.tc-gr-metrics b{font-size:12px;color:#ebcb91}
+.tc-gr-metrics b small{font-size:9px;color:#baaa8b}
+.tc-gr-metrics>span{font-size:9px;color:#bcb39d}
+.tc-gr-arrow{flex:none;color:#ab997d;font-size:13px}
+.tc-gr-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:7px;border-top:1px solid #493f2d}
+.tc-gr-details>div{background:#141712;min-width:0;padding:7px 3px;display:grid;gap:4px;text-align:center}
+.tc-gr-details small{font-size:9px;color:#a9a28a}
+.tc-gr-details b{font-size:11px;color:#ebd4aa}
+.tc-gr-empty{color:#ae9e85;font-size:11px;margin:10px 0;text-align:center}
+.tc-gr-empty button{display:block;margin:9px auto;background:#57432b;color:#f7dbac;border:1px solid #927544;padding:7px}
+.tc-gr-footer{display:flex;flex:none;align-items:center;justify-content:space-between;gap:7px;font-size:9px;color:#af9d7b}
+.tc-gr-pages{display:flex;align-items:center;gap:5px}.tc-gr-pages button{border:1px solid #685438;background:#29241e;padding:5px 8px;color:#eed2a4;font-size:10px}
+.tc-gr-pages button:disabled{opacity:.35}
+.tc-gr-pages b{font-size:10px;color:#e1c08f;font-variant-numeric:tabular-nums}
+@media(max-width:360px){.tc-gr-summary{gap:4px}.tc-gr-name b{font-size:11px}.tc-gr-metrics{min-width:44px}.tc-gr-stats small{font-size:8px}}
+/* 11 guild sections: 6 columns over 2 rows. No native horizontal scrollbar. */
+.tc-assoc-online.tc-assoc-hq>.tc-segments{grid-template-columns:repeat(6,minmax(0,1fr))}
+.tc-assoc-online.tc-assoc-hq>.tc-segments button{font-size:9.5px}
+.tc-gr-discover{min-height:32px;border:1px solid #816443;background:#282118;color:#e7c590;font-size:11px}
