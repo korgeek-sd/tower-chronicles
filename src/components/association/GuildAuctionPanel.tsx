@@ -145,7 +145,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
     {state.claimableRewards.map(r=><article key={r.encounterId}><div><b>{r.name} · {r.kind==='DAILY'?'일일':'주간'}</b><small>실버 {n(r.silver)} · 공헌도 {n(r.contribution)} P · 회복 포션 {n(r.potions)}개{r.vitalityPotions?' · 활력 포션 '+r.vitalityPotions+'개':''}</small></div><button disabled={busy||expedition} onClick={()=>claimReward(r.encounterId)}>보상받기</button></article>)}
    </section>}
    {!!winners.length&&<section className="tc-ga-reward"><h3>낙찰 물품 수령</h3>
-    {winners.map(l=><article key={l.listingId}><div><b>{lotName(l)}</b><small>낙찰 공헌도 {n(l.topBid)} P</small></div><button disabled={busy||expedition} onClick={()=>claimEquipment(l)}>{l.source==='MATERIAL'?'재료 받기':'장비 받기'</button></article>)}
+    {winners.map(l=><article key={l.listingId}><div><b>{lotName(l)}</b><small>낙찰 공헌도 {n(l.topBid)} P</small></div><button disabled={busy||expedition} onClick={()=>claimEquipment(l)}>{l.source==='MATERIAL'?'재료 받기':'장비 받기'}</button></article>)}
    </section>}
    <div className="tc-ga-section-title"><b>경매 물품</b><small>최근 {records.length}건</small></div>
    <div className="tc-ga-list">
