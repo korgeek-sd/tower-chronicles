@@ -42,14 +42,14 @@
 .tc-game-scroll-list::-webkit-scrollbar-thumb{
  background:linear-gradient(180deg,#ba8dd5,#7d5aa6);border:1px solid #d2afdd;border-radius:6px
 }
-.tc-game-select button.tc-game-scroll-option{
+.tc-game-select-expanded button.tc-game-scroll-option{
  display:flex;align-items:center;gap:9px;min-height:51px;width:100%;
  padding:6px 10px;background:#1c1b27;border:0;border-bottom:1px solid #41384b;
  color:#eaddd5;text-align:left;cursor:pointer;touch-action:manipulation
 }
-.tc-game-select button.tc-game-scroll-option:nth-child(even){background:#201e2d}
-.tc-game-select button.tc-game-scroll-option:last-child{border-bottom:0}
-.tc-game-select button.tc-game-scroll-option.is-selected{background:#332440;box-shadow:inset 3px 0 #c99cf8}
+.tc-game-select-expanded button.tc-game-scroll-option:nth-child(even){background:#201e2d}
+.tc-game-select-expanded button.tc-game-scroll-option:last-child{border-bottom:0}
+.tc-game-select-expanded button.tc-game-scroll-option.is-selected{background:#332440;box-shadow:inset 3px 0 #c99cf8}
 .tc-game-scroll-gem{
  flex:none;width:31px;height:31px;display:grid;place-items:center;
  border:1px solid #88848b;background:#282732;font-size:15px;color:#c7c6c1
@@ -62,14 +62,14 @@
 .tc-game-scroll-option-name{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
 .tc-game-scroll-option-copy small{color:#b9a7bb;font-size:10px;line-height:1.4}
 .tc-game-scroll-check{flex:none;align-self:center;font-size:17px;color:#786c87}
-.tc-game-select button.tc-game-scroll-option.is-selected .tc-game-scroll-check{color:#d9b2ff;font-weight:700}
+.tc-game-select-expanded button.tc-game-scroll-option.is-selected .tc-game-scroll-check{color:#d9b2ff;font-weight:700}
 .tc-game-scroll-empty{display:grid;place-items:center;min-height:80px;color:#b9a9c2;font-size:11px;text-align:center}
 .tc-game-scroll-hint{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#a99db0;font-size:10px}
 .tc-game-scroll-hint button{
  background:transparent!important;color:#cfb1e6!important;border:0!important;
  min-height:31px!important;padding:3px 9px!important;font-size:11px!important;cursor:pointer
 }
-@media(max-width:370px){.tc-game-select button.tc-game-scroll-option{gap:7px;padding:6px 7px}.tc-game-scroll-gem{width:27px;height:27px}}
+@media(max-width:370px){.tc-game-select-expanded button.tc-game-scroll-option{gap:7px;padding:6px 7px}.tc-game-scroll-gem{width:27px;height:27px}}
 @media(prefers-reduced-motion:reduce){.tc-game-select-chevron{transition:none}}
 
 /* All pickers are viewport-aware overlays; scroll stays inside the menu. */
