@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {GameScrollSelect} from '../../ui/GameScrollSelect';
 import {
- getGuildMaterials,setGuildVillageTax,transferGuildMaterial,
+ getGuildMaterials,transferGuildMaterial,
  GUILD_MATERIAL_IDS,GUILD_MATERIAL_NAMES,
  type GuildMaterial,type GuildMaterialsState,
 } from '../../online/guildMaterials';
@@ -16,7 +16,6 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false}:{leas
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [direction,setDirection]=useState<'DEPOSIT'|'WITHDRAW'>('WITHDRAW');
  const [material,setMaterial]=useState<GuildMaterial>('herb'),[amount,setAmount]=useState('100');
- const [rates,setRates]=useState<Record<string,string>>({});
  const [pending,setPending]=useState<Transfer|null>(null);
  const mounted=useRef(true),locked=useRef(false);
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
@@ -31,12 +30,6 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false}:{leas
   try{await action();}catch(e){if(mounted.current)setError(e instanceof Error?e.message:'재료 요청을 처리하지 못했습니다.');}
   finally{locked.current=false;if(mounted.current)setBusy(false);}
  };
- const changeTax=(townId:string,current:number)=>void mutate(async()=>{
-  const rate=Number(rates[townId]??current);
-  if(!Number.isInteger(rate)||rate<0||rate>30)throw Error('세율은 0~30% 사이의 정수로 설정해 주세요.');
-  const result=await setGuildVillageTax(lease,townId,rate);
-  if(mounted.current){setState(result);setRates(x=>({...x,[townId]:String(rate)}));setNotice('마을 세율을 '+rate+'%로 변경했습니다. 다음 변경은 24시간 뒤 가능합니다.');}
- });
  const send=(retry=false)=>void mutate(async()=>{
   const n=Number(amount);
   const request=retry?pending:pending??{requestId:crypto.randomUUID(),direction,material,amount:n};
@@ -46,10 +39,10 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false}:{leas
   window.sessionStorage.removeItem(pendingKey(associationId));setPending(null);
   if(mounted.current){setState(result.state);setNotice(GUILD_MATERIAL_NAMES[request.material]+' '+format(request.amount)+'개 '+(request.direction==='DEPOSIT'?'입고':'인출')+' 완료 · 장부에 기록됐습니다.');}
  });
- if(!state)return <section className="tc-guild-materials"><b>마을 세금 · 재료 창고</b><p className="tc-gm-error">{error||'길드 재료 상태를 불러오는 중입니다.'}</p><button onClick={()=>void refresh()}>새로고침</button></section>;
+ if(!state)return <section className="tc-guild-materials"><b>길드 재료 창고</b><p className="tc-gm-error">{error||'길드 재료 상태를 불러오는 중입니다.'}</p><button onClick={()=>void refresh()}>새로고침</button></section>;
  const available=direction==='WITHDRAW'?state.materials[material]:state.personal[material];
  return <section className="tc-guild-materials" aria-label="길드 재료 창고">
-  <div className="tc-gm-title"><b>마을 세금 · 재료 창고</b><small>길드장 관리 · 모든 단원 기록 공개</small></div>
+  <div className="tc-gm-title"><b>길드 재료 창고</b><small>마을 채집 세금 보관 · 입출고 기록 공개</small></div>
   <div className="tc-gm-balances">{GUILD_MATERIAL_IDS.map(id=><article key={id}><small>{GUILD_MATERIAL_NAMES[id]}</small><b>{format(state.materials[id]??0)}</b></article>)}</div>
   {state.isLeader&&<div className="tc-gm-editor">
    <div className="tc-gm-title"><b>재료 입출고</b><small>인출 후 개인 제작·거래 가능</small></div>
@@ -63,18 +56,6 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false}:{leas
    </button>
    {pending&&<button type="button" disabled={busy} onClick={()=>send(true)}>이전 입출고 결과 재확인</button>}
   </div>}
-  <div className="tc-gm-title"><b>점령 마을 세율</b><small>0~30% · 변경 후 24시간 잠금</small></div>
-  <div className="tc-gm-towns">
-   {state.towns.filter(t=>t.owned).length?state.towns.filter(t=>t.owned).map(t=>{
-    const until=t.changedAt?Date.parse(t.changedAt)+86400000:0;
-    const cool=Date.now()<until;
-    return <article key={t.townId}>
-     <span>{t.name} <small>현 {t.rate}%{cool?' · 변경 대기':''}</small></span>
-     {state.isLeader?<><input aria-label={t.name+' 세율'} type="number" min="0" max="30" value={rates[t.townId]??String(t.rate)} disabled={busy||cool} onChange={e=>setRates(x=>({...x,[t.townId]:e.target.value}))}/>
-     <button type="button" disabled={busy||cool||!Number.isInteger(Number(rates[t.townId]??t.rate))||Number(rates[t.townId]??t.rate)<0||Number(rates[t.townId]??t.rate)>30} onClick={()=>changeTax(t.townId,t.rate)}>{cool?'잠김':'적용'}</button></>:<small>세율 {t.rate}%</small>}
-    </article>;
-   }):<p>현재 점령한 마을이 없습니다. 점령 후 기본 세율은 10%입니다.</p>}
-  </div>
   <div className="tc-gm-title"><b>재료 거래 기록</b><small>최근 {state.ledger.length}건</small></div>
   <div className="tc-gm-ledger">
    {state.ledger.length?state.ledger.map(e=><article key={e.entryId}>
