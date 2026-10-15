@@ -29,6 +29,7 @@ export function Studio0322Splash(){
   if(!visible)return null;
   return (
     <div className="studio0322-splash" role="dialog" aria-modal="true" aria-label="STUDIO 0322 게임 시작 영상">
+      <div className="studio0322-splash__stage">
       <video
         className="studio0322-splash__video"
         src={VIDEO_URL}
@@ -44,6 +45,7 @@ export function Studio0322Splash(){
       <button className="studio0322-splash__skip" type="button" onClick={finish} aria-label="인트로 건너뛰기">
         건너뛰기
       </button>
+      </div>
     </div>
   );
 }
