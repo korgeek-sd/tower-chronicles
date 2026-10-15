@@ -89,3 +89,18 @@
 .tc-game-select.is-compact button.tc-game-select-trigger{height:30px;min-height:30px;padding:2px 5px;font-size:10px}
 .tc-game-select.is-compact .tc-game-select-trigger-icon{font-size:11px}
 @media(max-height:480px){.tc-game-select-expanded .tc-game-scroll-hint{display:none}}
+
+/* Keep dense, single-screen filters at their original heights after migration. */
+.tc-equipment-market-filters .tc-game-select button.tc-game-select-trigger{min-height:28px;height:28px;padding:2px 4px;font-size:10px}
+.tc-vwb-controls .tc-game-select button.tc-game-select-trigger,
+.tc-village-stage-controls .tc-game-select button.tc-game-select-trigger{min-height:34px;height:34px;padding:3px 6px}
+.tc-occupation-formrow .tc-game-select button.tc-game-select-trigger{min-height:34px;height:34px;padding:3px 6px}
+@media(max-height:700px){
+ .tc-game-select.tc-skill-grade-select button.tc-game-select-trigger{height:24px;min-height:24px;padding:1px 4px;font-size:10px}
+ .tc-game-select.tc-skill-grade-select .tc-game-select-trigger-icon{display:none}
+}
+/* All other internally scrolling game panes use an unobtrusive matching skin. */
+:where(#root) :where(*){scrollbar-color:#9470b0 #1b1924;scrollbar-width:thin}
+:where(#root) :where(*)::-webkit-scrollbar{width:8px;height:8px}
+:where(#root) :where(*)::-webkit-scrollbar-track{background:#1b1924}
+:where(#root) :where(*)::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ac83c3,#6c538f);border:1px solid #d0a9b9;border-radius:2px}
