@@ -80,7 +80,7 @@ begin
   'entryId',e.entry_id,'operation',e.operation,'material',e.material,
   'amount',e.amount,'balanceAfter',e.balance_after,'townId',e.town_id,
   'detail',e.detail,'createdAt',e.created_at,
-  'actorName',coalesce((select nick.nickname from public.player_nicknames nick where nick.user_id=e.actor_user_id),'기록 없음')
+  'actorName',coalesce((select nick.nickname from public.game_player_profiles nick where nick.user_id=e.actor_user_id),'기록 없음')
  ) order by e.entry_id desc),'[]'::jsonb) into history
  from (select * from private.guild_material_ledger where association_id=aid order by entry_id desc limit 60) e;
  return jsonb_build_object('associationId',aid,'isLeader',leader,
@@ -134,7 +134,7 @@ begin
  if p_request_id is null or p_direction not in('DEPOSIT','WITHDRAW') or p_material not in('herb','pepper','potato','wheat')
  or p_amount is null or p_amount<1 or p_amount>1000000000 then raise exception 'GUILD_MATERIAL_INPUT_INVALID';end if;
  perform private.refresh_village_life(u);
- select * into old from private.village_life_players where user_id=u for update;
+ perform 1 from private.village_life_players where user_id=u for update;
  select m.association_id into aid
  from private.online_association_members m join private.online_associations a on a.association_id=m.association_id
  where m.user_id=u and m.role='LEADER' and a.leader_user_id=u and a.status='ACTIVE';
