@@ -162,6 +162,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"조명이 달린 모자를 쓰고 곡괭이와 등불을 갖춘 채굴반원.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"slime",name:"슬라임",rarity:"C",imagePath:"assets/characters/appearances/slime-7539a5faac9f.webp",
+  description:"슬라임 외형",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
