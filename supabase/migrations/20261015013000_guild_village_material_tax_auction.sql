@@ -172,7 +172,7 @@ AS $function$
 declare today date:=(clock_timestamp() at time zone 'Asia/Seoul')::date;s private.village_life_players%rowtype;towns jsonb;
 begin
  select * into strict s from private.village_life_players where user_id=u;
- select jsonb_agg(jsonb_build_object('id',t.id,'name',t.name,'kind',t.kind,'x',t.x,'y',t.y,'owner',coalesce(g.name,'중립'),'tax',case when ow.association_id is null then 0 when ts.owner_association_id=ow.association_id then ts.tax_rate else 10 end,
+ select jsonb_agg(jsonb_build_object('id',t.id,'name',t.name,'kind',t.kind,'x',t.x,'y',t.y,'owner',coalesce(g.name,'중립'),'tax',case when g.association_id is null then 0 when ts.owner_association_id=ow.association_id then ts.tax_rate else 10 end,
  'herbCapacity',t.herb_capacity,'farmCapacity',t.farm_capacity,
  'herbRemaining',case when t.day<today then t.herb_capacity else t.herb_remaining end,
  'farmRemaining',case when t.day<today then t.farm_capacity else t.farm_remaining end) order by t.y,t.x) into towns from private.village_life_towns t
