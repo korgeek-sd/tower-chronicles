@@ -4,7 +4,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite --host 127.0.0.1",
+        "dev": "vite --host 0.0.0.0 --port 3000",
+        "lint": "tsc --noEmit",
         "typecheck": "tsc --noEmit",
         "build": "tsc --noEmit && vite build",
         "pretest": "node --import ./tests/register.mjs scripts/generateCombatSqlCatalog.ts && node scripts/buildCombatV2Migration.mjs",
