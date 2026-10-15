@@ -13,7 +13,7 @@
 .tc-ga-register>.tc-ga-section-title small{max-width:61%;text-align:right}
 .tc-ga-register>p{margin:0;color:#cbb391;font-size:10px;line-height:1.5}
 .tc-ga-register label,.tc-ga-management label{display:grid;gap:5px;color:#cab491;font-size:10px;min-width:0;flex:1}
-.tc-ga-register select,.tc-ga-register input,.tc-ga-management input{width:100%;min-height:38px;box-sizing:border-box;background:#17150f;border:1px solid #776042;color:#f2daa8;padding:6px 8px;font-size:12px}
+.tc-ga-register input,.tc-ga-management input{width:100%;min-height:38px;box-sizing:border-box;background:#17150f;border:1px solid #776042;color:#f2daa8;padding:6px 8px;font-size:12px}
 .tc-ga-register>button{min-height:45px;font-weight:700}
 .tc-ga-register>.tc-ga-section-title{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tc-ga-management{display:flex;align-items:end;justify-content:flex-end;gap:8px;border-top:1px solid #51422f;padding-top:8px}
@@ -22,3 +22,10 @@
 .tc-ga-pending button{font-size:10px}
 .tc-ga-lot.closed:has(.tc-ga-management){opacity:1}
 @media(max-width:370px){.tc-ga-management{flex-wrap:wrap}.tc-ga-management button{width:100%}}
+
+/* Reusable in-game equipment selector in the auction registration form. */
+.tc-ga-equip-field{display:grid;gap:5px;min-width:0}
+.tc-ga-equip-label{font-size:10px;color:#cab491}
+.tc-ga-equip-field .tc-game-select{min-width:0}
+.tc-ga-equip-field .tc-game-select-expanded{min-width:0}
+.tc-ga-equip-field .tc-game-scroll-list{overscroll-behavior-y:contain}
