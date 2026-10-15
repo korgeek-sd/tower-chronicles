@@ -1,5 +1,6 @@
 import type {EquipmentItem,GameState,Item,MarketOrder,MarketSide,MarketStorageEntry,MarketTrade,Tower} from '../types';
 import type {InventoryCategory,InventoryViewItem} from '../inventoryView';
+import {MARKET_LIFE_MATERIAL_IDS,MARKET_LIFE_MATERIAL_NAMES,marketLifeItemId,type MarketLifeMaterial} from '../life/marketMaterials';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
 import {bookName} from '../engine/loot';
@@ -20,6 +21,7 @@ export function marketItemIdForEquipment(item:EquipmentItem):string|null{
 }
 export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
  if(item.lifeProduct==='challenge_ticket')return 'other:challenge_ticket';
+ if(item.lifeMaterial&&MARKET_LIFE_MATERIAL_IDS.some(id=>id===item.lifeMaterial))return marketLifeItemId(item.lifeMaterial as MarketLifeMaterial);
  if(item.lifeMaterial||item.lifeProduct)return null;
  if(item.category==='equipment'){
   if(item.modern){
@@ -101,6 +103,7 @@ function staticItemName(itemId:string,gear?:Item|EquipmentItem){
  if(gear)return isEquipmentItem(gear)?equipmentItemName(gear):itemName(gear);
  if(itemId.startsWith('equipment:'))return equipmentMarketName(itemId);
  if(itemId.startsWith('equipment_v2:'))return itemId.slice('equipment_v2:'.length);
+ for(const id of MARKET_LIFE_MATERIAL_IDS)if(itemId===marketLifeItemId(id))return MARKET_LIFE_MATERIAL_NAMES[id];
  const p=parseStack(itemId);
  if(!p)return itemId;
  if(p.kind==='material')return `T${(p.index??0)+1} ${TOWERS[p.tower!].material}`;
@@ -120,7 +123,7 @@ export function marketCatalog(s:GameState){
  return [...known.values()];
 }
 /** Current combat catalog; legacy orders remain accessible through orders/storage. */
-export function currentMarketCatalog(s:GameState):MarketItem[]{
+export function currentMarketCatalog(s:GameState,lifeMaterials:Partial<Record<MarketLifeMaterial,number>>={}):MarketItem[]{
  const catalog=marketCatalog(s);
  const known=new Map(catalog.map(item=>[item.id,item]));
  // Show every current skillbook for price discovery and buy orders, including unowned books.
@@ -129,14 +132,12 @@ export function currentMarketCatalog(s:GameState):MarketItem[]{
   if(existing){existing.name=book.name;existing.description=book.description;existing.skillBookGrade=book.grade;}
   else{const item:MarketItem={id:book.itemId,name:book.name,available:0,category:'skillbooks',description:book.description,skillBookGrade:book.grade};catalog.push(item);known.set(book.itemId,item);}
  }
- for(const id of ['split_stone','job_draw_ticket','challenge_ticket'])if(!catalog.some(item=>item.id==='other:'+id))catalog.push({id:'other:'+id,name:id==='challenge_ticket'?'점령전 도전권':id==='job_draw_ticket'?'직능 뽑기권':'분해석',available:0,category:'other',description:'거래 가능한 아이템입니다.'});
- return catalog.filter(item=>item.category==='skillbooks'||item.modernEquipment||['material:ore:1','material:leather:1','other:split_stone','other:job_draw_ticket','other:challenge_ticket'].includes(item.id)).map(item=>{
-  if(item.id==='material:ore:1')return {...item,name:'철광석',description:'원정에서 획득한 제작 재료입니다.'};
-  if(item.id==='material:leather:1')return {...item,name:'가죽',description:'원정에서 획득한 제작 재료입니다.'};
-  if(item.id==='other:challenge_ticket')return {...item,name:'점령전 도전권',description:'점령전 참여에 사용하는 거래 가능한 도전권입니다.'};
-  if(item.id==='other:split_stone')return {...item,name:'분해석',category:'materials',description:'장비를 분해하여 얻는 도전권 제작 재료입니다.'};
-  return item;
- });
+ for(const id of ['job_draw_ticket','challenge_ticket'])if(!catalog.some(item=>item.id==='other:'+id))catalog.push({id:'other:'+id,name:id==='challenge_ticket'?'점령전 도전권':'직능 뽑기권',available:0,category:'other',description:'거래 가능한 아이템입니다.'});
+ const current=catalog.filter(item=>item.category==='skillbooks'||item.modernEquipment||['other:job_draw_ticket','other:challenge_ticket'].includes(item.id)).map(item=>item.id==='other:challenge_ticket'?{...item,name:'점령전 도전권',description:'점령전 참여에 사용하는 거래 가능한 도전권입니다.'}:item);
+ for(const id of MARKET_LIFE_MATERIAL_IDS)current.push({id:marketLifeItemId(id),name:MARKET_LIFE_MATERIAL_NAMES[id],
+  available:Math.max(0,Number(lifeMaterials[id]??0)),category:'materials',
+  description:id==='stone'?'장비 분해로 획득하는 도전권 제작 재료입니다.':'마을 채집으로 획득하는 생활·음식 제작 재료입니다.'});
+ return current;
 }
 function available(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.available||0;}
 function removeItem(s:GameState,itemId:string,quantity:number):Item|EquipmentItem|undefined {

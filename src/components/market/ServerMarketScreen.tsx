@@ -138,7 +138,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
 
  const view=useMemo(()=>snapshot?applyOnlineMarketSnapshotToGame(game,snapshot):game,[game,snapshot]);
  const [gradeFilter,setGradeFilter]=useState<string[]>([]);
- const catalog=useMemo(()=>currentMarketCatalog(view),[view]);
+ const catalog=useMemo(()=>currentMarketCatalog(view,snapshot?.lifeMaterials),[view,snapshot?.lifeMaterials]);
  const normalizedQuery=query.trim().toLowerCase();
  const filtered=useMemo(()=>sortMarketCatalog(catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))),sort),[catalog,category,normalizedQuery,gradeFilter,sort]);
  const marketPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));

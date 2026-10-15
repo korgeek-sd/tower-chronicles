@@ -1,5 +1,6 @@
 import type {EquipmentGrade,EquipmentItem,EquipmentKind,GameState,Item,MarketOrder,MarketStorageEntry,MarketTrade,Tower} from '../game/types';
 import {towerIds} from '../game/data/config';
+import type {MarketLifeMaterial} from '../game/life/marketMaterials';
 import {supabaseConfig} from './config';
 import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
@@ -58,6 +59,7 @@ export interface OnlineEquipmentTrade {
  sellerMine:boolean;
 }
 export interface OnlineMarketState {
+ lifeMaterials?:Partial<Record<MarketLifeMaterial,number>>;
  wallet:OnlineMarketWallet;
  assets:OnlineMarketAsset[];
  orders:OnlineMarketOrder[];
