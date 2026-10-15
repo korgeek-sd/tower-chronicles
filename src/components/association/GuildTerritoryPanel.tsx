@@ -14,7 +14,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
  const [state,setState]=useState<GuildTerritoryState|null>(null);
  const [selected,setSelected]=useState<string|null>(null);
  const [mineOnly,setMineOnly]=useState(false);
- const [rate,setRate]=useState('');
+ const [rate,setRate]=useState<string|null>(null);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState(''),[notice,setNotice]=useState('');
  const [now,setNow]=useState(Date.now());
@@ -29,7 +29,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
   }catch(e){if(active.current)setError(e instanceof Error?e.message:'영지 현황을 불러오지 못했습니다.');}
  };
  useEffect(()=>{
-  active.current=true;setState(null);setSelected(null);setRate('');setMineOnly(false);
+  active.current=true;setState(null);setSelected(null);setRate(null);setMineOnly(false);
   void load();
   const tick=window.setInterval(()=>setNow(Date.now()+offset.current),10000);
   const focus=()=>{if(!document.hidden&&!locked.current)void load();};
@@ -38,17 +38,17 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
  },[lease.leaseId,lease.generation,associationId]);
  const town=state?.towns.find(t=>t.townId===selected);
  const chosen=town?.townId??'';
- const changeSelection=(id:string)=>{setSelected(id);setRate('');setNotice('');setError('');};
+ const changeSelection=(id:string)=>{setSelected(id);setRate(null);setNotice('');setError('');};
  const applyTax=async()=>{
   if(!town||!state?.isLeader||!town.owned||locked.current)return;
-  const value=Number(rate===''?town.rate:rate);
+  const value=rate===null?town.rate:rate.trim()?Number(rate):NaN;
   if(!Number.isInteger(value)||value<0||value>30){setError('세율은 0~30%의 정수로 입력해 주세요.');return;}
   if(value===town.rate)return;
   locked.current=true;setBusy(true);setNotice('');setError('');
   try{
    await setGuildVillageTax(lease,town.townId,value);
    await load();
-   if(active.current){setRate('');setNotice(town.name+' 세율이 '+value+'%로 변경됐습니다. 다음 변경은 24시간 후 가능합니다.');}
+   if(active.current){setRate(null);setNotice(town.name+' 세율이 '+value+'%로 변경됐습니다. 다음 변경은 24시간 후 가능합니다.');}
   }catch(e){if(active.current)setError(e instanceof Error?e.message:'마을 세율 변경 실패');}
   finally{locked.current=false;if(active.current)setBusy(false);}
  };
@@ -57,7 +57,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
  const visible=mineOnly?owned:state.towns;
  const cooldownEnds=town?.changedAt&&town.owned?Date.parse(town.changedAt)+86400000:0;
  const cooldownLeft=Math.max(0,cooldownEnds-now);
- const next=rate===''?(town?.rate??0):Number(rate);
+ const next=rate===null?(town?.rate??0):rate.trim()?Number(rate):NaN;
  const allowed=Number.isInteger(next)&&next>=0&&next<=30&&next!==town?.rate;
  return <section className="tc-territory" aria-label="영지 관리">
   <header className="tc-territory-head">
@@ -74,7 +74,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
    <strong>영지 목록 <span>{visible.length}곳</span></strong>
    <div role="group" aria-label="영지 목록 필터">
     <button type="button" className={!mineOnly?'active':''} aria-pressed={!mineOnly} onClick={()=>setMineOnly(false)}>전체 11</button>
-    <button type="button" className={mineOnly?'active':''} aria-pressed={mineOnly} onClick={()=>setMineOnly(true)}>우리 영지 {owned.length}</button>
+    <button type="button" className={mineOnly?'active':''} aria-pressed={mineOnly} onClick={()=>{setMineOnly(true);if(!town?.owned){setSelected(owned[0]?.townId??null);setRate(null);}}}>우리 영지 {owned.length}</button>
    </div>
   </div>
   <div className="tc-territory-scroll">
@@ -104,7 +104,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
       <div><b>마을 채집 세율 변경</b><small>0~30% · 마지막 변경 이후 24시간 제한</small></div>
       <div className="tc-territory-tax-controls">
        <label><span>세율 (%)</span><input type="number" inputMode="numeric" min="0" max="30"
-        value={rate===''?town.rate:rate} disabled={busy||cooldownLeft>0}
+        value={rate===null?town.rate:rate} disabled={busy||cooldownLeft>0}
         onChange={e=>setRate(e.target.value)}/></label>
        <button type="button" disabled={busy||cooldownLeft>0||!allowed} onClick={()=>void applyTax()}>
         {busy?'적용 중':cooldownLeft>0?'변경 대기':'세율 적용'}
