@@ -4,7 +4,8 @@ import {associationGrowthRpc as rpc,associationLeaseArgs as args} from './associ
 import type {EquipmentItem} from '../game/types';
 
 export interface GuildAuctionListing {
- listingId:string;source:'BOSS'|'TREASURY'|'LEADER';gear:EquipmentItem;
+ listingId:string;source:'BOSS'|'TREASURY'|'LEADER'|'MATERIAL';gear:EquipmentItem;
+ materialId?:import('./guildMaterials').GuildMaterial|null;materialQuantity?:number|null;canReturnMaterial?:boolean;
  sellerId:string|null;isMyListing:boolean;cancelledAt:string|null;returnedAt:string|null;
  canCancel:boolean;canReturn:boolean;canRelist:boolean;
  startingBid:number;topBid:number;nextBid:number;topUserId:string|null;
@@ -21,7 +22,7 @@ export interface GuildAuctionState {
 }
 export interface GuildAuctionBidResponse {replayed:boolean;state:GuildAuctionState}
 export interface GuildAuctionClaimResponse {
- replayed:boolean;record:CloudSaveRecord;state:GuildAuctionState;gear?:EquipmentItem;
+ replayed:boolean;record:CloudSaveRecord;state:GuildAuctionState;gear?:EquipmentItem;materialId?:string;materialQuantity?:number;
  silver?:number;contribution?:number;potions?:number;vitalityPotions?:number;
 }
 export const getGuildAuctionState=(lease:GameplayLease)=>rpc<GuildAuctionState>('get_guild_auction_state',args(lease));

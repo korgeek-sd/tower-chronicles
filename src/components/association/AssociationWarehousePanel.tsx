@@ -6,6 +6,7 @@ import {
  type AssociationWarehouse,type WarehouseEntry,type WarehouseCurrency,type WarehouseDirection,type WarehouseTransferInput,
 } from '../../online/associationWarehouse';
 import './warehouse.css';
+import {GuildMaterialsPanel} from './GuildMaterialsPanel';
 
 const assets=[{id:'SILVER',name:'실버',glyph:'◉',unit:'S'},{id:'GOLD',name:'골드',glyph:'◆',unit:'G'},{id:'TICKET',name:'도전권',glyph:'⚔',unit:'장'}] as const;
 const fmt=(v:number)=>v.toLocaleString('ko-KR');

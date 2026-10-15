@@ -1,0 +1,22 @@
+/* Village tax / guild ingredient chest inside the existing scroll-contained treasury view. */
+.tc-guild-materials{display:grid;gap:9px;padding:10px;background:#211b17;border:1px solid #80694c;min-width:0}
+.tc-gm-title{display:flex;align-items:baseline;justify-content:space-between;gap:7px}
+.tc-gm-title b{font-size:14px;color:#edd3a0}.tc-gm-title small{font-size:10px;color:#b8aa97}
+.tc-gm-balances{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.tc-gm-balances article{display:grid;gap:2px;padding:7px 4px;text-align:center;background:#171719;border:1px solid #584b3a}
+.tc-gm-balances small{font-size:10px;color:#aeb0a5}.tc-gm-balances b{font-size:14px;color:#e9d2aa}
+.tc-gm-editor,.tc-gm-towns{display:grid;gap:7px}
+.tc-gm-towns article{display:grid;grid-template-columns:minmax(0,1fr) 65px 60px;gap:5px;align-items:center;font-size:11px}
+.tc-gm-towns article span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-gm-towns article small{font-size:9px;color:#a6a3a0}
+.tc-gm-towns input,.tc-gm-editor input{min-width:0;width:100%;background:#151514;color:#f0d7a9;border:1px solid #665d48;padding:6px;box-sizing:border-box;font-size:12px}
+.tc-gm-towns button,.tc-gm-editor button{background:#473829;color:#efcf9b;border:1px solid #a68553;padding:7px;cursor:pointer}
+.tc-gm-towns button:disabled,.tc-gm-editor button:disabled{opacity:.45;cursor:not-allowed}
+.tc-gm-editor label{display:grid;gap:4px;font-size:10px;color:#c2b5a3}
+.tc-gm-editor .tc-game-select button.tc-game-select-trigger{min-height:36px}
+.tc-gm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tc-gm-tabs button.active{background:#78603e;color:#fff0c7}
+.tc-gm-ledger{display:grid;gap:5px;max-height:180px;overflow:auto;overscroll-behavior:contain}
+.tc-gm-ledger article{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #3f3427;padding:6px 0;font-size:10px}
+.tc-gm-ledger small{color:#c7b7a0}.tc-gm-error{font-size:11px;color:#f2a4a4}
+.tc-gm-notice{font-size:11px;color:#bcdcb9}
