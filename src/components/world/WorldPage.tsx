@@ -46,7 +46,7 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
  async function gather(resource:LifeResource,retry?:GatherRequest){if(lock.current||!lease||!state||pending&&!retry)return;const r=retry??{id:crypto.randomUUID(),town:state.location,resource,count};lock.current=true;setBusy(true);setError('');try{
   if(!retry){if(key)localStorage.setItem(key,JSON.stringify(r));setPending(r);}
   const result=await gatherVillage(lease,r);if(!alive.current)return;accept(result.state);if(key)localStorage.removeItem(key);setPending(null);
-  setMessage(Object.entries(result.result.gains).map(([id,n])=>`${LIFE_MATERIAL_NAMES[id as LifeMaterial]} +${n}`).join(' · ')+` · 행동력 −${result.result.actionPointsSpent}${result.replayed?' (이전 결과 확인)':''}`);
+  setMessage(Object.entries(result.result.gains).map(([id,n])=>`${LIFE_MATERIAL_NAMES[id as LifeMaterial]} +${n}`).join(' · ')+` · 행동력 −${result.result.actionPointsSpent}`+(Object.keys(result.result.tax??{}).length?' · 세금 '+Object.entries(result.result.tax??{}).map(([id,n])=>`${LIFE_MATERIAL_NAMES[id as LifeMaterial]} ${n}개`).join(', '):'')+(result.replayed?' (이전 결과 확인)':''));
  }catch(e){if(alive.current){if(e instanceof VillageLifeRejected){if(key)localStorage.removeItem(key);setPending(null);}setError(e instanceof Error?e.message:'채집 결과를 다시 확인해 주세요.');}}
  finally{lock.current=false;if(alive.current)setBusy(false);}}
  async function action(kind:LifeActionRequest['action'],item:ProductId|'well',retry?:LifeActionRequest){
