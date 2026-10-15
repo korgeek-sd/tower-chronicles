@@ -1,8 +1,9 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import './studio0322-splash.css';
 
-const VIDEO_URL=import.meta.env.BASE_URL+'assets/studio0322/splash.mp4';
-const MAX_WAIT_MS=5200;
+const VIDEO_URL=import.meta.env.BASE_URL+'assets/studio0322/splash.mp4?v=mobile-20261015-1';
+// The selected cinematic lasts six seconds; allow loading time before the failsafe.
+const MAX_WAIT_MS=10000;
 
 function shouldPlayIntro():boolean {
   if(new URLSearchParams(window.location.search).get('skipSplash')==='1')return false;
