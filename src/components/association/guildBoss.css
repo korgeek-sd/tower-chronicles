@@ -137,7 +137,7 @@
  background:#251b40;color:#e8d6ff;border-bottom:1px solid #6f4a9b}
 .tc-boss-popover>header b{font-size:13px}
 .tc-boss-popover>header button{height:32px;padding:0 12px;background:#392856;border:1px solid #7f5ab2;color:#f2deff;font-size:11px}
-.tc-boss-popover-scroll{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:8px 12px;scrollbar-width:thin;scrollbar-color:#8961c4 transparent}
+.tc-boss-popover-scroll{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:8px 12px;scrollbar-width:thin;scrollbar-color:#90744c transparent}
 .tc-boss-ranking-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto 30px;gap:6px;align-items:center;padding:8px 3px;border-bottom:1px solid #413457;font-size:11px}
 .tc-boss-ranking-row>b{color:#d4a3ff}
 .tc-boss-ranking-row>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
