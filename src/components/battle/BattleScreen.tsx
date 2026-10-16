@@ -1,14 +1,11 @@
 import {MonsterIntentBanner} from './MonsterIntentBanner';
-import {getJobCombatDefinition} from '../../game/jobs/framework';
 import {combatRuntime} from '../../game/engine/battleLifecycle';
-import {resourceCost} from '../../game/engine/combatResource';
-import {isSilenced,isRooted} from '../../game/engine/effects';
+import {isRooted} from '../../game/engine/effects';
 import React,{useEffect,useRef,useState} from 'react';
 import type {EquipmentItem,GameState,Potion} from '../../game/types';
 import {EVENT_BALANCE} from '../../game/events/selector';
-import {TOWERS,POTIONS,generalPotionIds,SKILLS} from '../../game/data/config';
+import {TOWERS,POTIONS,generalPotionIds} from '../../game/data/config';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
-import {assetUrl} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
 import {stats,weaponOf} from '../../game/engine/state';
 import {combatAudioEnabled,setCombatAudioEnabled,unlockCombatAudio} from './combatAudio';
@@ -16,10 +13,7 @@ import {playerRecoveryDelay} from './battleVfxTimeline';
 import {BattleScene,type BattleActionCue} from './BattleScene';
 import {titleById} from '../../game/data/cosmetics';
 import {bossIdFor} from '../../game/engine/bossTracking';
-import {skillTurnsLeft} from '../../game/engine/turns';
-import {canPlayerAct,canUseSkill,canUsePotion} from '../../game/engine/combat';
-import {resolvePlayerCombatKit} from '../../game/jobs/service';
-import {skillVisualAssetFor} from '../../game/jobs/skillVisualAssets';
+import {canPlayerAct,canUsePotion} from '../../game/engine/combat';
 import {monsterCombatIntel} from './combatIntel';
 import {loadPrefs,savePrefs,SPEEDS} from './prefs';
 import type {BattlePrefs} from './prefs';
@@ -28,9 +22,8 @@ import {strongholdRemainingMs} from '../../game/events/resourceStronghold';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 
 type Props={game:GameState;now?:number;onBasicAttack:()=>void;onSkill:(id:string)=>void;onPotion:(potion:Potion)=>void;onFlee:()=>void;onHome:()=>void;onRevival:(use:boolean)=>void;onAbandonStronghold?:()=>void};
-const glyph:Record<string,string>={heavy:'sword',execute:'attack',guard:'defense',quick:'haste'};
 
-export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
+export function BattleScreen({game,now,onPotion,onFlee,onHome,onRevival,onAbandonStronghold}:Props){
  const e=game.expedition!,st=stats(game,e.equipment),weapon=weaponOf(game,e.equipment);
  const feel=useGameFeel();
  const lastFeelEvent=useRef(0),lastHp=useRef(e.hp),actionCueSeq=useRef(0);
@@ -88,19 +81,6 @@ export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,
  const strongholdMs=stronghold?strongholdRemainingMs(stronghold,now??Date.now()):0;
  const strongholdTime=String(Math.floor(strongholdMs/60_000)).padStart(2,'0')+':'+String(Math.floor(strongholdMs%60_000/1000)).padStart(2,'0');
 
- const skillSlots=Array.from({length:3},(_,i)=>skillIds[i]??'');
- const skillCards=skillSlots.map((id,i)=>{
-  const jobSkill=id?getJobCombatDefinition(e.jobRuntime.jobId)?.skills.find(s=>s.id===id):undefined,skill=jobSkill??(id?SKILLS.find(s=>s.id===id):undefined),turns=skill?skillTurnsLeft(e,skill.id):0,mismatch=!!skill&&'weapons' in skill&&!skill.weapons.includes(weapon)&&!e.jobSnapshotId;
-  const cost=jobSkill?.resource?.kind==='SPENDER'?resourceCost(e,jobSkill.resource):0;
-  const reason=!skill?'빈 슬롯':isSilenced(e,'player')?'침묵':mismatch?'무기 불일치':turns?turns+'턴 대기':cost===null?'자원 부족':cost?cost+'칸 소비':'사용 가능';
-  const skillArt=skill?skillVisualAssetFor(skill.id):null;
-  return <button type="button" disabled={recovering||!skill||!canUseSkill(game,id)} className="tc-ref-card tc-feel-press" data-game-feel="press" key={i} onClick={()=>skill&&cuePlayerAction('skill',()=>onSkill(skill.id))}>
-   <span className="tc-ref-card-art">{skillArt?<img className="tc-skill-art" src={assetUrl(skillArt)} alt="" aria-hidden="true" draggable={false} style={{width:'100%',height:'100%',objectFit:'contain',imageRendering:'pixelated',pointerEvents:'none'}}/>:<Glyph name={glyph[id]??'skills'}/>} {turns>0&&<b>{turns}</b>}</span>
-   <strong>{skill?.name||'미구현'}</strong>
-   <small>{reason}</small>
-  </button>;
- });
-
  return <div className="tc-battle tc-battle-reference" onPointerDownCapture={unlockCombatAudio} onKeyDownCapture={unlockCombatAudio}>
   <div className="tc-battle-ornament top" aria-hidden="true"/>
   <div className="tc-battle-ornament bottom" aria-hidden="true"/>
@@ -124,7 +104,6 @@ export function BattleScreen({game,now,onSkill,onPotion,onFlee,onHome,onRevival,
 
 
   <div className="tc-ref-actions">
-   {skillCards}
    <button className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn} onClick={()=>setPanel('items')}><span className="tc-ref-card-art"><Glyph name="potions"/></span><strong>포션</strong><small>아이템</small></button>
    <button type="button" className="tc-ref-card tc-feel-press" data-game-feel="press" disabled={recovering||!playerTurn||isRooted(e,'player')} onClick={onFlee} aria-label="귀환 시도"><span className="tc-ref-card-art"><Glyph name="tickets"/></span><strong>귀환</strong><small>{isRooted(e,'player')?'속박':'거점'}</small></button>
   </div>
