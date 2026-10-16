@@ -46,7 +46,6 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  const portrait=job?.visualAssetKey?assetUrl(job.visualAssetKey):null;
  const mainFacilities=[
   {id:'craft',glyph:'craft',name:'제작',action:()=>onMove('craft')},
-  {id:'skills',glyph:'skills',name:'스킬트리',action:()=>onMove('skills')},
   {id:'appearance-summon',glyph:'jobs',name:'외형 소환',action:()=>onOpenJobs('register')},
   {id:'gold-exchange',glyph:'market',name:'골드 거래소',action:()=>onMove('gold-exchange')},
   {id:'occupation',glyph:'towers',name:'점령전',action:()=>onMove('occupation')},
@@ -79,7 +78,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
     <button type="button" className="tc-camp-v2-profile-link" aria-label="캐릭터 스탯 확인" onClick={()=>onMove('stats')}>›</button>
    </section>
    <nav className="tc-camp-v2-primary" aria-label="주요 행동">
-    <button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span><b>{game.expedition?'원정 복귀':'사냥하기'}</b><small>{game.expedition?'진행 중인 원정으로':'사냥터에서 전투 시작'}</small></span><i>›</i></button>
+    <button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove('hunt')}><Glyph name="sword"/><span><b>사냥하기</b><small>사냥터에서 전투 시작</small></span><i>›</i></button>
     <button type="button" className="tc-camp-v2-world tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/><span><b>마을 이동</b><small>10개 마을 · 중앙 도시</small></span><i>›</i></button>
    </nav>
    <section className="tc-camp-v2-facilities" aria-label="거점 시설">

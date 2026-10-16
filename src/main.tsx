@@ -31,12 +31,10 @@ import {acquireGameSession,forceTakeoverGameSession,heartbeatGameSession,inspect
 import {applyOnlineBasicAttack,applyOnlineSkill,applyOnlineJobSkill,applyOnlinePotion,applyOnlineFlee,resolveOnlineRevival,beginOnlineCombatState,reconcileOnlineCombatState,startOnlineExpedition,settleOnlineExpedition,restoreOnlineExpedition,reconcileOnlineExpeditionState,advanceOnlineExploration,resolveOnlineExplorationEvent,settleOnlineResourceStronghold,abandonOnlineResourceStronghold,selectOnlineJob,type OnlineCombatState} from './online/economy';
 import {getResourceStrongholdState,advanceResourceStrongholdState,requestResourceStronghold,respondResourceStrongholdContest,applyResourceStrongholdContestAction,abandonResourceStronghold,subscribeResourceStrongholdRealtime,type ResourceStrongholdServerState} from './online/resourceStronghold';
 
-import {EventScreen} from './components/events/EventScreen';
 import {ResourceStrongholdPanel} from './components/events/ResourceStrongholdPanel';
 import {resolveEvent,continueEvent,configureEventMode,expireTimedEventChoice} from './game/events/service';
 import {settleStronghold} from './game/events/resourceStronghold';
 import {InventoryScreen} from './components/inventory/InventoryScreen';
-import {BattleScreen} from './components/battle/BattleScreen';
 import {MarketScreen} from './components/market/MarketScreen';
 import type {MarketIntent} from './components/market/marketNavigation';
 import {GoldExchangeScreen} from './components/market/GoldExchangeScreen';
@@ -86,7 +84,7 @@ function App(){
  const blocked=useRef(false);
  const [game,setGame]=useState<GameState>(()=>{try{return combatFixtureName&&gameStorage.getItem(SAVE_KEY)===null?combatFixture(combatFixtureName)!:createRepository(gameStorage).load();}catch{blocked.current=true;return initialState();}});
  const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
- const [page,setPage]=useState<AppPage>('home');
+ const [page,setPage]=useState<AppPage|'battle'|'skills'>('home');
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
  const [marketIntent,setMarketIntent]=useState<MarketIntent|null>(null);
  const [skillReturnId,setSkillReturnId]=useState<string|null>(null);
@@ -273,6 +271,7 @@ function App(){
  useEffect(()=>{if(!gameplayWritable||game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;if(onlineSession&&gameSessionPhaseRef.current==='active')return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[gameplayWritable,game.expedition?.phase,game.expedition?.pendingRevival,onlineSession?.userId]);
 
  const exp=game.expedition,immersive=false,visibleNotice=game.notice.startsWith('안전 귀환 ·')?'':game.notice;
+ const eventOpen=false;
  function move(p:AppPage){if(exp?.pendingRevival)return;if(p==='jobs')setJobsEntryTab('register');setPage(p);}
  function openMarketFromInventory(intent:MarketIntent){if(exp?.pendingRevival)return;setMarketIntent(intent);setInventoryReturnKey(null);setPage('market');}
  function returnToInventory(inventoryKey:string){setMarketIntent(null);setInventoryReturnKey(inventoryKey);setPage('inventory');}
@@ -408,7 +407,7 @@ function App(){
    <div className="tc-wallet"><span className="tc-coin"><i/><b>{game.silver.toLocaleString()}</b><small>Silver</small></span><span className="tc-coin gold"><i/><b>{game.market.gold.toLocaleString()}</b><small>Gold</small></span></div>
   </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
   {mailOpen&&<MailDialog key={'mail:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} game={game} setGame={setGame} onClose={()=>setMailOpen(false)} onUnread={setMailUnread}/>}
-  <main className={page==='hunt'?'tc-main tc-hunt-main':page==='stats'?'tc-main tc-stat-main':page==='skills'?'tc-main tc-skill-tree-main':'tc-main'}>
+  <main className={page==='hunt'?'tc-main tc-hunt-main':page==='stats'?'tc-main tc-stat-main':'tc-main'}>
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
    {(page==='home'||page==='settings')&&<HomeScreen nickname={playerNickname} game={game} onMove={move} onOpenJobs={openJobs} onOpenMail={()=>setMailOpen(true)} mailUnread={mailUnread} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null}/>}
@@ -438,7 +437,7 @@ function App(){
 
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','enhancement','world'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','enhancement','world','stats'].includes(page))} onClick={()=>move(p as AppPage)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'} inlineAtHome={page==='home'}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;

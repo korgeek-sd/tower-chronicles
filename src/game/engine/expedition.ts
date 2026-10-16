@@ -6,7 +6,6 @@ import {stats,log} from './state';
 import {monsterFor} from './drops';
 import {emptyLoot,commitLoot,lootLines} from './loot';
 import {initialBossTracking} from './bossTracking';
-import {createBattleJobRuntime} from '../jobs/service';
 import {createMonsterRuntime} from './monsterAi';
 import {emptyReactivePrepared} from './reactions';
 import {recordBestiaryEncounter} from './bestiary';
@@ -22,8 +21,8 @@ export function enter(s:GameState,tower:Tower,floor:number):GameState {
   const bag={...n.loadout};potionIds.forEach(p=>n.potions[p]-=bag[p]);
   n.logs=[];n.lastExpedition=null;
   const association=n.association.associations.find(a=>a.associationId===n.association.currentId&&a.status==='ACTIVE');
-  const jobRuntime=createBattleJobRuntime(n.currentJobId),monster=monsterFor(tower,floor);
-  n.expedition={events:initialEvents(),revenueShareSnapshot:{associationId:association?.associationId??null,rate:association?.revenueShareRatePercent??0},tower,floor,hp:stats(n).hp,monster,monsterRuntime:createMonsterRuntime(monster),reactivePrepared:emptyReactivePrepared(),bag,time:0,playerTimer:0,enemyTimer:0,spawnAt:0,cooldowns:{},buffs:{},playerEffects:[],monsterEffects:[],preparedEffects:[],effectSequence:0,jobSnapshotId:jobRuntime.jobId,jobRuntime,kills:0,loot:emptyLoot(),equipment:{...n.equipped},returnRequested:false,bossTracking:initialBossTracking(),phase:'PLAYER_TURN',playerTurn:1,monsterTurn:0,pendingFlee:false,pendingRevival:null};
+  const jobRuntime={jobId:n.currentJobId,passiveIds:[],activeSkillIds:[],resource:null,flags:{},counters:{}},monster=monsterFor(tower,floor);
+  n.expedition={events:initialEvents(),revenueShareSnapshot:{associationId:association?.associationId??null,rate:association?.revenueShareRatePercent??0},tower,floor,hp:stats(n).hp,monster,monsterRuntime:createMonsterRuntime(monster),reactivePrepared:emptyReactivePrepared(),bag,time:0,playerTimer:0,enemyTimer:0,spawnAt:0,cooldowns:{},buffs:{},playerEffects:[],monsterEffects:[],preparedEffects:[],effectSequence:0,jobSnapshotId:n.currentJobId,jobRuntime,kills:0,loot:emptyLoot(),equipment:{...n.equipped},returnRequested:false,bossTracking:initialBossTracking(),phase:'PLAYER_TURN',playerTurn:1,monsterTurn:0,pendingFlee:false,pendingRevival:null};
   initializeCombatRuntimeV2(n.expedition);
   recordBestiaryEncounter(n,n.expedition.monster);
   log(n,TOWERS[tower].name+' '+floor+'층 · 입장권 1장 사용');

@@ -5,7 +5,7 @@ import {A_JOB_DEFINITIONS} from './aDefinitions';
 import {SR_JOB_DEFINITIONS} from './srDefinitions';
 import {JOB_VISUAL_ASSETS} from './visualAssets';
 export type JobRarity='C'|'B'|'A'|'SR'|'SSR';
-export type JobDefinition={id:string;displayName:string;rarity:JobRarity;description?:string;visualAssetKey?:string};
+export type JobDefinition={id:string;displayName:string;rarity:JobRarity;description?:string;visualAssetKey?:string;combatKit?:any;jobResource?:any;implementationStatus?:string;};
 const rows:[JobRarity,string,string][]=[
  ['C','contract_mercenary','계약용병'],['C','hunter','사냥꾼'],['C','excavator','굴착인부'],['C','field_medic','야전구호원'],['C','reclaimer','회수업자'],['C','green_crown_pilgrim','녹관 순례자'],['C','porter','짐꾼'],['C','guide','길잡이'],
  ['B','vanguard_explorer','선봉 탐사자'],['B','tracker','추적자'],['B','survivor','생환가'],['B','duelist','결투가'],['B','expedition_medic','탐사 의무관'],['B','redeemer','대속자'],['B','lantern_keeper','등불지기'],['B','relic_collector','유품회수인'],['B','monster_dismantler','몬스터 해체꾼'],['B','expedition_archivist','탐사기록원'],['B','corsair','코르세어'],
