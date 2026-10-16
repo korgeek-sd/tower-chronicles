@@ -43,10 +43,8 @@ export function Studio0322Splash(){
         onEnded={finish}
         onError={finish}
       />
-      <button className="studio0322-splash__skip" type="button" onClick={finish} aria-label="인트로 건너뛰기">
-        건너뛰기
-      </button>
       </div>
     </div>
   );
 }
+
