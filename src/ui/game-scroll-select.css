@@ -4,55 +4,55 @@
 .tc-game-select button.tc-game-select-trigger{
  width:100%;min-height:43px;padding:7px 10px;
  display:flex;align-items:center;gap:9px;text-align:left;
- color:#efd9b0;background:linear-gradient(180deg,#242032,#181823);
- border:1px solid #8a6d95;box-shadow:inset 0 1px #a689a12b;font-size:12px;
+ color:#efd9b0;background:linear-gradient(180deg,#24231e,#181b19);
+ border:1px solid #756044;box-shadow:inset 0 1px #c2a16b2b;font-size:12px;
  cursor:pointer;touch-action:manipulation
 }
 .tc-game-select-trigger:focus-visible,.tc-game-scroll-option:focus-visible{
- outline:2px solid #d3a4fa;outline-offset:-2px
+ outline:2px solid #d7b777;outline-offset:-2px
 }
 .tc-game-select.is-open button.tc-game-select-trigger{
- border-color:#c29cf0;background:#30243d
+ border-color:#c2a16b;background:#302a20
 }
 .tc-game-select-trigger:disabled{opacity:.5;cursor:default}
-.tc-game-select-trigger-icon{flex:none;color:#c49ee9;font-size:18px}
+.tc-game-select-trigger-icon{flex:none;color:#c2a16b;font-size:18px}
 .tc-game-select-trigger-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-.tc-game-select-trigger-label.is-placeholder{font-weight:400;color:#b5a3b6}
-.tc-game-select-chevron{flex:none;font-size:21px;line-height:1;color:#c8a9df;transition:transform .15s}
+.tc-game-select-trigger-label.is-placeholder{font-weight:400;color:#b5ad9b}
+.tc-game-select-chevron{flex:none;font-size:21px;line-height:1;color:#c8b58e;transition:transform .15s}
 .tc-game-select-chevron.is-open{transform:rotate(180deg)}
 .tc-game-select-expanded{
- padding:7px;background:linear-gradient(165deg,#211c2b,#161720);
- border:1px solid #876796;box-shadow:inset 0 1px #a48ca12f;
+ padding:7px;background:linear-gradient(165deg,#22231e,#151918);
+ border:1px solid #756044;box-shadow:inset 0 1px #c2a16b2f;
  display:grid;gap:7px;min-width:0
 }
 .tc-game-select-search-wrap{display:flex;align-items:center;gap:7px}
 .tc-game-select-expanded .tc-game-select-search-wrap input{
- min-width:0;flex:1;height:38px;padding:0 9px;background:#100f19;
- border:1px solid #655372;border-radius:0;color:#f3e1c7;font-size:12px
+ min-width:0;flex:1;height:38px;padding:0 9px;background:#101411;
+ border:1px solid #5f5849;border-radius:0;color:#f3e1c7;font-size:12px
 }
-.tc-game-select-search-wrap input::placeholder{color:#9e91ae}
-.tc-game-select-counter{flex:none;color:#c0acd0;font-size:10px;font-variant-numeric:tabular-nums}
+.tc-game-select-search-wrap input::placeholder{color:#9e9989}
+.tc-game-select-counter{flex:none;color:#c0b396;font-size:10px;font-variant-numeric:tabular-nums}
 .tc-game-scroll-list{
  min-height:62px;max-height:min(32dvh,258px);overflow-y:auto;overflow-x:hidden;
  overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;
- background:#11121c;border:1px solid #514462;scrollbar-color:#ac87c4 #201c2b;scrollbar-width:thin
+ background:#111613;border:1px solid #514b3c;scrollbar-color:#a98556 #191b16;scrollbar-width:thin
 }
 .tc-game-scroll-list::-webkit-scrollbar{width:7px}
-.tc-game-scroll-list::-webkit-scrollbar-track{background:#221b2b;border-left:1px solid #42354f}
+.tc-game-scroll-list::-webkit-scrollbar-track{background:#191b16;border-left:1px solid #423d30}
 .tc-game-scroll-list::-webkit-scrollbar-thumb{
- background:linear-gradient(180deg,#ba8dd5,#7d5aa6);border:1px solid #d2afdd;border-radius:6px
+ background:linear-gradient(180deg,#c2a16b,#756044);border:1px solid #d7bd8d;border-radius:6px
 }
 .tc-game-select-expanded button.tc-game-scroll-option{
  display:flex;align-items:center;gap:9px;min-height:51px;width:100%;
- padding:6px 10px;background:#1c1b27;border:0;border-bottom:1px solid #41384b;
+ padding:6px 10px;background:#1c201b;border:0;border-bottom:1px solid #413e31;
  color:#eaddd5;text-align:left;cursor:pointer;touch-action:manipulation
 }
-.tc-game-select-expanded button.tc-game-scroll-option:nth-child(even){background:#201e2d}
+.tc-game-select-expanded button.tc-game-scroll-option:nth-child(even){background:#20241e}
 .tc-game-select-expanded button.tc-game-scroll-option:last-child{border-bottom:0}
-.tc-game-select-expanded button.tc-game-scroll-option.is-selected{background:#332440;box-shadow:inset 3px 0 #c99cf8}
+.tc-game-select-expanded button.tc-game-scroll-option.is-selected{background:#332d20;box-shadow:inset 3px 0 #c2a16b}
 .tc-game-scroll-gem{
  flex:none;width:31px;height:31px;display:grid;place-items:center;
- border:1px solid #88848b;background:#282732;font-size:15px;color:#c7c6c1
+ border:1px solid #88848b;background:#282b24;font-size:15px;color:#c7c6c1
 }
 .tc-game-scroll-gem.uncommon{color:#91d6b1;border-color:#679878}
 .tc-game-scroll-gem.rare{color:#91b7ef;border-color:#6386ba}
@@ -60,13 +60,13 @@
 .tc-game-scroll-gem.legendary{color:#f7d080;border-color:#bc9550}
 .tc-game-scroll-option-copy{flex:1;min-width:0;display:grid;gap:3px}
 .tc-game-scroll-option-name{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
-.tc-game-scroll-option-copy small{color:#b9a7bb;font-size:10px;line-height:1.4}
-.tc-game-scroll-check{flex:none;align-self:center;font-size:17px;color:#786c87}
-.tc-game-select-expanded button.tc-game-scroll-option.is-selected .tc-game-scroll-check{color:#d9b2ff;font-weight:700}
-.tc-game-scroll-empty{display:grid;place-items:center;min-height:80px;color:#b9a9c2;font-size:11px;text-align:center}
-.tc-game-scroll-hint{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#a99db0;font-size:10px}
+.tc-game-scroll-option-copy small{color:#b9af99;font-size:10px;line-height:1.4}
+.tc-game-scroll-check{flex:none;align-self:center;font-size:17px;color:#787361}
+.tc-game-select-expanded button.tc-game-scroll-option.is-selected .tc-game-scroll-check{color:#e0c58f;font-weight:700}
+.tc-game-scroll-empty{display:grid;place-items:center;min-height:80px;color:#b9af99;font-size:11px;text-align:center}
+.tc-game-scroll-hint{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#a9a18d;font-size:10px}
 .tc-game-scroll-hint button{
- background:transparent!important;color:#cfb1e6!important;border:0!important;
+ background:transparent!important;color:#cfb78c!important;border:0!important;
  min-height:31px!important;padding:3px 9px!important;font-size:11px!important;cursor:pointer
 }
 @media(max-width:370px){.tc-game-select-expanded button.tc-game-scroll-option{gap:7px;padding:6px 7px}.tc-game-scroll-gem{width:27px;height:27px}}
@@ -76,14 +76,14 @@
 .tc-game-select{min-width:0;max-width:100%}
 .tc-game-select-expanded{display:flex;flex-direction:column;gap:7px;overflow:hidden;box-sizing:border-box;isolation:isolate}
 .tc-game-select-expanded *{box-sizing:border-box}
-.tc-game-scroll-viewport{position:relative;display:flex;min-height:0;flex:1;overflow:hidden;border:1px solid #514462;background:#11121c}
+.tc-game-scroll-viewport{position:relative;display:flex;min-height:0;flex:1;overflow:hidden;border:1px solid #514b3c;background:#111613}
 .tc-game-scroll-viewport .tc-game-scroll-list{flex:1;min-height:0;max-height:min(32dvh,258px);border:0;scrollbar-width:none}
 .tc-game-scroll-viewport .tc-game-scroll-list::-webkit-scrollbar{display:none;width:0}
-.tc-game-scroll-rail{width:11px;flex:none;position:relative;border-left:1px solid #493752;
- background:repeating-linear-gradient(0deg,#1d1926 0px,#1d1926 5px,#32263f 6px,#32263f 7px);
+.tc-game-scroll-rail{width:11px;flex:none;position:relative;border-left:1px solid #494231;
+ background:repeating-linear-gradient(0deg,#191c17 0px,#191c17 5px,#322d22 6px,#322d22 7px);
  touch-action:none;cursor:pointer;user-select:none}
 .tc-game-scroll-thumb{position:absolute;left:1px;right:1px;top:0;
- background:linear-gradient(90deg,#694783,#c8a1dc 50%,#74518f);
+ background:linear-gradient(90deg,#665238,#c2a16b 50%,#756044);
  border:1px solid #dfc19e;border-radius:2px;pointer-events:none}
 .tc-game-scroll-option:disabled{opacity:.45;cursor:not-allowed}
 .tc-game-select.is-compact button.tc-game-select-trigger{height:30px;min-height:30px;padding:2px 5px;font-size:10px}
@@ -100,7 +100,7 @@
  .tc-game-select.tc-skill-grade-select .tc-game-select-trigger-icon{display:none}
 }
 /* All other internally scrolling game panes use an unobtrusive matching skin. */
-:where(#root) :where(*){scrollbar-color:#9470b0 #1b1924;scrollbar-width:thin}
+:where(#root) :where(*){scrollbar-color:#90744c #151918;scrollbar-width:thin}
 :where(#root) :where(*)::-webkit-scrollbar{width:8px;height:8px}
-:where(#root) :where(*)::-webkit-scrollbar-track{background:#1b1924}
-:where(#root) :where(*)::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ac83c3,#6c538f);border:1px solid #d0a9b9;border-radius:2px}
+:where(#root) :where(*)::-webkit-scrollbar-track{background:#151918}
+:where(#root) :where(*)::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#b59862,#756044);border:1px solid #c2a16b;border-radius:2px}
