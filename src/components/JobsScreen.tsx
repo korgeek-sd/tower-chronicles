@@ -165,7 +165,7 @@ export function JobsScreen({
   <div className="tc-job-hub">
    <Segments items={[['register','직능등록'],['list','직능목록']] as const} value={tab} onChange={value=>{setTab(value);setResult(null);setSelectedJobId(null);setMessage('');}} label="직능 메뉴"/>
    {tab==='list'?<div className="tc-jobs tc-job-list-mode">
-    <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능을 눌러 설명과 액티브 스킬 3개를 확인할 수 있습니다.'}</div>
+    <div className="tc-floor-risk">{game.expedition?'원정 중에는 직능을 변경할 수 없습니다.':'직능을 눌러 상세 설명을 확인할 수 있습니다.'}</div>
     <Segments items={tabs} value={rarity} onChange={v=>{setRarity(v);setPage(0);setSelectedJobId(null);}} label="직능 등급"/>
     <div className="tc-job-list">{shown.map(job=>{const owned=game.ownedJobIds.includes(job.id),selected=game.currentJobId===job.id;return <article className={'tc-job'+(job.visualAssetKey?' has-art':'')} key={job.id}><button type="button" className="tc-job-open" aria-label={job.displayName+' 상세 보기'} onClick={()=>setSelectedJobId(job.id)}>{job.visualAssetKey&&<span className="tc-job-art" aria-hidden="true"><img src={assetUrl(job.visualAssetKey)} alt=""/></span>}<div><b>{job.displayName}</b><small>{owned?'등록 직능':'미등록 직능'}</small></div></button><button type="button" className="tc-job-select" disabled={!!game.expedition||!owned||selected} onClick={()=>selectJob(job.id)}>{selected?'선택 중':owned?'선택':'미보유'}</button></article>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-job" aria-hidden="true" key={'j'+i}/>)}</div>
     <Pager page={safe} count={pages} onChange={setPage}/>
