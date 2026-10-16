@@ -11,7 +11,7 @@ import {leave} from './expedition';
 import {postBattle} from '../events/service';
 import {random} from '../events/rng';
 import {cleanseEffects,removeEffectById,EFFECTS,isStunned,isSilenced,isRooted,applyEffect,applyIncomingDamage,clearBattleEffects,expireTurnEffects,modifier,periodicDelta} from './effects';
-import {resolveBattleJobId,resolvePlayerCombatKit} from '../jobs/service';
+import {resolveBattleJobId} from '../jobs/service';
 import {jobById} from '../jobs/catalog';
 import {getJobCombatDefinition} from '../jobs/framework';
 import {evaluateJobCondition,executeJobSkill,resolveJobDirectHitMultiplier,runJobHook} from '../jobs/resolver';
@@ -51,29 +51,7 @@ function afterMonsterAction(s:GameState,rng:()=>number=random){const e=s.expedit
 
 export function canPlayerAct(s:GameState){return !!s.expedition&&s.expedition.pendingRevival===null&&s.expedition.events.phase==='BATTLE'&&s.expedition.phase==='PLAYER_TURN'&&s.expedition.hp>0&&s.expedition.monster.currentHp>0&&!s.expedition.bossTracking.pendingBossId&&!isStunned(s.expedition,'player');}
 export function canUseSkill(s:GameState,id:string){
-  const e=s.expedition;
-  if (!e || !canPlayerAct(s)) return false;
-  const jobId = resolveBattleJobId(s);
-  const jobDef = getJobCombatDefinition(jobId);
-  const activeIds = resolvePlayerCombatKit(s).activeSkillIds;
-
-  // Job active skill
-  if (jobDef && activeIds.includes(id)) {
-    const jobSkill = jobDef.skills.find(sk => sk.id === id);
-    if (!jobSkill||isSilenced(e,'player')) return false;
-    if(resourceCost(e,jobSkill.resource??{kind:'NEUTRAL'})===null)return false;
-    if (skillTurnsLeft(e, id) > 0) return false;
-    if (jobSkill.conditions) {
-      const match = jobSkill.conditions.every(c=>evaluateJobCondition(s,c,{actionType:'SKILL',skillId:id}));
-      if (!match) return false;
-    }
-    return true;
-  }
-
-  if(isSilenced(e,'player'))return false;
-  // Legacy skill
-  const skill=skillById(id),jobReady=!!jobById(jobId)?.combatKit;
-  return !!skill&&activeIds.includes(id)&&(jobReady||(s.learned.includes(id)&&skill.weapons.includes(weaponOf(s,e.equipment))))&&skillTurnsLeft(e,id)===0&&(skill.condition!=='enemyLow'||e.monster.currentHp/e.monster.hp<=COMBAT.enemyLow)&&(skill.condition!=='selfLow'||e.hp/stats(s,e.equipment).hp<=COMBAT.selfLow);
+  return false;
 }
 export function canUsePotion(s:GameState,potion:Potion){const e=s.expedition;if(!(potion in POTIONS)||potion==='revival'||!e||!canPlayerAct(s)||e.bag[potion]<1||combatRuntime(e).healingPotionUses>=5)return false;return true;}
 export function hasPlayableBattleAction(s:GameState){return canPlayerAct(s);}
@@ -92,29 +70,7 @@ export function basicAttack(state:GameState,rng:()=>number=random):GameState {
   return finishPlayerTurn(s,rng);
 }
 export function useBattleSkill(state:GameState,id:string,rng:()=>number=random):GameState {
-  if(!canUseSkill(state,id))return state;
-  const s=structuredClone(state),e=s.expedition!;
-  const jobId = resolveBattleJobId(s);
-  const jobDef = getJobCombatDefinition(jobId);
-
-  // If job skill
-  if (jobDef && jobDef.skills.some(sk => sk.id === id)) {
-    const ok = executeJobSkill(s, id, rng);
-    if (!ok) return state;
-    if(e.pendingRevival){appendFinish(e,{kind:'AFTER_PLAYER_ACTION'});return s;}
-    return finishPlayerTurn(s,rng);
-  }
-
-  // Legacy skill
-  const skill=skillById(id)!;
-  setSkillCooldown(e,'player',id,skill.cooldown);
-  if(skill.effect==='damage'){
-    const jobMult = resolveJobDirectHitMultiplier(s, 'SKILL', id);
-    const hit=resolveActorDirectHits(s,'player',1,skill.value*stats(s,e.equipment).skillPower*jobMult,true,rng);
-    log(s,'['+skill.name+'] · '+hit.total+' 피해'+(hit.resolutions[0]?.critical?' · 치명타!':''));
-  }else if(skill.effect==='guard'){applyEffect(e,'player','guard','player',e.playerTurn);log(s,'['+skill.name+'] 사용 · '+skill.duration+'턴 지속');}else log(s,'['+skill.name+'] 사용 · 현재 수동 턴제에서는 추가 효과 없음');
-  if(e.pendingRevival){appendFinish(e,{kind:'AFTER_PLAYER_ACTION'});return s;}
-  return finishPlayerTurn(s,rng);
+  return state;
 }
 export function useBattlePotion(state:GameState,potion:Potion,rng:()=>number=random):GameState {
   if(!canUsePotion(state,potion))return state;

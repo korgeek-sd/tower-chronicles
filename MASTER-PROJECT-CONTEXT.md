@@ -41,7 +41,7 @@ Tower Chronicles
 - 모바일 세로형
 - Dark Fantasy RPG
 - 수동 1대1 턴제 전투
-- 탑 탐사
+- 탑 탐사 -> 사냥터 파밍으로 기획 변경
 - 장비 파밍/제작
 - 장기적으로 PvP / 길드 / 경제 시스템 포함
 
@@ -103,10 +103,8 @@ tower-record-v1
 
 Current main features relevant to this baseline:
 
-- 철맥의 첨탑 1~10F 실제 플레이 가능
-- 붉은 송곳니의 성소 1~10F 실제 플레이 가능
-- 천광의 수정탑 1~10F 실제 플레이 가능
-- 칼레온의 녹빛 첨탑은 실제 몬스터 content 미구현 / 탑 선택 잠김
+- 철맥의 첨탑, 붉은 송곳니의 성소 등 10층 구조의 첨탑 기획은 모두 폐기됨.
+- 새로운 기획인 사냥터(Hunting Grounds) 시스템이 주요 파밍 콘텐츠로 대체됨.
 - 수동 1대1 턴제
 - Monster Combat Framework: damage / charge / reactive_prepare / effect
 - Shield / DOT / HOT / stat modifier / stack / HP·status AI 조건
@@ -1623,63 +1621,14 @@ exact floor probabilities는 미확정.
 임의 구현 금지.
 
 ==================================================
-40. JOB SYSTEM
+40. JOB SYSTEM (DEPRECATED COMBAT SKILLS)
 ==================================================
 
-현재 canonical job 25개.
+현재 canonical job 25개. (등급 구조는 외형/수집 요소로만 존재)
 
-C:
-
-계약용병
-사냥꾼
-굴착인부
-야전구호원
-회수업자
-
-B:
-
-선봉 탐사자
-추적자
-생환가
-결투가
-탐사 의무관
-
-A:
-
-집행인
-심문관
-심층 도굴꾼
-혈전가
-원정 전술가
-
-SR:
-
-광전사
-변질의사
-잔혼술사
-고행투사
-현장기술자
-
-SSR:
-
-용혈기사
-봉인기록관
-시체조율사
-자가연성가
-검은수레 승부사
-
-CURRENT:
-
-catalog/name/state structure는 일부 존재.
-
-25개 직업의 실제 combat kit는 아직 없음.
-
-PLANNED:
-
-각 직업은 고정:
-
-Passive 2
-Active 3
+IMPORTANT:
+직능 전투 스킬 (Job Combat Skills/Kit) 기획은 완전히 폐기되었다.
+따라서 Passive나 Active 스킬을 직업별로 구현하지 않는다.
 
 필요한 경우:
 
@@ -2169,130 +2118,13 @@ turn timeout:
 필요하면 auto basic 또는 규칙 기반 fallback.
 
 ==================================================
-56. EVENT ENGINE — CURRENT STATE
+56. EVENT ENGINE (DEPRECATED)
 ==================================================
-
-Event engine 자체는 존재한다.
-
-과거/현재 코드에는:
-
-- event types
-- selector
-- service
-- EventScreen
-- save/reload event runtime
-- DEV fixtures
-
-등이 있다.
-
-하지만 최신 v0.1.30 기준:
-
-production authored normal event catalog:
-
-0개.
-
-즉:
-
-이벤트 시스템은 있지만
-실제 일반 이벤트 콘텐츠는 아직 없다.
-
-==================================================
-57. COMMON EVENT CATALOG — IMPORTANT UNRESOLVED
-==================================================
-
-사용자는 과거 대화에서:
-
-"모든 탑에서 사용할 수 있는 공통 이벤트"
-
-목록을 별도로 기획한 것으로 기억하고 있다.
-
-하지만 현재 접근 가능한 repository handoff / 검색 문서에서
-그 정확한 최종 목록:
-
-- 이벤트명
-- 선택지
-- 효과
-- 등장 조건
-
-전체를 신뢰성 있게 복원하지 못했다.
-
-따라서:
-
-현재 production common event catalog가 존재한다고 가정하지 마라.
-
-새 이벤트를 임의로 "예전에 확정된 이벤트"라고 주장하지 마라.
-
-향후 과거 원본 대화/문서를 확보하면
-그 목록을 canonical common event catalog로 복원한다.
-
-==================================================
-58. RECENT EVENT DRAFT — NOT CANON COMMON LIST
-==================================================
-
-최근 철맥 v0.1.32 후보로 제안됐던 draft:
-
-버려진 광부 야영지
-→ 회복/보급
-
-멈춰 선 광차
-→ loot
-
-무너지는 갱도
-→ HP ↔ reward
-
-노출된 철맥
-→ resource
-
-버려진 작업 창고
-→ reward choice
-
-심층의 불길한 울림
-→ boss foreshadow
 
 IMPORTANT:
-
-이 6개는 최근 제안 draft.
-
-"과거 확정된 모든 탑 공통 이벤트 목록"
-이라고 취급하지 않는다.
-
-==================================================
-59. EVENT DESIGN PRINCIPLE
-==================================================
-
-향후 구조는 권장:
-
-COMMON_EVENT_CATALOG
-
-+
-IRON_SPECIFIC_EVENTS
-
-+
-RED_FANG_SPECIFIC_EVENTS
-
-+
-CRYSTAL_SPECIFIC_EVENTS
-
-+
-CALEON_SPECIFIC_EVENTS
-
-공통 이벤트:
-
-세계 어느 탑에서나 가능한 사건.
-
-전용 이벤트:
-
-해당 tower theme/lore/resource를 활용.
-
-초기 event conditions는
-과도하게 복잡하지 않게 유지.
-
-현재 engine에 있는:
-
-FLOOR_TYPE
-BOSS_FLOOR
-
-등 중앙 floor metadata 활용.
+랜덤 이벤트 시스템(Random Event System) 기획은 완전히 폐기되었다.
+전투 밖에서 발생하는 이벤트 선택지 콘텐츠는 더 이상 게임에 포함되지 않는다.
+과거 관련 코드가 남아있더라도 더 이상 확장하거나 연동하지 않는다.
 
 ==================================================
 60. JOB / EQUIPMENT / EVENT CONTENT STATUS RULE
@@ -2612,30 +2444,14 @@ titles 0개.
 
 다음은 현재 사실로 사용 금지:
 
-각 탑 50층.
-
-10/20/30/40/50 boss.
-
-1~10 T1
-11~20 T2
-31~40 T4
-등 floor-tier band.
-
-철맥 10F = 광산 오우거가 최종 canonical boss라는 기획.
-
-legacy health/regen/attack/defense/haste가 현재 potion 체계라는 주장.
-
-revival이 자동 사용이라는 주장.
-
-일반 monster pool이 floor별로 달라진다는 주장.
-
-1~2F에서 PK 가능하다는 주장.
-
-모든 production event가 이미 구현됐다는 주장.
-
-모든 jobs가 이미 skill/passive를 가진다는 주장.
-
-PvP가 현재 localStorage에서 실제 player 간 작동한다는 주장.
+- 10층 구조 등 첨탑 탐사 기획 (완전 폐기 -> 사냥터 중심 구조)
+- 직능 전투 스킬 (직업별 Passive, Active 스킬 완전히 폐기)
+- 랜덤 이벤트 시스템 (이벤트 엔진 및 랜덤 선택지 기획 완전히 폐기)
+- 각 탑 50층.
+- 10/20/30/40/50 boss.
+- legacy health/regen/attack/defense/haste가 현재 potion 체계라는 주장.
+- revival이 자동 사용이라는 주장.
+- PvP가 현재 localStorage에서 실제 player 간 작동한다는 주장.
 
 ==================================================
 73. CURRENT NEXT UPDATE — PRIORITY
