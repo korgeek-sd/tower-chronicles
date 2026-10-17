@@ -1,3 +1,4 @@
+import {matchesSkillConditions,type SkillSetup} from './skillConditions';
 import {chooseHuntMonster,type HuntMonsterSnapshot} from './encounters';
 import {rollHuntingEquipment} from './equipmentDrops';
 import {resolveMonsterAction,damageOverTime,playerAttackFactor,playerDefenseFactor,blocksPlayerSkill,takeMonsterShield,type MonsterEffects} from './monsterSkills';
@@ -29,7 +30,7 @@ export function usedStatPoints(a:StatAllocation){return a.hp+a.attack+a.defense+
 export function statPointsForLevel(level:number){return Math.max(0,Math.min(99,Math.floor(level)-1));}
 export function statResetCost(level:number,resets:number){return resets===0?0:10000+Math.max(1,Math.min(100,Math.floor(level)))*1000;}
 export function applyStatAllocation(player:CombatInput,alloc:StatAllocation):CombatInput {return {...player,hp:player.hp+alloc.hp*12,attack:player.attack+alloc.attack,defense:player.defense+alloc.defense*2,critChance:Math.min(.6,(player.critChance??.05)+alloc.crit*.02)};}
-export interface HuntingState {currentMp?:number|null;maxMp?:number|null;statAllocation?:StatAllocation;statPoints?:number;statResets?:number;combatStats?:CombatStats;currentHp?:number|null;maxHp?:number|null;potions?:number;foodTurns?:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
+export interface HuntingState {skillSetup?:SkillSetup;currentMp?:number|null;maxMp?:number|null;statAllocation?:StatAllocation;statPoints?:number;statResets?:number;combatStats?:CombatStats;currentHp?:number|null;maxHp?:number|null;potions?:number;foodTurns?:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;skills:string[];vitality:number;recoveredAt:number;experience:number;mastery:number;lastResult:HuntResult|null}
 export const initialHuntingState=(now=Date.now()):HuntingState=>({skills:['heavy','guard','quick'],vitality:100,recoveredAt:now,experience:0,mastery:0,lastResult:null,statAllocation:{...EMPTY_STAT_ALLOCATION},statResets:0});
 export function recoverVitality(state:HuntingState,now:number):HuntingState {
  const elapsed=Math.max(0,now-state.recoveredAt),ticks=Math.floor(elapsed/VITALITY_INTERVAL);
@@ -81,21 +82,23 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  const monster:HuntMonsterSnapshot={...encountered};
  let mhp=monster.hp;catalog.monsterHp=mhp;
  const turns:HuntTurn[]=[],cooldowns:Record<string,number>={};let effects:MonsterEffects={};
+ const active=skills.filter((id):id is string=>!!id&&catalogSkill(id)?.type!=='passive');let cursor=0;
  for(let turn=1;turn<=100&&hp>0&&mhp>0;turn++){
   const lines:string[]=[];let guard=false;
   catalog=applyCatalogTurnStart({...catalog,hp,monsterHp:mhp},turn);hp=catalog.hp;mhp=catalog.monsterHp;
   for(const dot of damageOverTime(effects,turn,monster.attack)){hp=Math.max(0,hp-dot.damage);lines.push('탐사자가 '+(dot.name==='bleed'?'출혈':dot.name==='burn'?'화상':'중독')+'로 '+dot.damage+' 피해');}
   if(hp<=0){turns.push({turn,lines,playerHp:hp,monsterHp:mhp,playerMp:catalog.mp});break;}
-  const skill=blocksPlayerSkill(effects,turn)?undefined:skills.find(id=>{
+  const ordered=active.map((_,i)=>active[(cursor+i)%active.length]);
+  const skill=blocksPlayerSkill(effects,turn)?undefined:ordered.find(id=>{
+   if(!matchesSkillConditions(state.skillSetup?.conditions?.[id],{hp,maxHp:player.hp,mp:catalog.mp,maxMp:catalog.maxMp,enemyHp:mhp,enemyMaxHp:monster.hp,turn,shield:catalog.shieldUntil>=turn?catalog.shield:0,buff:catalog.prepUntil>=turn&&catalog.prep>0,effects,enemyDot:catalog.monsterDotUntil>=turn&&catalog.monsterDot>0,enemyDefenseDown:catalog.monsterDefenseDownUntil>=turn&&catalog.monsterDefenseDown>0}))return false;
    if(!id||catalogSkill(id)?.type==='passive'||(cooldowns[id]??0)>turn)return false;
    const definition=catalogSkill(id);
-   if(definition)return validSkillForWeapon(definition,weapon)&&definition.mp<=catalog.mp&&
-    (definition.family!=='heal'||hp/player.hp<.95)&&
-    (definition.family!=='restore'||catalog.mp<catalog.maxMp)&&
-    (definition.family!=='shield'||catalog.shield<player.hp*.1)&&
-    (definition.family!=='prepare'||catalog.prep===0);
+   if(definition)return validSkillForWeapon(definition,weapon)&&definition.mp<=catalog.mp;
    return ['heavy','guard','quick'].includes(id)&&(id!=='guard'||hp/player.hp<=.5);
   });
+  if(skill)cursor=(active.indexOf(skill)+1)%active.length;
+  if(catalog.shieldUntil<turn)catalog.shield=0;
+  if(catalog.prepUntil<turn)catalog.prep=0;
   if(skill&&catalogSkill(skill)){
    const cast=castCatalogSkill(skill,levels[skill]??0,turn,{...catalog,hp,monsterHp:mhp},player,monster.defense,rng,effects.shield??0,effects.reflect??0,playerAttackFactor(effects,turn));
    if(cast){catalog=cast.state;hp=catalog.hp;mhp=catalog.monsterHp;cooldowns[skill]=turn+cast.cooldown;lines.push(cast.line);if(cast.hit>0)effects={...effects,shield:0,reflect:0};}

@@ -66,7 +66,7 @@ test('game select adapter supports legacy options and numeric values without nat
  assert.match(code,/GameScrollSelect/);
  assert.match(code,/toOptions\(children\)/);
  assert.match(code,/onChange\?\.\(\{target:\{value:next\}\}\)/);
- const pages=['src/components/hunting/HuntingPage.tsx','src/components/market/EquipmentMarketPanel.tsx','src/components/mobile/CoreScreens.tsx'];
+ const pages=['src/components/hunting/SkillSetupEditor.tsx','src/components/market/EquipmentMarketPanel.tsx','src/components/mobile/CoreScreens.tsx'];
  for(const path of pages){
   const text=readFileSync(new URL('../'+path,import.meta.url),'utf8');
   assert.match(text,/<GameSelect/);
