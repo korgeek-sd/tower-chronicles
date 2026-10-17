@@ -1,3 +1,4 @@
+import {SkillSetupEditor} from '../hunting/SkillSetupEditor';
 import {skillBookFor} from '../../game/skills/books';
 import {autoEquip,bestEquipmentIds,isEquipmentUpgrade} from '../../game/engine/equipmentAutoEquip';
 import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../../game/life/inventory';
@@ -30,6 +31,7 @@ const PAGE_SIZE=36;
 
 
 export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,onSkills,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;onSkills?:()=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
+ const [skillSetupOpen,setSkillSetupOpen]=useState(false);
  const gridRef=useRef<HTMLDivElement>(null);
  const filterButton=useRef<HTMLButtonElement>(null);
  const [pageSize,setPageSize]=useState(PAGE_SIZE);
@@ -73,7 +75,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  };
 
  function comparisonFor(sourceId:string){return equipmentStatComparison(game,sourceId);}
- return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory tc-iron-inventory">
+ return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><button className="tc-action secondary slim" style={{minHeight:44}} onClick={()=>setSkillSetupOpen(true)}>스킬 구성</button><span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory tc-iron-inventory">
   <div className="tc-ref-inventory tc-inventory-v081 tc-storage-only">
    <section className={'tc-storage-board'+(pages===1?' tc-storage-single-page':'')}>
     <div className="tc-storage-head"><div><small>QUARTERMASTER STORAGE</small><b>인벤토리</b><em role="status">{life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${inventoryGradeSummary(category,filter.grades??[])} · ${visible.length}종`}</em></div>{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className="tc-auto-equip" title="무기 종류 유지 · 상위 등급 장착" disabled={!!game.expedition||busy||bestEquipmentIds(game).length===0} onClick={()=>setGame(autoEquip)}>자동 장착</button><button ref={filterButton} className={toolsOpen||query||filter.grades?.length||filter.tier||filter.status?'active':''} onClick={()=>setToolsOpen(true)} aria-label="필터" aria-haspopup="dialog" aria-expanded={toolsOpen}><Glyph name="filter"/> 필터</button></div>
@@ -86,6 +88,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
     <Pager page={safe} count={pages} onChange={setPage}/>
    </section>
   </div>
+  {skillSetupOpen&&<SkillSetupEditor game={game} lease={onlineLease??null} userId={userId} onClose={()=>setSkillSetupOpen(false)}/>}
   {toolsOpen&&<InventoryFilterDialog category={category} query={query} sort={sort} filter={filter} returnFocus={filterButton} onQuery={value=>{setQuery(value);setPage(0);}} onSort={value=>{setSort(value);setPage(0);}} onFilter={value=>{setFilter(value);setSelected(null);setPage(0);}} onReset={()=>{setQuery('');setSort('default');setFilter({tier:0,status:false});setPage(0);}} onClose={()=>setToolsOpen(false)}/>}
   {item&&<InventoryDetailSheet item={item} status={(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
