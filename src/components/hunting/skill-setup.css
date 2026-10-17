@@ -10,3 +10,5 @@
 @media(max-height:740px){.tc-skill-setup{gap:5px;padding:8px}.tc-skill-setup header small{display:none}.tc-skill-setup-slots .tc-glyph{display:none}.tc-skill-setup-detail-heading{margin-bottom:4px}}
 .tc-skill-setup-slots>button>span{display:block;text-align:left;flex:1;min-width:0}.tc-skill-setup-slots>button>svg{flex:0 0 26px}.tc-skill-setup-slots strong,.tc-skill-setup-slots small{text-align:left}
 .tc-skill-setup-slots>button>.tc-glyph{flex:0 0 26px;width:26px}
+
+.tc-skill-set-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.tc-skill-set-tabs button{font-size:13px;position:relative}.tc-skill-set-tabs button[aria-pressed=true]{border-color:#c9a468;background:linear-gradient(#454734,#252f25)}.tc-skill-set-tabs small{display:block;font-size:10px;color:#d8c28f}

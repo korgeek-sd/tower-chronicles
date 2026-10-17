@@ -1,3 +1,4 @@
+import {SKILL_TREE_CATALOG} from '../skills/catalog';
 export const CONDITION_OPTIONS=[
  ['always','항상'],['hp_pct_gte','HP(%) 이상'],['hp_pct_lte','HP(%) 이하'],['hp_gte','HP 이상'],['hp_lte','HP 이하'],
  ['mp_pct_gte','MP(%) 이상'],['mp_pct_lte','MP(%) 이하'],['mp_gte','MP 이상'],['mp_lte','MP 이하'],
@@ -11,7 +12,7 @@ export interface SkillCondition {kind:ConditionKind;value?:number}
 export interface SkillSetup {slots:(string|null)[];conditions:Record<string,SkillCondition[]>}
 export const needsConditionValue=(kind:string)=>/_gte$|_lte$|_every$/.test(kind);
 export function validSkillConditions(value:unknown):value is SkillCondition[]{
- return Array.isArray(value)&&value.length<=2&&value.every(c=>c&&CONDITION_OPTIONS.some(([id])=>id===c.kind)&&(!needsConditionValue(c.kind)||(Number.isInteger(c.value)&&c.value>=(c.kind.startsWith('turn_')?1:0)&&c.value<=(c.kind.includes('_pct_')?100:999999))));
+ return Array.isArray(value)&&value.length<=1&&value.every(c=>c&&CONDITION_OPTIONS.some(([id])=>id===c.kind)&&(!needsConditionValue(c.kind)||(Number.isInteger(c.value)&&c.value>=(c.kind.startsWith('turn_')?1:0)&&c.value<=(c.kind.includes('_pct_')?100:999999))));
 }
 export const conditionLabel=(c:SkillCondition)=>{const label=CONDITION_OPTIONS.find(([id])=>id===c.kind)?.[1]??'항상';return needsConditionValue(c.kind)?c.kind==='turn_every'?'매 '+c.value+'턴':label.replace(' 이상',' '+c.value+' 이상').replace(' 이하',' '+c.value+' 이하'):label;};
 export const conditionsLabel=(conditions?:SkillCondition[])=>conditions?.length?conditions.map(conditionLabel).join(' · '):'항상';
@@ -26,4 +27,19 @@ export function matchesSkillConditions(conditions:SkillCondition[]|undefined,c:C
   const states:Record<string,boolean>={shield:c.shield>0,buff:c.buff,bleed:(c.effects.bleedUntil??0)>=c.turn,poison:(c.effects.poisonUntil??0)>=c.turn,burn:(c.effects.burnUntil??0)>=c.turn,enemy_dot:c.enemyDot,enemy_defense:c.enemyDefenseDown};
   const name=kind.replace(/_(present|absent)$/,'');return kind.endsWith('_present')?states[name]===true:states[name]===false;
  });
+}
+
+export interface HuntingSkillSet {skills:string[];setup:SkillSetup}
+export const emptySkillSet=():HuntingSkillSet=>({skills:[],setup:{slots:Array(6).fill(null),conditions:{}}});
+export function normalizeSkillSet(skills:readonly string[],setup?:SkillSetup):HuntingSkillSet {
+ const active=skills.filter(id=>SKILL_TREE_CATALOG.find(s=>s.id===id)?.type!=='passive');
+ const slots=setup?.slots?.length===6&&JSON.stringify(setup.slots.filter(Boolean))===JSON.stringify(active)?[...setup.slots]:Array.from({length:6},(_,i)=>active[i]??null);
+ const conditions:Record<string,SkillCondition[]>={};
+ for(const id of active){const c=setup?.conditions?.[id];if(Array.isArray(c)&&c.length)conditions[id]=[{...c[0]}];}
+ return {skills:[...skills],setup:{slots,conditions}};
+}
+export function readSkillSets(state:{skills:string[];skillSetup?:SkillSetup;skillSets?:HuntingSkillSet[];activeSkillSet?:number}):HuntingSkillSet[]{
+ const sets=Array.from({length:3},(_,i)=>{const saved=state.skillSets?.[i];return saved?normalizeSkillSet(saved.skills,saved.setup):emptySkillSet();});
+ const index=Number.isInteger(state.activeSkillSet)&&state.activeSkillSet!>=0&&state.activeSkillSet!<3?state.activeSkillSet!:0;
+ sets[index]=normalizeSkillSet(state.skills,state.skillSetup);return sets;
 }

@@ -26,3 +26,5 @@ export const allocateHuntingStats=(lease:GameplayLease,allocation:import('../gam
 export const resetHuntingStats=(lease:GameplayLease,requestId:string)=>rpc<StatActionResponse>('reset_hunting_stats',lease,{p_request_id:requestId});
 
 export const saveHuntingSetup=(lease:GameplayLease,skills:string[],setup:import('../game/hunting/skillConditions').SkillSetup)=>rpc<HuntingServerState>('save_hunting_setup',lease,{p_skills:skills,p_setup:setup});
+
+export const saveHuntingSkillSets=(lease:GameplayLease,sets:import('../game/hunting/skillConditions').HuntingSkillSet[],active:number)=>rpc<HuntingServerState>('save_hunting_skill_sets',lease,{p_sets:sets,p_active:active});
