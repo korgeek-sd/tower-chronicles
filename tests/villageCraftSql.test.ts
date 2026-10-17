@@ -35,6 +35,7 @@ create table private.online_association_members(user_id uuid,association_id uuid
 create table private.online_associations(association_id uuid,status text,revenue_share_rate_percent integer,treasury_silver bigint,updated_at timestamptz);`);
 await db.exec(readFileSync(new URL('../supabase/migrations/20261011194500_hunting_catalog_combat.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/hunting-skill-setup.sql',import.meta.url),'utf8'));
+await db.exec(readFileSync(new URL('../supabase/hunting-three-skill-sets.sql',import.meta.url),'utf8'));
 await db.exec(`create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select $2->'testStats'$$;`);
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
@@ -87,6 +88,17 @@ await call('save_hunting_preset',[['heavy','quick']]);assert.deepEqual((await ca
 // Normalization must preserve the weapon used for eligibility.
 await db.exec(`insert into private.learned_catalog_skills values('${u}','bow_shot_c',0);insert into private.skill_book_catalog values('bow_shot_c','보급활 사격');update private.hunting_states set skills=array['bow_shot_c'];update public.game_saves set payload=jsonb_set(payload,'{testStats,weapon}','"bow"');`);
 const bow=await call('hunt_once',[id(),'plains']);assert.match(bow.result.turns[0].lines[0],/보급활 사격/);
+// Each bank entry is independent; only the selected set drives the existing hunt engine.
+const makeSet=(id:string)=>({skills:[id],setup:{slots:[id,null,null,null,null,null],conditions:{}}});
+const bank=[makeSet('heavy'),makeSet('quick'),makeSet('guard')];
+const bankSaved=await call('save_hunting_skill_sets',[bank,1]);assert.equal(bankSaved.activeSkillSet,1);assert.deepEqual(bankSaved.skills,['quick']);assert.deepEqual(bankSaved.skillSets,bank);
+const bankRead=await call('get_hunting_state');assert.deepEqual(bankRead.skillSets,bank);
+const badBank=structuredClone(bank) as any;badBank[2].setup.conditions.guard=[{kind:'hp_lte',value:50},{kind:'shield_absent'}];
+await assert.rejects(()=>call('save_hunting_skill_sets',[badBank,0]),/HUNT_PRESET_INVALID/);
+await assert.rejects(()=>call('save_hunting_skill_sets',[bank,3]),/HUNT_PRESET_INVALID/);
+assert.equal((await call('get_hunting_state')).activeSkillSet,1,'rejected saves must not switch the active set');
+const switched=await call('save_hunting_skill_sets',[bank,0]);assert.deepEqual(switched.skills,['heavy']);assert.deepEqual(switched.skillSets[1],bank[1]);
+assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon','public.save_hunting_skill_sets(uuid,bigint,text,text,jsonb,integer)','EXECUTE') ok")).rows[0].ok,false);
 for(const pen of [-1,0,.5,1,2]){
  const sqlHit=(await db.query<{hit:number}>(`select private.hunting_damage(100,100,1,$1)::integer hit`,[pen])).rows[0].hit;
  assert.equal(sqlHit,damage(100,100,1,pen));
