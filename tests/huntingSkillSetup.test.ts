@@ -25,3 +25,16 @@ test('inclusive resource/turn boundaries, AND, intervals and expired effects',()
  assert.ok(!validSkillConditions([{kind:'hp_pct_lte',value:101}]));assert.ok(!validSkillConditions([{kind:'turn_every',value:0}]));assert.ok(!validSkillConditions([{kind:'hp_lte',value:NaN}]));
  for(const [kind] of CONDITION_OPTIONS)assert.equal(typeof matchesSkillConditions([{kind,value:50}],context),'boolean');
 });
+
+import {PGlite} from '@electric-sql/pglite';
+import {readFileSync} from 'node:fs';
+test('server ignores unused values for state and always conditions just like guests',async()=>{
+ const db=new PGlite();try{
+  await db.exec('create schema private;create role anon;create role authenticated;');
+  const sql=readFileSync('supabase/hunting-skill-setup.sql','utf8');
+  await db.exec(sql.slice(sql.indexOf('create or replace function private.hunting_conditions_match'),sql.indexOf('create or replace function public.save_hunting_setup')));
+  const conditions=[{kind:'always',value:'unused'},{kind:'shield_absent',value:{unused:true}}];
+  const result=await db.query<{ok:boolean}>('select private.hunting_conditions_match($1::jsonb,$2::jsonb) ok',[JSON.stringify(conditions),JSON.stringify({shield:false})]);
+  assert.equal(result.rows[0].ok,true);
+ }finally{await db.close();}
+});
