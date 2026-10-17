@@ -154,12 +154,10 @@ export function GameScrollSelect({
       aria-selected={value===option.value}
       className={'tc-game-scroll-option'+(value===option.value?' is-selected':'')}
       onClick={()=>choose(option)}>
-      <span className={'tc-game-scroll-gem '+(option.grade??'common')} aria-hidden="true">◆</span>
       <span className="tc-game-scroll-option-copy">
        <span className="tc-game-scroll-option-name">{option.label}</span>
        {(option.gradeLabel||option.detail)&&<small>{option.gradeLabel}{option.gradeLabel&&option.detail?' · ':''}{option.detail}</small>}
       </span>
-      <span className="tc-game-scroll-check" aria-hidden="true">{value===option.value?'✓':'○'}</span>
      </button>):<div className="tc-game-scroll-empty" role="status">{search?'검색 결과가 없습니다.':emptyMessage}</div>}
     </div>
     <div className="tc-game-scroll-rail" ref={railRef} aria-hidden="true"
