@@ -187,8 +187,6 @@ function OnlineAssociationScreen({
 
    {!leader&&tab==='members'&&<details className="tc-hq-account-menu"><summary>내 소속 관리</summary><button disabled={busy} onClick={()=>{if(window.confirm('원정단에서 탈퇴하시겠습니까?'))void act(()=>leaveOnlineAssociation(lease),'원정단에서 탈퇴했습니다.');}}>원정단 탈퇴</button></details>}
    {error&&<div className="tc-floor-risk">{error}</div>}
-   {leader&&tab==='overview'&&current.applications.length>0&&<div className="tc-floor-risk">가입 신청 {current.applications.length}건이 대기 중입니다.</div>}
-   {leader&&tab==='overview'&&<small className="tc-assoc-leader">현재 단장 · {memberLabel(current.leaderUserId)}</small>}
   </div>
  </Screen>;
 }
