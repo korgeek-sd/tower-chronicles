@@ -81,7 +81,7 @@ await assert.rejects(()=>call('save_hunting_setup',[['heavy','quick'],{...setup,
 await assert.rejects(()=>call('save_hunting_setup',[['heavy','quick'],{...setup,conditions:{heavy:[{kind:'turn_every',value:0}]}}]),/HUNT_PRESET_INVALID/);
 await assert.rejects(()=>call('save_hunting_setup',[['heavy','quick'],{...setup,slots:['quick','heavy',null,null,null,null]}]),/HUNT_PRESET_INVALID/);
 await db.exec(`update private.hunting_states set current_hp=10000;update private.village_life_players set products='{"potion":0}',food_turns='{}';update public.game_saves set payload=jsonb_set(payload,'{testStats}','{"hp":10000,"attack":1,"defense":10000,"critChance":0,"critDamage":1.5,"armorPenetration":0}');`);
-const conditional=await call('hunt_once',[id(),'ruins']);assert.match(conditional.result.turns[0].lines[0],/속공/);assert.match(conditional.result.turns[1].lines[0],/대기/);assert.ok(conditional.result.turns.some((t:any)=>t.turn>=3&&t.lines.some((line:string)=>line.includes('강타'))));
+const conditional=await call('hunt_once',[id(),'ruins']);assert.match(conditional.result.turns[0].lines[0],/속공/);assert.doesNotMatch(conditional.result.turns[1].lines.join(' '),/탐사자의 (강타|속공)!/);assert.ok(conditional.result.turns.some((t:any)=>t.turn>=3&&t.lines.some((line:string)=>line.includes('강타'))));
 assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon','public.save_hunting_setup(uuid,bigint,text,text,text[],jsonb)','EXECUTE') ok")).rows[0].ok,false);
 await call('save_hunting_preset',[['heavy','quick']]);assert.deepEqual((await call('get_hunting_state')).skillSetup,{});
 // Normalization must preserve the weapon used for eligibility.
