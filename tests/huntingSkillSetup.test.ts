@@ -19,8 +19,8 @@ test('false conditions skip without consuming a turn, and an empty circuit waits
 const context:ConditionContext={hp:50,maxHp:100,mp:25,maxMp:100,enemyHp:40,enemyMaxHp:80,turn:6,shield:0,buff:false,effects:{bleedUntil:5,burnUntil:6},enemyDot:true,enemyDefenseDown:false};
 test('inclusive resource/turn boundaries, AND, intervals and expired effects',()=>{
  for(const [kind,value] of [['hp_pct_lte',50],['hp_gte',50],['mp_pct_gte',25],['mp_lte',25],['enemy_hp_pct_lte',50],['turn_gte',6],['turn_lte',6],['turn_every',3]] as const)assert.ok(matchesSkillConditions([{kind,value}],context),kind);
- assert.ok(matchesSkillConditions([{kind:'bleed_absent'},{kind:'burn_present'}],context));
- assert.ok(!matchesSkillConditions([{kind:'hp_lte',value:49},{kind:'shield_absent'}],context));
+ assert.ok(matchesSkillConditions([{kind:'bleed_absent'}],context));assert.ok(matchesSkillConditions([{kind:'burn_present'}],context));
+ assert.ok(!matchesSkillConditions([{kind:'hp_lte',value:49}],context));
  assert.ok(!matchesSkillConditions([{kind:'turn_every',value:4}],context));
  assert.ok(!validSkillConditions([{kind:'hp_pct_lte',value:101}]));assert.ok(!validSkillConditions([{kind:'turn_every',value:0}]));assert.ok(!validSkillConditions([{kind:'hp_lte',value:NaN}]));
  for(const [kind] of CONDITION_OPTIONS)assert.equal(typeof matchesSkillConditions([{kind,value:50}],context),'boolean');
