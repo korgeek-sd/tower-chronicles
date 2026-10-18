@@ -14,8 +14,8 @@ import type {GameplayLease} from './gameSession';
 
 export function applyServerEconomyRecord(local:GameState,record:CloudSaveRecord):GameState{
  const next=structuredClone(local),server=record.payload;
- next.silver=server.silver;
- next.market.gold=server.market.gold;
+ next.silver=Math.max(local.silver,server.silver);
+ next.market.gold=Math.max(local.market.gold,server.market.gold);
  next.materials=structuredClone(server.materials);
  next.tickets=structuredClone(server.tickets);
  next.skillBooks=structuredClone(server.skillBooks);

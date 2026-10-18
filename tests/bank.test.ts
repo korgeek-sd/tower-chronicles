@@ -14,6 +14,13 @@ import {
   repayLoan,
   settleDefault,
 } from '../src/game/bank/service';
+import {
+  ensureTestSilverGrant,
+  resetTestSilverGrant,
+  TEST_BANK_SILVER_GRANT,
+  TEST_BANK_GRANT_STORAGE_KEY,
+} from '../src/game/bank/testGrant';
+import { initialState } from '../src/game/engine/state';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -365,3 +372,45 @@ test('BANK 05: 미상환 처리 - 담보 귀속 + 채무 소멸 + 15일 신규 �
   });
   assert.equal(allowedLoan.success, true);
 });
+
+test('BANK 06: 은행 설립 테스트 지원금 (10,000,000 Silver) 지급, 멱등성 및 리셋 검증', () => {
+  const store = new Map<string, string>();
+  (globalThis as any).localStorage = {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => store.set(key, value),
+    removeItem: (key: string) => store.delete(key),
+    clear: () => store.clear(),
+  };
+
+  try {
+    const baseState = initialState();
+    assert.equal(baseState.silver, 0);
+
+    // 1. 첫 호출 시 10,000,000 Silver 지급 및 골드/프리미엄 세팅
+    const granted = ensureTestSilverGrant(baseState, 'test_user_1');
+    assert.equal(granted.silver, TEST_BANK_SILVER_GRANT);
+    assert.ok((granted.goldenRecorder?.expiresAt ?? 0) > Date.now());
+    assert.ok((granted.market?.gold ?? 0) >= 1000);
+    assert.match(granted.notice, /10,000,000 Silver/);
+
+    // 2. 멱등성: 동일 계정에 대해 다시 호출 시 중복 지급되지 않음
+    const doubleCall = ensureTestSilverGrant(granted, 'test_user_1');
+    assert.equal(doubleCall.silver, TEST_BANK_SILVER_GRANT);
+
+    // 3. 다른 계정은 독립적으로 지급 받음
+    const user2 = ensureTestSilverGrant(baseState, 'test_user_2');
+    assert.equal(user2.silver, TEST_BANK_SILVER_GRANT);
+
+    // 4. 리셋 기능 검증: 지원금 회수 및 플래그 제거
+    const reset = resetTestSilverGrant(granted, 'test_user_1');
+    assert.equal(reset.silver, 0);
+    assert.equal(store.has(`${TEST_BANK_GRANT_STORAGE_KEY}:test_user_1`), false);
+
+    // 리셋 후 다시 지급 요청 시 다시 지급 가능
+    const reGranted = ensureTestSilverGrant(reset, 'test_user_1');
+    assert.equal(reGranted.silver, TEST_BANK_SILVER_GRANT);
+  } finally {
+    delete (globalThis as any).localStorage;
+  }
+});
+
