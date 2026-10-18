@@ -28,6 +28,7 @@ interface Props {
   isPremium: boolean;
   onOpenPremium?: () => void;
   now?: number;
+  initialTab?: 'loans' | 'my' | 'manage';
 }
 
 export function BankScreen({
@@ -40,11 +41,12 @@ export function BankScreen({
   isPremium,
   onOpenPremium,
   now = Date.now(),
+  initialTab = 'loans',
 }: Props) {
   const currentUserId = userId || 'guest_user';
   const currentUserName = userName || '모험가';
 
-  const [tab, setTab] = useState<'loans' | 'my' | 'manage'>('loans');
+  const [tab, setTab] = useState<'loans' | 'my' | 'manage'>(initialTab);
   const [selectedBankId, setSelectedBankId] = useState<string | null>(null);
 
   // 대출 신청 입력 상태

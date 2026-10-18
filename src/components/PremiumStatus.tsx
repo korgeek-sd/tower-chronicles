@@ -6,7 +6,7 @@ export function premiumRemaining(expiresAt:number|null,now:number):string|null{
  return Math.ceil((expiresAt-now)/86400000)+'일 남음';
 }
 type Snapshot={expiresAt:number|null;serverNow:number;receivedAt:number};
-export function PremiumStatus({userId,now,onOpen}:{userId:string|null;now:number;onOpen:()=>void}){
+export function PremiumStatus({userId,now,onOpen,guestExpiresAt}:{userId:string|null;now:number;onOpen:()=>void;guestExpiresAt?:number|null}){
  const [snapshot,setSnapshot]=useState<Snapshot|null>(null),[error,setError]=useState(false);
  useEffect(()=>{
   let disposed=false,sequence=0,controller:AbortController|null=null;
@@ -26,8 +26,9 @@ export function PremiumStatus({userId,now,onOpen}:{userId:string|null;now:number
   void refresh();document.addEventListener('visibilitychange',visible);window.addEventListener('tc-premium-updated',visible);
   return()=>{disposed=true;sequence++;controller?.abort();document.removeEventListener('visibilitychange',visible);window.removeEventListener('tc-premium-updated',visible);};
  },[userId]);
- const remaining=snapshot?premiumRemaining(snapshot.expiresAt,snapshot.serverNow+Math.max(0,now-snapshot.receivedAt)):null;
- const pending=!!userId&&!snapshot&&!error,active=!!userId&&!error&&!!remaining;
+ const guestRemaining=guestExpiresAt?premiumRemaining(guestExpiresAt,now):null;
+ const remaining=userId?(snapshot?premiumRemaining(snapshot.expiresAt,snapshot.serverNow+Math.max(0,now-snapshot.receivedAt)):null):guestRemaining;
+ const pending=!!userId&&!snapshot&&!error,active=userId?(!!userId&&!error&&!!remaining):!!guestRemaining;
  const title=error?'상태 확인 필요':pending?'계정 확인 중':active?'프리미엄':'일반 계정';
  const detail=active?remaining:'혜택 보기 ›';
  return <button type="button" className={'tc-premium-status'+(active?' is-active':'')} aria-label={title+' · '+detail} onClick={onOpen}><strong>{title}</strong><small>{detail}</small></button>;
