@@ -19,6 +19,10 @@ import {
   resetTestSilverGrant,
   TEST_BANK_SILVER_GRANT,
   TEST_BANK_GRANT_STORAGE_KEY,
+  ensureTestBankExists,
+  purgeTestBank,
+  TEST_BANK_OWNER_ID,
+  TEST_BANK_SEED_KEY,
 } from '../src/game/bank/testGrant';
 import { initialState } from '../src/game/engine/state';
 
@@ -414,3 +418,77 @@ test('BANK 06: 은행 설립 테스트 지원금 (10,000,000 Silver) 지급, 멱
   }
 });
 
+
+test('BANK 07: 테스트 은행 「노바르 시범 대출소」 자동 생성 — 멱등성 및 대출자 이용 가능 검증', () => {
+  // localStorage 모킹
+  const store = new Map<string, string>();
+  const mockStorage = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => { store.set(k, v); },
+    removeItem: (k: string) => { store.delete(k); },
+  };
+  (globalThis as any).localStorage = mockStorage;
+
+  try {
+    // 1. 빈 bankState에서 최초 호출 → 은행 생성됨
+    const empty = initialBankSystemState();
+    const seeded = ensureTestBankExists(empty);
+
+    const banks = Object.values(seeded.banks);
+    assert.equal(banks.length, 1, '은행이 1개 생성되어야 함');
+
+    const bank = banks[0];
+    assert.equal(bank.ownerId, TEST_BANK_OWNER_ID, 'ownerId가 시스템 ID이어야 함');
+    assert.equal(bank.bankName, '노바르 시범 대출소');
+    assert.equal(bank.active, true);
+    assert.ok(bank.vaultSilver >= 1_000_000, '자본금 최소 100만 이상');
+    assert.ok([5, 10, 15, 30].every(d => bank.supportedDurations.includes(d as any)), '모든 대출 기간 지원');
+    assert.ok(store.get(TEST_BANK_SEED_KEY) === 'true', '시드 플래그가 저장되어야 함');
+
+    // 2. 멱등성 — 이미 생성된 경우 동일 상태 반환
+    const seededAgain = ensureTestBankExists(seeded);
+    assert.equal(Object.values(seededAgain.banks).length, 1, '두 번 호출해도 은행은 1개');
+    assert.equal(seededAgain, seeded, '멱등 — 변경이 없으면 같은 객체 참조 반환');
+
+    // 3. 일반 플레이어(ownerId 다름)는 대출자 역할로 이용 가능 — applyLoan 오류 없음
+    const playerProfile = getOrCreateProfile(seeded, 'player_test');
+    assert.equal(playerProfile.penaltyUntil, null, '신규 플레이어 제재 없음');
+
+    const loanResult = applyLoan(seeded, {
+      bankId: bank.id,
+      borrowerId: 'player_test',
+      borrowerName: '테스트 모험가',
+      collateralTickets: 2,
+      durationDays: 5,
+      borrowerAvailableTickets: 10,
+      now: Date.now(),
+    });
+    assert.equal(loanResult.success, true, '테스트 은행에서 대출 신청 성공해야 함');
+    if (!loanResult.success) throw new Error(loanResult.reason);
+    assert.equal(loanResult.silverPayout, 100_000, '도전권 2장 × 50,000 = 100,000 Silver 대출');
+
+    // 4. 은행 소유자 본인은 대출 불가 (자가 대출 차단 규칙 확인)
+    const ownerLoan = applyLoan(seeded, {
+      bankId: bank.id,
+      borrowerId: TEST_BANK_OWNER_ID,
+      borrowerName: '시스템',
+      collateralTickets: 1,
+      durationDays: 5,
+      borrowerAvailableTickets: 99,
+      now: Date.now(),
+    });
+    assert.equal(ownerLoan.success, false, '은행 소유자는 자신의 은행에서 대출 불가');
+
+    // 5. purgeTestBank — 테스트 은행 제거
+    const purged = purgeTestBank(seeded);
+    assert.equal(Object.values(purged.banks).length, 0, '테스트 은행 제거 후 0개');
+    assert.equal(store.has(TEST_BANK_SEED_KEY), false, '시드 플래그 제거됨');
+
+    // 6. purge 후 다시 ensureTestBankExists 호출 → 재생성
+    const reSeeded = ensureTestBankExists(purged);
+    assert.equal(Object.values(reSeeded.banks).length, 1, '재생성 성공');
+
+  } finally {
+    delete (globalThis as any).localStorage;
+  }
+});

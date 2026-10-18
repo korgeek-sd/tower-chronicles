@@ -4,7 +4,7 @@ import {checkOnlinePremiumStatus} from './online/premium';
 import {BankScreen} from './components/bank/BankScreen';
 import {initialBankSystemState,processBankTick} from './game/bank/service';
 import type {BankSystemState} from './game/bank/types';
-import {ensureTestSilverGrant} from './game/bank/testGrant';
+import {ensureTestSilverGrant,ensureTestBankExists} from './game/bank/testGrant';
 import {SkillBooksPage} from './components/skills/SkillBooksPage';
 import {SKILL_TREE_CATALOG} from './game/skills/catalog';
 import {StatAllocationPage} from './components/stats/StatAllocationPage';
@@ -114,7 +114,8 @@ function App(){
  useEffect(()=>{const open=()=>setPremiumOpen(true);window.addEventListener('tc-open-premium',open);return()=>window.removeEventListener('tc-open-premium',open);},[]);
  const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
  const BANK_STORAGE_KEY='tower-chronicles-bank-v1';
- const [bankState,setBankState]=useState<BankSystemState>(()=>{try{return JSON.parse(localStorage.getItem(BANK_STORAGE_KEY)??'null')??initialBankSystemState();}catch{return initialBankSystemState();}});
+ const [bankState,setBankState]=useState<BankSystemState>(()=>{try{const loaded=JSON.parse(localStorage.getItem(BANK_STORAGE_KEY)??'null')??initialBankSystemState();return ensureTestBankExists(loaded);}catch{return ensureTestBankExists(initialBankSystemState());}});
+ useEffect(()=>{setBankState(s=>ensureTestBankExists(s));},[]);
  useEffect(()=>{try{localStorage.setItem(BANK_STORAGE_KEY,JSON.stringify(bankState));}catch{}},[bankState]);
  useEffect(()=>{
   const timer=setInterval(()=>{
