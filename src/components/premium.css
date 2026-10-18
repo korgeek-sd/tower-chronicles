@@ -6,3 +6,19 @@
 .tc-wallet button.tc-coin{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer;min-height:44px;padding:0}.tc-wallet button.tc-coin:focus-visible{outline:2px solid #e1c788}
 @media(max-height:720px){.tc-premium{padding:8px;gap:6px}.tc-premium header small{display:none}.tc-premium-price{padding:6px}.tc-premium th,.tc-premium td{padding-top:7px;padding-bottom:7px}.tc-premium-info p{line-height:1.35}.tc-premium-period{padding:6px}}
 @media(max-height:580px){.tc-premium{gap:4px;font-size:12px}.tc-premium h2{font-size:20px}.tc-premium-price strong{font-size:24px}.tc-premium th,.tc-premium td{padding-top:5px;padding-bottom:5px;font-size:12px}.tc-premium-info{display:none}.tc-premium-period small{font-size:10px}}
+
+/* Two-line currencies and a stable 44px premium state beside them. */
+.tc-topbar .tc-wallet{min-width:0;gap:8px}
+.tc-header-funds{display:grid;gap:4px;min-width:0;max-width:112px}
+.tc-header-funds .tc-coin{display:grid;grid-template-columns:7px minmax(0,1fr) 10px;gap:4px;line-height:1}
+.tc-header-funds .tc-coin i{grid-row:auto;width:7px;height:7px}
+.tc-header-funds .tc-coin b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;font-size:11px}
+.tc-header-funds .tc-coin small{display:block;margin:0;font-size:9px}
+.tc-premium-status{box-sizing:border-box;min-height:44px;min-width:80px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:4px 7px;font:inherit;border:1px solid #595b43;background:linear-gradient(#252b20,#151d16);color:#bbb8a1;cursor:pointer;white-space:nowrap}
+.tc-premium-status strong{font-size:11px;font-weight:400;line-height:1.1}
+.tc-premium-status small{font-size:10px;color:#a7a58c;line-height:1.1}
+.tc-premium-status.is-active{border-color:#b3965d;background:linear-gradient(#403e25,#242b1a);color:#eed6a0;box-shadow:inset 0 0 0 1px #6b623c}
+.tc-premium-status.is-active small{color:#ddc48a}
+.tc-premium-status:focus-visible{outline:2px solid #e1c788;outline-offset:2px}
+@media(max-width:380px){.tc-topbar .tc-wallet{gap:5px}.tc-header-funds{max-width:96px}.tc-premium-status{min-width:74px;padding-inline:5px}.tc-topbar .tc-brand-mark{display:none}}
+@media(max-width:340px){.tc-header-funds{max-width:83px}.tc-topbar .tc-brand b{font-size:12px}.tc-premium-status strong{font-size:10px}}
