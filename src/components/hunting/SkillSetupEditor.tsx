@@ -13,6 +13,7 @@ const GUEST_KEY='tower-instant-hunting-guest-v1';
 type Props={game:GameState;lease:GameplayLease|null;userId:string|null;onClose:()=>void;onSaved?:(state:HuntingState)=>void};
 export function SkillSetupEditor({game,lease,userId,onClose,onSaved}:Props){
  const [setup,setSetup]=useState<SkillSetup>({slots:Array(6).fill(null),conditions:{}}),[passives,setPassives]=useState<(string|null)[]>(Array(3).fill(null));
+ const [premium,setPremium]=useState(false);
  const [sets,setSets]=useState<HuntingSkillSet[]>(()=>Array.from({length:3},emptySkillSet)),[setIndex,setSetIndex]=useState(0),[appliedIndex,setAppliedIndex]=useState(0);
  const [tab,setTab]=useState<'active'|'passive'>('active'),[selected,setSelected]=useState(0),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const panel=useRef<HTMLElement>(null),lock=useRef(false),alive=useRef(true),returnFocus=useRef<HTMLElement|null>(null);
@@ -26,6 +27,7 @@ export function SkillSetupEditor({game,lease,userId,onClose,onSaved}:Props){
    let state:HuntingState;if(userId){if(!lease)throw Error('플레이 권한을 확인하고 있습니다. 잠시 후 다시 열어주세요.');state=await getHuntingState(lease);}
    else {try{state=JSON.parse(localStorage.getItem(GUEST_KEY)??'null')??initialHuntingState();}catch{state=initialHuntingState();}}
    if(!alive.current)return;
+   setPremium(!!(state as HuntingState&{premiumActive?:boolean}).premiumActive);
    const bank=readSkillSets(state),index=Number.isInteger(state.activeSkillSet)&&state.activeSkillSet!>=0&&state.activeSkillSet!<3?state.activeSkillSet!:0;
    setSets(bank);setSetIndex(index);setAppliedIndex(index);loadSet(bank[index]);setReady(true);
   }catch(e){if(alive.current)setError(e instanceof Error?e.message:'세팅을 불러오지 못했습니다.');}}
@@ -33,7 +35,7 @@ export function SkillSetupEditor({game,lease,userId,onClose,onSaved}:Props){
  },[userId,lease?.leaseId,lease?.generation]);
  function loadSet(value:HuntingSkillSet){setSetup(value.setup);const passive=value.skills.filter(x=>catalogSkill(x)?.type==='passive');setPassives(Array.from({length:3},(_,i)=>passive[i]??null));setSelected(0);}
  function draftSet():HuntingSkillSet{return {skills:[...setup.slots,...passives].filter((x):x is string=>!!x),setup:{...setup,conditions:Object.fromEntries(Object.entries(setup.conditions).filter(([key])=>setup.slots.includes(key)).map(([key,value])=>[key,value.slice(0,1)]))}};}
- function selectSet(index:number){if(index===setIndex||!ready||busy)return;setSets(previous=>previous.map((s,i)=>i===setIndex?draftSet():s));loadSet(sets[index]);setSetIndex(index);setError('');}
+ function selectSet(index:number){if(index>0&&!premium){onClose();window.dispatchEvent(new Event('tc-open-premium'));return;}if(index===setIndex||!ready||busy)return;setSets(previous=>previous.map((s,i)=>i===setIndex?draftSet():s));loadSet(sets[index]);setSetIndex(index);setError('');}
  function changeSkill(value:string){if(tab==='active')setSetup(s=>({...s,slots:s.slots.map((x,i)=>i===selected?value||null:x)}));else setPassives(s=>s.map((x,i)=>i===selected?value||null:x));}
  function changeConditions(next:SkillCondition[]){if(id)setSetup(s=>({...s,conditions:{...s.conditions,[id]:next}}));}
  function move(direction:number){const dest=selected+direction;if(dest<0||dest>=slots.length)return;const next=[...slots];[next[selected],next[dest]]=[next[dest],next[selected]];if(tab==='active')setSetup(s=>({...s,slots:next}));else setPassives(next);setSelected(dest);}
@@ -52,7 +54,7 @@ export function SkillSetupEditor({game,lease,userId,onClose,onSaved}:Props){
   if(e.key==='Escape'&&!busy&&!panel.current?.querySelector('.tc-game-select.is-open')){e.stopPropagation();onClose();}if(e.key==='Tab'){const all=panel.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),[tabindex="0"]');if(all?.length){const first=all[0],last=all[all.length-1];if(e.shiftKey&&(document.activeElement===first||document.activeElement===panel.current)){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}}
  }}>
   <header><div><small>COMBAT SETUP</small><h2 id="tc-skill-setup-title">스킬 구성</h2></div><button aria-label="스킬 구성 닫기" disabled={busy} onClick={onClose}>×</button></header>
-  <div className="tc-skill-set-tabs" role="group" aria-label="스킬셋 선택">{[0,1,2].map(i=><button key={i} disabled={!ready||busy} aria-pressed={setIndex===i} onClick={()=>selectSet(i)}>스킬셋 {i+1}{appliedIndex===i&&<small>사용 중</small>}</button>)}</div>
+  <div className="tc-skill-set-tabs" role="group" aria-label="스킬셋 선택">{[0,1,2].map(i=><button key={i} disabled={!ready||busy} aria-pressed={setIndex===i} onClick={()=>selectSet(i)}>스킬셋 {i+1}{i>0&&!premium&&<small>프리미엄</small>}{appliedIndex===i&&<small>사용 중</small>}</button>)}</div>
   <div className="tc-skill-setup-tabs" role="group" aria-label="스킬 종류">{(['active','passive'] as const).map(t=><button key={t} aria-pressed={tab===t} onClick={()=>{setTab(t);setSelected(0);}}>{t==='active'?'액티브 · 6':'패시브 · 3'}</button>)}</div>
   <div className="tc-skill-setup-slots" role="group" aria-label={tab==='active'?'액티브 순환 슬롯':'패시브 슬롯'}>{slots.map((x,i)=>{const s=catalogSkill(x??'')??HUNT_SKILLS.find(s=>s.id===x);return <button key={i} disabled={!ready||busy} aria-pressed={selected===i} onClick={()=>setSelected(i)} aria-label={(i+1)+'번 '+(s?.name??'빈 슬롯')+' · '+(tab==='active'?conditionsLabel(x?setup.conditions[x]:[]):'상시 효과')}><b>{i+1}</b><Glyph name="skills"/><span><strong>{s?.name??'빈 슬롯'}</strong><small>{x?(tab==='active'?conditionsLabel(setup.conditions[x]):'상시 효과'):'스킬을 선택해 주세요'}</small></span><i aria-hidden="true">›</i></button>;})}</div>
   <section className="tc-skill-setup-detail" aria-label="선택 슬롯 상세 편집"><div className="tc-skill-setup-detail-heading"><b>{selected+1}번 슬롯 편집</b><div><button aria-label="슬롯 위로 이동" disabled={selected===0||busy||!ready} onClick={()=>move(-1)}>↑</button><button aria-label="슬롯 아래로 이동" disabled={selected===slots.length-1||busy||!ready} onClick={()=>move(1)}>↓</button></div></div>
