@@ -1,5 +1,8 @@
 import {PremiumStatus} from './components/PremiumStatus';
 import {PremiumDialog} from './components/PremiumDialog';
+import {BankScreen} from './components/bank/BankScreen';
+import {initialBankSystemState,processBankTick} from './game/bank/service';
+import type {BankSystemState} from './game/bank/types';
 import {SkillBooksPage} from './components/skills/SkillBooksPage';
 import {SKILL_TREE_CATALOG} from './game/skills/catalog';
 import {StatAllocationPage} from './components/stats/StatAllocationPage';
@@ -92,6 +95,20 @@ function App(){
  const [premiumOpen,setPremiumOpen]=useState(false);
  useEffect(()=>{const open=()=>setPremiumOpen(true);window.addEventListener('tc-open-premium',open);return()=>window.removeEventListener('tc-open-premium',open);},[]);
  const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
+ const BANK_STORAGE_KEY='tower-chronicles-bank-v1';
+ const [bankState,setBankState]=useState<BankSystemState>(()=>{try{return JSON.parse(localStorage.getItem(BANK_STORAGE_KEY)??'null')??initialBankSystemState();}catch{return initialBankSystemState();}});
+ useEffect(()=>{try{localStorage.setItem(BANK_STORAGE_KEY,JSON.stringify(bankState));}catch{}},[bankState]);
+ useEffect(()=>{
+  const timer=setInterval(()=>{
+   setBankState(current=>{
+    const next={...current};
+    const result=processBankTick(next,Date.now(),()=>stateRef.current.silver);
+    if(result.repaidLoans.length||result.remindedLoans.length||result.defaultedLoans.length)return next;
+    return current;
+   });
+  },60000);
+  return ()=>clearInterval(timer);
+ },[]);
  const [page,setPage]=useState<AppPage>(game.expedition?'battle':'home');
  useEffect(()=>{if(page==='battle'&&!game.expedition)setPage('towers');},[page,game.expedition]);
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
@@ -458,10 +475,11 @@ function App(){
    {page==='cosmetics'&&<CosmeticsScreen game={game} setGame={setGame} onSummon={()=>{setJobsEntryTab('register');setPage('jobs');}} onlineAccount={!!onlineSession} onlineLease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onServerRecord={(record,message)=>{createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('컬렉션');setCloudSyncStatus('synced');setCloudSyncMessage(message);}}/>}
    {page==='quests'&&<QuestPage key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)+':'+gameSessionPhase} onMove={move} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} onPrepare={async()=>{if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}if(cloudBusy.current||serverEconomyBusy.current)throw Error('저장 동기화 중입니다. 잠시 후 다시 시도해 주세요.');await runCloudSync();if(gameSessionPhaseRef.current!=='active'||!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))throw Error('플레이 권한을 다시 확인해 주세요.');}} onPending={value=>{if(!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))return;serverEconomyBusy.current=value;if(value&&cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}}} onRecord={record=>{if(getStoredSession()?.userId!==onlineSession?.userId||gameSessionPhaseRef.current!=='active'||!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))return;if(onlineSession)rememberCloudRecord(record,onlineSession.userId);createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;flushSync(()=>setGame(record.payload));setCloudRevision(record.revision);setSaved('의뢰 보상');setCloudSyncStatus('synced');setCloudSyncMessage('의뢰 보상을 서버에 저장했습니다.');}}/>}
    {page==='shop'&&<ShopScreen game={game}/>}
+   {page==='bank'&&<BankScreen game={game} setGame={setGame} bankState={bankState} setBankState={setBankState} userId={onlineSession?.userId??'guest'} userName={playerNickname??'모험가'} isPremium={!!(game.goldenRecorder?.expiresAt && game.goldenRecorder.expiresAt > now)} onOpenPremium={()=>setPremiumOpen(true)} now={now}/>}
 
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world','bank'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'} inlineAtHome={page==='home'}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;

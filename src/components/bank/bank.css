@@ -1,0 +1,216 @@
+/* 《탑의 기록》 플레이어 운영 은행 스타일 */
+
+.tc-bank-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 6px;
+  gap: 8px;
+}
+
+.tc-bank-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+}
+
+.tc-bank-wallet-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(18, 14, 10, 0.85);
+  border: 1px solid var(--tc-brass-border, #6a5434);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.tc-bank-wallet-bar b {
+  color: #ffdd80;
+}
+
+.tc-bank-penalized-banner {
+  background: rgba(180, 20, 20, 0.25);
+  border: 1px solid #c0392b;
+  color: #ff9999;
+  padding: 6px 10px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.tc-bank-tab-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 8px;
+}
+
+/* 은행 및 대출 카드 */
+.tc-bank-card {
+  background: rgba(22, 18, 14, 0.9);
+  border: 1px solid var(--tc-brass-border, #5a452a);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tc-bank-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(106, 84, 52, 0.4);
+  padding-bottom: 4px;
+}
+
+.tc-bank-card-header strong {
+  font-size: 14px;
+  color: #f5eed6;
+}
+
+.tc-bank-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+}
+
+.tc-bank-badge.active {
+  color: #70d6ff;
+}
+
+.tc-bank-badge.grace {
+  color: #ff9f1c;
+}
+
+.tc-bank-badge.repaid {
+  color: #2ec4b6;
+}
+
+.tc-bank-badge.defaulted {
+  color: #e71d36;
+}
+
+.tc-bank-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 10px;
+  font-size: 11px;
+}
+
+.tc-bank-metrics div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tc-bank-metrics span {
+  color: #a89f91;
+}
+
+.tc-bank-metrics b {
+  color: #f0e6d2;
+}
+
+.tc-bank-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.tc-bank-actions button {
+  flex: 1;
+  min-height: 36px;
+  font-family: inherit;
+  font-size: 12px;
+  background: var(--tc-button-bg, #3d2b1a);
+  color: #f5eed6;
+  border: 1px solid var(--tc-brass-border, #6a5434);
+  cursor: pointer;
+}
+
+.tc-bank-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 대출 신청 폼 */
+.tc-loan-apply-modal {
+  background: rgba(14, 10, 8, 0.95);
+  border: 2px solid #8e734a;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tc-loan-apply-modal h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #ffd700;
+  border-bottom: 1px solid #6a5434;
+  padding-bottom: 6px;
+}
+
+.tc-loan-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.tc-loan-field label {
+  color: #c9b99a;
+}
+
+.tc-loan-field input,
+.tc-loan-field select {
+  background: #1f1812;
+  color: #f5eed6;
+  border: 1px solid #5a452a;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.tc-loan-summary-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #4a3822;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.tc-loan-summary-box div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tc-loan-summary-box b {
+  color: #ffea79;
+}
+
+/* 알림 목록 */
+.tc-bank-notif-row {
+  background: rgba(30, 20, 15, 0.7);
+  border-left: 3px solid #ff9f1c;
+  padding: 6px 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tc-bank-notif-row.defaulted {
+  border-left-color: #e71d36;
+}
+
+.tc-bank-notif-row small {
+  color: #8c8273;
+}
