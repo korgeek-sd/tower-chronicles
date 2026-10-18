@@ -108,6 +108,7 @@ async function main() {
           const c = document.createElement('canvas');
           c.width = w; c.height = h;
           const ctx = c.getContext('2d');
+          ctx.imageSmoothingEnabled = false;
           ctx.drawImage(img, 0, 0, w, h);
           const imgData = ctx.getImageData(0, 0, w, h);
           const data = imgData.data;
