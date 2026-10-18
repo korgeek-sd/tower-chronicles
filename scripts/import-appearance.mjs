@@ -112,53 +112,77 @@ async function main() {
           const imgData = ctx.getImageData(0, 0, w, h);
           const data = imgData.data;
 
-          const isBlack = (x, y) => {
-            if (x < 0 || x >= w || y < 0 || y >= h) return false;
-            const i = (y * w + x) * 4;
-            // 완전히 어두운 픽셀 (노이즈 포함 threshold <= 6)
-            return data[i] <= 6 && data[i+1] <= 6 && data[i+2] <= 6 && data[i+3] > 0;
-          };
+          // 모서리 픽셀들 샘플링하여 배경 유형 자동 판별
+          const sampleIndices = [0, w - 1, (h - 1) * w, (h - 1) * w + (w - 1)];
+          const sampleAlphas = sampleIndices.map(idx => data[idx * 4 + 3]);
+          const isAlreadyTransparent = sampleAlphas.every(a => a === 0);
 
-          const visited = new Uint8Array(w * h);
-          const queue = new Int32Array(w * h * 2);
-          let head = 0, tail = 0;
-
-          const push = (x, y) => {
-            const idx = y * w + x;
-            if (!visited[idx] && isBlack(x, y)) {
-              visited[idx] = 1;
-              queue[tail++] = x;
-              queue[tail++] = y;
+          if (!isAlreadyTransparent) {
+            // 모서리 색상 평균 계산
+            let rSum = 0, gSum = 0, bSum = 0, count = 0;
+            for (const idx of sampleIndices) {
+              if (data[idx * 4 + 3] > 0) {
+                rSum += data[idx * 4];
+                gSum += data[idx * 4 + 1];
+                bSum += data[idx * 4 + 2];
+                count++;
+              }
             }
-          };
+            const bgR = count ? rSum / count : 0;
+            const bgG = count ? gSum / count : 0;
+            const bgB = count ? bSum / count : 0;
 
-          // 4변 가장자리에서 큐 시작
-          for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
-          for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+            const isBgPixel = (x, y) => {
+              if (x < 0 || x >= w || y < 0 || y >= h) return false;
+              const i = (y * w + x) * 4;
+              if (data[i + 3] === 0) return true; // 이미 투명하면 통과
+              const dr = Math.abs(data[i] - bgR);
+              const dg = Math.abs(data[i + 1] - bgG);
+              const db = Math.abs(data[i + 2] - bgB);
+              return dr <= 8 && dg <= 8 && db <= 8;
+            };
 
-          // 8방향 Flood Fill BFS
-          while (head < tail) {
-            const cx = queue[head++];
-            const cy = queue[head++];
-            for (let dx = -1; dx <= 1; dx++) {
-              for (let dy = -1; dy <= 1; dy++) {
-                if (dx !== 0 || dy !== 0) {
-                  push(cx + dx, cy + dy);
+            const visited = new Uint8Array(w * h);
+            const queue = new Int32Array(w * h * 2);
+            let head = 0, tail = 0;
+
+            const push = (x, y) => {
+              const idx = y * w + x;
+              if (!visited[idx] && isBgPixel(x, y)) {
+                visited[idx] = 1;
+                queue[tail++] = x;
+                queue[tail++] = y;
+              }
+            };
+
+            // 4변 가장자리에서 큐 시작
+            for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
+            for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+
+            // 8방향 Flood Fill BFS
+            while (head < tail) {
+              const cx = queue[head++];
+              const cy = queue[head++];
+              for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                  if (dx !== 0 || dy !== 0) {
+                    push(cx + dx, cy + dy);
+                  }
                 }
               }
             }
-          }
 
-          // 외곽과 연결된 검은 배경만 알파 = 0으로 변환
-          for (let y = 0; y < h; y++) {
-            for (let x = 0; x < w; x++) {
-              const idx = y * w + x;
-              if (visited[idx]) {
-                const p = idx * 4;
-                data[p] = 0;
-                data[p + 1] = 0;
-                data[p + 2] = 0;
-                data[p + 3] = 0;
+            // 외곽과 연결된 배경만 알파 = 0으로 변환
+            for (let y = 0; y < h; y++) {
+              for (let x = 0; x < w; x++) {
+                const idx = y * w + x;
+                if (visited[idx]) {
+                  const p = idx * 4;
+                  data[p] = 0;
+                  data[p + 1] = 0;
+                  data[p + 2] = 0;
+                  data[p + 3] = 0;
+                }
               }
             }
           }
