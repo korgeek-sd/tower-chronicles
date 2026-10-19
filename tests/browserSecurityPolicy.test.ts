@@ -32,3 +32,13 @@ test('standalone hashes stop at whitespace-bearing script end tags',()=>{
  const html='<meta content="'+browserPolicy(undefined)+'"><script type="module">'+script+'</script >';
  assert.ok(authorizeStandaloneScripts(html).includes("'sha256-"+createHash('sha256').update(script).digest('base64')+"'"));
 });
+
+test('standalone uses HTML parsing for unusual closing tags and ignores commented scripts',()=>{
+ const script='export {};';
+ for(const end of ['</script\t\n bar>','</script/>']) {
+  const html='<meta content="'+browserPolicy(undefined)+'"><!-- <script>bad()</script> --><script>'+script+end;
+  const result=authorizeStandaloneScripts(html);
+  assert.ok(result.includes("'sha256-"+createHash('sha256').update(script).digest('base64')+"'"));
+  assert.ok(!result.includes("'sha256-"+createHash('sha256').update('bad()').digest('base64')+"'"));
+ }
+});

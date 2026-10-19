@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {parse} from 'parse5';
 
 // Production only: the Vite development server needs its own HMR connection.
 export function browserPolicy(supabaseUrl, inlineScripts = []) {
@@ -30,7 +31,16 @@ export function securityMeta(supabaseUrl) {
 }
 
 export function authorizeStandaloneScripts(html) {
- const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map(match => match[1]).filter(Boolean);
+ const scripts = [];
+ function visit(node) {
+  if (node.tagName === 'script' && !node.attrs.some(attr => attr.name === 'src')) {
+   // Hash browser-parsed text, including HTML newline normalization.
+   const text = node.childNodes.map(child => child.value ?? '').join('');
+   if (text) scripts.push(text);
+  }
+  for (const child of node.childNodes ?? []) visit(child);
+ }
+ visit(parse(html));
  const hashes = scripts.map(script => "'sha256-" + createHash('sha256').update(script).digest('base64') + "'");
  return html.replace(/script-src (?:'|&#39;)self(?:'|&#39;)(?=;)/, "script-src 'self' " + hashes.join(' '));
 }
