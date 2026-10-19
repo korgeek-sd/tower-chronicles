@@ -126,8 +126,8 @@ const leaseArgs=(lease:GameplayLease)=>({
 
 export const loadOnlineMarketState=()=>rpc<OnlineMarketState>('get_online_market_state');
 
-export const placeOnlineMarketOrder=(lease:GameplayLease,input:{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number;assetItemId?:string})=>
- submitMarketOrder(lease,{itemId:input.assetItemId??input.itemId,side:input.side,limitPrice:input.limitPrice,quantity:input.quantity});
+export const placeOnlineMarketOrder=(lease:GameplayLease,input:{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number;assetItemId?:string;displayName?:string})=>
+ submitMarketOrder(lease,{itemId:input.assetItemId??input.itemId,side:input.side,limitPrice:input.limitPrice,quantity:input.quantity,displayName:input.displayName});
 
 export const cancelOnlineMarketOrder=(lease:GameplayLease,orderId:string)=>
  rpc<OnlineMarketState>('cancel_online_market_order',{...leaseArgs(lease),p_order_id:orderId});

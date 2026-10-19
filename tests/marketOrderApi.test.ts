@@ -1,14 +1,14 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {createMarketOrderApi} from '../src/online/marketOrderRequests';
 const config={url:'https://server.example',publishableKey:'public'},lease={leaseId:'lease',generation:1,clientInstanceId:'client',expiresAt:''};
 const session={accessToken:'access',refreshToken:'refresh',userId:'user',expiresAt:Date.now()+100000,email:null};
-const input={itemId:'ticket:ore:1',side:'BUY' as const,limitPrice:10,quantity:2};
+const input={itemId:'ticket:ore:1',side:'BUY' as const,limitPrice:10,quantity:2,displayName:'1층 도전권'};
 const state={wallet:{silver:980,gold:0,revision:2},orders:[],assets:[],storage:[],trades:[]};
 const store=():Storage=>{const m=new Map<string,string>();return {getItem:k=>m.get(k)??null,setItem:(k,v)=>{m.set(k,v);},removeItem:k=>{m.delete(k);},clear:()=>m.clear(),key:i=>[...m.keys()][i]??null,get length(){return m.size;}};};
 test('ambiguous order keeps exact ID across reload and a refreshed lease',async()=>{
  const storage=store(),bodies:any[]=[];let failed=true;
  const request=(async(url,opts)=>{assert.ok(String(url).endsWith('place_online_market_order_v2'));bodies.push(JSON.parse(opts!.body as string));if(failed)throw Error('NETWORK');return new Response(JSON.stringify(state));}) as typeof fetch;
  let api=createMarketOrderApi(config,async()=>session,storage,request,()=> 'device');
- await assert.rejects(api.submit(lease,input),/NETWORK/);assert.ok(await api.pending());
+ await assert.rejects(api.submit(lease,input),/NETWORK/);assert.equal((await api.pending())?.input.displayName,'1층 도전권');
  api=createMarketOrderApi(config,async()=>session,storage,request,()=> 'device');
  await assert.rejects(api.submit(lease,{...input,quantity:3}),/미확정/);
  failed=false;await api.retry({...lease,generation:2});assert.equal(bodies[0].p_request_id,bodies[1].p_request_id);assert.equal(bodies[1].p_generation,2);assert.equal(await api.pending(),null);

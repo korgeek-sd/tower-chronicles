@@ -3,10 +3,10 @@ import {getDeviceId} from './cloudSave';
 import {supabaseConfig,type SupabasePublicConfig} from './config';
 import type {GameplayLease} from './gameSession';
 import type {OnlineMarketState} from './market';
-export interface MarketOrderInput{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number}
+export interface MarketOrderInput{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number;displayName?:string}
 export interface PendingMarketOrder{id:string;input:MarketOrderInput}
 const key=(u:string)=>'tc-market-order-pending-v1:'+u;
-const valid=(p:PendingMarketOrder)=>p&&typeof p.id==='string'&&/^[0-9a-f-]{36}$/i.test(p.id)&&p.input&&typeof p.input.itemId==='string'&&['BUY','SELL'].includes(p.input.side)&&Number.isSafeInteger(p.input.limitPrice)&&p.input.limitPrice>0&&Number.isSafeInteger(p.input.quantity)&&p.input.quantity>0;
+const valid=(p:PendingMarketOrder)=>p&&typeof p.id==='string'&&/^[0-9a-f-]{36}$/i.test(p.id)&&p.input&&(p.input.displayName===undefined||typeof p.input.displayName==='string')&&typeof p.input.itemId==='string'&&['BUY','SELL'].includes(p.input.side)&&Number.isSafeInteger(p.input.limitPrice)&&p.input.limitPrice>0&&Number.isSafeInteger(p.input.quantity)&&p.input.quantity>0;
 export function createMarketOrderApi(config:SupabasePublicConfig,session:()=>Promise<OnlineSession|null>,storage:Storage,request:typeof fetch=fetch,deviceId=()=>getDeviceId()){
  const flights=new Map<string,Promise<OnlineMarketState>>();
  function pending(user:string):PendingMarketOrder|null{
