@@ -26,7 +26,7 @@ The screen shows an explicit recovery button with the original item, side, quant
 
 - 85 focused market, crafting and skill-enhancement regressions passed, including 7 new request/API/UI cases. The new server wrapper unit test uses a transactional core stub to inject a failure after debit and prove escrow/order/receipt rollback together.
 - A rolled-back production transaction with one disposable synthetic identity exercised the actual matching/cancellation core: BUY and SELL requests replay once, changed input rejects, and replaying either cancelled order does not submit another. It also verifies no second save revision on a direct replay. No test user, order, receipt or currency is retained.
-- The initial SELL-cancellation assertion assumed assets return directly to inventory; it was corrected to compare the legitimate post-cancellation state with the replayed state, respecting the existing return/storage behavior.
+- SELL-cancellation verification compares the legitimate post-cancellation state with replayed state, respecting the existing return/storage behavior.
 - New private-table/no-policy and authenticated security-definer advisor findings are expected for this guarded design; existing findings are not dismissed or disabled.
 - The CLI-generated migration filename was aligned with the production API's recorded version: `20261019130426`.
 

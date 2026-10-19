@@ -39,7 +39,7 @@ export function createMarketOrderApi(config:SupabasePublicConfig,session:()=>Pro
    const user=await owner();let p=pending(user);
    if(!p&&flights.has(user))throw Error('주문이 처리 중입니다. 잠시 후 다시 확인해 주세요.');
    if(p&&(p.input.itemId!==input.itemId||p.input.side!==input.side||p.input.limitPrice!==input.limitPrice||p.input.quantity!==input.quantity))throw Error('미확정 주문을 먼저 다시 확인해 주세요.');
-   if(!p){p={id:crypto.randomUUID(),input:{...input}};if(!valid(p))throw Error('주문 가격과 수량을 다시 확인해 주세요.');storage.setItem(key(user),JSON.stringify(p));}
+   if(!p){p={id:crypto.randomUUID(),input:{...input}};if(!valid(p))throw Error('주문 가격과 수량을 다시 확인해 주세요.');try{storage.setItem(key(user),JSON.stringify(p));}catch{throw Error('주문 정보를 보관하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.');}}
    return run(user,lease,p);
   },
   retry:async(lease:GameplayLease)=>{const user=await owner(),p=pending(user);if(!p)throw Error('미확정 주문이 없습니다.');return run(user,lease,p);},

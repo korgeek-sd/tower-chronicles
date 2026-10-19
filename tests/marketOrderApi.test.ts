@@ -33,5 +33,5 @@ test('account switch never applies a response or reuses another account intent',
 });
 test('storage failure prevents any order dispatch',async()=>{
  const storage=store();storage.setItem=()=>{throw Error('STORAGE');};let count=0;
- const api=createMarketOrderApi(config,async()=>session,storage,(async()=>{count++;return new Response('{}');}) as typeof fetch,()=> 'device');await assert.rejects(api.submit(lease,input),/STORAGE/);assert.equal(count,0);
+ const api=createMarketOrderApi(config,async()=>session,storage,(async()=>{count++;return new Response('{}');}) as typeof fetch,()=> 'device');await assert.rejects(api.submit(lease,input),/보관하지 못했습니다/);assert.equal(count,0);
 });
