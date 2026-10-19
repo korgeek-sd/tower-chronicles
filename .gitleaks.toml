@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+# This is a browser-visible Supabase publishable key, not a secret or service-role key.
+# Match only this project's exact public key; retain every default secret detector.
+[[allowlists]]
+description = "Tower Chronicles public Supabase client key"
+regexTarget = "secret"
+regexes = ['''^sb_publishable_bjJQ-qJg2eB6w88-QHS-vg_68OVgFK7$''']
