@@ -14,7 +14,7 @@ async function rpc(lease:GameplayLease,request?:string):Promise<Premium>{
  if((await getFreshSession())?.userId!==session.userId)throw Error('접속 계정이 변경되었습니다.');
  return JSON.parse(body);
 }
-const rows=[['사냥 경험치','기본','+10%'],['거래 수수료','10%','5%'],['매일 뽑기권','—','5장'],['은행 설립 자격','점검 중','점검 중'],['스킬셋','1개','3개']];
+const rows=[['사냥 경험치','기본','+10%'],['거래 수수료','10%','5%'],['매일 뽑기권','—','5장'],['은행 설립 자격','—','가능'],['스킬셋','1개','3개']];
 const date=(value:number)=>new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(value);
 export function PremiumDialog({game,lease,onClose,onRecord,onPrepare,onPending,onGuestBuy,onlineAccount=false}:{onlineAccount?:boolean;game:GameState;lease:GameplayLease|null;onClose:()=>void;onRecord:(record:CloudSaveRecord)=>void;onPrepare:()=>Promise<void>;onPending:(value:boolean)=>void;onGuestBuy?:(nextGame:GameState)=>void}){
  const [state,setState]=useState<Premium|null>(()=>{
@@ -65,7 +65,7 @@ export function PremiumDialog({game,lease,onClose,onRecord,onPrepare,onPending,o
  <header><div><small>TOWER CHRONICLES</small><h2 id="premium-title">프리미엄 계정</h2></div><button aria-label="프리미엄 닫기" disabled={busy} onClick={onClose}>×</button></header>
  <div className="tc-premium-price"><strong>1,000 <small>골드</small></strong><span>30일</span></div>
  <table><thead><tr><th>혜택</th><th>일반</th><th>프리미엄</th></tr></thead><tbody>{rows.map(row=><tr key={row[0]}>{row.map((cell,i)=>i===0?<th scope="row" key={i}>{cell}</th>:<td key={i}>{cell}</td>)}</tr>)}</tbody></table>
- <div className="tc-premium-info"><p>매일 00:00(KST) 뽑기권 자동 지급</p><p>은행 기능 점검 중 · 설립 및 거래 일시 중단</p><p>만료 시 스킬셋 2·3 보존·잠금, 1번 사용</p></div>
+ <div className="tc-premium-info"><p>매일 00:00(KST) 뽑기권 자동 지급</p><p>온라인 은행 설립 및 이자 수익 운영 가능</p><p>만료 시 스킬셋 2·3 보존·잠금, 1번 사용</p></div>
  <div className="tc-premium-period">{active?<><b>이용 중</b><span>{date(expires)}까지</span></>:<><b>30일 이용권</b><span>자동 갱신 없음</span></>}<small>{confirmed?'구매 확인 · ':''}{active?'연장 후':'활성화 후'} {date(next)}까지</small></div>
  <div className="tc-premium-wallet"><span>보유 <b>{gold.toLocaleString()} 골드</b></span><span>구매 후 <b>{Math.max(0,gold-1000).toLocaleString()} 골드</b></span></div>
  <footer><p role={error?'alert':'status'}>{error||success?'':!state?'계정 확인 중…':game.expedition?'원정을 마친 뒤 구매해 주세요.':gold<1000?'골드가 부족합니다.':confirmed?'1,000골드를 사용합니다. 아래 버튼을 눌러 확정하세요.':'남은 기간에 30일 추가 · 자동 갱신 없음'}</p>{error&&<p role="alert">{error}</p>}{success&&<p role="status">프리미엄이 적용되었습니다.</p>}<button className="tc-feel-press" disabled={busy||!state||gold<1000||!!game.expedition||(onlineAccount&&!lease)} onClick={()=>void buy()}>{busy?'처리 중…':confirmed?'1,000골드 사용 확정':`1,000골드로 30일 ${active?'연장':'활성화'}`}</button></footer>
