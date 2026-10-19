@@ -10,6 +10,8 @@ on:
       - 'src/game/data/equipment.ts'
       - 'tests/huntingBalanceTool.test.ts'
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   simulate:
     runs-on: ubuntu-latest

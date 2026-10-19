@@ -1,0 +1,26 @@
+name: Security checks
+on:
+  pull_request:
+  schedule:
+    - cron: '23 3 * * 1'
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  dependencies-and-secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - name: Audit locked dependencies, including build tools
+        run: npm audit --audit-level=moderate
+      - name: Scan complete git history for secrets
+        run: bash scripts/security/scan-secrets.sh
