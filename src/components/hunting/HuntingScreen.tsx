@@ -49,7 +49,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const entryStatus=huntingNow?'사냥 중…':!state?'불러오는 중':game.expedition?'원정 진행 중':state.vitality<1?'활력 부족':'입장 가능';
  const previewJob='assets/characters/preview/grave_hound_job_reference.jpg';
  const previewHound=HUNT_MONSTERS.plains[0];
- // Normal hunting should show the equipped job, not the starter cosmetic portrait.
+ // Normal hunting displays the selected cosmetic first; starter appearance uses job art.
  // Temporary in-battle style match only for the grave-digging hound: keep all other job appearances unchanged.
  const art=(previewMode||result?.monster?.id==='grave_digger_hound')?previewJob:playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle;
  // Older saved results may lack image or use stale image paths; prefer current catalog art by ID.

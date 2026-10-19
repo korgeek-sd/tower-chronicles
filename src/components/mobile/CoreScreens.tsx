@@ -17,7 +17,7 @@ import type {CloudSaveRecord} from '../../online/cloudSave';
 import {EQUIPMENT_GRADE_NAMES,equipmentDefinition} from '../../game/data/equipment';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
 import {jobById} from '../../game/jobs/catalog';
-import {assetUrl} from '../../game/data/graphics';
+import {assetUrl,playerGraphicForJob} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
@@ -43,7 +43,8 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  },[lease?.leaseId,lease?.generation,userId]);
  const equipped=game.expedition?.equipment??game.equipped;
  const st=stats(game,equipped),weaponId=weaponOf(game,equipped),job=jobById(game.currentJobId);
- const portrait=job?.visualAssetKey?assetUrl(job.visualAssetKey):null;
+ const equippedArt=playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle;
+ const portrait=(game.cosmetics.selectedAppearanceId!=='default'||job?.visualAssetKey)&&equippedArt?assetUrl(equippedArt):null;
  const mainFacilities=[
   {id:'craft',glyph:'craft',name:'제작',action:()=>onMove('craft')},
   {id:'skills',glyph:'skills',name:'스킬트리',action:()=>onMove('skills')},
@@ -67,7 +68,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen tc-iron-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
   <div className="tc-camp-v2" aria-label="노바르 거점 로비">
    <section className="tc-camp-v2-dossier" aria-label="캐릭터 정보">
-    <div className="tc-camp-v2-portrait">{portrait?<img src={portrait} alt="현재 직업 캐릭터"/>:<Glyph name={weaponId}/>}</div>
+    <div className="tc-camp-v2-portrait">{portrait?<img src={portrait} alt="현재 캐릭터 외형"/>:<Glyph name={weaponId}/>}</div>
     <div className="tc-camp-v2-bio">
      <strong>{nickname??'모험가'}</strong>
      <span>{job?.displayName??'직업 미선택'} {job?.rarity&&<small>{job.rarity}</small>} · Lv.{huntStatus?huntingLevel(huntStatus.experience):'—'}</span>

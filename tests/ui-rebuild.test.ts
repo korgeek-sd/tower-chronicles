@@ -42,8 +42,8 @@ test('UI REBUILD 03: active image tags remain limited to character or monster re
  assert.match(battle,/playerGraphicForJob/);
  assert.match(battle,/graphicFor/);
  assert.match(bestiary,/graphicFor/);
- assert.match(home,/job\?\.visualAssetKey/);
- assert.match(home,/<img src=\{portrait\} alt="현재 직업 캐릭터"\/>/);
+ assert.match(home,/playerGraphicForJob\(game\.currentJobId,game\.cosmetics\.selectedAppearanceId\)/);
+ assert.match(home,/<img src=\{portrait\} alt="현재 캐릭터 외형"\/>/);
  assert.match(jobs,/job\?\.visualAssetKey|job\.visualAssetKey/);
  for(const path of ['src/main.tsx','src/components/events/EventScreen.tsx','src/components/inventory/InventoryDetailSheet.tsx']){
   assert.equal(read(path).includes('<img'),false,path+' should not render image assets');
