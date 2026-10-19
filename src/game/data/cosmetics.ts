@@ -128,7 +128,7 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"baal",name:"바알",rarity:"SSR",imagePath:"assets/characters/appearances/baal-67986ab57e27.webp",
+ {id:"baal",name:"바알",rarity:"SSR",imagePath:"assets/characters/appearances/baal-ce1a88984f47.webp",
   description:"굽은 뿔과 붉은 꼬리를 지니고 거대한 창을 든 악마.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
