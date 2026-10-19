@@ -30,7 +30,7 @@ export function securityMeta(supabaseUrl) {
 }
 
 export function authorizeStandaloneScripts(html) {
- const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]).filter(Boolean);
+ const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map(match => match[1]).filter(Boolean);
  const hashes = scripts.map(script => "'sha256-" + createHash('sha256').update(script).digest('base64') + "'");
  return html.replace(/script-src (?:'|&#39;)self(?:'|&#39;)(?=;)/, "script-src 'self' " + hashes.join(' '));
 }

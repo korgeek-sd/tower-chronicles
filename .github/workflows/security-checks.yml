@@ -22,5 +22,5 @@ jobs:
           cache: npm
       - name: Audit locked dependencies, including build tools
         run: npm audit --audit-level=moderate
-      - name: Scan git history and working tree for secrets
+      - name: Scan complete git history for secrets
         run: bash scripts/security/scan-secrets.sh

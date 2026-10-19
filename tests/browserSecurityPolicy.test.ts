@@ -26,3 +26,9 @@ test('standalone policy handles HTML-escaped CSP emitted by Vite',()=>{
  const html='<meta content="script-src &#39;self&#39;; object-src &#39;none&#39;"><script type="module">export {};</script>';
  assert.ok(authorizeStandaloneScripts(html).includes("script-src 'self' 'sha256-"));
 });
+
+test('standalone hashes stop at whitespace-bearing script end tags',()=>{
+ const script='export {};';
+ const html='<meta content="'+browserPolicy(undefined)+'"><script type="module">'+script+'</script >';
+ assert.ok(authorizeStandaloneScripts(html).includes("'sha256-"+createHash('sha256').update(script).digest('base64')+"'"));
+});
