@@ -83,7 +83,7 @@ const nav:[AppPage,string,string][]=[
 
 
 function App(){
- const [storageError,setStorageError]=useState('');
+ const [storageError,setStorageError]=useState(authStartupError);
  const [now,setNow]=useState(()=>Date.now());
  const [strongholdPvp,setStrongholdPvp]=useState<ResourceStrongholdServerState|null>(null);
  const [strongholdPvpBusy,setStrongholdPvpBusy]=useState(false);
@@ -183,7 +183,6 @@ function App(){
   setStrongholdPvpBusy(true);try{await abandonResourceStronghold(lease,id);setStrongholdPvp(null);await settleOnlineRun('returned');}
   catch(error){setStrongholdPvpError(error instanceof Error?error.message:'자원거점 포기에 실패했습니다.');}finally{setStrongholdPvpBusy(false);}
  }
- useEffect(()=>{const before=getStoredSession();const session=consumeOAuthRedirect();setOnlineSession(session);if(session&&!before)setGame(s=>({...s,notice:'Google 로그인 완료 · 진행 상황이 자동으로 동기화됩니다.'}));},[]);
 
  useEffect(()=>{if(game.expedition?.pendingRevival&&page!=='battle')setPage('battle');},[page,game.expedition?.pendingRevival]);
  useEffect(()=>{if(wasExpedition.current&&!game.expedition)setPage('home');wasExpedition.current=!!game.expedition;},[game.expedition,game.lastExpedition]);
@@ -417,7 +416,7 @@ function App(){
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');}
  }
  async function continueOnlineExplorationNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{const result=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'다음 탐험을 서버에서 시작하지 못했습니다.');}}
- async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);await signOutOnline();setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');}
+ async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');}}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
  if(onlineSession&&!profileReady)return <NicknameGate key={onlineSession.userId} status={profileState.userId===onlineSession.userId&&profileState.status!=='ready'?profileState.status:'loading'} error={profileState.error} onRegister={registerPlayerNickname} onReady={profile=>{if(profile.userId===getStoredSession()?.userId)setProfileState({userId:profile.userId,status:'ready',profile,error:''});}} onRetry={()=>setProfileRetry(n=>n+1)} onLogout={()=>void logoutOnline()}/>;
@@ -475,5 +474,11 @@ function App(){
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }
-createRoot(document.getElementById('root')!).render(<GameFeelProvider><App/><Studio0322Splash/></GameFeelProvider>);
+let authStartupError='';
+async function startApp(){
+ try{await consumeOAuthRedirect();}
+ catch{authStartupError='로그인 응답을 확인하지 못했습니다. Google 로그인을 다시 시작해 주세요.';}
+ createRoot(document.getElementById('root')!).render(<GameFeelProvider><App/><Studio0322Splash/></GameFeelProvider>);
+}
+void startApp();
 
