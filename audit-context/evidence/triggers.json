@@ -1,0 +1,170 @@
+[
+  {
+    "schema": "private",
+    "table_name": "active_game_sessions",
+    "name": "active_game_session_signal",
+    "definition": "CREATE TRIGGER active_game_session_signal AFTER INSERT OR UPDATE ON private.active_game_sessions FOR EACH ROW EXECUTE FUNCTION private.broadcast_game_session_signal()"
+  },
+  {
+    "schema": "private",
+    "table_name": "equipment_market_trades",
+    "name": "operations_equipment_trade_fee",
+    "definition": "CREATE TRIGGER operations_equipment_trade_fee AFTER INSERT ON private.equipment_market_trades FOR EACH ROW EXECUTE FUNCTION private.operations_capture_trade_fee()"
+  },
+  {
+    "schema": "private",
+    "table_name": "gold_exchange_trades",
+    "name": "operations_gold_trade_fee",
+    "definition": "CREATE TRIGGER operations_gold_trade_fee AFTER INSERT ON private.gold_exchange_trades FOR EACH ROW EXECUTE FUNCTION private.operations_capture_trade_fee()"
+  },
+  {
+    "schema": "private",
+    "table_name": "guild_boss_encounters",
+    "name": "guild_boss_generate_loot_on_kill",
+    "definition": "CREATE TRIGGER guild_boss_generate_loot_on_kill AFTER UPDATE OF remaining_hp ON private.guild_boss_encounters FOR EACH ROW WHEN (((old.remaining_hp > 0) AND (new.remaining_hp = 0))) EXECUTE FUNCTION private.guild_boss_generate_loot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "hunting_states",
+    "name": "village_war_hunting_guard",
+    "definition": "CREATE TRIGGER village_war_hunting_guard BEFORE INSERT OR DELETE OR UPDATE ON private.hunting_states FOR EACH ROW EXECUTE FUNCTION private.village_war_guard_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "hunting_states",
+    "name": "village_war_hunting_snapshot",
+    "definition": "CREATE TRIGGER village_war_hunting_snapshot AFTER INSERT OR DELETE OR UPDATE ON private.hunting_states FOR EACH ROW EXECUTE FUNCTION private.village_war_refresh_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "learned_catalog_skills",
+    "name": "village_war_skill_guard",
+    "definition": "CREATE TRIGGER village_war_skill_guard BEFORE INSERT OR DELETE OR UPDATE ON private.learned_catalog_skills FOR EACH ROW EXECUTE FUNCTION private.village_war_guard_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "learned_catalog_skills",
+    "name": "village_war_skill_snapshot",
+    "definition": "CREATE TRIGGER village_war_skill_snapshot AFTER INSERT OR DELETE OR UPDATE ON private.learned_catalog_skills FOR EACH ROW EXECUTE FUNCTION private.village_war_refresh_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "market_assets",
+    "name": "challenge_asset_balance",
+    "definition": "CREATE TRIGGER challenge_asset_balance AFTER INSERT OR DELETE OR UPDATE ON private.market_assets FOR EACH ROW EXECUTE FUNCTION private.challenge_asset_to_product()"
+  },
+  {
+    "schema": "private",
+    "table_name": "market_assets",
+    "name": "village_war_gear_guard",
+    "definition": "CREATE TRIGGER village_war_gear_guard BEFORE INSERT OR DELETE OR UPDATE ON private.market_assets FOR EACH ROW EXECUTE FUNCTION private.village_war_guard_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "market_assets",
+    "name": "village_war_gear_snapshot",
+    "definition": "CREATE TRIGGER village_war_gear_snapshot AFTER INSERT OR DELETE OR UPDATE ON private.market_assets FOR EACH ROW EXECUTE FUNCTION private.village_war_refresh_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "online_combat_states",
+    "name": "enforce_v2_combat_crit_trigger",
+    "definition": "CREATE TRIGGER enforce_v2_combat_crit_trigger BEFORE INSERT OR UPDATE OF run_id, encounter_index ON private.online_combat_states FOR EACH ROW EXECUTE FUNCTION private.enforce_v2_combat_crit()"
+  },
+  {
+    "schema": "private",
+    "table_name": "online_expeditions",
+    "name": "bind_online_expedition_association_trigger",
+    "definition": "CREATE TRIGGER bind_online_expedition_association_trigger BEFORE INSERT OR UPDATE OF run_id, status ON private.online_expeditions FOR EACH ROW EXECUTE FUNCTION private.bind_online_expedition_association()"
+  },
+  {
+    "schema": "private",
+    "table_name": "online_expeditions",
+    "name": "combat_v2_reset_potion_allowance",
+    "definition": "CREATE TRIGGER combat_v2_reset_potion_allowance BEFORE INSERT OR UPDATE OF run_id ON private.online_expeditions FOR EACH ROW EXECUTE FUNCTION private.combat_v2_reset_potion_allowance()"
+  },
+  {
+    "schema": "private",
+    "table_name": "online_expeditions",
+    "name": "credit_returned_enhancement_stones_trigger",
+    "definition": "CREATE TRIGGER credit_returned_enhancement_stones_trigger AFTER UPDATE OF status ON private.online_expeditions FOR EACH ROW WHEN (((old.status = 'ACTIVE'::text) AND (new.status = 'RETURNED'::text))) EXECUTE FUNCTION private.credit_returned_enhancement_stones()"
+  },
+  {
+    "schema": "private",
+    "table_name": "online_expeditions",
+    "name": "settle_online_association_side_effects_trigger",
+    "definition": "CREATE TRIGGER settle_online_association_side_effects_trigger AFTER UPDATE OF status ON private.online_expeditions FOR EACH ROW EXECUTE FUNCTION private.settle_online_association_side_effects()"
+  },
+  {
+    "schema": "private",
+    "table_name": "player_association_seals",
+    "name": "village_war_seal_guard",
+    "definition": "CREATE TRIGGER village_war_seal_guard BEFORE INSERT OR DELETE OR UPDATE ON private.player_association_seals FOR EACH ROW EXECUTE FUNCTION private.village_war_guard_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "player_association_seals",
+    "name": "village_war_seal_snapshot",
+    "definition": "CREATE TRIGGER village_war_seal_snapshot AFTER INSERT OR DELETE OR UPDATE ON private.player_association_seals FOR EACH ROW EXECUTE FUNCTION private.village_war_refresh_snapshot()"
+  },
+  {
+    "schema": "private",
+    "table_name": "player_wallets",
+    "name": "operations_wallet_insert",
+    "definition": "CREATE TRIGGER operations_wallet_insert AFTER INSERT ON private.player_wallets FOR EACH ROW EXECUTE FUNCTION private.operations_capture_wallet()"
+  },
+  {
+    "schema": "private",
+    "table_name": "player_wallets",
+    "name": "operations_wallet_update",
+    "definition": "CREATE TRIGGER operations_wallet_update AFTER UPDATE OF silver, gold ON private.player_wallets FOR EACH ROW WHEN (((old.silver IS DISTINCT FROM new.silver) OR (old.gold IS DISTINCT FROM new.gold))) EXECUTE FUNCTION private.operations_capture_wallet()"
+  },
+  {
+    "schema": "private",
+    "table_name": "resource_stronghold_contests",
+    "name": "resource_stronghold_turn_deadline",
+    "definition": "CREATE TRIGGER resource_stronghold_turn_deadline BEFORE INSERT OR UPDATE OF status, action_nonce ON private.resource_stronghold_contests FOR EACH ROW EXECUTE FUNCTION private.resource_stronghold_turn_deadline()"
+  },
+  {
+    "schema": "private",
+    "table_name": "village_life_players",
+    "name": "challenge_product_balance",
+    "definition": "CREATE TRIGGER challenge_product_balance AFTER UPDATE OF products ON private.village_life_players FOR EACH ROW EXECUTE FUNCTION private.challenge_product_to_asset()"
+  },
+  {
+    "schema": "private",
+    "table_name": "village_war_fronts",
+    "name": "village_war_ownership",
+    "definition": "CREATE TRIGGER village_war_ownership AFTER UPDATE ON private.village_war_fronts FOR EACH ROW EXECUTE FUNCTION private.village_war_track_ownership()"
+  },
+  {
+    "schema": "public",
+    "table_name": "game_chat_messages",
+    "name": "prepare_game_chat_message",
+    "definition": "CREATE TRIGGER prepare_game_chat_message BEFORE INSERT ON public.game_chat_messages FOR EACH ROW EXECUTE FUNCTION private.prepare_chat_message()"
+  },
+  {
+    "schema": "public",
+    "table_name": "game_player_profiles",
+    "name": "player_friend_invite_code",
+    "definition": "CREATE TRIGGER player_friend_invite_code AFTER INSERT ON public.game_player_profiles FOR EACH ROW EXECUTE FUNCTION private.create_player_friend_invite_code()"
+  },
+  {
+    "schema": "public",
+    "table_name": "game_saves",
+    "name": "sync_market_economy_after_game_save",
+    "definition": "CREATE TRIGGER sync_market_economy_after_game_save AFTER INSERT OR UPDATE OF revision, payload, payload_hash ON public.game_saves FOR EACH ROW EXECUTE FUNCTION private.sync_market_economy_after_save()"
+  },
+  {
+    "schema": "public",
+    "table_name": "game_saves",
+    "name": "village_war_save_guard",
+    "definition": "CREATE TRIGGER village_war_save_guard BEFORE UPDATE ON public.game_saves FOR EACH ROW EXECUTE FUNCTION private.village_war_guard_snapshot()"
+  },
+  {
+    "schema": "public",
+    "table_name": "game_saves",
+    "name": "village_war_save_snapshot",
+    "definition": "CREATE TRIGGER village_war_save_snapshot AFTER UPDATE ON public.game_saves FOR EACH ROW EXECUTE FUNCTION private.village_war_refresh_snapshot()"
+  }
+]
