@@ -1,3 +1,4 @@
+import {submitMarketOrder} from './marketOrderRequests';
 import type {EquipmentGrade,EquipmentItem,EquipmentKind,GameState,Item,MarketOrder,MarketStorageEntry,MarketTrade,Tower} from '../game/types';
 import {towerIds} from '../game/data/config';
 import type {MarketLifeMaterial} from '../game/life/marketMaterials';
@@ -126,13 +127,7 @@ const leaseArgs=(lease:GameplayLease)=>({
 export const loadOnlineMarketState=()=>rpc<OnlineMarketState>('get_online_market_state');
 
 export const placeOnlineMarketOrder=(lease:GameplayLease,input:{itemId:string;side:'BUY'|'SELL';limitPrice:number;quantity:number;assetItemId?:string})=>
- rpc<OnlineMarketState>('place_online_market_order',{
-  ...leaseArgs(lease),
-  p_item_id:input.assetItemId??input.itemId,
-  p_side:input.side,
-  p_limit_price:input.limitPrice,
-  p_quantity:input.quantity,
- });
+ submitMarketOrder(lease,{itemId:input.assetItemId??input.itemId,side:input.side,limitPrice:input.limitPrice,quantity:input.quantity});
 
 export const cancelOnlineMarketOrder=(lease:GameplayLease,orderId:string)=>
  rpc<OnlineMarketState>('cancel_online_market_order',{...leaseArgs(lease),p_order_id:orderId});

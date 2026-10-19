@@ -1,3 +1,4 @@
+import {pendingMarketOrder,retryOnlineMarketOrder,type PendingMarketOrder} from '../../online/marketOrderRequests';
 import './iron-market.css';
 import {EmptySearchResults} from '../filters/LucianFilters';
 import {marketGradeMatches} from './MarketGradeFilters';
@@ -75,6 +76,8 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const [qty,setQty]=useState('1');
  const [page,setPage]=useState(0);
  const [busy,setBusy]=useState(false);
+ const [pendingOrder,setPendingOrder]=useState<PendingMarketOrder|null>(null);
+ useEffect(()=>{let disposed=false;void pendingMarketOrder().then(p=>{if(!disposed)setPendingOrder(p);}).catch(e=>{if(!disposed)setError(e instanceof Error?e.message:'미확정 주문을 확인하지 못했습니다.');});return()=>{disposed=true;};},[lease.leaseId,lease.generation]);
  const [error,setError]=useState('');
  const [live,setLive]=useState<'connecting'|'subscribed'|'error'>('connecting');
  const [demoMode,setDemoMode]=useState(true);
@@ -155,7 +158,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
  const bids=selectedDemo?.bids??actualBids;
  const maxDepth=Math.max(1,...asks.map(x=>x.quantity),...bids.map(x=>x.quantity));
  const equipmentSell=!!item?.modernEquipment&&side==='SELL';
- const valid=!!snapshot&&!!item&&!!tradeSide&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
+ const valid=!!snapshot&&!!item&&!!tradeSide&&!pendingOrder&&!demoMode&&Number.isSafeInteger(p)&&p>0&&Number.isSafeInteger(q)&&q>0&&!busy&&!game.expedition&&(side==='BUY'?snapshot.wallet.silver>=p*q:item.available>=q);
  const open=getMyOpenOrders(view);
  const storage=snapshot?.storage??[];
  const trades=snapshot?.trades??[];
@@ -200,10 +203,13 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
   setBusy(true);setError('');
   try{applySnapshot(await fn());if(success)feel.play(success as 'market.order-placed'|'market.order-cancelled');}
   catch(e){feel.play('ui.error');setError(e instanceof Error?e.message:'온라인 거래소 요청을 처리하지 못했습니다.');}
-  finally{setBusy(false);}
+  finally{try{setPendingOrder(await pendingMarketOrder());}catch{}setBusy(false);}
  };
 
+ const recovery=pendingOrder?<div className="tc-floor-risk" role="status" style={{maxHeight:'100%',overflow:'auto'}}><strong>미확정 주문이 있습니다.</strong><p>{marketItemName(view,pendingOrder.input.itemId)} · {pendingOrder.input.side==='BUY'?'매수':'매도'} {pendingOrder.input.quantity.toLocaleString()}개 · 개당 {money(pendingOrder.input.limitPrice)}</p><p>새 주문을 넣기 전에 이전 결과를 확인해 주세요.</p><button className="tc-action secondary" style={{minHeight:44}} disabled={busy||demoMode} onClick={()=>void act(()=>retryOnlineMarketOrder(lease))}>미확정 주문 다시 확인</button>{demoMode&&<small>실거래 모드로 전환하면 이전 주문을 확인할 수 있습니다.</small>}</div>:null;
  if(!snapshot)return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / ONLINE" title="은저울 거래소" meta={<span>서버 연결</span>}><div className="tc-market-v4-loading"><div className="tc-floor-risk">{error||'서버 거래소 상태를 불러오고 있습니다.'}</div></div></Screen>;
+
+ if(pendingOrder)return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / RECOVERY" title="주문 결과 확인"><div style={{height:'100%',overflow:'auto'}}>{demoMode&&<button className="tc-action secondary" style={{minHeight:44}} onClick={()=>setDemoMode(false)}>실거래 모드로 전환</button>}{recovery}{error&&<p role="alert">{error}</p>}</div></Screen>;
 
  if(item&&tradeSide){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
