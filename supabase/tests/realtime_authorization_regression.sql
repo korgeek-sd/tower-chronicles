@@ -19,6 +19,8 @@ select u,1,23,'realtime-security-test',private.server_bootstrap_payload('{}'::js
 create temporary table rt_broadcast_fixture as
 select gen_random_uuid() id,topic,extension from (
 select 'game-session:'||u::text topic,'broadcast'::text extension from rt_fixture where label in ('a','b')
+union all select 'association','broadcast'
+union all select 'occupation','broadcast'
 union all select 'market','broadcast'
 union all select 'resource_stronghold','broadcast'
 union all select 'unknown-security-qa','broadcast'
@@ -53,7 +55,7 @@ begin
  for c in select distinct topic from rt_broadcast_fixture loop
   perform set_config('realtime.topic',c.topic,true);
   select count(*) into n from realtime.messages where id in(select id from rt_broadcast_fixture) and topic=c.topic;
-  if c.topic in ('game-session:'||me::text,'market','resource_stronghold') then
+  if c.topic in ('game-session:'||me::text,'market','resource_stronghold','association','occupation') then
    if n<>1 then raise exception 'TEST_ALLOWED_BROADCAST_TOPIC % %',c.topic,n;end if;
   elsif n<>0 then raise exception 'TEST_FORBIDDEN_BROADCAST_TOPIC %',c.topic;end if;
  end loop;
