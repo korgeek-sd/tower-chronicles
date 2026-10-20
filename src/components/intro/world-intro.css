@@ -1,0 +1,21 @@
+.tc-world-intro{position:fixed;inset:0;z-index:2147483646;background:#12110f;display:flex;justify-content:center;overflow:auto;color:#282117;font-family:Georgia,'Noto Serif KR',serif}
+.tc-world-intro__paper{box-sizing:border-box;position:relative;width:min(100%,520px);min-height:100%;min-height:100dvh;display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 22px max(18px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% 36%,#f1e4c6 0%,#e3d0a9 65%,#c5aa7b 100%);border:7px double #594b32;box-shadow:inset 0 0 36px #5d3f2440}
+.tc-world-intro header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;font-size:15px;letter-spacing:.1em}
+.tc-world-intro button{font:inherit;cursor:pointer;min-height:44px;min-width:44px;color:inherit;border:0;border-radius:0;background:transparent}
+.tc-world-intro button:focus-visible{outline:3px solid #785321;outline-offset:3px}
+.tc-world-intro header button{font-size:13px;letter-spacing:0;padding:0 4px}
+.tc-world-intro__chapter{text-align:center;letter-spacing:.2em;font-size:14px;padding:8px 0;color:#675234}
+.tc-world-intro__art{flex:1 0 220px;min-height:220px;max-height:52dvh;margin:0 -14px;background-image:url('/assets/intro/world-intro.png');background-size:400% 100%;background-repeat:no-repeat;mask-image:linear-gradient(transparent,#000 7%,#000 90%,transparent);animation:tc-world-intro-reveal .28s ease-out}
+.tc-world-intro__copy{text-align:center;flex-shrink:0;animation:tc-world-intro-reveal .28s ease-out}
+.tc-world-intro h1{font:700 clamp(24px,6vw,30px)/1.4 Georgia,'Noto Serif KR',serif;margin:10px 0 5px;color:#241d14;letter-spacing:.035em}
+.tc-world-intro__rule{display:flex;align-items:center;gap:12px;margin:8px 18px 18px;color:#8b6a35;font-size:13px}
+.tc-world-intro__rule:before,.tc-world-intro__rule:after{content:'';height:1px;flex:1;background:#9d8257}
+.tc-world-intro p{white-space:pre-line;font-size:clamp(14px,3.8vw,17px);line-height:1.95;margin:0 0 16px;color:#352b1e;word-break:keep-all}
+.tc-world-intro footer{position:relative;text-align:center;padding-bottom:22px;flex-shrink:0}
+.tc-world-intro__dots{display:flex;justify-content:center;gap:12px;margin:4px 0 18px}
+.tc-world-intro__dots span{width:7px;height:7px;border-radius:50%;background:#b29b74}.tc-world-intro__dots .active{background:#30271c}
+.tc-world-intro .tc-world-intro__next{display:block;width:100%;background:#24211b;color:#ead9b7;border:4px double #a48752;min-height:54px;font-size:18px;letter-spacing:.08em}
+.tc-world-intro .tc-world-intro__back{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:12px;color:#675234}
+@keyframes tc-world-intro-reveal{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-height:650px){.tc-world-intro__art{flex-basis:150px;min-height:150px}.tc-world-intro__chapter{padding:0}.tc-world-intro h1{font-size:23px;margin-top:0}.tc-world-intro p{font-size:14px;line-height:1.7;margin-bottom:8px}.tc-world-intro__rule{margin:5px 18px 8px}.tc-world-intro__dots{margin-bottom:10px}}
+@media(prefers-reduced-motion:reduce){.tc-world-intro__art,.tc-world-intro__copy{animation:none}}

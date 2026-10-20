@@ -11,7 +11,7 @@ function shouldPlayIntro():boolean {
 }
 
 /** The intro overlays the mounted app, so game/session loading can proceed underneath. */
-export function Studio0322Splash(){
+export function Studio0322Splash({onComplete}:{onComplete?:()=>void}={}){
   const [visible,setVisible]=useState(shouldPlayIntro);
   const finished=useRef(false);
   const finish=useCallback(()=>{
@@ -26,6 +26,8 @@ export function Studio0322Splash(){
     const timer=window.setTimeout(finish,MAX_WAIT_MS);
     return()=>window.clearTimeout(timer);
   },[finish,visible]);
+
+  useEffect(()=>{if(!visible)onComplete?.();},[visible,onComplete]);
 
   if(!visible)return null;
   return (
