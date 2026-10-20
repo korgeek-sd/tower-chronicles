@@ -20,7 +20,7 @@ test('four pages lead from original sin to the player without declaring religiou
  assert.match(WORLD_INTRO_PAGES[2].body,/당신 역시/);
  assert.match(WORLD_INTRO_PAGES[3].body,/기록을 남길/);
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
- assert.match(main,/<GameEntry><App\/><\/GameEntry>/);
+ assert.match(main,/<GameEntry initialError=\{authStartupError\}><App\/><\/GameEntry>/);
  const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
  assert.match(ui,/markWorldIntroSeen/);
  assert.match(ui,/건너뛰기/);

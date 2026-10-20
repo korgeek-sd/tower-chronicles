@@ -341,7 +341,7 @@ function App(){
   cloudBusy.current=true;setCloudSyncStatus('syncing');
   try{
    const result=await reconcileCloudState(stateRef.current,lease);
-   if(result.action==='signed-out'){setOnlineSession(null);setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');return;}
+   if(result.action==='signed-out'){window.dispatchEvent(new Event('tower:session-changed'));setOnlineSession(null);setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');return;}
    if(result.action==='pulled'){
     const nextState=mergeServerRecordState(result.state);
     createRepository(gameStorage).save(nextState);
@@ -416,7 +416,7 @@ function App(){
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');}
  }
  async function continueOnlineExplorationNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{const result=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'다음 탐험을 서버에서 시작하지 못했습니다.');}}
- async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');}}
+ async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');window.dispatchEvent(new Event('tower:session-changed'));}}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
  if(onlineSession&&!profileReady)return <NicknameGate key={onlineSession.userId} status={profileState.userId===onlineSession.userId&&profileState.status!=='ready'?profileState.status:'loading'} error={profileState.error} onRegister={registerPlayerNickname} onReady={profile=>{if(profile.userId===getStoredSession()?.userId)setProfileState({userId:profile.userId,status:'ready',profile,error:''});}} onRetry={()=>setProfileRetry(n=>n+1)} onLogout={()=>void logoutOnline()}/>;
@@ -478,7 +478,7 @@ let authStartupError='';
 async function startApp(){
  try{await consumeOAuthRedirect();}
  catch{authStartupError='로그인 응답을 확인하지 못했습니다. Google 로그인을 다시 시작해 주세요.';}
- createRoot(document.getElementById('root')!).render(<GameFeelProvider><GameEntry><App/></GameEntry></GameFeelProvider>);
+ createRoot(document.getElementById('root')!).render(<GameFeelProvider><GameEntry initialError={authStartupError}><App/></GameEntry></GameFeelProvider>);
 }
 void startApp();
 

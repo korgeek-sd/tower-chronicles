@@ -2,14 +2,23 @@ import React,{useEffect,useRef,useState,type ReactNode} from 'react';
 import {Studio0322Splash} from '../splash/Studio0322Splash';
 import {hasSeenWorldIntro,markWorldIntroSeen,WORLD_INTRO_PAGES} from './worldIntroState';
 import './world-intro.css';
+import {getStoredSession} from '../../online/auth';
+import {StartScreen} from './StartScreen';
 
-export function GameEntry({children}:{children:ReactNode}){
+export function GameEntry({children,initialError=''}:{children:ReactNode;initialError?:string}){
+ const qa=import.meta.env.DEV&&new URLSearchParams(location.search).has('combatFixture');
+ const [signedIn,setSignedIn]=useState(()=>qa||!!getStoredSession());
+ useEffect(()=>{
+  const refresh=()=>setSignedIn(qa||!!getStoredSession());
+  window.addEventListener('storage',refresh);window.addEventListener('tower:session-changed',refresh);
+  return()=>{window.removeEventListener('storage',refresh);window.removeEventListener('tower:session-changed',refresh);};
+ },[qa]);
  const [splashDone,setSplashDone]=useState(false);
  const [open,setOpen]=useState(()=>{try{return !hasSeenWorldIntro(localStorage);}catch{return true;}});
  const [page,setPage]=useState(0);
  const nextButton=useRef<HTMLButtonElement>(null);
  const previousFocus=useRef<HTMLElement|null>(null);
- const visible=splashDone&&open;
+ const visible=splashDone&&signedIn&&open;
  useEffect(()=>{
   const replay=()=>{setPage(0);setOpen(true);};
   window.addEventListener('tower:replay-world-intro',replay);
@@ -26,7 +35,8 @@ export function GameEntry({children}:{children:ReactNode}){
  function finish(){try{markWorldIntroSeen(localStorage);}catch{/* Storage can be unavailable in private contexts. */}setOpen(false);}
  const current=WORLD_INTRO_PAGES[page];
  return <>
-  <div inert={!splashDone||open} aria-hidden={!splashDone||open} style={{display:'contents'}}>{children}</div>
+  {signedIn&&<div inert={!splashDone||open} aria-hidden={!splashDone||open} style={{display:'contents'}}>{children}</div>}
+  {splashDone&&!signedIn&&<StartScreen initialError={initialError}/>}
   {!splashDone&&<Studio0322Splash onComplete={()=>setSplashDone(true)}/>}
   {visible&&<div className="tc-world-intro" role="dialog" aria-modal="true" aria-labelledby="world-intro-title" onKeyDown={event=>{
    if(event.key==='Escape'){event.preventDefault();finish();}
