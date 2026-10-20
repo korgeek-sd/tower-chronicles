@@ -35,3 +35,12 @@ test('start screen waits for explicit entry and offers only configured server ch
  assert.match(entry,/canEnterGame\(signedIn,entered\)/);
  assert.doesNotMatch(entry,/addEventListener\('(?:focus|visibilitychange)'/);
 });
+test('server selector and enter button stay compact without shrinking Google sign-in or touch targets',()=>{
+ const css=read('src/components/intro/start-screen.css');
+ const server=css.match(/\.tc-start-screen__server\{([^}]+)\}/)![1];
+ const enter=css.match(/\.tc-start-screen \.tc-start-screen__enter\{([^}]+)\}/)![1];
+ for(const rule of [server,enter])assert.match(rule,/width:70%/);
+ assert.match(enter,/min-height:44px/);
+ assert.match(css,/\.tc-start-screen__server select\{[^}]*min-height:44px/);
+ assert.match(css,/\.tc-start-screen \.tc-start-screen__google\{[^}]*width:100%;min-height:56px/);
+});
