@@ -168,7 +168,7 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"faceless_one",name:"얼굴없는 자",rarity:"C",imagePath:"assets/characters/appearances/faceless_one-a7a681cd7268.webp",
+ {id:"faceless_one",name:"얼굴없는 자",rarity:"C",imagePath:"assets/characters/appearances/faceless_one-09689d34a94e.webp",
   description:"얼굴없는 자 외형",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
