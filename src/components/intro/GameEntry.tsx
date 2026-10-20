@@ -4,12 +4,17 @@ import {hasSeenWorldIntro,markWorldIntroSeen,WORLD_INTRO_PAGES} from './worldInt
 import './world-intro.css';
 import {getStoredSession} from '../../online/auth';
 import {StartScreen} from './StartScreen';
+import {canEnterGame} from './serverSelection';
 
 export function GameEntry({children,initialError=''}:{children:ReactNode;initialError?:string}){
  const qa=import.meta.env.DEV&&new URLSearchParams(location.search).has('combatFixture');
- const [signedIn,setSignedIn]=useState(()=>qa||!!getStoredSession());
+ const [session,setSession]=useState(()=>getStoredSession());
+ const [entered,setEntered]=useState(qa);
+ const sessionUser=useRef(session?.userId);
+ const signedIn=qa||!!session;
+ const ready=canEnterGame(signedIn,entered);
  useEffect(()=>{
-  const refresh=()=>setSignedIn(qa||!!getStoredSession());
+  const refresh=()=>{const next=getStoredSession();if(next?.userId!==sessionUser.current||!next)setEntered(qa);sessionUser.current=next?.userId;setSession(next);};
   window.addEventListener('storage',refresh);window.addEventListener('tower:session-changed',refresh);
   return()=>{window.removeEventListener('storage',refresh);window.removeEventListener('tower:session-changed',refresh);};
  },[qa]);
@@ -18,7 +23,7 @@ export function GameEntry({children,initialError=''}:{children:ReactNode;initial
  const [page,setPage]=useState(0);
  const nextButton=useRef<HTMLButtonElement>(null);
  const previousFocus=useRef<HTMLElement|null>(null);
- const visible=splashDone&&signedIn&&open;
+ const visible=splashDone&&ready&&open;
  useEffect(()=>{
   const replay=()=>{setPage(0);setOpen(true);};
   window.addEventListener('tower:replay-world-intro',replay);
@@ -35,8 +40,8 @@ export function GameEntry({children,initialError=''}:{children:ReactNode;initial
  function finish(){try{markWorldIntroSeen(localStorage);}catch{/* Storage can be unavailable in private contexts. */}setOpen(false);}
  const current=WORLD_INTRO_PAGES[page];
  return <>
-  {signedIn&&<div inert={!splashDone||open} aria-hidden={!splashDone||open} style={{display:'contents'}}>{children}</div>}
-  {splashDone&&!signedIn&&<StartScreen initialError={initialError}/>}
+  {ready&&<div inert={!splashDone||open} aria-hidden={!splashDone||open} style={{display:'contents'}}>{children}</div>}
+  {splashDone&&!ready&&<StartScreen session={session} initialError={initialError} onEnter={()=>{if(getStoredSession())setEntered(true);}}/>}
   {!splashDone&&<Studio0322Splash onComplete={()=>setSplashDone(true)}/>}
   {visible&&<div className="tc-world-intro" role="dialog" aria-modal="true" aria-labelledby="world-intro-title" onKeyDown={event=>{
    if(event.key==='Escape'){event.preventDefault();finish();}
