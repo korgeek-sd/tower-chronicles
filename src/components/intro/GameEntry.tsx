@@ -40,7 +40,10 @@ export function GameEntry({children}:{children:ReactNode}){
    <section className="tc-world-intro__paper">
     <header><span>탑의 기록</span><button onClick={finish}>건너뛰기</button></header>
     <div className="tc-world-intro__chapter" aria-label={`${page+1} / 4`}>── {current.chapter} ──</div>
-    <div key={'art-'+page} className="tc-world-intro__art" aria-hidden="true" style={{backgroundPosition:`${page*100/3}% center`}}/>
+    <div key={'art-'+page} className="tc-world-intro__art" aria-hidden="true" ><svg viewBox="0 0 384 1024" preserveAspectRatio="xMidYMid meet" focusable="false">
+     <defs><clipPath id="world-intro-art-clip"><rect width="384" height="1024"/></clipPath></defs>
+     <g clipPath="url(#world-intro-art-clip)"><image href={import.meta.env.BASE_URL+'assets/intro/world-intro.png'} x={-page*384} y="0" width="1536" height="1024"/></g>
+    </svg></div>
     <div key={page} className="tc-world-intro__copy" aria-live="polite">
      <h1 id="world-intro-title">{current.title}</h1><div className="tc-world-intro__rule">✦</div><p>{current.body}</p>
     </div>

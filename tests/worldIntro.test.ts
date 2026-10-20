@@ -27,3 +27,11 @@ test('four pages lead from original sin to the player without declaring religiou
  assert.match(ui,/탑에 들어가기/);
  assert.match(ui,/inert=/);
 });
+test('intro artwork preserves its source aspect ratio and clips each atlas page',()=>{
+ const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/components/intro/world-intro.css',import.meta.url),'utf8');
+ assert.match(ui,/viewBox="0 0 384 1024"/);
+ assert.match(ui,/preserveAspectRatio="xMidYMid meet"/);
+ assert.match(ui,/clipPath="url\(#world-intro-art-clip\)"/);
+ assert.doesNotMatch(css,/background-size:400% 100%/);
+});

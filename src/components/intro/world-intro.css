@@ -5,7 +5,7 @@
 .tc-world-intro button:focus-visible{outline:3px solid #785321;outline-offset:3px}
 .tc-world-intro header button{font-size:13px;letter-spacing:0;padding:0 4px}
 .tc-world-intro__chapter{text-align:center;letter-spacing:.2em;font-size:14px;padding:8px 0;color:#675234}
-.tc-world-intro__art{flex:1 0 220px;min-height:220px;max-height:52dvh;margin:0 -14px;background-image:url('/assets/intro/world-intro.png');background-size:400% 100%;background-repeat:no-repeat;mask-image:linear-gradient(transparent,#000 7%,#000 90%,transparent);animation:tc-world-intro-reveal .28s ease-out}
+.tc-world-intro__art{flex:1 0 220px;min-height:220px;max-height:52dvh;margin:0 -14px;position:relative;mask-image:linear-gradient(transparent,#000 7%,#000 90%,transparent);animation:tc-world-intro-reveal .28s ease-out}
 .tc-world-intro__copy{text-align:center;flex-shrink:0;animation:tc-world-intro-reveal .28s ease-out}
 .tc-world-intro h1{font:700 clamp(24px,6vw,30px)/1.4 Georgia,'Noto Serif KR',serif;margin:10px 0 5px;color:#241d14;letter-spacing:.035em}
 .tc-world-intro__rule{display:flex;align-items:center;gap:12px;margin:8px 18px 18px;color:#8b6a35;font-size:13px}
@@ -19,3 +19,6 @@
 @keyframes tc-world-intro-reveal{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-height:650px){.tc-world-intro__art{flex-basis:150px;min-height:150px}.tc-world-intro__chapter{padding:0}.tc-world-intro h1{font-size:23px;margin-top:0}.tc-world-intro p{font-size:14px;line-height:1.7;margin-bottom:8px}.tc-world-intro__rule{margin:5px 18px 8px}.tc-world-intro__dots{margin-bottom:10px}}
 @media(prefers-reduced-motion:reduce){.tc-world-intro__art,.tc-world-intro__copy{animation:none}}
+
+/* The atlas page is 384×1024. SVG meet scales both axes equally on every viewport. */
+.tc-world-intro__art>svg{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:hidden}
