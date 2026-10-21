@@ -33,14 +33,21 @@ test('atmosphere remains perceptible above the title shade',()=>{
  const screen=readFileSync(new URL('../src/components/intro/StartScreen.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/components/intro/start-atmosphere.css',import.meta.url),'utf8');
  assert.ok(screen.indexOf('<StartAtmosphere')>screen.indexOf('className="tc-start-screen__shade"'));
- assert.match(css,/opacity:\.22/);
+ assert.match(css,/opacity:\.5/);
  assert.match(css,/translate\(-64px,8px\)/);
- assert.match(css,/to\{opacity:1\}/);
+
 });
 
-test('cloud banks fill several depths and doorway bloom follows a clipped arch',()=>{
+test('cloud banks fill several depths with doubled strength and no light overlay',()=>{
  const source=readFileSync(new URL('../src/components/intro/StartAtmosphere.tsx',import.meta.url),'utf8');
- assert.match(source,/radialGradient/);assert.match(source,/clipPath/);
+ assert.doesNotMatch(source,/__glow|radialGradient|clipPath|useId/);
+ const css=readFileSync(new URL('../src/components/intro/start-atmosphere.css',import.meta.url),'utf8');
+ assert.doesNotMatch(css,/__glow|door-light/);
+ for(const [name,baseline] of [['far',.22],['near',.16],['sky',.26],['middle',.32]] as const){
+  const specific=css.match(new RegExp(`\\.tc-start-atmosphere__fog--${name}\\{[^}]*opacity:([.0-9]+)`));
+  const inherited=css.match(/\.tc-start-atmosphere__fog\{[^}]*opacity:([.0-9]+)/);
+  assert.ok(Number((specific||inherited)![1])>=baseline*2,`${name} strength must at least double`);
+ }
  assert.match(source,/tc-start-atmosphere__fog--sky/);
  assert.match(source,/tc-start-atmosphere__fog--middle/);
  assert.ok((source.match(/<CloudBank /g)||[]).length>=12);
