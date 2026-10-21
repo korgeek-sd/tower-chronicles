@@ -4,7 +4,7 @@ import {initialState,stats} from '../src/game/engine/state.ts';
 import {enter,leave} from '../src/game/engine/expedition.ts';
 import {initialCosmetics,registerAppearance,selectAppearance,selectTitle} from '../src/game/engine/cosmetics.ts';
 import {playerGraphicFor} from '../src/game/data/graphics.ts';
-import type {CosmeticsCatalog} from '../src/game/data/cosmetics.ts';
+import {APPEARANCES,type CosmeticsCatalog} from '../src/game/data/cosmetics.ts';
 import {COSMETICS_BACKUP_KEY,SAVE_KEY,createRepository,migrateV4,validCosmetics,validSave} from '../src/storage/repository.ts';
 import {withHistoricalTickets} from './legacyFixture.ts';
 
@@ -27,4 +27,4 @@ test('외형 21-23: 칭호는 보유해야 선택 가능하고 해제할 수 있
 test('외형 24-26: 외형·칭호 선택은 저장 후 복구되고 원정 중 칭호 변경은 막힌다',()=>{const {repo}=memory();let s=initialState();s.cosmetics.unlockedAppearanceIds.push('ashen');s.cosmetics.unlockedTitleIds.push('test_title');s=selectTitle(selectAppearance(s,'ashen',catalog),'test_title',catalog);repo.save(s);assert.deepEqual(repo.load().cosmetics,s.cosmetics);const blocked=selectTitle(enter(s,'ore',1),null,catalog);assert.equal(blocked.cosmetics.selectedTitleId,'test_title');assert.equal(blocked.notice,'원정 중에는 칭호를 변경할 수 없습니다.');});
 test('외형 27-31: 손상된 수량·중복·선택 참조·미등록 ID·칭호 참조를 거부한다',()=>{const mutations=[(s:any)=>s.cosmetics.appearanceItems.ashen=-1,(s:any)=>s.cosmetics.unlockedAppearanceIds.push('default'),(s:any)=>s.cosmetics.selectedAppearanceId='ashen',(s:any)=>s.cosmetics.appearanceItems.missing=1,(s:any)=>s.cosmetics.selectedTitleId='test_title'];for(const mutate of mutations){const s:any=initialState();mutate(s);assert.equal(validSave(s,catalog),false);}});
 test('외형 32: 카탈로그 검증은 NaN·Infinity·소수 수량을 거부한다',()=>{for(const n of [NaN,Infinity,1.5]){const c:any=initialCosmetics();c.appearanceItems.ashen=n;assert.equal(validCosmetics(c,catalog),false);}});
-test('외형 33-34: 선택 이미지 경로를 사용하고 알 수 없는 ID는 기본 이미지로 폴백한다',()=>{assert.equal(playerGraphicFor('default').image.idle,'assets/player/default.png');assert.equal(playerGraphicFor('missing').id,'default');});
+test('외형 33-34: 선택 이미지 경로를 사용하고 알 수 없는 ID는 기본 이미지로 폴백한다',()=>{assert.equal(playerGraphicFor('default').image.idle,APPEARANCES[0].imagePath);assert.equal(playerGraphicFor('missing').id,'default');});

@@ -1,0 +1,157 @@
+name: Merge verified skin PRs
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize, labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Open skin PR number (optional: oldest ready PR)'
+        required: false
+        type: string
+  schedule:
+    # Retry ready PRs if queued events were superseded.
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+# Serializes merges. GitHub may replace pending jobs; schedule retries labeled PRs.
+concurrency:
+  group: verified-skin-merge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: github.event_name != 'pull_request_target' || github.event.label.name == 'skin-ready' || startsWith(github.event.pull_request.title, 'skin-ready:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - name: Resolve next queued skin PR
+        id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          EVENT_PR: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr="${INPUT_PR:-${EVENT_PR:-}}"
+          if [ -z "$pr" ]; then
+            pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json number,title,labels | node --input-type=module -e 'let s="";for await(const c of process.stdin)s+=c;const ps=JSON.parse(s);const p=ps.find(p=>p.title.startsWith("skin-ready:")||p.labels.some(l=>l.name==="skin-ready"));process.stdout.write(p?.number?String(p.number):"");')"
+          fi
+          if [ -z "$pr" ]; then
+            echo "No queued skin PRs."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "number=$pr" >> "$GITHUB_OUTPUT"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - name: Confirm trusted branch and label
+        if: steps.request.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.request.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,isDraft,baseRefName,headRefName,headRepository,labels,title |
+          node --input-type=module -e '
+            let s="";
+            for await (const part of process.stdin) s+=part;
+            const p=JSON.parse(s);
+            if(p.state!=="OPEN"||p.isDraft||p.baseRefName!=="main"||
+               !p.headRefName.startsWith("skin/")||
+               p.headRepository?.nameWithOwner!==process.env.GITHUB_REPOSITORY||
+               !(p.title.startsWith("skin-ready:")||p.labels.some(l=>l.name==="skin-ready"))){
+              console.error("PR must be an open, non-draft, skin-ready titled/labeled skin/* branch in this repository.");
+              process.exit(1);
+            }
+          '
+          git fetch --no-tags origin "+refs/pull/$PR_NUMBER/head:refs/remotes/origin/skin-candidate"
+      - name: Install validation dependencies
+        if: steps.request.outputs.ready == 'true'
+        run: npm ci
+      - name: Validate PR contents before running PR code
+        if: steps.request.outputs.ready == 'true'
+        run: node scripts/skin-pr-guard.mjs origin/main origin/skin-candidate
+      - name: Reconcile disjoint catalog conflicts and test the merged result
+        if: steps.request.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.request.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "skin-merge-bot"
+          git config user.email "skin-merge-bot@users.noreply.github.com"
+          if ! git merge --no-commit --no-ff origin/skin-candidate; then
+            conflicts="$(git diff --name-only --diff-filter=U)"
+            if [ "$conflicts" != "src/game/data/cosmetics.ts" ]; then
+              echo "::error::Unexpected merge conflict; refusing to overwrite other files: $conflicts"
+              exit 1
+            fi
+
+            # Read all three versions from Git objects and preserve every main
+            # entry except the one ID that this PR is allowed to update.
+            node scripts/reconcile-skin-catalog.mjs origin/main origin/skin-candidate "$RUNNER_TEMP/resolved-skin-catalog.ts"
+            git merge --abort
+
+            # Update the original PR with a normal, non-force merge of main.
+            # Keeping the PR as the merge authority honors branch protections.
+            pr_branch="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefName --jq .headRefName)"
+            git switch -c skin-queue-pr origin/skin-candidate
+            if git merge --no-commit --no-ff origin/main; then
+              echo "::error::Unexpected clean merge in the conflict reconciliation path"
+              exit 1
+            fi
+            conflicts="$(git diff --name-only --diff-filter=U)"
+            if [ "$conflicts" != "src/game/data/cosmetics.ts" ]; then
+              echo "::error::Additional conflicts in PR branch: $conflicts"
+              exit 1
+            fi
+            cp "$RUNNER_TEMP/resolved-skin-catalog.ts" src/game/data/cosmetics.ts
+            git add src/game/data/cosmetics.ts
+            git commit --no-edit
+
+            # Validate before advancing the PR branch; never force-push.
+            npm test
+            npm run typecheck
+            npm run build
+            git push origin "HEAD:refs/heads/$pr_branch"
+            gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$pr_branch"
+
+            # Refresh refs for the final, now clean, merge preview.
+            git switch main
+            git fetch origin main
+            git fetch --no-tags origin "+refs/pull/$PR_NUMBER/head:refs/remotes/origin/skin-candidate"
+            git merge --no-commit --no-ff origin/skin-candidate
+          fi
+
+          npm test
+          npm run typecheck
+          npm run build
+          git merge --abort
+      - name: Merge PR and explicitly trigger GitHub-token-suppressed workflows
+        if: steps.request.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.request.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
+          gh workflow run deploy-pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+          echo "Merged skin PR #$PR_NUMBER; CI and Pages workflows were dispatched."

@@ -3,65 +3,22 @@ name: importing-tower-appearance-assets
 description: Use when a user provides an image to add, replace, or update a Tower Chronicles appearance (외형) character artwork.
 ---
 
-# Importing Tower Appearance Assets (외형 이미지 등록 및 변경 스킬)
+# 탑의 기록: 외형 이미지 안전 등록
 
-## 개요 (Overview)
-사용자가 제공한 캐릭터 이미지(JPG, PNG 등)를 《탑의 기록》 외형 규격(1024×1024 WebP, 투명 배경, SHA-256 해시 명명 규칙)에 맞추어 **자동으로 변환하고 카탈로그에 즉시 등록·배포**하는 고속 파이프라인 스킬입니다.
+이 스킬은 `.agents/skills/tower-skin-manager/SKILL.md`의 병렬 배포 절차를 따른다. **이미지 변환만으로 등록 또는 배포 완료라고 보고하지 않는다.**
 
-이 스크립트 하나로 배경 투명화, WebP 변환, 해시 계산, `cosmetics.ts` 갱신, 직업 일러스트 동기화, 구버전 정리가 수 초 만에 일괄 처리됩니다.
+## 실행 절차
+1. 최신 `main` 카탈로그에서 외형 ID와 기존 등급을 확인한다. 세션마다 `skin/<id>-<고유작업식별자>`라는 새 브랜치를 만든다. `main` 직접 푸시 금지.
+2. 현재 환경에서 Chrome/Edge가 사용 가능하면 `node scripts/import-appearance.mjs <id> "<image-file-path>"`를 실행한다. 이 스크립트는 **기존 카탈로그 ID의 외형 이미지만 교체**한다. 신규 외형은 별도 카탈로그 추가가 필요하다. 브라우저가 없으면 동일한 1024×1024 투명 WebP 및 SHA-256(12자리) 규칙으로 직접 준비한다.
+3. 스크립트는 `public/assets/characters/appearances/<id>-<hash12>.webp`와 `src/game/data/cosmetics.ts`의 지정 ID의 `imagePath`만 바꾼다. 기존 해시 이미지 삭제, 직업 일러스트 자동 덮어쓰기 및 무관한 파일 수정을 금지한다.
+4. 기존 외형의 소유권, 수집 보상, ID, 등급, 거래 가능 여부 및 설명은 그대로 유지한다. 새 외형일 경우 이름, 등급, 이미지 및 기존 계약에 맞는 필수 필드를 등록한다.
+5. `node --import ./tests/register.mjs --test tests/appearanceCatalog.test.ts`, `npm run typecheck`, `npm run build`로 검증한다. 가능하면 `node --test tests/skinPrGuard.test.mjs`도 확인한다.
+6. 해당 외형 카탈로그와 새 WebP 파일 **두 개만 선택적으로 커밋**한다. 원격 `skin/*` 브랜치에 푸시하여 제목이 `skin-ready: <id>`인 PR을 만든다 (기존 `skin-ready` 레이블도 허용). `git add -A`, `git push origin main`, 강제 푸시 금지.
+7. `.github/workflows/skin-pr-merge.yml`이 PR 범위, SHA-256 파일명, 메타데이터 불변성, 병합 미리보기 테스트 및 빌드를 검증한 뒤 순차 병합한다. 충돌이나 오류가 있으면 최신 `main`을 바탕으로 **해당 ID 변경만** 다시 준비한다. 다른 세션의 카탈로그 항목을 덮어쓰지 않는다.
+8. 병합 커밋과 GitHub CI/Pages 결과 및 운영 사이트의 에셋 URL을 확인한 다음에만 완료로 보고한다. PR 생성이나 성공적인 커밋은 배포 완료가 아니다.
 
----
-
-## 초고속 작업 절차 (Fast Path)
-
-### 1단계: 원클릭 자동 변환 스크립트 실행
-사용자가 업로드한 이미지 경로와 대상 외형 ID(`corsair`, `slime`, `teddy`, `mechanic`, `proletaria` 등)를 확인한 후 아래 명령을 실행합니다:
-
-```bash
-node scripts/import-appearance.mjs <appearance-id> "<image-file-path>"
-```
-
-**스크립트 자동 처리 내역:**
-1. **외곽 검은 배경 자동 투명화**: 모자, 장식 등 캐릭터 내부의 흑갈색 디테일은 유지하면서, 8방향 BFS Flood-Fill로 외곽 배경만 깨끗한 알파 투명 채널(`A = 0`)로 변환합니다.
-2. **규격화 및 WebP 인코딩**: 1024×1024 해상도로 고화질 WebP 인코딩을 수행합니다.
-3. **SHA-256 12자리 해시 산출**: 파일 내용 기반 12자리 해시(`[id]-[hash].webp`)를 생성합니다.
-4. **외형 에셋 저장 및 구버전 삭제**: `public/assets/characters/appearances/<id>-<hash>.webp`로 저장하고, 이전 버전의 해시 파일은 디스크에서 자동 삭제합니다.
-5. **직업 일러스트 자동 동기화**: `public/assets/characters/jobs/<id>.webp`가 존재하는 경우, 일관성을 위해 새 아트로 자동 동기화합니다.
-6. **카탈로그 자동 업데이트**: `src/game/data/cosmetics.ts` 내 해당 외형의 `imagePath`를 새 파일명으로 자동 교체합니다.
-
----
-
-### 2단계: 단위 테스트 검증
-아래 집중 테스트를 실행하여 카탈로그 유효성과 에셋 연결을 검증합니다:
-
-```bash
-node --import ./tests/register.mjs --test tests/appearanceCatalog.test.ts
-```
-
----
-
-### 3단계: Git 커밋 및 푸시
-```bash
-git add -A
-git commit -m "feat(cosmetics): update <appearance-id> appearance artwork"
-git push origin main
-```
-
----
-
-### 4단계: 결과 보고
-작업 완료 후 사용자에게 다음 사항을 간결하게 보고합니다:
-- 대상 외형 이름 및 ID
-- 생성된 WebP 파일 경로 및 해시
-- Git 커밋 SHA
-- GitHub Pages 배포 진행 상태
-
----
-
-## 규격 체크리스트 (Definition of Done)
-- [x] 해상도: 1024×1024 square canvas
-- [x] 배경: 외곽 검은 배경이 투명화(Alpha = 0)되어 있는가
-- [x] 파일명: `public/assets/characters/appearances/<id>-<hash12>.webp`
-- [x] 카탈로그: `src/game/data/cosmetics.ts`의 `imagePath`와 일치하는가
-- [x] 테스트: `appearanceCatalog.test.ts` 통과 확인
-- [x] 원격 저장소: `main` 브랜치에 커밋 및 푸시 완료
+## 확인 사항
+- 기본(default) 외형 이미지는 일반 해시 이미지 경로와 달라 이 PR 자동 큐에서 처리하지 않는다. 별도 작업으로 검증한다.
+- 교체 전 이미지가 기존 빌드/캐시에 참조될 수 있으므로 삭제하지 않는다.
+- 서로 다른 외형 ID가 같은 `cosmetics.ts` 위치에서 충돌하면 큐가 해당 ID만 안전하게 재적용한다. 동일 ID의 상충된 업데이트는 임의로 결정하지 않고 중단한다.
+- 브랜치 보호·GitHub 네이티브 병합 대기열 등 관리자 설정은 `docs/skin-parallel-deployment.md`를 따른다.

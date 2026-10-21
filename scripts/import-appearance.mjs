@@ -2,6 +2,7 @@ import { spawn } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import ts from 'typescript';
 
 /**
  * Tower Chronicles 외형(Appearance) 이미지 자동 변환 및 카탈로그 등록 CLI
@@ -208,37 +209,50 @@ async function main() {
     const appearanceDir = path.resolve('public/assets/characters/appearances');
     const newFilePath = path.join(appearanceDir, newFileName);
 
-    // 이전 버전 외형 파일 검색 및 삭제
-    const oldFiles = fs.readdirSync(appearanceDir).filter(f => f.startsWith(`${appearanceId}-`) && f.endsWith('.webp') && f !== newFileName);
-    for (const oldFile of oldFiles) {
-      const oldPath = path.join(appearanceDir, oldFile);
-      fs.unlinkSync(oldPath);
-      console.log(`  - 구버전 파일 삭제됨: ${oldFile}`);
-    }
+    // Retain previous hashed files: old deployments and concurrent PRs can still reference them.
+    // Cleanup is a separate, reference-checked maintenance task.
 
     fs.writeFileSync(newFilePath, webpBuf);
     console.log(`  + 새 외형 파일 생성됨: ${newFileName} (${webpBuf.length.toLocaleString()} bytes)`);
 
-    // 동일 ID의 직업 일러스트가 존재하는 경우 함께 동기화
-    const jobFilePath = path.resolve(`public/assets/characters/jobs/${appearanceId}.webp`);
-    if (fs.existsSync(jobFilePath)) {
-      fs.writeFileSync(jobFilePath, webpBuf);
-      console.log(`  + 직업 일러스트 동기화됨: public/assets/characters/jobs/${appearanceId}.webp`);
-    }
+    // A cosmetic update must never overwrite a job-specific character portrait.
 
     console.log('[4/5] src/game/data/cosmetics.ts 카탈로그 자동 업데이트...');
     const cosmeticsPath = path.resolve('src/game/data/cosmetics.ts');
     let cosmeticsContent = fs.readFileSync(cosmeticsPath, 'utf8');
 
-    // id:'corsair' 또는 id:"corsair" 블록 내 imagePath 교체
-    const regex = new RegExp(`(id:\\s*['"]${appearanceId}['"][\\s\\S]*?imagePath:\\s*['"])(assets/characters/appearances/${appearanceId}-[a-f0-9]{12}\\.webp)(['"])`, 'g');
-    if (regex.test(cosmeticsContent)) {
-      cosmeticsContent = cosmeticsContent.replace(regex, `$1assets/characters/appearances/${newFileName}$3`);
-      fs.writeFileSync(cosmeticsPath, cosmeticsContent, 'utf8');
-      console.log(`  + cosmetics.ts imagePath -> assets/characters/appearances/${newFileName}`);
-    } else {
-      console.warn(`  ! 주의: cosmetics.ts에서 '${appearanceId}'의 기존 appearances imagePath 패턴을 찾지 못했습니다. 수동 확인이 필요할 수 있습니다.`);
+    // Use the TypeScript syntax tree to update only the selected entry.
+    // A wide regex could accidentally update a neighboring appearance.
+    const source = ts.createSourceFile('cosmetics.ts', cosmeticsContent, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    let imageValue = null;
+    const visit = (node) => {
+      if (ts.isObjectLiteralExpression(node)) {
+        const props = node.properties.filter(ts.isPropertyAssignment);
+        const idProp = props.find(p => ts.isIdentifier(p.name) && p.name.text === 'id');
+        if (idProp?.initializer && ts.isStringLiteral(idProp.initializer) && idProp.initializer.text === appearanceId) {
+          const imageProp = props.find(p => ts.isIdentifier(p.name) && p.name.text === 'imagePath');
+          if (!imageProp?.initializer || !ts.isStringLiteral(imageProp.initializer)) {
+            throw new Error('Existing appearance imagePath was not found for: ' + appearanceId);
+          }
+          if (imageValue) throw new Error('Duplicate appearance ID: ' + appearanceId);
+          imageValue = imageProp.initializer;
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+    if (!imageValue) throw new Error('Appearance ID not found in catalog: ' + appearanceId);
+    if (!imageValue.text.startsWith('assets/characters/appearances/' + appearanceId + '-')) {
+      throw new Error('Unexpected current artwork path; refusing to update another appearance');
     }
+    const quote = imageValue.getText(source)[0];
+    const nextPath = 'assets/characters/appearances/' + newFileName;
+    cosmeticsContent =
+      cosmeticsContent.slice(0, imageValue.getStart(source)) +
+      quote + nextPath + quote +
+      cosmeticsContent.slice(imageValue.end);
+    fs.writeFileSync(cosmeticsPath, cosmeticsContent, 'utf8');
+    console.log('  + cosmetics.ts imagePath -> ' + nextPath);
 
     console.log('[5/5] 완료!');
     console.log(`\n🎉 외형 '${appearanceId}' 이미지가 성공적으로 갱신되었습니다.`);
@@ -247,7 +261,7 @@ async function main() {
     console.log(`\n다음 단계 권장:`);
     console.log(`1. node --import ./tests/register.mjs --test tests/appearanceCatalog.test.ts`);
     console.log(`2. git add -A && git commit -m "feat(cosmetics): update ${appearanceId} appearance artwork"`);
-    console.log(`3. git push origin main`);
+    console.log(`3. git push -u origin HEAD && gh pr create --base main --title "skin-ready: ${appearanceId}"`);
 
   } finally {
     try { browser.kill(); } catch {}

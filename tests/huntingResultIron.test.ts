@@ -5,6 +5,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {HuntingScreen} from '../src/components/hunting/HuntingScreen';
 import {initialState} from '../src/game/engine/state';
+import {APPEARANCES} from '../src/game/data/cosmetics';
 import {initialHuntingState} from '../src/game/hunting/model';
 
 test('result frames preserve original combat art and the repeat-destination scenery',()=>{
@@ -24,8 +25,9 @@ test('next-hunt controls retain a full touch target and avoid the closed chat fo
  assert.match(css,/\.tc-hunt-next\{[^}]*min-height:44px/);
  assert.match(css,/\.tc-hunt-result span\{[^}]*white-space:normal/,'earned gear names must remain readable');
 });
-test('unselected default appearance has an honest placeholder instead of a missing image request',()=>{
+test('default appearance uses its current catalog asset instead of a stale image request',()=>{
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:initialHuntingState(0),now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
  assert.doesNotMatch(html,/assets\/player\/default\.png/);
- assert.match(html,/외형 미선택/);
+ assert.ok(APPEARANCES[0].imagePath);
+ assert.ok(html.includes('./'+APPEARANCES[0].imagePath));
 });
