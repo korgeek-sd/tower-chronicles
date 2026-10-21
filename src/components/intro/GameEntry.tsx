@@ -63,9 +63,9 @@ export function GameEntry({children,initialError=''}:{children:ReactNode;initial
      <img src={import.meta.env.BASE_URL+current.image} alt="" width="1086" height="1448" fetchPriority={page===0?'high':'auto'}/>
     </div>
     <div key={page} className="tc-world-intro__copy" aria-live="polite">
-     <h1 ref={heading} tabIndex={-1} id="world-intro-title">{current.title}</h1><div className="tc-world-intro__rule">✦</div>{current.body&&<p>{current.body}</p>}{current.quote&&<blockquote><p>“{current.quote}”</p><cite>{current.citation}</cite></blockquote>}
+     <h1 ref={heading} tabIndex={-1} id="world-intro-title">{current.title}</h1><div className="tc-world-intro__rule">✦</div>{current.body&&<div className="tc-world-intro__body">{current.body.split('\n\n').map((paragraph,index)=><p key={index}>{paragraph}</p>)}</div>}{current.quote&&<blockquote><p>“{current.quote}”</p><cite>{current.citation}</cite></blockquote>}
     </div>
-    <footer>
+    <footer data-first={page===0}>
      <div className="tc-world-intro__dots" aria-label={`${page+1} / ${WORLD_INTRO_PAGES.length}`}>{WORLD_INTRO_PAGES.map((_,index)=><span key={index} className={index===page?'active':''}/>)}</div>
      <button ref={nextButton} className="tc-world-intro__next" onClick={()=>page===WORLD_INTRO_PAGES.length-1?finish():setPage(value=>value+1)}>{page===WORLD_INTRO_PAGES.length-1?'새 이름을 기록한다':'다음 기록 →'}</button>
      {page>0&&<button className="tc-world-intro__back" onClick={()=>setPage(value=>value-1)}>이전 장</button>}

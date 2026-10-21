@@ -26,11 +26,11 @@ test('eight approved chapters retain their sequence and use one separate illustr
  assert.match(ui,/markWorldIntroSeen/);assert.match(ui,/건너뛰기/);assert.match(ui,/새 이름을 기록한다/);assert.match(ui,/inert=/);
  assert.doesNotMatch(ui,/page===3|\/ 4/);
 });
-test('intro uses individual unstretched images and readable scrollable text',()=>{
+test('intro uses individual unstretched images and a viewport-sized non-scrolling page',()=>{
  const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/components/intro/world-intro.css',import.meta.url),'utf8');
  assert.match(ui,/<img/);assert.match(ui,/BASE_URL\+current.image/);
- assert.match(css,/object-fit:cover/);assert.match(css,/overflow-y:auto/);assert.match(css,/safe-area-inset-bottom/);
+ assert.match(css,/object-fit:cover/);assert.match(css,/height:100dvh/);assert.match(css,/overflow:hidden/);assert.match(css,/safe-area-inset-bottom/);
  assert.doesNotMatch(ui,/world-intro.png|<svg/);
 });
 test('naming screen describes a new name without changing existing registration rules',()=>{
@@ -44,4 +44,13 @@ test('story preview cannot mount gameplay or change the completion marker',()=>{
  assert.match(ui,/ready&&<div inert=/);
  assert.match(ui,/if\(!preview\)markWorldIntroSeen/);
  assert.match(ui,/const ready=canEnterGame\(signedIn,entered\)/);
+});
+
+test('long chapters use compact paragraphs, a shrinking illustration and one row of controls',()=>{
+ const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/components/intro/world-intro.css',import.meta.url),'utf8');
+ assert.match(ui,/current.body.split\('\\n\\n'\)/);
+ assert.match(css,/flex:1 1 0/);assert.match(css,/min-height:0/);
+ assert.match(css,/grid-template-columns:88px 1fr/);assert.match(css,/min-height:44px/);
+ assert.doesNotMatch(css,/overflow-y:auto|height:240px|flex:1 0 auto/);
 });
