@@ -88,7 +88,7 @@ test('a resolved attack shows a compact result, with long turn logs still folded
  const mismatched=show({...base,encounterId:'bbbb0000-0000-4000-8000-000000000002'},result);
  assert.doesNotMatch(mismatched,/이번 공격 피해/);
 });
-test('second violet raid mockup keeps four stats, compact results and no vertical page scroll',()=>{
+test('raid layout keeps four stats, compact results and no vertical page scroll',()=>{
  const html=show({...base,kind:'WEEKLY',name:'심연의 파수자',maxHp:24000,remainingHp:12000,totalAttacks:35});
  assert.match(html,/WEEKLY RAID/);
  assert.match(html,/길드 총 공격/);
@@ -115,4 +115,15 @@ test('loading boss UI has both boss choices and a live refresh action',()=>{
  assert.match(html,/주간 보스/);
  assert.match(html,/보스 정보 새로고침/);
  assert.match(html,/불러오는 중입니다/);
+});
+
+test('raid colors follow the base iron and brass UI without purple art tint',()=>{
+ const css=readFileSync(new URL('../src/components/association/guildBoss.css',import.meta.url),'utf8');
+ assert.match(css,/--boss-accent:var\(--brass/);
+ assert.match(css,/--boss-dark:var\(--iron-0/);
+ assert.doesNotMatch(css,/saturate\(/);
+ for(const match of css.matchAll(/#([0-9a-f]{6})(?:[0-9a-f]{2})?\b/gi)){
+  const rgb=match[1].match(/../g)!.map(v=>parseInt(v,16));
+  assert.ok(!(rgb[2]>rgb[0]&&rgb[2]>rgb[1]+4),`unexpected purple/blue raid color #${match[1]}`);
+ }
 });
