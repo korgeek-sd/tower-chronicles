@@ -6,6 +6,7 @@ on:
       - main
       - 'codex/**'
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,6 +29,9 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Test isolated skin merge guard
+        run: node --test tests/skinPrGuard.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
