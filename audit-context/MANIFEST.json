@@ -1,0 +1,343 @@
+{
+  "source_commit": "d4b88839612d3335e81f537c70c89ca41e9d7f6e",
+  "captured_at_utc": "2026-10-19T15:25:40.047124+00:00",
+  "timezone": "Asia/Seoul",
+  "project_ref": "zecdhceihrdwdkdykxhx",
+  "mode": "read-only metadata and source orientation; no application mutation or attack execution",
+  "skill": {
+    "name": "trailofbits/audit-context-building",
+    "commit": "5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0",
+    "url": "https://github.com/trailofbits/skills/blob/5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0/plugins/audit-context-building/skills/audit-context-building/SKILL.md",
+    "license": "CC-BY-SA-4.0",
+    "execution": "read pinned instructions/resources; six separate root-function analyses; no third-party executable installed"
+  },
+  "counts": {
+    "all_public_private_functions": 380,
+    "public_functions": 153,
+    "public_authenticated_execute": 145,
+    "public_anon_execute": 0,
+    "relations": 138,
+    "private_relations": 116,
+    "public_relations": 4,
+    "policies": 8,
+    "triggers": 28,
+    "cron_jobs": 6,
+    "edge_functions": 0,
+    "storage_buckets": 0,
+    "live_function_snapshots": 39,
+    "root_function_analyses": 6,
+    "source_files": 263,
+    "source_rpc_literal_names": 131,
+    "network_callsites": 48,
+    "local_input_callsites": 71
+  },
+  "limitations": [
+    "Catalog batches are not one atomic source/live snapshot",
+    "ACL/schema exposure and business authorization are separate",
+    "No OAuth provider config, GitHub account/protection config or provider-internal audit",
+    "No active exploit, external account, concurrent load or production write",
+    "Remaining functions are inventoried, not fully analyzed"
+  ],
+  "files": [
+    {
+      "path": "audit-context/DOSSIER.md",
+      "bytes": 13507,
+      "sha256": "192b4d02e0c5817c004a6cecb230f66c587d4ba9057e9943ff1a8f7b36da4e0a"
+    },
+    {
+      "path": "audit-context/ENTRYPOINTS.md",
+      "bytes": 17028,
+      "sha256": "260b73d609b04c2aee2e347bea758c56c2b03a723c226da0d2b64b74569a295c"
+    },
+    {
+      "path": "audit-context/evidence/columns.json",
+      "bytes": 5366,
+      "sha256": "e7ac2ee4e6a7b9a83f4f1b2ebb4020598d1c346b154caef5fda0d852161b81da"
+    },
+    {
+      "path": "audit-context/evidence/constraints.json",
+      "bytes": 1782,
+      "sha256": "0708d0ce0418aba7a694b8e12f9a3c59ddb829c4c59055253735e292d5e85239"
+    },
+    {
+      "path": "audit-context/evidence/cron.json",
+      "bytes": 980,
+      "sha256": "7954fd00d10c74ca04348a3a7cd87bc1a8274767afe3bf3699334e1697c3a002"
+    },
+    {
+      "path": "audit-context/evidence/edge-functions.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.accept_client_economy_consumption.sql",
+      "bytes": 1006,
+      "sha256": "c9252ce71d5a70ee0437e4917d1194067c63ebe95f97e1a15caeb5886e00524b"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.assert_operations_admin.sql",
+      "bytes": 300,
+      "sha256": "767ec2ef2a8f43827239170e7a075177212e2643520e8f96139385e554900aac"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.client_asset_quantity.sql",
+      "bytes": 986,
+      "sha256": "df9f1f0919f2b192f0dc0af270c219ab009ad0207287f13bf9332eaca4373f91"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.deliver_coupon_reward.sql",
+      "bytes": 657,
+      "sha256": "d7baedfda7ae2181cfaa423f90466325931c4ee91c19463764360c5849e04eca"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.equipment_v23_payload.sql",
+      "bytes": 2726,
+      "sha256": "45ebc76cd601b9741a4a9d4187663c4a53652da6aac7769482d018a9f35a9ed1"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.hunting_conditions_match.sql",
+      "bytes": 1204,
+      "sha256": "8b3f1d60b9cd61d43ffd738c45bda508a891b22808ab4b5a917eb0b17e016d39"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.my_chat_association.sql",
+      "bytes": 526,
+      "sha256": "5a03e5823b68fed675344b98d5e5d2e634773f639dd9bee2b41d44445a894e47"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.operations_capture_wallet.sql",
+      "bytes": 1181,
+      "sha256": "3b03530d77f4d6788eaa52fc9b8e027006c13efdfbe8314da1c48f947555247a"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.operations_wallet_source.sql",
+      "bytes": 1640,
+      "sha256": "5b67585b5e1d09c0e45c4b604b2f4e69b44d8a982a2d3bf43daf13606cd9b689"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.persist_client_payload_with_server_economy.sql",
+      "bytes": 1452,
+      "sha256": "1fda782eb9ea516d0a7274b8ee3275c3fc7020ec9fc7360e29961a2f856affd4"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.premium_active.sql",
+      "bytes": 235,
+      "sha256": "58d5fbd7241f3dc9b7fafc915bdc50c315678abf0193c9cf98893100f3a3cd7d"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.prepare_chat_message.sql",
+      "bytes": 1777,
+      "sha256": "4df0a139d25b205c4b071089b61d25648cba13890d1415d7b5fa34695413434e"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.process_server_bank_due.sql",
+      "bytes": 959,
+      "sha256": "d678a01ef218169fae3712632a18dd617905d85982581f9669e0e6313c16d0fb"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.quest_ticket_payload.sql",
+      "bytes": 343,
+      "sha256": "f27cf1d4476ee657a1d24d1fd1d7ff164ea6415fc7af2a8ca990c31d8c16e05d"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.refresh_hunting_state.sql",
+      "bytes": 2670,
+      "sha256": "d02b0b1ccc60ee741db7b0c7ec54f7377fe4bd1fb025a43b332fd83b9fad96d0"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.refresh_village_life.sql",
+      "bytes": 503,
+      "sha256": "28732e15a87846954d77ae5499d88731403f22429e2fd85352c7835043988403"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.require_active_game_session.sql",
+      "bytes": 1480,
+      "sha256": "c58902143c3f3d693b62cd1894c849f3c6ab2971c49b45b6fd88a7b3292f771f"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_association_payload.sql",
+      "bytes": 555,
+      "sha256": "e63667989025fab00f6fd4e883028270a917a91e0c12c063f688ebe16df14fce"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_association_projection.sql",
+      "bytes": 2593,
+      "sha256": "891ee3eab2fa40f481d7fa788acbcb3ba6bffa8795a19f687f75fed3c7e91b36"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_authoritative_payload.sql",
+      "bytes": 1458,
+      "sha256": "cf9b18ff6695d16d55293eef3ae508675a6c0dd25498421c0f403ed7cb00a4d0"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_bank_state.sql",
+      "bytes": 1987,
+      "sha256": "74b00a375d8d960eb425997865d593f4d5f6c2eef8ad3dc68070080d7b2b1f8d"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_bootstrap_payload.sql",
+      "bytes": 1891,
+      "sha256": "8afd6e0d09717d6697f0c2e6b27f2c8f7d477ae57556c5e3af33728dfda6cc34"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_consumables_json.sql",
+      "bytes": 876,
+      "sha256": "e5eb9bf13cbbce7983b2396dd8d820bd76043b94d4a3f213b20081411c940046"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_current_job.sql",
+      "bytes": 423,
+      "sha256": "562ad0b488a9abdec5cee7882b063c54fb2247ef52cd32641c25a2626b48cab4"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_economy_payload.sql",
+      "bytes": 2869,
+      "sha256": "7e718a517a803e6f0ef37339fd4f0b37a357634eb2904ce15cc807b5195106b0"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.server_owned_jobs_json.sql",
+      "bytes": 311,
+      "sha256": "c7944383285688b700516f56faf9d0080d7d74a1926dffb3cab882d13253e3bf"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.settle_server_bank_loan.sql",
+      "bytes": 2339,
+      "sha256": "76aa48804a2abbfeb468f463c6ca4c93faeb9c813559ce9d8dc9aef59e7a5d71"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.skill_progress_payload.sql",
+      "bytes": 330,
+      "sha256": "4d13cca3c02598cd980f976d5dad224698d999cc9f000abe5123404ef25c106a"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.stable_json_string.sql",
+      "bytes": 755,
+      "sha256": "709174c305836b3eb2fb7f5fda856dbde90873a9d0fc1f5caeba70964b701810"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.sync_market_economy_after_save.sql",
+      "bytes": 264,
+      "sha256": "21aa48e58562cbf33e3dc9f8ca210a01be8c5f09786c780d6db9463703a803a3"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.sync_market_economy_from_latest_save.sql",
+      "bytes": 2801,
+      "sha256": "4475aa28e30919cc1ba81293286cfce77ced56503b83598415478b44ba41ec0c"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.validate_coupon_reward.sql",
+      "bytes": 1574,
+      "sha256": "24efd6ff91c2357fb56f7aeaeb05d8db5b3491290071708d49932720373f33ba"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/private.village_life_user.sql",
+      "bytes": 481,
+      "sha256": "037f04fea195669dd835a0b591754ec0a9af46bca39b4651297101d4bcca9c95"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/public.hunt_once.sql",
+      "bytes": 21613,
+      "sha256": "327f93d529cce593e72141489a01e2d62413e805fb902ffa6bf08fdd060be11c"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/public.is_coupon_admin.sql",
+      "bytes": 265,
+      "sha256": "faa40c5a63acbb9b4c3006ef9875ea1395e885ec311849de4c6a0fdceb6f20a5"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/public.ops_grant_reward.sql",
+      "bytes": 1707,
+      "sha256": "36a2b6da1911ef50309a2389657a2aedf41c13b9e4eeb66fb177c35d26958fcd"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/public.save_game_state.sql",
+      "bytes": 3916,
+      "sha256": "ab7fd9cf039f2c42c1b0a8008e4f87d36e9950230a8b663675d8459ad8fd47e4"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/public.server_bank_action.sql",
+      "bytes": 9939,
+      "sha256": "8fb04a9d8facee04a21ff88eff039b91aa1b7ee086ed448634dd89bb5c810890"
+    },
+    {
+      "path": "audit-context/evidence/live-functions/public.set_websocket_presence.sql",
+      "bytes": 3619,
+      "sha256": "5340239d4235555de4b5d44b398f5a1bed2ff15209be05a6e600be3840023891"
+    },
+    {
+      "path": "audit-context/evidence/policies.json",
+      "bytes": 3102,
+      "sha256": "b8dec8e79c9a8abb28956391b6756af86089dcc009291ecc66b73e5796d49ea7"
+    },
+    {
+      "path": "audit-context/evidence/publications.json",
+      "bytes": 114,
+      "sha256": "1af3857e75f01795cb11e397c65ab411c13615a544db05f554ca1e5b2c7d3e7f"
+    },
+    {
+      "path": "audit-context/evidence/rpc-inventory.json",
+      "bytes": 105870,
+      "sha256": "53b0a015d0581a4b8b5b350b6f1af7711b0c8d681be7b9e7a49d78d36885554c"
+    },
+    {
+      "path": "audit-context/evidence/schema-usage.json",
+      "bytes": 340,
+      "sha256": "36fc3956d63d48575987011750c6d3988ae8b059b4d8f5a4522e888e53906b19"
+    },
+    {
+      "path": "audit-context/evidence/source-inventory.json",
+      "bytes": 36584,
+      "sha256": "12ac295c7aa65f3f6162d4ec4863dc14bb7f940ebe7cb8d986a62d00cb484362"
+    },
+    {
+      "path": "audit-context/evidence/storage-buckets.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "audit-context/evidence/table-inventory.json",
+      "bytes": 62402,
+      "sha256": "452dfeeaddeff8527e55ab886adb4cc280bc377c688650a53bc58c465ffe6bfd"
+    },
+    {
+      "path": "audit-context/evidence/triggers.json",
+      "bytes": 8860,
+      "sha256": "5bbacb864af700a5a04f44c2c9ffbf23ab9a744f596ac222adae87809be05daf"
+    },
+    {
+      "path": "audit-context/functions/chat_send.md",
+      "bytes": 11737,
+      "sha256": "1f33350427a56ebeed46f2fa1372386e65a040ccc1d025349628aa7cec4485bd"
+    },
+    {
+      "path": "audit-context/functions/completeGoogleOAuth.md",
+      "bytes": 9816,
+      "sha256": "b0fcfa3006d5579784319fc7128ca55391938c0479619ed6ca5697f49511fe1b"
+    },
+    {
+      "path": "audit-context/functions/hunt_once.md",
+      "bytes": 16756,
+      "sha256": "6e232cc8ba78c7a92d3dcc33031b738be84eb9df194131b35364379b6a07abd0"
+    },
+    {
+      "path": "audit-context/functions/ops_grant_reward.md",
+      "bytes": 10205,
+      "sha256": "ca5d72ccf18baf49efa3a3c7fa76178c77a8ee3b9710a88a6c3414d80eae198b"
+    },
+    {
+      "path": "audit-context/functions/save_game_state.md",
+      "bytes": 15929,
+      "sha256": "397016e65d14dfe54c1221ee2cea91a8c4800ec397311befb17b24b925d33440"
+    },
+    {
+      "path": "audit-context/functions/server_bank_action.md",
+      "bytes": 14311,
+      "sha256": "a074e2dd1054986e708c87aabc019f68706d7bcd541dff0013ebc04367af2514"
+    },
+    {
+      "path": "audit-context/tools/collect-source-inventory.mjs",
+      "bytes": 2401,
+      "sha256": "6aec4d8dc5a3e09c9dbefb7fc9525bdefc6a0dec04ebc4fb3d5b8e48cb3f0b28"
+    }
+  ]
+}
