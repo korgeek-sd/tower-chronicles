@@ -20,7 +20,7 @@ const attackLabel=(boss:GuildBossInfo,busy:boolean,expedition:boolean)=>{
 const asset=(p:string)=>(import.meta.env?.BASE_URL??'/')+p;
 const raidImage={
  DAILY:asset('assets/monsters/guild-bosses/famished_saint-left.webp'),
- WEEKLY:asset('assets/monsters/iron-bosses/echo_devourer.png'),
+ WEEKLY:asset('assets/monsters/guild-bosses/cathedral_bearer-left.webp'),
 } as const;
 
 export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,onReload,onDismiss,onAuction}:{
@@ -28,7 +28,7 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
  onFight:()=>void;onReload:()=>void;onDismiss:()=>void;onAuction?:()=>void;
 }){
  const daily=boss.kind==='DAILY';
- const bossName=daily?'굶주린 성자':boss.name;
+ const bossName=daily?'굶주린 성자':'성당을 짊어진 거인';
  const defeated=isDefeated(boss);
  const pct=Math.max(0,Math.min(100,boss.maxHp>0?boss.remainingHp/boss.maxHp*100:0));
  const remainingAttempts=Math.max(0,Math.min(5,boss.attacksLeft));

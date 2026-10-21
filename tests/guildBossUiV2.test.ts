@@ -58,7 +58,9 @@ test('raid button respects existing cooldown-free 5-attack limit and defeated st
 test('weekly raid wording remains Saturday/KST without altering server balance',()=>{
  const html=show({...base,kind:'WEEKLY',name:'심연의 파수자',maxHp:24000,
  remainingHp:12000,cycleEnd:'2026-10-16T15:00:00Z'});
- assert.match(html,/심연의 파수자/);
+ assert.match(html,/성당을 짊어진 거인/);
+ assert.match(html,/cathedral_bearer-left\.webp/);
+ assert.doesNotMatch(html,/echo_devourer/);
  assert.match(html,/토요일 00:00/);
  assert.match(html,/aria-valuenow="50"/);
  const source=readFileSync(new URL('../src/components/association/GuildBossPanel.tsx',import.meta.url),'utf8');
