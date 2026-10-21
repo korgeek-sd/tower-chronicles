@@ -28,3 +28,15 @@ When asked to design, simulate or tune Tower Chronicles leveling, stat allocatio
 
 ## Appearance skin assets
 For user-supplied named appearance artwork or an appearance name + grade, read and follow `.agents/skills/tower-skin-manager/SKILL.md`. Treat a replacement as the same existing appearance ID; do not touch player ownership or balance values. A user request to apply the skin includes committing the binary artwork and catalog to main, verifying GitHub CI and GitHub Pages deployment for the exact commit, and checking the in-game rendering paths. Do not stop at preparing or linking a local image. Equipped non-default cosmetic art takes precedence over the job-specific portrait, while the default cosmetic keeps job art.
+
+
+## Supabase Data API exposure (October 30, 2026)
+Supabase stops automatically granting API roles access to newly created `public` tables on 2026-10-30 (including database resets, new projects, and preview environments). Whenever creating or replacing a `public` table in `supabase/migrations/`:
+
+1. In the **same migration**, enable RLS and establish policies that check row ownership/authorization.
+2. Make the exposure decision explicit with **least-privilege GRANT statements**. Do not rely on default privileges. Prefer column-scoped privileges where appropriate (e.g. immutable profiles and chat messages). Give `anon` no table access unless the feature truly requires anonymous access; give `authenticated` only the necessary operations or columns. Grant `service_role` only permissions required by trusted server-side code.
+3. If a `public` table is intentionally not API-accessible, explicitly `REVOKE ALL` from `PUBLIC`, `anon`, and `authenticated`, document its internal-only purpose, and avoid client-side REST access.
+4. Grant sequence USAGE/SELECT only when needed for identity/serial inserts. New RPC functions also require explicit EXECUTE restrictions; never expose `SECURITY DEFINER` functions broadly.
+5. Verify the migration under the intended API role (including a fresh schema/reset path) and check the Supabase Security Advisor. Never use broad `GRANT ALL ON ALL TABLES` or blanket grants to bypass a 42501 error.
+
+**Do not retroactively widen existing table permissions.** In this game, `public.game_player_profiles` and `public.game_chat_messages` deliberately use column-level grants, and `public.game_save_versions` deliberately has no client-readable RLS policy. The `private` schema remains distinct from the `public` Data API exposure change. See `docs/supabase-data-api-grants-2026.md` for the verified project access matrix and safe examples.
