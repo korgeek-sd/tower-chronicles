@@ -24,6 +24,17 @@ test('cosmetic archive contains only illustrated standalone appearances',()=>{
  assert.equal(new Set(APPEARANCES.map(x=>x.id)).size,APPEARANCES.length);
  assert.equal(APPEARANCES[0].id,DEFAULT_APPEARANCE_ID);
 });
+test('default adventurer artwork is a valid existing WebP asset',()=>{
+ const starter=appearanceById(DEFAULT_APPEARANCE_ID);
+ assert.equal(starter?.imagePath,'assets/characters/appearances/default-d749c30acd33.webp');
+ const file=new URL('../public/'+starter!.imagePath,import.meta.url);
+ assert.equal(existsSync(file),true);
+ const bytes=readFileSync(file);
+ assert.equal(bytes.toString('ascii',0,4),'RIFF');
+ assert.equal(bytes.toString('ascii',8,12),'WEBP');
+ assert.equal(bytes.readUInt32LE(4)+8,bytes.length);
+ assert.equal(playerGraphicFor(DEFAULT_APPEARANCE_ID).image.idle,starter?.imagePath);
+});
 test('each themed collection contains five distinct C/B/A/SR/SSR appearances',()=>{
  for(const collection of APPEARANCE_COLLECTIONS){
   assert.equal(collection.appearanceIds.length,5);

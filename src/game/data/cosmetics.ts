@@ -54,7 +54,7 @@ export const APPEARANCE_COLLECTIONS:AppearanceCollection[]=entries.map(collectio
 }));
 
 const starter:AppearanceData={
- id:DEFAULT_APPEARANCE_ID,name:'기본 모험가',imagePath:'assets/player/default.png',
+ id:DEFAULT_APPEARANCE_ID,name:'기본 모험가',imagePath:'assets/characters/appearances/default-d749c30acd33.webp',
  description:'탑을 오르기 시작한 모험가의 기본 전신 외형',
  sourceLabel:'기본 지급',tradeable:false,artStatus:'ready'
 };

@@ -4,7 +4,7 @@ import {existsSync,statSync,readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {JOB_CATALOG} from '../src/game/jobs/catalog.ts';
 import {JOB_VISUAL_ASSETS} from '../src/game/jobs/visualAssets.ts';
-import {playerGraphicForJob} from '../src/game/data/graphics.ts';
+import {playerGraphicFor,playerGraphicForJob} from '../src/game/data/graphics.ts';
 
 const read=(path:string)=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
@@ -30,7 +30,7 @@ test('JOB ART FAST PATH 02: catalog and graphic resolver consume the registry ge
   assert.equal(job?.visualAssetKey,path,id);
   assert.equal(playerGraphicForJob(id,'default').image.idle,path,id);
  }
- assert.equal(playerGraphicForJob('nonexistent_job','default').image.idle,'assets/player/default.png');
+ assert.equal(playerGraphicForJob('nonexistent_job','default').image.idle,playerGraphicFor('default').image.idle);
 });
 
 test('JOB ART FAST PATH 03: active UI remains registry-driven rather than job-specific',()=>{
