@@ -13,7 +13,7 @@ description: Use when a user provides an image to add, replace, or update a Towe
 3. 스크립트는 `public/assets/characters/appearances/<id>-<hash12>.webp`와 `src/game/data/cosmetics.ts`의 지정 ID의 `imagePath`만 바꾼다. 기존 해시 이미지 삭제, 직업 일러스트 자동 덮어쓰기 및 무관한 파일 수정을 금지한다.
 4. 기존 외형의 소유권, 수집 보상, ID, 등급, 거래 가능 여부 및 설명은 그대로 유지한다. 새 외형일 경우 이름, 등급, 이미지 및 기존 계약에 맞는 필수 필드를 등록한다.
 5. `node --import ./tests/register.mjs --test tests/appearanceCatalog.test.ts`, `npm run typecheck`, `npm run build`로 검증한다. 가능하면 `node --test tests/skinPrGuard.test.mjs`도 확인한다.
-6. 해당 외형 카탈로그와 새 WebP 파일 **두 개만 선택적으로 커밋**한다. 원격 `skin/*` 브랜치에 푸시하여 PR을 만들고 `skin-ready` 레이블을 부여한다. `git add -A`, `git push origin main`, 강제 푸시 금지.
+6. 해당 외형 카탈로그와 새 WebP 파일 **두 개만 선택적으로 커밋**한다. 원격 `skin/*` 브랜치에 푸시하여 제목이 `skin-ready: <id>`인 PR을 만든다 (기존 `skin-ready` 레이블도 허용). `git add -A`, `git push origin main`, 강제 푸시 금지.
 7. `.github/workflows/skin-pr-merge.yml`이 PR 범위, SHA-256 파일명, 메타데이터 불변성, 병합 미리보기 테스트 및 빌드를 검증한 뒤 순차 병합한다. 충돌이나 오류가 있으면 최신 `main`을 바탕으로 **해당 ID 변경만** 다시 준비한다. 다른 세션의 카탈로그 항목을 덮어쓰지 않는다.
 8. 병합 커밋과 GitHub CI/Pages 결과 및 운영 사이트의 에셋 URL을 확인한 다음에만 완료로 보고한다. PR 생성이나 성공적인 커밋은 배포 완료가 아니다.
 
