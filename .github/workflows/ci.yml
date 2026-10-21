@@ -31,7 +31,7 @@ jobs:
         run: npm test
 
       - name: Test isolated skin merge guard
-        run: node --test tests/skinPrGuard.test.mjs
+        run: node --test tests/skinPrGuard.test.mjs tests/reconcileSkinCatalog.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
