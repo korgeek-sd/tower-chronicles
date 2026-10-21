@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
 
 test('ACCOUNT STATE 01: inactive server run hydrates the current account instead of leaving stale battle state',()=>{
- assert.match(main,/if\(!restored\.active\|\|!restored\.run\)\{await hydrateAccountWithoutServerRun\(lease\);return;\}/);
+ assert.match(main,/if\(!restored\.active\|\|!restored\.run\)\{await hydrateAccountWithoutServerRun\(lease\);return true;\}/);
  assert.match(main,/reconcileCloudState\(initialState\(\),lease\)/);
 });
 

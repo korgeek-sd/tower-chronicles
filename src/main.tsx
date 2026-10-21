@@ -55,6 +55,7 @@ import {AppearanceSummonScreen} from './components/appearance/AppearanceSummonSc
 import {SettingsDialog} from './components/SettingsDialog';
 import {applySettings} from './settings/preferences';
 applySettings();
+import {EntryConnectionScreen,connectionErrorMessage} from './components/intro/EntryConnectionScreen';
 import {GameSessionGate} from './components/GameSessionGate';
 import {BestiaryScreen} from './components/bestiary/BestiaryScreen';
 
@@ -120,6 +121,9 @@ function App(){
  const cloudTimer=useRef<number|null>(null),cloudBusy=useRef(false),cloudQueued=useRef(false),lastPersistedGame=useRef('');
  const huntingBusyOwner=useRef<string|null>(null);
  const serverEconomyBusy=useRef(false),settledReceiptKey=useRef(''),confirmedKillCount=useRef(0),onlineRunVersion=useRef(0),recordingAction=useRef(false),onlineCombatNonce=useRef(0),eventTimeoutHandled=useRef(''),saveRecoveryBusy=useRef(false);
+ const [entryLoadStatus,setEntryLoadStatus]=useState<'loading'|'ready'|'error'>('loading');
+ const [entryLoadError,setEntryLoadError]=useState('');
+ const entryLoadOwner=useRef<string|null>(null),entryRestoreError=useRef('');
  const initialGate:GameSessionPhase=onlineSession?'acquiring':'guest';
  const [gameSessionPhase,setGameSessionPhase]=useState<GameSessionPhase>(initialGate);
  const [gameplayLease,setGameplayLease]=useState<GameplayLease|null>(null);
@@ -301,7 +305,7 @@ function App(){
  async function commitOnlineEventChoice(instance:string,choice:string){const lease=gameplayLeaseRef.current,expedition=stateRef.current.expedition;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease||!expedition){commitEvent(s=>resolveEvent(s,instance,choice));return;}try{const eventId=expedition.events.pendingEvent?.eventId;if(eventId==='resource_stronghold'&&choice==='claim'){const pvp=await requestResourceStronghold(lease,expedition.tower,expedition.floor);setStrongholdPvp(pvp);setCloudSyncMessage(pvp.role==='OWNER'?'자원거점 점령을 서버에서 시작했습니다.':'자원거점 쟁탈 요청을 서버에 등록했습니다.');await restoreServerRun(lease);return;}const result=await resolveOnlineExplorationEvent(lease,onlineRunVersion.current,choice);onlineRunVersion.current=result.runVersion;if(result.playerHp===0&&!result.pendingRevival){await settleOnlineRun('dead');return;}await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 이벤트 처리에 실패했습니다.');}}
  async function settleOnlineStrongholdNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{await settleOnlineResourceStronghold(lease,onlineRunVersion.current);await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'자원거점 정산에 실패했습니다.');}}
  async function abandonOnlineStrongholdNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease){setGame(s=>abandonStrongholdAndReturn(s));return;}try{const sharedId=strongholdPvp?.stronghold?.strongholdId;if(sharedId)await abandonResourceStronghold(lease,sharedId);else {const result=await abandonOnlineResourceStronghold(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;}setStrongholdPvp(null);await settleOnlineRun('returned');}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'자원거점 포기에 실패했습니다.');}}
- function activateGameplay(result:GameSessionResult){if(result.status!=='ACTIVE'||!result.lease)return;recordingAction.current=false;onlineCombatNonce.current=0;onlineRunVersion.current=0;confirmedKillCount.current=0;eventTimeoutHandled.current='';gameplayLeaseRef.current=result.lease;setGameplayLease(result.lease);setGameSessionPlatform(result.activePlatform);setGameSessionHeartbeat(result.heartbeatAt);setGameSessionPhase('active');setGameSessionMessage('이 기기에서 플레이 중입니다.');void restoreServerRun(result.lease);}
+ function activateGameplay(result:GameSessionResult){if(result.status!=='ACTIVE'||!result.lease)return;recordingAction.current=false;onlineCombatNonce.current=0;onlineRunVersion.current=0;confirmedKillCount.current=0;eventTimeoutHandled.current='';gameplayLeaseRef.current=result.lease;setGameplayLease(result.lease);setGameSessionPlatform(result.activePlatform);setGameSessionHeartbeat(result.heartbeatAt);setGameSessionPhase('active');setGameSessionMessage('이 기기에서 플레이 중입니다.');void loadEntryRecord(result.lease);}
  function applyGameSessionResult(result:GameSessionResult){setGameSessionPlatform(result.activePlatform);setGameSessionHeartbeat(result.heartbeatAt);if(result.status==='ACTIVE'){activateGameplay(result);return;}gameplayLeaseRef.current=null;setGameplayLease(null);setGameSessionPhase(result.status==='PENDING'?'taking-over':'locked');setGameSessionMessage(result.status==='PENDING'?'기존 기기에 마지막 저장을 요청했습니다.':'같은 Google 계정이 다른 기기에서 플레이 중입니다.');}
  async function retryGameSession(){setGameSessionPhase('acquiring');setGameSessionMessage('계정의 플레이 권한을 다시 확인하고 있습니다.');try{applyGameSessionResult(await acquireGameSession());}catch(error){setGameSessionPhase('error');setGameSessionMessage(error instanceof Error?error.message:'플레이 세션을 확인하지 못했습니다.');}}
  async function applyLatestCloud(){try{const remote=await loadCloudSave();if(remote){const nextState=mergeServerRecordState(remote.payload);createRepository(gameStorage).save(nextState);stateRef.current=nextState;flushSync(()=>setGame(nextState));setCloudRevision(remote.revision);setSaved('클라우드');return nextState;}}catch{}return null;}
@@ -400,25 +404,41 @@ function App(){
    if(kind!=='FLEE'&&result.phase==='DEFEATED'){await showImpact();const advanced=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=advanced.runVersion;await restoreServerRun(lease);return;}
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
- async function restoreServerRun(lease:GameplayLease){
+ async function loadEntryRecord(lease:GameplayLease){
+  const owner=lease.leaseId+':'+lease.generation;
+  if(entryLoadOwner.current===owner)return;
+  entryLoadOwner.current=owner;entryRestoreError.current='';setEntryLoadStatus('loading');setEntryLoadError('');
   try{
-   let restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run){await hydrateAccountWithoutServerRun(lease);return;}
+   const restored=await restoreServerRun(lease);
+   if(entryLoadOwner.current!==owner||!isHuntingLeaseCurrent(lease,gameplayLeaseRef.current)||getStoredSession()?.userId!==onlineSession?.userId)return;
+   setEntryLoadStatus(restored?'ready':'error');
+   if(!restored)setEntryLoadError(entryRestoreError.current||'기록을 불러오지 못했습니다. 다시 시도해 주세요.');
+  }finally{if(entryLoadOwner.current===owner)entryLoadOwner.current=null;}
+ }
+ async function restoreServerRun(lease:GameplayLease):Promise<boolean>{
+  try{
+   let restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run){await hydrateAccountWithoutServerRun(lease);return true;}
    let combat=restored.combat;
    if(combat?.phase==='DEFEATED'&&!restored.run.pendingEvent&&combat.returnAuthorized!==true){
-    const advanced=await advanceOnlineExploration(lease,restored.run.runVersion);onlineRunVersion.current=advanced.runVersion;restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run){await hydrateAccountWithoutServerRun(lease);return;}combat=restored.combat;
+    const advanced=await advanceOnlineExploration(lease,restored.run.runVersion);onlineRunVersion.current=advanced.runVersion;restored=await restoreOnlineExpedition(lease);if(!restored.active||!restored.run){await hydrateAccountWithoutServerRun(lease);return true;}combat=restored.combat;
    }
-   if(combat?.phase==='PLAYER_DEAD'&&!combat.pendingRevival){await settleOnlineRun('dead');return;}
+   if(combat?.phase==='PLAYER_DEAD'&&!combat.pendingRevival){await settleOnlineRun('dead');return true;}
    confirmedKillCount.current=restored.run.confirmedKills;onlineRunVersion.current=restored.run.runVersion;
    if(combat&&typeof combat.actionNonce==='number')onlineCombatNonce.current=combat.actionNonce;
    const candidate=reconcileOnlineExpeditionState(stateRef.current,restored);
    stateRef.current=candidate;setGame(candidate);setPage('battle');setStorageError('');
-   setCloudSyncStatus('synced');setCloudSyncMessage('서버의 진행 중인 원정을 복원했습니다.');
-  }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');}
+   setCloudSyncStatus('synced');setCloudSyncMessage('서버의 진행 중인 원정을 복원했습니다.');return true;
+  }catch(error){entryRestoreError.current=connectionErrorMessage(error);setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');return false;}
  }
  async function continueOnlineExplorationNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{const result=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'다음 탐험을 서버에서 시작하지 못했습니다.');}}
  async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');window.dispatchEvent(new Event('tower:session-changed'));}}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
+ if(onlineSession&&!profileReady){
+  const status=profileState.userId===onlineSession.userId?profileState.status:'loading';
+  if(status==='loading'||status==='error')return <EntryConnectionScreen stage="account" error={status==='error'?connectionErrorMessage(profileState.error):''} onRetry={()=>setProfileRetry(n=>n+1)} onLogout={()=>void logoutOnline()}/>;
+ }
+ if(onlineSession&&profileReady&&gameSessionPhase==='active'&&entryLoadStatus!=='ready')return <EntryConnectionScreen stage="record" error={entryLoadStatus==='error'?entryLoadError:''} onRetry={()=>{const lease=gameplayLeaseRef.current;if(lease)void loadEntryRecord(lease);}} onLogout={()=>void logoutOnline()}/>;
  if(onlineSession&&!profileReady)return <NicknameGate key={onlineSession.userId} status={profileState.userId===onlineSession.userId&&profileState.status!=='ready'?profileState.status:'loading'} error={profileState.error} onRegister={registerPlayerNickname} onReady={profile=>{if(profile.userId===getStoredSession()?.userId)setProfileState({userId:profile.userId,status:'ready',profile,error:''});}} onRetry={()=>setProfileRetry(n=>n+1)} onLogout={()=>void logoutOnline()}/>;
  return <div className={shellClass}>
    {premiumOpen&&<PremiumDialog onlineAccount={!!onlineSession} key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)} game={game} lease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onClose={()=>setPremiumOpen(false)} onGuestBuy={nextGame=>{createRepository(gameStorage).save(nextGame);stateRef.current=nextGame;setGame(nextGame);setSaved('프리미엄 구매');}} onPrepare={async()=>{if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}if(cloudBusy.current||serverEconomyBusy.current)throw Error('저장 동기화 중입니다. 다시 열어 주세요.');await runCloudSync();if(gameSessionPhaseRef.current!=='active'||!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))throw Error('플레이 권한을 다시 확인해 주세요.');}} onPending={value=>{const owner='premium:'+(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0);if(value){if(!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))return;huntingBusyOwner.current=owner;}else{if(huntingBusyOwner.current!==owner)return;huntingBusyOwner.current=null;}serverEconomyBusy.current=value;if(value&&cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}}} onRecord={record=>{if(getStoredSession()?.userId!==onlineSession?.userId||gameSessionPhaseRef.current!=='active'||!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))return;if(record?.payload){if(onlineSession)rememberCloudRecord(record,onlineSession.userId);createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setGame(record.payload);setCloudRevision(record.revision);}}}/>}
