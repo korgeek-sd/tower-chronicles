@@ -8,7 +8,7 @@ export function markWorldIntroSeen(storage:IntroStorage):void{
 }
 type WorldIntroPage={chapter:string;title:string;body:string;image:string;quote?:string;citation?:string};
 export const WORLD_INTRO_PAGES:readonly WorldIntroPage[]=[
- {chapter:'01',title:'지워진 이름',body:'',image:'assets/intro/story/chapter-01.webp',quote:'누구든지 내게 범죄하면\n내가 내 책에서 그를 지워 버리리라.',citation:'출애굽기 32:33 중 · 개역개정'},
+ {chapter:'01',title:'지워진 이름',body:'',image:'assets/intro/story/chapter-01.webp',quote:'여호와께서 모세에게 이르시되\n누구든지 내게 범죄하면\n그는 내가 내 책에서 지워버리리라',citation:'출애굽기 32:33'},
  {chapter:'02',title:'태어날 때부터 진 빚',image:'assets/intro/story/chapter-02.webp',body:'교단은 가르쳤다.\n\n모든 인간은 죄를 물려받아 태어나며,\n살아가는 동안 그 빚을 갚아야 한다고.\n\n죽은 자는 책에 기록된 이름으로 불려 나와\n자신의 삶을 심판받는다고.'},
  {chapter:'03',title:'불리지 못한 자들',image:'assets/intro/story/chapter-03.webp',body:'그러나 책에서 이름이 지워진 자는\n죽어서도 불려 나갈 수 없었다.\n\n그들의 얼굴은 기억에서 흐려지고,\n그들이 남긴 이름은 읽을 수 없게 되었다.\n\n누군가를 사랑했다는 사실도,\n누군가에게 미움받았다는 사실도.\n\n세상은 주인을 잃은 기억을\n조금씩 다른 이야기로 바꾸었다.'},
  {chapter:'04',title:'탑은 기억했다',image:'assets/intro/story/chapter-04.webp',body:'그들이 지킨 집은 남았다.\n그들이 만든 검도 남았다.\n\n그러나 누구도\n그 집을 지킨 자와 검을 만든 자를 기억하지 못했다.\n\n세상이 잊은 삶들은 탑으로 흘러들었다.\n\n영웅과 괴물, 왕과 죄인.\n지워진 자들의 삶이 그곳에 남아 있었다.\n\n『탑의 기록』이라 불리는 외경이었다.'},

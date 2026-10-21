@@ -17,8 +17,8 @@ test('world intro persists only its own completion marker and tolerates blocked 
 test('eight approved chapters retain their sequence and use one separate illustration each',()=>{
  assert.equal(WORLD_INTRO_PAGES.length,8);
  assert.deepEqual(WORLD_INTRO_PAGES.map(p=>p.title),['지워진 이름','태어날 때부터 진 빚','불리지 못한 자들','탑은 기억했다','끝나지 않는 삶','귀환자들의 도시','나의 탓이라','당신의 다음 기록']);
- assert.match(WORLD_INTRO_PAGES[0].quote!,/내 책에서 그를 지워/);
- assert.equal(WORLD_INTRO_PAGES[0].citation,'출애굽기 32:33 중 · 개역개정');
+ assert.equal(WORLD_INTRO_PAGES[0].quote!.replace(/\s+/g,' '),'여호와께서 모세에게 이르시되 누구든지 내게 범죄하면 그는 내가 내 책에서 지워버리리라');
+ assert.equal(WORLD_INTRO_PAGES[0].citation,'출애굽기 32:33');
  assert.equal(new Set(WORLD_INTRO_PAGES.map(p=>p.image)).size,8);
  for(const p of WORLD_INTRO_PAGES)assert.ok(readFileSync(new URL('../public/'+p.image,import.meta.url)).length>1000);
  assert.match(WORLD_INTRO_PAGES[6].body,/메아쿨파/);
