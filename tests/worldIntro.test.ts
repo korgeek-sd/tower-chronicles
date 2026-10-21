@@ -14,24 +14,34 @@ test('world intro persists only its own completion marker and tolerates blocked 
  assert.equal(hasSeenWorldIntro(blocked),false);
  assert.doesNotThrow(()=>markWorldIntroSeen(blocked));
 });
-test('four pages lead from original sin to the player without declaring religious mysteries true',()=>{
- assert.equal(WORLD_INTRO_PAGES.length,4);
- assert.match(WORLD_INTRO_PAGES[0].body,/교회는/);
- assert.match(WORLD_INTRO_PAGES[2].body,/당신 역시/);
- assert.match(WORLD_INTRO_PAGES[3].body,/기록을 남길/);
- const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
- assert.match(main,/<GameEntry initialError=\{authStartupError\}><App\/><\/GameEntry>/);
+test('eight approved chapters retain their sequence and use one separate illustration each',()=>{
+ assert.equal(WORLD_INTRO_PAGES.length,8);
+ assert.deepEqual(WORLD_INTRO_PAGES.map(p=>p.title),['지워진 이름','태어날 때부터 진 빚','불리지 못한 자들','탑은 기억했다','끝나지 않는 삶','귀환자들의 도시','나의 탓이라','당신의 다음 기록']);
+ assert.match(WORLD_INTRO_PAGES[0].quote!,/내 책에서 그를 지워/);
+ assert.equal(WORLD_INTRO_PAGES[0].citation,'출애굽기 32:33 중 · 개역개정');
+ assert.equal(new Set(WORLD_INTRO_PAGES.map(p=>p.image)).size,8);
+ for(const p of WORLD_INTRO_PAGES)assert.ok(readFileSync(new URL('../public/'+p.image,import.meta.url)).length>1000);
+ assert.match(WORLD_INTRO_PAGES[6].body,/메아쿨파/);
  const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
- assert.match(ui,/markWorldIntroSeen/);
- assert.match(ui,/건너뛰기/);
- assert.match(ui,/탑에 들어가기/);
- assert.match(ui,/inert=/);
+ assert.match(ui,/markWorldIntroSeen/);assert.match(ui,/건너뛰기/);assert.match(ui,/새 이름을 기록한다/);assert.match(ui,/inert=/);
+ assert.doesNotMatch(ui,/page===3|\/ 4/);
 });
-test('intro artwork preserves its source aspect ratio and clips each atlas page',()=>{
+test('intro uses individual unstretched images and readable scrollable text',()=>{
  const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/components/intro/world-intro.css',import.meta.url),'utf8');
- assert.match(ui,/viewBox="0 0 384 1024"/);
- assert.match(ui,/preserveAspectRatio="xMidYMid meet"/);
- assert.match(ui,/clipPath="url\(#world-intro-art-clip\)"/);
- assert.doesNotMatch(css,/background-size:400% 100%/);
+ assert.match(ui,/<img/);assert.match(ui,/BASE_URL\+current.image/);
+ assert.match(css,/object-fit:cover/);assert.match(css,/overflow-y:auto/);assert.match(css,/safe-area-inset-bottom/);
+ assert.doesNotMatch(ui,/world-intro.png|<svg/);
+});
+test('naming screen describes a new name without changing existing registration rules',()=>{
+ const ui=readFileSync(new URL('../src/components/NicknameGate.tsx',import.meta.url),'utf8');
+ assert.match(ui,/당신을 무엇이라 부르면 되겠습니까/);assert.match(ui,/이 이름으로 시작한다/);
+ assert.match(ui,/validateNickname/);assert.match(ui,/onRegister\(validation.nickname\)/);
+});
+
+test('story preview cannot mount gameplay or change the completion marker',()=>{
+ const ui=readFileSync(new URL('../src/components/intro/GameEntry.tsx',import.meta.url),'utf8');
+ assert.match(ui,/ready&&<div inert=/);
+ assert.match(ui,/if\(!preview\)markWorldIntroSeen/);
+ assert.match(ui,/const ready=canEnterGame\(signedIn,entered\)/);
 });

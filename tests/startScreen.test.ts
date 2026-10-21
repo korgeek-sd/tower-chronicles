@@ -4,9 +4,9 @@ import {readFileSync} from 'node:fs';
 const read=(path:string)=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('entry requires account before mounting gameplay or showing first-run lore',()=>{
  const entry=read('src/components/intro/GameEntry.tsx');
- assert.match(entry,/splashDone&&ready&&open/);
+ assert.match(entry,/splashDone&&\(ready\|\|preview\)&&open/);
  assert.match(entry,/ready&&<div inert=/);
- assert.match(entry,/!ready&&<StartScreen/);
+ assert.match(entry,/!ready&&!visible&&<StartScreen/);
  assert.match(entry,/tower:session-changed/);
  assert.match(read('src/main.tsx'),/dispatchEvent\(new Event\('tower:session-changed'\)\)/);
 });
