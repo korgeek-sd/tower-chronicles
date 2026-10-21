@@ -31,3 +31,8 @@ test('removing other skins or changing code outside array is rejected',()=>{
  assert.throws(()=>checkCatalogChange(catalog(first+','+second),catalog(first)),/removed or renamed/);
  assert.throws(()=>checkCatalogChange(catalog(first),catalog(first.replace('aaaaaaaaaaaa','bbbbbbbbbbbb'))+'export const compromised=true;'),/outside/);
 });
+
+test('executable expressions inside proposed catalog entries are rejected',()=>{
+ const unsafe=second.replace('tradeable:false',"tradeable:(()=>{throw new Error('bad')})()");
+ assert.throws(()=>checkCatalogChange(catalog(first),catalog(first+','+unsafe)),/executable expression/);
+});
