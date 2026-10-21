@@ -23,9 +23,9 @@ export function StartAtmosphere({paused=false}:{paused?:boolean}){
  return <div ref={frame} className="tc-start-atmosphere" aria-hidden="true" data-paused={paused||hidden}>
   {fit&&<svg className="tc-start-atmosphere__canvas" viewBox="0 0 841 1870" style={fit} focusable="false" shapeRendering="crispEdges">
    <g className="tc-start-atmosphere__glow" fill="#ffe6ab">
-    <path opacity=".32" d="M428 1018V914H432V898H438V886H444V874H450V886H456V898H462V914H466V1024H450V1018Z"/>
-    <path opacity=".46" d="M440 1018V912H444V894H450V912H456V1024H448V1018Z"/>
-    <path opacity=".16" d="M410 1022H426V1016H446V1022H470V1028H486V1034H452V1030H428V1034H402V1028H410Z"/>
+    <path opacity=".65" d="M428 1018V914H432V898H438V886H444V874H450V886H456V898H462V914H466V1024H450V1018Z"/>
+    <path opacity=".8" d="M440 1018V912H444V894H450V912H456V1024H448V1018Z"/>
+    <path opacity=".35" d="M410 1022H426V1016H446V1022H470V1028H486V1034H452V1030H428V1034H402V1028H410Z"/>
    </g>
    <g className="tc-start-atmosphere__fog tc-start-atmosphere__fog--far" fill="#c0bfb0">
     <path d="M-60 1048H-20V1038H10V1028H42V1018H78V1010H104V1020H138V1028H168V1038H202V1046H238V1056H252V1068H210V1076H162V1070H130V1078H90V1070H46V1078H8V1068H-32V1060H-60Z"/>

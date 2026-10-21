@@ -39,8 +39,8 @@ export function StartScreen({initialError='',session,onEnter}:{initialError?:str
  }
  return <main className="tc-start-screen" aria-label="탑의 기록 시작화면">
   <img className="tc-start-screen__art" src={import.meta.env.BASE_URL+'assets/intro/start-background-pixel.webp'} alt="" aria-hidden="true" fetchPriority="high"/>
-  <StartAtmosphere paused={noticesOpen||busy}/>
   <div className="tc-start-screen__shade" aria-hidden="true"/>
+  <StartAtmosphere paused={noticesOpen||busy}/>
   <h1 className="tc-start-screen__logo"><img src={import.meta.env.BASE_URL+'assets/intro/title-logo.webp'} alt="탑의 기록 · TOWER CHRONICLES" fetchPriority="high"/></h1>
   <section className="tc-start-screen__actions" aria-label="계정 로그인">
    <label className="tc-start-screen__server"><span>서버 선택</span><select value={server.id} disabled={busy} onChange={event=>selectServer(event.target.value)}>{GAME_SERVERS.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>

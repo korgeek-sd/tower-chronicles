@@ -28,3 +28,12 @@ test('effects respect motion settings, use no idle JS render loop and clean up v
  assert.match(css,/prefers-reduced-motion:reduce/);assert.match(css,/data-tc-reduced-motion/);assert.match(css,/animation-play-state:paused/);assert.match(css,/pointer-events:none/);
  assert.doesNotMatch(css,/blur\(/);
 });
+
+test('atmosphere remains perceptible above the title shade',()=>{
+ const screen=readFileSync(new URL('../src/components/intro/StartScreen.tsx',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/components/intro/start-atmosphere.css',import.meta.url),'utf8');
+ assert.ok(screen.indexOf('<StartAtmosphere')>screen.indexOf('className="tc-start-screen__shade"'));
+ assert.match(css,/opacity:\.22/);
+ assert.match(css,/translate\(-64px,8px\)/);
+ assert.match(css,/to\{opacity:\.9\}/);
+});
