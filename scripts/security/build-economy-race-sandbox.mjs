@@ -21,7 +21,7 @@ returns jsonb language plpgsql security ${publicDriver?'definer':'invoker'} set 
 declare m ${q}.qa_meta%rowtype;actor uuid;v_order uuid;r jsonb:='{}';started timestamptz:=clock_timestamp();did_lock boolean;
 begin
  ${publicDriver?"if auth.uid() is distinct from '"+account+"'::uuid or not exists(select 1 from auth.sessions s where s.user_id=auth.uid() and s.id::text=auth.jwt()->>'session_id') then raise exception 'QA_FORBIDDEN' using errcode='42501';end if;":"if current_user not in ('postgres','supabase_admin') then raise exception 'QA_OWNER_REQUIRED' using errcode='42501';end if;"}
- if p_action is null or p_action not in('reset_market','reset_bank','sell','buy','cancel','auto','repay','probe','snapshot') or p_quantity is null or p_quantity not between 1 and 10 or p_delay_ms is null or p_delay_ms not between 0 and 3000 then raise exception 'QA_INPUT_INVALID';end if;
+ if p_action is null or p_action not in('reset_market','reset_bank','sell','buy','cancel','auto','repay','probe','snapshot') or p_quantity is null or p_quantity not between 1 and 10 or p_delay_ms is null or p_delay_ms not between 0 and 7000 then raise exception 'QA_INPUT_INVALID';end if;
  select * into m from ${q}.qa_meta;
  if p_action='probe' then
   did_lock:=pg_try_advisory_xact_lock(hashtextextended('${prefix}-mutations',0));
@@ -62,6 +62,7 @@ begin
  perform set_config('request.jwt.claims',jsonb_build_object('sub',actor,'session_id',actor,'role','authenticated')::text,true);
  perform set_config('test.persist_failure',case when p_fail then 'on' else 'off' end,true);
  begin
+  if p_delay_ms=0 then perform pg_sleep(1);end if;
   if p_action='auto' then
    did_lock:=pg_try_advisory_xact_lock(hashtextextended('${prefix}-mutations',0));
    if did_lock and p_delay_ms>0 then perform pg_sleep(p_delay_ms/1000.0);end if;
