@@ -16,7 +16,15 @@ const CATALOG='src/game/data/cosmetics.ts';
 const PREFIX='public/assets/characters/appearances/';
 const run=(...args)=>execFileSync('git',args,{encoding:'utf8'}).trim();
 const propertyName=node=>ts.isIdentifier(node)?node.text:ts.isStringLiteral(node)?node.text:null;
-const stringValue=node=>node&&(ts.isStringLiteral(node)||ts.isNoSubstitutionTemplateLiteral(node))?node.text:null;
+const stringValue=node=>node&&ts.isStringLiteral(node)?node.text:null;
+const allowedFields=new Set(['id','name','imagePath','description','sourceLabel','tradeable','hideNameWhenLocked','rarity','collectionId','proposedBonus','artStatus']);
+function safeValue(node){
+ if(ts.isStringLiteral(node)||ts.isNumericLiteral(node))return true;
+ if(node.kind===ts.SyntaxKind.TrueKeyword||node.kind===ts.SyntaxKind.FalseKeyword||node.kind===ts.SyntaxKind.NullKeyword)return true;
+ if(ts.isPropertyAccessExpression(node))return ts.isIdentifier(node.expression)&&node.expression.text==='APPEARANCE_PROPOSED_PERCENT'&&['C','B','A','SR','SSR'].includes(node.name.text);
+ if(ts.isObjectLiteralExpression(node))return node.properties.every(p=>ts.isPropertyAssignment(p)&&!!propertyName(p.name)&&safeValue(p.initializer));
+ return false;
+}
 
 function readCatalog(content){
  const source=ts.createSourceFile('cosmetics.ts',content,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
@@ -30,6 +38,7 @@ function readCatalog(content){
  };
  visit(source);
  assert.ok(array&&ts.isArrayLiteralExpression(array),'APPEARANCES must be a literal array');
+ assert.equal(source.parseDiagnostics.length,0,'catalog has syntax errors');
  const entries=new Map();
  for(const element of array.elements){
   if(ts.isIdentifier(element)&&element.text==='starter'){
@@ -42,7 +51,8 @@ function readCatalog(content){
   for(const property of element.properties){
    assert.ok(ts.isPropertyAssignment(property),'only literal properties are allowed');
    const name=propertyName(property.name);
-   assert.ok(name&&!fields.has(name),'invalid or duplicate property');
+   assert.ok(name&&allowedFields.has(name)&&!fields.has(name),'invalid or duplicate property');
+   assert.ok(safeValue(property.initializer),'executable expression in skin catalog: '+name);
    fields.set(name,{raw:property.initializer.getText(source),value:stringValue(property.initializer)});
   }
   const id=fields.get('id')?.value;
