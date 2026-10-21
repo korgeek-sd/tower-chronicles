@@ -6,6 +6,7 @@ import {APP_VERSION} from '../../storage/repository';
 import './start-screen.css';
 import {connectionErrorMessage} from './EntryConnectionScreen';
 import {StartNotices} from './StartNotices';
+import {StartAtmosphere} from './StartAtmosphere';
 
 export function StartScreen({initialError='',session,onEnter}:{initialError?:string;session:OnlineSession|null;onEnter:()=>void}){
  const [busy,setBusy]=useState(false),[error,setError]=useState(initialError);
@@ -38,6 +39,7 @@ export function StartScreen({initialError='',session,onEnter}:{initialError?:str
  }
  return <main className="tc-start-screen" aria-label="탑의 기록 시작화면">
   <img className="tc-start-screen__art" src={import.meta.env.BASE_URL+'assets/intro/start-background-pixel.webp'} alt="" aria-hidden="true" fetchPriority="high"/>
+  <StartAtmosphere paused={noticesOpen||busy}/>
   <div className="tc-start-screen__shade" aria-hidden="true"/>
   <h1 className="tc-start-screen__logo"><img src={import.meta.env.BASE_URL+'assets/intro/title-logo.webp'} alt="탑의 기록 · TOWER CHRONICLES" fetchPriority="high"/></h1>
   <section className="tc-start-screen__actions" aria-label="계정 로그인">
