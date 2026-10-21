@@ -1,6 +1,6 @@
 .tc-start-screen{isolation:isolate;position:fixed;inset:0;z-index:1000;overflow-y:auto;min-height:100svh;height:100dvh;background:#100f0e;color:#e8dfcf;font-family:Arial,'Noto Sans KR',sans-serif}
 .tc-start-screen__art,.tc-start-screen__shade{position:absolute;inset:0;pointer-events:none}
-.tc-start-screen__art{background:#151412 var(--tc-start-background) center 56%/cover no-repeat}
+.tc-start-screen__art{display:block;width:100%;height:100%;object-fit:cover;object-position:center 56%;background:#151412}
 .tc-start-screen__shade{background:linear-gradient(180deg,rgba(9,9,8,.2),transparent 42%,rgba(8,8,7,.05) 66%,rgba(6,6,6,.94) 100%)}
 .tc-start-screen__logo{position:absolute;top:12%;left:50%;transform:translateX(-50%);width:min(94%,530px);margin:0;mix-blend-mode:screen;pointer-events:none}
 .tc-start-screen__logo img{display:block;width:100%;height:auto;object-fit:contain}

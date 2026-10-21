@@ -23,7 +23,7 @@ export function StartScreen({initialError='',session,onEnter}:{initialError?:str
   catch{pending.current=false;setBusy(false);setError('Google 로그인을 시작하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.');}
  }
  return <main className="tc-start-screen" aria-label="탑의 기록 시작화면">
-  <div className="tc-start-screen__art" style={{'--tc-start-background':`url("${import.meta.env.BASE_URL}assets/intro/start-background-pixel.webp")`} as React.CSSProperties} aria-hidden="true"/>
+  <img className="tc-start-screen__art" src={import.meta.env.BASE_URL+'assets/intro/start-background-pixel.webp'} alt="" aria-hidden="true" fetchPriority="high"/>
   <div className="tc-start-screen__shade" aria-hidden="true"/>
   <h1 className="tc-start-screen__logo"><img src={import.meta.env.BASE_URL+'assets/intro/title-logo.webp'} alt="탑의 기록 · TOWER CHRONICLES" fetchPriority="high"/></h1>
   <section className="tc-start-screen__actions" aria-label="계정 로그인">

@@ -46,5 +46,12 @@ test('server selector and enter button stay compact without shrinking Google sig
 });
 test('title screen loads the approved pixel background through the deployment base path',()=>{
  const screen=read('src/components/intro/StartScreen.tsx');
- assert.match(screen,/\$\{import.meta.env.BASE_URL\}assets\/intro\/start-background-pixel.webp/);
+ assert.match(screen,/import.meta.env.BASE_URL\+'assets\/intro\/start-background-pixel.webp'/);
+});
+test('background is a real image so relative URLs resolve against the page, not the CSS asset directory',()=>{
+ const screen=read('src/components/intro/StartScreen.tsx');
+ assert.match(screen,/<img className="tc-start-screen__art" src=\{import.meta.env.BASE_URL\+'assets\/intro\/start-background-pixel.webp'\}/);
+ assert.doesNotMatch(screen,/--tc-start-background/);
+ const css=read('src/components/intro/start-screen.css');
+ assert.match(css,/\.tc-start-screen__art\{[^}]*width:100%;height:100%;object-fit:cover/);
 });
