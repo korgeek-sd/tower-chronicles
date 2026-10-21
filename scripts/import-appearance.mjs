@@ -261,7 +261,7 @@ async function main() {
     console.log(`\n다음 단계 권장:`);
     console.log(`1. node --import ./tests/register.mjs --test tests/appearanceCatalog.test.ts`);
     console.log(`2. git add -A && git commit -m "feat(cosmetics): update ${appearanceId} appearance artwork"`);
-    console.log(`3. git push origin HEAD && gh pr create --base main --label skin-ready`);
+    console.log(`3. git push -u origin HEAD && gh pr create --base main --title "skin-ready: ${appearanceId}"`);
 
   } finally {
     try { browser.kill(); } catch {}
