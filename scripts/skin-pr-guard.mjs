@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {existsSync,readFileSync} from 'node:fs';
+
 import ts from 'typescript';
 
 const CATALOG='src/game/data/cosmetics.ts';
@@ -112,8 +112,10 @@ function main(){
  const newFile='public/'+changed.imagePath;
  assert.ok(changes.some(x=>x.path===newFile&&x.status==='A'),'PR must add the new hashed artwork');
  assert.ok(changes.filter(x=>x.path!==CATALOG).every(x=>x.path===newFile),'PR must not touch other skin assets');
- assert.ok(existsSync(newFile),'new artwork must be present in the merged worktree: '+newFile);
- const actualHash=createHash('sha256').update(readFileSync(newFile)).digest('hex').slice(0,12);
+ // The trusted main checkout does not contain the PR asset before merging.
+ // Read the added image from the immutable candidate Git ref, not the worktree.
+ const artwork=execFileSync('git',['show',headRef+':'+newFile],{maxBuffer:16*1024*1024});
+ const actualHash=createHash('sha256').update(artwork).digest('hex').slice(0,12);
  assert.equal(actualHash,changed.hash,'artwork filename hash does not match content');
  console.log('Safe skin PR: '+changed.id+' ('+(changed.isNew?'new':'replacement')+') '+changed.imagePath);
 }
