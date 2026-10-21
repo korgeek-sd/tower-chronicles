@@ -10,7 +10,7 @@ on:
         required: false
         type: string
   schedule:
-    # Retry queued labeled PRs if a labeled event was superseded.
+    # Retry ready PRs if queued events were superseded.
     - cron: '*/10 * * * *'
 
 permissions:
@@ -66,7 +66,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,isDraft,baseRefName,headRefName,headRepository,labels |
+          gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,isDraft,baseRefName,headRefName,headRepository,labels,title |
           node --input-type=module -e '
             let s="";
             for await (const part of process.stdin) s+=part;
@@ -86,12 +86,59 @@ jobs:
       - name: Validate PR contents before running PR code
         if: steps.request.outputs.ready == 'true'
         run: node scripts/skin-pr-guard.mjs origin/main origin/skin-candidate
-      - name: Test merge result without publishing
+      - name: Reconcile disjoint catalog conflicts and test the merged result
         if: steps.request.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.request.outputs.number }}
         shell: bash
         run: |
           set -euo pipefail
-          git -c user.name="skin-merge-check" -c user.email="skin-merge-check@users.noreply.github.com" merge --no-commit --no-ff origin/skin-candidate
+          git config user.name "skin-merge-bot"
+          git config user.email "skin-merge-bot@users.noreply.github.com"
+          if ! git merge --no-commit --no-ff origin/skin-candidate; then
+            conflicts="$(git diff --name-only --diff-filter=U)"
+            if [ "$conflicts" != "src/game/data/cosmetics.ts" ]; then
+              echo "::error::Unexpected merge conflict; refusing to overwrite other files: $conflicts"
+              exit 1
+            fi
+
+            # Read all three versions from Git objects and preserve every main
+            # entry except the one ID that this PR is allowed to update.
+            node scripts/reconcile-skin-catalog.mjs origin/main origin/skin-candidate "$RUNNER_TEMP/resolved-skin-catalog.ts"
+            git merge --abort
+
+            # Update the original PR with a normal, non-force merge of main.
+            # Keeping the PR as the merge authority honors branch protections.
+            pr_branch="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefName --jq .headRefName)"
+            git switch -c skin-queue-pr origin/skin-candidate
+            if git merge --no-commit --no-ff origin/main; then
+              echo "::error::Unexpected clean merge in the conflict reconciliation path"
+              exit 1
+            fi
+            conflicts="$(git diff --name-only --diff-filter=U)"
+            if [ "$conflicts" != "src/game/data/cosmetics.ts" ]; then
+              echo "::error::Additional conflicts in PR branch: $conflicts"
+              exit 1
+            fi
+            cp "$RUNNER_TEMP/resolved-skin-catalog.ts" src/game/data/cosmetics.ts
+            git add src/game/data/cosmetics.ts
+            git commit --no-edit
+
+            # Validate before advancing the PR branch; never force-push.
+            npm test
+            npm run typecheck
+            npm run build
+            git push origin "HEAD:refs/heads/$pr_branch"
+            gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$pr_branch"
+
+            # Refresh refs for the final, now clean, merge preview.
+            git switch main
+            git fetch origin main
+            git fetch --no-tags origin "+refs/pull/$PR_NUMBER/head:refs/remotes/origin/skin-candidate"
+            git merge --no-commit --no-ff origin/skin-candidate
+          fi
+
           npm test
           npm run typecheck
           npm run build
