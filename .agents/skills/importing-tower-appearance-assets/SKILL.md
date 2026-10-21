@@ -20,5 +20,5 @@ description: Use when a user provides an image to add, replace, or update a Towe
 ## 확인 사항
 - 기본(default) 외형 이미지는 일반 해시 이미지 경로와 달라 이 PR 자동 큐에서 처리하지 않는다. 별도 작업으로 검증한다.
 - 교체 전 이미지가 기존 빌드/캐시에 참조될 수 있으므로 삭제하지 않는다.
-- 다른 세션이 같은 `cosmetics.ts` 인접 영역을 편집하면 Git 충돌이 날 수 있으며 **자동 해소는 미구현**이다. 충돌 PR을 작업한 세션이 최신 `main`에서 단일 ID만 재적용해야 한다.
+- 서로 다른 외형 ID가 같은 `cosmetics.ts` 위치에서 충돌하면 큐가 해당 ID만 안전하게 재적용한다. 동일 ID의 상충된 업데이트는 임의로 결정하지 않고 중단한다.
 - 브랜치 보호·GitHub 네이티브 병합 대기열 등 관리자 설정은 `docs/skin-parallel-deployment.md`를 따른다.
