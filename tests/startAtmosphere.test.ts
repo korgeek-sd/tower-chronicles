@@ -35,5 +35,14 @@ test('atmosphere remains perceptible above the title shade',()=>{
  assert.ok(screen.indexOf('<StartAtmosphere')>screen.indexOf('className="tc-start-screen__shade"'));
  assert.match(css,/opacity:\.22/);
  assert.match(css,/translate\(-64px,8px\)/);
- assert.match(css,/to\{opacity:\.9\}/);
+ assert.match(css,/to\{opacity:1\}/);
+});
+
+test('cloud banks fill several depths and doorway bloom follows a clipped arch',()=>{
+ const source=readFileSync(new URL('../src/components/intro/StartAtmosphere.tsx',import.meta.url),'utf8');
+ assert.match(source,/radialGradient/);assert.match(source,/clipPath/);
+ assert.match(source,/tc-start-atmosphere__fog--sky/);
+ assert.match(source,/tc-start-atmosphere__fog--middle/);
+ assert.ok((source.match(/<CloudBank /g)||[]).length>=12);
+ assert.doesNotMatch(source,/M428 1018V914/);
 });

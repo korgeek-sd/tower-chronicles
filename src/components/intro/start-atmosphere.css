@@ -3,12 +3,16 @@
 .tc-start-atmosphere__fog{transform-box:fill-box;transform-origin:center;opacity:.22}
 .tc-start-atmosphere__fog--far{animation:tc-title-fog-far 14s ease-in-out infinite alternate}
 .tc-start-atmosphere__fog--near{opacity:.16;animation:tc-title-fog-near 17s ease-in-out -5s infinite alternate}
-.tc-start-atmosphere__glow{opacity:.5;animation:tc-title-door-light 4s ease-in-out infinite alternate}
+.tc-start-atmosphere__glow{opacity:.8;animation:tc-title-door-light 3s ease-in-out infinite alternate}
 .tc-start-atmosphere[data-paused=true] .tc-start-atmosphere__fog,.tc-start-atmosphere[data-paused=true] .tc-start-atmosphere__glow{animation-play-state:paused}
 @keyframes tc-title-fog-far{from{transform:translate(-64px,8px)}to{transform:translate(64px,-10px)}}
 @keyframes tc-title-fog-near{from{transform:translate(72px,8px)}to{transform:translate(-72px,-8px)}}
-@keyframes tc-title-door-light{from{opacity:.2}to{opacity:.9}}
+@keyframes tc-title-door-light{from{opacity:.3}to{opacity:1}}
 @media(min-width:600px){.tc-start-atmosphere{left:50%;width:min(100%,700px);transform:translateX(-50%);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}}
 @media(prefers-reduced-motion:reduce){.tc-start-atmosphere{display:none}.tc-start-atmosphere__fog,.tc-start-atmosphere__glow{animation:none}}
 html[data-tc-reduced-motion=true] .tc-start-atmosphere{display:none}
 html[data-tc-reduced-motion=true] .tc-start-atmosphere__fog,html[data-tc-reduced-motion=true] .tc-start-atmosphere__glow{animation:none}
+
+.tc-start-atmosphere__fog--sky{opacity:.26;animation:tc-title-fog-far 24s ease-in-out -9s infinite alternate}
+.tc-start-atmosphere__fog--middle{opacity:.32;animation:tc-title-fog-near 19s ease-in-out -4s infinite alternate}
+.tc-start-atmosphere__glow{mix-blend-mode:screen}
