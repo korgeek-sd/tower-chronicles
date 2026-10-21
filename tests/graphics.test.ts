@@ -5,6 +5,7 @@ import {enter,requestReturn} from '../src/game/engine/expedition.ts';
 import {basicAttack,resolveMonsterTurn} from '../src/game/engine/combat.ts';
 import {graphicFor,backgroundFor,MONSTER_GRAPHICS,PLAYER_GRAPHIC} from '../src/game/data/graphics.ts';
 import {BESTIARY_ENTRIES} from '../src/game/data/bestiary.ts';
+import {APPEARANCES} from '../src/game/data/cosmetics.ts';
 import {damageBetween,encounterKey,imageState,monsterHud,playerVitalBetween} from '../src/components/battle/presentation.ts';
 import {createRepository} from '../src/storage/repository.ts';
 const start=()=>enter(initialState(),'ore',1);
@@ -27,5 +28,5 @@ test('세로 UI 01: 플레이어 HP 감소량을 피해 이벤트로 계산',()=
 test('세로 UI 02: 플레이어 HP 증가량을 회복 이벤트로 계산',()=>{const a=start().expedition!,b=structuredClone(a);a.hp-=30;b.hp=a.hp+12;b.time+=.2;assert.deepEqual(playerVitalBetween(a,b),{kind:'heal',amount:12});});
 test('세로 UI 03: 플레이어 HP 변화가 없으면 이벤트 없음',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;assert.equal(playerVitalBetween(a,b),null);});
 test('세로 UI 04: 시간 역행과 몬스터 전환은 플레이어 이벤트를 만들지 않음',()=>{const a=start().expedition!,past=structuredClone(a),changed=structuredClone(a);past.time=-1;past.hp-=9;changed.time+=.2;changed.monster.name='교체된 몬스터';changed.hp-=9;assert.equal(playerVitalBetween(a,past),null);assert.equal(playerVitalBetween(a,changed),null);});
-test('세로 UI 05: 플레이어/몬스터 이미지가 없어도 placeholder 계약 유지',()=>{assert.equal(PLAYER_GRAPHIC.image.idle,'assets/player/default.png');assert.equal(imageState(false,false,false),'placeholder');});
+test('세로 UI 05: 플레이어/몬스터 이미지가 없어도 placeholder 계약 유지',()=>{assert.equal(PLAYER_GRAPHIC.image.idle,APPEARANCES[0].imagePath);assert.equal(imageState(false,false,false),'placeholder');});
 test('세로 UI 06: HP 표현 계산은 원정 상태를 변경하지 않음',()=>{const a=start().expedition!,b=structuredClone(a);b.time+=.2;b.hp-=5;const before=JSON.stringify([a,b]);playerVitalBetween(a,b);monsterHud(b.monster);assert.equal(JSON.stringify([a,b]),before);});
