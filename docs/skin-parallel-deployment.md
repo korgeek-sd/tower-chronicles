@@ -4,8 +4,8 @@
 
 - 각 ChatGPT 세션은 최신 `main`에서 자기 전용 `skin/<외형ID>-<고유작업식별자>` 브랜치를 만든다.
 - 한 PR에는 `src/game/data/cosmetics.ts`의 외형 하나와 새 `public/assets/characters/appearances/<외형ID>-<SHA256앞12자리>.webp`만 포함한다. 이전 외형 이미지는 삭제하지 않는다.
-- 외형 제작이 완료되면 `main` 대상 PR을 만들고 **`skin-ready`** 레이블을 붙인다.
-- `.github/workflows/skin-pr-merge.yml`이 레이블 이벤트와 10분 간격 재검사로 열린 PR 중 하나를 직렬 검증한다. 범위 검사 → 병합 미리보기 → 테스트 → 타입 검사 → 빌드 → GitHub PR 병합 순서다.
+- 외형 제작이 완료되면 `main` 대상 PR을 만들고 제목을 **`skin-ready: <외형ID>`**로 지정한다. `skin-ready` 레이블도 지원하지만 별도 생성할 필요는 없다.
+- `.github/workflows/skin-pr-merge.yml`이 준비된 PR 이벤트와 10분 간격 재검사로 열린 PR 중 하나를 직렬 검증한다. 범위 검사 → 병합 미리보기 → 테스트 → 타입 검사 → 빌드 → GitHub PR 병합 순서다.
 - 병합 성공 후 GitHub 토큰의 후속 push 워크플로 억제를 보완하기 위해 `ci.yml`과 `deploy-pages.yml`을 명시적으로 dispatch한다. Pages 성공과 실제 이미지 URL 확인 전에는 배포 완료라고 말하면 안 된다.
 
 ## 세션에서 실행할 절차
@@ -17,11 +17,10 @@ git switch -c skin/knight-20261021 origin/main
 git add src/game/data/cosmetics.ts public/assets/characters/appearances/knight-<hash>.webp
 git commit -m "feat(skins): update knight artwork"
 git push -u origin HEAD
-gh pr create --base main --head "$(git branch --show-current)" --title "skin: knight" --body "One isolated appearance update"
-gh pr edit --add-label skin-ready
+gh pr create --base main --head "$(git branch --show-current)" --title "skin-ready: knight" --body "One isolated appearance update"
 ```
 
-위 명령은 예시이며, 실제 ID 및 해시, 브랜치 중복을 확인해야 한다. 새 PR을 만든 뒤 `skin-ready` 레이블을 적용하는 데 GitHub 권한이 필요하다.
+위 명령은 예시이며, 실제 ID 및 해시, 브랜치 중복을 확인해야 한다. 새 PR 제목의 `skin-ready:` 표식으로 큐가 자동 실행되며, 선택적인 `skin-ready` 레이블은 사전에 생성된 경우에만 사용한다.
 
 ## 충돌 및 재시도
 
@@ -42,6 +41,6 @@ gh pr edit --add-label skin-ready
 
 - 각 세션의 브랜치 및 PR은 독립적이다.
 - `scripts/skin-pr-guard.mjs`는 변경 목록과 카탈로그 AST를 검사하여 기존 외형/메타데이터 변경 및 구버전 에셋 삭제를 거부한다.
-- 메인 병합 워크플로는 승인된 `skin-ready` 레이블이 붙은 동일 저장소 브랜치에서만 동작한다. `main`에 바로 푸시하는 예전 스킬의 지침은 더 이상 사용하지 않는다.
+- 메인 병합 워크플로는 준비 표시 제목(`skin-ready:`) 또는 승인된 `skin-ready` 레이블이 있는 동일 저장소 브랜치에서만 동작한다. `main`에 바로 푸시하는 예전 스킬의 지침은 더 이상 사용하지 않는다.
 - 현재 기본 모험가(`default`)는 예외이며 자동 큐에 포함하지 않는다.
 - 실제 배포는 여러 개가 동시에 실행되는 것이 아니라 최종 코드가 순서대로 통합되고 Pages의 최신 배포에 반영되는 방식이다.
