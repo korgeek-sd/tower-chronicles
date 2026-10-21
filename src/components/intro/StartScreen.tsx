@@ -5,10 +5,12 @@ import {onlineConfigured} from '../../online/config';
 import {APP_VERSION} from '../../storage/repository';
 import './start-screen.css';
 import {connectionErrorMessage} from './EntryConnectionScreen';
+import {StartNotices} from './StartNotices';
 
 export function StartScreen({initialError='',session,onEnter}:{initialError?:string;session:OnlineSession|null;onEnter:()=>void}){
  const [busy,setBusy]=useState(false),[error,setError]=useState(initialError);
  const pending=useRef(false);
+ const [noticesOpen,setNoticesOpen]=useState(false);
  const [checking,setChecking]=useState(false),[entryFailed,setEntryFailed]=useState(false);
  async function enter(){
   if(pending.current)return;pending.current=true;setBusy(true);setChecking(true);setEntryFailed(false);setError('');
@@ -50,6 +52,7 @@ export function StartScreen({initialError='',session,onEnter}:{initialError?:str
    <p className="tc-start-screen__caption">Google 계정으로 기록을 이어갑니다.</p></>}
    <div className="tc-start-screen__error" role="alert">{error||(!onlineConfigured?'로그인 연결을 준비하고 있습니다. 잠시 후 다시 접속해 주세요.':'')}</div>
   </section>
-  <footer className="tc-start-screen__footer"><span>v{APP_VERSION}</span><span>STUDIO 0322</span></footer>
+  <footer className="tc-start-screen__footer"><span>v{APP_VERSION}</span><button type="button" className="tc-start-screen__notices" disabled={busy} aria-haspopup="dialog" onClick={()=>setNoticesOpen(true)}>공지사항</button><span>STUDIO 0322</span></footer>
+  <StartNotices open={noticesOpen} onClose={()=>setNoticesOpen(false)}/>
  </main>;
 }
