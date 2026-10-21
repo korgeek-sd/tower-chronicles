@@ -1,0 +1,110 @@
+name: Merge verified skin PRs
+
+on:
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Open skin PR number (optional: oldest ready PR)'
+        required: false
+        type: string
+  schedule:
+    # Retry queued labeled PRs if a labeled event was superseded.
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+# Serializes merges. GitHub may replace pending jobs; schedule retries labeled PRs.
+concurrency:
+  group: verified-skin-merge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: github.event_name != 'pull_request' || github.event.label.name == 'skin-ready'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - name: Resolve next queued skin PR
+        id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          EVENT_PR: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr="${INPUT_PR:-${EVENT_PR:-}}"
+          if [ -z "$pr" ]; then
+            pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label skin-ready --limit 1 --json number --jq '.[0].number // empty')"
+          fi
+          if [ -z "$pr" ]; then
+            echo "No queued skin PRs."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "number=$pr" >> "$GITHUB_OUTPUT"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - name: Confirm trusted branch and label
+        if: steps.request.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.request.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,isDraft,baseRefName,headRefName,headRepository,labels |
+          node --input-type=module -e '
+            let s="";
+            for await (const part of process.stdin) s+=part;
+            const p=JSON.parse(s);
+            if(p.state!=="OPEN"||p.isDraft||p.baseRefName!=="main"||
+               !p.headRefName.startsWith("skin/")||
+               p.headRepository?.nameWithOwner!==process.env.GITHUB_REPOSITORY||
+               !p.labels.some(l=>l.name==="skin-ready")){
+              console.error("PR must be an open, non-draft, labeled skin/* branch in this repository.");
+              process.exit(1);
+            }
+          '
+          git fetch --no-tags origin "+refs/pull/$PR_NUMBER/head:refs/remotes/origin/skin-candidate"
+      - name: Install validation dependencies
+        if: steps.request.outputs.ready == 'true'
+        run: npm ci
+      - name: Validate PR contents before running PR code
+        if: steps.request.outputs.ready == 'true'
+        run: node scripts/skin-pr-guard.mjs origin/main origin/skin-candidate
+      - name: Test merge result without publishing
+        if: steps.request.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -c user.name="skin-merge-check" -c user.email="skin-merge-check@users.noreply.github.com" merge --no-commit --no-ff origin/skin-candidate
+          npm test
+          npm run typecheck
+          npm run build
+          git merge --abort
+      - name: Merge PR and explicitly trigger GitHub-token-suppressed workflows
+        if: steps.request.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.request.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
+          gh workflow run deploy-pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+          echo "Merged skin PR #$PR_NUMBER; CI and Pages workflows were dispatched."
