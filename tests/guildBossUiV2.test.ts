@@ -26,7 +26,9 @@ const show=(boss:GuildBossInfo,result:GuildBossAttackResult|null=null,expedition
 
 test('guild boss mobile UI foregrounds shared HP, attempts, attack and compact ranking',()=>{
  const html=show(base);
- assert.match(html,/황혼의 무리왕/);
+ assert.match(html,/굶주린 성자/);
+ assert.match(html,/famished_saint-left\.webp/);
+ assert.doesNotMatch(html,/deep_hoist_overseer/);
  assert.match(html,/1,800/);
  assert.match(html,/2,400/);
  assert.match(html,/aria-valuenow="75"/);

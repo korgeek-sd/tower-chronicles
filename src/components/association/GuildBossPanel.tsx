@@ -19,7 +19,7 @@ const attackLabel=(boss:GuildBossInfo,busy:boolean,expedition:boolean)=>{
 };
 const asset=(p:string)=>(import.meta.env?.BASE_URL??'/')+p;
 const raidImage={
- DAILY:asset('assets/monsters/iron-bosses/deep_hoist_overseer.png'),
+ DAILY:asset('assets/monsters/guild-bosses/famished_saint-left.webp'),
  WEEKLY:asset('assets/monsters/iron-bosses/echo_devourer.png'),
 } as const;
 
@@ -28,6 +28,7 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
  onFight:()=>void;onReload:()=>void;onDismiss:()=>void;onAuction?:()=>void;
 }){
  const daily=boss.kind==='DAILY';
+ const bossName=daily?'굶주린 성자':boss.name;
  const defeated=isDefeated(boss);
  const pct=Math.max(0,Math.min(100,boss.maxHp>0?boss.remainingHp/boss.maxHp*100:0));
  const remainingAttempts=Math.max(0,Math.min(5,boss.attacksLeft));
@@ -47,7 +48,7 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
    </div>
    <div className="tc-boss-identity">
     <div className="tc-boss-title">
-     <h2>{boss.name}</h2>
+     <h2>{bossName}</h2>
      <p>{daily?'매일 00:00 새로운 보스 등장':'토요일 00:00 새로운 보스 등장'}</p>
      <span className="tc-boss-countdown">{defeated?'다음 보스 등장 대기':'교체까지 '+remaining(boss.cycleEnd,now)}</span>
     </div>
@@ -120,7 +121,7 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
     <div className="tc-boss-popover tc-boss-turn-list">
      <header><b>턴별 전투 기록</b><button type="button" onClick={close} aria-label="전투 기록 닫기">닫기 ×</button></header>
      <div className="tc-boss-popover-scroll">
-      {latest?latest.combat.turns.map(t=><p key={t.turn}><b>{t.turn}T</b><span>{t.lines.join(' · ')}</span></p>):<p>이 보스에게 공격한 뒤 기록을 확인할 수 있습니다.</p>}
+      {latest?latest.combat.turns.map(t=><p key={t.turn}><b>{t.turn}T</b><span>{t.lines.map(line=>boss.name?line.split(boss.name).join(bossName):line).join(' · ')}</span></p>):<p>이 보스에게 공격한 뒤 기록을 확인할 수 있습니다.</p>}
      </div>
      {latest?.defeated&&onAuction&&<button type="button" className="tc-boss-result-reward" onClick={onAuction}>토벌 보상·경매 확인 ›</button>}
     </div>
