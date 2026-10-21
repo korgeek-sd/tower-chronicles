@@ -1,0 +1,5 @@
+# False positives: disposable QA fixture UUID/schema IDs and example.invalid email.
+# Only these three findings in this exact historical commit are ignored.
+cc1da8170dc6ab970bd9ab841ec1be22aacdf1e1:scripts/security/cleanup-completed-economy-race.sql:generic-api-key:7
+cc1da8170dc6ab970bd9ab841ec1be22aacdf1e1:scripts/security/cleanup-completed-economy-race.sql:generic-api-key:10
+cc1da8170dc6ab970bd9ab841ec1be22aacdf1e1:scripts/security/cleanup-completed-economy-race.sql:generic-api-key:11
