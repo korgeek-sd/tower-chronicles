@@ -44,3 +44,7 @@ test('server selector and enter button stay compact without shrinking Google sig
  assert.match(css,/\.tc-start-screen__server select\{[^}]*min-height:44px/);
  assert.match(css,/\.tc-start-screen \.tc-start-screen__google\{[^}]*width:100%;min-height:56px/);
 });
+test('title screen loads the approved pixel background through the deployment base path',()=>{
+ const screen=read('src/components/intro/StartScreen.tsx');
+ assert.match(screen,/\$\{import.meta.env.BASE_URL\}assets\/intro\/start-background-pixel.webp/);
+});
