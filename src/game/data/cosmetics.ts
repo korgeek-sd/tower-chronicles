@@ -143,7 +143,7 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"association_archivist",name:"협회 기록관",rarity:"C",imagePath:"assets/characters/appearances/association_archivist-302de6b19223.webp",
+ {id:"association_archivist",name:"협회 기록관",rarity:"C",imagePath:"assets/characters/appearances/association_archivist-1ecce291a5d6.webp",
   description:"금속 기록필과 두꺼운 기록서를 들고 두루마리를 지닌 협회의 기록관.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
