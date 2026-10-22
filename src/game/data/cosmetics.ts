@@ -62,7 +62,7 @@ export const APPEARANCES:AppearanceData[]=[
  starter,
  {
   id:'corsair',name:'코르세어',rarity:'B',
-  imagePath:"assets/characters/appearances/corsair-ce424ebe623c.webp",
+  imagePath:"assets/characters/appearances/corsair-23cd3b78fe82.webp",
   description:'황금 장식의 삼각모와 커틀라스, 화승총을 지닌 고딕 해적.',
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'
