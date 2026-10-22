@@ -93,7 +93,7 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"seraphim",name:"세라핌",rarity:"A",imagePath:"assets/characters/appearances/seraphim-f20daf44dec1.webp",
+ {id:"seraphim",name:"세라핌",rarity:"A",imagePath:"assets/characters/appearances/seraphim-3ca6492f504e.webp",
   description:"수많은 눈과 겹겹의 흑백 날개, 가시 후광과 사슬 장식으로 이루어진 천사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
