@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 
 const expectedDurationMs=6000;
-const video=readFileSync(new URL('../public/assets/studio0322/splash.mp4',import.meta.url));
+const video=readFileSync(new URL('../public/assets/studio1524/splash.mp4',import.meta.url));
 
 
 test('startup ships the selected six-second portrait cinematic',()=>{
@@ -25,16 +25,26 @@ test('startup ships the selected six-second portrait cinematic',()=>{
 
 
 test('startup safety timeout leaves loading time before the complete intro and remains bounded',()=>{
-  const source=readFileSync(new URL('../src/components/splash/Studio0322Splash.tsx',import.meta.url),'utf8');
+  const source=readFileSync(new URL('../src/components/splash/Studio1524Splash.tsx',import.meta.url),'utf8');
   const wait=Number(source.match(/const MAX_WAIT_MS\s*=\s*(\d+)/)?.[1]);
   assert.ok(wait>=expectedDurationMs+2000,'the safety timeout must not cut the selected six-second intro short');
   assert.ok(wait<=12000,'a failed video must not block game entry indefinitely');
 });
 
 test('startup has no skip button and still exits automatically',()=>{
-  const source=readFileSync(new URL('../src/components/splash/Studio0322Splash.tsx',import.meta.url),'utf8');
-  assert.doesNotMatch(source,/<button|studio0322-splash__skip|건너뛰기/);
+  const source=readFileSync(new URL('../src/components/splash/Studio1524Splash.tsx',import.meta.url),'utf8');
+  assert.doesNotMatch(source,/<button|studio1524-splash__skip|건너뛰기/);
   assert.match(source,/onEnded=\{finish\}/);
   assert.match(source,/onError=\{finish\}/);
   assert.match(source,/setTimeout\(finish,MAX_WAIT_MS\)/);
+});
+
+
+test('startup uses the new STUDIO 1524 branding consistently',()=>{
+  const splash=readFileSync(new URL('../src/components/splash/Studio1524Splash.tsx',import.meta.url),'utf8');
+  const start=readFileSync(new URL('../src/components/intro/StartScreen.tsx',import.meta.url),'utf8');
+  assert.match(splash,/assets\/studio1524\/splash\.mp4/);
+  assert.match(splash,/STUDIO 1524/);
+  assert.match(start,/STUDIO 1524/);
+  assert.doesNotMatch(start,/STUDIO 0322/);
 });

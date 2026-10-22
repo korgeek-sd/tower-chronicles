@@ -1,5 +1,5 @@
 /* Solid black surround; the intro content follows the mobile game canvas. */
-.studio0322-splash {
+.studio1524-splash {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
@@ -10,7 +10,7 @@
   overflow: hidden;
   isolation: isolate;
 }
-.studio0322-splash__stage {
+.studio1524-splash__stage {
   position: relative;
   width: min(100%, 520px);
   height: 100%;
@@ -23,7 +23,7 @@
   overflow: hidden;
 }
 /* The portrait movie already includes its black surround and centered, modest logo. */
-.studio0322-splash__video {
+.studio1524-splash__video {
   display: block;
   width: 100%;
   height: 100%;

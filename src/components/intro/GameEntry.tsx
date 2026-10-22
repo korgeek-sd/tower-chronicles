@@ -1,5 +1,5 @@
 import React,{useEffect,useRef,useState,type ReactNode} from 'react';
-import {Studio0322Splash} from '../splash/Studio0322Splash';
+import {Studio1524Splash} from '../splash/Studio1524Splash';
 import {hasSeenWorldIntro,markWorldIntroSeen,WORLD_INTRO_PAGES} from './worldIntroState';
 import './world-intro.css';
 import {getStoredSession} from '../../online/auth';
@@ -46,7 +46,7 @@ export function GameEntry({children,initialError=''}:{children:ReactNode;initial
  return <>
   {ready&&<div inert={!splashDone||open} aria-hidden={!splashDone||open} style={{display:'contents'}}>{children}</div>}
   {splashDone&&!ready&&!visible&&<StartScreen session={session} initialError={initialError} onEnter={()=>{if(getStoredSession())setEntered(true);}}/>}
-  {!splashDone&&<Studio0322Splash onComplete={()=>setSplashDone(true)}/>}
+  {!splashDone&&<Studio1524Splash onComplete={()=>setSplashDone(true)}/>}
   {visible&&<div ref={introFrame} className="tc-world-intro" role="dialog" aria-modal="true" aria-labelledby="world-intro-title" onKeyDown={event=>{
    if(event.key==='Escape'){event.preventDefault();finish();}
    if(event.key==='Tab'){
