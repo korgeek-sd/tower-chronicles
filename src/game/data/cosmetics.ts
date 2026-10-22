@@ -68,7 +68,7 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'
  }
 ,
- {id:"teddy",name:"테디",rarity:"B",imagePath:"assets/characters/appearances/teddy-39350c922427.webp",
+ {id:"teddy",name:"테디",rarity:"B",imagePath:"assets/characters/appearances/teddy-90735135ad9b.webp",
   description:"곰돌이 후드와 포근한 갈색 코트를 입은 모험가.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
