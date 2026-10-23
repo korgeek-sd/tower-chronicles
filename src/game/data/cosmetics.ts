@@ -182,6 +182,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"봉인된 두루마리와 사슬을 지니고 검은 늑대와 동행하는 소환술사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"hexer",name:"주박사",rarity:"C",imagePath:"assets/characters/appearances/hexer-11e073a27196.webp",
+  description:"붉은 실로 묶은 짚인형과 긴 못을 지닌 주박사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
