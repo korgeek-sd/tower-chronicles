@@ -206,6 +206,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"arcane_archer",name:"비전궁수",rarity:"C",imagePath:"assets/characters/appearances/arcane_archer-733d3d2a8fe7.webp",description:"은발과 어두운 갑옷에 청록빛 수정 장식 활과 화살을 갖춘 비전궁수.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"thief",name:"도적",rarity:"C",imagePath:"assets/characters/appearances/thief-f6aa16d9020a.webp",description:"해진 망토와 가죽 장비를 걸치고 단검을 숨긴 도적.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"pickpocket",name:"소매치기",rarity:"C",imagePath:"assets/characters/appearances/pickpocket-f33e435f5e71.webp",description:"붉은 스카프와 해진 가죽 장비를 걸치고 단검과 동전 주머니를 지닌 소매치기.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
