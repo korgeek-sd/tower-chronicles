@@ -218,6 +218,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"apprentice_mage",name:"견습 마법사",rarity:"C",imagePath:"assets/characters/appearances/apprentice_mage-405af5eafc3a.webp",description:"해진 망토와 로브를 걸치고 마법서와 청록빛 수정 지팡이를 지닌 견습 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"advanced_mage",name:"고급 마법사",rarity:"A",imagePath:"assets/characters/appearances/advanced_mage-fa1aafe579fe.webp",description:"붉은 안감의 고깔모자와 로브를 걸치고 루비 장식 지팡이를 지닌 고급 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"archmage",name:"대마법사",rarity:"SR",imagePath:"assets/characters/appearances/archmage-098128fade40.webp",description:"긴 은발과 붉은 안감의 로브를 두르고 거대한 마법진과 불꽃을 펼치는 대마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
