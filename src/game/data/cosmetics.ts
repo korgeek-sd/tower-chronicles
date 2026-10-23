@@ -232,6 +232,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"contract_mercenary",name:"계약용병",rarity:"B",imagePath:"assets/characters/appearances/contract_mercenary-e9050d6bf383.webp",description:"해진 붉은 망토와 가죽 장비를 걸치고 커다란 검을 어깨에 멘 계약용병.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"lumpen",name:"룸펜",rarity:"C",imagePath:"assets/characters/appearances/lumpen-af215675cc90.webp",description:"기운 누더기와 낡은 자루를 걸치고 나무 지팡이에 의지하는 룸펜.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+{id:"intellectual",name:"인텔리",rarity:"SR",imagePath:"assets/characters/appearances/intellectual-46ec6e964259.webp",description:"긴 학자 외투와 회중시계를 갖추고 책과 두루마리를 지닌 인텔리.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
