@@ -212,6 +212,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"musketeer",name:"머스킷병",rarity:"C",imagePath:"assets/characters/appearances/musketeer-856a01ebb909.webp",description:"견장과 해진 군복을 걸치고 긴 머스킷과 탄약을 갖춘 머스킷병.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"bounty_hunter",name:"현상금 사냥꾼",rarity:"C",imagePath:"assets/characters/appearances/bounty_hunter-c9baeeca1bf2.webp",description:"해진 롱코트와 탄약 벨트를 걸치고 두 자루의 리볼버를 지닌 현상금 사냥꾼.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"assault_gunner",name:"돌격포수",rarity:"B",imagePath:"assets/characters/appearances/assault_gunner-c943be85cea4.webp",description:"해진 망토와 탄약 벨트를 걸치고 넓은 포구의 대형 총포를 든 돌격포수.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
