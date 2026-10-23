@@ -177,6 +177,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"검은 성의를 걸치고 해골 장식의 지팡이와 펼친 성서를 든 성녀.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"summoner",name:"소환술사",rarity:"B",imagePath:"assets/characters/appearances/summoner-158e9c44bd6e.webp",
+  description:"봉인된 두루마리와 사슬을 지니고 검은 늑대와 동행하는 소환술사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
