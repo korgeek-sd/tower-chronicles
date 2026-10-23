@@ -200,6 +200,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"cultist",name:"이교도",rarity:"B",imagePath:"assets/characters/appearances/cultist-39f49aebf524.webp",description:"낡은 두건과 누더기 로브를 걸치고 단검과 해진 경전을 지닌 이교도.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"scout",name:"정찰병",rarity:"C",imagePath:"assets/characters/appearances/scout-79aa0d899db2.webp",description:"빛바랜 후드와 가죽 갑옷을 걸치고 활과 화살통을 지닌 정찰병.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"celestial_archer",name:"천상의 사수",rarity:"B",imagePath:"assets/characters/appearances/celestial_archer-163199b8d562.webp",description:"백색 날개와 은빛 갑옷을 두르고 정교한 활을 든 천상의 사수.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
