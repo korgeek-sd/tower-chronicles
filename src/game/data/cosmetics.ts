@@ -187,6 +187,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"붉은 실로 묶은 짚인형과 긴 못을 지닌 주박사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"ice_mage",name:"얼음법사",rarity:"C",imagePath:"assets/characters/appearances/ice_mage-a0e5a21e9b2c.webp",
+  description:"은빛 머리와 푸른 로브를 걸치고 얼음 결정 지팡이로 냉기를 다루는 마법사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
