@@ -21,3 +21,11 @@ test('bank confirmation opens a modal dialog instead of an inline ledger card',a
  assert.match(source,/showModal\(\)/);
  assert.match(source,/onCancel=/);
 });
+
+test('bank amount inputs show grouped digits and preserve numeric transaction amounts',async()=>{
+ const {BankAmountInput,parseBankAmount}=await import('../src/components/bank/BankScreen');
+ const html=renderToStaticMarkup(React.createElement(BankAmountInput,{value:100000,onChange:()=>{}}));
+ assert.match(html,/value="100,000"/);assert.match(html,/inputMode="numeric"/);
+ assert.equal(parseBankAmount('1,000,000'),1000000);assert.equal(parseBankAmount(''),0);
+ assert.equal(parseBankAmount('-100'),null);assert.equal(parseBankAmount('1e6'),null);assert.equal(parseBankAmount('1000000000001'),null);
+});
