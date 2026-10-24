@@ -1,7 +1,7 @@
 /* Quiet Novar: square scene, small nameplates, full-size transparent hit targets. */
 .tc-village-camp-screen.tc-screen{grid-template-rows:minmax(0,1fr)}
 .tc-village-camp-screen>.tc-screen-head{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;border:0}
-.tc-village-camp-screen .tc-screen-body{padding-top:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.tc-screen.tc-village-camp-screen > .tc-screen-body{padding-top:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .tc-village-camp-screen .tc-camp-v2{height:auto;min-height:100%;grid-template-rows:82px auto 80px;align-content:start;gap:8px;overflow:visible}
 .tc-village-camp-screen .tc-camp-v2-dossier{grid-template-columns:58px minmax(0,1fr) 44px;padding:0 2px 6px;gap:8px;border:0;border-bottom:1px solid #514735;border-image:none;border-radius:0;background:#101110;box-shadow:none}
 .tc-village-camp-screen .tc-camp-v2-portrait{border:0;border-image:none;background:transparent}
@@ -72,7 +72,7 @@
  .tc-village-heading h2{font-size:16px}
 }
 
-.tc-village-services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:6px 0;border-top:1px solid #514735;border-bottom:1px solid #514735;background:#101110}
+.tc-village-services{min-height:74px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:6px 0;border-top:1px solid #514735;border-bottom:1px solid #514735;background:#101110}
 .tc-village-services button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:60px;padding:6px 2px;border:0;border-right:1px solid #454031;border-radius:0;background:transparent;color:#d5c5a5;box-shadow:none;font-size:12px;white-space:nowrap}
 .tc-village-services button:last-child{border-right:0}
 .tc-village-services button>.tc-glyph{width:23px;height:23px;color:#bd9b61}

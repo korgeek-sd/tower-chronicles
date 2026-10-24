@@ -51,3 +51,9 @@ test('bank, association and collection are visible before opening all facilities
  for(const id of ['bank','association','cosmetics']) assert.match(toolbar,new RegExp('data-facility="'+id+'"'));
  assert.ok(html.indexOf('tc-village-services')<html.indexOf('aria-label="주요 행동"'));
 });
+
+test('village scroll override wins over the base stylesheet in production import order',()=>{
+ const css=readFileSync('src/components/mobile/village-camp.css','utf8');
+ assert.match(css,/\.tc-screen\.tc-village-camp-screen\s*>\s*\.tc-screen-body\s*\{[^}]*overflow-y:auto/);
+ assert.match(css,/\.tc-village-services\{[^}]*min-height:74px/);
+});
