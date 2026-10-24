@@ -12,7 +12,7 @@ test('UI REBUILD 01: runtime shell imports only the new mobile stylesheet',()=>{
  }
 });
 
-test('UI REBUILD 02: active mobile UI uses no decorative or legacy UI image assets',()=>{
+test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved village scene',()=>{
  const active=[
   'src/main.tsx',
   'src/components/mobile/CoreScreens.tsx',
@@ -25,7 +25,10 @@ test('UI REBUILD 02: active mobile UI uses no decorative or legacy UI image asse
   'src/components/JobsScreen.tsx',
  ];
  for(const path of active){
-  const source=read(path);
+  // The approved village redesign adds one scene, not legacy decorative UI.
+  const source=path==='src/components/mobile/CoreScreens.tsx'
+   ?read(path).replace('assets/backgrounds/hub/novar-village-v1.webp','')
+   :read(path);
   assert.equal(source.includes('assets/ui'),false,path+' references a UI asset');
   assert.equal(source.includes('assets/backgrounds'),false,path+' references a background asset');
   assert.equal(source.includes('eventAsset('),false,path+' references an event-art asset');

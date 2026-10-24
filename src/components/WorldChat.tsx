@@ -40,7 +40,7 @@ export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:s
  useEffect(()=>()=>{if(cooldownTimer.current)clearTimeout(cooldownTimer.current);},[]);
  useEffect(()=>{if(open){nearBottom.current=true;setUnread(0);input.current?.focus();scroller.current?.scrollTo({top:scroller.current.scrollHeight});}},[open]);
  useEffect(()=>{if((open||isInline)&&nearBottom.current)scroller.current?.scrollTo({top:scroller.current.scrollHeight});},[messages,open,isInline]);
- const close=()=>{setOpen(false);entry.current?.focus();};
+ const close=()=>{setOpen(false);requestAnimationFrame(()=>entry.current?.focus());};
  async function send(){
   if(!enabled||!userId||busyRef.current||cooldown)return;
   const {body,error:invalid}=validateChatBody(draft);if(invalid){setError(invalid);return;}
@@ -55,7 +55,7 @@ export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:s
  }
  return <>
   {isInline&&inlineHost&&createPortal(<section className="tc-chat-inline" aria-label="노바르 실시간 채팅">
-   <header className="tc-chat-inline-heading"><strong>노바르 채팅</strong><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'연결 중'}</span><button type="button" className="tc-chat-inline-expand" onClick={()=>setOpen(true)}>확대 ↗</button></header>
+   <header className="tc-chat-inline-heading"><strong>노바르 채팅</strong><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'연결 중'}</span><button type="button" ref={entry} className="tc-chat-inline-expand" onClick={()=>setOpen(true)}>확대 ↗</button></header>
    <nav className="tc-chat-inline-channels" aria-label="채팅 채널"><button type="button" aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button type="button" disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단'}</button></nav>
    <div className="tc-chat-inline-messages" ref={scroller} role="log" aria-label={channelName+' 메시지'} aria-live="polite" onScroll={()=>{const el=scroller.current;if(el)nearBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<60;}}>
     {!enabled?<p className="tc-chat-inline-hint">{userId?'플레이 세션에 연결하면 채팅할 수 있습니다.':'Google 로그인 후 채팅할 수 있습니다.'}</p>:loading&&messages.length===0?<p className="tc-chat-inline-hint">채팅 불러오는 중…</p>:messages.length===0?<p className="tc-chat-inline-hint">첫 메시지를 남겨보세요.</p>:messages.map(m=><article key={m.id} className={m.userId===userId?'mine':''}><b>{m.nickname}</b><span>{m.body}</span><time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</time></article>)}

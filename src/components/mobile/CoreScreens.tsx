@@ -9,6 +9,7 @@ import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collection
 import './cosmetics-catalog.css';
 import './iron-catalog.css';
 import './iron-camp.css';
+import './village-camp.css';
 import {EquipmentArt} from '../inventory/EquipmentArt';
 import {selectAppearance} from '../../game/engine/cosmetics';
 import {registerCollectionEquipment} from '../../game/engine/collection';
@@ -29,6 +30,7 @@ export type AppPage='quests'|'craft'|'world'|'home'|'stats'|'hunt'|'towers'|'flo
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
+ const facilityToggle=useRef<HTMLButtonElement>(null);
  const [huntStatus,setHuntStatus]=useState<Pick<HuntingState,'vitality'|'maxHp'|'maxMp'|'experience'>|null>(null);
  useEffect(()=>{
   let cancelled=false;
@@ -65,7 +67,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
   {id:'inventory',glyph:'equipment',name:'장비 확인',action:()=>onMove('inventory')},
   {id:'settings',glyph:'settings',name:'설정',action:()=>onMove('settings')}
  ];
- return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen tc-iron-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
+ return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen tc-iron-camp-screen tc-village-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
   <div className="tc-camp-v2" aria-label="노바르 거점 로비">
    <section className="tc-camp-v2-dossier" aria-label="캐릭터 정보">
     <div className="tc-camp-v2-portrait">{portrait?<img src={portrait} alt="현재 캐릭터 외형"/>:<Glyph name={weaponId}/>}</div>
@@ -80,15 +82,17 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
     </div>
     <button type="button" className="tc-camp-v2-profile-link" aria-label="캐릭터 스탯 확인" onClick={()=>onMove('stats')}>›</button>
    </section>
-   <nav className="tc-camp-v2-primary" aria-label="주요 행동">
-    <button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span><b>{game.expedition?'원정 복귀':'사냥하기'}</b><small>{game.expedition?'진행 중인 원정으로':'사냥터에서 전투 시작'}</small></span><i>›</i></button>
-    <button type="button" className="tc-camp-v2-world tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/><span><b>마을 이동</b><small>10개 마을 · 중앙 도시</small></span><i>›</i></button>
-   </nav>
-   <section className="tc-camp-v2-facilities" aria-label="거점 시설">
-    <div className="tc-camp-v2-facility-heading"><b>거점 시설</b><button type="button" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'접기':'전체 시설'} <span aria-hidden="true">›</span></button></div>
-    <nav className="tc-camp-v2-quick" aria-label="주요 시설">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/><span>{item.name}</span>{item.id==='mail'&&mailUnread>0&&<small aria-label={'미확인 우편 '+mailUnread+'개'}>{mailUnread}</small>}</button>)}</nav>
-    {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설">{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
-    {!showAllFacilities&&<span className="tc-camp-v2-extra-access" data-facility="bestiary" aria-hidden="true"/>}
+   <section className="tc-village" aria-label="거점 시설">
+    <header className="tc-village-heading"><div><h2>노바르 거점</h2><span>{game.expedition?'탑에서 원정이 진행 중입니다':'탑의 그늘 아래, 다시 모이는 거점'}</span></div><button type="button" className="tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/>마을 이동 <span aria-hidden="true">›</span></button></header>
+    <div className="tc-village-scene">
+     <img className="tc-village-art" src={assetUrl('assets/backgrounds/hub/novar-village-v1.webp')} alt="" decoding="async"/>
+     <nav className="tc-camp-v2-quick" aria-label="노바르 마을 시설 지도">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/><span>{item.name}</span><i aria-hidden="true">›</i>{item.id==='mail'&&mailUnread>0&&<small aria-label={'미확인 우편 '+mailUnread+'개'}>{mailUnread}</small>}</button>)}</nav>
+     <div className="tc-village-player" aria-hidden="true">{equippedArt?<img src={assetUrl(equippedArt)} alt=""/>:<Glyph name={weaponId}/>}</div>
+     <button ref={facilityToggle} type="button" className="tc-village-all" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'시설 닫기':'전체 시설'} <span aria-hidden="true">{showAllFacilities?'×':'+'}</span></button>
+     {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설" onKeyDown={e=>{if(e.key==='Escape'){setShowAllFacilities(false);facilityToggle.current?.focus();}}}>{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
+     {!showAllFacilities&&<span className="tc-camp-v2-extra-access" data-facility="bestiary" aria-hidden="true"/>}
+    </div>
+    <nav className="tc-camp-v2-primary" aria-label="주요 행동"><button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span><b>{game.expedition?'원정 복귀':'출정하기'}</b><small>{game.expedition?'진행 중인 원정으로':'사냥하기 · 사냥터 선택'}</small></span><i aria-hidden="true">→</i></button></nav>
    </section>
    <section id="tc-camp-chat-dock" className="tc-camp-v2-chat-dock" aria-label="거점 실시간 채팅"/>
   </div>
