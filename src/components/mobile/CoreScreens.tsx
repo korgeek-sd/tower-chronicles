@@ -83,12 +83,13 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
     <button type="button" className="tc-camp-v2-profile-link" aria-label="캐릭터 스탯 확인" onClick={()=>onMove('stats')}>›</button>
    </section>
    <section className="tc-village" aria-label="거점 시설">
+    <button ref={facilityToggle} type="button" className="tc-village-all" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'시설 닫기':'전체 시설'} <span aria-hidden="true">{showAllFacilities?'×':'+'}</span></button>
     <header className="tc-village-heading"><div><h2>노바르 거점</h2><span>{game.expedition?'탑에서 원정이 진행 중입니다':'탑의 그늘 아래, 다시 모이는 거점'}</span></div><button type="button" className="tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/>마을 이동 <span aria-hidden="true">›</span></button></header>
-    <div className="tc-village-scene">
+    <div className="tc-village-scene"><div className="tc-village-map">
      <img className="tc-village-art" src={assetUrl('assets/backgrounds/hub/novar-village-v2.webp')} alt="" decoding="async"/>
      <nav className="tc-camp-v2-quick" aria-label="노바르 마을 시설 지도">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/><span className="tc-village-nameplate">{item.name}</span>{item.id==='mail'&&mailUnread>0&&<small aria-label={'미확인 우편 '+mailUnread+'개'}>{mailUnread}</small>}</button>)}</nav>
      <div className="tc-village-player" aria-hidden="true">{equippedArt?<img src={assetUrl(equippedArt)} alt=""/>:<Glyph name={weaponId}/>}</div>
-     <button ref={facilityToggle} type="button" className="tc-village-all" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'시설 닫기':'전체 시설'} <span aria-hidden="true">{showAllFacilities?'×':'+'}</span></button>
+     </div>
      {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설" onKeyDown={e=>{if(e.key==='Escape'){setShowAllFacilities(false);facilityToggle.current?.focus();}}}>{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
      {!showAllFacilities&&<span className="tc-camp-v2-extra-access" data-facility="bestiary" aria-hidden="true"/>}
     </div>

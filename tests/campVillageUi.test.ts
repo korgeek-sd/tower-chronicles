@@ -52,8 +52,14 @@ test('bank, association and collection are visible before opening all facilities
  assert.ok(html.indexOf('tc-village-services')<html.indexOf('aria-label="주요 행동"'));
 });
 
-test('village scroll override wins over the base stylesheet in production import order',()=>{
+test('village fits the available viewport without page scrolling',()=>{
  const css=readFileSync('src/components/mobile/village-camp.css','utf8');
- assert.match(css,/\.tc-screen\.tc-village-camp-screen\s*>\s*\.tc-screen-body\s*\{[^}]*overflow-y:auto/);
- assert.match(css,/\.tc-village-services\{[^}]*min-height:74px/);
+ assert.match(css,/\.tc-screen\.tc-village-camp-screen\s*>\s*\.tc-screen-body\s*\{[^}]*overflow:hidden/);
+ assert.match(css,/\.tc-village-services\{[^}]*min-height:44px/);
 });
+
+ test('village reserves flexible map space and fixed reachable action rows',()=>{
+ const css=readFileSync('src/components/mobile/village-camp.css','utf8');
+ assert.match(css,/grid-template-rows:60px minmax\(0,1fr\) 44px/);
+ assert.match(css,/grid-template-rows:44px minmax\(0,1fr\) 44px 54px/);
+ });
