@@ -228,3 +228,53 @@
 .tc-bank-duration-options label {display:flex;align-items:center;gap:5px;min-height:44px;}
 .tc-bank-duration-options input {width:18px;}
 .tc-bank-help {color:var(--muted,#aaa);}
+
+/* Bank comparison: server data, selectable directory, separate account views. */
+.tc-screen.tc-bank-compare-screen>.tc-screen-body{overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
+.tc-bank-compare-screen .tc-server-bank{position:relative;gap:8px;color:#d9cfb9;font-size:12px}
+.tc-bank-compare-screen button{border:1px solid #514b3b;background:#181b19;color:#ded2b8;padding:6px 10px;border-radius:0}
+.tc-bank-compare-screen button:focus-visible{outline:2px solid #c4a46a;outline-offset:-2px}
+.tc-bank-compare-screen button:disabled{opacity:.45}
+.tc-bank-compare-screen .tc-bank-refresh{justify-self:end;font-size:11px;min-height:44px;background:transparent}
+.tc-bank-overview{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border-block:1px solid #57503e;background:#101411}
+.tc-bank-overview>div{display:grid;gap:4px}
+.tc-bank-overview small{color:#aaa28f;font-size:10px}
+.tc-bank-overview strong{font-size:19px;font-variant-numeric:tabular-nums;color:#ede0c1}
+.tc-bank-compare-screen .tc-bank-overview button{border:0;background:transparent;font-size:12px}
+.tc-bank-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.tc-bank-tabs button[aria-pressed=true]{color:#e4c48c;border-color:#ad8a52;background:#28251c}
+.tc-bank-compare-screen .tc-bank-borrow{gap:8px;padding:8px;border-color:#514b3b}
+.tc-bank-compare-screen legend{font-size:15px;color:#e2d5b7;padding-inline:5px}
+.tc-bank-filters{display:flex;justify-content:flex-end;align-items:center;gap:10px}
+.tc-bank-filters select{max-width:150px}
+.tc-bank-compare-screen .tc-bank-filters label{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tc-bank-compare-screen .tc-bank-filters input{width:18px;min-height:18px;height:18px;accent-color:#b7965f}
+.tc-bank-directory{display:grid;gap:5px;max-height:210px;overflow-y:auto;overscroll-behavior:contain}
+.tc-bank-compare-screen .tc-bank-choice{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:9px 10px;min-height:78px;width:100%;border:1px solid #41483f;background:#111714}
+.tc-bank-compare-screen .tc-bank-choice[aria-pressed=true]{border-color:#b69962;box-shadow:inset 3px 0 #b69962;background:#20231b}
+.tc-bank-choice-info{display:grid;gap:4px;min-width:0}
+.tc-bank-choice-info strong{font-size:14px;overflow-wrap:anywhere}
+.tc-bank-choice-info small{font-size:10px;color:#a8aa9b}
+.tc-bank-choice-info em{font-size:10px;color:#a4b49a;font-style:normal}
+.tc-bank-choice-rate{display:grid;gap:3px;flex-shrink:0;padding-left:12px;border-left:1px solid #444b3f;text-align:right}
+.tc-bank-choice-rate small{color:#929789;font-size:9px}
+.tc-bank-choice-rate b{font-size:24px;font-weight:400;color:#e5dbc3}
+.tc-bank-selected{border-top:1px solid #514b3b;padding-top:8px}
+.tc-bank-selected p{font-size:11px;color:#cbb996}
+.tc-bank-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.tc-bank-fields label:first-child{grid-column:1/-1}
+.tc-bank-compare-screen input,.tc-bank-compare-screen select{background:#111512;border-color:#514b3b}
+.tc-bank-totals{display:grid;gap:6px;padding-block:8px;border-block:1px solid #494b3d}
+.tc-bank-totals>span{display:flex;justify-content:space-between;gap:8px}
+.tc-bank-totals strong{color:#dfbd7f;font-size:17px}
+.tc-bank-compare-screen .tc-bank-apply{background:#592923;border-color:#895345;color:#f0dfc3;font-weight:700}
+.tc-bank-compare-screen .tc-bank-card{background:#141914;border:1px solid #4d513f;border-radius:0;padding:10px;display:grid;gap:8px}
+.tc-bank-compare-screen .tc-bank-card article span{display:block;font-size:11px}
+.tc-bank-compare-screen [aria-label="은행 거래 확인"]{border-color:#ba965d;background:#27251c}
+.tc-bank-compare-screen details{border-bottom:1px solid #393f34;font-size:11px}
+.tc-bank-compare-screen details p{color:#b7b29f}
+@media(max-width:360px){.tc-bank-overview strong{font-size:17px}.tc-bank-choice-info strong{font-size:12px}.tc-bank-choice-info small{font-size:9px}}
+.tc-bank-compare-screen .tc-bank-refresh{position:absolute;top:8px;right:8px;z-index:1}
+.tc-bank-compare-screen .tc-bank-overview{padding-right:88px;min-height:64px}
+.tc-bank-compare-screen .tc-bank-directory{max-height:min(360px,calc(100dvh - 370px));min-height:100px}
+.tc-bank-compare-screen .tc-bank-selected>button{font-size:11px;background:transparent;margin-bottom:6px}
