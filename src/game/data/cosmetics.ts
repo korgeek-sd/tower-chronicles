@@ -238,6 +238,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"golem",name:"골렘",rarity:"C",imagePath:"assets/characters/appearances/golem-32a3c62e0a47.webp",description:"거친 바위 몸체를 녹슨 철제 띠로 감싸고 커다란 검을 든 골렘.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"butcher",name:"도축업자",rarity:"C",imagePath:"assets/characters/appearances/butcher-a95c87e77ae8.webp",description:"얼룩진 가죽 앞치마와 장갑을 착용하고 커다란 식칼을 든 도축업자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"necromancer",name:"사령술사",rarity:"SR",imagePath:"assets/characters/appearances/necromancer-ea3c02973234.webp",description:"해골 장식 지팡이와 마법서를 지니고 보랏빛 영혼 불꽃을 다루는 사령술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
