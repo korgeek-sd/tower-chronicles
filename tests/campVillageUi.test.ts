@@ -43,3 +43,11 @@ test('quiet village uses small nameplates over touch-sized controls and an uncro
  assert.match(css,/\.tc-village-nameplate/);
  assert.match(css,/min-height:44px/);
 });
+
+test('bank, association and collection are visible before opening all facilities',()=>{
+ const html=renderToStaticMarkup(React.createElement(HomeScreen,{game:initialState(),onMove:()=>{},onOpenJobs:()=>{}}));
+ const toolbar=html.match(/<nav class="tc-village-services"[^>]*>(.*?)<\/nav>/)?.[1];
+ assert.ok(toolbar,'persistent services toolbar');
+ for(const id of ['bank','association','cosmetics']) assert.match(toolbar,new RegExp('data-facility="'+id+'"'));
+ assert.ok(html.indexOf('tc-village-services')<html.indexOf('aria-label="주요 행동"'));
+});

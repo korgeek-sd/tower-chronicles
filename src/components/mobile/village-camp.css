@@ -15,7 +15,7 @@
 .tc-village-camp-screen .tc-camp-v2-stats strong{font-size:12px}
 .tc-village-camp-screen .tc-camp-v2-stats b{font-size:9px}
 .tc-village-camp-screen .tc-camp-v2-profile-link{color:#9e8b65}
-.tc-village{position:relative;display:grid;grid-template-rows:44px auto 54px;min-height:0;border:0;background:#101110;isolation:isolate}
+.tc-village{position:relative;display:grid;grid-template-rows:44px auto auto 54px;min-height:0;border:0;background:#101110;isolation:isolate}
 .tc-village-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 4px;border-bottom:1px solid #514735;background:#101110}
 .tc-village-heading>div{min-width:0}
 .tc-village-heading h2{margin:0;color:#e3d2af;font:700 18px/1.3 "Noto Serif KR",Georgia,serif}
@@ -71,3 +71,10 @@
  .tc-village-camp-screen .tc-camp-v2-quick button>.tc-village-nameplate{font-size:11px;padding:4px 6px}
  .tc-village-heading h2{font-size:16px}
 }
+
+.tc-village-services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:6px 0;border-top:1px solid #514735;border-bottom:1px solid #514735;background:#101110}
+.tc-village-services button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:60px;padding:6px 2px;border:0;border-right:1px solid #454031;border-radius:0;background:transparent;color:#d5c5a5;box-shadow:none;font-size:12px;white-space:nowrap}
+.tc-village-services button:last-child{border-right:0}
+.tc-village-services button>.tc-glyph{width:23px;height:23px;color:#bd9b61}
+.tc-village-services button:hover,.tc-village-services button:focus-visible{background:#25251c;color:#fff0cd}
+.tc-village-services button:focus-visible{outline:2px solid #d1b477;outline-offset:-2px}

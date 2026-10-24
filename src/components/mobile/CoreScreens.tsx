@@ -92,6 +92,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
      {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설" onKeyDown={e=>{if(e.key==='Escape'){setShowAllFacilities(false);facilityToggle.current?.focus();}}}>{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
      {!showAllFacilities&&<span className="tc-camp-v2-extra-access" data-facility="bestiary" aria-hidden="true"/>}
     </div>
+    <nav className="tc-village-services" aria-label="거점 바로가기">{(['bank','association','cosmetics'] as const).map(id=>{const item=extraFacilities.find(facility=>facility.id===id)!;return <button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/><span>{item.name}</span></button>;})}</nav>
     <nav className="tc-camp-v2-primary" aria-label="주요 행동"><button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><Glyph name="sword"/><span><b>{game.expedition?'원정 복귀':'출정하기'}</b><small>{game.expedition?'진행 중인 원정으로':'사냥하기 · 사냥터 선택'}</small></span><i aria-hidden="true">→</i></button></nav>
    </section>
    <section id="tc-camp-chat-dock" className="tc-camp-v2-chat-dock" aria-label="거점 실시간 채팅"/>
