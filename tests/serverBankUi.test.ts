@@ -13,3 +13,11 @@ test('bank comparison sorts rates, marks selection and blocks own bank',async()=
  assert.match(html,/disabled=""/);
  assert.match(html,/금고/);
 });
+
+test('bank confirmation opens a modal dialog instead of an inline ledger card',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const source=readFileSync('src/components/bank/BankScreen.tsx','utf8');
+ assert.match(source,/<dialog ref=\{confirmationDialog\}/);
+ assert.match(source,/showModal\(\)/);
+ assert.match(source,/onCancel=/);
+});

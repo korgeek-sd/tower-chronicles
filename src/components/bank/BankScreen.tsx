@@ -22,6 +22,8 @@ export function BankScreen({userId=null,lease=null,onPrepare=async()=>{},onPendi
  const [bankId,setBankId]=useState(''),[ticketId,setTicketId]=useState('ticket:ore:1'),[tickets,setTickets]=useState(1),[duration,setDuration]=useState(5);
  const [tab,setTab]=useState<'borrow'|'loans'|'manage'>('borrow'),[sort,setSort]=useState<'rate'|'vault'>('rate'),[availableOnly,setAvailableOnly]=useState(false);
  const [confirmation,setConfirmation]=useState<{action:BankAction;params:Record<string,unknown>;text:string}|null>(null);
+ const confirmationDialog=useRef<HTMLDialogElement>(null);
+ useEffect(()=>{if(confirmation&&!confirmationDialog.current?.open)confirmationDialog.current?.showModal();},[confirmation]);
  const alive=useRef(true),locked=useRef(false),received=useRef(performance.now()),sequence=useRef(0);
  useEffect(()=>{alive.current=true;const timer=setInterval(()=>setTick(x=>x+1),1000);return()=>{alive.current=false;sequence.current++;clearInterval(timer);};},[]);
  const serverNow=state?state.serverNow+Math.max(0,performance.now()-received.current):0;
@@ -74,6 +76,6 @@ export function BankScreen({userId=null,lease=null,onPrepare=async()=>{},onPendi
    </fieldset>}
    {tab!=='borrow'&&<details><summary>최근 내 거래 내역 (최대 50건)</summary>{state.ledger.map(e=><p key={e.id}>{date(e.createdAt)} · {labels[e.kind]??e.kind} · 지갑 {e.walletDelta>=0?'+':''}{money(e.walletDelta)}{e.ticketDelta?` · 도전권 ${e.ticketDelta>0?'+':''}${e.ticketDelta}장`:''}</p>)}</details>}
   </>}
-  {confirmation&&<section className="tc-bank-card" role="region" aria-label="은행 거래 확인"><h2>거래 확인</h2><p>{confirmation.text}</p><div className="tc-bank-actions"><button disabled={busy||pending} onClick={()=>void run(confirmation.action,confirmation.params)}>거래 확정</button><button disabled={busy} onClick={()=>setConfirmation(null)}>취소</button></div></section>}
+  {confirmation&&<dialog ref={confirmationDialog} className="tc-bank-confirm-dialog" aria-label="은행 거래 확인" onCancel={e=>{e.preventDefault();if(!busy&&!pending)setConfirmation(null);}}><h2>거래 확인</h2><p>{confirmation.text}</p><div className="tc-bank-actions"><button disabled={busy||pending} onClick={()=>void run(confirmation.action,confirmation.params)}>거래 확정</button><button disabled={busy} onClick={()=>setConfirmation(null)}>취소</button></div></dialog>}
  </div></Screen>;
 }

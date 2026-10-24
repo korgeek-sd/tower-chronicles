@@ -278,3 +278,10 @@
 .tc-bank-compare-screen .tc-bank-overview{padding-right:88px;min-height:64px}
 .tc-bank-compare-screen .tc-bank-directory{max-height:min(360px,calc(100dvh - 370px));min-height:100px}
 .tc-bank-compare-screen .tc-bank-selected>button{font-size:11px;background:transparent;margin-bottom:6px}
+.tc-bank-compare-screen dialog.tc-bank-confirm-dialog{position:fixed;inset:0;margin:auto;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow-y:auto;padding:20px;border:1px solid #b49661;border-radius:0;background:#191d17;color:#e6d9bd;box-shadow:0 16px 60px #000b}
+.tc-bank-confirm-dialog::backdrop{background:#000b}
+.tc-bank-confirm-dialog h2{margin:0 0 12px;font-size:18px}
+.tc-bank-confirm-dialog p{line-height:1.7;margin:0 0 18px}
+.tc-bank-confirm-dialog .tc-bank-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tc-bank-confirm-dialog button{min-height:44px}
+.tc-bank-confirm-dialog button:first-child{background:#592923;border-color:#895345}
