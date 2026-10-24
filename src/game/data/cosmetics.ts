@@ -240,6 +240,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"butcher",name:"도축업자",rarity:"C",imagePath:"assets/characters/appearances/butcher-a95c87e77ae8.webp",description:"얼룩진 가죽 앞치마와 장갑을 착용하고 커다란 식칼을 든 도축업자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"necromancer",name:"사령술사",rarity:"SR",imagePath:"assets/characters/appearances/necromancer-ea3c02973234.webp",description:"해골 장식 지팡이와 마법서를 지니고 보랏빛 영혼 불꽃을 다루는 사령술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"grave_robber",name:"도굴꾼",rarity:"C",imagePath:"assets/characters/appearances/grave_robber-651bca2f1018.webp",description:"낡은 모자와 해진 망토를 걸치고 삽과 등불을 지닌 도굴꾼.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
