@@ -246,6 +246,8 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"court_jester",name:"궁정 광대",rarity:"C",imagePath:"assets/characters/appearances/court_jester-f3273b99a6ec.webp",description:"방울 달린 모자와 붉고 검은 마름모 무늬 의상을 입고 광대 지팡이를 든 궁정 광대.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"noble_knight",name:"귀족기사",rarity:"SR",imagePath:"assets/characters/appearances/noble_knight-c890a64f92e7.webp",description:"모피 망토와 금빛 장식의 붉은 의장을 두르고 화려한 대검을 지닌 귀족기사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"crossbowman",name:"석궁병",rarity:"C",imagePath:"assets/characters/appearances/crossbowman-64b4356b6055.webp",description:"빛바랜 녹색 망토와 가죽 갑옷을 걸치고 석궁과 볼트 화살통을 갖춘 석궁병.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
