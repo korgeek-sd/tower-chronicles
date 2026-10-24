@@ -27,7 +27,7 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
  for(const path of active){
   // The approved village redesign adds one scene, not legacy decorative UI.
   const source=path==='src/components/mobile/CoreScreens.tsx'
-   ?read(path).replace('assets/backgrounds/hub/novar-village-v1.webp','')
+   ?read(path).replace('assets/backgrounds/hub/novar-village-v2.webp','')
    :read(path);
   assert.equal(source.includes('assets/ui'),false,path+' references a UI asset');
   assert.equal(source.includes('assets/backgrounds'),false,path+' references a background asset');
