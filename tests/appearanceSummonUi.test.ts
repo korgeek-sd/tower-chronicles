@@ -168,7 +168,7 @@ test('repeat button is disabled when server balance cannot cover remaining summo
  assert.match(html,/tc-summon-result-footer/);
  const css=readFileSync('src/components/appearance/altar-summon.css','utf8');
  assert.match(css,/\.tc-summon-result-modal/);
- assert.match(css,/\.tc-summon-result-scroll/);
+ assert.match(css,/\.tc-summon-result-content/);
  assert.match(css,/\.tc-summon-result-content\{[^}]*overflow:hidden/);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
@@ -178,16 +178,16 @@ test('one and ten appearance summon results fit a portrait viewport without inne
  const view=readFileSync('src/components/appearance/AppearanceSummonResultView.tsx','utf8');
  // The modal owns the height, the grid gets exactly five equal rows,
  // and every card can shrink below its old hard-coded 91–100px minimum.
- assert.match(css,/\\.tc-summon-result-modal\\{[^}]*height:min\\(790px,/);
- assert.match(css,/\\.tc-summon-result-content\\{[^}]*overflow:hidden/);
- assert.match(css,/\\.tc-summon-result-grid\\{[^}]*grid-template-rows:repeat\\(5,minmax\\(0,1fr\\)\\)/);
- assert.match(css,/\\.tc-summon-result-grid\\{[^}]*height:100%/);
- assert.match(css,/\\.tc-summon-draw-card\\{[^}]*min-height:0/);
- assert.match(css,/\\.tc-summon-draw-art\\{[^}]*height:100%/);
- assert.match(css,/\\.tc-summon-single-stage\\{[^}]*grid-template-rows:auto auto auto minmax\\(0,1fr\\) auto auto auto/);
- assert.match(css,/\\.tc-summon-single-art\\{[^}]*height:100%/);
- assert.doesNotMatch(css,/\\.tc-summon-result-content\\{[^}]*overflow-y:auto/);
- assert.doesNotMatch(css,/\\.tc-summon-draw-card\\{[^}]*min-height:(?:91|100)px/);
+ assert.match(css,/\.tc-summon-result-modal\{[^}]*height:min\(790px,/);
+ assert.match(css,/\.tc-summon-result-content\{[^}]*overflow:hidden/);
+ assert.match(css,/\.tc-summon-result-grid\{[^}]*grid-template-rows:repeat\(5,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.tc-summon-result-grid\{[^}]*height:100%/);
+ assert.match(css,/\.tc-summon-draw-card\{[^}]*min-height:0/);
+ assert.match(css,/\.tc-summon-draw-art\{[^}]*height:100%/);
+ assert.match(css,/\.tc-summon-single-stage\{[^}]*grid-template-rows:auto auto auto minmax\(0,1fr\) auto auto auto/);
+ assert.match(css,/\.tc-summon-single-art\{[^}]*height:100%/);
+ assert.doesNotMatch(css,/\.tc-summon-result-content\{[^}]*overflow-y:auto/);
+ assert.doesNotMatch(css,/\.tc-summon-draw-card\{[^}]*min-height:(?:91|100)px/);
  assert.match(view,/tc-summon-result-content/);
  assert.match(view,/tc-summon-result-footer/);
  assert.match(view,/10회 다시 소환/);
