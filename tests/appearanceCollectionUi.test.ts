@@ -108,8 +108,8 @@ test('appearance cards expose ownership and equipped state without changing avai
  const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance'}));
  assert.match(html,/data-owned="true" data-equipped="true"/);
  assert.match(html,/data-owned="false" data-equipped="false"/);
- assert.match(html,/class="tc-appearance-state">착용 중<\/span>/);
- assert.match(html,/class="tc-appearance-state">미해금<\/span>/);
+ assert.match(html,/>착용 중<\/button>/);
+ assert.match(html,/class="tc-appearance-level">미해금<\/span>/);
  assert.match(html,/disabled=""[^>]*>미보유<\/button>/);
 });
 
