@@ -273,6 +273,12 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
+,
+ {id:"wandering_preacher",name:"떠돌이 설교사",rarity:"B",imagePath:"assets/characters/appearances/wandering_preacher-e4b366ac97d0.webp",
+  description:"낡은 성의와 회색 두건을 걸치고, 종과 십자가 장식 및 경전을 지닌 채 탑을 떠도는 설교사.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
