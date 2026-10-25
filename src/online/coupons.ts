@@ -2,6 +2,7 @@ import {getFreshSession} from './auth';
 import {supabaseConfig} from './config';
 export type CouponReward = {
   gold?: number;
+  appearanceTickets?: number;
   silver?: number;
   items?: { id:string; quantity:number }[];
 };

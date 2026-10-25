@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {GameState} from '../game/types';
 import type {GameplayLease} from '../online/gameSession';
-import {applyOnlineEconomyToGame} from '../online/market';
+import {applyMailRewards} from '../online/mailRewards';
 import {getStoredSession} from '../online/auth';
 import {loadGameMail,manageGameMail,mailBody,type GameMail} from '../online/mail';
 import {marketItemName} from '../game/market/marketService';
@@ -28,18 +28,18 @@ export function MailDialog({userId,lease,game,setGame,onClose,onUnread}:Props){
  if(!userId||!lease||guard.current||!active.current)return;guard.current=true;setBusy(true);setError('');
  try{const result=await manageGameMail(userId,lease,kind,id);
  // Confirmed rewards must reach app state even if the dialog was closed meanwhile.
- if(userId===getStoredSession()?.userId&&result.economy)setGame(s=>applyOnlineEconomyToGame(s,result.economy!));
+ if(userId===getStoredSession()?.userId&&(result.economy||result.summonTickets!=null))setGame(s=>applyMailRewards(s,result));
  if(valid()){accept(result.mails);if(kind==='delete')setSelected(null);}
  }catch(e){if(valid())setError(e instanceof Error?e.message:'우편 처리에 실패했습니다.');}finally{guard.current=false;if(active.current)setBusy(false);}
  }
  const visible=mails.filter(m=>m.expiresAt>now),mail=visible.find(m=>m.mailId===selected),canClaim=!!lease&&!game.expedition;
- const name=(m:GameMail)=>{if(m.attachment?.reward)return '쿠폰 보상 묶음';const gear=m.details.gear??m.attachment?.gear;if(gear&&'grade' in gear)return equipmentItemName(gear);return marketItemName(game,m.details.itemId??m.attachment?.itemId??'');};
+ const name=(m:GameMail)=>{if(m.attachment?.reward)return '첨부 보상';const gear=m.details.gear??m.attachment?.gear;if(gear&&'grade' in gear)return equipmentItemName(gear);return marketItemName(game,m.details.itemId??m.attachment?.itemId??'');};
  const remaining=(m:GameMail)=>{const seconds=Math.max(0,Math.ceil((m.expiresAt-now)/1000));return seconds>=86400?`${Math.ceil(seconds/86400)}일 남음`:seconds>=3600?`${Math.ceil(seconds/3600)}시간 남음`:`${Math.ceil(seconds/60)}분 남음`;};
  return createPortal(<MailDialogFrame dialogRef={dialog} onClose={close}>
  {!userId?<p>Google 로그인 후 우편함을 이용할 수 있습니다.</p>:<>
  <nav aria-label="우편 분류">{[['all','전체'],['trade','거래'],['reward','보상'],['notice','공지']].map(([key,label])=><button key={key} disabled={busy} aria-pressed={filter===key} onClick={()=>{setFilter(key);setSelected(null);}}>{label}</button>)}</nav>
  {mail?<article><button disabled={busy} onClick={()=>setSelected(null)}>‹ 목록</button><h3>{mail.title}</h3><small>{new Date(mail.createdAt).toLocaleString('ko-KR')} · {remaining(mail)}</small><p className="tc-mail-body">{mailBody({...mail,details:{...mail.details,itemName:name(mail)}})}</p>
- {mail.attachment&&<div className="tc-mail-attachment"><b>{name(mail)} × {mail.attachment.quantity}</b><button disabled={busy||loading||mail.claimed||!canClaim} onClick={()=>void action('claim',mail.mailId)}>{mail.claimed?'수령 완료':'받기'}</button></div>}
+ {mail.attachment&&<div className="tc-mail-attachment"><b>{name(mail)}{!mail.attachment.reward&&` × ${mail.attachment.quantity}`}</b><button disabled={busy||loading||mail.claimed||!canClaim} onClick={()=>void action('claim',mail.mailId)}>{mail.claimed?'수령 완료':'수령하기'}</button></div>}
  <p className="tc-mail-expiry">도착 후 30일이 지나면 자동 삭제됩니다. 미수령 첨부 아이템도 함께 소멸하므로 기간 내 수령해 주세요.</p>
  {mail.attachment&&!mail.claimed&&!canClaim&&<p>첨부 아이템은 플레이 권한이 있는 기기의 거점에서 수령할 수 있습니다.</p>}
  <button disabled={busy||loading||!lease||!!mail.attachment&&!mail.claimed} onClick={()=>void action('delete',mail.mailId)}>우편 삭제</button></article>:<section className="tc-mail-list" aria-label="우편 목록">
