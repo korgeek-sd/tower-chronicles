@@ -15,19 +15,18 @@
 .tc-screen.tc-altar-summon-screen .tc-summon-feature{padding:0;border:0;border-image:none;background:#101210;grid-template-columns:1fr;gap:0}
 .tc-screen.tc-altar-summon-screen .tc-summon-feature h2{font-size:14px}
 .tc-screen.tc-altar-summon-screen .tc-summon-feature>div{font-size:9px}
-.tc-screen.tc-altar-summon-screen .tc-summon-footer{grid-template-rows:44px 96px 14px 44px;gap:4px}
+.tc-screen.tc-altar-summon-screen .tc-summon-footer{grid-template-rows:44px 58px 22px 44px;gap:4px}
 .tc-screen.tc-altar-summon-screen .tc-summon-wallet{border:1px solid #514735;border-image:none;background:#141610}
 .tc-screen.tc-altar-summon-screen .tc-summon-wallet span{font-size:10px;gap:1px}
 .tc-screen.tc-altar-summon-screen .tc-summon-wallet b{font-size:16px}
-.tc-screen.tc-altar-summon-screen .tc-summon-actions{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px}
+.tc-screen.tc-altar-summon-screen .tc-summon-actions{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:1fr;gap:4px}
 .tc-screen.tc-altar-summon-screen .tc-summon-actions button{border:1px solid #73453b;border-image:none;background:#38231f;color:#c4b69d;gap:1px;padding:2px;opacity:.8}
-.tc-screen.tc-altar-summon-screen .tc-summon-actions button:last-child{grid-column:1/-1;background:#1b2019;border-color:#5a604d}
+.tc-screen.tc-altar-summon-screen .tc-summon-actions button:last-child{background:#38231f;border-color:#73453b}
 .tc-screen.tc-altar-summon-screen .tc-summon-utilities button{height:44px;min-height:44px;border:1px solid #514735;border-image:none;background:#151913;font-size:10px}
 .tc-screen.tc-altar-summon-screen .tc-summon-status{font-size:9px;line-height:14px}
 @media(max-height:700px){
- .tc-screen.tc-altar-summon-screen .tc-summon-footer{grid-template-rows:44px 44px 14px 44px}
- .tc-screen.tc-altar-summon-screen .tc-summon-actions{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:1fr}
- .tc-screen.tc-altar-summon-screen .tc-summon-actions button:last-child{grid-column:auto}
+ .tc-screen.tc-altar-summon-screen .tc-summon-footer{grid-template-rows:44px 52px 24px 44px}
+ .tc-screen.tc-altar-summon-screen .tc-summon-actions{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:1fr}
  .tc-altar-title{font-size:12px;top:4px}
  .tc-screen.tc-altar-summon-screen .tc-summon-figures{inset:21px 44px 14px}
 }
