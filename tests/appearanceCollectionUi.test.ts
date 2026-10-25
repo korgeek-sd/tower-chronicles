@@ -166,3 +166,12 @@ test('collection keeps the list full-height and opens its details only as an acc
  assert.match(list,/flex:\s*1 1 auto/);
  assert.match(list,/overflow-y:\s*auto/);
 });
+
+test('compact appearance rows keep effects and separate equip/collection actions',()=>{
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance'}));
+ assert.match(html,/tc-appearance-find/);
+ const css=readFileSync('src/components/mobile/compact-appearances.css','utf8');
+ assert.match(css,/grid-template-rows:repeat\(4,96px\)/);
+ assert.match(css,/min-height:44px/);
+ assert.match(html,/착용 효과/);assert.match(html,/tc-appearance-related/);assert.match(html,/tc-cosmetics-equip/);
+});

@@ -8,6 +8,7 @@ import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,appearanceBonusLabel,type
 import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collectionEquipmentLabel,type AppearanceSet} from '../../game/data/appearanceSets';
 import './cosmetics-catalog.css';
 import './iron-catalog.css';
+import './compact-appearances.css';
 import './iron-camp.css';
 import './village-camp.css';
 import {EquipmentArt} from '../inventory/EquipmentArt';
@@ -317,19 +318,21 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     }
     <p className="tc-collection-disclaimer">{APPEARANCE_SETS.length}개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
    </>:<>
-    <div className="tc-cosmetics-meta"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>착용한 외형 1개만 적용 · 효과 적용 예정</small></div>
+    <div className="tc-cosmetics-meta" title="착용한 외형 1개만 적용 · 효과 적용 예정"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>보유 {owned.length} / {APPEARANCES.length} · 효과 예정</small></div>
     <div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={appearanceRarity===r} onClick={()=>{setAppearanceRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
     </div>
-    <div className="tc-collection-tools single"><label className="tc-collection-search"><Glyph name="search"/><input aria-label="외형 검색" placeholder="외형 이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/></label></div>
+    <div className="tc-appearance-find"><div className="tc-collection-tools single"><label className="tc-collection-search"><Glyph name="search"/><input aria-label="외형 검색" placeholder="외형 이름 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/></label></div>
     <div className="tc-appearance-ownership" role="group" aria-label="외형 보유 필터">{([['all','전체'],['owned','보유'],['missing','미보유']] as const).map(([id,label])=><button type="button" key={id} aria-pressed={ownership===id} onClick={()=>{setOwnership(id);setPage(0);}}>{label}</button>)}<span>보유 {owned.length} / {APPEARANCES.length}</span></div>
+    </div>
     <div className="tc-cosmetics-items" role="list" aria-label="외형 목록">
      {appearances.slice(safePage*4,safePage*4+4).map(a=>{
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem" data-rarity={a.rarity??'default'} data-owned={isOwned} data-equipped={isSelected}>
        <div className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')+(artReady?' has-art':'')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</div>
-       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small><span className="tc-appearance-state">{isSelected?'착용 중':isOwned?'보유':'미보유'}</span> · {a.sourceLabel}</small><span>{a.proposedBonus?'착용 효과 · '+appearanceBonusLabel(a.proposedBonus)+' (예정)':'착용 효과 없음'}</span><button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button></div>
+       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<b>{a.name}</b></div><small><span className="tc-appearance-state">{isSelected?'착용 중':isOwned?'보유':'미보유'}</span> · {a.sourceLabel}</small><span>{a.proposedBonus?'착용 효과 · '+appearanceBonusLabel(a.proposedBonus)+' (예정)':'착용 효과 없음'}</span></div>
        <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':'착용'}</button>
+       <button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button>
       </article>;
      })}
      {viewCount===0&&<p className="tc-cosmetics-empty">표시할 항목이 없어.</p>}
