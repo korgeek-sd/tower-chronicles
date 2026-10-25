@@ -6,6 +6,8 @@ import {
   equipmentStatMultiplier,
 } from '../data/enhancement';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_SLOTS,equipmentItemStats} from '../data/equipment';
+import {appearanceById} from '../data/cosmetics';
+import {appearanceEffectPercent,appearanceLevel} from '../data/appearanceProgress';
 
 export interface EquipmentContribution {
   hp:number;
@@ -90,6 +92,14 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
 
   const modernWeaponStats=modernWeapon?equipmentItemStats(modernWeapon):null;
   const weaponCrit=identity.critChance+(modernWeaponStats?.critChance??0);
+  // Only the equipped, unlocked appearance grants its server-mirrored bonus.
+  const appearanceId=s.cosmetics.selectedAppearanceId;
+  const appearance=appearanceById(appearanceId);
+  const appearancePercent=appearance&&s.cosmetics.unlockedAppearanceIds.includes(appearanceId)
+    ?appearanceEffectPercent(appearance,appearanceLevel(s.cosmetics,appearanceId)):0;
+  if(appearancePercent&&appearance?.proposedBonus?.stat==='hp')hp*=1+appearancePercent/100;
+  if(appearancePercent&&appearance?.proposedBonus?.stat==='attack')attack*=1+appearancePercent/100;
+  if(appearancePercent&&appearance?.proposedBonus?.stat==='defense')defense*=1+appearancePercent/100;
   return {
     hp,
     attack,
