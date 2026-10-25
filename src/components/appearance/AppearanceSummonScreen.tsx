@@ -31,6 +31,7 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
  const modal=useRef<HTMLElement>(null),selected=showcase[focus];
  const available=!!userId&&!!lease;
 
+ useEffect(()=>{const texture=new Image();texture.src=assetUrl('assets/vfx/summon/codemanu-anima-30fps.png');},[]);
  const names=new Map(APPEARANCES.map(appearance=>[appearance.id,appearance.name]));
  const ownedTickets=appearanceSummonTickets(game);
  const onePayment=appearanceSummonPayment(1,ownedTickets);

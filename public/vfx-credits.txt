@@ -1,0 +1,15 @@
+SSR summon visual effect: Anima, Free VFX Asset Pack
+Author: CodeManu (CodeManuPro)
+Original: https://codemanu.itch.io/vfx-free-pack
+Author's CC0 distribution: https://opengameart.org/content/free-vfx-asset-pack
+Download: https://opengameart.org/sites/default/files/vfx_free_pack.zip
+License: CC0 / public domain, as explicitly stated on the author's OpenGameArt page.
+The itch.io page's written license permits personal and commercial use without credit;
+its metadata also lists CC BY 4.0. Attribution is retained here for both records.
+
+Included original file (unmodified pixels):
+Effect_Anima/30fps/Spritesheets/Effect_Anima_1_437x437.png
+30 frames, 437x437 pixels, 6 columns x 5 rows.
+Runtime adaptation: sprite sheet playback, grayscale/sepia tint, opacity and scale.
+No generative AI used to create this third-party effect, per the author's asset page.
+Retrieved 2026-10-25.

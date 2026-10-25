@@ -1,7 +1,7 @@
 .tc-ssr-reveal{position:relative;isolation:isolate;height:100%;min-height:0;overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr) auto auto;gap:14px;background:#090b08;color:#d5c9ad;padding:42px 16px max(16px,env(safe-area-inset-bottom));box-sizing:border-box}
 .tc-ssr-skip{position:absolute!important;top:6px;right:8px;z-index:4;min-height:44px!important;font-size:12px!important;background:transparent!important;border:0!important;color:#a89c80!important;cursor:pointer}
 .tc-ssr-vfx{position:absolute;inset:0;z-index:-1;display:grid;place-items:center;pointer-events:none;overflow:hidden}
-.tc-ssr-crack-texture{height:55%;width:auto;max-width:80%;object-fit:contain;image-rendering:pixelated;animation:tc-ssr-crack-texture 1.2s linear both}
+.tc-ssr-authored-anima{width:min(74%,340px);aspect-ratio:1;flex:none;background-size:600% 500%;background-repeat:no-repeat;image-rendering:pixelated;filter:grayscale(1) sepia(1) saturate(.65) brightness(.85);animation:tc-ssr-anima-frames 1s steps(1,end) both,tc-ssr-anima-envelope 1.2s ease-out both}
 .tc-ssr-flash{position:absolute;inset:0;background:#fff1d0;opacity:0;animation:tc-ssr-flash 1.2s linear both}
 .tc-ssr-art{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;width:100%;height:100%;overflow:hidden;animation:tc-ssr-art 1.2s ease-out both}
 .tc-ssr-art img{display:block;max-width:80%;max-height:100%;width:auto;height:auto;object-fit:contain;image-rendering:pixelated}
@@ -15,9 +15,12 @@
 .tc-ssr-error{position:absolute;bottom:80px;left:15px;right:15px;background:#21140d;color:#efc69c;font-size:12px;z-index:5}
 .tc-ssr-reveal.is-ready .tc-ssr-art,.tc-ssr-reveal.is-ready .tc-ssr-caption{animation:none;opacity:1;transform:none;filter:none}
 .tc-summon-rarity-ssr.tc-summon-draw-card{border-color:#b59c67!important}
-@keyframes tc-ssr-crack-texture{0%{opacity:0;transform:scaleX(.35);filter:brightness(.5)}25%{opacity:.7;transform:scaleX(.6);filter:brightness(.8)}48%{opacity:1;transform:scaleX(1);filter:brightness(1.3)}65%{opacity:.7;transform:scaleX(1.15);filter:brightness(1)}100%{opacity:0;transform:scaleX(1.15);filter:brightness(1)}}
+
 @keyframes tc-ssr-flash{0%,49%{opacity:0}52%{opacity:.24}65%,100%{opacity:0}}
 @keyframes tc-ssr-art{0%,49%{opacity:0;filter:brightness(0);transform:translateY(5px)}65%{opacity:1;filter:brightness(0);transform:translateY(3px)}100%{opacity:1;filter:brightness(1);transform:translateY(0)}}
 @keyframes tc-ssr-caption{0%,70%{opacity:0}100%{opacity:1}}
 @media(max-height:570px){.tc-ssr-reveal{gap:8px;padding-top:36px;padding-bottom:10px}.tc-ssr-caption .tc-ssr-grade{font-size:18px!important;margin-bottom:5px!important}.tc-ssr-caption h3{font-size:20px}.tc-ssr-caption p{font-size:11px}.tc-screen.tc-iron-summon-screen .tc-summon-modal .tc-ssr-actions button{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.tc-ssr-reveal *{animation:none!important;transition:none!important}.tc-ssr-vfx{display:none}.tc-ssr-art,.tc-ssr-caption{opacity:1;filter:none;transform:none}}
+
+@keyframes tc-ssr-anima-frames{0.00000%{background-position:0% 0%}3.33333%{background-position:20% 0%}6.66667%{background-position:40% 0%}10.00000%{background-position:60% 0%}13.33333%{background-position:80% 0%}16.66667%{background-position:100% 0%}20.00000%{background-position:0% 25%}23.33333%{background-position:20% 25%}26.66667%{background-position:40% 25%}30.00000%{background-position:60% 25%}33.33333%{background-position:80% 25%}36.66667%{background-position:100% 25%}40.00000%{background-position:0% 50%}43.33333%{background-position:20% 50%}46.66667%{background-position:40% 50%}50.00000%{background-position:60% 50%}53.33333%{background-position:80% 50%}56.66667%{background-position:100% 50%}60.00000%{background-position:0% 75%}63.33333%{background-position:20% 75%}66.66667%{background-position:40% 75%}70.00000%{background-position:60% 75%}73.33333%{background-position:80% 75%}76.66667%{background-position:100% 75%}80.00000%{background-position:0% 100%}83.33333%{background-position:20% 100%}86.66667%{background-position:40% 100%}90.00000%{background-position:60% 100%}93.33333%{background-position:80% 100%}96.66667%{background-position:100% 100%}100%{background-position:100% 100%}}
+@keyframes tc-ssr-anima-envelope{0%{opacity:0;transform:scale(.7)}20%{opacity:.45;transform:scale(.85)}50%{opacity:.75;transform:scale(1)}75%{opacity:.4;transform:scale(1.02)}100%{opacity:0;transform:scale(1.03)}}

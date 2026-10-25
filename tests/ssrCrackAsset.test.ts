@@ -13,7 +13,7 @@ test('finished reveal removes every VFX and skip control and keeps the actual ar
 });
 test('opening reveal uses the real crack texture with alpha and safe disabled actions',()=>{
  const html=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...props,ready:false}));
- assert.match(html,/ssr-crack-v1\.png/);assert.match(html,/건너뛰기/);assert.match(html,/disabled=""/);assert.doesNotMatch(html,/<svg/);
- const png=readFileSync('public/assets/vfx/summon/ssr-crack-v1.png');assert.equal(png.toString('ascii',1,4),'PNG');assert.equal(png[25],6);
+ assert.match(html,/codemanu-anima-30fps\.png/);assert.match(html,/건너뛰기/);assert.match(html,/disabled=""/);assert.doesNotMatch(html,/<svg/);
+ const png=readFileSync('public/assets/vfx/summon/codemanu-anima-30fps.png');assert.equal(png.toString('ascii',1,4),'PNG');assert.ok(png[25]===6||(png[25]===3&&png.includes(Buffer.from('tRNS'))));
  const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');assert.match(css,/prefers-reduced-motion/);assert.doesNotMatch(css,/drop-shadow|clip-path/);
 });
