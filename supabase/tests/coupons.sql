@@ -86,5 +86,32 @@ do $$begin
  if (select (payload->'lootItems'->>'job_draw_ticket')::bigint from public.game_saves where user_id=(select u from coupon_fixture where label='a'))<>2 then raise exception 'Ticket not persisted';end if;
  if has_table_privilege('authenticated','private.game_coupons','INSERT') or has_function_privilege('anon','public.redeem_game_coupon(text)','EXECUTE') then raise exception 'Public access leak';end if;
 end $$;
+
+-- Appearance summon tickets are a distinct wallet, redeemed by claim and never twice.
+set local role authenticated;
+do $$declare f record;r jsonb;m uuid;
+begin
+ select * into f from coupon_fixture where label='admin';
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',f.u,'role','authenticated','session_id',f.s)::text,true);
+ perform pg_temp.expect_coupon_error($q$select public.create_game_coupon('QA-APP-BAD','bad','{"appearanceTickets":-1}',now(),now()+interval '1 day',null)$q$,'COUPON_REWARD_INVALID');
+ perform pg_temp.expect_coupon_error($q$select public.create_game_coupon('QA-APP-BAD','bad','{"appearanceTickets":1000001}',now(),now()+interval '1 day',null)$q$,'COUPON_REWARD_INVALID');
+ perform public.create_game_coupon('QA-APP-100','소환권 100장','{"appearanceTickets":100}',now()-interval '1 hour',now()+interval '1 day',null);
+ select * into f from coupon_fixture where label='a';
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',f.u,'role','authenticated','session_id',f.s)::text,true);
+ r:=public.redeem_game_coupon('qa-app-100');
+ m:=(r->>'mailId')::uuid;
+ perform pg_temp.expect_coupon_error($q$select public.redeem_game_coupon('QA-APP-100')$q$,'COUPON_ALREADY_USED');
+ if not exists(select 1 from jsonb_array_elements(public.get_game_mail()->'mails')x
+ where x->>'mailId'=m::text and x->'attachment'->'reward'->>'appearanceTickets'='100')
+ then raise exception 'Appearance ticket reward missing from mailbox';end if;
+ -- Claim both times; the canonical wallet assertion below proves replay safety.
+ r:=public.manage_game_mail(f.l,1,'coupon-qa','coupon-qa','claim',m);
+ r:=public.manage_game_mail(f.l,1,'coupon-qa','coupon-qa','claim',m);
+end $$;
+reset role;
+do $$begin
+ if (select quantity from private.appearance_ticket_wallets where user_id=(select u from coupon_fixture where label='a'))<>100 then raise exception 'Authoritative ticket wallet did not receive exactly 100';end if;
+end $$;
+
 rollback;
 
