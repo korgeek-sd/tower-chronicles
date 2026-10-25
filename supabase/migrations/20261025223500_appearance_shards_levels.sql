@@ -205,5 +205,5 @@ begin
 end $$;
 revoke all on function private.combat_equipment_stats(uuid,jsonb) from public,anon,authenticated;
 
--- Backfill cloud projection only: never consume shards or unequip pre-existing owners.
-update public.game_saves set payload=payload where user_id in (select distinct user_id from private.appearance_ownership);
+-- Keep prior cloud save revisions untouched during migration. Their next normal
+-- authenticated save/summon/upgrade applies the authoritative shard projection.
