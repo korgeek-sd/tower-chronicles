@@ -250,6 +250,11 @@ export const APPEARANCES:AppearanceData[]=[
  {id:"crossbowman",name:"석궁병",rarity:"C",imagePath:"assets/characters/appearances/crossbowman-64b4356b6055.webp",description:"빛바랜 녹색 망토와 가죽 갑옷을 걸치고 석궁과 볼트 화살통을 갖춘 석궁병.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"lumberjack",name:"벌목꾼",rarity:"C",imagePath:"assets/characters/appearances/lumberjack-38ee59603c16.webp",description:"가죽 앞치마와 기운 작업복을 입고 도끼와 밧줄을 지닌 벌목꾼.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+, {id:"nameless_king",name:"이름 잃은 왕",rarity:"SSR",imagePath:"assets/characters/appearances/nameless_king-0e66257e14de.webp",
+  description:"빛바랜 왕관과 찢어진 모피 망토를 두르고 피 묻은 대검과 사슬을 지닌, 기록에서 이름이 지워진 왕.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
