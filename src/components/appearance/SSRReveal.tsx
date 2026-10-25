@@ -4,27 +4,26 @@ import type {AppearanceData} from '../../game/data/cosmetics';
 import {assetUrl} from '../../game/data/graphics';
 import {playSsrBell} from './ssrSound';
 import './ssr-reveal.css';
-export function SSRReveal({draw,appearance,total,onDone,onRepeat,canRepeat,busy,error}:{draw:AppearanceSummonDraw;appearance?:AppearanceData;total:number;onDone:()=>void;onRepeat:()=>void;canRepeat:boolean;busy:boolean;error?:string}){
+type Props={draw:AppearanceSummonDraw;appearance?:AppearanceData;total:number;onDone:()=>void;onRepeat:()=>void;canRepeat:boolean;busy:boolean;error?:string};
+export function SSRRevealFrame({draw,appearance,total,onDone,onRepeat,canRepeat,busy,error,ready,skipRef,confirmRef}:{ready:boolean;skipRef?:React.RefObject<HTMLButtonElement|null>;confirmRef?:React.RefObject<HTMLButtonElement|null>}&Props){
+ return <div className={'tc-ssr-reveal'+(ready?' is-ready':'')} data-rarity="SSR">
+  {!ready&&<button ref={skipRef} type="button" className="tc-ssr-skip" disabled={busy} onClick={onDone}>건너뛰기 ›</button>}
+  {!ready&&<div className="tc-ssr-vfx" aria-hidden="true"><img className="tc-ssr-crack-texture" src={assetUrl('assets/vfx/summon/ssr-crack-v1.png')} alt="" draggable={false}/><div className="tc-ssr-flash"/></div>}
+  <div className="tc-ssr-art" aria-hidden="true">{appearance?.imagePath?<img src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>:<span>SSR</span>}</div>
+  <div className="tc-ssr-caption"><h2 id="summon-modal-title" className="tc-ssr-grade">SSR</h2><h3>{appearance?.name??draw.id}</h3><p>{draw.duplicate?'중복 획득':'새로운 외형 획득'}</p></div>
+  <footer className="tc-ssr-actions"><button ref={confirmRef} type="button" disabled={!ready||busy} onClick={onDone}>{total>1?'결과 보기':'확인'}</button><button type="button" disabled={!ready||busy||!canRepeat} onClick={onRepeat}>{busy?'소환 중…':'다시 소환'}</button></footer>
+  {error&&<p role="alert" className="tc-ssr-error">{error}</p>}
+ </div>;
+}
+export function SSRReveal(props:Props){
  const [ready,setReady]=useState(false),stop=useRef<()=>void>(()=>{}),skip=useRef<HTMLButtonElement>(null),confirm=useRef<HTMLButtonElement>(null);
  useEffect(()=>{
-  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if(reduced){setReady(true);return;}
-  const impact=setTimeout(()=>{stop.current=playSsrBell();},650);
-  const finish=setTimeout(()=>{setReady(true);},2000);
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){setReady(true);return;}
+  const impact=setTimeout(()=>{stop.current=playSsrBell();},600);
+  const finish=setTimeout(()=>setReady(true),1200);
   skip.current?.focus();
   return()=>{clearTimeout(impact);clearTimeout(finish);stop.current();};
  },[]);
  useEffect(()=>{if(ready)confirm.current?.focus();},[ready]);
- return <div className={'tc-ssr-reveal'+(ready?' is-ready':'')} data-rarity="SSR">
-  <button ref={skip} type="button" className="tc-ssr-skip" disabled={busy} onClick={()=>{stop.current();onDone();}}>건너뛰기 ›</button>
-  <div className="tc-ssr-scene" aria-hidden="true">
-   <svg className="tc-ssr-crack" viewBox="0 0 320 650" preserveAspectRatio="none"><path className="tc-ssr-crack-glow" d="M158 0 164 68 149 121 170 173 151 223 164 272 147 322 170 374 157 425 169 476 150 536 163 592 157 650"/><path d="m149 121-25 24-9 38m55-10 32 22 12 31M147 322l-34 18-16 37m73-3 37 30 12 44m-69 88-30 17-10 41"/></svg>
-   <div className="tc-ssr-breach"/><div className="tc-ssr-flash"/>
-   <div className="tc-ssr-dust">{Array.from({length:18},(_,i)=><i key={i} style={{'--x':(i*47%100)+'%','--delay':(i%6)*.13+'s','--drift':(i%2?-1:1)*(15+i*2)+'px'} as React.CSSProperties}/>)}</div>
-   <div className="tc-ssr-character">{appearance?.imagePath?<img src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>:<span>SSR</span>}</div>
-  </div>
-  <div className="tc-ssr-caption"><h2 id="summon-modal-title">SSR</h2><p className="tc-ssr-waking">기록이 깨어납니다</p><div className="tc-ssr-name"><h3>{appearance?.name??draw.id}</h3><p>{draw.duplicate?'이미 기록된 외형을 다시 발견했습니다':'새로운 외형 획득'}</p>{total>1&&<small>전체 소환 결과에서 다른 외형도 확인할 수 있습니다.</small>}</div></div>
-  <footer className="tc-ssr-actions"><button ref={confirm} type="button" disabled={!ready||busy} onClick={onDone}>{total>1?'전체 결과 확인':'확인'}</button><button type="button" disabled={!ready||busy||!canRepeat} onClick={onRepeat}>{busy?'소환 중…':total===10?'10회 다시 소환':'다시 소환'}</button></footer>
-  {error&&<p role="alert" className="tc-ssr-error">{error}</p>}
- </div>;
+ return <SSRRevealFrame {...props} ready={ready} skipRef={skip} confirmRef={confirm} onDone={()=>{stop.current();props.onDone();}}/>;
 }

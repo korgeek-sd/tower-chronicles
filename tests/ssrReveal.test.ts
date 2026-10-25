@@ -19,5 +19,5 @@ test('ten pulls reveal the first actual SSR once without modifying the draw arra
  const draws=[{id:'scout',rarity:'C',duplicate:false},{id:'nameless_king',rarity:'SSR',duplicate:true}] as const;
  const before=JSON.stringify(draws);
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{...props,animateSSR:true,draws:[...draws]}));
- assert.match(html,/tc-ssr-reveal/);assert.match(html,/이미 기록된 외형/);assert.equal(JSON.stringify(draws),before);
+ assert.match(html,/tc-ssr-reveal/);assert.match(html,/중복 획득/);assert.equal(JSON.stringify(draws),before);
 });
