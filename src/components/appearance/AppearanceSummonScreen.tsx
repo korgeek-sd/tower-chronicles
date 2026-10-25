@@ -6,6 +6,7 @@ import type {CloudSaveRecord} from '../../online/cloudSave';
 import type {GameplayLease} from '../../online/gameSession';
 import {getAppearanceSummonHistory,summonAppearances,type AppearanceSummonCurrency,type AppearanceSummonDraw,type AppearanceSummonHistoryEntry} from '../../online/appearanceSummon';
 import {APPEARANCES} from '../../game/data/cosmetics';
+import {APPEARANCE_SUMMON_RATES} from '../../game/data/appearanceSummonRates';
 import {jobById} from '../../game/jobs/catalog';
 import {assetUrl} from '../../game/data/graphics';
 import {Glyph,Screen,Segments} from '../../ui/mobile';
@@ -75,7 +76,7 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
   {panel&&<div className="tc-summon-modal-backdrop" role="presentation" onClick={()=>setPanel(null)}>
    <section ref={modal} tabIndex={-1} className="tc-summon-modal" role="dialog" aria-modal="true" aria-labelledby="summon-modal-title" onClick={e=>e.stopPropagation()}>
     <header><h2 id="summon-modal-title">{panel==='history'?'소환 기록':panel==='rates'?'등급별 확률':'소환 결과'}</h2><button type="button" aria-label="닫기" onClick={()=>setPanel(null)}>×</button></header>
-    {panel==='rates'&&<><p>1회 {APPEARANCE_SUMMON_GOLD_PRICE.single} G / 10회 {APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G ({APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인)</p><div className="tc-summon-rate-table">{(['C','B','A','SR','SSR'] as const).map((rarity,index)=><div key={rarity}><b>{rarity}</b><span>{['60%','30%','8%','1.8%','0.2%'][index]}</span></div>)}</div><p>각 회차는 독립 추첨이며 확정 지급과 천장은 없습니다.</p></>}
+    {panel==='rates'&&<><p>1회 {APPEARANCE_SUMMON_GOLD_PRICE.single} G / 10회 {APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G ({APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인)</p><div className="tc-summon-rate-table">{APPEARANCE_SUMMON_RATES.map(rate=><div key={rate.rarity}><b>{rate.rarity}</b><span>{rate.basisPoints/100}%</span></div>)}</div><p>각 회차는 독립 추첨이며 확정 지급과 천장은 없습니다.</p></>}
     {panel==='results'&&<div className="tc-summon-results">{draws.map((draw,index)=><div key={index} className={'tc-summon-result tc-summon-rarity-'+draw.rarity.toLowerCase()}><b>{draw.rarity}</b><span>{names.get(draw.id)??draw.id}</span>{draw.duplicate&&<small>중복 획득</small>}</div>)}</div>}
     {panel==='history'&&(!history.length?<p>저장된 소환 기록이 없습니다.</p>:<div className="tc-summon-history">{history.map((entry,index)=><div key={index}><small>{new Date(entry.at).toLocaleString('ko-KR')} · {entry.currency==='ticket'?'소환권':entry.cost.toLocaleString('ko-KR')+' G'}</small><p>{entry.draws.map(draw=>draw.rarity+' '+(names.get(draw.id)??draw.id)).join(' · ')}</p></div>)}</div>)}
     <button type="button" className="tc-action" onClick={()=>setPanel(null)}>닫기</button>
