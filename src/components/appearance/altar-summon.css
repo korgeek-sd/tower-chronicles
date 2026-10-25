@@ -71,7 +71,7 @@
 .tc-summon-draw-art{display:grid;place-items:center;flex:0 0 43%;min-width:0;min-height:0;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#5a5d4e25,transparent 65%);border-bottom:1px solid #6c665c}
 .tc-summon-earned-art{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;image-rendering:pixelated}
 .tc-summon-art-unavailable{font-size:10px;color:#b3ac9b;text-align:center}
-.tc-summon-draw-info{display:flex;flex:1;min-width:0;min-height:0;height:100%;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:1px;overflow:hidden}
+.tc-summon-draw-info{display:flex;flex:1;min-width:0;min-height:0;height:100%;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;overflow:hidden}
 .tc-summon-draw-grade{font:700 clamp(12px,1.8dvh,18px) Georgia,serif;line-height:1;color:#b4b7b3}
 .tc-summon-draw-info strong{font:700 clamp(9px,1.35dvh,11px)/1.2 'Noto Sans KR',sans-serif;color:#efe0c4;overflow-wrap:anywhere;word-break:keep-all;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .tc-summon-acquisition{font-size:9px;line-height:1.1;padding:1px 4px;background:#292c27;border:1px solid #555048;white-space:nowrap;color:#bdb2a0}

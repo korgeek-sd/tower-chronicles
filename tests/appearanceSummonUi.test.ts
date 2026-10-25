@@ -147,6 +147,9 @@ test('ten summon result is a 2-column ten-card grid with real character sprites 
  assert.match(html,/baal-d5dd22a83f6c\.webp/);
  assert.match(html,/data-rarity="SSR"/);
  assert.match(html,/전용 조각 10개 획득/);
+ // Each draw is guaranteed to give exactly one shard; avoid ten redundant labels.
+ assert.doesNotMatch(html,/tc-summon-acquisition/);
+ assert.doesNotMatch(html,/전용 조각 1개 상세 보기/);
  assert.match(html,/10회 다시 소환/);
  assert.match(html,/소환권 3장 \+ 1,890 G/);
  assert.match(html,/tc-summon-result-footer/);

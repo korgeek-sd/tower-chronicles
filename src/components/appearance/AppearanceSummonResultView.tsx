@@ -58,9 +58,9 @@ export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepea
   <div className={'tc-summon-result-content'+(shownSingle?' is-single':' is-ten')}>
    {!shownSingle?<div className="tc-summon-result-grid" aria-label="10회 소환으로 획득한 외형 조각 10개">{draws.map((draw,index)=>{
     const item=catalog.get(draw.id);
-    return <button type="button" key={index} className={'tc-summon-draw-card tc-summon-rarity-'+draw.rarity.toLowerCase()} data-rarity={draw.rarity} onClick={()=>setDetailIndex(index)} aria-label={draw.rarity+' '+(item?.name??draw.id)+' 전용 조각 1개 상세 보기'}>
+    return <button type="button" key={index} className={'tc-summon-draw-card tc-summon-rarity-'+draw.rarity.toLowerCase()} data-rarity={draw.rarity} onClick={()=>setDetailIndex(index)} aria-label={draw.rarity+' '+(item?.name??draw.id)+' 상세 보기'}>
      <div className="tc-summon-draw-art"><SummonArt appearance={item}/></div>
-     <div className="tc-summon-draw-info"><span className="tc-summon-draw-grade">{draw.rarity}</span><strong>{item?.name??draw.id}</strong><span className={'tc-summon-acquisition '+(draw.duplicate?'is-duplicate':'is-new')}>{'조각 1개'}</span></div>
+     <div className="tc-summon-draw-info"><span className="tc-summon-draw-grade">{draw.rarity}</span><strong>{item?.name??draw.id}</strong></div>
     </button>;
    })}</div>
    :detail&&<div className={'tc-summon-single-stage tc-summon-rarity-'+detail.rarity.toLowerCase()} data-rarity={detail.rarity}>
