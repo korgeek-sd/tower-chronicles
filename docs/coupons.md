@@ -2,7 +2,7 @@
 
 Players open **Settings → Coupon**, enter a code, and receive one **Coupon reward** mail. Codes ignore case and surrounding spaces. Each account can redeem a coupon once; deleting or allowing the reward mail to expire does not restore eligibility. Redemption checks activation, start/end times, and the global redemption limit on the server. The deadline is exclusive.
 
-The reward mail holds silver, gold, enhancement stones, and job draw tickets as one bundle. It expires after 30 days. Collecting it requires the existing active gameplay lease and being at the hub. Claiming persists the complete reward to the authoritative save in the same transaction as marking the mail claimed. Neither code redemption nor opening the mail pays rewards immediately.
+The reward mail holds silver, gold, appearance summon tickets, enhancement stones, and job draw tickets as one bundle. It expires after 30 days. Collecting it requires the existing active gameplay lease and being at the hub. Claiming persists the complete reward to the authoritative save in the same transaction as marking the mail claimed. Neither code redemption nor opening the mail pays rewards immediately.
 
 ## Administration
 
@@ -22,3 +22,7 @@ The migration adds a reward attachment to private mail, replaces `get_game_mail`
 
 The local PostgreSQL fixture supplies the pre-existing auth/lease/save/economy interfaces; new coupon RPCs and the mail claim implementation are loaded unchanged from migrations. After deployment, run the SQL suite against the actual project to validate its real existing interfaces too. Local success alone does not confirm production migration or administrator activation.
 
+
+## Appearance ticket promotional codes
+
+The server accepts `appearanceTickets` as an integer (0–1,000,000) within the existing coupon JSON reward. For example, `{ "appearanceTickets": 100 }` delivers **appearance summon tickets**, not job draw tickets. An appearance-only reward is valid. On mailbox claim, the authenticated, active-session, hub-only transaction increments `private.appearance_ticket_wallets` and saves the authoritative state; a replay or duplicate code redemption does not grant a second reward. Claim responses include the canonical `summonTickets` balance for immediate UI refresh. This does not change existing summon prices, ticket priority, or rarity rates.
