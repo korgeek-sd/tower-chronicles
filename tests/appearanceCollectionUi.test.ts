@@ -183,3 +183,11 @@ test('appearance image and name open the central detail with effect and equip ac
  assert.match(source,/tc-appearance-detail-popup/);assert.match(source,/tc-appearance-detail-actions/);
  assert.match(source,/detailPopup.current\?\.focus\(\)/);
 });
+
+test('refined appearance popup uses the appearance name and a seamless art surface',()=>{
+ const source=readFileSync('src/components/mobile/CoreScreens.tsx','utf8');
+ assert.match(source,/appearanceById\(appearanceDetails\)\?\.name/);
+ assert.match(source,/tc-appearance-detail-effect/);
+ const css=readFileSync('src/components/mobile/compact-appearances.css','utf8');
+ assert.match(css,/\.tc-appearance-detail-art\{[^}]*background:transparent/);
+});

@@ -369,7 +369,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     </div>}
    {(appearanceDetails||relatedAppearance)&&<div className="tc-collection-modal-backdrop" role="presentation" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}}>
     <section ref={detailPopup} tabIndex={-1} className={'tc-collection-modal'+(appearanceDetails?' tc-appearance-detail-popup':'')} role="dialog" aria-modal="true" aria-label={appearanceDetails?'외형 상세 정보':'관련 컬렉션'} onClick={e=>e.stopPropagation()}>
-     <header><h2>{appearanceDetails?'외형 상세':'관련 컬렉션'}</h2><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}} aria-label="닫기">×</button></header>
+     <header><div><h2>{appearanceDetails?appearanceById(appearanceDetails)?.name??'외형 정보':'관련 컬렉션'}</h2>{appearanceDetails&&<p className="tc-appearance-detail-header-state">{appearanceById(appearanceDetails)?.rarity??'기본'} · {game.cosmetics.selectedAppearanceId===appearanceDetails?'착용 중':ownedSet.has(appearanceDetails)?'보유':'미보유'}</p>}</div><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(null);}} aria-label="닫기">×</button></header>
      {appearanceDetails?(()=>{
       const a=appearanceById(appearanceDetails);
       const included=APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(appearanceDetails));
@@ -377,9 +377,8 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       return <div className="tc-collection-modal-content tc-appearance-detail-content">
        <div className="tc-appearance-detail-art">{artReady?<img src={assetUrl(a.imagePath!)} alt={a.name}/>:<Glyph name="cosmetics"/>}</div>
-       <h3>{a.name}</h3><p className="tc-appearance-detail-state">{a.rarity??'기본'} · {isSelected?'착용 중':isOwned?'보유':'미보유'}</p>
-       <section><h4>설명</h4><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.sourceLabel}</small></section>
-       <section><h4>착용 효과</h4><p>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' (예정)':'착용 효과 없음'}</p>{a.proposedBonus&&<small>효과는 아직 전투에 적용되지 않습니다.</small>}</section>
+       <section className="tc-appearance-detail-description"><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.sourceLabel}</small></section>
+       <section className="tc-appearance-detail-effect"><div><h4>착용 효과</h4><p>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' · 예정':'없음'}</p></div>{a.proposedBonus&&<small>효과는 아직 전투에 적용되지 않습니다.</small>}</section>
        <div className="tc-appearance-detail-actions"><button type="button" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':game.expedition?'원정 중':'착용'}</button><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {included.length} ›</button></div>
       </div>;
      })():<div className="tc-collection-modal-content"><p>{appearanceById(relatedAppearance!)?.name} 외형이 필요한 컬렉션</p><div className="tc-collection-related-list">{related.map(set=><button type="button" key={set.id} onClick={()=>{setRarity('ALL');setStatus('all');setQuery('');setSelectedSetId(set.id);setRelatedAppearance(null);}}><strong>{set.name}</strong><span>{collectionSetBonusLabel(set)} · {collectionSetProgress(set,owned,registeredIds).count}/{set.appearanceIds.length}</span></button>)}</div></div>}
