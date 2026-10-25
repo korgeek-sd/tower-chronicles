@@ -83,3 +83,4 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
    </section>
   </div>}
  </Screen>;
+}
