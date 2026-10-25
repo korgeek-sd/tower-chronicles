@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {appearanceSummonTickets} from '../../game/engine/appearanceSummonTickets';
+import {APPEARANCE_SUMMON_GOLD_PRICE,APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT} from '../../game/data/appearanceSummonPricing';
 import type {GameState} from '../../game/types';
 import {jobById} from '../../game/jobs/catalog';
 import {assetUrl} from '../../game/data/graphics';
@@ -32,11 +33,11 @@ export function AppearanceSummonScreen({game,onList,onCollection}:{game:GameStat
    <section className="tc-summon-feature" aria-live="polite"><small>APPEARANCE PREVIEW</small><h2>{selected.displayName}</h2><div><span>착용 효과</span><b>능력치 확정 예정</b></div></section>
    <footer className="tc-summon-footer" aria-label="외형 소환 및 보유 소환권">
    <div className="tc-summon-wallet"><div><Glyph name="gold"/><span>보유 골드<b>{game.market.gold.toLocaleString()}</b></span></div><div><Glyph name="ticket"/><span>외형 소환권<b>{appearanceSummonTickets(game).toLocaleString()}장</b></span></div></div>
-   <div className="tc-summon-actions"><button type="button" disabled><strong>1회 소환</strong><small>비용 확정 예정</small></button><button type="button" disabled><strong>10회 소환</strong><small>비용 확정 예정</small></button><button type="button" disabled><strong>소환권 사용</strong><small>1회 · 1장</small></button></div>
+   <div className="tc-summon-actions"><button type="button" disabled><strong>1회 소환</strong><small>{APPEARANCE_SUMMON_GOLD_PRICE.single.toLocaleString('ko-KR')} G</small></button><button type="button" disabled><strong>10회 소환</strong><small>{APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G · {APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인</small></button><button type="button" disabled><strong>소환권 사용</strong><small>1회 · 1장</small></button></div>
    <p className="tc-summon-status" role="status">외형 소환 서버 연결 준비 중</p>
    <div className="tc-summon-utilities"><button type="button" onClick={()=>setPanel('history')}><Glyph name="bestiary"/>소환 기록</button><button type="button" onClick={()=>setPanel('rates')}><Glyph name="search"/>확률 정보</button>{onCollection&&<button type="button" onClick={onCollection}><Glyph name="bestiary"/>컬렉션</button>}</div>
    </footer>
   </div>
-  {panel&&<div className="tc-summon-modal-backdrop" role="presentation" onClick={()=>setPanel(null)}><section ref={modal} tabIndex={-1} className="tc-summon-modal" role="dialog" aria-modal="true" aria-labelledby="summon-modal-title" onClick={e=>e.stopPropagation()}><header><h2 id="summon-modal-title">{panel==='history'?'소환 기록':'확률 정보'}</h2><button type="button" aria-label="닫기" onClick={()=>setPanel(null)}>×</button></header><p>{panel==='history'?'외형 소환이 시작되면 실제 획득 기록이 여기에 표시됩니다.':'외형 소환 확률과 비용은 확정 후 공개됩니다.'}</p><button type="button" className="tc-action" onClick={()=>setPanel(null)}>닫기</button></section></div>}
+  {panel&&<div className="tc-summon-modal-backdrop" role="presentation" onClick={()=>setPanel(null)}><section ref={modal} tabIndex={-1} className="tc-summon-modal" role="dialog" aria-modal="true" aria-labelledby="summon-modal-title" onClick={e=>e.stopPropagation()}><header><h2 id="summon-modal-title">{panel==='history'?'소환 기록':'확률 정보'}</h2><button type="button" aria-label="닫기" onClick={()=>setPanel(null)}>×</button></header><p>{panel==='history'?'외형 소환이 시작되면 실제 획득 기록이 여기에 표시됩니다.':`외형 소환 가격: 1회 ${APPEARANCE_SUMMON_GOLD_PRICE.single.toLocaleString('ko-KR')} G / 10회 ${APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G (${APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인). 등급별 확률은 추첨 기능 도입 시 공개됩니다.`}</p><button type="button" className="tc-action" onClick={()=>setPanel(null)}>닫기</button></section></div>}
  </Screen>;
 }
