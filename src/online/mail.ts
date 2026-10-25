@@ -7,9 +7,9 @@ import type {CouponReward} from './coupons';
 export interface MailDetails {itemId?:string;itemName?:string;gear?:OnlineMarketGear|null;original:number;filled:number;remaining:number;total:number;fee:number;refund:number}
 export interface MailContent {title:string;category:'trade'|'reward'|'notice';body:string;details:MailDetails;attachment:{itemId:string;quantity:number;gear:OnlineMarketGear|null;reward?:CouponReward}|null}
 export interface GameMail extends MailContent {mailId:string;read:boolean;claimed:boolean;createdAt:number;expiresAt:number}
-export interface MailState {mails:GameMail[];economy?:OnlineMarketState|null}
+export interface MailState {mails:GameMail[];economy?:OnlineMarketState|null;summonTickets?:number|null}
 export function mailBody(mail:MailContent):string{
- if(mail.attachment?.reward){const r=mail.attachment.reward;return [mail.body,'',...(r.silver?[`${r.silver.toLocaleString()} 실버`]:[]),...(r.gold?[`${r.gold.toLocaleString()} 골드`]:[]),...(r.items??[]).map(i=>`${i.id==='other:job_draw_ticket'?'직능 등록권':i.id==='other:enhancement_stone'?'강화석':i.id} × ${i.quantity.toLocaleString()}`)].join('\n');}
+ if(mail.attachment?.reward){const r=mail.attachment.reward;return [mail.body,'',...(r.silver?[`${r.silver.toLocaleString()} 실버`]:[]),...(r.gold?[`${r.gold.toLocaleString()} 골드`]:[]),...(r.appearanceTickets?[`외형 소환권 × ${r.appearanceTickets.toLocaleString()}`]:[]),...(r.items??[]).map(i=>`${i.id==='other:job_draw_ticket'?'직능 등록권':i.id==='other:enhancement_stone'?'강화석':i.id} × ${i.quantity.toLocaleString()}`)].join('\n');}
  if(mail.category!=='trade')return mail.body;
  const d=mail.details,buy=mail.title.startsWith('구매'),complete=mail.title.endsWith('완료'),expired=mail.title.endsWith('만료');
  const noun=buy?'구매':'판매',money=(n:number)=>(n??0).toLocaleString()+' 실버';
