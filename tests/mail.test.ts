@@ -4,6 +4,7 @@ import {mailBody} from '../src/online/mail';
 test('coupon mail explains every currency and item in the reward bundle',()=>{
  const body=mailBody({title:'쿠폰 보상',category:'reward',body:'테스트 선물',details:{} as any,attachment:{itemId:'coupon_reward',quantity:1,gear:null,reward:{silver:1000,gold:5,items:[{id:'other:job_draw_ticket',quantity:2}]}}} as any);
  assert.match(body,/1,000 실버/);assert.match(body,/5 골드/);assert.match(body,/직능 등록권 × 2/);
+ assert.doesNotMatch(body,/외형 소환권/);
 });
 test('partial sell expiry shows only five returned without paying twice',()=>{
  const body=mailBody({title:'판매 주문 만료',category:'trade',body:'',details:{itemName:'검',original:10,filled:5,remaining:5,total:5000,fee:0,refund:0},attachment:{itemId:'other:test',quantity:5,gear:null}});
@@ -14,3 +15,9 @@ test('buy cancellation describes reserve refund and retained fills',()=>{
  assert.match(body,/반환 금액: 5,000 실버/);assert.match(body,/이미 구매된 아이템은 유지/);
 });
 
+
+test('100 appearance summon tickets from coupon are clearly labeled in mailbox',()=>{
+ const body=mailBody({title:'쿠폰 보상',category:'reward',body:'외형 소환권 보상',details:{} as any,attachment:{itemId:'coupon_reward',quantity:1,gear:null,reward:{appearanceTickets:100}}} as any);
+ assert.match(body,/외형 소환권 × 100/);
+ assert.doesNotMatch(body,/직능 등록권/);
+});
