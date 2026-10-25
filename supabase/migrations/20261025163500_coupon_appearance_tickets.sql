@@ -53,7 +53,7 @@ revoke all on function private.deliver_coupon_reward(uuid,jsonb) from public,ano
 
 -- Preserve the existing mail claim handler including lease, hub, locking and rollback.
 -- Only extend its confirmed claim response with the server-owned ticket balance.
-do $
+do $patch$
 declare definition text; needle text; patched text;
 begin
  select pg_get_functiondef('public.manage_game_mail(uuid,bigint,text,text,text,uuid)'::regprocedure) into definition;
@@ -62,6 +62,6 @@ begin
  patched:=replace(definition,needle,
   'return public.get_game_mail()||jsonb_build_object(''economy'',case when p_action in(''claim'',''claim_all'') then private.market_state_json(u) end,''summonTickets'',case when p_action in(''claim'',''claim_all'') then coalesce((select quantity from private.appearance_ticket_wallets where user_id=u),0) end);');
  execute patched;
-end $;
+end $patch$;
 revoke all on function public.manage_game_mail(uuid,bigint,text,text,text,uuid) from public,anon;
 grant execute on function public.manage_game_mail(uuid,bigint,text,text,text,uuid) to authenticated;
