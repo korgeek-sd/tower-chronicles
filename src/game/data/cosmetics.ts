@@ -267,6 +267,11 @@ export const APPEARANCES:AppearanceData[]=[
   description:"가시관을 닮은 후광과 피로 물든 성의를 걸치고 붉은 보석이 박힌 성장을 든, 구원을 사칭하는 자.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+,
+ {id:"antichrist",name:"적그리스도",rarity:"SR",imagePath:"assets/characters/appearances/antichrist-f1e4175ae584.webp",
+  description:"검게 지워진 얼굴과 가시 후광, 속이 빈 손바닥과 찢어진 성의를 지닌 거짓된 메시아.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
 ];
 export const TITLES:TitleData[]=[];
