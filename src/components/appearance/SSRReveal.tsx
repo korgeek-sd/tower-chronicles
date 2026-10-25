@@ -14,7 +14,7 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
   {!ready&&<button ref={skipRef} type="button" className="tc-ssr-skip" disabled={busy} onClick={onSkip}>건너뛰기 ›</button>}
   {!ready&&<div className="tc-ssr-vfx" aria-hidden="true">
    <div className="tc-seal-particles"><img src={sealAsset('particles')} alt="" draggable={false}/></div>
-   <div className="tc-seal-stone"><img src={sealAsset('stone')} alt="" draggable={false}/></div>
+   <div className="tc-seal-stone"><div className="tc-seal-stone-sprite" style={{backgroundImage:`url("${assetUrl('assets/vfx/summon/seal-stone-16frames-v2.webp')}")`}}/></div>
    <img className="tc-seal-flare" src={sealAsset('flare')} alt="" draggable={false}/>
    <div className="tc-ssr-flash"/>
   </div>}

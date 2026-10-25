@@ -1,0 +1,240 @@
+{
+  "width": 1536,
+  "height": 1536,
+  "cellSize": 384,
+  "columns": 4,
+  "rows": 4,
+  "anchorX": 192,
+  "anchorY": 154,
+  "sourceSha256": "ecea6fec5e6e7a56f122c5ae18ecfb527c81eeaec3691e17494ba086176a7c95",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "frames": [
+    {
+      "x": 0,
+      "y": 0,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        0,
+        0,
+        314,
+        314
+      ],
+      "offsetX": 20,
+      "offsetY": 36
+    },
+    {
+      "x": 384,
+      "y": 0,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        314,
+        0,
+        627,
+        314
+      ],
+      "offsetX": 34,
+      "offsetY": 36
+    },
+    {
+      "x": 768,
+      "y": 0,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        627,
+        0,
+        940,
+        314
+      ],
+      "offsetX": 40,
+      "offsetY": 36
+    },
+    {
+      "x": 1152,
+      "y": 0,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        940,
+        0,
+        1254,
+        314
+      ],
+      "offsetX": 42,
+      "offsetY": 36
+    },
+    {
+      "x": 0,
+      "y": 384,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        0,
+        314,
+        314,
+        627
+      ],
+      "offsetX": 22,
+      "offsetY": 42
+    },
+    {
+      "x": 384,
+      "y": 384,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        314,
+        314,
+        627,
+        627
+      ],
+      "offsetX": 36,
+      "offsetY": 42
+    },
+    {
+      "x": 768,
+      "y": 384,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        627,
+        314,
+        940,
+        627
+      ],
+      "offsetX": 42,
+      "offsetY": 42
+    },
+    {
+      "x": 1152,
+      "y": 384,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        940,
+        314,
+        1254,
+        627
+      ],
+      "offsetX": 44,
+      "offsetY": 42
+    },
+    {
+      "x": 0,
+      "y": 768,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        0,
+        627,
+        314,
+        940
+      ],
+      "offsetX": 21,
+      "offsetY": 38
+    },
+    {
+      "x": 384,
+      "y": 768,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        314,
+        627,
+        627,
+        940
+      ],
+      "offsetX": 36,
+      "offsetY": 38
+    },
+    {
+      "x": 768,
+      "y": 768,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        627,
+        627,
+        940,
+        940
+      ],
+      "offsetX": 39,
+      "offsetY": 31
+    },
+    {
+      "x": 1152,
+      "y": 768,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        940,
+        627,
+        1254,
+        940
+      ],
+      "offsetX": 41,
+      "offsetY": 31
+    },
+    {
+      "x": 0,
+      "y": 1152,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        0,
+        940,
+        314,
+        1254
+      ],
+      "offsetX": 21,
+      "offsetY": 30
+    },
+    {
+      "x": 384,
+      "y": 1152,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        314,
+        940,
+        627,
+        1254
+      ],
+      "offsetX": 36,
+      "offsetY": 30
+    },
+    {
+      "x": 768,
+      "y": 1152,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        627,
+        940,
+        940,
+        1254
+      ],
+      "offsetX": 38,
+      "offsetY": 30
+    },
+    {
+      "x": 1152,
+      "y": 1152,
+      "anchorX": 192,
+      "anchorY": 154,
+      "sourceRect": [
+        940,
+        940,
+        1254,
+        1254
+      ],
+      "offsetX": 40,
+      "offsetY": 30
+    }
+  ]
+}

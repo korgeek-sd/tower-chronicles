@@ -26,3 +26,8 @@ User-supplied 1000015835.png -> seal-stone-v1.webp
 Lossless WebP format conversion; source composition and alpha preserved.
 Reference timing: user-supplied 1000015831.mp4; video not shipped.
 Previous crack and CodeManu files are retained for provenance but no longer played.
+
+Animated seal stone, 16 frames (seal-stone-16frames-v2.webp):
+OpenAI-generated atlas approved in conversation, 2026-10-25.
+4 charge frames, 6 crack frames, 6 break/dissipation frames.
+Packed by scripts/assets/packSealFrames.py with integer anchor correction and transparent padding; no artwork rescaling. Source hash and frame rectangles in sibling JSON.

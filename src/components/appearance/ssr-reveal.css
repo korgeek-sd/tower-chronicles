@@ -9,9 +9,9 @@
 .tc-ssr-skip{position:absolute!important;top:2px;right:4px;z-index:4;min-height:44px!important;font-size:11px!important;padding:8px!important;background:transparent!important;border:0!important;border-image:none!important;color:#c0b69c!important;cursor:pointer}
 .tc-ssr-vfx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .tc-seal-stone,.tc-seal-particles,.tc-seal-flare{position:absolute;left:50%;top:42%;translate:-50% -50%;image-rendering:pixelated}
-.tc-seal-stone{width:50%;height:36%;animation:tc-seal-break 4s linear both}
-.tc-seal-stone img{width:100%;height:100%;object-fit:contain;animation:tc-seal-float 4s ease-in-out both}
-.tc-ssr-reveal[data-rarity="SSR"] .tc-seal-stone img{animation:tc-seal-float 4s ease-in-out both,tc-seal-tremor 4s linear both}
+.tc-seal-stone{width:100%;max-width:460px;aspect-ratio:1;animation:tc-seal-break 4s linear both}
+.tc-seal-stone-sprite{width:100%;height:100%;background-size:400% 400%;background-repeat:no-repeat;animation:tc-seal-stone-frames 4s steps(1,end) both,tc-seal-float 4s ease-in-out both}
+.tc-ssr-reveal[data-rarity="SSR"] .tc-seal-stone-sprite{animation:tc-seal-stone-frames 4s steps(1,end) both,tc-seal-float 4s ease-in-out both,tc-seal-tremor 4s linear both}
 .tc-seal-particles{width:84%;max-width:420px;aspect-ratio:1;animation:tc-seal-charge 4s ease-in both}
 .tc-seal-particles img{display:block;width:100%;height:100%;animation:tc-seal-orbit 4s ease-in both}
 .tc-seal-flare{width:88%;max-width:450px;aspect-ratio:1;object-fit:contain;animation:tc-seal-burst 4s ease-out both}
@@ -31,7 +31,7 @@
 .tc-ssr-reveal.is-ready .tc-seal-background{animation:none;transform:scale(1.025)}
 .tc-summon-rarity-ssr.tc-summon-draw-card{border-color:#b59c67!important}
 @keyframes tc-seal-camera{from{transform:scale(1)}to{transform:scale(1.025)}}
-@keyframes tc-seal-break{0%{opacity:0;transform:scale(.9)}15%,72%{opacity:1;transform:scale(1)}78%{opacity:0;transform:scale(1.06)}100%{opacity:0;transform:scale(1.06)}}
+@keyframes tc-seal-break{0%{opacity:0}15%,90%{opacity:1}100%{opacity:0}}
 @keyframes tc-seal-float{0%,45%{transform:translateY(5px)}22%,65%{transform:translateY(-5px)}76%,100%{transform:translateY(0)}}
 @keyframes tc-seal-tremor{0%,64%,78%,100%{translate:0 0}66%,70%,74%{translate:-2px 0}68%,72%,76%{translate:2px 0}}
 @keyframes tc-seal-charge{0%,8%{opacity:0;transform:scale(.7)}30%{opacity:calc(var(--seal-charge)*.45);transform:scale(.85)}70%{opacity:var(--seal-charge);transform:scale(1)}80%{opacity:var(--seal-charge);transform:scale(1.15)}100%{opacity:0;transform:scale(1.3)}}
@@ -41,5 +41,6 @@
 @keyframes tc-seal-character{0%,80%{opacity:0;transform:translateY(10px);filter:brightness(0)}87%{opacity:.75;filter:brightness(.5)}100%{opacity:1;transform:translateY(0);filter:brightness(1)}}
 @keyframes tc-seal-caption{0%,89%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes tc-seal-intro{0%,12%{opacity:0}25%,65%{opacity:.8}76%,100%{opacity:0}}
-@media(max-height:570px){.tc-ssr-reveal{gap:6px;padding-top:28px;padding-bottom:10px}.tc-ssr-reveal .tc-seal-heading{min-height:32px}.tc-seal-heading small{display:none}.tc-ssr-caption .tc-ssr-grade{font-size:16px!important;margin-bottom:4px!important}.tc-ssr-caption h3{font-size:20px}.tc-ssr-actions button{min-height:44px!important}.tc-seal-stone{height:32%;top:40%}.tc-seal-particles,.tc-seal-flare{width:65%;top:40%}}
+@media(max-height:570px){.tc-ssr-reveal{gap:6px;padding-top:28px;padding-bottom:10px}.tc-ssr-reveal .tc-seal-heading{min-height:32px}.tc-seal-heading small{display:none}.tc-ssr-caption .tc-ssr-grade{font-size:16px!important;margin-bottom:4px!important}.tc-ssr-caption h3{font-size:20px}.tc-ssr-actions button{min-height:44px!important}.tc-seal-stone{width:78%;top:40%}.tc-seal-particles,.tc-seal-flare{width:65%;top:40%}}
 @media(prefers-reduced-motion:reduce){.tc-ssr-reveal *{animation:none!important;transition:none!important}.tc-ssr-vfx,.tc-seal-intro{display:none}.tc-ssr-art,.tc-ssr-caption{opacity:1;filter:none;transform:none}}
+@keyframes tc-seal-stone-frames{0%{background-position:0.0% 0.0%}16%{background-position:33.333333% 0.0%}24%{background-position:66.666667% 0.0%}32%{background-position:100.0% 0.0%}40%{background-position:0.0% 33.333333%}48%{background-position:33.333333% 33.333333%}54%{background-position:66.666667% 33.333333%}60%{background-position:100.0% 33.333333%}65%{background-position:0.0% 66.666667%}69%{background-position:33.333333% 66.666667%}73%{background-position:66.666667% 66.666667%}77%{background-position:100.0% 66.666667%}81%{background-position:0.0% 100.0%}85%{background-position:33.333333% 100.0%}90%{background-position:66.666667% 100.0%}95%{background-position:100.0% 100.0%}100%{background-position:100% 100%}}
