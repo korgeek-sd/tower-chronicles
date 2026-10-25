@@ -29,16 +29,18 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
   if((currency==='gold'&&game.market.gold<cost)||(currency==='ticket'&&appearanceSummonTickets(game)<1)){setStatus('소환에 필요한 재화가 부족합니다.');return;}
   const request=pendingRequest.current?.currency===currency&&pendingRequest.current.rolls===rolls?pendingRequest.current:{id:crypto.randomUUID(),currency,rolls};
   pendingRequest.current=request;
-  setBusy(true);onPending?.(true);setStatus('서버에서 외형을 소환하고 있습니다.');
+  setBusy(true);setStatus('서버에서 외형을 소환하고 있습니다.');
+  let prepared=false;
   try{
    await onPrepare?.();
+   onPending?.(true);prepared=true;
    const response=await summonAppearances(lease,userId,request.id,currency,rolls);
    onRecord?.(response.record);
    pendingRequest.current=null;
    setDraws(response.draws);setPanel('results');
    setStatus(response.replayed?'이전 소환 결과를 복원했습니다.':'외형 소환이 완료되었습니다.');
   }catch(error){setStatus(error instanceof Error?error.message:'소환 결과를 확인하지 못했습니다. 동일한 버튼으로 재시도해 주세요.');}
-  finally{setBusy(false);onPending?.(false);}
+  finally{setBusy(false);if(prepared)onPending?.(false);}
  }
  async function showHistory(){
   if(!lease||!userId){setPanel('history');return;}
