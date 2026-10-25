@@ -54,7 +54,7 @@ export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepea
      <p className="tc-summon-single-intro">{detail.duplicate?'이미 기록된 외형을 다시 발견했습니다.':'새로운 기록이 발견되었습니다.'}</p>
      <h3>{appearance?.name??detail.id}</h3>
      <strong className="tc-summon-single-grade">{detail.rarity} 등급</strong>
-     <div className="tc-summon-single-art"><SummonArt appearance={appearance} large/></div>
+     <div className="tc-summon-single-art"><img className="tc-summon-earned-backdrop" src={assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')} alt=""/><SummonArt appearance={appearance} large/></div>
      <div className={'tc-summon-single-status '+(detail.duplicate?'is-duplicate':'is-new')}>{detail.duplicate?'중복 획득':'신규 획득'}</div>
      <p className="tc-summon-single-description">{appearance?.description??'탑의 기록에 외형이 추가되었습니다.'}</p>
      <div className="tc-summon-single-effect"><strong>외형 효과</strong><span>{appearance?.proposedBonus?APPEARANCE_BONUS_LABELS[appearance.proposedBonus.stat]+' +'+appearance.proposedBonus.percent+'% (예정)':'능력치 변경 없음'}</span><small>외형 능력치 보너스는 현재 적용되지 않습니다.</small></div>
@@ -70,7 +70,7 @@ export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepea
    </button>
    <div className="tc-summon-result-footer-secondary">
     {shownSingle&&<button type="button" disabled={!canEquip} onClick={()=>{if(detail&&canEquip)onEquip?.(detail.id);}}>{isEquipped?'착용 중':expedition?'원정 중 변경 불가':'착용하기'}</button>}
-    <button type="button" onClick={onList}>외형 목록</button>
+    <button type="button" disabled={busy} onClick={onList}>외형 목록</button>
     {!shownSingle&&<button type="button" disabled={busy} onClick={onClose}>닫기</button>}
    </div>
   </footer>
