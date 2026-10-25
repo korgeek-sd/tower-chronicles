@@ -45,8 +45,8 @@ test('altar layout has a dedicated backdrop and accessible preview navigation',(
 test('confirmed summon prices are displayed with no guarantee, pity, or shard conversion',()=>{
  const game=initialState();game.market.gold=3100;
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game,onList:()=>{}}));
- assert.match(html,/1회 소환<\\/strong><small>300 G<\\/small>/);
- assert.match(html,/10회 소환<\\/strong><small>2,700 G/);
+ assert.ok(html.includes('1회 소환</strong><small>300 G</small>'));
+ assert.ok(html.includes('10회 소환</strong><small>2,700 G'));
  assert.match(html,/10% 할인/);
  assert.doesNotMatch(html,/확정 지급|천장|외형 조각|조각 전환/);
  assert.equal((html.match(/disabled=""/g)??[]).length>=3,true);
