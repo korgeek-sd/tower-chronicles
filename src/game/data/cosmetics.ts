@@ -256,6 +256,12 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
+,
+ {id:"first_forgotten_one",name:"첫 번째 잊혀진 자",rarity:"SSR",imagePath:"assets/characters/appearances/first_forgotten_one-d6f47fb1a875.webp",
+  description:"뱀이 휘감긴 몸과 가시덩굴, 피 묻은 선악과를 든 최초의 추방자. 그의 이름은 탑의 기록에서 지워졌다.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
