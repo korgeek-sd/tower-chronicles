@@ -64,6 +64,26 @@ test('appearance list shows stats and related collection links with ownership fi
  assert.ok(!html.includes('능력 사용 가능'));
 });
 
+test('appearance cards clearly show current enhancement level and remaining dedicated shards without opening detail',()=>{
+ const game=initialState();
+ game.cosmetics.unlockedAppearanceIds.push('corsair');
+ game.cosmetics.appearanceLevels={corsair:3};
+ game.cosmetics.appearanceItems.corsair=7;
+ game.cosmetics.appearanceItems.teddy=4;
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game,setGame:()=>{},initialTab:'appearance'}));
+ assert.match(html,/class="tc-appearance-progress"/);
+ assert.match(html,/class="tc-appearance-level">강화 Lv\.3<\/span>/);
+ assert.match(html,/class="tc-appearance-shards">보유 조각 7개<\/span>/);
+ assert.match(html,/class="tc-appearance-level">미해금<\/span>/);
+ assert.match(html,/class="tc-appearance-shards">보유 조각 4개<\/span>/);
+ assert.match(html,/기본 외형/);
+ const css=readFileSync('src/components/mobile/compact-appearances.css','utf8');
+ assert.match(css,/\.listing-mode \.tc-appearance-progress/);
+ assert.match(css,/\.listing-mode \.tc-appearance-level/);
+ assert.match(css,/\.listing-mode \.tc-appearance-shards/);
+ assert.match(css,/grid-template-rows:repeat\(4,96px\)/);
+});
+
 test('appearance list uses portrait-sized art and keeps supplied colors when unowned',()=>{
  const css=readFileSync(new URL('../src/components/mobile/cosmetics-catalog.css',import.meta.url),'utf8');
  assert.match(css,/listing-mode \.tc-cosmetics-icon\{[^}]*width:80px[^}]*height:108px/);
