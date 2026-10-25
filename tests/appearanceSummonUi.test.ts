@@ -104,3 +104,71 @@ test('ticket-first server migration uses canonical ticket wallet and records bot
  ])assert.ok(sql.includes(required),required);
  assert.ok(!sql.includes('pity_count'));
 });
+
+test('single summon result shows the official full sprite and repeat/equip actions',async()=>{
+ const {AppearanceSummonResultView}=await import('../src/components/appearance/AppearanceSummonScreen.tsx');
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{
+  draws:[{id:'valkyrie',rarity:'A',duplicate:false}],
+  payment:{ticketsSpent:1,goldSpent:0},repeatPayment:{ticketsUsed:0,goldSpent:300},
+  canRepeat:true,busy:false,selectedAppearanceId:'default',expedition:false,
+  onRepeat:()=>{},onClose:()=>{},onList:()=>{},onEquip:()=>{},
+ }));
+ assert.match(html,/tc-summon-single-stage/);
+ assert.match(html,/valkyrie-a22cd8cc46a8\.webp/);
+ assert.match(html,/1회 다시 소환/);
+ assert.match(html,/300 G/);
+ assert.match(html,/신규 획득/);
+ assert.match(html,/착용하기/);
+ assert.match(html,/외형 목록/);
+});
+
+test('ten summon result is a 2-column ten-card grid with real character sprites and fixed repeat footer',async()=>{
+ const {AppearanceSummonResultView}=await import('../src/components/appearance/AppearanceSummonScreen.tsx');
+ const draws=[
+  {id:'scout',rarity:'C',duplicate:false},
+  {id:'cultist',rarity:'B',duplicate:false},
+  {id:'ice_mage',rarity:'C',duplicate:true},
+  {id:'skeleton_knight',rarity:'C',duplicate:true},
+  {id:'musketeer',rarity:'C',duplicate:true},
+  {id:'summoner',rarity:'B',duplicate:false},
+  {id:'plague_doctor',rarity:'B',duplicate:false},
+  {id:'butcher',rarity:'C',duplicate:false},
+  {id:'valkyrie',rarity:'A',duplicate:false},
+  {id:'baal',rarity:'SSR',duplicate:false},
+ ] as const;
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{
+  draws:[...draws],payment:{ticketsSpent:10,goldSpent:0},repeatPayment:{ticketsUsed:3,goldSpent:1890},
+  canRepeat:true,busy:false,selectedAppearanceId:'default',expedition:false,
+  onRepeat:()=>{},onClose:()=>{},onList:()=>{},onEquip:()=>{},
+ }));
+ assert.match(html,/tc-summon-result-grid/);
+ assert.equal((html.match(/class="tc-summon-draw-card /g)??[]).length,10);
+ assert.match(html,/scout-[a-z0-9]+\.webp/);
+ assert.match(html,/baal-d5dd22a83f6c\.webp/);
+ assert.match(html,/data-rarity="SSR"/);
+ assert.match(html,/신규 7개 · 중복 3개/);
+ assert.match(html,/10회 다시 소환/);
+ assert.match(html,/소환권 3장 \+ 1,890 G/);
+ assert.match(html,/tc-summon-result-footer/);
+ assert.doesNotMatch(html,/외형 소환 완료\. 소환권/);
+});
+
+test('repeat button is disabled when server balance cannot cover remaining summons',async()=>{
+ const {AppearanceSummonResultView}=await import('../src/components/appearance/AppearanceSummonScreen.tsx');
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{
+  draws:[{id:'nidhogg',rarity:'SSR',duplicate:false}],
+  payment:{ticketsSpent:0,goldSpent:300},repeatPayment:{ticketsUsed:0,goldSpent:300},
+  canRepeat:false,busy:false,selectedAppearanceId:'default',expedition:false,
+  onRepeat:()=>{},onClose:()=>{},onList:()=>{},onEquip:()=>{},
+ }));
+ assert.match(html,/nidhogg-b1f245699fec\.webp/);
+ assert.match(html,/1회 다시 소환/);
+ assert.match(html,/재화 부족/);
+ assert.match(html,/disabled=""/);
+ assert.match(html,/tc-summon-result-footer/);
+ const css=readFileSync('src/components/appearance/altar-summon.css','utf8');
+ assert.match(css,/\.tc-summon-result-modal/);
+ assert.match(css,/\.tc-summon-result-scroll/);
+ assert.match(css,/overflow-y:auto/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
