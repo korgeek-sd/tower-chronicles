@@ -1,4 +1,5 @@
 import React,{useState} from 'react';
+import {SSRReveal} from './SSRReveal';
 import type {AppearanceSummonDraw} from '../../online/appearanceSummon';
 import {APPEARANCES,APPEARANCE_BONUS_LABELS, type AppearanceData} from '../../game/data/cosmetics';
 import {assetUrl} from '../../game/data/graphics';
@@ -7,6 +8,7 @@ type Payment={ticketsUsed:number;goldSpent:number};
 type ActualPayment={ticketsSpent:number;goldSpent:number};
 export interface AppearanceSummonResultViewProps{
  draws:AppearanceSummonDraw[];
+ animateSSR?:boolean;
  payment:ActualPayment;
  repeatPayment:Payment;
  canRepeat:boolean;
@@ -29,13 +31,16 @@ function SummonArt({appearance,large=false}:{appearance:AppearanceData|undefined
   ? <img className={large?'tc-summon-earned-art is-large':'tc-summon-earned-art'} src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>
   : <span className="tc-summon-art-unavailable">외형 이미지 준비 중</span>;
 }
-export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepeat,busy,selectedAppearanceId,expedition,onRepeat,onClose,onList,onEquip,error}:AppearanceSummonResultViewProps){
+export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepeat,busy,selectedAppearanceId,expedition,onRepeat,onClose,onList,onEquip,error,animateSSR=false}:AppearanceSummonResultViewProps){
+ const [revealed,setRevealed]=useState(false);
+ const ssr=draws.find(draw=>draw.rarity==='SSR');
  const [detailIndex,setDetailIndex]=useState<number|null>(null);
  const isTen=draws.length===10,detail=draws[detailIndex??0],appearance=detail?catalog.get(detail.id):undefined;
  const shownSingle=!isTen||detailIndex!==null;
  const newCount=draws.filter(draw=>!draw.duplicate).length,duplicateCount=draws.length-newCount;
  const isEquipped=!!detail&&selectedAppearanceId===detail.id;
  const canEquip=!!appearance&&!expedition&&!busy&&!isEquipped&&!!onEquip;
+ if(animateSSR&&ssr&&!revealed)return <SSRReveal draw={ssr} appearance={catalog.get(ssr.id)} total={draws.length} onDone={()=>setRevealed(true)} onRepeat={onRepeat} canRepeat={canRepeat} busy={busy} error={error}/>;
  return <div className="tc-summon-result-view">
   <header className="tc-summon-result-header">
    {isTen&&detailIndex!==null?<button type="button" aria-label="10회 소환 결과로 돌아가기" className="tc-summon-result-back" onClick={()=>setDetailIndex(null)}>‹</button>:null}
