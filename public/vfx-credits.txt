@@ -31,3 +31,8 @@ Animated seal stone, 16 frames (seal-stone-16frames-v2.webp):
 OpenAI-generated atlas approved in conversation, 2026-10-25.
 4 charge frames, 6 crack frames, 6 break/dissipation frames.
 Packed by scripts/assets/packSealFrames.py with integer anchor correction and transparent padding; no artwork rescaling. Source hash and frame rectangles in sibling JSON.
+
+Smooth seal motion revision, 2026-10-25:
+seal-stone-cracks-v3.webp: 14 selected intermediate crack drawings from an OpenAI-generated sheet; packed with nearest-neighbor size/anchor normalization by packSealCracks.py.
+Runtime: separate rune-light mask, 7 clipped stone regions with independent travel/rotation, and 16 SR / 24 SSR code-animated motes.
+Original assets retained. Rune mask is extracted from the first normalized frame’s amber inlay; original color pixels are used as its alignment source.
