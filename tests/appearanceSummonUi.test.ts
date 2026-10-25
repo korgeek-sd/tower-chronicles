@@ -35,3 +35,9 @@ test('iron summon footer keeps the real ticket balance and disabled actions with
  assert.match(footer,/컬렉션/);assert.match(footer,/서버 연결 준비 중/);
  assert.equal(JSON.stringify(game),before);
 });
+
+test('altar layout has a dedicated backdrop and accessible preview navigation',()=>{
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game:initialState(),onList:()=>{}}));
+ assert.match(html,/tc-altar-summon-screen/);assert.match(html,/summon-altar-v1.webp/);
+ assert.match(html,/aria-label="이전 외형 미리보기"/);assert.match(html,/aria-label="다음 외형 미리보기"/);
+});

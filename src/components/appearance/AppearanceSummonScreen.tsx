@@ -6,6 +6,7 @@ import {assetUrl} from '../../game/data/graphics';
 import {Glyph,Screen,Segments} from '../../ui/mobile';
 import './appearance-summon.css';
 import './iron-summon.css';
+import './altar-summon.css';
 
 // Existing artwork previews only: these are not summon rewards or appearance IDs.
 const showcase=['relic_collector','lantern_keeper','expedition_medic'].map(id=>jobById(id)!);
@@ -20,13 +21,13 @@ export function AppearanceSummonScreen({game,onList,onCollection}:{game:GameStat
   document.addEventListener('keydown',escape);
   return()=>{document.removeEventListener('keydown',escape);previous?.focus();};
  },[panel]);
- return <Screen title="외형 소환" eyebrow="APPEARANCE SUMMON" className="tc-appearance-summon-screen tc-iron-summon-screen">
+ return <Screen title="외형 소환" eyebrow="APPEARANCE SUMMON" className="tc-appearance-summon-screen tc-iron-summon-screen tc-altar-summon-screen">
   <div className="tc-appearance-summon">
    <Segments items={[['summon','외형 소환'],['list','외형 목록']] as const} value="summon" onChange={value=>{if(value==='list')onList();}} label="외형 메뉴"/>
    <section className="tc-summon-stage" aria-label="캐릭터 외형 미리보기">
-    <div className="tc-summon-arches" aria-hidden="true"><i/><i/><i/></div>
+    <img className="tc-altar-background" src={assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')} alt=""/><p className="tc-altar-title">잊힌 기록을 부르다</p>
     <div className="tc-summon-figures">{showcase.map((figure,index)=><button type="button" key={figure.id} className={'tc-summon-figure '+(index===focus?'is-focused':'')} aria-pressed={index===focus} aria-label={figure.displayName+' 이미지 미리보기'} onClick={()=>setFocus(index)}>{figure.visualAssetKey&&<img src={assetUrl(figure.visualAssetKey)} alt="" draggable={false}/>}<span>{figure.displayName}</span></button>)}</div>
-    <span className="tc-summon-preview-note">기존 캐릭터 이미지 미리보기</span>
+    <button type="button" className="tc-altar-prev" aria-label="이전 외형 미리보기" onClick={()=>setFocus(v=>(v+showcase.length-1)%showcase.length)}>‹</button><button type="button" className="tc-altar-next" aria-label="다음 외형 미리보기" onClick={()=>setFocus(v=>(v+1)%showcase.length)}>›</button><span className="tc-summon-preview-note">기존 캐릭터 이미지 미리보기</span>
    </section>
    <section className="tc-summon-feature" aria-live="polite"><small>APPEARANCE PREVIEW</small><h2>{selected.displayName}</h2><div><span>착용 효과</span><b>능력치 확정 예정</b></div></section>
    <footer className="tc-summon-footer" aria-label="외형 소환 및 보유 소환권">

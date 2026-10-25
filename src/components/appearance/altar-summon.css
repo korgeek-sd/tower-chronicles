@@ -1,0 +1,33 @@
+/* One character at the altar; real balances and not-yet-enabled summons. */
+.tc-screen.tc-altar-summon-screen .tc-appearance-summon{grid-template-rows:44px minmax(0,1fr) 36px auto;gap:4px;padding:0;background:#101210}
+.tc-screen.tc-altar-summon-screen .tc-segments,.tc-screen.tc-altar-summon-screen .tc-segments button{height:44px;min-height:44px}
+.tc-screen.tc-altar-summon-screen .tc-summon-stage{border:1px solid #514735;border-image:none;background:#101210;isolation:isolate}
+.tc-altar-background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 65%;image-rendering:pixelated;pointer-events:none;z-index:-1}
+.tc-altar-title{position:absolute;top:8px;left:0;right:0;margin:0;text-align:center;font:700 16px Georgia,'Noto Serif KR',serif;color:#e4d5b8;text-shadow:0 2px 4px #000}
+.tc-screen.tc-altar-summon-screen .tc-summon-figures{inset:30px 44px 18px;display:block}
+.tc-screen.tc-altar-summon-screen .tc-summon-figure{display:none}
+.tc-screen.tc-altar-summon-screen .tc-summon-figure.is-focused{display:flex;width:100%;height:100%;filter:drop-shadow(0 3px 2px #0009);min-height:0}
+.tc-screen.tc-altar-summon-screen .tc-summon-figure img{height:100%;max-height:100%;object-fit:contain;image-rendering:pixelated}
+.tc-screen.tc-altar-summon-screen .tc-summon-figure span{display:none}
+.tc-screen.tc-altar-summon-screen .tc-summon-preview-note{font-size:9px;text-shadow:0 1px 2px #000}
+.tc-altar-prev,.tc-altar-next{position:absolute;top:50%;transform:translateY(-50%);width:44px;min-height:44px;border:1px solid #65543a;background:#101210bd;color:#e3d2af;font-size:28px}
+.tc-altar-prev{left:0}.tc-altar-next{right:0}
+.tc-screen.tc-altar-summon-screen .tc-summon-feature{padding:0;border:0;border-image:none;background:#101210;grid-template-columns:1fr;gap:0}
+.tc-screen.tc-altar-summon-screen .tc-summon-feature h2{font-size:14px}
+.tc-screen.tc-altar-summon-screen .tc-summon-feature>div{font-size:9px}
+.tc-screen.tc-altar-summon-screen .tc-summon-footer{grid-template-rows:44px 96px 14px 44px;gap:4px}
+.tc-screen.tc-altar-summon-screen .tc-summon-wallet{border:1px solid #514735;border-image:none;background:#141610}
+.tc-screen.tc-altar-summon-screen .tc-summon-wallet span{font-size:10px;gap:1px}
+.tc-screen.tc-altar-summon-screen .tc-summon-wallet b{font-size:16px}
+.tc-screen.tc-altar-summon-screen .tc-summon-actions{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px}
+.tc-screen.tc-altar-summon-screen .tc-summon-actions button{border:1px solid #73453b;border-image:none;background:#38231f;color:#c4b69d;gap:1px;padding:2px;opacity:.8}
+.tc-screen.tc-altar-summon-screen .tc-summon-actions button:last-child{grid-column:1/-1;background:#1b2019;border-color:#5a604d}
+.tc-screen.tc-altar-summon-screen .tc-summon-utilities button{height:44px;min-height:44px;border:1px solid #514735;border-image:none;background:#151913;font-size:10px}
+.tc-screen.tc-altar-summon-screen .tc-summon-status{font-size:9px;line-height:14px}
+@media(max-height:700px){
+ .tc-screen.tc-altar-summon-screen .tc-summon-footer{grid-template-rows:44px 44px 14px 44px}
+ .tc-screen.tc-altar-summon-screen .tc-summon-actions{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:1fr}
+ .tc-screen.tc-altar-summon-screen .tc-summon-actions button:last-child{grid-column:auto}
+ .tc-altar-title{font-size:12px;top:4px}
+ .tc-screen.tc-altar-summon-screen .tc-summon-figures{inset:21px 44px 14px}
+}
