@@ -401,7 +401,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       const bonus=appearanceEffectPercent(a,level);
       return <div className="tc-collection-modal-content tc-appearance-detail-content">
        <div className="tc-appearance-detail-art">{artReady?<img src={assetUrl(a.imagePath!)} alt={a.name}/>:<Glyph name="cosmetics"/>}</div>
-       <section className="tc-appearance-detail-description"><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.sourceLabel}</small></section>
+       <section className="tc-appearance-detail-description"><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.rarity?'외형 소환 · 전용 조각':'기본 지급'}</small></section>
        <section className="tc-appearance-detail-effect"><div><h4>착용 효과 · {level?'Lv.'+level:'미해금'}</h4><p>{a.proposedBonus?appearanceBonusLabel({...a.proposedBonus,percent:bonus||appearanceEffectPercent(a,1)}):'없음'}</p></div>
         {a.id!=='default'&&<><p>전용 조각 {shards} / {cost||'MAX'}</p><progress max={cost||1} value={cost?Math.min(cost,shards):1} style={{width:'100%',accentColor:'#bfa16c'}}/>
          <small>{level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':level===0?'조각 5개로 영구 해금':'다음 강화: 전용 조각 10개 · '+(appearanceEffectPercent(a,level+1))+'%'}</small>
