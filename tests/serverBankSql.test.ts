@@ -81,3 +81,14 @@ test('owner deposit/withdraw conserve silver; other borrowers cannot repay or in
  const l=await act(db,borrower,'BORROW',{bankId:b.result.bankId,ticketId:'ticket:ore:1',tickets:1,duration:5});await assert.rejects(()=>act(db,stranger,'REPAY',{loanId:l.result.loanId}),/BANK_LOAN_NOT_FOUND/);
  await as(db,stranger);const state=(await db.query<any>("select public.get_server_bank($1,1,'client','device') r",[lease])).rows[0].r;assert.equal(state.state.loans.length,0);assert.equal(state.state.ledger.length,0);assert.equal(state.state.myBank,null);
  }finally{await db.close();}});
+
+test('owner withdrawal preserves one million silver and rejected withdrawals change nothing',async()=>{const db=await fixture();try{
+ await db.exec(readFileSync(new URL('../supabase/migrations/20261025000332_bank_minimum_vault.sql',import.meta.url),'utf8'));
+ await create(db);const before=await balance(db,owner);
+ await assert.rejects(()=>act(db,owner,'WITHDRAW',{amount:1}),/BANK_MINIMUM_VAULT/);
+ assert.equal(await balance(db,owner),before);
+ await act(db,owner,'DEPOSIT',{amount:100000});
+ await assert.rejects(()=>act(db,owner,'WITHDRAW',{amount:100001}),/BANK_MINIMUM_VAULT/);
+ const result=await act(db,owner,'WITHDRAW',{amount:100000});
+ assert.equal(result.state.myBank.vault,1000000);assert.equal(await balance(db,owner),before);
+ }finally{await db.close();}});
