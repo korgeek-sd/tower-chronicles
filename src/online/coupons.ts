@@ -3,6 +3,7 @@ import {supabaseConfig} from './config';
 export type CouponReward = {
   gold?: number;
   silver?: number;
+  appearanceTickets?: number;
   items?: { id:string; quantity:number }[];
 };
 
