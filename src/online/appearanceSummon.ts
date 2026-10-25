@@ -2,11 +2,11 @@ import {getFreshSession} from './auth';
 import {getDeviceId,type CloudSaveRecord} from './cloudSave';
 import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
-export type AppearanceSummonCurrency='gold'|'ticket';
+export type AppearanceSummonCurrency='gold'|'ticket'|'mixed';
 export type AppearanceSummonRarity='C'|'B'|'A'|'SR'|'SSR';
 export interface AppearanceSummonDraw{id:string;rarity:AppearanceSummonRarity;duplicate:boolean}
-export interface AppearanceSummonResult{draws:AppearanceSummonDraw[];cost:number;currency:AppearanceSummonCurrency;replayed:boolean;record:CloudSaveRecord}
-export interface AppearanceSummonHistoryEntry{draws:AppearanceSummonDraw[];cost:number;currency:AppearanceSummonCurrency;at:string}
+export interface AppearanceSummonResult{draws:AppearanceSummonDraw[];cost:number;currency:AppearanceSummonCurrency;ticketsSpent:number;goldSpent:number;replayed:boolean;record:CloudSaveRecord}
+export interface AppearanceSummonHistoryEntry{draws:AppearanceSummonDraw[];cost:number;currency:AppearanceSummonCurrency;ticketsSpent:number;goldSpent:number;at:string}
 export interface AppearanceSummonHistory{history:AppearanceSummonHistoryEntry[]}
 
 const errors:Record<string,string>={
@@ -36,8 +36,9 @@ async function rpc<T>(name:string,lease:GameplayLease,userId:string,extra:Record
  if((await getFreshSession())?.userId!==userId)throw new AppearanceSummonRejected('접속 계정이 변경되었습니다.');
  return JSON.parse(responseText) as T;
 }
-export function summonAppearances(lease:GameplayLease,userId:string,requestId:string,currency:AppearanceSummonCurrency,rolls:1|10){
- return rpc<AppearanceSummonResult>('summon_appearances',lease,userId,{p_request_id:requestId,p_currency:currency,p_rolls:rolls});
+export function summonAppearances(lease:GameplayLease,userId:string,requestId:string,rolls:1|10){
+ // Server ignores any client currency preference and always spends summon tickets first.
+ return rpc<AppearanceSummonResult>('summon_appearances',lease,userId,{p_request_id:requestId,p_currency:'auto',p_rolls:rolls});
 }
 export function getAppearanceSummonHistory(lease:GameplayLease,userId:string){
  return rpc<AppearanceSummonHistory>('get_appearance_summon_history',lease,userId);

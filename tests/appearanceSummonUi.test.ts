@@ -30,8 +30,8 @@ test('iron summon footer keeps the real ticket balance and disabled actions with
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game,onList:()=>{},onCollection:()=>{}}));
  assert.match(html,/tc-iron-summon-screen/);
  const footer=html.slice(html.indexOf('<footer class="tc-summon-footer"'));
- assert.match(footer,/외형 소환권/);assert.match(footer,/23장/);assert.match(footer,/1회 소환/);assert.match(footer,/10회 소환/);assert.match(footer,/소환권 사용/);
- assert.equal((footer.match(/disabled=""/g)??[]).length,3);
+ assert.match(footer,/외형 소환권/);assert.match(footer,/23장/);assert.match(footer,/1회 소환/);assert.match(footer,/10회 소환/);assert.doesNotMatch(footer,/소환권 사용/);
+ assert.equal((footer.match(/disabled=""/g)??[]).length,2);
  assert.match(footer,/컬렉션/);assert.match(footer,/온라인 로그인 및 플레이 세션이 필요합니다./);
  assert.equal(JSON.stringify(game),before);
 });
@@ -49,18 +49,19 @@ test('confirmed summon prices are displayed with no guarantee, pity, or shard co
  assert.ok(html.includes('10회 소환</strong><small>2,700 G'));
  assert.match(html,/10% 할인/);
  assert.doesNotMatch(html,/확정 지급|천장|외형 조각|조각 전환/);
- assert.equal((html.match(/disabled=""/g)??[]).length>=3,true);
+ assert.equal((html.match(/disabled=""/g)??[]).length,2);
 });
 
-test('online summon enables affordable gold and ticket actions, without mutating balances',()=>{
+test('online summon automatically spends tickets before gold, without mutating balances',()=>{
  const game=initialState();game.market.gold=3100;game.cosmetics.summonTickets=2;
  const before=JSON.stringify(game);
  const lease={leaseId:'11111111-1111-4111-8111-111111111111',generation:1,clientInstanceId:'device-test',expiresAt:new Date().toISOString()};
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game,userId:'test-user',lease,onList:()=>{},onRecord:()=>{}}));
  const footer=html.slice(html.indexOf('<footer class="tc-summon-footer"'));
  assert.equal((footer.match(/disabled=""/g)??[]).length,0);
- assert.match(footer,/300 G/);
- assert.match(footer,/2,700 G/);
+ assert.match(footer,/1회 소환<\/strong><small>소환권 1장/);
+ assert.match(footer,/10회 소환<\/strong><small>소환권 2장 \+ 2,160 G/);
+ assert.doesNotMatch(footer,/소환권 사용/);
  assert.match(footer,/SSR 0.2%/);
  assert.equal(JSON.stringify(game),before);
 });
@@ -71,4 +72,35 @@ test('server-owned rates exactly total 10,000 basis points without pity',async()
  const sql=readFileSync('supabase/migrations/20261025142000_appearance_summon_server.sql','utf8');
  for(const part of ['bucket<6000','bucket<9000','bucket<9800','bucket<9980','private.appearance_secure_int(10000)','p_request_id','appearance_summon_receipts','private.appearance_authoritative_payload','game_save_authoritative_appearances'])assert.ok(sql.includes(part),part);
  assert.ok(!/pity_count|pity_counter|guaranteed_tier|shard_exchange/.test(sql));
+});
+
+test('automatic ticket-first payment keeps ten-pull discount for only the gold-funded draws',async()=>{
+ const {appearanceSummonPayment}=await import('../src/game/data/appearanceSummonPricing.ts');
+ assert.deepEqual(appearanceSummonPayment(1,0),{ticketsUsed:0,goldSpent:300});
+ assert.deepEqual(appearanceSummonPayment(1,3),{ticketsUsed:1,goldSpent:0});
+ assert.deepEqual(appearanceSummonPayment(10,0),{ticketsUsed:0,goldSpent:2700});
+ assert.deepEqual(appearanceSummonPayment(10,2),{ticketsUsed:2,goldSpent:2160});
+ assert.deepEqual(appearanceSummonPayment(10,9),{ticketsUsed:9,goldSpent:270});
+ assert.deepEqual(appearanceSummonPayment(10,10),{ticketsUsed:10,goldSpent:0});
+ assert.deepEqual(appearanceSummonPayment(10,14),{ticketsUsed:10,goldSpent:0});
+});
+
+test('single and ten-pull buttons stay usable with tickets even when gold is zero',()=>{
+ const game=initialState();game.market.gold=0;game.cosmetics.summonTickets=10;
+ const lease={leaseId:'11111111-1111-4111-8111-111111111111',generation:1,clientInstanceId:'device-test',expiresAt:new Date().toISOString()};
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game,userId:'test-user',lease,onList:()=>{}}));
+ const buttons=html.slice(html.indexOf('class="tc-summon-actions"'),html.indexOf('class="tc-summon-status"'));
+ assert.equal((buttons.match(/disabled=""/g)??[]).length,0);
+ assert.match(buttons,/10회 소환<\/strong><small>소환권 10장/);
+ assert.doesNotMatch(buttons,/소환권 사용/);
+});
+
+test('ticket-first server migration uses canonical ticket wallet and records both currency amounts',()=>{
+ const sql=readFileSync('supabase/migrations/20261025153000_appearance_ticket_priority.sql','utf8');
+ for(const required of [
+  'private.appearance_ticket_wallets','private.player_wallets',
+  'tickets_spent','gold_spent','appearance_payment',
+  'SUMMON_GOLD_INSUFFICIENT','SUMMON_REQUEST_CONFLICT','private.persist_market_economy_to_save',
+ ])assert.ok(sql.includes(required),required);
+ assert.ok(!sql.includes('pity_count'));
 });
