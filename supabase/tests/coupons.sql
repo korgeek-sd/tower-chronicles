@@ -89,7 +89,7 @@ end $$;
 
 -- Appearance summon tickets are a distinct wallet, redeemed by claim and never twice.
 set local role authenticated;
-do $declare f record;r jsonb;m uuid;
+do $$declare f record;r jsonb;m uuid;
 begin
  select * into f from coupon_fixture where label='admin';
  perform set_config('request.jwt.claims',jsonb_build_object('sub',f.u,'role','authenticated','session_id',f.s)::text,true);
@@ -107,11 +107,11 @@ begin
  -- Claim both times; the canonical wallet assertion below proves replay safety.
  r:=public.manage_game_mail(f.l,1,'coupon-qa','coupon-qa','claim',m);
  r:=public.manage_game_mail(f.l,1,'coupon-qa','coupon-qa','claim',m);
-end $;
+end $$;
 reset role;
-do $begin
+do $$begin
  if (select quantity from private.appearance_ticket_wallets where user_id=(select u from coupon_fixture where label='a'))<>100 then raise exception 'Authoritative ticket wallet did not receive exactly 100';end if;
-end $;
+end $$;
 
 rollback;
 
