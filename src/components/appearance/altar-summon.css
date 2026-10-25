@@ -31,3 +31,18 @@
  .tc-altar-title{font-size:12px;top:4px}
  .tc-screen.tc-altar-summon-screen .tc-summon-figures{inset:21px 44px 14px}
 }
+
+/* Server results stay in the modal so the altar remains visible. */
+.tc-screen.tc-altar-summon-screen .tc-summon-actions button:not(:disabled){opacity:1;cursor:pointer}
+.tc-screen.tc-altar-summon-screen .tc-summon-actions button:disabled{opacity:.44;cursor:not-allowed}
+.tc-summon-modal .tc-action{min-height:44px;width:100%;border:1px solid #8b744c;background:#332b20;color:#f1e2be}
+.tc-summon-results,.tc-summon-history{max-height:min(54vh,420px);overflow-y:auto;display:grid;gap:7px;margin:12px 0}
+.tc-summon-result{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid #594f3f;background:#21231e;font-size:13px;min-height:32px}
+.tc-summon-result>b{min-width:38px;color:#b2b5a7}
+.tc-summon-result>span{flex:1;color:#ead6b9}
+.tc-summon-result>small{font-size:10px;color:#9b9f94}
+.tc-summon-rarity-sr>b{color:#bea4d4}.tc-summon-rarity-ssr>b{color:#f4c866}
+.tc-summon-rarity-a>b{color:#9dc1e8}.tc-summon-rarity-b>b{color:#93c6a7}
+.tc-summon-rate-table>div{display:flex;justify-content:space-between;align-items:center;min-height:34px;border-bottom:1px solid #4b4a3c;font-size:13px}
+.tc-summon-history>div{padding:7px 0;border-bottom:1px solid #4b4a3c}
+.tc-summon-history p{margin:4px 0}
