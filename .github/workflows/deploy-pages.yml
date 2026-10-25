@@ -53,6 +53,15 @@ jobs:
           test -s dist/assets/monsters/new/plains/grave_digger_hound.png
           test -s dist/assets/characters/preview/grave_hound_job_reference.jpg
           file dist/assets/monsters/new/plains/grave_digger_hound.png dist/assets/characters/preview/grave_hound_job_reference.jpg
+      - name: Verify new appearance summon results are included
+        run: |
+          set -euo pipefail
+          # Verify the shipped, minified JS and CSS rather than only source code.
+          grep -R -q -F --include='*.js' 'tc-summon-result-grid' dist/assets
+          grep -R -q -F --include='*.js' '10회 다시 소환' dist/assets
+          grep -R -q -F --include='*.css' 'tc-summon-result-footer' dist/assets
+          grep -q -F 'summon-results-cards-v2' dist/index.html
+          echo 'Verified: portrait summon result cards and fixed repeat button bundled for Pages.'
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
