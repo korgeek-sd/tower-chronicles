@@ -58,7 +58,7 @@
 .tc-ssr-reveal.is-opening *{animation-delay:-2s!important}
 .tc-ssr-reveal.is-waiting .tc-seal-background{animation:none;transform:none}
 .tc-ssr-reveal.is-waiting .tc-seal-stone{animation:none;opacity:1}
-.tc-ssr-reveal.is-waiting .tc-seal-stone-motion{animation:none;transform:none;translate:0 0}
+.tc-ssr-reveal.is-waiting .tc-seal-stone-motion{animation:tc-seal-idle-float 3.6s ease-in-out infinite;translate:0 0}
 .tc-ssr-reveal.is-waiting .tc-seal-stone-sprite{animation:none;background-position:0 0}
 .tc-ssr-reveal.is-waiting .tc-seal-rune-glow{animation:none;opacity:.8;background-position:0 100%}
 .tc-ssr-reveal.is-waiting .tc-seal-mote-path{animation:none;opacity:.55;transform:translate(var(--px),var(--py)) scale(.7)}
@@ -71,3 +71,11 @@
 @media(prefers-reduced-motion:reduce){.tc-ssr-reveal.is-waiting .tc-ssr-vfx{display:block}.tc-ssr-reveal.is-waiting .tc-seal-intro{display:block}.tc-ssr-reveal.is-waiting .tc-ssr-art,.tc-ssr-reveal.is-waiting .tc-ssr-caption{opacity:0;visibility:hidden}}
 
 .tc-seal-filter-defs{position:absolute;pointer-events:none}
+
+/* Ambient movement is confined to waiting; opening uses its existing bounded timeline. */
+.tc-ssr-reveal.is-waiting .tc-seal-mote{animation:tc-seal-idle-mote 3.8s ease-in-out infinite}
+.tc-ssr-reveal.is-waiting .tc-seal-mote-path:nth-child(4n+2) .tc-seal-mote{animation-duration:4.1s;animation-delay:-.8s}
+.tc-ssr-reveal.is-waiting .tc-seal-mote-path:nth-child(4n+3) .tc-seal-mote{animation-duration:3.3s;animation-delay:-1.6s}
+.tc-ssr-reveal.is-waiting .tc-seal-mote-path:nth-child(4n+4) .tc-seal-mote{animation-duration:4.6s;animation-delay:-2.4s}
+@keyframes tc-seal-idle-float{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
+@keyframes tc-seal-idle-mote{0%,100%{transform:translate(0,3px);opacity:.4}50%{transform:translate(2px,-5px);opacity:1}}
