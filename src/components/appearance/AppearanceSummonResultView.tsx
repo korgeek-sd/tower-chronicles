@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {SSRReveal} from './SSRReveal';
 import type {AppearanceSummonDraw} from '../../online/appearanceSummon';
 import {APPEARANCES,APPEARANCE_BONUS_LABELS, type AppearanceData} from '../../game/data/cosmetics';
@@ -8,6 +8,7 @@ type Payment={ticketsUsed:number;goldSpent:number};
 type ActualPayment={ticketsSpent:number;goldSpent:number};
 export interface AppearanceSummonResultViewProps{
  draws:AppearanceSummonDraw[];
+ /** Confirmed, non-replayed results only. Legacy flag now includes SR and SSR. */
  animateSSR?:boolean;
  payment:ActualPayment;
  repeatPayment:Payment;
@@ -31,21 +32,27 @@ function SummonArt({appearance,large=false}:{appearance:AppearanceData|undefined
   ? <img className={large?'tc-summon-earned-art is-large':'tc-summon-earned-art'} src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>
   : <span className="tc-summon-art-unavailable">외형 이미지 준비 중</span>;
 }
+/** Presentation queue only: preserve confirmed server order and duplicate draws. */
+export function rareSummonDraws(draws:readonly AppearanceSummonDraw[]){return draws.filter(draw=>draw.rarity==='SR'||draw.rarity==='SSR');}
 export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepeat,busy,selectedAppearanceId,expedition,onRepeat,onClose,onList,onEquip,error,animateSSR=false}:AppearanceSummonResultViewProps){
  const [revealed,setRevealed]=useState(false);
- const ssr=draws.find(draw=>draw.rarity==='SSR');
+ const resultClose=useRef<HTMLButtonElement>(null);
+ useEffect(()=>{if(revealed)resultClose.current?.focus();},[revealed]);
+ const queue=rareSummonDraws(draws);
+ const [revealIndex,setRevealIndex]=useState(0);
+ const rare=queue[revealIndex];
  const [detailIndex,setDetailIndex]=useState<number|null>(null);
  const isTen=draws.length===10,detail=draws[detailIndex??0],appearance=detail?catalog.get(detail.id):undefined;
  const shownSingle=!isTen||detailIndex!==null;
  const newCount=draws.filter(draw=>!draw.duplicate).length,duplicateCount=draws.length-newCount;
  const isEquipped=!!detail&&selectedAppearanceId===detail.id;
  const canEquip=!!appearance&&!expedition&&!busy&&!isEquipped&&!!onEquip;
- if(animateSSR&&ssr&&!revealed)return <SSRReveal draw={ssr} appearance={catalog.get(ssr.id)} total={draws.length} onDone={()=>setRevealed(true)} onRepeat={onRepeat} canRepeat={canRepeat} busy={busy} error={error}/>;
+ if(animateSSR&&rare&&!revealed)return <SSRReveal key={revealIndex} draw={rare} appearance={catalog.get(rare.id)} total={draws.length} sequenceIndex={revealIndex} sequenceTotal={queue.length} hasNext={revealIndex+1<queue.length} onSkip={()=>setRevealed(true)} onDone={()=>{if(revealIndex+1<queue.length)setRevealIndex(index=>index+1);else setRevealed(true);}} onRepeat={onRepeat} canRepeat={canRepeat} busy={busy} error={error}/>;
  return <div className="tc-summon-result-view">
   <header className="tc-summon-result-header">
    {isTen&&detailIndex!==null?<button type="button" aria-label="10회 소환 결과로 돌아가기" className="tc-summon-result-back" onClick={()=>setDetailIndex(null)}>‹</button>:null}
    <div><h2 id="summon-modal-title">{shownSingle&&isTen?'외형 상세 보기':isTen?'10회 소환 결과':'1회 소환 결과'}</h2><small>{shownSingle&&isTen?'획득한 외형 확인':'탑의 기록에 새로운 흔적이 남았습니다.'}</small></div>
-   <button type="button" className="tc-summon-result-close" aria-label="소환 결과 닫기" disabled={busy} onClick={onClose}>×</button>
+   <button ref={resultClose} type="button" className="tc-summon-result-close" aria-label="소환 결과 닫기" disabled={busy} onClick={onClose}>×</button>
   </header>
   <div className={'tc-summon-result-content'+(shownSingle?' is-single':' is-ten')}>
    {!shownSingle?<div className="tc-summon-result-grid" aria-label="10회 소환으로 획득한 외형 10개">{draws.map((draw,index)=>{

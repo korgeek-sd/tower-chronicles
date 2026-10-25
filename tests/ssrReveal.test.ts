@@ -15,7 +15,7 @@ test('ordinary pulls and restored results do not play the SSR reveal',()=>{
  assert.doesNotMatch(html,/tc-ssr-reveal/);assert.match(html,/1회 다시 소환/);
  }
 });
-test('ten pulls reveal the first actual SSR once without modifying the draw array',()=>{
+test('ten pulls start at the first rare result without modifying the draw array',()=>{
  const draws=[{id:'scout',rarity:'C',duplicate:false},{id:'nameless_king',rarity:'SSR',duplicate:true}] as const;
  const before=JSON.stringify(draws);
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{...props,animateSSR:true,draws:[...draws]}));

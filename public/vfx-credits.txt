@@ -17,3 +17,12 @@ Retrieved 2026-10-25.
 SSR fissure overlay: ssr-fissure-v2.webp
 Created with OpenAI image generation for Tower Chronicles, 2026-10-25.
 Lossless WebP conversion of the approved RGBA image; alpha preserved.
+
+Seal chamber summon scene (SR / SSR), 2026-10-25:
+User-supplied 1000015832.png -> seal-chamber-v1.webp
+User-supplied 1000015833.png -> seal-particles-v1.webp
+User-supplied 1000015834.png -> seal-flare-v1.webp
+User-supplied 1000015835.png -> seal-stone-v1.webp
+Lossless WebP format conversion; source composition and alpha preserved.
+Reference timing: user-supplied 1000015831.mp4; video not shipped.
+Previous crack and CodeManu files are retained for provenance but no longer played.

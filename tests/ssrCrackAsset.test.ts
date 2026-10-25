@@ -11,9 +11,9 @@ test('finished reveal removes every VFX and skip control and keeps the actual ar
  assert.doesNotMatch(html,/tc-ssr-vfx|건너뛰기|기록이 깨어납니다|전체 소환 결과에서|<svg/);
  assert.match(html,/bahamut-/);assert.match(html,/결과 보기/);assert.match(html,/다시 소환/);assert.match(html,/tc-ssr-grade/);
 });
-test('opening reveal uses the real crack texture with alpha and safe disabled actions',()=>{
+test('opening reveal uses the supplied seal textures with safe disabled actions',()=>{
  const html=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...props,ready:false}));
- assert.match(html,/codemanu-anima-30fps\.png/);assert.match(html,/건너뛰기/);assert.match(html,/disabled=""/);assert.doesNotMatch(html,/<svg/);
+ assert.match(html,/seal-stone-v1\.webp/);assert.match(html,/건너뛰기/);assert.match(html,/disabled=""/);assert.doesNotMatch(html,/<svg/);
  const png=readFileSync('public/assets/vfx/summon/codemanu-anima-30fps.png');assert.equal(png.toString('ascii',1,4),'PNG');assert.ok(png[25]===6||(png[25]===3&&png.includes(Buffer.from('tRNS'))));
  const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');assert.match(css,/prefers-reduced-motion/);assert.doesNotMatch(css,/drop-shadow|clip-path/);
 });
