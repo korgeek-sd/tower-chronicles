@@ -175,3 +175,11 @@ test('compact appearance rows keep effects and separate equip/collection actions
  assert.match(css,/min-height:44px/);
  assert.match(html,/착용 효과/);assert.match(html,/tc-appearance-related/);assert.match(html,/tc-cosmetics-equip/);
 });
+
+test('appearance image and name open the central detail with effect and equip actions',()=>{
+ const html=renderToStaticMarkup(React.createElement(CosmeticsScreen,{game:initialState(),setGame:()=>{},initialTab:'appearance'}));
+ assert.match(html,/aria-label="기본 모험가 상세 보기"/);
+ const source=readFileSync('src/components/mobile/CoreScreens.tsx','utf8');
+ assert.match(source,/tc-appearance-detail-popup/);assert.match(source,/tc-appearance-detail-actions/);
+ assert.match(source,/detailPopup.current\?\.focus\(\)/);
+});
