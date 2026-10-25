@@ -64,3 +64,9 @@
 .tc-screen.tc-iron-catalog-screen .tc-appearance-detail-actions{background:#11140f;gap:10px;padding-block:8px}
 .tc-screen.tc-iron-catalog-screen .tc-appearance-detail-actions button{border:1px solid #75603f;border-image:none;border-radius:0;background:#171a14;box-shadow:none;color:#dfd0b2;min-height:44px;padding:6px;font-size:12px}
 .tc-screen.tc-iron-catalog-screen .tc-appearance-detail-actions button:disabled{opacity:.4}
+
+/* Server-confirmed appearance shard unlock and upgrades inside the existing sheet. */
+.tc-appearance-detail-effect progress{display:block;height:9px;border:0;border-radius:8px;overflow:hidden;background:#353931;margin:5px 0}
+.tc-appearance-detail-effect .tc-appearance-advance{display:block;width:100%;min-height:44px;margin-top:8px;padding:8px;border:1px solid #9e8357;background:#35291d;color:#ead5b0;font-weight:700;font-size:12px}
+.tc-appearance-detail-effect .tc-appearance-advance:disabled{opacity:.55;cursor:not-allowed}
+.tc-appearance-detail-effect [role="alert"]{color:#e8b1a3;font-size:11px}

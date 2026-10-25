@@ -117,8 +117,8 @@ test('single summon result shows the official full sprite and repeat/equip actio
  assert.match(html,/valkyrie-a22cd8cc46a8\.webp/);
  assert.match(html,/1회 다시 소환/);
  assert.match(html,/300 G/);
- assert.match(html,/신규 획득/);
- assert.match(html,/착용하기/);
+ assert.match(html,/전용 조각 ×1/);
+ assert.match(html,/해금 후 착용/);
  assert.match(html,/외형 목록/);
 });
 
@@ -146,7 +146,7 @@ test('ten summon result is a 2-column ten-card grid with real character sprites 
  assert.match(html,/scout-[a-z0-9]+\.webp/);
  assert.match(html,/baal-d5dd22a83f6c\.webp/);
  assert.match(html,/data-rarity="SSR"/);
- assert.match(html,/신규 7개 · 중복 3개/);
+ assert.match(html,/전용 조각 10개 획득/);
  assert.match(html,/10회 다시 소환/);
  assert.match(html,/소환권 3장 \+ 1,890 G/);
  assert.match(html,/tc-summon-result-footer/);

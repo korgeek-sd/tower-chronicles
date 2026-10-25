@@ -13,6 +13,8 @@ import './iron-camp.css';
 import './village-camp.css';
 import {EquipmentArt} from '../inventory/EquipmentArt';
 import {selectAppearance} from '../../game/engine/cosmetics';
+import {appearanceEffectPercent,appearanceLevel,appearanceShardCount,appearanceShardCost,APPEARANCE_MAX_LEVEL} from '../../game/data/appearanceProgress';
+import {advanceAppearance} from '../../online/appearanceProgress';
 import {registerCollectionEquipment} from '../../game/engine/collection';
 import {getCollectionEquipmentRegistrations,registerOnlineCollectionEquipment} from '../../online/collection';
 import type {CloudSaveRecord} from '../../online/cloudSave';
@@ -166,6 +168,9 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const [registerPanel,setRegisterPanel]=useState(false);
  const [registerItemId,setRegisterItemId]=useState('');
  const [registering,setRegistering]=useState(false);
+ const [appearanceBusy,setAppearanceBusy]=useState(false);
+ const [appearanceError,setAppearanceError]=useState('');
+ const pendingAdvance=useRef<{appearanceId:string;level:number;requestId:string}|null>(null);
  useEffect(()=>{
   if(!onlineLease){setServerRegistrations([]);setRegistrationLoading(false);return;}
   let live=true;setRegistrationLoading(true);setRegistrationError('');
@@ -203,6 +208,22 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
  const related=APPEARANCE_SETS.filter(s=>relatedAppearance&&s.appearanceIds.includes(relatedAppearance));
  const eligibleItems=selected?game.equipmentItems.filter(item=>item.kind===selected.equipment.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id)):[];
  const registerReady=!!selected&&(!onlineAccount||!!onlineLease)&&!registeredIds.has(selected.id)&&!registering&&!registrationLoading&&!game.expedition;
+ async function submitAppearanceAdvance(id:string){
+  const level=appearanceLevel(game.cosmetics,id);
+  if(appearanceBusy||game.expedition||level>=APPEARANCE_MAX_LEVEL)return;
+  if(!onlineLease||!onServerRecord){setAppearanceError('외형 해금과 강화는 온라인 접속이 필요합니다.');return;}
+  if(appearanceShardCount(game.cosmetics,id)<appearanceShardCost(level)){setAppearanceError('외형 전용 조각이 부족합니다.');return;}
+  const pending=pendingAdvance.current;
+  const requestId=pending?.appearanceId===id&&pending.level===level?pending.requestId:crypto.randomUUID();
+  pendingAdvance.current={appearanceId:id,level,requestId};
+  setAppearanceBusy(true);setAppearanceError('');
+  try{
+   const result=await advanceAppearance(onlineLease,id,requestId);
+   onServerRecord(result.record,(level===0?'외형 해금 완료':'외형 강화 완료')+' · Lv.'+result.level);
+   pendingAdvance.current=null;
+  }catch(e){setAppearanceError(e instanceof Error?e.message:'외형 강화에 실패했습니다.');}
+  finally{setAppearanceBusy(false);}
+ }
  async function submitRegistration(){
   if(!selected||!registerReady||!registerItemId)return;
   const id=registerItemId,setId=selected.id;
@@ -329,7 +350,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     }
     <p className="tc-collection-disclaimer">{APPEARANCE_SETS.length}개 외형+장비 조합 · 능력치 보너스는 아직 전투에 적용되지 않습니다.</p>
    </>:<>
-    <div className="tc-cosmetics-meta" title="착용한 외형 1개만 적용 · 효과 적용 예정"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>보유 {owned.length} / {APPEARANCES.length} · 효과 예정</small></div>
+    <div className="tc-cosmetics-meta" title="착용한 외형 1개만 강화 효과 적용"><span>적용 중 · <b>{appearanceById(game.cosmetics.selectedAppearanceId)?.name??'기본 모험가'}</b></span><small>보유 {owned.length} / {APPEARANCES.length} · 외형 강화</small></div>
     <div className="tc-cosmetics-filters" role="group" aria-label="외형 등급 선택">
      {(['ALL',...APPEARANCE_RARITIES] as const).map(r=><button key={r} type="button" data-rarity={r} aria-pressed={appearanceRarity===r} onClick={()=>{setAppearanceRarity(r);setPage(0);}}>{r==='ALL'?'전체':r}</button>)}
     </div>
@@ -339,9 +360,10 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
     <div className="tc-cosmetics-items" role="list" aria-label="외형 목록">
      {appearances.slice(safePage*4,safePage*4+4).map(a=>{
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
+      const shardCount=appearanceShardCount(game.cosmetics,a.id),level=appearanceLevel(game.cosmetics,a.id);
       return <article key={a.id} className={'tc-cosmetics-item'+(isOwned?' owned':'')+(isSelected?' equipped':'')} role="listitem" data-rarity={a.rarity??'default'} data-owned={isOwned} data-equipped={isSelected}>
-       <button type="button" aria-label={a.name+' 상세 보기'} onClick={()=>setAppearanceDetails(a.id)} className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')+(artReady?' has-art':'')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</button>
-       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<button type="button" className="tc-appearance-name" onClick={()=>setAppearanceDetails(a.id)}>{a.name}</button></div><small><span className="tc-appearance-state">{isSelected?'착용 중':isOwned?'보유':'미보유'}</span> · {a.sourceLabel}</small><span>{a.proposedBonus?'착용 효과 · '+appearanceBonusLabel(a.proposedBonus)+' (예정)':'착용 효과 없음'}</span></div>
+       <button type="button" aria-label={a.name+' 상세 보기'} onClick={()=>{setAppearanceError('');setAppearanceDetails(a.id);}} className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')+(artReady?' has-art':'')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</button>
+       <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<button type="button" className="tc-appearance-name" onClick={()=>{setAppearanceError('');setAppearanceDetails(a.id);}}>{a.name}</button></div><small><span className="tc-appearance-state">{isSelected?'착용 중':isOwned?'Lv.'+level:'미해금'}</span> · 조각 {shardCount}/{appearanceShardCost(level)||'MAX'}</small><span>{a.proposedBonus?'착용 효과 · '+appearanceBonusLabel({...a.proposedBonus,percent:appearanceEffectPercent(a,Math.max(1,level))}):'착용 효과 없음'}</span></div>
        <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':'착용'}</button>
        <button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button>
       </article>;
@@ -375,10 +397,17 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       const included=APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(appearanceDetails));
       if(!a)return <p>외형 정보를 찾을 수 없습니다.</p>;
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
+      const shards=appearanceShardCount(game.cosmetics,a.id),level=appearanceLevel(game.cosmetics,a.id),cost=appearanceShardCost(level);
+      const bonus=appearanceEffectPercent(a,level);
       return <div className="tc-collection-modal-content tc-appearance-detail-content">
        <div className="tc-appearance-detail-art">{artReady?<img src={assetUrl(a.imagePath!)} alt={a.name}/>:<Glyph name="cosmetics"/>}</div>
-       <section className="tc-appearance-detail-description"><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.sourceLabel}</small></section>
-       <section className="tc-appearance-detail-effect"><div><h4>착용 효과</h4><p>{a.proposedBonus?appearanceBonusLabel(a.proposedBonus)+' · 예정':'없음'}</p></div>{a.proposedBonus&&<small>효과는 아직 전투에 적용되지 않습니다.</small>}</section>
+       <section className="tc-appearance-detail-description"><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.rarity?'외형 소환 · 전용 조각':'기본 지급'}</small></section>
+       <section className="tc-appearance-detail-effect"><div><h4>착용 효과 · {level?'Lv.'+level:'미해금'}</h4><p>{a.proposedBonus?appearanceBonusLabel({...a.proposedBonus,percent:bonus||appearanceEffectPercent(a,1)}):'없음'}</p></div>
+        {a.id!=='default'&&<><p>전용 조각 {shards} / {cost||'MAX'}</p><progress max={cost||1} value={cost?Math.min(cost,shards):1} style={{width:'100%',accentColor:'#bfa16c'}}/>
+         <small>{level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':level===0?'조각 5개로 영구 해금':'다음 강화: 전용 조각 10개 · '+(appearanceEffectPercent(a,level+1))+'%'}</small>
+         <button type="button" className="tc-appearance-advance tc-feel-press" disabled={appearanceBusy||shards<cost||!!game.expedition||!onlineLease||!onServerRecord} onClick={()=>{void submitAppearanceAdvance(a.id);}}>{appearanceBusy?'처리 중':level===0?'외형 해금 (조각 5개)':level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':'Lv.'+(level+1)+' 강화 (조각 10개)'}</button></>}
+         {appearanceError&&<p role="alert">{appearanceError}</p>}
+       </section>
        <div className="tc-appearance-detail-actions"><button type="button" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':game.expedition?'원정 중':'착용'}</button><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {included.length} ›</button></div>
       </div>;
      })():<div className="tc-collection-modal-content"><p>{appearanceById(relatedAppearance!)?.name} 외형이 필요한 컬렉션</p><div className="tc-collection-related-list">{related.map(set=><button type="button" key={set.id} onClick={()=>{setRarity('ALL');setStatus('all');setQuery('');setSelectedSetId(set.id);setRelatedAppearance(null);}}><strong>{set.name}</strong><span>{collectionSetBonusLabel(set)} · {collectionSetProgress(set,owned,registeredIds).count}/{set.appearanceIds.length}</span></button>)}</div></div>}

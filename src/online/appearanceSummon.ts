@@ -4,7 +4,7 @@ import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
 export type AppearanceSummonCurrency='gold'|'ticket'|'mixed';
 export type AppearanceSummonRarity='C'|'B'|'A'|'SR'|'SSR';
-export interface AppearanceSummonDraw{id:string;rarity:AppearanceSummonRarity;duplicate:boolean}
+export interface AppearanceSummonDraw{id:string;rarity:AppearanceSummonRarity;duplicate:boolean;fragments?:number;fragmentBalance?:number;level?:number}
 export interface AppearanceSummonResult{draws:AppearanceSummonDraw[];cost:number;currency:AppearanceSummonCurrency;ticketsSpent:number;goldSpent:number;replayed:boolean;record:CloudSaveRecord}
 export interface AppearanceSummonHistoryEntry{draws:AppearanceSummonDraw[];cost:number;currency:AppearanceSummonCurrency;ticketsSpent:number;goldSpent:number;at:string}
 export interface AppearanceSummonHistory{history:AppearanceSummonHistoryEntry[]}

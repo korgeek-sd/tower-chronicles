@@ -27,7 +27,7 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
   {!ready&&!opened&&<button ref={stoneRef} type="button" className="tc-seal-stone-trigger" disabled={busy} onClick={onOpen} aria-label={draw.rarity+' 소환석 봉인 해제'}/> }
   <div className="tc-ssr-art" aria-hidden="true">{appearance?.imagePath?<img src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>:<span>{draw.rarity}</span>}</div>
   {!ready&&<p className="tc-seal-intro" aria-hidden="true">{opened?'봉인 속에서 기억이 깨어납니다.':'소환석을 눌러 봉인을 해제하세요.'}</p>}
-  <div className="tc-ssr-caption" aria-hidden={!ready}><h2 id="summon-modal-title" className="tc-ssr-grade">{draw.rarity}</h2><h3>{appearance?.name??draw.id}</h3><p>{draw.duplicate?'중복 획득':'새로운 외형 획득'}</p></div>
+  <div className="tc-ssr-caption" aria-hidden={!ready}><h2 id="summon-modal-title" className="tc-ssr-grade">{draw.rarity}</h2><h3>{appearance?.name??draw.id}</h3><p>{'전용 조각 ×1 획득'}</p></div>
   <footer className="tc-ssr-actions"><button ref={confirmRef} type="button" disabled={!ready||busy} onClick={onDone}>{hasNext?'다음 외형':total>1?'결과 보기':'확인'}</button><button type="button" disabled={!ready||busy||(!hasNext&&!canRepeat)} onClick={hasNext?onSkip:onRepeat}>{hasNext?'전체 결과':busy?'소환 중…':'다시 소환'}</button></footer>
   {error&&<p role="alert" className="tc-ssr-error">{error}</p>}
  </div>;
