@@ -11,10 +11,10 @@ const errors:Record<string,string>={
  GAME_SESSION_LOST:'게임 플레이 세션이 변경되었습니다.',
  CLOUD_SAVE_REQUIRED:'클라우드 저장을 먼저 완료해 주세요.'
 };
-export async function advanceAppearance(lease:GameplayLease,userId:string,appearanceId:string,requestId:string):Promise<AppearanceAdvanceResult>{
+export async function advanceAppearance(lease:GameplayLease,appearanceId:string,requestId:string):Promise<AppearanceAdvanceResult>{
  if(!supabaseConfig)throw Error('온라인 접속 설정이 필요합니다.');
  const session=await getFreshSession();
- if(!session||session.userId!==userId)throw Error('접속 계정을 다시 확인해 주세요.');
+ if(!session)throw Error('접속 계정을 다시 확인해 주세요.');
  const response=await fetch(supabaseConfig.url+'/rest/v1/rpc/advance_appearance',{
   method:'POST',
   headers:{apikey:supabaseConfig.publishableKey,Authorization:'Bearer '+session.accessToken,'Content-Type':'application/json'},
@@ -25,6 +25,6 @@ export async function advanceAppearance(lease:GameplayLease,userId:string,appear
   for(const [code,message] of Object.entries(errors))if(body.includes(code))throw Error(message);
   throw Error('외형 해금 또는 강화 결과를 확인할 수 없습니다.');
  }
- if((await getFreshSession())?.userId!==userId)throw Error('접속 계정이 변경되었습니다.');
+ if((await getFreshSession())?.userId!==session.userId)throw Error('접속 계정이 변경되었습니다.');
  return JSON.parse(body) as AppearanceAdvanceResult;
 }
