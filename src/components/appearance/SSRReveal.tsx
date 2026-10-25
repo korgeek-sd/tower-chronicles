@@ -15,7 +15,7 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
   <header className="tc-seal-heading"><small>탑의 기록</small><p>봉인된 기억</p>{sequenceTotal>1&&<span>희귀 외형 {sequenceIndex+1} / {sequenceTotal}</span>}</header>
   {!ready&&<button ref={skipRef} type="button" className="tc-ssr-skip" disabled={busy} onClick={onSkip}>건너뛰기 ›</button>}
   {!ready&&<div className="tc-ssr-vfx" aria-hidden="true">
-   <div className="tc-seal-motes">{SEAL_MOTES.slice(0,draw.rarity==='SSR'?24:16).map((m,i)=><span className="tc-seal-mote-path" key={i} style={{'--px':m.x,'--py':m.y,'--qx':m.qx,'--qy':m.qy,'--dx':m.dx,'--dy':m.dy} as React.CSSProperties}><i className="tc-seal-mote" style={{width:m.size,height:m.size}}/></span>)}</div>
+   <div className="tc-seal-motes">{SEAL_MOTES.filter((_,i)=>draw.rarity==='SSR'||i%3!==2).map((m,i)=><span className="tc-seal-mote-path" key={i} style={{'--px':m.x,'--py':m.y,'--qx':m.qx,'--qy':m.qy,'--dx':m.dx,'--dy':m.dy} as React.CSSProperties}><i className="tc-seal-mote" style={{width:m.size,height:m.size}}/></span>)}</div>
    <div className="tc-seal-stone"><div className="tc-seal-stone-motion"><div className="tc-seal-stone-sprite" style={{backgroundImage:`url("${crackAtlas()}")`}}/><div className="tc-seal-rune-glow" style={{maskImage:`url("${assetUrl('assets/vfx/summon/seal-rune-mask-v2.webp')}")`}}/></div></div>
    <div className="tc-seal-fragments">{SEAL_FRAGMENTS.map((f,i)=><div className="tc-seal-fragment" key={i} style={{backgroundImage:`url("${crackAtlas()}")`,clipPath:f.clip,transformOrigin:f.origin,'--dx':f.dx,'--dy':f.dy,'--spin':f.rotation} as React.CSSProperties}/>)}</div>
    <img className="tc-seal-flare" src={sealAsset('flare')} alt="" draggable={false}/>
