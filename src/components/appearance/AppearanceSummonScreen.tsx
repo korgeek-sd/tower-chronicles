@@ -13,16 +13,22 @@ import {Glyph,Screen,Segments} from '../../ui/mobile';
 import './appearance-summon.css';
 import './iron-summon.css';
 import './altar-summon.css';
+import {AppearanceSummonResultView} from './AppearanceSummonResultView';
+export {AppearanceSummonResultView} from './AppearanceSummonResultView';
 
 // Existing artwork previews only: these are not summon rewards or appearance IDs.
 const showcase=['relic_collector','lantern_keeper','expedition_medic'].map(id=>jobById(id)!);
-export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lease=null,onPrepare,onPending,onRecord}:{game:GameState;onList:()=>void;onCollection?:()=>void;userId?:string|null;lease?:GameplayLease|null;onPrepare?:()=>Promise<void>;onPending?:(busy:boolean)=>void;onRecord?:(record:CloudSaveRecord)=>void}){
+export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lease=null,onPrepare,onPending,onRecord,onEquip}:{game:GameState;onList:()=>void;onCollection?:()=>void;userId?:string|null;lease?:GameplayLease|null;onPrepare?:()=>Promise<void>;onPending?:(busy:boolean)=>void;onRecord?:(record:CloudSaveRecord)=>void;onEquip?:(id:string)=>void}){
  const [focus,setFocus]=useState(1),[panel,setPanel]=useState<'history'|'rates'|'results'|null>(null);
  const [busy,setBusy]=useState(false),[status,setStatus]=useState(''),[draws,setDraws]=useState<AppearanceSummonDraw[]>([]);
  const [history,setHistory]=useState<AppearanceSummonHistoryEntry[]>([]);
+ const [lastPayment,setLastPayment]=useState({ticketsSpent:0,goldSpent:0});
+ const [resultVersion,setResultVersion]=useState(0);
+ const [resultError,setResultError]=useState('');
  const pendingRequest=useRef<{id:string;rolls:1|10}|null>(null);
  const modal=useRef<HTMLElement>(null),selected=showcase[focus];
  const available=!!userId&&!!lease;
+
  const names=new Map(APPEARANCES.map(appearance=>[appearance.id,appearance.name]));
  const ownedTickets=appearanceSummonTickets(game);
  const onePayment=appearanceSummonPayment(1,ownedTickets);
@@ -38,7 +44,7 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
   if(game.market.gold<payment.goldSpent){setStatus('소환에 필요한 골드가 부족합니다.');return;}
   const request=pendingRequest.current?.rolls===rolls?pendingRequest.current:{id:crypto.randomUUID(),rolls};
   pendingRequest.current=request;
-  setBusy(true);setStatus('서버에서 외형을 소환하고 있습니다.');
+  setResultError('');setBusy(true);setStatus('서버에서 외형을 소환하고 있습니다.');
   let prepared=false;
   try{
    await onPrepare?.();
@@ -46,9 +52,10 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
    const response=await summonAppearances(lease,userId,request.id,rolls);
    onRecord?.(response.record);
    pendingRequest.current=null;
-   setDraws(response.draws);setPanel('results');
+   setLastPayment({ticketsSpent:response.ticketsSpent,goldSpent:response.goldSpent});
+   setDraws(response.draws);setResultVersion(n=>n+1);setPanel('results');
    setStatus((response.replayed?'이전 소환 결과를 복원했습니다. ':'외형 소환 완료. ')+resultPayment(response.ticketsSpent,response.goldSpent)+' 사용');
-  }catch(error){setStatus(error instanceof Error?error.message:'소환 결과를 확인하지 못했습니다. 동일한 버튼으로 재시도해 주세요.');}
+  }catch(error){const message=error instanceof Error?error.message:'소환 결과를 확인하지 못했습니다. 동일한 버튼으로 재시도해 주세요.';setStatus(message);setResultError(message);}
   finally{setBusy(false);if(prepared)onPending?.(false);}
  }
  async function showHistory(){
@@ -81,13 +88,14 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
    <div className="tc-summon-utilities"><button type="button" onClick={()=>{void showHistory();}}><Glyph name="bestiary"/>소환 기록</button><button type="button" onClick={()=>setPanel('rates')}><Glyph name="search"/>확률 정보</button>{onCollection&&<button type="button" onClick={onCollection}><Glyph name="bestiary"/>컬렉션</button>}</div>
    </footer>
   </div>
-  {panel&&<div className="tc-summon-modal-backdrop" role="presentation" onClick={()=>setPanel(null)}>
-   <section ref={modal} tabIndex={-1} className="tc-summon-modal" role="dialog" aria-modal="true" aria-labelledby="summon-modal-title" onClick={e=>e.stopPropagation()}>
-    <header><h2 id="summon-modal-title">{panel==='history'?'소환 기록':panel==='rates'?'등급별 확률':'소환 결과'}</h2><button type="button" aria-label="닫기" onClick={()=>setPanel(null)}>×</button></header>
+  {panel&&<div className="tc-summon-modal-backdrop" role="presentation" onClick={()=>{if(!busy)setPanel(null);}}>
+   <section ref={modal} tabIndex={-1} className={'tc-summon-modal'+(panel==='results'?' tc-summon-result-modal':'')} role="dialog" aria-modal="true" aria-labelledby="summon-modal-title" onClick={e=>e.stopPropagation()}>
+    {panel!=='results'&&<header><h2 id="summon-modal-title">{panel==='history'?'소환 기록':'등급별 확률'}</h2><button type="button" aria-label="닫기" onClick={()=>setPanel(null)}>×</button></header>}
     {panel==='rates'&&<><p>1회 {APPEARANCE_SUMMON_GOLD_PRICE.single} G / 10회 {APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G ({APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인)</p><div className="tc-summon-rate-table">{APPEARANCE_SUMMON_RATES.map(rate=><div key={rate.rarity}><b>{rate.rarity}</b><span>{rate.basisPoints/100}%</span></div>)}</div><p>각 회차는 독립 추첨이며 확정 지급과 천장은 없습니다.</p></>}
-    {panel==='results'&&<div className="tc-summon-results"><p>{status}</p>{draws.map((draw,index)=><div key={index} className={'tc-summon-result tc-summon-rarity-'+draw.rarity.toLowerCase()}><b>{draw.rarity}</b><span>{names.get(draw.id)??draw.id}</span>{draw.duplicate&&<small>중복 획득</small>}</div>)}</div>}
+    {panel==='results'&&<AppearanceSummonResultView key={resultVersion} draws={draws} payment={lastPayment} repeatPayment={appearanceSummonPayment(draws.length===10?10:1,ownedTickets)} canRepeat={available&&game.market.gold>=appearanceSummonPayment(draws.length===10?10:1,ownedTickets).goldSpent} busy={busy} selectedAppearanceId={game.cosmetics.selectedAppearanceId} expedition={!!game.expedition} onRepeat={()=>{void summon(draws.length===10?10:1);}} onClose={()=>setPanel(null)} onList={()=>{setPanel(null);onList();}} onEquip={onEquip} error={resultError}/>}
+
     {panel==='history'&&(!history.length?<p>저장된 소환 기록이 없습니다.</p>:<div className="tc-summon-history">{history.map((entry,index)=><div key={index}><small>{new Date(entry.at).toLocaleString('ko-KR')} · {resultPayment(entry.ticketsSpent,entry.goldSpent)}</small><p>{entry.draws.map(draw=>draw.rarity+' '+(names.get(draw.id)??draw.id)).join(' · ')}</p></div>)}</div>)}
-    <button type="button" className="tc-action" onClick={()=>setPanel(null)}>닫기</button>
+    {panel!=='results'&&<button type="button" className="tc-action" onClick={()=>setPanel(null)}>닫기</button>}
    </section>
   </div>}
  </Screen>;
