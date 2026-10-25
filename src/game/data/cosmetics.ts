@@ -262,6 +262,12 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
+,
+ {id:"false_savior",name:"거짓 구원자",rarity:"SSR",imagePath:"assets/characters/appearances/false_savior-314bb25e8c12.webp",
+  description:"가시관을 닮은 후광과 피로 물든 성의를 걸치고 붉은 보석이 박힌 성장을 든, 구원을 사칭하는 자.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
