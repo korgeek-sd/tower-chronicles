@@ -59,7 +59,7 @@ test('appearance list shows stats and related collection links with ownership fi
  assert.ok(html.includes('관련 컬렉션'));
  assert.ok(html.includes('(예정)'));
  assert.ok(html.includes('착용 효과'));
- assert.ok(html.includes('착용한 외형 1개만 적용'));
+ assert.ok(html.includes('착용한 외형 1개만 강화 효과 적용'));
  assert.ok(html.includes('착용 중'));
  assert.ok(!html.includes('능력 사용 가능'));
 });
@@ -89,7 +89,7 @@ test('appearance cards expose ownership and equipped state without changing avai
  assert.match(html,/data-owned="true" data-equipped="true"/);
  assert.match(html,/data-owned="false" data-equipped="false"/);
  assert.match(html,/class="tc-appearance-state">착용 중<\/span>/);
- assert.match(html,/class="tc-appearance-state">미보유<\/span>/);
+ assert.match(html,/class="tc-appearance-state">미해금<\/span>/);
  assert.match(html,/disabled=""[^>]*>미보유<\/button>/);
 });
 
