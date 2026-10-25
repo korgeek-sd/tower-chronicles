@@ -42,7 +42,7 @@ export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepea
    <div><h2 id="summon-modal-title">{shownSingle&&isTen?'외형 상세 보기':isTen?'10회 소환 결과':'1회 소환 결과'}</h2><small>{shownSingle&&isTen?'획득한 외형 확인':'탑의 기록에 새로운 흔적이 남았습니다.'}</small></div>
    <button type="button" className="tc-summon-result-close" aria-label="소환 결과 닫기" disabled={busy} onClick={onClose}>×</button>
   </header>
-  <div className="tc-summon-result-scroll">
+  <div className={'tc-summon-result-content'+(shownSingle?' is-single':' is-ten')}>
    {!shownSingle?<div className="tc-summon-result-grid" aria-label="10회 소환으로 획득한 외형 10개">{draws.map((draw,index)=>{
     const item=catalog.get(draw.id);
     return <button type="button" key={index} className={'tc-summon-draw-card tc-summon-rarity-'+draw.rarity.toLowerCase()} data-rarity={draw.rarity} onClick={()=>setDetailIndex(index)} aria-label={draw.rarity+' '+(item?.name??draw.id)+' '+(draw.duplicate?'중복':'신규')+' 상세 보기'}>
@@ -61,8 +61,10 @@ export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepea
     </div>}
   </div>
   <footer className="tc-summon-result-footer">
-   {!shownSingle&&<p className="tc-summon-result-count">신규 {newCount}개 · 중복 {duplicateCount}개</p>}
-   <p className="tc-summon-result-payment">이번 소환: {summonPaymentText(payment)}</p>
+   <div className="tc-summon-result-meta">
+    {!shownSingle&&<p className="tc-summon-result-count">신규 {newCount}개 · 중복 {duplicateCount}개</p>}
+    <p className="tc-summon-result-payment">사용: {summonPaymentText(payment)}</p>
+   </div>
    {error&&<p className="tc-summon-repeat-error" role="alert">{error}</p>}
    <button type="button" className="tc-summon-result-repeat tc-feel-press" disabled={busy||!canRepeat} onClick={onRepeat}>
     <strong>{draws.length===10?'10회 다시 소환':'1회 다시 소환'}</strong>
