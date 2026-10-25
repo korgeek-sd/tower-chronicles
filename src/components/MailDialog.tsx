@@ -28,7 +28,7 @@ export function MailDialog({userId,lease,game,setGame,onClose,onUnread}:Props){
  if(!userId||!lease||guard.current||!active.current)return;guard.current=true;setBusy(true);setError('');
  try{const result=await manageGameMail(userId,lease,kind,id);
  // Confirmed rewards must reach app state even if the dialog was closed meanwhile.
- if(userId===getStoredSession()?.userId&&result.economy)setGame(s=>applyOnlineEconomyToGame(s,result.economy!));
+ if(userId===getStoredSession()?.userId&&(result.economy||Number.isSafeInteger(result.summonTickets)))setGame(s=>{const next=result.economy?applyOnlineEconomyToGame(s,result.economy):structuredClone(s);if(Number.isSafeInteger(result.summonTickets)&&result.summonTickets!>=0)next.cosmetics.summonTickets=result.summonTickets!;return next;});
  if(valid()){accept(result.mails);if(kind==='delete')setSelected(null);}
  }catch(e){if(valid())setError(e instanceof Error?e.message:'우편 처리에 실패했습니다.');}finally{guard.current=false;if(active.current)setBusy(false);}
  }
