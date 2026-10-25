@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {initialState} from '../src/game/engine/state.ts';
+import {initialState,stats} from '../src/game/engine/state.ts';
 import {appearanceLevel,appearanceShardCount,appearanceShardCost,appearanceEffectPercent,APPEARANCE_MAX_LEVEL} from '../src/game/data/appearanceProgress.ts';
 import {appearanceById} from '../src/game/data/cosmetics.ts';
 
@@ -32,4 +32,21 @@ test('shards do not equip unowned appearances and levels scale the proposed base
  c.appearanceLevels={nameless_king:5};
  assert.equal(appearanceLevel(c,'nameless_king'),5);
  assert.equal(appearanceShardCost(5),0);
+});
+
+test('equipped unlocked SSR increases actual player attack and Lv5 exceeds Lv1',()=>{
+ const base=initialState();
+ const baseline=base.equipmentItems.length;
+ assert.ok(baseline>0);
+ const before=base.cosmetics.selectedAppearanceId;
+ assert.equal(before,'default');
+ const attack=stats(base).attack;
+ base.cosmetics.unlockedAppearanceIds.push('nameless_king');
+ base.cosmetics.selectedAppearanceId='nameless_king';
+ base.cosmetics.appearanceLevels={nameless_king:1};
+ assert.ok(Math.abs(stats(base).attack-attack*1.05)<0.0001);
+ base.cosmetics.appearanceLevels.nameless_king=5;
+ assert.ok(Math.abs(stats(base).attack-attack*1.075)<0.0001);
+ base.cosmetics.selectedAppearanceId='default';
+ assert.equal(stats(base).attack,attack);
 });
