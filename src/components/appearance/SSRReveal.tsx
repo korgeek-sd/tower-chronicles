@@ -4,11 +4,12 @@ import type {AppearanceData} from '../../game/data/cosmetics';
 import {assetUrl} from '../../game/data/graphics';
 import {playSsrBell,unlockSsrSound} from './ssrSound';
 import './ssr-reveal.css';
-import {SEAL_FRAGMENTS,SEAL_MOTES} from './sealMotion';
+import {SEAL_MOTES} from './sealMotion';
 export const SSR_REVEAL_DURATION_MS=4000;
 const OPENING_OFFSET_MS=2000;
 type Props={draw:AppearanceSummonDraw;appearance?:AppearanceData;total:number;onDone:()=>void;onSkip?:()=>void;onRepeat:()=>void;canRepeat:boolean;busy:boolean;error?:string;hasNext?:boolean;sequenceIndex?:number;sequenceTotal?:number};
-const crackAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-cracks-v3.webp');
+const crackAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-cracks-v4-24f.webp');
+const destructionAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-destruction-v1-24f.webp');
 const sealAsset=(name:string)=>assetUrl('assets/vfx/summon/seal-'+name+'-v1.webp');
 export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRepeat,canRepeat,busy,error,ready,opened=false,onOpen=()=>{},stoneRef,skipRef,confirmRef,hasNext=false,sequenceIndex=0,sequenceTotal=1}:{ready:boolean;opened?:boolean;onOpen?:()=>void;stoneRef?:React.RefObject<HTMLButtonElement|null>;skipRef?:React.RefObject<HTMLButtonElement|null>;confirmRef?:React.RefObject<HTMLButtonElement|null>}&Props){
  const tintId='seal-violet-'+useId().replace(/[^a-zA-Z0-9_-]/g,'');
@@ -20,7 +21,7 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
   {!ready&&<div className="tc-ssr-vfx" aria-hidden="true">
    <div className="tc-seal-motes">{SEAL_MOTES.filter((_,i)=>draw.rarity==='SSR'||i%3!==2).map((m,i)=><span className="tc-seal-mote-path" key={i} style={{'--px':m.x,'--py':m.y,'--qx':m.qx,'--qy':m.qy,'--dx':m.dx,'--dy':m.dy} as React.CSSProperties}><i className="tc-seal-mote" style={{width:m.size,height:m.size}}/></span>)}</div>
    <div className="tc-seal-stone"><div className="tc-seal-stone-motion"><div className="tc-seal-stone-sprite" style={{backgroundImage:`url("${crackAtlas()}")`}}/><div className="tc-seal-rune-glow" style={{maskImage:`url("${assetUrl('assets/vfx/summon/seal-rune-mask-v2.webp')}")`}}/></div></div>
-   <div className="tc-seal-fragments">{SEAL_FRAGMENTS.map((f,i)=><div className="tc-seal-fragment" key={i} style={{backgroundImage:`url("${crackAtlas()}")`,clipPath:f.clip,transformOrigin:f.origin,'--dx':f.dx,'--dy':f.dy,'--spin':f.rotation} as React.CSSProperties}/>)}</div>
+   <div className="tc-seal-destruction"><div className="tc-seal-destruction-sprite" style={{backgroundImage:`url("${destructionAtlas()}")`}}/></div>
    <img className="tc-seal-flare" src={sealAsset('flare')} alt="" draggable={false}/>
    <div className="tc-ssr-flash"/>
   </div>}
