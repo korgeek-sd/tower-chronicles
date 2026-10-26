@@ -9,12 +9,12 @@ const p={draw:{id:'valkyrie',rarity:'SR' as const,duplicate:false},total:10,onDo
 test('SR and SSR use two 24-frame sprites after a user gesture and remove both on completion',()=>{
  for(const rarity of ['SR','SSR'] as const){
   const opening=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:false}));
-  assert.match(opening,/seal-stone-cracks-v4-24f\\.webp/);
-  assert.match(opening,/seal-stone-destruction-v1-24f\\.webp/);
+  assert.match(opening,/seal-stone-cracks-v4-24f\.webp/);
+  assert.match(opening,/seal-stone-destruction-v1-24f\.webp/);
   assert.match(opening,/tc-seal-stone-sprite/);
   assert.match(opening,/tc-seal-destruction-sprite/);
   assert.match(opening,/소환석 봉인 해제/);
-  assert.doesNotMatch(opening,/seal-stone-v1\\.webp/);
+  assert.doesNotMatch(opening,/seal-stone-v1\.webp/);
   const ready=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:true}));
   assert.doesNotMatch(ready,/tc-seal-stone-sprite|tc-seal-destruction-sprite|seal-stone-cracks/);
  }
@@ -39,8 +39,8 @@ test('both images have matching 6x4 cell layout and frame-coordinate metadata',(
 });
 test('touch timeline runs crack frames then destruction frames at the same 6x4 grid',()=>{
  const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');
- assert.match(css,/tc-seal-stone-frames 4s steps\\(1,end\\)/);
- assert.match(css,/tc-seal-destruction-frames 4s steps\\(1,end\\)/);
+ assert.match(css,/tc-seal-stone-frames 4s steps\(1,end\)/);
+ assert.match(css,/tc-seal-destruction-frames 4s steps\(1,end\)/);
  assert.match(css,/background-size:600% 400%/);
  assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-stone-sprite\{animation:none;background-position:0 0/);
  assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-destruction/);
