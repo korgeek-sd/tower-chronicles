@@ -3,6 +3,7 @@ import {LIFE_MATERIAL_NAMES,lifeBatchLimit,type VillageLifeState,type LifeResour
 import {townKindLabel} from './worldMap';
 import {assetUrl} from '../../game/data/graphics';
 import {CraftItemArt} from './CraftItemArt';
+import {lifeMasteryLevel,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP} from '../../game/life/crafting';
 import './gather-screen.css';
 type Props={state:VillageLifeState;busy:boolean;count:number;now:number;message?:string;onCount:(n:number)=>void;onGather:(r:LifeResource)=>void;onBack:()=>void;onRefresh:()=>void;onWell?:()=>void;onInventory?:()=>void};
 export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack,onInventory}:Props){
@@ -10,7 +11,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
  const town=state.towns.find(t=>t.id===state.location)!;
  const resources:LifeResource[]=town.kind==='city'?['herb','farm']:[town.kind];
  const resource=resources.includes(selectedResource)?selectedResource:resources[0];
- const herb=resource==='herb',stock=herb?town.herbRemaining:town.farmRemaining,capacity=herb?town.herbCapacity:town.farmCapacity,limit=lifeBatchLimit(state,resource);
+ const herb=resource==='herb',stock=herb?town.herbRemaining:town.farmRemaining,capacity=herb?town.herbCapacity:town.farmCapacity,limit=lifeBatchLimit(state,resource),xp=state.lifeMasteries?.[resource]??0,level=lifeMasteryLevel(xp),nextXp=LIFE_MASTERY_LEVEL_XP[level]??null;
  const validCount=Number.isInteger(count)&&count>=1&&count<=100;
  const remaining=Math.max(0,Math.ceil((state.nextResetAt-now)/1000)),reset=`${Math.floor(remaining/3600)}시간 ${Math.floor(remaining%3600/60)}분`;
  const owner=town.owner==='중립'?'중립':town.owner+' 원정단';
@@ -28,7 +29,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
   </div><div className="tc-life-resource" aria-label="채집 종류">{resources.map(r=><button type="button" className="tc-feel-press" key={r} aria-pressed={resource===r} disabled={busy} onClick={()=>setSelectedResource(r)}><CraftItemArt id={r==='herb'?'herb':'wheat'}/><span>{r==='herb'?'약초 채집':'농사'}</span></button>)}</div>
   <section className="tc-life-gather" aria-label="선택한 채집 자원">
    <div className="tc-gather-resource-art"><CraftItemArt id={herb?'herb':'wheat'}/></div>
-   <div className="tc-gather-resource-info"><h2>{herb?'약초':'농산물'}</h2><span>{herb?`보유 ${(state.materials.herb??0).toLocaleString()}개`:'고추 · 감자 · 밀'}</span><div className="tc-gather-stock-label"><small>남은 채집량</small><b>{stock.toLocaleString()} <span>/ {capacity.toLocaleString()}</span></b></div><div className="tc-gather-stock" role="progressbar" aria-label={`${herb?'약초':'농산물'} 잔여량`} aria-valuenow={stock} aria-valuemin={0} aria-valuemax={capacity}><i style={{width:Math.max(0,Math.min(100,stock/Math.max(1,capacity)*100))+'%'}}/></div></div>
+   <div className="tc-gather-resource-info"><h2>{herb?'약초':'농산물'}</h2><span>{herb?`보유 ${(state.materials.herb??0).toLocaleString()}개`:'고추 · 감자 · 밀'}</span><p className="tc-gather-mastery">{LIFE_MASTERY_NAMES[resource]} Lv.{level} · 경험치 {xp.toLocaleString()}{nextXp===null?' / MAX':` / ${nextXp.toLocaleString()}`}</p><div className="tc-gather-stock-label"><small>남은 채집량</small><b>{stock.toLocaleString()} <span>/ {capacity.toLocaleString()}</span></b></div><div className="tc-gather-stock" role="progressbar" aria-label={`${herb?'약초':'농산물'} 잔여량`} aria-valuenow={stock} aria-valuemin={0} aria-valuemax={capacity}><i style={{width:Math.max(0,Math.min(100,stock/Math.max(1,capacity)*100))+'%'}}/></div></div>
    <div className="tc-gather-yield"><small>1회 생산</small><b>10<span>개</span></b><small>행동력 1</small></div>
   </section>
   <section className="tc-life-inventory" aria-label="생활 재료 보유량">{(['herb','pepper','potato','wheat'] as LifeMaterial[]).map(id=><div key={id}><CraftItemArt id={id}/><div><small>{LIFE_MATERIAL_NAMES[id]}</small><b>{(state.materials[id]??0).toLocaleString()}</b></div></div>)}</section>
