@@ -14,13 +14,13 @@ test('gathering leads with the current town scenery and authoritative ownership,
  const html=render();
  assert.match(html,/data-gather-scene="herb"/);
  assert.match(html,/달그늘 약초밭/);
- assert.match(html,/잿빛 원정단/);
- assert.match(html,/생산물 세율 10%/);
+ assert.match(html,/잿빛 길드/);
+ assert.match(html,/세율 10%/);
  assert.match(html,/aria-label="생활 행동력"[^>]*aria-valuenow="24"/);
  assert.match(html,/aria-label="약초 잔여량"[^>]*aria-valuenow="180"[^>]*aria-valuemax="30000"/);
  assert.match(html,/data-craft-art="herb"/);
- assert.match(html,/보유 42개/);
- assert.match(html,/매일 00:00 초기화/);
+ assert.match(html,/보유 약초/);
+ assert.match(html,/매일 24:00 초기화/);
 });
 
 test('farm location shows crop scenery and random crop rewards without inventing selectable crops',()=>{
@@ -56,15 +56,33 @@ test('pending keeps gathering and resource selection disabled and only displays 
 });
 
 test('gathering leaves utility actions out and puts specialty selection after the scene',()=>{
- const html=render({onWell:()=>{}});
+ const html=render({state:{...state,location:'city'},onWell:()=>{}});
  assert.doesNotMatch(html,/우물|잔여량 새로고침|<footer/);
- assert.match(html,/<\/div><div class="tc-life-resource"/);
+ assert.ok(html.indexOf('tc-life-resource')>html.indexOf('data-gather-scene'));
 });
 
 test('gathering displays mastery XP while preserving fixed yield',()=>{
- assert.match(render(),/약초 숙련도 Lv.2/);
- assert.match(render({state:{...state,location:'farm-1'}}),/농업 숙련도 Lv.5/);
+ assert.match(render(),/약초 Lv.2/);
+ assert.match(render({state:{...state,location:'farm-1'}}),/농업 Lv.5/);
  for(const html of [render(),render({state:{...state,location:'farm-1'}})]){
-  assert.match(html,/1회 생산/);assert.match(html,/>10<span>개<\/span>/);
+  assert.match(html,/생산 10개/);assert.match(html,/행동력 1/);
  }
+});
+
+
+test('scenic production hides single-specialty tabs and unrelated inventory, with real max selection',()=>{
+ const html=render();
+ assert.doesNotMatch(html,/aria-label="채집 종류"|data-craft-art="pepper"|data-craft-art="potato"|data-craft-art="wheat"/);
+ assert.match(html,/>최대<\/button>/);
+ assert.doesNotMatch(html,/>100회<\/button>/);
+ assert.match(html,/aria-label="약초 숙련도 경험치"[^>]*aria-valuenow="0"[^>]*aria-valuemin="0"[^>]*aria-valuemax="150"/);
+ const farm=render({state:{...state,location:'farm-1'}});
+ assert.doesNotMatch(farm,/data-craft-art="herb"/);
+ for(const id of ['pepper','potato','wheat'])assert.match(farm,new RegExp(`data-craft-art="${id}"`));
+});
+
+test('mastery progress handles level cap and preview distinguishes pre-tax production',()=>{
+ const html=render({state:{...state,lifeMasteries:{herb:3200}}});
+ assert.match(html,/약초 Lv.10/);assert.match(html,/MAX/);assert.doesNotMatch(html,/NaN|Infinity/);
+ assert.match(html,/세전/);
 });
