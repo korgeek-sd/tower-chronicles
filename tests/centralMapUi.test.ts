@@ -19,3 +19,11 @@ test('players at legacy settlements retain current location and travel controls'
  assert.match(html,/밀바람/);assert.match(html,/생산하기/);
  assert.match(html,/data-map-town="city"/);
 });
+test('map markers expose only compact names, field icons and depletion; detail owns quantities',()=>{
+ const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{},towns}));
+ const markers=[...html.matchAll(/<button[^>]*data-map-town="[^"]+"[\s\S]*?<\/button>/g)].map(m=>m[0]);
+ assert.equal(markers.length,5);
+ for(const marker of markers){assert.match(marker,/tc-map-nameplate/);assert.doesNotMatch(marker,/<small>|<strong>|tc-map-stock/);}
+ assert.match(html,/tc-map-location-flag/);
+ assert.match(html,/농산물 잔여량/);
+});

@@ -4,13 +4,21 @@
 .tc-region-heading small{display:none}.tc-region-heading h1{font-size:23px;letter-spacing:.12em;margin:0;color:#ead3a8}.tc-region-heading>div:last-child{font-size:11px;gap:4px}
 .tc-territory-map{position:relative;min-height:230px;background:#292e22 url('../../assets/novar-central-map.webp') center/100% 100% no-repeat;isolation:isolate}
 .tc-territory-map:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;box-shadow:inset 0 0 30px #080b0bb0}
-.tc-map-node{position:absolute;width:35%;min-height:65px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 4px;background:#151710e8;color:#eddfc2;border:1px solid #8e7350;box-shadow:0 3px 8px #0007;cursor:pointer;transform:translate(-50%,-50%);border-radius:2px}
-.tc-map-node[data-map-town=herb-1]{left:22%;top:29%}.tc-map-node[data-map-town=farm-1]{left:78%;top:29%}.tc-map-node[data-map-town=city]{left:50%;top:53%;width:37%}.tc-map-node[data-map-town=herb-2]{left:22%;top:85%}.tc-map-node[data-map-town=farm-2]{left:78%;top:85%}
-.tc-map-node b{font:700 16px Georgia,'Noto Serif KR',serif;background:linear-gradient(#d8c39c,#bca175);color:#251e14;width:calc(100% + 8px);text-align:center;padding:3px 2px;margin-top:-3px}
-.tc-map-node small{font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:3px 0;color:#d6c09a}
-.tc-map-node em{position:absolute;bottom:100%;font-size:10px;white-space:nowrap;font-style:normal;color:#ffe7ad;background:#672f23;padding:2px 7px;border:1px solid #af8650}
-.tc-map-node[aria-pressed=true]{outline:2px solid #e9bf71;outline-offset:2px}.tc-map-node:focus-visible{outline:3px solid #fff1cc;outline-offset:3px}
-.tc-map-stock{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px 5px;font-size:11px;color:#c4d69c}.tc-map-stock strong{font-weight:500;color:#f0e5d0;font-variant-numeric:tabular-nums}.tc-map-stock .tc-glyph{font-size:14px}.tc-map-node.farm .tc-map-stock{color:#dec084}
+/* Transparent building hit areas keep artwork visible; only the foot labels are opaque. */
+.tc-map-node{position:absolute;width:39%;height:24%;min-width:44px;min-height:44px;display:flex;align-items:flex-end;justify-content:center;padding:0 0 3px;background:transparent;color:#eddfc2;border:0;box-shadow:none;cursor:pointer;transform:translate(-50%,-50%);border-radius:0;isolation:isolate}
+.tc-map-node[data-map-town=herb-1]{left:22%;top:21%}.tc-map-node[data-map-town=farm-1]{left:78%;top:21%}.tc-map-node[data-map-town=city]{left:50%;top:49%;width:42%;height:31%}.tc-map-node[data-map-town=herb-2]{left:22%;top:76%;height:22%}.tc-map-node[data-map-town=farm-2]{left:78%;top:76%;height:22%}
+.tc-map-node:before{content:'';position:absolute;left:8%;right:8%;bottom:12%;height:23%;z-index:-1;background:radial-gradient(ellipse,#efc76c44,transparent 68%);opacity:0;pointer-events:none;transition:opacity 180ms ease}
+.tc-map-node[aria-pressed=true]{outline:none}.tc-map-node[aria-pressed=true]:before{opacity:1}
+.tc-map-nameplate{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;max-width:100%;min-height:25px;padding:3px 11px;color:#ebd6ac;background:linear-gradient(100deg,#2c2217f5,#453420f5 46%,#302418f5);border-block:1px solid #88704b;box-shadow:0 2px 3px #0008;text-shadow:0 1px 2px #000;clip-path:polygon(3% 0,98% 0,100% 25%,98% 60%,100% 100%,2% 100%,0 70%,2% 40%,0 16%)}
+.tc-map-nameplate b{font:inherit;font-size:14px;font-weight:500;white-space:nowrap;letter-spacing:.04em}
+.tc-map-nameplate .tc-glyph{font-size:14px;color:#b8c993}.tc-map-node.farm .tc-map-nameplate .tc-glyph{color:#d3b778}
+.tc-map-node.city .tc-map-nameplate{min-height:27px;padding-inline:17px}.tc-map-node.city .tc-map-nameplate b{font-size:16px}
+.tc-map-node[aria-pressed=true] .tc-map-nameplate{border-color:#d7ad62;color:#fff0cb}
+.tc-map-node:focus-visible{outline:2px dashed #efd3a1;outline-offset:2px;border-radius:8px}
+.tc-map-location-flag{position:absolute;right:0;top:22%;font:inherit;font-size:10px;font-style:normal;white-space:nowrap;color:#f3d9a6;padding:4px 9px 4px 5px;background:linear-gradient(95deg,#662e22,#843c2a);border-block:1px solid #ab7747;box-shadow:0 1px 3px #0007;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%)}
+.tc-map-node.current:after{content:'';position:absolute;right:calc(0% + 65px);top:21%;height:43%;width:2px;background:linear-gradient(#bb9660,#715637);box-shadow:1px 0 1px #0008;pointer-events:none}
+.tc-map-depleted{position:absolute;top:100%;font-size:10px;color:#e9b29b;padding:1px 5px;background:#251813db;border-radius:2px}
+@media(prefers-reduced-motion:reduce){.tc-map-node:before{transition:none}}
 .tc-region-details{border-width:2px 1px 0;border-color:#8a6d44;padding:10px 12px;background:linear-gradient(135deg,#282219,#121410)}
 .tc-region-details>header{padding-bottom:7px}.tc-region-details h2{font-size:21px}.tc-region-details header small{font-size:10px}.tc-region-details header>span:last-child{font-size:11px}
 .tc-region-facts{margin:6px 0;gap:8px}.tc-region-facts small{font-size:10px}.tc-region-facts b{font-size:12px}
@@ -18,4 +26,4 @@
 .tc-region-actions button{font-size:14px;min-height:46px}.tc-region-war-status{font-size:11px}.tc-region-declare-note{font-size:10px}.tc-region-footnote{display:block;font-size:10px;text-align:center;margin:7px 0 0}
 @container travel-page (max-height:560px){.tc-region-board{grid-template-rows:auto minmax(230px,1fr) auto}.tc-region-heading{padding:6px 9px}.tc-region-details{padding:7px 9px}.tc-region-facts small,.tc-region-facts b{font-size:10px}.tc-region-stocks>div{padding:5px}.tc-region-details h2{font-size:18px}.tc-region-details>header{padding-bottom:4px}.tc-region-footnote{font-size:10px}.tc-region-declare-note{font-size:10px}}
 @container travel-page (max-height:340px){.tc-region-details{display:block}.tc-region-actions button{font-size:13px}.tc-region-heading>div:last-child{display:grid}.tc-region-stocks{margin:6px 0}}
-@media(max-width:360px){.tc-map-node{width:37%}.tc-map-node b{font-size:14px}.tc-map-node small{font-size:10px}.tc-map-stock{font-size:10px}.tc-region-heading h1{font-size:20px}}
+@media(max-width:360px){.tc-map-nameplate{padding-inline:8px}.tc-map-nameplate b{font-size:13px}.tc-map-node.city .tc-map-nameplate b{font-size:15px}.tc-region-heading h1{font-size:20px}}

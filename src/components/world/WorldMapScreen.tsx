@@ -29,8 +29,9 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
   <header className="tc-region-heading"><div><small>REGION BOARD</small><h1>마을 이동</h1></div><div><span>현재 위치 · <b>{current.name}</b></span><span>행동력 <b>{actionPoints===undefined?'—':`${actionPoints} / 100`}</b></span></div></header>
   <div className="tc-territory-map" aria-label="중앙 도시와 네 마을 지도">
    {mapTowns.map(town=><button type="button" key={town.id} data-town-id={town.id} data-map-town={town.id} className={'tc-map-node '+town.kind+(town.id===current.id?' current':'')} aria-pressed={town.id===selected.id} aria-label={`${town.name}, ${resource(town.kind)}, 점령 ${town.owner}`} onClick={()=>select(town.id)}>
-    {town.id===current.id&&<em>현재 위치</em>}<b>{town.name}</b><small>점령 · {town.owner}</small>
-    <span className="tc-map-stock"><Glyph name={glyph(town.kind)}/>{resource(town.kind)}{town.kind!=='city'&&<strong>{remaining(town.id,town.kind)}</strong>}</span>
+    {town.id===current.id&&<em className="tc-map-location-flag">현재 위치</em>}
+    <span className="tc-map-nameplate">{town.kind!=='city'&&<Glyph name={glyph(town.kind)}/>}<b>{town.name}</b></span>
+    {town.kind!=='city'&&remaining(town.id,town.kind)==='소진'&&<span className="tc-map-depleted">소진</span>}
    </button>)}
   </div>
   <section className="tc-region-details" aria-label="선택한 마을 정보">
