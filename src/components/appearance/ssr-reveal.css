@@ -104,3 +104,120 @@
 .tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-rune-glow{opacity:.8}
 @keyframes tc-seal-first-hit{0%,100%{transform:translateX(0)}18%{transform:translateX(-3px)}40%{transform:translateX(3px)}67%{transform:translateX(-1px)}}
 @keyframes tc-seal-second-hit{0%,100%{transform:translateX(0)}14%,48%{transform:translateX(-5px)}30%,65%{transform:translateX(5px)}82%{transform:translateX(-2px)}}
+
+
+/* Three physical blows: persistent atlas cracks with a fresh monochrome impact per tap. */
+.tc-seal-impact-ring,.tc-seal-tap-light,.tc-seal-grade-bloom{
+ position:absolute;left:50%;top:42%;translate:-50% -50%;pointer-events:none;opacity:0;
+}
+.tc-seal-impact-ring{
+ width:min(62vw,258px);aspect-ratio:1;border:2px solid #d7d5cb;border-radius:50%;
+ box-shadow:0 0 16px #c1c3bc55,inset 0 0 15px #b9beb744;z-index:1;
+}
+.tc-seal-tap-light{
+ width:min(76vw,330px);aspect-ratio:1;border-radius:50%;
+ background:radial-gradient(circle,#eef0e580 0%,#b7c0be24 27%,transparent 65%);
+ mix-blend-mode:screen;z-index:1;
+}
+.tc-ssr-reveal.is-waiting[data-taps="1"] .tc-seal-impact-ring{
+ animation:tc-seal-hit-ring-1 420ms ease-out both;
+}
+.tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-impact-ring{
+ animation:tc-seal-hit-ring-2 580ms ease-out both;
+}
+.tc-ssr-reveal.is-waiting[data-taps="1"] .tc-seal-tap-light{
+ animation:tc-seal-hit-glimmer 310ms ease-out both;
+}
+.tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-tap-light{
+ animation:tc-seal-hit-glimmer 540ms ease-out both;
+}
+@keyframes tc-seal-hit-ring-1{
+ 0%{opacity:.76;transform:scale(.52)}
+ 75%{opacity:.22}
+ 100%{opacity:0;transform:scale(1.04)}
+}
+@keyframes tc-seal-hit-ring-2{
+ 0%{opacity:.9;transform:scale(.56)}
+ 55%{opacity:.5}
+ 100%{opacity:0;transform:scale(1.28)}
+}
+@keyframes tc-seal-hit-glimmer{
+ 0%{opacity:.7;transform:scale(.65)}
+ 35%{opacity:.3}
+ 100%{opacity:0;transform:scale(1.13)}
+}
+.tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-mote-path:nth-child(3n) .tc-seal-mote{
+ box-shadow:0 0 10px #d6d8d0;opacity:.9;
+}
+.tc-seal-tap-meter{
+ position:absolute;z-index:2;bottom:29%;left:50%;translate:-50% 0;
+ display:flex;gap:8px;align-items:center;justify-content:center;
+ pointer-events:none;
+}
+.tc-seal-tap-meter i{
+ width:30px;height:3px;display:block;
+ background:#4c4c47;border:1px solid #56564e;box-sizing:content-box;
+ transform:skew(-23deg);transition:background 160ms ease,box-shadow 160ms ease;
+}
+.tc-seal-tap-meter i.is-broken{
+ background:#e0dfd7;border-color:#a2a298;box-shadow:0 0 8px #bcbdb655;
+}
+/* One beat of silence before the rarity color is allowed to appear. */
+.tc-seal-suspense-shade{
+ position:absolute;inset:0;background:#050705;z-index:2;opacity:0;
+ pointer-events:none;transition:opacity 140ms ease;
+}
+.tc-ssr-reveal.is-opening[data-rarity="sealed"] .tc-seal-suspense-shade{opacity:.36}
+.tc-seal-grade-bloom{
+ width:90%;max-width:400px;aspect-ratio:1;border-radius:50%;z-index:0;
+ background:radial-gradient(circle,var(--seal-hot) 0%,var(--seal-color) 25%,transparent 70%);
+ filter:blur(17px);mix-blend-mode:screen;
+}
+.tc-ssr-reveal.is-opening[data-rarity="SR"] .tc-seal-grade-bloom{
+ animation:tc-seal-sr-reveal-pulse 950ms ease-out both;
+ animation-delay:0ms!important;
+}
+.tc-ssr-reveal.is-opening[data-rarity="SSR"] .tc-seal-grade-bloom{
+ animation:tc-seal-ssr-reveal-pulse 1900ms ease-out both;
+ animation-delay:0ms!important;
+}
+.tc-ssr-reveal.is-opening[data-rarity="SR"] .tc-seal-rarity-halo{
+ animation:tc-seal-sr-reveal-pulse 950ms ease-out both;
+ animation-delay:0ms!important;
+}
+.tc-ssr-reveal.is-opening[data-rarity="SSR"] .tc-seal-rarity-halo{
+ animation:tc-seal-ssr-reveal-pulse 1900ms ease-out both;
+ animation-delay:0ms!important;
+}
+.tc-ssr-reveal.is-opening[data-rarity="SSR"] .tc-seal-background{
+ animation:tc-seal-ssr-cinema 1600ms ease-out both;
+ animation-delay:0ms!important;
+}
+@keyframes tc-seal-sr-reveal-pulse{
+ 0%{opacity:0;transform:scale(.47)}
+ 25%{opacity:.57;transform:scale(.85)}
+ 53%{opacity:.24;transform:scale(1.04)}
+ 100%{opacity:0;transform:scale(1.12)}
+}
+@keyframes tc-seal-ssr-reveal-pulse{
+ 0%{opacity:0;transform:scale(.38)}
+ 19%{opacity:.85;transform:scale(.96)}
+ 33%{opacity:.25;transform:scale(1.12)}
+ 54%{opacity:.48;transform:scale(.99)}
+ 78%{opacity:.12;transform:scale(1.2)}
+ 100%{opacity:0;transform:scale(1.28)}
+}
+@keyframes tc-seal-ssr-cinema{
+ 0%{transform:scale(1.01) translateX(0)}
+ 6%{transform:scale(1.018) translateX(-2px)}
+ 12%{transform:scale(1.022) translateX(2px)}
+ 20%,100%{transform:scale(1.04) translateX(0)}
+}
+@media(max-height:570px){
+ .tc-seal-impact-ring,.tc-seal-tap-light,.tc-seal-grade-bloom{top:40%}
+ .tc-seal-tap-meter{bottom:30%}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-seal-impact-ring,.tc-seal-tap-light,.tc-seal-grade-bloom,.tc-seal-suspense-shade{display:none!important}
+ .tc-seal-tap-meter i{transition:none!important}
+}
