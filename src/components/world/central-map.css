@@ -1,0 +1,22 @@
+/* Central map presentation. Live labels/actions stay separate from artwork. */
+.tc-region-board{padding:0;gap:0;background:#151510;grid-template-rows:auto minmax(230px,1fr) auto;overflow:auto}
+.tc-region-heading{margin:0;padding:10px 12px;background:linear-gradient(#282017,#14130f);border-bottom:1px solid #806443;flex-wrap:nowrap}
+.tc-region-heading small{display:none}.tc-region-heading h1{font-size:23px;letter-spacing:.12em;margin:0;color:#ead3a8}.tc-region-heading>div:last-child{font-size:11px;gap:4px}
+.tc-territory-map{position:relative;min-height:230px;background:#292e22 url('../../assets/novar-central-map.webp') center/100% 100% no-repeat;isolation:isolate}
+.tc-territory-map:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;box-shadow:inset 0 0 30px #080b0bb0}
+.tc-map-node{position:absolute;width:35%;min-height:65px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 4px;background:#151710e8;color:#eddfc2;border:1px solid #8e7350;box-shadow:0 3px 8px #0007;cursor:pointer;transform:translate(-50%,-50%);border-radius:2px}
+.tc-map-node[data-map-town=herb-1]{left:22%;top:29%}.tc-map-node[data-map-town=farm-1]{left:78%;top:29%}.tc-map-node[data-map-town=city]{left:50%;top:53%;width:37%}.tc-map-node[data-map-town=herb-2]{left:22%;top:85%}.tc-map-node[data-map-town=farm-2]{left:78%;top:85%}
+.tc-map-node b{font:700 16px Georgia,'Noto Serif KR',serif;background:linear-gradient(#d8c39c,#bca175);color:#251e14;width:calc(100% + 8px);text-align:center;padding:3px 2px;margin-top:-3px}
+.tc-map-node small{font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:3px 0;color:#d6c09a}
+.tc-map-node em{position:absolute;bottom:100%;font-size:10px;white-space:nowrap;font-style:normal;color:#ffe7ad;background:#672f23;padding:2px 7px;border:1px solid #af8650}
+.tc-map-node[aria-pressed=true]{outline:2px solid #e9bf71;outline-offset:2px}.tc-map-node:focus-visible{outline:3px solid #fff1cc;outline-offset:3px}
+.tc-map-stock{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px 5px;font-size:11px;color:#c4d69c}.tc-map-stock strong{font-weight:500;color:#f0e5d0;font-variant-numeric:tabular-nums}.tc-map-stock .tc-glyph{font-size:14px}.tc-map-node.farm .tc-map-stock{color:#dec084}
+.tc-region-details{border-width:2px 1px 0;border-color:#8a6d44;padding:10px 12px;background:linear-gradient(135deg,#282219,#121410)}
+.tc-region-details>header{padding-bottom:7px}.tc-region-details h2{font-size:21px}.tc-region-details header small{font-size:10px}.tc-region-details header>span:last-child{font-size:11px}
+.tc-region-facts{margin:6px 0;gap:8px}.tc-region-facts small{font-size:10px}.tc-region-facts b{font-size:12px}
+.tc-region-stocks{gap:8px;margin:7px 0;grid-template-columns:repeat(2,minmax(0,1fr))}.tc-region-stocks>div{display:flex;flex-direction:column;align-items:flex-start;font-size:12px;padding:7px 8px;background:#0d100b;border:1px solid #665339}.tc-region-stocks b{font-size:14px;font-variant-numeric:tabular-nums}
+.tc-region-actions button{font-size:14px;min-height:46px}.tc-region-war-status{font-size:11px}.tc-region-declare-note{font-size:10px}.tc-region-footnote{display:block;font-size:10px;text-align:center;margin:7px 0 0}
+.tc-map-legacy{font-size:11px;color:#c1b398;margin-top:5px}.tc-map-legacy summary{cursor:pointer;padding:5px}.tc-map-legacy>div{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;padding:5px 0}.tc-map-legacy button{min-height:44px;background:#24251b;border:1px solid #736043;color:#ead8b5}
+@container travel-page (max-height:560px){.tc-region-board{grid-template-rows:auto minmax(230px,1fr) auto}.tc-region-heading{padding:6px 9px}.tc-region-details{padding:7px 9px}.tc-region-facts small,.tc-region-facts b{font-size:10px}.tc-region-stocks>div{padding:5px}.tc-region-details h2{font-size:18px}.tc-region-details>header{padding-bottom:4px}.tc-region-footnote{font-size:10px}.tc-region-declare-note{font-size:10px}}
+@container travel-page (max-height:340px){.tc-region-details{display:block}.tc-region-actions button{font-size:13px}.tc-region-heading>div:last-child{display:grid}.tc-region-stocks{margin:6px 0}}
+@media(max-width:360px){.tc-map-node{width:37%}.tc-map-node b{font-size:14px}.tc-map-node small{font-size:10px}.tc-map-stock{font-size:10px}.tc-region-heading h1{font-size:20px}}

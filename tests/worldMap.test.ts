@@ -14,14 +14,14 @@ test('world has ten specialty towns and one central city with connected travel',
 test('map exposes owners, preview disclosure, selected town details and travel button',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{}}));
  assert.equal((html.match(/data-town-id=/g)??[]).length,11);
- for(const text of ['마을 이동','예시 데이터','노바르','붉은달','세율','30,000','이동하기','현재 위치'])assert.ok(html.includes(text),text);
+ for(const text of ['마을 이동','예시 데이터','노바르','붉은달','세율','—','이동하기','현재 위치'])assert.ok(html.includes(text),text);
  assert.match(html,/aria-pressed="true"/);assert.match(html,/disabled=""/);
 });
 
-test('region board separates central city from ten specialty cards and exposes resource filters',()=>{
+test('central map exposes five primary destinations and keeps legacy travel accessible',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{}}));
- assert.match(html,/tc-region-city/);assert.match(html,/tc-region-grid/);
- assert.equal((html.match(/class="tc-region-card /g)??[]).length,10);
- assert.match(html,/aria-label="자원별 마을"/);assert.match(html,/모든 생활 자원/);
+ assert.match(html,/tc-territory-map/);assert.match(html,/tc-map-legacy/);
+ assert.equal((html.match(/data-map-town=/g)??[]).length,5);
+ assert.doesNotMatch(html,/aria-label="자원별 마을"/);
  for(const a of WORLD_TOWNS)for(const b of WORLD_TOWNS)assert.equal(canTravel(a.id,b.id),a.id!==b.id);
 });
