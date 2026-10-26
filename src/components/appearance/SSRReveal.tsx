@@ -8,7 +8,7 @@ import {SEAL_MOTES} from './sealMotion';
 export const SSR_REVEAL_DURATION_MS=4000;
 const OPENING_OFFSET_MS=2000;
 type Props={draw:AppearanceSummonDraw;appearance?:AppearanceData;total:number;onDone:()=>void;onSkip?:()=>void;onRepeat:()=>void;canRepeat:boolean;busy:boolean;error?:string;hasNext?:boolean;sequenceIndex?:number;sequenceTotal?:number};
-const crackAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-cracks-v4-24f.webp');
+const crackAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-cracks-v5-60f.webp');
 const destructionAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-destruction-v1-24f.webp');
 const sealAsset=(name:string)=>assetUrl('assets/vfx/summon/seal-'+name+'-v1.webp');
 export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRepeat,canRepeat,busy,error,ready,opened=false,onOpen=()=>{},stoneRef,skipRef,confirmRef,hasNext=false,sequenceIndex=0,sequenceTotal=1}:{ready:boolean;opened?:boolean;onOpen?:()=>void;stoneRef?:React.RefObject<HTMLButtonElement|null>;skipRef?:React.RefObject<HTMLButtonElement|null>;confirmRef?:React.RefObject<HTMLButtonElement|null>}&Props){
