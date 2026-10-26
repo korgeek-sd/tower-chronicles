@@ -38,7 +38,7 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
   </div>}
   {!ready&&!opened&&<button ref={stoneRef} type="button" className="tc-seal-stone-trigger" disabled={busy} onClick={onOpen} aria-label="소환석 봉인 해제" aria-describedby="tc-seal-tap-prompt"/> }
   <div className="tc-ssr-art" aria-hidden="true">{revealed&&(appearance?.imagePath?<img src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>:<span>{draw.rarity}</span>)}</div>
-  {!ready&&<p id="tc-seal-tap-prompt" className="tc-seal-intro" role="status" aria-live="polite">{opened?'봉인 속에서 기억이 깨어납니다.':taps===0?'소환석을 눌러 봉인을 해제하세요.':taps===1?'첫 번째 균열이 생겼습니다. 한 번 더 누르세요.':'봉인이 흔들립니다. 마지막으로 누르세요.'}</p>
+  {!ready&&<p id="tc-seal-tap-prompt" className="tc-seal-intro" role="status" aria-live="polite">{opened?'봉인 속에서 기억이 깨어납니다.':taps===0?'소환석을 눌러 봉인을 해제하세요.':taps===1?'첫 번째 균열이 생겼습니다. 한 번 더 누르세요.':'봉인이 흔들립니다. 마지막으로 누르세요.'}</p>}
   <div className="tc-ssr-caption" aria-hidden={!ready}><h2 id="summon-modal-title" className="tc-ssr-grade">{revealed?draw.rarity:'봉인된 기록'}</h2><h3>{revealed?(appearance?.name??draw.id):''}</h3><p>{revealed?'전용 조각 ×1 획득':''}</p></div>
   <footer className="tc-ssr-actions"><button ref={confirmRef} type="button" disabled={!ready||busy} onClick={onDone}>{hasNext?'다음 외형':total>1?'결과 보기':'확인'}</button><button type="button" disabled={!ready||busy||(!hasNext&&!canRepeat)} onClick={hasNext?onSkip:onRepeat}>{hasNext?'전체 결과':busy?'소환 중…':'다시 소환'}</button></footer>
   {error&&<p role="alert" className="tc-ssr-error">{error}</p>}
