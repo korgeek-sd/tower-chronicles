@@ -58,3 +58,27 @@ test('haptic pattern grows across touches and gracefully supports devices withou
  assert.equal(vibrateSealTap(3,()=>{throw Error('not supported')}),false);
  assert.equal(vibrateSealTap(4,vibrate),false);
 });
+
+
+test('final tap has a neutral suspense beat before SR or SSR is exposed',()=>{
+ for(const rarity of ['SR','SSR'] as const){
+  const suspended=renderToStaticMarkup(React.createElement(SSRRevealFrame,{
+   ...p,draw:{...p.draw,rarity},ready:false,opened:true,colorRevealed:false,taps:3,
+  }));
+  assert.match(suspended,/data-rarity="sealed" data-phase="opening" data-taps="3"/);
+  assert.doesNotMatch(suspended,/data-rarity="SR"|data-rarity="SSR"|seal-violet/);
+  assert.match(suspended,/tc-seal-suspense-shade/);
+  const exposed=renderToStaticMarkup(React.createElement(SSRRevealFrame,{
+   ...p,draw:{...p.draw,rarity},ready:false,opened:true,colorRevealed:true,taps:3,
+  }));
+  assert.match(exposed,new RegExp('data-rarity="'+rarity+'" data-phase="opening"'));
+ }
+ const waiting=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,ready:false,opened:false,taps:2}));
+ assert.equal((waiting.match(/class="is-broken"/g)||[]).length,2);
+ assert.match(waiting,/tc-seal-tap-meter/);
+ const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');
+ assert.match(css,/tc-seal-hit-ring-1/);
+ assert.match(css,/tc-seal-hit-ring-2/);
+ assert.match(css,/tc-seal-ssr-reveal-pulse 1900ms/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
