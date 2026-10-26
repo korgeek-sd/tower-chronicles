@@ -6,8 +6,7 @@ import {
   equipmentStatMultiplier,
 } from '../data/enhancement';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_SLOTS,equipmentItemStats} from '../data/equipment';
-import {appearanceById} from '../data/cosmetics';
-import {appearanceEffectPercent,appearanceLevel} from '../data/appearanceProgress';
+import {equippedAppearanceEffect} from '../data/appearanceEquipAssignments';
 
 export interface EquipmentContribution {
   hp:number;
@@ -92,23 +91,21 @@ export function equipmentStats(s:GameState,equipment:Record<Slot,string|null>=s.
 
   const modernWeaponStats=modernWeapon?equipmentItemStats(modernWeapon):null;
   const weaponCrit=identity.critChance+(modernWeaponStats?.critChance??0);
-  // Only the equipped, unlocked appearance grants its server-mirrored bonus.
-  const appearanceId=s.cosmetics.selectedAppearanceId;
-  const appearance=appearanceById(appearanceId);
-  const appearancePercent=appearance&&s.cosmetics.unlockedAppearanceIds.includes(appearanceId)
-    ?appearanceEffectPercent(appearance,appearanceLevel(s.cosmetics,appearanceId)):0;
-  if(appearancePercent&&appearance?.proposedBonus?.stat==='hp')hp*=1+appearancePercent/100;
-  if(appearancePercent&&appearance?.proposedBonus?.stat==='attack')attack*=1+appearancePercent/100;
-  if(appearancePercent&&appearance?.proposedBonus?.stat==='defense')defense*=1+appearancePercent/100;
+  // The one equipped, unlocked skin grants its own effect; unselected skins are inert.
+  const appearanceEffect=equippedAppearanceEffect(s.cosmetics);
+  const effectValue=appearanceEffect?.value??0;
+  if(appearanceEffect?.id==='max_hp')hp*=1+effectValue/100;
+  if(appearanceEffect?.id==='attack')attack*=1+effectValue/100;
+  if(appearanceEffect?.id==='defense')defense*=1+effectValue/100;
   return {
     hp,
     attack,
     defense,
     speed,
     skillPower:identity.skillPower,
-    critChance:Math.min(1,Math.max(0,weaponCrit+nonWeaponCrit)),
-    critDamage:identity.critDamage+critDamageBonus+(modernWeaponStats?.critDamage??0),
-    armorPenetration:Math.min(1,armorPenetration+(modernWeaponStats?.armorPenetration??0)),
+    critChance:Math.min(.6,Math.max(0,weaponCrit+nonWeaponCrit+(appearanceEffect?.id==='crit_chance'?effectValue/100:0))),
+    critDamage:identity.critDamage+critDamageBonus+(modernWeaponStats?.critDamage??0)+(appearanceEffect?.id==='crit_damage'?effectValue/100:0),
+    armorPenetration:Math.min(1,armorPenetration+(modernWeaponStats?.armorPenetration??0)+(appearanceEffect?.id==='armor_penetration'?effectValue/100:0)),
     attackHits:identity.basicHitMultipliers.length,
   };
 }
