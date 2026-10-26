@@ -47,6 +47,7 @@ export const APPEARANCE_EFFECT_ASSIGNMENTS:Readonly<Record<string,AppearanceEqui
  blacksmith:'hunting_equipment_drop',
  contract_mercenary:'attack',
  wandering_preacher:'hunting_exp',
+ shepherd:'shield_generation',
  proletaria:'attack',
  valkyrie:'shield_generation',
  seraphim:'hp_recovery',
