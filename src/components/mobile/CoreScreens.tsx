@@ -4,7 +4,7 @@ import type {GameState,Tower,Potion} from '../../game/types';
 import {CONFIG,POTIONS,SKILLS,TOWERS,WEAPONS,generalPotionIds,potionIds,towerIds,PLAYABLE_TOWERS} from '../../game/data/config';
 import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
 import {monsterFor} from '../../game/engine/drops';
-import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,appearanceBonusLabel,type AppearanceRarity} from '../../game/data/cosmetics';
+import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,type AppearanceRarity} from '../../game/data/cosmetics';
 import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collectionEquipmentLabel,type AppearanceSet} from '../../game/data/appearanceSets';
 import './cosmetics-catalog.css';
 import './iron-catalog.css';
@@ -13,7 +13,9 @@ import './iron-camp.css';
 import './village-camp.css';
 import {EquipmentArt} from '../inventory/EquipmentArt';
 import {selectAppearance} from '../../game/engine/cosmetics';
-import {appearanceEffectPercent,appearanceLevel,appearanceShardCount,appearanceShardCost,APPEARANCE_MAX_LEVEL} from '../../game/data/appearanceProgress';
+import {appearanceLevel,appearanceShardCount,appearanceShardCost,APPEARANCE_MAX_LEVEL} from '../../game/data/appearanceProgress';
+import {appearanceEffectFor} from '../../game/data/appearanceEquipAssignments';
+import {formatAppearanceEquipEffect} from '../../game/data/appearanceEquipEffects';
 import {advanceAppearance} from '../../online/appearanceProgress';
 import {registerCollectionEquipment} from '../../game/engine/collection';
 import {getCollectionEquipmentRegistrations,registerOnlineCollectionEquipment} from '../../online/collection';
@@ -398,13 +400,14 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       if(!a)return <p>외형 정보를 찾을 수 없습니다.</p>;
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       const shards=appearanceShardCount(game.cosmetics,a.id),level=appearanceLevel(game.cosmetics,a.id),cost=appearanceShardCost(level);
-      const bonus=appearanceEffectPercent(a,level);
+      const effect=appearanceEffectFor(a.id,Math.max(1,level));
+      const displayEffect=(nextLevel:number)=>{const next=appearanceEffectFor(a.id,nextLevel);return next&&a.rarity?formatAppearanceEquipEffect(next.id,a.rarity,nextLevel):'없음';};
       return <div className="tc-collection-modal-content tc-appearance-detail-content">
        <div className="tc-appearance-detail-art">{artReady?<img src={assetUrl(a.imagePath!)} alt={a.name}/>:<Glyph name="cosmetics"/>}</div>
        <section className="tc-appearance-detail-description"><p>{a.description||'등록된 설명이 없습니다.'}</p><small>획득처 · {a.rarity?'외형 소환 · 전용 조각':'기본 지급'}</small></section>
-       <section className="tc-appearance-detail-effect"><div><h4>착용 효과 · {level?'Lv.'+level:'미해금'}</h4><p>{a.proposedBonus?appearanceBonusLabel({...a.proposedBonus,percent:bonus||appearanceEffectPercent(a,1)}):'없음'}</p></div>
+       <section className="tc-appearance-detail-effect"><div><h4>착용 효과 · {level?'Lv.'+level:'미해금'}</h4><p>{displayEffect(Math.max(1,level))}</p></div>
         {a.id!=='default'&&<><p>전용 조각 {shards} / {cost||'MAX'}</p><progress max={cost||1} value={cost?Math.min(cost,shards):1} style={{width:'100%',accentColor:'#bfa16c'}}/>
-         <small>{level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':level===0?'조각 5개로 영구 해금':'다음 강화: 전용 조각 10개 · '+(appearanceEffectPercent(a,level+1))+'%'}</small>
+         <small>{level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':level===0?'조각 5개로 영구 해금':'다음 강화: 전용 조각 10개 · '+displayEffect(level+1)}</small>
          <button type="button" className="tc-appearance-advance tc-feel-press" disabled={appearanceBusy||shards<cost||!!game.expedition||!onlineLease||!onServerRecord} onClick={()=>{void submitAppearanceAdvance(a.id);}}>{appearanceBusy?'처리 중':level===0?'외형 해금 (조각 5개)':level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':'Lv.'+(level+1)+' 강화 (조각 10개)'}</button></>}
          {appearanceError&&<p role="alert">{appearanceError}</p>}
        </section>
