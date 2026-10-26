@@ -83,7 +83,7 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"skeleton_knight",name:"해골기사",rarity:"C",imagePath:"assets/characters/appearances/skeleton_knight-1d9371e754bd.webp",
+ {id:"skeleton_knight",name:"해골기사",rarity:"C",imagePath:"assets/characters/appearances/skeleton_knight-65d28cc4f7e7.webp",
   description:"낡은 판금 갑옷을 두르고 장검과 거대한 방패를 든 해골 기사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
