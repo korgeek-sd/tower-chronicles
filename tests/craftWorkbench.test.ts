@@ -7,7 +7,7 @@ import {CRAFT_RECIPES,PRODUCT_NAMES} from '../src/game/life/crafting';
 import {WORLD_TOWNS} from '../src/components/world/worldMap';
 import type {VillageLifeState} from '../src/online/villageLife';
 
-const state:VillageLifeState={location:'city',actionPoints:100,materials:{herb:100,pepper:100,potato:100,wheat:100,stone:100},products:{potion:7,attack_food:2,defense_food:0,experience_food:0,challenge_ticket:0},craftMastery:1000,craftCarry:{},towns:WORLD_TOWNS,serverNow:0,nextResetAt:1000};
+const state:VillageLifeState={location:'city',actionPoints:100,materials:{herb:100,pepper:100,potato:100,wheat:100,stone:100},products:{potion:7,attack_food:2,defense_food:0,experience_food:0,challenge_ticket:0},craftMastery:1000,lifeMasteries:{herb:1000,farm:1000,ticket:1000},craftCarry:{},towns:WORLD_TOWNS,serverNow:0,nextResetAt:1000};
 const props={state,busy:false,count:10,recipe:'potion' as const,onRecipe:()=>{},onCount:()=>{},onCraft:()=>{}};
 
 test('workbench recipe picker announces the selected product and shows distinct item art',()=>{
@@ -25,7 +25,7 @@ test('workbench separates base yield, mastery bonus and authoritative resource c
  for(const label of ['기본 생산','숙련 보너스','재료 확보','행동력 10','재료 100개','예상 완성품 미리보기'])assert.ok(html.includes(label),label);
  assert.match(html,/aria-label="생활 행동력"/);
  assert.match(html,/aria-valuenow="100"/);
- assert.match(html,/11,000/);
+ assert.match(html,/11,700/);
 });
 
 test('insufficient resources keep crafting disabled and pending cannot show a reward',()=>{
@@ -62,4 +62,12 @@ test('blueprint workshop separates the recipe rail from the selected product wor
  assert.match(html,/<section[^>]*aria-label="제작 작업대"/);
  assert.match(html,/예상 완성품 미리보기/);
  assert.match(html,/필요 재료/);
+});
+
+test('workbench switches mastery track with chosen production item',()=>{
+ const herb=renderToStaticMarkup(React.createElement(CraftScreen,{...props,recipe:'potion'}));
+ const farm=renderToStaticMarkup(React.createElement(CraftScreen,{...props,recipe:'attack_food'}));
+ const ticket=renderToStaticMarkup(React.createElement(CraftScreen,{...props,recipe:'challenge_ticket'}));
+ assert.match(herb,/약초 숙련도/);assert.match(farm,/농업 숙련도/);assert.match(ticket,/도전권 제작 숙련도/);
+ for(const html of [herb,farm,ticket])assert.match(html,/Lv.6/);
 });

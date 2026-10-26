@@ -1,4 +1,4 @@
-import type {ProductId,FoodId,LifeActionRequest} from '../game/life/crafting';
+import type {ProductId,FoodId,LifeActionRequest,LifeMasteryTrack} from '../game/life/crafting';
 import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
 import {supabaseConfig} from './config';
@@ -7,7 +7,7 @@ import type {WorldTown} from '../components/world/worldMap';
 export type LifeResource='herb'|'farm';
 export type LifeMaterial='herb'|'pepper'|'potato'|'wheat'|'stone';
 export interface LifeTown extends WorldTown{herbCapacity:number;farmCapacity:number;herbRemaining:number;farmRemaining:number}
-export interface VillageLifeState{location:string;actionPoints:number;materials:Record<Exclude<LifeMaterial,'stone'>,number>&{stone?:number};products?:Record<ProductId,number>;craftMastery?:number;craftCarry?:Partial<Record<ProductId,number>>;foodTurns?:Record<FoodId,number>;wellReadyAt?:number;health?:{hp:number|null;maxHp:number|null}|null;towns:LifeTown[];serverNow:number;nextResetAt:number}
+export interface VillageLifeState{location:string;actionPoints:number;materials:Record<Exclude<LifeMaterial,'stone'>,number>&{stone?:number};products?:Record<ProductId,number>;craftMastery?:number;lifeMasteries?:Partial<Record<LifeMasteryTrack,number>>;craftCarry?:Partial<Record<ProductId,number>>;foodTurns?:Record<FoodId,number>;wellReadyAt?:number;health?:{hp:number|null;maxHp:number|null}|null;towns:LifeTown[];serverNow:number;nextResetAt:number}
 export interface GatherRequest{id:string;town:string;resource:LifeResource;count:number}
 export interface GatherResponse{state:VillageLifeState;result:{townId:string;resource:LifeResource;count:number;actionPointsSpent:number;gains:Partial<Record<LifeMaterial,number>>;tax?:Partial<Record<LifeMaterial,number>>;taxRate?:number};replayed:boolean}
 export interface LifeActionResponse{state:VillageLifeState;result:{action:string;item:ProductId|'well';count:number;quantity:number;actionPointsSpent:number};replayed:boolean}

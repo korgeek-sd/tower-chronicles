@@ -5,7 +5,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {CraftScreen} from '../src/components/world/CraftScreen';
 import {WORLD_TOWNS} from '../src/components/world/worldMap';
 import type {VillageLifeState} from '../src/online/villageLife';
-const state:VillageLifeState={location:'city',actionPoints:100,materials:{herb:100},products:{potion:7},craftMastery:1000,craftCarry:{},towns:WORLD_TOWNS,serverNow:0,nextResetAt:1000};
+const state:VillageLifeState={location:'city',actionPoints:100,materials:{herb:100},products:{potion:7},craftMastery:1000,lifeMasteries:{herb:1000,farm:1000,ticket:1000},craftCarry:{},towns:WORLD_TOWNS,serverNow:0,nextResetAt:1000};
 const render=(changes:Partial<VillageLifeState>={},busy=false)=>renderToStaticMarkup(React.createElement(CraftScreen,{state:{...state,...changes},busy,count:10,recipe:'potion',onRecipe:()=>{},onCount:()=>{},onCraft:()=>{}}));
 test('craft skin distinguishes resources, location and pending states without enabling blocked production',()=>{
  assert.match(render(),/tc-iron-craft/);assert.match(render(),/data-craft-state="ready"/);assert.match(render(),/제작 가능/);

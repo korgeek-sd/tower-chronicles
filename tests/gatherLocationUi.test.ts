@@ -6,7 +6,7 @@ import {LifeScreen} from '../src/components/world/LifeScreen';
 import {WORLD_TOWNS} from '../src/components/world/worldMap';
 import type {VillageLifeState} from '../src/online/villageLife';
 
-const state:VillageLifeState={location:'herb-1',actionPoints:24,materials:{herb:42,pepper:10,potato:20,wheat:30},towns:WORLD_TOWNS.map(t=>({...t,owner:'잿빛',tax:10,herbCapacity:30000,farmCapacity:30000,herbRemaining:180,farmRemaining:90})),serverNow:0,nextResetAt:100000};
+const state:VillageLifeState={location:'herb-1',actionPoints:24,materials:{herb:42,pepper:10,potato:20,wheat:30},lifeMasteries:{herb:100,farm:700,ticket:0},towns:WORLD_TOWNS.map(t=>({...t,owner:'잿빛',tax:10,herbCapacity:30000,farmCapacity:30000,herbRemaining:180,farmRemaining:90})),serverNow:0,nextResetAt:100000};
 const props={state,busy:false,count:1,now:0,onCount:()=>{},onGather:()=>{},onBack:()=>{},onRefresh:()=>{}};
 const render=(overrides:Partial<React.ComponentProps<typeof LifeScreen>>={})=>renderToStaticMarkup(React.createElement(LifeScreen,{...props,...overrides}));
 
@@ -59,4 +59,12 @@ test('gathering leaves utility actions out and puts specialty selection after th
  const html=render({onWell:()=>{}});
  assert.doesNotMatch(html,/우물|잔여량 새로고침|<footer/);
  assert.match(html,/<\/div><div class="tc-life-resource"/);
+});
+
+test('gathering displays mastery XP while preserving fixed yield',()=>{
+ assert.match(render(),/약초 숙련도 Lv.2/);
+ assert.match(render({state:{...state,location:'farm-1'}}),/농업 숙련도 Lv.5/);
+ for(const html of [render(),render({state:{...state,location:'farm-1'}})]){
+  assert.match(html,/1회 생산/);assert.match(html,/>10<span>개<\/span>/);
+ }
 });
