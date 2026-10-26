@@ -1,10 +1,11 @@
-name: Build 24-frame seal crack sprite sheet
+name: Build 24-frame summon seal sprites
 
 on:
   push:
     branches: [main]
     paths:
       - scripts/assets/buildSealCracks24.py
+      - scripts/assets/buildSealDestruction24.py
       - .github/workflows/build-seal-cracks-24.yml
   workflow_dispatch:
 
@@ -12,11 +13,11 @@ permissions:
   contents: write
 
 jobs:
-  build-asset:
+  build-assets:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Checkout current game assets
+      - name: Checkout current approved game assets
         uses: actions/checkout@v4
         with:
           persist-credentials: true
@@ -26,28 +27,34 @@ jobs:
           python-version: '3.12'
       - name: Install Pillow
         run: python -m pip install "Pillow>=11,<13"
-      - name: Generate sprite sheet from game source art
-        run: python scripts/assets/buildSealCracks24.py
-      - name: Check generated frame count and registration
+      - name: Generate 24-frame crack and destruction atlases
+        run: |
+          python scripts/assets/buildSealCracks24.py
+          python scripts/assets/buildSealDestruction24.py
+      - name: Validate sprite layout and pixel alpha
         run: |
           python - <<'PY'
           from PIL import Image
           import json
-          base='public/assets/vfx/summon/seal-stone-cracks-v4-24f'
-          meta=json.load(open(base+'.json'))
-          assert meta['frameCount']==24
-          assert meta['addedIntermediateFrames']==10
-          assert len(meta['frames'])==24
-          with Image.open(base+'.webp') as im:
-              assert im.size==(2304,1536)
-              assert all(im.crop((f['x'],f['y'],f['x']+384,f['y']+384)).getchannel('A').getbbox() for f in meta['frames'])
+          root='public/assets/vfx/summon/'
+          for prefix in ('seal-stone-cracks-v4-24f','seal-stone-destruction-v1-24f'):
+              meta=json.load(open(root+prefix+'.json'))
+              assert meta['frameCount']==24
+              assert meta['columns']==6 and meta['rows']==4
+              assert meta['cellSize']==384
+              assert len(meta['frames'])==24
+              with Image.open(root+prefix+'.webp') as im:
+                  assert im.mode=='RGBA'
+                  assert im.size==(2304,1536)
+                  assert all(im.crop((f['x'],f['y'],f['x']+384,f['y']+384)).getchannel('A').getbbox() for f in meta['frames'])
           PY
-      - name: Commit only generated sprite assets
+      - name: Commit generated sprite assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/assets/vfx/summon/seal-stone-cracks-v4-24f.webp public/assets/vfx/summon/seal-stone-cracks-v4-24f.json
+          git add public/assets/vfx/summon/seal-stone-destruction-v1-24f.webp public/assets/vfx/summon/seal-stone-destruction-v1-24f.json
           if ! git diff --cached --quiet; then
-            git commit -m "assets: generate 24-frame seal crack atlas"
+            git commit -m "assets: generate 24-frame seal crack and destruction atlases"
             git push origin HEAD:main
           fi
