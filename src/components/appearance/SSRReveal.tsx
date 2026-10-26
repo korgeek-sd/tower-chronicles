@@ -22,8 +22,6 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
    <div className="tc-seal-motes">{SEAL_MOTES.filter((_,i)=>draw.rarity==='SSR'||i%3!==2).map((m,i)=><span className="tc-seal-mote-path" key={i} style={{'--px':m.x,'--py':m.y,'--qx':m.qx,'--qy':m.qy,'--dx':m.dx,'--dy':m.dy} as React.CSSProperties}><i className="tc-seal-mote" style={{width:m.size,height:m.size}}/></span>)}</div>
    <div className="tc-seal-stone"><div className="tc-seal-stone-motion"><div className="tc-seal-stone-sprite" style={{backgroundImage:`url("${crackAtlas()}")`}}/><div className="tc-seal-rune-glow" style={{maskImage:`url("${assetUrl('assets/vfx/summon/seal-rune-mask-v2.webp')}")`}}/></div></div>
    <div className="tc-seal-dissolve"><div className="tc-seal-dissolve-sprite" style={{backgroundImage:`url("${dissolveAtlas()}")`}}/></div>
-   <img className="tc-seal-flare" src={sealAsset('flare')} alt="" draggable={false}/>
-   <div className="tc-ssr-flash"/>
   </div>}
   {!ready&&!opened&&<button ref={stoneRef} type="button" className="tc-seal-stone-trigger" disabled={busy} onClick={onOpen} aria-label={draw.rarity+' 소환석 봉인 해제'}/> }
   <div className="tc-ssr-art" aria-hidden="true">{appearance?.imagePath?<img src={assetUrl(appearance.imagePath)} alt="" draggable={false}/>:<span>{draw.rarity}</span>}</div>
