@@ -48,15 +48,13 @@ test('MP, XP, silver and equipment drop proposals follow agreed upgrade preview'
  assert.equal(appearanceEquipEffectValue('attack','SSR',4),6.75);
  assert.equal(appearanceEquipEffectValue('attack','SSR',1),5);
 });
-test('registering effect definitions alone does not assign them to appearances or change hunt drops',()=>{
- const ids=new Set<AppearanceEquipEffectId>(APPEARANCE_EQUIP_EFFECT_IDS);
- assert.equal(ids.size,16);
- assert.ok(APPEARANCES.filter(a=>a.id!=='default').every(a=>a.proposedBonus?.stat==='attack'));
- const sourceFiles=['src/game/data/cosmetics.ts','src/game/hunting/model.ts','src/game/hunting/equipmentDrops.ts','src/game/hunting/catalogCombat.ts','src/game/engine/equipmentStats.ts'];
- for(const path of sourceFiles){
-  const source=readFileSync(path,'utf8');
-  assert.doesNotMatch(source,/from ['"].*appearanceEquipEffects/,'candidate effects must remain unassigned: '+path);
- }
+test('rate tables remain unchanged; equipped skin modifiers are server-owned',()=>{
+ const source=readFileSync('src/game/data/appearanceEquipAssignments.ts','utf8');
+ assert.match(source,/equippedAppearanceEffect/);
  assert.deepEqual(HUNT_EQUIPMENT_RATES.plains,[13000,2000,0,0,0]);
  assert.deepEqual(HUNT_EQUIPMENT_RATES.ruins,[13000,4500,1600,350,116]);
+ const sql=readFileSync('supabase/migrations/20261026123500_appearance_effect_assignments.sql','utf8');
+ assert.match(sql,/private\\.appearance_equipped_effect/);
+ assert.match(sql,/private\\.hunting_equipment_drop/);
+ assert.match(sql,/private\\.combat_equipment_stats/);
 });
