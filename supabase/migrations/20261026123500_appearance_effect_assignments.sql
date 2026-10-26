@@ -344,7 +344,7 @@ begin
   if skill='guard' then
    guard:=true;cd:=cd||jsonb_build_object('guard',turn_no+4);lines:=lines||jsonb_build_array('탐사자의 방어! 이번 턴 피해 50% 감소');
   elsif skill is not null then
-   mult:=case skill when 'heavy' then 1.8 when 'quick' then 1.2 else 1 end;
+   mult:=(case skill when 'heavy' then 1.8 when 'quick' then 1.2 else 1 end)*(1+(case when ap->>'id'='skill_damage' then coalesce((ap->>'value')::numeric,0) else 0 end)/100);
    critical:=random()<coalesce((player->>'critChance')::numeric,.05);
    hit:=private.hunting_damage(attack*(case when coalesce((effects->>'attack_downUntil')::integer,0)>=turn_no then 1-coalesce((effects->>'attack_down')::numeric,0) else 1 end),md,mult*(case when critical then (player->>'critDamage')::numeric else 1 end),(player->>'armorPenetration')::numeric);
    if coalesce((effects->>'shield')::numeric,0)>0 then hit:=greatest(1,floor(hit*(1-(effects->>'shield')::numeric)));end if;
@@ -491,7 +491,7 @@ begin
    elsif skill in ('heavy','quick') then
     label:=case skill when 'heavy' then '강타' else '속공' end;
     hit:=private.hunting_damage(attack,p_boss.defense_power,
-     (case skill when 'heavy' then 1.8 else 1.2 end)*(1+passive_hp)*(case when random()<crit then crit_multiplier else 1 end),
+     (case skill when 'heavy' then 1.8 else 1.2 end)*(1+passive_hp)*(case when random()<crit then crit_multiplier else 1 end)*(1+(case when ap->>'id'='skill_damage' then coalesce((ap->>'value')::numeric,0) else 0 end)/100),
      penetration);
     cooldown:=cooldown||jsonb_build_object(skill,turn_number+case when skill='heavy' then 3 else 2 end);
    else
