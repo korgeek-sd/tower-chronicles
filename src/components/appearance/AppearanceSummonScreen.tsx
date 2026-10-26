@@ -31,7 +31,7 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
  const modal=useRef<HTMLElement>(null),selected=showcase[focus];
  const available=!!userId&&!!lease;
 
- useEffect(()=>{for(const path of ['assets/vfx/summon/seal-stone-cracks-v5-60f.webp','assets/vfx/summon/seal-stone-destruction-v1-24f.webp','assets/vfx/summon/seal-rune-mask-v2.webp',...['seal-chamber','seal-flare'].map(name=>'assets/vfx/summon/'+name+'-v1.webp')]){const texture=new Image();texture.src=assetUrl(path);}},[]);
+ useEffect(()=>{for(const path of ['assets/vfx/summon/seal-stone-cracks-v5-60f.webp','assets/vfx/summon/seal-stone-opening-v3-60f.webp','assets/vfx/summon/seal-rune-mask-v2.webp',...['seal-chamber','seal-flare'].map(name=>'assets/vfx/summon/'+name+'-v1.webp')]){const texture=new Image();texture.src=assetUrl(path);}},[]);
  const names=new Map(APPEARANCES.map(appearance=>[appearance.id,appearance.name]));
  const ownedTickets=appearanceSummonTickets(game);
  const onePayment=appearanceSummonPayment(1,ownedTickets);
