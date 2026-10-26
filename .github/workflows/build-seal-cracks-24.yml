@@ -1,4 +1,4 @@
-name: Build summon seal sprites (60-frame cracks, 24-frame destruction)
+name: Build summon sprites (60-frame cracks and dissolve)
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - scripts/assets/buildSealCracks24.py
       - scripts/assets/buildSealDestruction24.py
       - scripts/assets/buildSealCracks60.py
+      - scripts/assets/buildSealDissolve60.py
       - .github/workflows/build-seal-cracks-24.yml
   workflow_dispatch:
 
@@ -33,6 +34,7 @@ jobs:
           python scripts/assets/buildSealCracks24.py
           python scripts/assets/buildSealDestruction24.py
           python scripts/assets/buildSealCracks60.py
+          python scripts/assets/buildSealDissolve60.py
       - name: Validate sprite layout and pixel alpha
         run: |
           python - <<'PY'
@@ -57,6 +59,15 @@ jobs:
               assert im.mode=='RGBA'
               assert im.size==(2560,1536)
               assert all(im.crop((f['x'],f['y'],f['x']+256,f['y']+256)).getchannel('A').getbbox() for f in m['frames'])
+          base=root+'seal-stone-dissolve-v1-60f'
+          m=json.load(open(base+'.json'))
+          assert m['effect']=='crumble_dissolve'
+          assert m['frameCount']==60 and len(m['frames'])==60
+          assert m['columns']==10 and m['rows']==6 and m['cellSize']==256
+          with Image.open(base+'.webp') as im:
+              assert im.mode=='RGBA' and im.size==(2560,1536)
+              assert im.crop((0,0,256,256)).getchannel('A').getbbox()
+              assert im.crop((9*256,5*256,10*256,6*256)).getchannel('A').getbbox() is None
           PY
       - name: Commit generated sprite assets
         run: |
@@ -65,8 +76,9 @@ jobs:
           git add public/assets/vfx/summon/seal-stone-cracks-v4-24f.webp public/assets/vfx/summon/seal-stone-cracks-v4-24f.json
           git add public/assets/vfx/summon/seal-stone-destruction-v1-24f.webp public/assets/vfx/summon/seal-stone-destruction-v1-24f.json
           git add public/assets/vfx/summon/seal-stone-cracks-v5-60f.webp public/assets/vfx/summon/seal-stone-cracks-v5-60f.json
+          git add public/assets/vfx/summon/seal-stone-dissolve-v1-60f.webp public/assets/vfx/summon/seal-stone-dissolve-v1-60f.json
           if ! git diff --cached --quiet; then
-            git commit -m "assets: add 60-frame seal cracking atlas"
+            git commit -m "assets: build 60-frame crumbling summon seal atlas"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
