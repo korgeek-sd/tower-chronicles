@@ -554,3 +554,86 @@ begin
   'outcome',case when hp<=0 then 'defeated' else 'survived' end,'attackStat',attack,'defenseStat',defense,'weapon',weapon);
 end;$function$
 ;
+
+-- Village war uses the same owned appearance assignment, not client-supplied bonuses.
+CREATE OR REPLACE FUNCTION private.village_war_snapshot_stage_one(u uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+declare p jsonb;st jsonb;h private.hunting_states%rowtype;gear jsonb;skills jsonb;
+begin
+ select payload into p from public.game_saves where user_id=u for share;
+ if p is null then raise exception 'CLOUD_SAVE_REQUIRED';end if;
+ p:=private.server_authoritative_payload(u,p);
+ select * into h from private.hunting_states where user_id=u;
+ st:=private.combat_equipment_stats(u,jsonb_set(p,'{expedition}',jsonb_build_object('equipment',p->'equipped'),true));
+ select coalesce(jsonb_agg(a.gear order by a.item_id),'[]') into gear from private.market_assets a
+ where a.user_id=u and a.quantity=1 and a.item_id in(select 'equipment_v2:'||value from jsonb_each_text(coalesce(p->'equipped','{}')));
+ select coalesce(jsonb_agg(jsonb_build_object('id',s.skill_id,'enhancement',s.enhancement_level) order by array_position(h.skills,s.skill_id)),'[]') into skills from private.learned_catalog_skills s where s.user_id=u and s.skill_id=any(coalesce(h.skills,'{}'));
+ return jsonb_build_object('name',coalesce((select nickname from public.game_player_profiles where user_id=u),'탐사자'),'stats',st,'equipment',gear,'loadout',to_jsonb(coalesce(h.skills,'{}')),'skills',skills,'appearanceId',p->'cosmetics'->>'selectedAppearanceId','maxHp',greatest(1,(st->>'hp')::numeric),'maxMp',100+10*coalesce((h.stat_allocation->>'mp')::int,0)+case when st->'appearanceEffect'->>'id'='max_mp' then coalesce((st->'appearanceEffect'->>'value')::numeric,0) else 0 end);
+end $function$
+;
+CREATE OR REPLACE FUNCTION private.village_war_step(a jsonb, b jsonb, turn_no integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+declare s jsonb:=a->'snapshot';t jsonb:=b->'snapshot';actives jsonb:=s->'activeSkills';item jsonb;spec jsonb;id text;family text;idx int;cursor int:=(a->>'cursor')::int;n int:=jsonb_array_length(actives);power numeric;grade int;cost numeric;chance numeric;cd int;hp numeric:=(a->>'hp')::numeric;mp numeric:=(a->>'mp')::numeric;shield numeric;hit numeric:=0;mult numeric;pen numeric;hits int;crit boolean;line text;lines jsonb:='[]';i int;dotpct numeric;chosen boolean:=false;traits jsonb:=s->'combatTraits';ap jsonb:=coalesce(s->'stats'->'appearanceEffect','{}'::jsonb);
+begin
+ if (a->>'dotUntil')::int>=turn_no and coalesce((a->>'dotFrom')::int,0)<=turn_no and (a->>'dot')::numeric>0 then
+  a:=private.village_war_damage(a,(a->>'dot')::numeric,turn_no);hp:=(a->>'hp')::numeric;
+  lines:=lines||jsonb_build_array((s->>'name')||' 지속 피해 '||(a->>'dot'));
+ end if;
+ if hp<=0 then return jsonb_build_object('a',a,'b',b,'lines',lines);end if;
+ if (a->>'prepUntil')::int<turn_no then a:=a||jsonb_build_object('prep',0);end if;
+ if (a->>'shieldUntil')::int<turn_no then a:=a||jsonb_build_object('shield',0);end if;
+ for i in 0..greatest(-1,n-1) loop
+  idx:=(cursor+i)%n;item:=actives->idx;id:=item->>'id';spec:=private.hunting_skill_spec(id);
+  if coalesce((a->'cd'->>id)::int,0)>turn_no then continue;end if;
+  if id in('heavy','quick','guard') then
+   if id='guard' and hp>(s->>'maxHp')::numeric*.5 then continue;end if;
+   chosen:=true;exit;
+  end if;
+  if spec is null or ceil((spec->>'mp')::numeric*(1-(case when ap->>'id'='mp_cost_reduction' then coalesce((ap->>'value')::numeric,0) else 0 end)/100))>mp then continue;end if;
+  family:=spec->>'family';
+  if family='restore' and mp>=(s->>'maxMp')::numeric or family='heal' and hp>=(s->>'maxHp')::numeric*.95
+   or family='shield' and (a->>'shield')::numeric>(s->>'maxHp')::numeric*.1
+   or family='prepare' and (a->>'prep')::numeric>0 then continue;end if;
+  chosen:=true;exit;
+ end loop;
+ -- The chosen item must satisfy its conditions; the loop may exhaust all candidates.
+ if not chosen then item:=null;end if;
+ if item is null then return jsonb_build_object('a',a,'b',b,'lines',lines||jsonb_build_array((s->>'name')||' 대기 · 사용 가능한 스킬 없음'));end if;
+ id:=item->>'id';spec:=private.hunting_skill_spec(id);family:=coalesce(spec->>'family',id);grade:=coalesce((spec->>'gradeIndex')::int,0);
+ power:=coalesce((spec->>'power')::numeric,case id when 'heavy' then 180 when 'quick' then 120 else 0 end)*(1+greatest(0,least(3,coalesce((item->>'enhancement')::int,0)))*.05);
+ cost:=ceil(coalesce((spec->>'mp')::numeric,0)*(1-(case when ap->>'id'='mp_cost_reduction' then coalesce((ap->>'value')::numeric,0) else 0 end)/100));mp:=mp-cost;
+ cd:=case family when 'restore' then 3 when 'heal' then 4 when 'shield' then 4 when 'prepare' then 3 when 'guard' then 4 when 'heavy' then 3 when 'quick' then 2 else 1 end;
+ a:=a||jsonb_build_object('cursor',(idx+1)%n,'count',(a->>'count')::int+1,'mp',mp,'cd',a->'cd'||jsonb_build_object(id,turn_no+cd));
+ line:=(s->>'name')||' · '||id;
+ chance:=least(100,coalesce((spec->>'chance')::numeric,100)+case when family like 'bow_%' then (traits->>'accuracy')::numeric*100 else 0 end+case when family='bow_shot' and grade=0 then 5 when family='bow_shot' and grade=1 then 8 else 0 end+(case when ap->>'id'='skill_activation' then coalesce((ap->>'value')::numeric,0) else 0 end));
+ if private.village_war_random()*100>=chance then line:=line||' 발동 실패';
+ elsif family='restore' then mp:=least((s->>'maxMp')::numeric,mp+round(power));a:=a||jsonb_build_object('mp',mp);line:=line||' MP 회복';
+ elsif family='heal' then hp:=least((s->>'maxHp')::numeric,hp+floor((s->>'maxHp')::numeric*power/100*(1+(case when ap->>'id'='hp_recovery' then coalesce((ap->>'value')::numeric,0) else 0 end)/100)));a:=a||jsonb_build_object('hp',hp);line:=line||' HP 회복';
+ elsif family='guard' then a:=a||jsonb_build_object('guard',true,'guardUntil',turn_no+1);line:=line||' 다음 공격 피해 50% 감소';
+ elsif family='shield' then a:=a||jsonb_build_object('shield',floor((s->>'maxHp')::numeric*power/100*(1+(case when ap->>'id'='shield_generation' then coalesce((ap->>'value')::numeric,0) else 0 end)/100)),'shieldUntil',turn_no+2);line:=line||' 보호막';
+ elsif family='prepare' then a:=a||jsonb_build_object('prep',power/100,'prepUntil',turn_no+2);line:=line||' 다음 공격 준비';
+ else
+  crit:=private.village_war_random()<coalesce((s->'stats'->>'critChance')::numeric,.05);
+  pen:=least(1,coalesce((s->'stats'->>'armorPenetration')::numeric,0)+case when family in('sword_strike','bow_shot') then (array[0,0,.05,.10,.15,.20])[grade+1] else 0 end);
+  mult:=power/100*(1+(traits->>'damage')::numeric)*(1+(a->>'prep')::numeric)*case when crit then coalesce((s->'stats'->>'critDamage')::numeric,1.5) else 1 end*(1+(case when ap->>'id'='skill_damage' then coalesce((ap->>'value')::numeric,0) else 0 end)/100);
+  hits:=case when family='bow_volley' then case when grade=5 then 4 when grade>=3 then 3 else 2 end else 1 end;
+  for i in 1..hits loop hit:=hit+private.hunting_damage((s->'stats'->>'attack')::numeric,(t->'stats'->>'defense')::numeric*(1-case when (b->>'defUntil')::int>=turn_no then (b->>'defDown')::numeric else 0 end),mult/hits,pen);end loop;
+  b:=private.village_war_damage(b,hit,turn_no);a:=a||jsonb_build_object('prep',0,'prepUntil',0);
+  if family in('sword_wound','bow_volley','staff_flame') then
+   dotpct:=case family when 'sword_wound' then (array[8,10,12,15,18,22])[grade+1] when 'bow_volley' then (array[0,8,10,12,15,18])[grade+1] else (array[0,10,12,15,18,22])[grade+1] end;
+   b:=b||jsonb_build_object('dot',floor((s->'stats'->>'attack')::numeric*dotpct*(1+greatest(0,least(3,coalesce((item->>'enhancement')::int,0)))*.05)/100*(1+(case when ap->>'id'='dot_damage' then coalesce((ap->>'value')::numeric,0) else 0 end)/100)),'dotFrom',turn_no+1,'dotUntil',turn_no+2);
+  end if;
+  if family='sword_wound' then a:=a||jsonb_build_object('hp',least((s->>'maxHp')::numeric,hp+floor(hit*(array[0,.05,.07,.10,.12,.15])[grade+1]*(1+(case when ap->>'id'='hp_recovery' then coalesce((ap->>'value')::numeric,0) else 0 end)/100))));end if;
+  if family='staff_rift' then b:=b||jsonb_build_object('defDown',(array[3,5,8,11,15,20])[grade+1]*(1+greatest(0,least(3,coalesce((item->>'enhancement')::int,0)))*.05)/100,'defUntil',turn_no+2);end if;
+  line:=line||' '||hit||' 피해'||case when hits>1 then ' · '||hits||'연타' else '' end||case when crit then ' · 치명타' else '' end;
+ end if;
+ if (traits->>'sixth')::boolean and (a->>'count')::int%6=0 then a:=a||jsonb_build_object('mp',least((s->>'maxMp')::numeric,(a->>'mp')::numeric+80),'prep',greatest((a->>'prep')::numeric,(traits->>'sixthRatio')::numeric),'prepUntil',turn_no+2);line:=line||' · 각인 MP +80';end if;
+ return jsonb_build_object('a',a,'b',b,'lines',lines||jsonb_build_array(line));
+end $function$
+;
