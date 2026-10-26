@@ -1,4 +1,7 @@
-.tc-ssr-reveal{--seal-color:#c8a2ee;--seal-hot:#f2e3ff;--seal-shadow:#9867cb;--seal-wash:#e3d1ff;--seal-text:#c0a0e4;--seal-filter:hue-rotate(220deg) saturate(.85);--seal-charge:.62;--seal-flare:.6;--seal-flash:.16;position:relative;isolation:isolate;height:100%;min-height:0;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:10px;background:#090b08;color:#d5c9ad;padding:38px 16px max(16px,env(safe-area-inset-bottom));box-sizing:border-box}
+.tc-ssr-reveal{--seal-color:#a6a8a5;--seal-hot:#e0e0db;--seal-shadow:#555a59;--seal-wash:#c7c9c8;--seal-text:#c0c1bc;--seal-filter:grayscale(1) brightness(.83);--seal-charge:.58;--seal-flare:.6;--seal-flash:.16;position:relative;isolation:isolate;height:100%;min-height:0;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:10px;background:#090b08;color:#d5c9ad;padding:38px 16px max(16px,env(safe-area-inset-bottom));box-sizing:border-box}
+/* Until the stone is tapped, both rarities use the identical neutral palette. */
+.tc-ssr-reveal[data-rarity="SR"]{--seal-color:#c8a2ee;--seal-hot:#f2e3ff;--seal-shadow:#9867cb;--seal-wash:#e3d1ff;--seal-text:#c0a0e4;--seal-charge:.62}
+.tc-ssr-reveal[data-rarity="SR"] .tc-seal-mote-path:nth-child(3n){display:none}
 .tc-ssr-reveal[data-rarity="SSR"]{--seal-color:#edcb83;--seal-hot:#fff1ae;--seal-shadow:#c69b48;--seal-wash:#fff2cf;--seal-text:#baa16a;--seal-filter:none;--seal-charge:1;--seal-flare:1;--seal-flash:.38}
 .tc-seal-background{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:50% 70%;filter:brightness(.67);animation:tc-seal-camera 4s ease-out both;pointer-events:none}
 .tc-ssr-reveal:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#05070555,transparent 30%,transparent 65%,#050705e8)}
@@ -8,7 +11,9 @@
 .tc-seal-heading span{display:block;font-size:10px;color:#aaa18b;margin-top:4px}
 .tc-ssr-skip{position:absolute!important;top:2px;right:4px;z-index:4;min-height:44px!important;font-size:11px!important;padding:8px!important;background:transparent!important;border:0!important;border-image:none!important;color:#c0b69c!important;cursor:pointer}
 .tc-ssr-vfx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.tc-seal-stone,.tc-seal-dissolve,.tc-seal-motes,.tc-seal-flare{position:absolute;left:50%;top:42%;translate:-50% -50%;image-rendering:pixelated}
+.tc-seal-stone,.tc-seal-dissolve,.tc-seal-motes,.tc-seal-rarity-halo,.tc-seal-flare{position:absolute;left:50%;top:42%;translate:-50% -50%;image-rendering:pixelated}
+.tc-seal-rarity-halo{width:68%;max-width:350px;aspect-ratio:1;border-radius:50%;pointer-events:none;background:radial-gradient(circle,var(--seal-hot) 0%,var(--seal-color) 24%,transparent 68%);filter:blur(24px);mix-blend-mode:screen;opacity:0;animation:tc-seal-rarity-halo-reveal 4s ease-out both}
+@keyframes tc-seal-rarity-halo-reveal{0%,50%{opacity:0;transform:scale(.65)}52%{opacity:.55;transform:scale(.87)}59%{opacity:.31;transform:scale(1.07)}72%{opacity:.17;transform:scale(1.1)}84%,100%{opacity:0;transform:scale(.8)}}
 .tc-seal-stone{width:100%;max-width:460px;aspect-ratio:1;animation:tc-seal-break 4s linear both}
 .tc-seal-stone-sprite{width:100%;height:100%;background-size:1000% 600%;background-repeat:no-repeat;animation:tc-seal-stone-frames 4s steps(1,end) both}
 .tc-seal-stone-motion{position:relative;width:100%;height:100%;animation:tc-seal-float 4s ease-in-out both}
@@ -62,7 +67,7 @@
 .tc-ssr-reveal.is-waiting .tc-seal-stone-sprite{animation:none;background-position:0 0}
 .tc-ssr-reveal.is-waiting .tc-seal-rune-glow{animation:none;opacity:.8;background-position:0 100%}
 .tc-ssr-reveal.is-waiting .tc-seal-mote-path{animation:none;opacity:.55;transform:translate(var(--px),var(--py)) scale(.7)}
-.tc-ssr-reveal.is-waiting .tc-seal-dissolve,.tc-ssr-reveal.is-waiting .tc-seal-flare,.tc-ssr-reveal.is-waiting .tc-ssr-flash{display:none}
+.tc-ssr-reveal.is-waiting .tc-seal-rarity-halo,.tc-ssr-reveal.is-waiting .tc-seal-dissolve,.tc-ssr-reveal.is-waiting .tc-seal-flare,.tc-ssr-reveal.is-waiting .tc-ssr-flash{display:none}
 .tc-ssr-reveal.is-waiting .tc-ssr-art,.tc-ssr-reveal.is-waiting .tc-ssr-caption{animation:none;opacity:0;visibility:hidden}
 .tc-ssr-reveal.is-waiting .tc-seal-intro{animation:none;opacity:1}
 .tc-seal-stone-trigger{position:absolute;left:50%;top:42%;translate:-50% -50%;width:50%;max-width:230px;height:40%;z-index:2;min-height:44px!important;background:transparent!important;border:0!important;border-image:none!important;padding:0!important;box-shadow:none!important;cursor:pointer;touch-action:manipulation}
