@@ -279,6 +279,12 @@ export const APPEARANCES:AppearanceData[]=[
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
+,
+ {id:"shepherd",name:"양치기",rarity:"B",imagePath:"assets/characters/appearances/shepherd-0117a18adfac.webp",
+  description:"낡은 양털 망토와 붉은 목도리를 두르고 구부러진 목자 지팡이와 여장을 지닌 방랑하는 양치기.",
+  proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
+  sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+
 ];
 export const TITLES:TitleData[]=[];
 export const COSMETICS_CATALOG:CosmeticsCatalog={appearances:APPEARANCES,titles:TITLES};
