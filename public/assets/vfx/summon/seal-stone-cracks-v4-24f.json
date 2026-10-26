@@ -1,0 +1,255 @@
+{
+  "version": 4,
+  "source": "seal-stone-cracks-v3.webp",
+  "sourceSha256": "1d7b9ae7e37b334e0ee2f345460239baeb2153f349c8e877edf73b996b8cad27",
+  "columns": 6,
+  "rows": 4,
+  "cellSize": 384,
+  "width": 2304,
+  "height": 1536,
+  "frameCount": 24,
+  "originalFrameCount": 14,
+  "addedIntermediateFrames": 10,
+  "frames": [
+    {
+      "index": 0,
+      "x": 0,
+      "y": 0,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 0,
+      "toFrame": 0,
+      "interpolation": 0.0
+    },
+    {
+      "index": 1,
+      "x": 384,
+      "y": 0,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 1,
+      "toFrame": 1,
+      "interpolation": 0.0
+    },
+    {
+      "index": 2,
+      "x": 768,
+      "y": 0,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 1,
+      "toFrame": 2,
+      "interpolation": 0.5
+    },
+    {
+      "index": 3,
+      "x": 1152,
+      "y": 0,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 2,
+      "toFrame": 2,
+      "interpolation": 0.0
+    },
+    {
+      "index": 4,
+      "x": 1536,
+      "y": 0,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 2,
+      "toFrame": 3,
+      "interpolation": 0.5
+    },
+    {
+      "index": 5,
+      "x": 1920,
+      "y": 0,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 3,
+      "toFrame": 3,
+      "interpolation": 0.0
+    },
+    {
+      "index": 6,
+      "x": 0,
+      "y": 384,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 3,
+      "toFrame": 4,
+      "interpolation": 0.5
+    },
+    {
+      "index": 7,
+      "x": 384,
+      "y": 384,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 4,
+      "toFrame": 4,
+      "interpolation": 0.0
+    },
+    {
+      "index": 8,
+      "x": 768,
+      "y": 384,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 4,
+      "toFrame": 5,
+      "interpolation": 0.5
+    },
+    {
+      "index": 9,
+      "x": 1152,
+      "y": 384,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 5,
+      "toFrame": 5,
+      "interpolation": 0.0
+    },
+    {
+      "index": 10,
+      "x": 1536,
+      "y": 384,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 5,
+      "toFrame": 6,
+      "interpolation": 0.5
+    },
+    {
+      "index": 11,
+      "x": 1920,
+      "y": 384,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 6,
+      "toFrame": 6,
+      "interpolation": 0.0
+    },
+    {
+      "index": 12,
+      "x": 0,
+      "y": 768,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 7,
+      "toFrame": 7,
+      "interpolation": 0.0
+    },
+    {
+      "index": 13,
+      "x": 384,
+      "y": 768,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 8,
+      "toFrame": 8,
+      "interpolation": 0.0
+    },
+    {
+      "index": 14,
+      "x": 768,
+      "y": 768,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 8,
+      "toFrame": 9,
+      "interpolation": 0.5
+    },
+    {
+      "index": 15,
+      "x": 1152,
+      "y": 768,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 9,
+      "toFrame": 9,
+      "interpolation": 0.0
+    },
+    {
+      "index": 16,
+      "x": 1536,
+      "y": 768,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 9,
+      "toFrame": 10,
+      "interpolation": 0.5
+    },
+    {
+      "index": 17,
+      "x": 1920,
+      "y": 768,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 10,
+      "toFrame": 10,
+      "interpolation": 0.0
+    },
+    {
+      "index": 18,
+      "x": 0,
+      "y": 1152,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 10,
+      "toFrame": 11,
+      "interpolation": 0.5
+    },
+    {
+      "index": 19,
+      "x": 384,
+      "y": 1152,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 11,
+      "toFrame": 11,
+      "interpolation": 0.0
+    },
+    {
+      "index": 20,
+      "x": 768,
+      "y": 1152,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 11,
+      "toFrame": 12,
+      "interpolation": 0.5
+    },
+    {
+      "index": 21,
+      "x": 1152,
+      "y": 1152,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 12,
+      "toFrame": 12,
+      "interpolation": 0.0
+    },
+    {
+      "index": 22,
+      "x": 1536,
+      "y": 1152,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 12,
+      "toFrame": 13,
+      "interpolation": 0.5
+    },
+    {
+      "index": 23,
+      "x": 1920,
+      "y": 1152,
+      "width": 384,
+      "height": 384,
+      "fromFrame": 13,
+      "toFrame": 13,
+      "interpolation": 0.0
+    }
+  ]
+}
