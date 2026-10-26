@@ -54,7 +54,7 @@ test('rate tables remain unchanged; equipped skin modifiers are server-owned',()
  assert.deepEqual(HUNT_EQUIPMENT_RATES.plains,[13000,2000,0,0,0]);
  assert.deepEqual(HUNT_EQUIPMENT_RATES.ruins,[13000,4500,1600,350,116]);
  const sql=readFileSync('supabase/migrations/20261026123500_appearance_effect_assignments.sql','utf8');
- assert.match(sql,/private\\.appearance_equipped_effect/);
- assert.match(sql,/private\\.hunting_equipment_drop/);
- assert.match(sql,/private\\.combat_equipment_stats/);
+ assert.ok(sql.includes('private.appearance_equipped_effect'));
+ assert.ok(sql.includes('private.hunting_equipment_drop'));
+ assert.ok(sql.includes('private.combat_equipment_stats'));
 });
