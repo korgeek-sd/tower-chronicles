@@ -3,6 +3,7 @@ import {chooseHuntMonster,type HuntMonsterSnapshot} from './encounters';
 import {rollHuntingEquipment} from './equipmentDrops';
 import {resolveMonsterAction,damageOverTime,playerAttackFactor,playerDefenseFactor,blocksPlayerSkill,takeMonsterShield,type MonsterEffects} from './monsterSkills';
 import type {EquipmentItem,Tower} from '../types';
+import type {ActiveAppearanceEffect} from '../data/appearanceEquipAssignments';
 import {catalogSkill,initialCatalogCombat,castCatalogSkill,applyCatalogTurnStart,takeCatalogMonsterDamage,maxHuntingMp,validSkillForWeapon,type HuntingWeapon,type SkillLevels} from './catalogCombat';
 export type HuntMapId='plains'|'forest'|'mine'|'fortress'|'ruins';
 export const VITALITY_CAP=100,VITALITY_INTERVAL=300000;
@@ -62,13 +63,14 @@ export function huntingProgress(experience:number){
 }
 export const damage=(attack:number,defense:number,multiplier=1,armorPenetration=0)=>Math.max(1,Math.floor(attack*multiplier*100/(100+Math.max(0,defense)*(1-Math.max(0,Math.min(1,armorPenetration))))));
 /** Guest-only resolver. Online results always originate in hunt_once. */
-export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random,levels:SkillLevels={},weapon:HuntingWeapon='sword'){
+export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInput,skills:readonly (string|null)[],now=Date.now(),rng:()=>number=Math.random,levels:SkillLevels={},weapon:HuntingWeapon='sword',appearance:ActiveAppearanceEffect|null=null){
  const map=HUNT_MAPS.find(m=>m.id===mapId);if(!map)throw Error('알 수 없는 지역입니다.');
  const state=recoverVitality(before,now);if(state.vitality<1)throw Error('활력이 부족합니다.');
  const allocated=normalizeStatAllocation(state.statAllocation);
+ const bonus=(id:ActiveAppearanceEffect['id'])=>appearance?.id===id?appearance.value:0;
  const player=combatStats(usedStatPoints(allocated)>0?applyStatAllocation(input,allocated):input),foods={...state.foodTurns};
  const passiveIds=skills.filter((id):id is string=>!!id&&catalogSkill(id)?.type==='passive');
- let catalog=initialCatalogCombat(player,maxHuntingMp(allocated),passiveIds,levels,weapon);
+ let catalog=initialCatalogCombat(player,maxHuntingMp(allocated)+bonus('max_mp'),passiveIds,levels,weapon);
  player.hp=catalog.maxHp;
  if((foods.attack_food??0)>0)player.attack*=1.1;
  if((foods.defense_food??0)>0)player.defense*=1.1;
@@ -93,14 +95,14 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
    if(!matchesSkillConditions(state.skillSetup?.conditions?.[id]?.slice(0,1),{hp,maxHp:player.hp,mp:catalog.mp,maxMp:catalog.maxMp,enemyHp:mhp,enemyMaxHp:monster.hp,turn,shield:catalog.shieldUntil>=turn?catalog.shield:0,buff:catalog.prepUntil>=turn&&catalog.prep>0,effects,enemyDot:catalog.monsterDotUntil>=turn&&catalog.monsterDot>0,enemyDefenseDown:catalog.monsterDefenseDownUntil>=turn&&catalog.monsterDefenseDown>0}))return false;
    if(!id||catalogSkill(id)?.type==='passive'||(cooldowns[id]??0)>turn)return false;
    const definition=catalogSkill(id);
-   if(definition)return validSkillForWeapon(definition,weapon)&&definition.mp<=catalog.mp;
+   if(definition)return validSkillForWeapon(definition,weapon)&&Math.ceil(definition.mp*(1-bonus('mp_cost_reduction')/100))<=catalog.mp;
    return ['heavy','guard','quick'].includes(id)&&(id!=='guard'||hp/player.hp<=.5);
   });
   if(skill)cursor=(active.indexOf(skill)+1)%active.length;
   if(catalog.shieldUntil<turn)catalog.shield=0;
   if(catalog.prepUntil<turn)catalog.prep=0;
   if(skill&&catalogSkill(skill)){
-   const cast=castCatalogSkill(skill,levels[skill]??0,turn,{...catalog,hp,monsterHp:mhp},player,monster.defense,rng,effects.shield??0,effects.reflect??0,playerAttackFactor(effects,turn));
+   const cast=castCatalogSkill(skill,levels[skill]??0,turn,{...catalog,hp,monsterHp:mhp},player,monster.defense,rng,effects.shield??0,effects.reflect??0,playerAttackFactor(effects,turn),appearance);
    if(cast){catalog=cast.state;hp=catalog.hp;mhp=catalog.monsterHp;cooldowns[skill]=turn+cast.cooldown;lines.push(cast.line);if(cast.hit>0)effects={...effects,shield:0,reflect:0};}
   }
   else if(skill==='guard'){guard=true;cooldowns.guard=turn+4;lines.push('탐사자의 방어! 이번 턴 피해 50% 감소');}
@@ -114,7 +116,8 @@ export function resolveHunt(before:HuntingState,mapId:HuntMapId,input:CombatInpu
  const recoveredHp=Math.max(1,Math.min(player.hp,hp+postPotions));
  for(const food of ['attack_food','defense_food','experience_food'] as const)foods[food]=Math.max(0,(foods[food]??0)-1);
  const draw=(size:number)=>Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*size);
- const equipment=win?rollHuntingEquipment(mapId,draw(1000000),draw(9)):null;
- const result:HuntResult={monster,requestId:crypto.randomUUID(),equipment,startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,playerMp:catalog.mp,playerMaxMp:catalog.maxMp,turns,silver:win?map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
+ const dropRoll=Math.floor(draw(1000000)/(1+bonus('hunting_equipment_drop')/100));
+ const equipment=win?rollHuntingEquipment(mapId,dropRoll,draw(9)):null;
+ const result:HuntResult={monster,requestId:crypto.randomUUID(),equipment,startHp,recoveredHp,potionsUsed:prePotions+postPotions,mapId,outcome:win?'victory':'defeat',player:{...player},playerHp:hp,monsterHp:mhp,playerMp:catalog.mp,playerMaxMp:catalog.maxMp,turns,silver:win?Math.floor((map.silver+Math.floor(Math.max(0,Math.min(1-Number.EPSILON,rng()))*(map.silverMax-map.silver+1)))*(1+bonus('hunting_silver')/100)):0,exp:win?Math.floor(map.exp*((state.foodTurns?.experience_food??0)>0?1.1:1)*(1+bonus('hunting_exp')/100)):0,mastery:win?1:0,materialCount:win?1:0,createdAt:now};
  return {state:{...state,currentHp:recoveredHp,maxHp:player.hp,currentMp:catalog.mp,maxMp:catalog.maxMp,potions,foodTurns:foods,vitality:state.vitality-1,experience:state.experience+result.exp,mastery:state.mastery+result.mastery,lastResult:result},result};
 }
