@@ -9,12 +9,13 @@ export const SSR_REVEAL_DURATION_MS=4000;
 // Resume the existing crack atlas after the two visible, neutral crack stages.
 const OPENING_OFFSET_MS=2600;
 export const SEAL_TAPS_REQUIRED=3;
+export function nextSealTapCount(count:number){return Math.min(SEAL_TAPS_REQUIRED,Math.max(0,count)+1);}
 export const SEAL_HAPTIC_PATTERNS=[20,40,[70,45,90]] as const;
 /** Invoked only by a real user click; vibration is optional in mobile browsers. */
 export function vibrateSealTap(tap:number, vibrate?:(pattern:number|number[])=>boolean){
  const pattern=SEAL_HAPTIC_PATTERNS[tap-1];
  if(!vibrate||pattern===undefined)return false;
- try{return vibrate(Array.isArray(pattern)?[...pattern]:pattern);}catch{return false;}
+ try{return vibrate(typeof pattern==='number'?pattern:[...pattern]);}catch{return false;}
 }
 type Props={draw:AppearanceSummonDraw;appearance?:AppearanceData;total:number;onDone:()=>void;onSkip?:()=>void;onRepeat:()=>void;canRepeat:boolean;busy:boolean;error?:string;hasNext?:boolean;sequenceIndex?:number;sequenceTotal?:number};
 const crackAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-cracks-v5-60f.webp');
@@ -63,7 +64,8 @@ export function SSRReveal(props:Props){
  const skipAll=()=>{stop.current();(props.onSkip??props.onDone)();};
  const tapStone=()=>{
   if(props.busy||ready||tapCount.current>=SEAL_TAPS_REQUIRED)return;
-  const next=++tapCount.current;
+  const next=nextSealTapCount(tapCount.current);
+  tapCount.current=next;
   // Browsers without navigator.vibrate simply retain the visual impact animation.
   vibrateSealTap(next,typeof navigator!=='undefined'&&typeof navigator.vibrate==='function'?navigator.vibrate.bind(navigator):undefined);
   if(next===SEAL_TAPS_REQUIRED)unlockSsrSound();
