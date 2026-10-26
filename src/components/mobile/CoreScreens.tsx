@@ -31,7 +31,7 @@ import {getHuntingState} from '../../online/hunting';
 import type {GameplayLease} from '../../online/gameSession';
 import {huntingLevel,type HuntingState} from '../../game/hunting/model';
 
-export type AppPage='quests'|'craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
+export type AppPage='growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
@@ -61,6 +61,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
   {id:'mail',glyph:'mail',name:'우편함',action:onOpenMail}
  ];
  const extraFacilities=[
+  {id:'growth',glyph:'skill',name:'성장 기록',action:()=>onMove('growth')},
   {id:'bank',glyph:'tickets',name:'은행·대출',action:()=>onMove('bank')},
   {id:'quests',glyph:'bestiary',name:'의뢰',action:()=>onMove('quests')},
   {id:'stats',glyph:'skill',name:'스탯 분배',action:()=>onMove('stats')},
@@ -85,7 +86,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
       <span><b>활력</b><strong>{huntStatus?.vitality.toLocaleString()??'—'}</strong></span>
      </div>
     </div>
-    <button type="button" className="tc-camp-v2-profile-link" aria-label="캐릭터 스탯 확인" onClick={()=>onMove('stats')}>›</button>
+    <button type="button" className="tc-camp-v2-profile-link" aria-label="성장 기록 열기" title="성장 기록" onClick={()=>onMove('growth')}><span>성장<br/>기록</span></button>
    </section>
    <section className="tc-village" aria-label="거점 시설">
     <button ref={facilityToggle} type="button" className="tc-village-all" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'시설 닫기':'전체 시설'} <span aria-hidden="true">{showAllFacilities?'×':'+'}</span></button>

@@ -6,7 +6,7 @@ import {WorldMapScreen} from './WorldMapScreen';
 import {getVillageWarDeclarations,declareVillageWar,validWarDeclarationRequest,WarDeclarationRejected,type VillageWarState} from '../../online/villageWar';
 import {LifeScreen} from './LifeScreen';
 import {CraftScreen,type ConfirmedCraftResult} from './CraftScreen';
-type Props={userId:string|null;lease:GameplayLease|null;now:number;onInventory?:()=>void;onHome?:()=>void;initialView?:'map'|'craft'};
+type Props={userId:string|null;lease:GameplayLease|null;now:number;onInventory?:()=>void;onHome?:()=>void;initialView?:'map'|'life'|'craft'};
 export function VillageLifeNotice({error,pending,busy,canRetry,onRetry}:{error:string;pending:boolean;busy:boolean;canRetry:boolean;onRetry:()=>void}){
  if(!error&&(!pending||busy))return null;
  return <div className="tc-life-error" role="alert"><span>{error||'이전 생활 결과 확인이 필요합니다.'}</span><button disabled={busy||!canRetry} onClick={onRetry}>{pending?'생활 결과 다시 확인':'상태 다시 확인'}</button></div>;
