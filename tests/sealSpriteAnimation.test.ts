@@ -79,6 +79,6 @@ test('touch timeline runs crack frames then crumble-and-dissolve frames on 10x6 
  assert.match(css,/\.tc-seal-dissolve-sprite\{[^}]*background-size:1000% 600%/);
  assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-stone-sprite\{animation:none;background-position:0 0/);
  assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-dissolve/);
- assert.match(css,/\.tc-ssr-reveal\.is-opening \*\{animation-delay:-2s!important/);
+ assert.match(css,/\.tc-ssr-reveal\.is-opening \*\{animation-delay:-2\.6s!important/);
  assert.match(css,/prefers-reduced-motion/);
 });
