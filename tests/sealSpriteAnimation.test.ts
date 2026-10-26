@@ -10,7 +10,7 @@ test('SR and SSR use two 60-frame sprites after a user gesture and remove both o
  for(const rarity of ['SR','SSR'] as const){
   const opening=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:false}));
   assert.match(opening,/seal-stone-cracks-v5-60f\.webp/);
-  assert.match(opening,/seal-stone-dissolve-v1-60f\.webp/);
+  assert.match(opening,/seal-stone-dissolve-v2-60f\.webp/);
   assert.match(opening,/tc-seal-stone-sprite/);
   assert.match(opening,/tc-seal-dissolve-sprite/);
   assert.match(opening,/소환석 봉인 해제/);
@@ -20,7 +20,7 @@ test('SR and SSR use two 60-frame sprites after a user gesture and remove both o
  }
 });
 test('crack and dissolve images have their respective grid dimensions and frame coordinates',()=>{
- for(const name of ['seal-stone-cracks-v5-60f','seal-stone-dissolve-v1-60f']){
+ for(const name of ['seal-stone-cracks-v5-60f','seal-stone-dissolve-v2-60f']){
   const base='public/assets/vfx/summon/'+name;
   const m=JSON.parse(readFileSync(base+'.json','utf8'));
   const cracks=name.includes('cracks');
@@ -36,7 +36,7 @@ test('crack and dissolve images have their respective grid dimensions and frame 
   assert.equal(img.toString('ascii',0,4),'RIFF');
   assert.equal(img.toString('ascii',8,12),'WEBP');
   assert.ok(img.byteLength>2000);
-  if(!cracks)assert.equal(m.effect,'crumble_dissolve');
+  if(!cracks)assert.equal(m.effect,'irregular_noise_dissolve');assert.equal(m.partition,'warped_voronoi');assert.ok(m.chipCount>=25);assert.ok(m.particleCount>=80);
  }
 });
 test('touch timeline runs crack frames then crumble-and-dissolve frames on 10x6 grids',()=>{
