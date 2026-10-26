@@ -24,7 +24,6 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
  const select=(id:string)=>{setSelectedId(id);setMessage('');};
  const mapIds=['herb-1','farm-1','city','herb-2','farm-2'];
  const mapTowns=mapIds.map(id=>data.find(t=>t.id===id)).filter((t):t is typeof data[number]=>!!t);
- const legacyTowns=data.filter(t=>!mapIds.includes(t.id));
  const remaining=(id:string,kind:TownKind)=>{const t=towns?.find(t=>t.id===id);if(!t)return '—';const n=kind==='herb'?t.herbRemaining:t.farmRemaining;return n===0?'소진':n.toLocaleString();};
  return <section className="tc-region-board" aria-label="마을 이동">
   <header className="tc-region-heading"><div><small>REGION BOARD</small><h1>마을 이동</h1></div><div><span>현재 위치 · <b>{current.name}</b></span><span>행동력 <b>{actionPoints===undefined?'—':`${actionPoints} / 100`}</b></span></div></header>
@@ -46,7 +45,6 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
     {warError&&<p className="tc-region-message" role="alert">{warError}</p>}
     {!war&&onDeclareWar&&<p className="tc-region-declare-note">선전포고 현황을 불러오는 중…</p>}
    {message&&<p className="tc-region-message" role="status">{message}</p>}
-   {legacyTowns.length>0&&<details className="tc-map-legacy"><summary>기타 거점</summary><div>{legacyTowns.map(t=><button type="button" key={t.id} data-town-id={t.id} aria-pressed={selected.id===t.id} onClick={()=>select(t.id)}>{t.name} · {resource(t.kind)}</button>)}</div></details>}
    <p className="tc-region-footnote">{towns?'매일 24:00 생산량 초기화 · 한국시간':'미리보기 · 소유·세율·생산량은 예시 데이터'}</p>
   </section>
   {confirmTown&&war&&<div className="tc-region-confirm-backdrop" role="presentation" onClick={()=>setConfirmTown(null)}>

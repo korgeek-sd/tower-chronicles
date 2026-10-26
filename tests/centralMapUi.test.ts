@@ -8,6 +8,8 @@ const towns=WORLD_TOWNS.map(t=>({...t,owner:'실제 길드',tax:2,herbCapacity:3
 test('central map has five primary destinations and uses real stock including zero',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{},towns}));
  assert.match(html,/tc-territory-map/);
+ assert.equal((html.match(/data-town-id=/g)??[]).length,5);
+ assert.doesNotMatch(html,/기타 거점|tc-map-legacy/);
  assert.equal((html.match(/data-map-town=/g)??[]).length,5);
  assert.match(html,/실제 길드/);assert.match(html,/1,234/);assert.match(html,/소진/);
  assert.doesNotMatch(html,/4,200|6,800|자원별 마을/);

@@ -12,9 +12,9 @@ const war:VillageWarState={
  myRole:'LEADER',tickets:120,guildTickets:120,declarations:[{townId:'herb-1',associationId:'guild-two',associationName:'붉은달'}],
 };
 
-test('world map preserves all 11 towns and central city while showing declaration entry',()=>{
+test('world map shows only city and four villages while preserving declaration entry',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{},towns:undefined,war,onDeclareWar:()=>{}}));
- assert.equal((html.match(/data-town-id=/g)??[]).length,11);
+ assert.equal((html.match(/data-town-id=/g)??[]).length,5);
  assert.match(html,/노바르/);assert.match(html,/달그늘/);
  assert.match(html,/선전포고/);assert.match(html,/100장/);
  assert.match(html,/공용 도전권/);
