@@ -36,7 +36,12 @@ test('crack and dissolve images have their respective grid dimensions and frame 
   assert.equal(img.toString('ascii',0,4),'RIFF');
   assert.equal(img.toString('ascii',8,12),'WEBP');
   assert.ok(img.byteLength>2000);
-  if(!cracks)assert.equal(m.effect,'irregular_noise_dissolve');assert.equal(m.partition,'warped_voronoi');assert.ok(m.chipCount>=25);assert.ok(m.particleCount>=80);
+  if(!cracks){
+   assert.equal(m.effect,'irregular_noise_dissolve');
+   assert.equal(m.partition,'warped_voronoi');
+   assert.ok(m.chipCount>=25);
+   assert.ok(m.particleCount>=80);
+  }
  }
 });
 test('touch timeline runs crack frames then crumble-and-dissolve frames on 10x6 grids',()=>{
