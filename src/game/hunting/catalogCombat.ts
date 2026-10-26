@@ -1,6 +1,7 @@
 import {SKILL_TREE_CATALOG,type TreeSkill,type TreeWeapon} from '../skills/catalog';
 import {skillEnhancementLevel} from '../skills/enhancement';
 import {damage,type CombatStats} from './model';
+import type {ActiveAppearanceEffect} from '../data/appearanceEquipAssignments';
 
 export const HUNT_ACTIVE_SLOTS=6,HUNT_PASSIVE_SLOTS=3,BASE_MP=100,MP_PER_POINT=10;
 export type HuntingWeapon=TreeWeapon;
@@ -39,19 +40,22 @@ export function initialCatalogCombat(player:CombatStats,mp:number,passiveIds:rea
  return {hp:maxHp,maxHp,monsterHp:0,mp,maxMp:mp,shield:0,shieldUntil:0,prep:0,prepUntil:0,monsterDot:0,monsterDotUntil:0,monsterDefenseDown:0,monsterDefenseDownUntil:0,oathAvailable,oathShieldRatio,passiveDamage,passiveAccuracy,sixthMark,sixthPrepRatio,activeCount:0};
 }
 export interface SkillCastResult {state:CatalogCombatState;line:string;hit:number;used:boolean;guard:boolean;cooldown:number;reflected:number}
-export function castCatalogSkill(id:string,level:number,turn:number,state:CatalogCombatState,player:CombatStats,monsterDefense:number,rng:()=>number,effectShield=0,effectReflect=0,attackFactor=1):SkillCastResult|null {
- const s=catalogSkill(id);if(!s||s.type!=='active'||s.mp>state.mp)return null;
- const next={...state,mp:state.mp-s.mp,activeCount:state.activeCount+1};
+export function castCatalogSkill(id:string,level:number,turn:number,state:CatalogCombatState,player:CombatStats,monsterDefense:number,rng:()=>number,effectShield=0,effectReflect=0,attackFactor=1,appearance:ActiveAppearanceEffect|null=null):SkillCastResult|null {
+ const s=catalogSkill(id);if(!s||s.type!=='active')return null;
+ const bonus=(id:ActiveAppearanceEffect['id'])=>appearance?.id===id?appearance.value:0;
+ const mpCost=Math.max(0,Math.ceil(s.mp*(1-bonus('mp_cost_reduction')/100)));
+ if(mpCost>state.mp)return null;
+ const next={...state,mp:state.mp-mpCost,activeCount:state.activeCount+1};
  const family=s.family,value=effectiveSkillPower(s,level);
  const gradeIndex=['C','B','A','S','SR','SSR'].indexOf(s.grade);
  const accuracyBonus=family==='bow_shot'?(gradeIndex===0?5:gradeIndex===1?8:0):0;
- const chance=Math.min(100,s.chance+(family.startsWith('bow_')?state.passiveAccuracy*100:0)+accuracyBonus);
+ const chance=Math.min(100,s.chance+(family.startsWith('bow_')?state.passiveAccuracy*100:0)+accuracyBonus+bonus('skill_activation'));
  let hit=0,reflected=0,guard=false,cd=1,line='탐사자의 '+s.name+'!';
  const success=rng()*100<chance;
  if(!success){line+=' 발동 실패';}
  else if(family==='restore'){const gained=Math.max(0,Math.min(next.maxMp-next.mp,Math.round(value)));next.mp+=gained;line+=' MP +'+gained;cd=3;}
- else if(family==='heal'){const gained=Math.max(0,Math.min(next.maxHp-next.hp,Math.floor(next.maxHp*value/100)));next.hp+=gained;line+=' HP +'+gained;cd=4;}
- else if(family==='shield'){next.shield=Math.floor(next.maxHp*value/100);next.shieldUntil=turn+2;line+=' 보호막 '+next.shield;cd=4;}
+ else if(family==='heal'){const gained=Math.max(0,Math.min(next.maxHp-next.hp,Math.floor(next.maxHp*value/100*(1+bonus('hp_recovery')/100))));next.hp+=gained;line+=' HP +'+gained;cd=4;}
+ else if(family==='shield'){next.shield=Math.floor(next.maxHp*value/100*(1+bonus('shield_generation')/100));next.shieldUntil=turn+2;line+=' 보호막 '+next.shield;cd=4;}
  else if(family==='prepare'){next.prep=value/100;next.prepUntil=turn+2;line+=' 다음 공격 +'+Math.round(value)+'%';cd=3;}
  else {
   const pen=family==='sword_strike'?[0,0,.05,.1,.15,.2][['C','B','A','S','SR','SSR'].indexOf(s.grade)]:family==='bow_shot'?[0,0,.05,.1,.15,.2][['C','B','A','S','SR','SSR'].indexOf(s.grade)]:0;
@@ -59,7 +63,7 @@ export function castCatalogSkill(id:string,level:number,turn:number,state:Catalo
   const crit=rng()<player.critChance;
   const prep=next.prepUntil>=turn?next.prep:0;
   const effectiveAttack=player.attack*attackFactor*(1+next.passiveDamage);
-  const mult=value/100*(1+prep)*(crit?player.critDamage:1);
+  const mult=value/100*(1+prep)*(crit?player.critDamage:1)*(1+bonus('skill_damage')/100);
   const hits=family==='bow_volley'?(gradeIndex===5?4:gradeIndex>=3?3:2):1;
   const raw=Array.from({length:hits},()=>damage(effectiveAttack,monsterDefense*(1-ignoreDefense),mult/hits,Math.max(0,Math.min(1,player.armorPenetration+pen)))).reduce((a,b)=>a+b,0);
   hit=effectShield>0?Math.max(1,Math.floor(raw*(1-effectShield))):raw;
@@ -70,10 +74,10 @@ export function castCatalogSkill(id:string,level:number,turn:number,state:Catalo
   if(family==='sword_wound'||family==='bow_volley'||family==='staff_flame'){
    const gradeIndex=['C','B','A','S','SR','SSR'].indexOf(s.grade);
    const percent=family==='sword_wound'?[8,10,12,15,18,22][gradeIndex]:family==='bow_volley'?[0,8,10,12,15,18][gradeIndex]:[0,10,12,15,18,22][gradeIndex];
-   next.monsterDot=Math.floor(effectiveAttack*percent*(1+skillEnhancementLevel(level)*.05)/100);
+   next.monsterDot=Math.floor(effectiveAttack*percent*(1+skillEnhancementLevel(level)*.05)/100*(1+bonus('dot_damage')/100));
    next.monsterDotUntil=turn+2;
   }
-  if(family==='sword_wound'&&s.grade!=='C'){const healRate=[0,.05,.07,.1,.12,.15][['C','B','A','S','SR','SSR'].indexOf(s.grade)];next.hp=Math.min(next.maxHp,next.hp+Math.floor(hit*healRate));}
+  if(family==='sword_wound'&&s.grade!=='C'){const healRate=[0,.05,.07,.1,.12,.15][['C','B','A','S','SR','SSR'].indexOf(s.grade)];next.hp=Math.min(next.maxHp,next.hp+Math.floor(hit*healRate*(1+bonus('hp_recovery')/100)));}
   if(family==='staff_rift'){next.monsterDefenseDown=[3,5,8,11,15,20][gradeIndex]*(1+skillEnhancementLevel(level)*.05)/100;next.monsterDefenseDownUntil=turn+2;}
   line+=' '+hit+' 피해'+(hits>1?' · '+hits+'연타':'')+(crit?' · 치명타':'');
  }

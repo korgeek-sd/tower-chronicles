@@ -4,6 +4,7 @@ import type {GameState} from '../../game/types';
 import {HUNT_MAPS,initialHuntingState,resolveHunt,type HuntingState,type HuntMapId} from '../../game/hunting/model';
 import {weaponForHunt} from '../../game/hunting/catalogCombat';
 import {stats} from '../../game/engine/state';
+import {equippedAppearanceEffect} from '../../game/data/appearanceEquipAssignments';
 import {getHuntingState,huntOnce} from '../../online/hunting';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
@@ -38,7 +39,7 @@ export function HuntingPage({game,setGame,now,lease,userId,nickname,onPrepare,on
     if(!alive.current)return;onRecord(response.record);if(alive.current){accept({...response.state,serverNow:response.serverNow});setSettings(false);}
     pending.current=null;if(pendingKey)localStorage.removeItem(pendingKey);
    }else{
-    const resolved=resolveHunt(state,map,stats(game),state.skills,now,Math.random,game.skillEnhancements??{},weapon);localStorage.setItem(GUEST_KEY,JSON.stringify(resolved.state));setState(resolved.state);
+    const resolved=resolveHunt(state,map,stats(game),state.skills,now,Math.random,game.skillEnhancements??{},weapon,equippedAppearanceEffect(game.cosmetics));localStorage.setItem(GUEST_KEY,JSON.stringify(resolved.state));setState(resolved.state);
     setGame(current=>{const next=structuredClone(current),m=HUNT_MAPS.find(x=>x.id===map)!;if(resolved.result.equipment)next.equipmentItems.push(resolved.result.equipment);next.silver+=resolved.result.silver;next.materials[m.tower][0]+=resolved.result.materialCount;return next;});
    }
   }catch(e){if(alive.current)setError(e instanceof Error?e.message:'사냥을 처리하지 못했습니다.');}

@@ -2,13 +2,12 @@ import type {AppearanceRarity} from './cosmetics';
 import {APPEARANCE_LEVEL_MULTIPLIER,APPEARANCE_MAX_LEVEL} from './appearanceProgress';
 
 /**
- * FUTURE DESIGN CATALOG ONLY: 16 candidate bonuses for the ONE equipped appearance.
+ * Effect catalog: 16 equip-only bonuses for the ONE equipped appearance.
  *
- * No appearances or jobs are assigned any of these IDs yet. This module must not
- * be imported into combat resolution, hunting rewards or Supabase migrations until
- * the appropriate server-authoritative integration and balance tests are approved.
+ * Appearance IDs are assigned in appearanceEquipAssignments.ts; online battle
+ * results and loot use server-owned ownership, rarity and level from Supabase.
  *
- * Rarity bases are draft values, not a new live balance patch. The level multipliers
+ * Rarity bases are used by both guest calculations and mirrored server SQL. The level multipliers
  * reuse the already-defined appearance Lv.1–5 progression.
  */
 export type AppearanceEquipEffectUnit='percent'|'percentage_point'|'flat_mp'|'relative_percent';
@@ -112,7 +111,7 @@ export const APPEARANCE_EQUIP_EFFECTS={
 export type AppearanceEquipEffectId=keyof typeof APPEARANCE_EQUIP_EFFECTS;
 export const APPEARANCE_EQUIP_EFFECT_IDS=Object.keys(APPEARANCE_EQUIP_EFFECTS) as AppearanceEquipEffectId[];
 
-/** Preview only; no runtime assignment, roll, stat modification or save mutation. */
+/** Numeric bonus for a single equipped appearance at the given rarity/level. */
 export function appearanceEquipEffectValue(id:AppearanceEquipEffectId,rarity:AppearanceRarity,level:number):number {
  if(!Number.isInteger(level)||level<1||level>APPEARANCE_MAX_LEVEL)return 0;
  const def=APPEARANCE_EQUIP_EFFECTS[id] as AppearanceEquipEffectSpec;
