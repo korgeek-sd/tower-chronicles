@@ -8,9 +8,9 @@
 .tc-seal-heading span{display:block;font-size:10px;color:#aaa18b;margin-top:4px}
 .tc-ssr-skip{position:absolute!important;top:2px;right:4px;z-index:4;min-height:44px!important;font-size:11px!important;padding:8px!important;background:transparent!important;border:0!important;border-image:none!important;color:#c0b69c!important;cursor:pointer}
 .tc-ssr-vfx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.tc-seal-stone,.tc-seal-motes,.tc-seal-fragments,.tc-seal-flare{position:absolute;left:50%;top:42%;translate:-50% -50%;image-rendering:pixelated}
+.tc-seal-stone,.tc-seal-destruction,.tc-seal-motes,.tc-seal-flare{position:absolute;left:50%;top:42%;translate:-50% -50%;image-rendering:pixelated}
 .tc-seal-stone{width:100%;max-width:460px;aspect-ratio:1;animation:tc-seal-break 4s linear both}
-.tc-seal-stone-sprite{width:100%;height:100%;background-size:400% 400%;background-repeat:no-repeat;animation:tc-seal-stone-frames 4s steps(1,end) both}
+.tc-seal-stone-sprite{width:100%;height:100%;background-size:600% 400%;background-repeat:no-repeat;animation:tc-seal-stone-frames 4s steps(1,end) both}
 .tc-seal-stone-motion{position:relative;width:100%;height:100%;animation:tc-seal-float 4s ease-in-out both}
 .tc-ssr-reveal[data-rarity="SSR"] .tc-seal-stone-motion{animation:tc-seal-float 4s ease-in-out both,tc-seal-tremor 4s linear both}
 .tc-seal-flare{width:88%;max-width:450px;aspect-ratio:1;object-fit:contain;animation:tc-seal-burst 4s ease-out both}
@@ -38,23 +38,23 @@
 @keyframes tc-seal-character{0%,80%{opacity:0;transform:translateY(10px);filter:brightness(0)}87%{opacity:.75;filter:brightness(.5)}100%{opacity:1;transform:translateY(0);filter:brightness(1)}}
 @keyframes tc-seal-caption{0%,89%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes tc-seal-intro{0%,12%{opacity:0}25%,65%{opacity:.8}76%,100%{opacity:0}}
-@media(max-height:570px){.tc-ssr-reveal{gap:6px;padding-top:28px;padding-bottom:10px}.tc-ssr-reveal .tc-seal-heading{min-height:32px}.tc-seal-heading small{display:none}.tc-ssr-caption .tc-ssr-grade{font-size:16px!important;margin-bottom:4px!important}.tc-ssr-caption h3{font-size:20px}.tc-ssr-actions button{min-height:44px!important}.tc-seal-stone{width:78%;top:40%}.tc-seal-motes,.tc-seal-fragments{width:78%;top:40%}.tc-seal-flare{width:65%;top:40%}}
+@media(max-height:570px){.tc-ssr-reveal{gap:6px;padding-top:28px;padding-bottom:10px}.tc-ssr-reveal .tc-seal-heading{min-height:32px}.tc-seal-heading small{display:none}.tc-ssr-caption .tc-ssr-grade{font-size:16px!important;margin-bottom:4px!important}.tc-ssr-caption h3{font-size:20px}.tc-ssr-actions button{min-height:44px!important}.tc-seal-stone{width:78%;top:40%}.tc-seal-motes,.tc-seal-destruction{width:78%;top:40%}.tc-seal-flare{width:65%;top:40%}}
 @media(prefers-reduced-motion:reduce){.tc-ssr-reveal *{animation:none!important;transition:none!important}.tc-ssr-vfx,.tc-seal-intro{display:none}.tc-ssr-art,.tc-ssr-caption{opacity:1;filter:none;transform:none}}
 
-.tc-seal-motes,.tc-seal-fragments{width:100%;max-width:460px;aspect-ratio:1}
+.tc-seal-motes,.tc-seal-destruction{width:100%;max-width:460px;aspect-ratio:1}
 .tc-seal-rune-glow{position:absolute;inset:0;mask-size:100% 100%;mask-repeat:no-repeat;background:linear-gradient(to top,transparent 10%,var(--seal-color) 35%,var(--seal-hot) 48%,transparent 66%);background-size:100% 300%;image-rendering:pixelated;animation:tc-seal-rune-charge 4s ease-in-out both}
-.tc-seal-fragment{position:absolute;inset:0;background-size:400% 400%;background-position:33.333333% 100%;background-repeat:no-repeat;image-rendering:pixelated;animation:tc-seal-fragment-flight 4s linear both}
 .tc-seal-mote-path{position:absolute;inset:0;animation:tc-seal-mote-flight 4s linear both}
 .tc-seal-mote{position:absolute;left:50%;top:40%;background:var(--seal-color);box-shadow:0 0 4px var(--seal-shadow);image-rendering:pixelated}
 @keyframes tc-seal-rune-charge{0%{opacity:0;background-position:0 0}15%{opacity:.3}48%{opacity:1;background-position:0 100%}53%,100%{opacity:0;background-position:0 100%}}
-@keyframes tc-seal-fragment-flight{0%,74.9%{opacity:0;transform:translate(0,0) rotate(0)}75%{opacity:1;transform:translate(0,0) rotate(0);animation-timing-function:cubic-bezier(.15,.65,.3,1)}84%{opacity:.95;transform:translate(calc(var(--dx)*.75),calc(var(--dy)*.55 - 6%)) rotate(calc(var(--spin)*.65))}94%{opacity:.45;transform:translate(var(--dx),calc(var(--dy) + 6%)) rotate(var(--spin))}100%{opacity:0;transform:translate(calc(var(--dx)*1.05),calc(var(--dy) + 18%)) rotate(calc(var(--spin)*1.15))}}
 @keyframes tc-seal-mote-flight{0%,6%{opacity:0;transform:translate(var(--px),var(--py)) scale(.5)}20%{opacity:calc(var(--seal-charge)*.7);transform:translate(var(--px),var(--py)) scale(.7)}55%{opacity:var(--seal-charge);transform:translate(var(--qx),var(--qy)) scale(1)}73%{opacity:.8;transform:translate(0,0) scale(.5)}78%{opacity:1;transform:translate(calc(var(--dx)*.35),calc(var(--dy)*.35)) scale(1)}96%,100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.25)}}
-@keyframes tc-seal-stone-frames{0%{background-position:0.0% 0.0%}53.0%{background-position:33.333333% 0.0%}54.75%{background-position:66.666667% 0.0%}56.5%{background-position:100.0% 0.0%}58.25%{background-position:0.0% 33.333333%}60.0%{background-position:33.333333% 33.333333%}61.75%{background-position:66.666667% 33.333333%}63.5%{background-position:100.0% 33.333333%}65.25%{background-position:0.0% 66.666667%}67.0%{background-position:33.333333% 66.666667%}68.75%{background-position:66.666667% 66.666667%}70.5%{background-position:100.0% 66.666667%}72.25%{background-position:0.0% 100.0%}74.0%{background-position:33.333333% 100.0%}100%{background-position:33.333333% 100%}}
+@keyframes tc-seal-stone-frames{0%,50%{background-position:0% 0%}51%{background-position:20% 0%}52%{background-position:40% 0%}53%{background-position:60% 0%}54%{background-position:80% 0%}55%{background-position:100% 0%}56%{background-position:0% 33.333333%}57%{background-position:20% 33.333333%}58%{background-position:40% 33.333333%}59%{background-position:60% 33.333333%}60%{background-position:80% 33.333333%}61%{background-position:100% 33.333333%}62%{background-position:0% 66.666667%}63%{background-position:20% 66.666667%}64%{background-position:40% 66.666667%}65%{background-position:60% 66.666667%}66%{background-position:80% 66.666667%}67%{background-position:100% 66.666667%}68%{background-position:0% 100%}69%{background-position:20% 100%}70%{background-position:40% 100%}71%{background-position:60% 100%}72%{background-position:80% 100%}73%{background-position:100% 100%}74.9%,100%{background-position:100% 100%}}
 
-@media(max-height:570px){.tc-seal-motes,.tc-seal-fragments{width:78%;top:40%}}
+@keyframes tc-seal-destruction-frames{0%,75%{background-position:0% 0%}76%{background-position:20% 0%}77%{background-position:40% 0%}78%{background-position:60% 0%}79%{background-position:80% 0%}80%{background-position:100% 0%}81%{background-position:0% 33.333333%}82%{background-position:20% 33.333333%}83%{background-position:40% 33.333333%}84%{background-position:60% 33.333333%}85%{background-position:80% 33.333333%}86%{background-position:100% 33.333333%}87%{background-position:0% 66.666667%}88%{background-position:20% 66.666667%}89%{background-position:40% 66.666667%}90%{background-position:60% 66.666667%}91%{background-position:80% 66.666667%}92%{background-position:100% 66.666667%}93%{background-position:0% 100%}94%{background-position:20% 100%}95%{background-position:40% 100%}96%{background-position:60% 100%}97%{background-position:80% 100%}98%{background-position:100% 100%}99%,100%{background-position:100% 100%}}
+
+@media(max-height:570px){.tc-seal-motes,.tc-seal-destruction{width:78%;top:40%}}
 
 /* The atlas timeline begins only after a user gesture. */
-.tc-seal-stone-sprite,.tc-seal-fragment,.tc-seal-flare{filter:var(--seal-filter)}
+.tc-seal-stone-sprite,.tc-seal-destruction-sprite,.tc-seal-flare{filter:var(--seal-filter)}
 .tc-ssr-reveal.is-opening *{animation-delay:-2s!important}
 .tc-ssr-reveal.is-waiting .tc-seal-background{animation:none;transform:none}
 .tc-ssr-reveal.is-waiting .tc-seal-stone{animation:none;opacity:1}
@@ -62,7 +62,7 @@
 .tc-ssr-reveal.is-waiting .tc-seal-stone-sprite{animation:none;background-position:0 0}
 .tc-ssr-reveal.is-waiting .tc-seal-rune-glow{animation:none;opacity:.8;background-position:0 100%}
 .tc-ssr-reveal.is-waiting .tc-seal-mote-path{animation:none;opacity:.55;transform:translate(var(--px),var(--py)) scale(.7)}
-.tc-ssr-reveal.is-waiting .tc-seal-fragments,.tc-ssr-reveal.is-waiting .tc-seal-flare,.tc-ssr-reveal.is-waiting .tc-ssr-flash{display:none}
+.tc-ssr-reveal.is-waiting .tc-seal-destruction,.tc-ssr-reveal.is-waiting .tc-seal-flare,.tc-ssr-reveal.is-waiting .tc-ssr-flash{display:none}
 .tc-ssr-reveal.is-waiting .tc-ssr-art,.tc-ssr-reveal.is-waiting .tc-ssr-caption{animation:none;opacity:0;visibility:hidden}
 .tc-ssr-reveal.is-waiting .tc-seal-intro{animation:none;opacity:1}
 .tc-seal-stone-trigger{position:absolute;left:50%;top:42%;translate:-50% -50%;width:50%;max-width:230px;height:40%;z-index:2;min-height:44px!important;background:transparent!important;border:0!important;border-image:none!important;padding:0!important;box-shadow:none!important;cursor:pointer;touch-action:manipulation}
@@ -79,3 +79,9 @@
 .tc-ssr-reveal.is-waiting .tc-seal-mote-path:nth-child(4n+4) .tc-seal-mote{animation-duration:4.6s;animation-delay:-2.4s}
 @keyframes tc-seal-idle-float{0%,100%{transform:translateY(4px)}50%{transform:translateY(-4px)}}
 @keyframes tc-seal-idle-mote{0%,100%{transform:translate(0,3px);opacity:.4}50%{transform:translate(2px,-5px);opacity:1}}
+
+/* Two independent 6x4 atlases, locked to the existing 4-second timeline.
+   Waiting freezes both; a tap starts the second half using animation-delay:-2s. */
+.tc-seal-destruction{opacity:0;animation:tc-seal-destruction-envelope 4s linear both}
+.tc-seal-destruction-sprite{width:100%;height:100%;background-size:600% 400%;background-repeat:no-repeat;animation:tc-seal-destruction-frames 4s steps(1,end) both}
+@keyframes tc-seal-destruction-envelope{0%,74.8%{opacity:0}75%{opacity:1}96%{opacity:1}100%{opacity:0}}
