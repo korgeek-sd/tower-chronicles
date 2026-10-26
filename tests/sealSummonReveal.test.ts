@@ -19,6 +19,6 @@ test('seal scene uses supplied four layers and exposes next versus skip-all sepa
  const p={draw:draws[1],total:10,onDone:()=>{},onSkip:()=>{},onRepeat:()=>{},canRepeat:true,busy:false,hasNext:true,sequenceIndex:0,sequenceTotal:3};
  const opening=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,ready:false}));
  for(const name of ['seal-chamber','seal-flare'])assert.match(opening,new RegExp(name+'-v1\\.webp'));
- assert.match(opening,/seal-stone-cracks-v3\.webp/);assert.match(opening,/건너뛰기/);assert.match(opening,/disabled=""/);
+ assert.match(opening,/seal-stone-cracks-v4-24f\.webp/);assert.match(opening,/건너뛰기/);assert.match(opening,/disabled=""/);
  const ready=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,ready:true}));assert.match(ready,/다음 외형/);assert.match(ready,/전체 결과/);assert.doesNotMatch(ready,/seal-stone-cracks|seal-particles-v1|seal-flare-v1/);assert.equal(SSR_REVEAL_DURATION_MS,4000);
 });
