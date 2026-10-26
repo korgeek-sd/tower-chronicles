@@ -9,7 +9,7 @@ export const SSR_REVEAL_DURATION_MS=4000;
 const OPENING_OFFSET_MS=2000;
 type Props={draw:AppearanceSummonDraw;appearance?:AppearanceData;total:number;onDone:()=>void;onSkip?:()=>void;onRepeat:()=>void;canRepeat:boolean;busy:boolean;error?:string;hasNext?:boolean;sequenceIndex?:number;sequenceTotal?:number};
 const crackAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-cracks-v5-60f.webp');
-const openingAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-opening-v3-60f.webp');
+const dissolveAtlas=()=>assetUrl('assets/vfx/summon/seal-stone-dissolve-v1-60f.webp');
 const sealAsset=(name:string)=>assetUrl('assets/vfx/summon/seal-'+name+'-v1.webp');
 export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRepeat,canRepeat,busy,error,ready,opened=false,onOpen=()=>{},stoneRef,skipRef,confirmRef,hasNext=false,sequenceIndex=0,sequenceTotal=1}:{ready:boolean;opened?:boolean;onOpen?:()=>void;stoneRef?:React.RefObject<HTMLButtonElement|null>;skipRef?:React.RefObject<HTMLButtonElement|null>;confirmRef?:React.RefObject<HTMLButtonElement|null>}&Props){
  const tintId='seal-violet-'+useId().replace(/[^a-zA-Z0-9_-]/g,'');
@@ -21,7 +21,7 @@ export function SSRRevealFrame({draw,appearance,total,onDone,onSkip=onDone,onRep
   {!ready&&<div className="tc-ssr-vfx" aria-hidden="true">
    <div className="tc-seal-motes">{SEAL_MOTES.filter((_,i)=>draw.rarity==='SSR'||i%3!==2).map((m,i)=><span className="tc-seal-mote-path" key={i} style={{'--px':m.x,'--py':m.y,'--qx':m.qx,'--qy':m.qy,'--dx':m.dx,'--dy':m.dy} as React.CSSProperties}><i className="tc-seal-mote" style={{width:m.size,height:m.size}}/></span>)}</div>
    <div className="tc-seal-stone"><div className="tc-seal-stone-motion"><div className="tc-seal-stone-sprite" style={{backgroundImage:`url("${crackAtlas()}")`}}/><div className="tc-seal-rune-glow" style={{maskImage:`url("${assetUrl('assets/vfx/summon/seal-rune-mask-v2.webp')}")`}}/></div></div>
-   <div className="tc-seal-opening"><div className="tc-seal-opening-sprite" style={{backgroundImage:`url("${openingAtlas()}")`}}/></div>
+   <div className="tc-seal-dissolve"><div className="tc-seal-dissolve-sprite" style={{backgroundImage:`url("${dissolveAtlas()}")`}}/></div>
    <img className="tc-seal-flare" src={sealAsset('flare')} alt="" draggable={false}/>
    <div className="tc-ssr-flash"/>
   </div>}
