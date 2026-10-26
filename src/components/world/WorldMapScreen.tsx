@@ -29,14 +29,14 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
   <header className="tc-region-heading"><div><small>REGION BOARD</small><h1>마을 이동</h1></div><div><span>현재 위치 · <b>{current.name}</b></span><span>행동력 <b>{actionPoints===undefined?'—':`${actionPoints} / 100`}</b></span></div></header>
   <div className="tc-territory-map" aria-label="중앙 도시와 네 마을 지도">
    {mapTowns.map(town=><button type="button" key={town.id} data-town-id={town.id} data-map-town={town.id} className={'tc-map-node '+town.kind+(town.id===current.id?' current':'')} aria-pressed={town.id===selected.id} aria-label={`${town.name}, ${resource(town.kind)}, 점령 ${town.owner}`} onClick={()=>select(town.id)}>
-    {town.id===current.id&&<em className="tc-map-location-flag">현재 위치</em>}
-    <span className="tc-map-nameplate">{town.kind!=='city'&&<Glyph name={glyph(town.kind)}/>}<b>{town.name}</b></span>
+    <span className="tc-map-label-stack">{town.id===current.id&&<em className="tc-map-location-flag">현재 위치</em>}
+    <span className="tc-map-nameplate">{town.kind!=='city'&&<Glyph name={glyph(town.kind)}/>}<b>{town.name}</b></span></span>
     {town.kind!=='city'&&remaining(town.id,town.kind)==='소진'&&<span className="tc-map-depleted">소진</span>}
    </button>)}
   </div>
   <section className="tc-region-details" aria-label="선택한 마을 정보">
    <header><Glyph name={glyph(selected.kind)}/><div><small>{townKindLabel(selected.kind)}</small><h2>{selected.name}</h2></div><span>{here?'현재 위치':'이동 가능'}</span></header>
-   <div className="tc-region-facts"><div><small>점령 길드</small><b>{selected.owner}</b></div><div><small>생산물 세율</small><b>{selected.tax}%</b></div><div><small>생활 자원</small><b>{resource(selected.kind)}</b></div></div>
+   <div className="tc-region-facts"><div><small>점령 길드</small><b>{selected.owner}</b></div><div><small>생산물 세율</small><b>{selected.tax}%</b></div></div>
    {war&&<div className="tc-region-war-status"><span>선전포고 <b>{selectedDeclarations.length}개 길드</b></span><span>공용 도전권 <b>{(war.guildTickets??0).toLocaleString()}장</b></span></div>}
    <div className="tc-region-stocks">{(selected.kind==='city'?['herb','farm']:[selected.kind]).map(kind=>{const remaining=kind==='herb'?liveTown?.herbRemaining:liveTown?.farmRemaining,capacity=kind==='herb'?liveTown?.herbCapacity:liveTown?.farmCapacity;return <div key={kind}><span>{kind==='herb'?'약초':'농산물'} 잔여량</span><b>{remaining?.toLocaleString()??'—'} / {capacity?.toLocaleString()??'—'}</b></div>;})}</div>
    <div className="tc-region-actions">{here&&onLife?<button type="button" aria-label="채집 · 생활하기" className="tc-action tc-feel-press" disabled={busy} onClick={onLife}>생산하기</button>:<button type="button" aria-label="이동하기" className="tc-action tc-feel-press" disabled={busy||!reachable} onClick={()=>{if(busy||!canTravel(current.id,selected.id))return;onTravel(selected.id);if(!towns)setMessage(`${selected.name}(으)로 이동했습니다.`);}}>{busy?'처리 중…':here?'현재 위치':`${selected.name} 이동하기`} <span aria-hidden="true">›</span></button>}

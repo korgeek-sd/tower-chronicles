@@ -9,19 +9,19 @@
 .tc-map-node[data-map-town=herb-1]{left:22%;top:21%}.tc-map-node[data-map-town=farm-1]{left:78%;top:21%}.tc-map-node[data-map-town=city]{left:50%;top:49%;width:42%;height:31%}.tc-map-node[data-map-town=herb-2]{left:22%;top:76%;height:22%}.tc-map-node[data-map-town=farm-2]{left:78%;top:76%;height:22%}
 .tc-map-node:before{content:'';position:absolute;left:8%;right:8%;bottom:12%;height:23%;z-index:-1;background:radial-gradient(ellipse,#efc76c44,transparent 68%);opacity:0;pointer-events:none;transition:opacity 180ms ease}
 .tc-map-node[aria-pressed=true]{outline:none}.tc-map-node[aria-pressed=true]:before{opacity:1}
+.tc-map-label-stack{display:flex;flex-direction:column;align-items:center;gap:5px;max-width:100%;flex-shrink:0}
 .tc-map-nameplate{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;max-width:100%;min-height:25px;padding:3px 11px;color:#ebd6ac;background:linear-gradient(100deg,#2c2217f5,#453420f5 46%,#302418f5);border-block:1px solid #88704b;box-shadow:0 2px 3px #0008;text-shadow:0 1px 2px #000;clip-path:polygon(3% 0,98% 0,100% 25%,98% 60%,100% 100%,2% 100%,0 70%,2% 40%,0 16%)}
 .tc-map-nameplate b{font:inherit;font-size:14px;font-weight:500;white-space:nowrap;letter-spacing:.04em}
 .tc-map-nameplate .tc-glyph{font-size:14px;color:#b8c993}.tc-map-node.farm .tc-map-nameplate .tc-glyph{color:#d3b778}
 .tc-map-node.city .tc-map-nameplate{min-height:27px;padding-inline:17px}.tc-map-node.city .tc-map-nameplate b{font-size:16px}
 .tc-map-node[aria-pressed=true] .tc-map-nameplate{border-color:#d7ad62;color:#fff0cb}
 .tc-map-node:focus-visible{outline:2px dashed #efd3a1;outline-offset:2px;border-radius:8px}
-.tc-map-location-flag{position:absolute;right:0;top:22%;font:inherit;font-size:10px;font-style:normal;white-space:nowrap;color:#f3d9a6;padding:4px 9px 4px 5px;background:linear-gradient(95deg,#662e22,#843c2a);border-block:1px solid #ab7747;box-shadow:0 1px 3px #0007;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%)}
-.tc-map-node.current:after{content:'';position:absolute;right:calc(0% + 65px);top:21%;height:43%;width:2px;background:linear-gradient(#bb9660,#715637);box-shadow:1px 0 1px #0008;pointer-events:none}
+.tc-map-location-flag{position:relative;flex-shrink:0;font:inherit;font-size:10px;font-style:normal;white-space:nowrap;color:#f3d9a6;padding:4px 9px 4px 5px;background:linear-gradient(95deg,#662e22,#843c2a);border-block:1px solid #ab7747;box-shadow:0 1px 3px #0007;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%)}
 .tc-map-depleted{position:absolute;top:100%;font-size:10px;color:#e9b29b;padding:1px 5px;background:#251813db;border-radius:2px}
 @media(prefers-reduced-motion:reduce){.tc-map-node:before{transition:none}}
 .tc-region-details{border-width:2px 1px 0;border-color:#8a6d44;padding:10px 12px;background:linear-gradient(135deg,#282219,#121410)}
 .tc-region-details>header{padding-bottom:7px}.tc-region-details h2{font-size:21px}.tc-region-details header small{font-size:10px}.tc-region-details header>span:last-child{font-size:11px}
-.tc-region-facts{margin:6px 0;gap:8px}.tc-region-facts small{font-size:10px}.tc-region-facts b{font-size:12px}
+.tc-region-facts{grid-template-columns:repeat(2,minmax(0,1fr));margin:6px 0;gap:8px}.tc-region-facts small{font-size:10px}.tc-region-facts b{font-size:12px}
 .tc-region-stocks{gap:8px;margin:7px 0;grid-template-columns:repeat(2,minmax(0,1fr))}.tc-region-stocks>div{display:flex;flex-direction:column;align-items:flex-start;font-size:12px;padding:7px 8px;background:#0d100b;border:1px solid #665339}.tc-region-stocks b{font-size:14px;font-variant-numeric:tabular-nums}
 .tc-region-actions button{font-size:14px;min-height:46px}.tc-region-war-status{font-size:11px}.tc-region-declare-note{font-size:10px}.tc-region-footnote{display:block;font-size:10px;text-align:center;margin:7px 0 0}
 @container travel-page (max-height:560px){.tc-region-board{grid-template-rows:auto minmax(230px,1fr) auto}.tc-region-heading{padding:6px 9px}.tc-region-details{padding:7px 9px}.tc-region-facts small,.tc-region-facts b{font-size:10px}.tc-region-stocks>div{padding:5px}.tc-region-details h2{font-size:18px}.tc-region-details>header{padding-bottom:4px}.tc-region-footnote{font-size:10px}.tc-region-declare-note{font-size:10px}}

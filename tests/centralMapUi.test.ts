@@ -27,3 +27,11 @@ test('map markers expose only compact names, field icons and depletion; detail o
  assert.match(html,/tc-map-location-flag/);
  assert.match(html,/농산물 잔여량/);
 });
+test('current location flag shares a spaced label stack and redundant resource fact is absent',()=>{
+ for(const currentId of ['city','herb-1','farm-1','herb-2','farm-2']){
+  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId,onTravel:()=>{},towns}));
+  assert.match(html,/<span class="tc-map-label-stack"><em class="tc-map-location-flag">현재 위치<\/em><span class="tc-map-nameplate">/);
+  assert.doesNotMatch(html,/생활 자원/);
+  assert.match(html,/점령 길드/);assert.match(html,/생산물 세율/);assert.match(html,/잔여량/);
+ }
+});
