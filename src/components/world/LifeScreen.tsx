@@ -5,7 +5,7 @@ import {CraftItemArt} from './CraftItemArt';
 import {lifeMasteryLevel,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP} from '../../game/life/crafting';
 import './gather-screen.css';
 type Props={state:VillageLifeState;busy:boolean;count:number;now:number;message?:string;onCount:(n:number)=>void;onGather:(r:LifeResource)=>void;onBack:()=>void;onRefresh:()=>void;onWell?:()=>void;onInventory?:()=>void};
-export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack,onInventory}:Props){
+export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack}:Props){
  const [selectedResource,setSelectedResource]=React.useState<LifeResource>('herb');
  const town=state.towns.find(t=>t.id===state.location)!;
  const resources:LifeResource[]=town.kind==='city'?['herb','farm']:[town.kind];
@@ -38,7 +38,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
     <small>{nextXp===null?'MAX':`${levelProgress.toLocaleString()} / ${levelSpan.toLocaleString()}`}</small>
    </div>
    <div className="tc-gather-stock-row"><span>남은 생산량</span><b>{stock.toLocaleString()} <small>/ {capacity.toLocaleString()}</small></b><div className="tc-gather-meter tc-gather-stock" role="progressbar" aria-label={`${name} 잔여량`} aria-valuenow={stock} aria-valuemin={0} aria-valuemax={capacity}><i style={{width:Math.max(0,Math.min(100,stock/Math.max(1,capacity)*100))+'%'}}/></div></div>
-   <div className={'tc-gather-owned'+(herb?' single':'')+(onInventory?' with-bag':'')} aria-label="생활 재료 보유량">{materials.map(id=><div key={id}><CraftItemArt id={id}/><div><small>보유 {LIFE_MATERIAL_NAMES[id]}</small><b>{(state.materials[id]??0).toLocaleString()}</b></div></div>)}{onInventory&&<button type="button" className="tc-gather-bag tc-feel-press" onClick={onInventory}>가방</button>}</div>
+   <div className={'tc-gather-owned'+(herb?' single':'')} aria-label="생활 재료 보유량">{materials.map(id=><div key={id}><CraftItemArt id={id}/><div><small>보유 {LIFE_MATERIAL_NAMES[id]}</small><b>{(state.materials[id]??0).toLocaleString()}</b></div></div>)}</div>
   </section>
   <div className="tc-gather-controls">
    <section className="tc-life-quantity"><div className="tc-gather-quantity-label"><label htmlFor="life-count">생산 횟수</label><small>현재 최대 {limit}회 가능</small></div><div role="group" aria-label="채집 횟수">{[1,10,limit].map((n,index)=><button type="button" className="tc-feel-press" key={index} aria-pressed={count===n&&(index<2||n!==1&&n!==10)} disabled={busy||n<1||n>limit} onClick={()=>onCount(n)}>{index===2?'최대':`${n}회`}</button>)}<input id="life-count" aria-label="생활 횟수 직접 입력" type="number" inputMode="numeric" min="1" max="100" step="1" value={count} disabled={busy} onChange={e=>onCount(Math.max(1,Math.min(100,Math.trunc(Number(e.target.value)||1))))}/></div></section>

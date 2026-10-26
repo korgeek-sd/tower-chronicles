@@ -64,6 +64,3 @@
  .tc-gather-owned>div{gap:4px}.tc-gather-owned .tc-craft-art{width:24px;height:24px}.tc-gather-owned b{font-size:14px}
 }
 @media(prefers-reduced-motion:reduce){.tc-gather-location *,.tc-gather-location *:before,.tc-gather-location *:after{animation:none!important;transition:none!important}}
-
-.tc-gather-owned.with-bag{padding-right:49px;min-height:44px}
-.tc-gather-owned .tc-gather-bag{position:absolute;right:0;top:50%;transform:translateY(-50%);min-width:44px;min-height:44px;padding:4px;border:0;background:transparent;color:#cfb580;font:inherit;font-size:11px}
