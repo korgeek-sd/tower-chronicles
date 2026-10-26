@@ -1,4 +1,4 @@
-name: Build summon sprites (60-frame cracks and dissolve)
+name: Build summon sprites (60-frame cracks and irregular dissolution)
 
 on:
   push:
@@ -59,14 +59,18 @@ jobs:
               assert im.mode=='RGBA'
               assert im.size==(2560,1536)
               assert all(im.crop((f['x'],f['y'],f['x']+256,f['y']+256)).getchannel('A').getbbox() for f in m['frames'])
-          base=root+'seal-stone-dissolve-v1-60f'
+          base=root+'seal-stone-dissolve-v2-60f'
           m=json.load(open(base+'.json'))
-          assert m['effect']=='crumble_dissolve'
+          assert m['effect']=='irregular_noise_dissolve'
+          assert m['partition']=='warped_voronoi'
+          assert 25<=m['chipCount']<=100
+          assert m['particleCount']>=80
           assert m['frameCount']==60 and len(m['frames'])==60
           assert m['columns']==10 and m['rows']==6 and m['cellSize']==256
           with Image.open(base+'.webp') as im:
               assert im.mode=='RGBA' and im.size==(2560,1536)
               assert im.crop((0,0,256,256)).getchannel('A').getbbox()
+              assert im.crop((4*256,2*256,5*256,3*256)).getchannel('A').getbbox()
               assert im.crop((9*256,5*256,10*256,6*256)).getchannel('A').getbbox() is None
           PY
       - name: Commit generated sprite assets
@@ -76,9 +80,9 @@ jobs:
           git add public/assets/vfx/summon/seal-stone-cracks-v4-24f.webp public/assets/vfx/summon/seal-stone-cracks-v4-24f.json
           git add public/assets/vfx/summon/seal-stone-destruction-v1-24f.webp public/assets/vfx/summon/seal-stone-destruction-v1-24f.json
           git add public/assets/vfx/summon/seal-stone-cracks-v5-60f.webp public/assets/vfx/summon/seal-stone-cracks-v5-60f.json
-          git add public/assets/vfx/summon/seal-stone-dissolve-v1-60f.webp public/assets/vfx/summon/seal-stone-dissolve-v1-60f.json
+          git add public/assets/vfx/summon/seal-stone-dissolve-v2-60f.webp public/assets/vfx/summon/seal-stone-dissolve-v2-60f.json
           if ! git diff --cached --quiet; then
-            git commit -m "assets: build 60-frame crumbling summon seal atlas"
+            git commit -m "assets: generate irregular-noise 60-frame disintegrating seal"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
