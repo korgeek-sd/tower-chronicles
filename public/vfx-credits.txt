@@ -48,3 +48,13 @@ scripts/assets/buildSealDestruction24.py, respectively.
 Both use 6x4 cells of 384x384, with matching JSON frame coordinates.
 The game preloads both sheets and plays them after the user taps the seal;
 SR uses violet light tint, SSR preserves the amber original.
+
+Vertical seal-opening revision, 2026-10-26:
+seal-stone-opening-v3-60f.webp: repacked from the 60-step generated artwork
+supplied and approved in chat. The source sheet had an irregular 11x6 layout;
+60 evenly sampled frames were normalized to a transparent 10x6 atlas,
+160x160 pixels per cell. Final frames separate the stone vertically with
+an inlaid gold light core instead of radiating stone fragments.
+seal-stone-opening-v3-60f.json: frame coordinates and pivot metadata.
+This asset replaces the old destruction atlas in SR/SSR summons; the
+existing destruction artwork remains in the repository for provenance.
