@@ -10,17 +10,17 @@ test('SR and SSR use two 60-frame sprites after a user gesture and remove both o
  for(const rarity of ['SR','SSR'] as const){
   const opening=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:false}));
   assert.match(opening,/seal-stone-cracks-v5-60f\.webp/);
-  assert.match(opening,/seal-stone-opening-v3-60f\.webp/);
+  assert.match(opening,/seal-stone-dissolve-v1-60f\.webp/);
   assert.match(opening,/tc-seal-stone-sprite/);
-  assert.match(opening,/tc-seal-opening-sprite/);
+  assert.match(opening,/tc-seal-dissolve-sprite/);
   assert.match(opening,/소환석 봉인 해제/);
   assert.doesNotMatch(opening,/seal-stone-v1\.webp/);
   const ready=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:true}));
-  assert.doesNotMatch(ready,/tc-seal-stone-sprite|tc-seal-opening-sprite|seal-stone-cracks/);
+  assert.doesNotMatch(ready,/tc-seal-stone-sprite|tc-seal-dissolve-sprite|seal-stone-cracks/);
  }
 });
-test('crack and opening images have their respective grid dimensions and frame coordinates',()=>{
- for(const name of ['seal-stone-cracks-v5-60f','seal-stone-opening-v3-60f']){
+test('crack and dissolve images have their respective grid dimensions and frame coordinates',()=>{
+ for(const name of ['seal-stone-cracks-v5-60f','seal-stone-dissolve-v1-60f']){
   const base='public/assets/vfx/summon/'+name;
   const m=JSON.parse(readFileSync(base+'.json','utf8'));
   const cracks=name.includes('cracks');
@@ -28,7 +28,7 @@ test('crack and opening images have their respective grid dimensions and frame c
   assert.equal(m.frames.length,60);
   assert.equal(m.columns,10);
   assert.equal(m.rows,6);
-  assert.equal(m.cellSize,cracks?256:160);
+  assert.equal(m.cellSize,256);
   assert.equal(m.width,m.columns*m.cellSize);
   assert.equal(m.height,m.rows*m.cellSize);
   for(const [i,f] of m.frames.entries()){assert.equal(f.x,(i%m.columns)*m.cellSize);assert.equal(f.y,Math.floor(i/m.columns)*m.cellSize);}
@@ -36,16 +36,18 @@ test('crack and opening images have their respective grid dimensions and frame c
   assert.equal(img.toString('ascii',0,4),'RIFF');
   assert.equal(img.toString('ascii',8,12),'WEBP');
   assert.ok(img.byteLength>2000);
+  if(!cracks)assert.equal(m.effect,'crumble_dissolve');
  }
 });
-test('touch timeline runs crack frames then split-opening frames on 10x6 grids',()=>{
+test('touch timeline runs crack frames then crumble-and-dissolve frames on 10x6 grids',()=>{
  const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');
+ assert.match(css,/display:none!important/);
  assert.match(css,/tc-seal-stone-frames 4s steps\(1,end\)/);
- assert.match(css,/tc-seal-opening-frames 4s steps\(1,end\)/);
+ assert.match(css,/tc-seal-dissolve-frames 4s steps\(1,end\)/);
  assert.match(css,/\.tc-seal-stone-sprite\{[^}]*background-size:1000% 600%/);
- assert.match(css,/\.tc-seal-opening-sprite\{[^}]*background-size:1000% 600%/);
+ assert.match(css,/\.tc-seal-dissolve-sprite\{[^}]*background-size:1000% 600%/);
  assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-stone-sprite\{animation:none;background-position:0 0/);
- assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-opening/);
+ assert.match(css,/\.tc-ssr-reveal\.is-waiting \.tc-seal-dissolve/);
  assert.match(css,/\.tc-ssr-reveal\.is-opening \*\{animation-delay:-2s!important/);
  assert.match(css,/prefers-reduced-motion/);
 });
