@@ -7,7 +7,7 @@ import {CraftItemArt} from './CraftItemArt';
 import './craft-screen.css';
 import './iron-craft.css';
 import {CraftPendingIndicator,CraftReceiptNotifications} from './CraftFeedback';
-import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,type ProductId} from '../../game/life/crafting';
+import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,lifeMasteryTrack,lifeMasteryLevel,lifeMasteryBonus,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP,type ProductId} from '../../game/life/crafting';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState} from '../../online/villageLife';
 
 export type ConfirmedCraftResult={requestId:string;product:ProductId;quantity:number};
@@ -38,7 +38,7 @@ function CraftDialog({label,onClose,returnFocus,children}:{label:string;onClose:
 }
 
 export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,onCount,onCraft,onTravel,onMap}:Props){
- const town=state.towns.find(t=>t.id===state.location)!,recipes=CRAFT_RECIPES,r=recipes.find(r=>r.id===recipe)??recipes[0],mastery=state.craftMastery??0;
+ const town=state.towns.find(t=>t.id===state.location)!,recipes=CRAFT_RECIPES,r=recipes.find(r=>r.id===recipe)??recipes[0],track=lifeMasteryTrack(r.id),mastery=state.lifeMasteries?.[track]??0,level=lifeMasteryLevel(mastery),nextXp=LIFE_MASTERY_LEVEL_XP[level]??null,bonus=lifeMasteryBonus(mastery);
  const local=town.kind==='city'||town.kind===r.kind,locationHint=r.kind==='city'?'노바르에서 제작':`${r.kind==='herb'?'약초':'농사'} 마을 또는 노바르에서 제작`;
  const limit=craftLimit(state,r.id),quantity=Math.max(1,Math.min(100,Math.floor(count)||1));
  const preview=craftPreview(r.id,quantity,mastery,state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&quantity<=limit;
@@ -54,7 +54,7 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  },[busy,confirmedResult,feel]);
  return <div className="tc-craft tc-game-craft tc-blueprint-craft tc-iron-craft" data-craft-state={craftState} role="region" aria-label="제작소" tabIndex={-1} aria-busy={busy}>
   <header className="tc-craft-header">
-   <div className="tc-workshop-location"><span>{town.name}</span><small>제작 숙련도 <b>{mastery.toLocaleString()}</b> · +{Math.min(50,Math.floor(mastery/100))}%</small></div>
+   <div className="tc-workshop-location"><span>{town.name}</span><small>{LIFE_MASTERY_NAMES[track]} <b>Lv.{level}</b> · 경험치 {mastery.toLocaleString()}{nextXp===null?' / MAX':` / ${nextXp.toLocaleString()}`} · 제작 +{bonus}%</small></div>
    <div className="tc-craft-ap"><span>생활 행동력 <b>{state.actionPoints} / 100</b></span><div role="progressbar" aria-label="생활 행동력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state.actionPoints}><i style={{width:Math.max(0,Math.min(100,state.actionPoints))+'%'}}/></div></div>
    <button type="button" disabled={busy} onClick={local?onMap:()=>onTravel?.('city')}>{local?'마을 이동':'노바르로 이동'}</button>
   </header>
