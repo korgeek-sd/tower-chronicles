@@ -400,7 +400,6 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
       if(!a)return <p>외형 정보를 찾을 수 없습니다.</p>;
       const isOwned=ownedSet.has(a.id),isSelected=game.cosmetics.selectedAppearanceId===a.id,artReady=!!a.imagePath&&a.artStatus!=='pending';
       const shards=appearanceShardCount(game.cosmetics,a.id),level=appearanceLevel(game.cosmetics,a.id),cost=appearanceShardCost(level);
-      const effect=appearanceEffectFor(a.id,Math.max(1,level));
       const displayEffect=(nextLevel:number)=>{const next=appearanceEffectFor(a.id,nextLevel);return next&&a.rarity?formatAppearanceEquipEffect(next.id,a.rarity,nextLevel):'없음';};
       return <div className="tc-collection-modal-content tc-appearance-detail-content">
        <div className="tc-appearance-detail-art">{artReady?<img src={assetUrl(a.imagePath!)} alt={a.name}/>:<Glyph name="cosmetics"/>}</div>
