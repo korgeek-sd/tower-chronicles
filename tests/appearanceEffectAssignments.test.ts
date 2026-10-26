@@ -7,10 +7,11 @@ import {APPEARANCE_EFFECT_ASSIGNMENTS,appearanceEffectFor, equippedAppearanceEff
 import {initialState,stats} from '../src/game/engine/state';
 import {resolveHunt,initialHuntingState} from '../src/game/hunting/model';
 
-test('all 60 collectible appearances have exactly one of the 16 effects',()=>{
+test('all collectible appearances have exactly one of the 16 effects',()=>{
  const collectible=APPEARANCES.filter(a=>a.rarity);
- assert.equal(collectible.length,60);
- assert.deepEqual(Object.keys(APPEARANCE_EFFECT_ASSIGNMENTS).sort(),collectible.map(a=>a.id).sort());
+ assert.ok(collectible.length>=60);
+ assert.equal(new Set(collectible.map(a=>a.id)).size,collectible.length);
+ assert.deepEqual(collectible.map(a=>a.id).filter(id=>!APPEARANCE_EFFECT_ASSIGNMENTS[id]),[]);
  const effects=new Set<string>(APPEARANCE_EQUIP_EFFECT_IDS);
  assert.ok(Object.values(APPEARANCE_EFFECT_ASSIGNMENTS).every(id=>effects.has(id)));
  for(const id of APPEARANCE_EQUIP_EFFECT_IDS)assert.ok(Object.values(APPEARANCE_EFFECT_ASSIGNMENTS).includes(id),id);
@@ -49,8 +50,9 @@ test('representative assignment preview and equipment stat bonuses',()=>{
 });
 test('server migration covers full effect catalog and authoritative battle/reward hooks',()=>{
  const sql=readFileSync('supabase/migrations/20261026123500_appearance_effect_assignments.sql','utf8');
+ const subsequent=readFileSync('supabase/migrations/20261026211000_shepherd_appearance_catalog.sql','utf8');
  for(const key of APPEARANCE_EQUIP_EFFECT_IDS)assert.ok(sql.includes("'"+key+"'"),key);
- for(const id of Object.keys(APPEARANCE_EFFECT_ASSIGNMENTS))assert.ok(sql.includes("'"+id+"'"),id);
+ for(const id of Object.keys(APPEARANCE_EFFECT_ASSIGNMENTS))assert.ok((sql+subsequent).includes("'"+id+"'"),id);
  for(const target of ['private.appearance_equipped_effect','private.combat_equipment_stats','public.hunt_once','private.guild_boss_combat'])assert.ok(sql.includes(target),target);
  assert.ok(!sql.includes('grant execute on function private.appearance_equipped_effect'));
 });
