@@ -5,6 +5,7 @@ import {APPEARANCES} from '../src/game/data/cosmetics';
 import {APPEARANCE_EQUIP_EFFECT_IDS} from '../src/game/data/appearanceEquipEffects';
 import {APPEARANCE_EFFECT_ASSIGNMENTS,appearanceEffectFor, equippedAppearanceEffect} from '../src/game/data/appearanceEquipAssignments';
 import {initialState,stats} from '../src/game/engine/state';
+import {resolveHunt,initialHuntingState} from '../src/game/hunting/model';
 
 test('all 60 collectible appearances have exactly one of the 16 effects',()=>{
  const collectible=APPEARANCES.filter(a=>a.rarity);
@@ -52,4 +53,18 @@ test('server migration covers full effect catalog and authoritative battle/rewar
  for(const id of Object.keys(APPEARANCE_EFFECT_ASSIGNMENTS))assert.ok(sql.includes("'"+id+"'"),id);
  for(const target of ['private.appearance_equipped_effect','private.combat_equipment_stats','public.hunt_once','private.guild_boss_combat'])assert.ok(sql.includes(target),target);
  assert.ok(!sql.includes('grant execute on function private.appearance_equipped_effect'));
+});
+
+test('guest hunting uses equipped-only MP and reward modifiers',()=>{
+ const state=initialHuntingState(0),strong={hp:10000,attack:10000,defense:10000};
+ const exp=resolveHunt(state,'plains',strong,['heavy'],0,()=>0.5,{},'sword',{id:'hunting_exp',value:5}).result;
+ assert.equal(exp.exp,105);
+ const silver=resolveHunt(state,'plains',strong,['heavy'],0,()=>0,{},'sword',{id:'hunting_silver',value:5}).result;
+ assert.equal(silver.silver,1050);
+ const mp=resolveHunt(state,'plains',strong,[],0,()=>0,{},'sword',{id:'max_mp',value:50}).result;
+ assert.equal(mp.playerMaxMp,150);
+ const normal=resolveHunt(state,'plains',strong,[],0,()=>0).result;
+ assert.equal(normal.playerMaxMp,100);
+ const lose=resolveHunt(state,'plains',{hp:1,attack:0,defense:0},[],0,()=>0,{},'sword',{id:'hunting_exp',value:5}).result;
+ assert.equal(lose.exp,0);
 });
