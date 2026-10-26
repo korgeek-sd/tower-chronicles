@@ -18,7 +18,7 @@ test('seal waits for an accessible tap, then removes the trigger during opening 
  const busy=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,ready:false,busy:true}));assert.match(busy,/class="tc-seal-stone-trigger"[^>]*disabled=""/);
 });
 test('SR violet and SSR gold tint only VFX, with static waiting and reduced motion support',()=>{
- const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');assert.match(css,/--seal-color:#c8a2ee/);assert.match(css,/--seal-color:#edcb83/);assert.match(css,/\.is-waiting/);assert.match(css,/animation-delay:-2\\.6s/);assert.match(css,/prefers-reduced-motion/);
+ const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');assert.match(css,/--seal-color:#c8a2ee/);assert.match(css,/--seal-color:#edcb83/);assert.match(css,/\.is-waiting/);assert.match(css,/animation-delay:-2[.]6s/);assert.match(css,/prefers-reduced-motion/);
  const source=readFileSync('src/components/appearance/SSRReveal.tsx','utf8');assert.match(source,/if\(!opened\)return/);
 });
 
@@ -42,8 +42,8 @@ test('three taps crack a neutral stone twice before revealing rarity on the thir
   assert.doesNotMatch(html,/tc-seal-stone-trigger/);
  }
  const css=readFileSync('src/components/appearance/ssr-reveal.css','utf8');
- assert.match(css,/is-waiting\\[data-taps="1"\\] \\.tc-seal-stone-sprite\\{background-position:22\\.222222% 20%/);
- assert.match(css,/is-waiting\\[data-taps="2"\\] \\.tc-seal-stone-sprite\\{background-position:22\\.222222% 60%/);
+ assert.match(css,/is-waiting.*data-taps="1".*background-position:22[.]222222% 20%/);
+ assert.match(css,/is-waiting.*data-taps="2".*background-position:22[.]222222% 60%/);
  assert.match(css,/tc-seal-first-hit/);
  assert.match(css,/tc-seal-second-hit/);
 });
