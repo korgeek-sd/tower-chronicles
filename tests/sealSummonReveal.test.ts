@@ -9,7 +9,7 @@ const props={payment:{ticketsSpent:10,goldSpent:0},repeatPayment:{ticketsUsed:10
 const draws:AppearanceSummonDraw[]=[{id:'scout',rarity:'C',duplicate:false},{id:'valkyrie',rarity:'SR',duplicate:false},{id:'nameless_king',rarity:'SSR',duplicate:true},{id:'valkyrie',rarity:'SR',duplicate:true}];
 test('rare reveal queue preserves every SR and SSR in server order including repeated IDs',()=>{
  const before=JSON.stringify(draws);assert.deepEqual(rareSummonDraws(draws),draws.slice(1));assert.equal(JSON.stringify(draws),before);
- const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{...props,draws,animateSSR:true}));assert.match(html,/data-rarity="SR"/);assert.match(html,/희귀 외형 1 \/ 3/);
+ const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{...props,draws,animateSSR:true}));assert.match(html,/data-rarity="sealed"/);assert.doesNotMatch(html,/data-rarity="SR"/);assert.match(html,/희귀 외형 1 \/ 3/);
 });
 test('all lower grades and restored results go directly to results',()=>{
  for(const rarity of ['C','B','A'] as const){const html=renderToStaticMarkup(React.createElement(AppearanceSummonResultView,{...props,animateSSR:true,draws:[{id:'scout',rarity,duplicate:false}]}));assert.doesNotMatch(html,/tc-seal-scene/);}
