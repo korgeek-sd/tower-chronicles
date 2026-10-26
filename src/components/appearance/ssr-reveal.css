@@ -60,7 +60,7 @@
 
 /* The atlas timeline begins only after a user gesture. */
 .tc-seal-stone-sprite,.tc-seal-dissolve-sprite,.tc-seal-flare{filter:var(--seal-filter)}
-.tc-ssr-reveal.is-opening *{animation-delay:-2s!important}
+.tc-ssr-reveal.is-opening *{animation-delay:-2.6s!important}
 .tc-ssr-reveal.is-waiting .tc-seal-background{animation:none;transform:none}
 .tc-ssr-reveal.is-waiting .tc-seal-stone{animation:none;opacity:1}
 .tc-ssr-reveal.is-waiting .tc-seal-stone-motion{animation:tc-seal-idle-float 3.6s ease-in-out infinite;translate:0 0}
@@ -93,3 +93,14 @@
 
 /* Dissolving stone sheds fragments; no split-opening flare or explosion flash. */
 .tc-ssr-reveal .tc-seal-flare,.tc-ssr-reveal .tc-ssr-flash{display:none!important}
+
+/* Progressive, colorless cracks. Both SR and SSR remain visually identical
+   through touches one and two. Frame 13 -> frame 33 -> resume at frame 37. */
+.tc-ssr-reveal.is-waiting[data-taps="1"] .tc-seal-stone-sprite{background-position:22.222222% 20%}
+.tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-stone-sprite{background-position:22.222222% 60%}
+.tc-ssr-reveal.is-waiting[data-taps="1"] .tc-seal-stone{animation:tc-seal-first-hit 240ms ease-out both;opacity:1}
+.tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-stone{animation:tc-seal-second-hit 310ms ease-out both;opacity:1}
+.tc-ssr-reveal.is-waiting[data-taps="1"] .tc-seal-rune-glow{opacity:.45}
+.tc-ssr-reveal.is-waiting[data-taps="2"] .tc-seal-rune-glow{opacity:.8}
+@keyframes tc-seal-first-hit{0%,100%{transform:translateX(0)}18%{transform:translateX(-3px)}40%{transform:translateX(3px)}67%{transform:translateX(-1px)}}
+@keyframes tc-seal-second-hit{0%,100%{transform:translateX(0)}14%,48%{transform:translateX(-5px)}30%,65%{transform:translateX(5px)}82%{transform:translateX(-2px)}}
