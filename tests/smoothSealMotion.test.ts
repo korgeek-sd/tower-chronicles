@@ -10,7 +10,7 @@ test('smooth seal combines 60-frame crack and crumble-and-fade atlases, rune glo
  const html=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:false}));
  assert.match(html,/seal-stone-cracks-v5-60f\.webp/);assert.match(html,/seal-rune-mask-v2\.webp/);
  assert.equal((html.match(/class="tc-seal-dissolve-sprite"/g)||[]).length,1);
- assert.equal((html.match(/class="tc-seal-mote"/g)||[]).length,rarity==='SSR'?24:16);
+ assert.equal((html.match(/class="tc-seal-mote"/g)||[]).length,24);
  assert.doesNotMatch(html,/seal-particles-v1\.webp/);
  const done=renderToStaticMarkup(React.createElement(SSRRevealFrame,{...p,draw:{...p.draw,rarity},ready:true}));assert.doesNotMatch(done,/tc-seal-dissolve|tc-seal-mote|tc-seal-rune-glow/);
  }
