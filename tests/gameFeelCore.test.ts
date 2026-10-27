@@ -31,3 +31,17 @@ test('GAME FEEL CORE: market feedback stays restrained',()=>{
   assert.ok(['subtle','normal'].includes(resolveGameFeelRecipe(event).intensity));
  }
 });
+
+
+test('GAME FEEL CORE: forging and reforging never create fullscreen expanding rings',()=>{
+ const start=resolveGameFeelRecipe('seal.roll.start');
+ const reset=resolveGameFeelRecipe('seal.reset');
+ const results=[1,2,3].map(step=>resolveGameFeelRecipe('seal.roll.result',{step:step as 1|2|3}));
+ for(const recipe of [start,reset,...results]){
+  assert.equal(recipe.commands.some(command=>command.kind==='pulse'||command.kind==='burst'),false,recipe.key);
+ }
+ assert.ok(start.commands.some(command=>command.kind==='press'));
+ assert.ok(reset.commands.some(command=>command.kind==='haptic'));
+ for(const recipe of results)assert.ok(recipe.commands.some(command=>command.kind==='value-pop'));
+ assert.ok(results[2].commands.some(command=>command.kind==='particles'));
+});
