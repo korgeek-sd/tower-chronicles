@@ -671,7 +671,7 @@
 .tc-seal-cathedral .tc-seal-quantity-stepper{display:grid;grid-template-columns:38px minmax(25px,1fr) 38px}
 .tc-seal-cathedral .tc-seal-quantity-stepper button,
 .tc-seal-cathedral .tc-seal-quantity-presets button{
- min-width:0;min-height:43px;padding:0 2px;border:1px solid #95734b;
+ min-width:0;min-height:44px;padding:0 2px;border:1px solid #95734b;
  background:linear-gradient(#30251d,#0d0e11);
  color:#ebd3a7;font:800 15px Georgia,serif
 }
@@ -718,7 +718,7 @@
  .tc-seal-cathedral .tc-seal-next{display:none}
  .tc-seal-cathedral .tc-seal-prob{height:56px}
  .tc-seal-cathedral .tc-seal-prob>header{min-height:17px}
- .tc-seal-cathedral .tc-seal-quantity-stepper button,.tc-seal-cathedral .tc-seal-quantity-presets button{min-height:40px}
+ .tc-seal-cathedral .tc-seal-quantity-stepper button,.tc-seal-cathedral .tc-seal-quantity-presets button{min-height:44px}
  .tc-seal-cathedral .tc-seal-wheel{--seal-wheel-size:min(92cqw,92cqh,340px)}
 }
 @media(prefers-reduced-motion:reduce){
