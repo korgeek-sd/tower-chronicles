@@ -55,32 +55,24 @@ test('seal collection stays within one screen without duplicate progress or comp
  assert.match(css,/@media\s*\(max-width:560px\)\{[\s\S]*?\.tc-seal-multi \.tc-seal-stage\{grid-template-columns:minmax\(0,/);
 });
 
-test('guild emblems use transparent layered image assets for live seals and locked slots',()=>{
+test('generated 15-frame seal texture atlas renders in selection, forging ring and milestone sockets',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
  const css=read('src/components/seal/seal-collection.css');
- for(const marker of ['tc-seal-slot-emblem tc-seal-art','tc-seal-locked-art tc-seal-art','tc-seal-core-art','tc-seal-badge-art'])assert.ok(ui.includes(marker),marker);
- assert.doesNotMatch(ui,/item\.id==='guardian'\?'◆':'✦'/);
- const art=[
-  'seal-combat-core.svg','seal-guardian-core.svg',
-  'seal-combat-frame.svg','seal-guardian-frame.svg',
-  'seal-combat-track.svg','seal-guardian-track.svg',
-  'seal-combat-node-off.svg','seal-combat-node-on.svg',
-  'seal-guardian-node-off.svg','seal-guardian-node-on.svg',
-  'seal-combat-plate.svg','seal-guardian-plate.svg',
-  'seal-combat-flare-1.svg','seal-combat-flare-2.svg',
-  'seal-guardian-flare-1.svg','seal-guardian-flare-2.svg',
-  'seal-sealed-3.svg','seal-sealed-4.svg'
- ];
- for(const name of art){
-  const source=read('src/assets/ui/seals/'+name);
-  assert.match(source,/<svg[^>]*viewBox/);
-  assert.doesNotMatch(source,/<image[^>]*href="https?:/);
-  assert.ok(source.length>550,'art asset is too sparse: '+name);
-  assert.ok(css.includes('seals/'+name),'CSS must use '+name);
+ const atlas=readFileSync('src/assets/ui/seal-generated-atlas.jpg');
+ assert.ok(atlas.length>4500);
+ assert.equal(atlas[0],0xff);
+ assert.equal(atlas[1],0xd8);
+ assert.equal(atlas.at(-2),0xff);
+ assert.equal(atlas.at(-1),0xd9);
+ for(const marker of ['tc-seal-slot-emblem tc-seal-art','tc-seal-locked-art tc-seal-art','tc-seal-core-art','tc-seal-badge-art','tc-seal-progress-dot','tc-seal-flare']){
+  assert.ok(ui.includes(marker),marker);
  }
- assert.doesNotMatch(css,/seal-emblems-v1\.webp/);
+ assert.match(css,/seal-generated-atlas\.jpg/);
+ for(const id of ['association','guardian','sealed-3','sealed-4'])assert.ok(css.includes('.tc-seal-art.'+id),id);
  assert.match(css,/\.tc-seal-multi \.tc-seal-node\.active/);
  assert.match(css,/\.tc-seal-multi \.tc-seal-rank-cartouche/);
+ assert.match(css,/\.tc-seal-multi \.tc-seal-progress-dot/);
+ assert.doesNotMatch(css,/seals\/seal-.*\.svg/);
 });
 
 test('seal upgrade dial engraves the real 0 to 30 level over illustrated metalwork',()=>{
