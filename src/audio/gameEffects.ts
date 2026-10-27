@@ -7,7 +7,7 @@ import type {GameFeelEvent,GameFeelPayloadMap} from '../gameFeel/types';
 
 export const EFFECT_SOUND_KEY='tower-general-effects-v1';
 export const EFFECT_SOUND_EVENT='tower:general-sound-settings';
-export type GameEffectName='ui.click'|'ui.confirm'|'ui.error'|'hunt.start'|'hunt.victory'|'hunt.defeat'|'loot.common'|'loot.rare'|'player.level-up';
+export type GameEffectName='ui.click'|'ui.confirm'|'ui.error'|'hunt.start'|'hunt.victory'|'hunt.defeat'|'loot.common'|'loot.rare'|'player.level-up'|'seal.cast'|'seal.step-1'|'seal.step-2'|'seal.step-3'|'seal.reset';
 export type GameEffectSettings={enabled:boolean;volume:number};
 export const DEFAULT_EFFECT_SOUND_SETTINGS:GameEffectSettings={enabled:true,volume:.58};
 const clamp=(value:number)=>Number.isFinite(value)?Math.min(1,Math.max(0,value)):0;
@@ -38,6 +38,15 @@ export const EFFECT_SOUND_PROFILES:Readonly<Record<GameEffectName,readonly Sound
  'loot.common':[note(0,.16,523,520,.051),note(.085,.24,659,656,.05),grain(.02,.09,1600,.02)],
  'loot.rare':[grain(0,.21,2160,.036),note(0,.36,523,519,.056),note(.12,.44,784,780,.073),note(.27,.61,1174.66,1166,.062),note(.38,.52,1567.98,1562,.039)],
  'player.level-up':[note(0,.22,293.66,293.66,.061),note(.13,.24,392,392,.068),note(.28,.3,587.33,587.33,.072),note(.47,.59,783.99,780,.088),note(.5,.64,1174.66,1169,.041),grain(.48,.35,2840,.025)],
+ // 협회 인장 전용: 철 인장으로 석판을 두드리는 타격 + 봉인 각인 공명.
+ 'seal.cast':[grain(0,.095,870,.071),grain(.028,.17,2060,.033),note(0,.26,214,112,.11,'triangle'),note(.10,.35,97,146,.050,'sine')],
+ // +1: 거칠고 짧은 각인. +2: 2단 화음. +3: 성당 종처럼 길게 울리는 고유 보상음.
+ 'seal.step-1':[grain(0,.095,1740,.037),note(0,.21,329.63,327,.054,'triangle'),note(.09,.32,440,436,.041,'sine')],
+ 'seal.step-2':[grain(0,.17,2420,.036),note(0,.20,349.23,348,.055),note(.13,.27,523.25,522,.063),note(.26,.48,698.46,694,.056),note(.29,.39,1046.5,1040,.017)],
+ 'seal.step-3':[grain(0,.27,2950,.048),note(0,.32,174.61,174,.082,'triangle'),note(.12,.31,349.23,348,.056),note(.23,.40,523.25,521,.072),note(.40,.76,783.99,779,.078),note(.46,.91,1174.66,1168,.051),note(.56,.90,1567.98,1560,.023),note(.47,.57,87.31,86,.055,'triangle')],
+ // 재주조: 낡은 인장의 문양을 지우고 봉인을 다시 찍는 낮은 쇳소리.
+ 'seal.reset':[grain(0,.16,600,.058),note(0,.39,260,105,.080,'sawtooth'),note(.20,.36,131,71,.072,'triangle'),grain(.23,.20,1290,.046)],
+
 };
 export type Cue={name:GameEffectName;delay:number};
 export function cuesForFeedback(event:GameFeelEvent,payload?:GameFeelPayloadMap[GameFeelEvent]):Cue[]{
@@ -45,6 +54,14 @@ export function cuesForFeedback(event:GameFeelEvent,payload?:GameFeelPayloadMap[
  if(event==='ui.confirm')return [{name:'ui.confirm',delay:0}];
  if(event==='ui.error')return [{name:'ui.error',delay:0}];
  if(event==='hunt.start')return [{name:'hunt.start',delay:0}];
+ if(event==='seal.roll.start')return [{name:'seal.cast',delay:0}];
+ if(event==='seal.reset')return [{name:'seal.reset',delay:0}];
+ if(event==='seal.roll.result'){
+  const step=(payload as GameFeelPayloadMap['seal.roll.result']|undefined)?.step;
+  return step===1?[{name:'seal.step-1',delay:0}]:
+         step===2?[{name:'seal.step-2',delay:0}]:
+         step===3?[{name:'seal.step-3',delay:0}]:[];
+ }
  if(event!=='hunt.result')return [];
  const result=payload as GameFeelPayloadMap['hunt.result']|undefined;
  if(!result)return [];
@@ -147,7 +164,7 @@ export function mountInterfaceSounds():()=>void{
   const button=target.closest('button,[role="button"],select');
   if(!(button instanceof HTMLElement)||button.matches(':disabled,[aria-disabled="true"]'))return;
   // Dedicated summon/hunt cues run through their own confirmed interactions.
-  if(button.closest('.tc-ssr-reveal,.tc-appearance-summon-screen')||button.matches('.tc-hunt-enter,.tc-hunt-next'))return;
+  if(button.closest('.tc-ssr-reveal,.tc-appearance-summon-screen')||button.matches('.tc-hunt-enter,.tc-hunt-next,.tc-seal-roll,.tc-seal-reset,.tc-seal-audio-preview'))return;
   playGameEffect('ui.click');
  };
  document.addEventListener('pointerdown',unlock,{capture:true,passive:true});

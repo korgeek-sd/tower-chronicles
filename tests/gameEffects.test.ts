@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {EFFECT_SOUND_PROFILES,cuesForFeedback,DEFAULT_EFFECT_SOUND_SETTINGS,readEffectSoundSettings,saveEffectSoundSettings} from '../src/audio/gameEffects.ts';
-test('phase one synthesizes nine distinct cues without downloaded assets',()=>{
+test('phase one and association seal synthesize distinct cues without downloaded assets',()=>{
  const names=Object.keys(EFFECT_SOUND_PROFILES);
- assert.deepEqual(names,['ui.click','ui.confirm','ui.error','hunt.start','hunt.victory','hunt.defeat','loot.common','loot.rare','player.level-up']);
+ assert.deepEqual(names,['ui.click','ui.confirm','ui.error','hunt.start','hunt.victory','hunt.defeat','loot.common','loot.rare','player.level-up','seal.cast','seal.step-1','seal.step-2','seal.step-3','seal.reset']);
  for(const cue of Object.values(EFFECT_SOUND_PROFILES))assert.ok(cue.length>0&&cue.every(x=>x.duration>0&&x.gain>0));
  assert.ok(EFFECT_SOUND_PROFILES['loot.rare'].length>EFFECT_SOUND_PROFILES['loot.common'].length);
 });
@@ -35,4 +35,25 @@ test('existing GameFeel event bridge handles sound, global UI click, and accurat
  assert.match(audio,/\.tc-hunt-enter,\.tc-hunt-next/);
  assert.match(audio,/!event\.isTrusted/);
  assert.match(audio,/\:disabled,\[aria-disabled/);
+});
+
+test('association seal plays start immediately and server-confirmed stage-specific outcome',()=>{
+ assert.deepEqual(cuesForFeedback('seal.roll.start'),[{name:'seal.cast',delay:0}]);
+ assert.deepEqual(cuesForFeedback('seal.roll.result',{step:1}),[{name:'seal.step-1',delay:0}]);
+ assert.deepEqual(cuesForFeedback('seal.roll.result',{step:2}),[{name:'seal.step-2',delay:0}]);
+ assert.deepEqual(cuesForFeedback('seal.roll.result',{step:3}),[{name:'seal.step-3',delay:0}]);
+ assert.deepEqual(cuesForFeedback('seal.roll.result',{step:99} as never),[]);
+ assert.deepEqual(cuesForFeedback('seal.reset'),[{name:'seal.reset',delay:0}]);
+ assert.ok(EFFECT_SOUND_PROFILES['seal.step-3'].length>EFFECT_SOUND_PROFILES['seal.step-1'].length);
+ assert.ok(EFFECT_SOUND_PROFILES['seal.step-2'].length>EFFECT_SOUND_PROFILES['seal.step-1'].length);
+});
+test('seal failure does not play positive result and a canceled reset does not play a success sound',()=>{
+ const seal=readFileSync('src/components/seal/SealScreen.tsx','utf8');
+ assert.ok(seal.indexOf('const result=await rollOnlineAssociationSeal(onlineLease)')<seal.indexOf("feel.play('seal.roll.result',{step:result.step})"));
+ assert.ok(seal.indexOf('const result=await resetOnlineAssociationSeal(onlineLease)')<seal.indexOf("feel.play('seal.reset')"));
+ assert.ok(seal.indexOf("if(!window.confirm(")<seal.indexOf('const result=await resetOnlineAssociationSeal(onlineLease)'));
+ const audio=readFileSync('src/audio/gameEffects.ts','utf8');
+ assert.match(audio,/\.tc-seal-roll,\.tc-seal-reset,\.tc-seal-audio-preview/);
+ const prefs=readFileSync('src/components/SettingsDialog.tsx','utf8');
+ assert.match(prefs,/협회 인장 \+3 효과음 미리 듣기/);
 });
