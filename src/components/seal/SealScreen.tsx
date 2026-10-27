@@ -157,7 +157,7 @@ export function SealScreen({
       <strong>봉인된 인장</strong><small>제{n}의 인장</small>
     </div>)}
    </nav>
-   <div className="tc-seal-selection-label"><span>{sealName}</span><small>{SEALS.find(item=>item.id===selected)!.subtitle}</small></div>
+   <div className="tc-seal-selection-label" role="status" aria-live="polite"><span>{sealName}</span><small title={message||undefined}>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':SEALS.find(item=>item.id===selected)!.subtitle)}</small></div>
    <div className="tc-seal-stage">
     <section className="tc-seal-altar" aria-label={sealName+' 주조 제단'}>
      <div className="tc-seal-stage-number">현재 단계 <strong>{level} <span>/ 30</span></strong></div>
@@ -173,7 +173,6 @@ export function SealScreen({
      </div>
      <div className="tc-seal-altar-copy"><small>ASSOCIATION SEAL</small>
       <b>{completed?'완성된 '+sealName:level===0?'미주조 '+sealName:level+'단계 '+sealName}</b>
-      <span>각 인장마다 최대 20회 주조 · 30단계 완성</span>
      </div>
     </section>
     <aside className="tc-seal-status">
@@ -191,43 +190,22 @@ export function SealScreen({
      <div className="tc-seal-meta"><span>누적 재주조 <b>{state?.resetCount??0}회</b></span><span>보유 Gold <b>{gold.toLocaleString()}</b></span></div>
     </aside>
    </div>
-   <section className="tc-seal-owned" aria-label="보유 인장 현황">
-    <h3>보유 인장 현황 <small>모든 인장 효과가 함께 적용됩니다</small></h3>
-    <div>{SEALS.map(item=><button key={item.id} type="button" disabled={busy||!seals[item.id]} onClick={()=>switchSeal(item.id)}
-     className={selected===item.id?'active':''}>
-     <span aria-hidden="true">{item.id==='guardian'?'◆':'✦'}</span><strong>{item.name}</strong>
-     <small>Lv. {seals[item.id]?.level??'–'} / 30</small>
-     <em>{selected===item.id?'선택 중':'선택하기'}</em></button>)}</div>
-   </section>
-   <section className="tc-seal-progression" aria-label="30단계 성장 진행도">
-    <header><span>30단계 진행도</span><small>{level} / 30 · 완료된 노드 {activeNodes} / 10</small></header>
-    <div className="tc-seal-progress-track">
-     {nodeIndexes.map(index=><span className={index<activeNodes?'active':''} key={index}>
-      <i>{index===9?'✦':index+1}</i><small>{(index+1)*3}</small>
-     </span>)}
-    </div>
-   </section>
    <section className="tc-seal-prob" aria-label="주조 결과 확률">
     <header><span>주조 결과 확률</span><small>서버 독립 판정 · 하락/파괴 없음</small></header>
     <div>{ASSOCIATION_SEAL_PROBABILITIES.map((item,index)=><span className={'p'+item.step+(lastStep===item.step?' hit':'')} key={item.step}>
      <i>{index===0?'◇':index===1?'◆':'✦'}</i><b>+{item.step}</b><strong>{item.rate}%</strong>
     </span>)}</div>
    </section>
-   <div className="tc-seal-costs" aria-label="주조 비용">
-    <span>주조 비용 <b>{ASSOCIATION_SEAL_ROLL_COST.toLocaleString()} G</b></span>
-    <span>재주조 비용 <b>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} G</b></span>
-    <span>잔여 주조 <b>{ASSOCIATION_SEAL_MAX_ROLLS-rolls}회</b></span>
-   </div>
    <div className="tc-seal-actions">
     <button type="button" className="tc-seal-roll tc-feel-press" data-game-feel="press" disabled={!canRoll} onClick={()=>void roll()}>
      <span>{busy?'주조 중…':completed?'최고 단계 달성':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'20회 주조 완료':'인장 주조'}</span>
      <small>{ASSOCIATION_SEAL_ROLL_COST.toLocaleString()} Gold</small>
     </button>
-    <button type="button" className="tc-seal-reset tc-feel-press" data-game-feel="press" disabled={!canReset} onClick={()=>void reset()}>
+    <button type="button" className="tc-seal-reset tc-feel-press" data-game-feel="press" title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>void reset()}>
      <span>재주조</span><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
     </button>
    </div>
-   <div className="tc-seal-note" role="status"><span>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':completed?sealName+' 30단계 효과가 적용 중입니다.':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'주조 횟수를 모두 사용했습니다. 재주조할 수 있습니다.':'전투·수호 인장은 독립적으로 성장하며, 다른 인장의 단계는 유지됩니다. 언제든지 재주조할 수 있습니다.')}</span></div>
+
   </div>
  </Screen>;
 }
