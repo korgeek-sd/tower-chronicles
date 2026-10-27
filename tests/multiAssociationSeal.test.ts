@@ -55,20 +55,32 @@ test('seal collection stays within one screen without duplicate progress or comp
  assert.match(css,/@media\s*\(max-width:560px\)\{[\s\S]*?\.tc-seal-multi \.tc-seal-stage\{grid-template-columns:minmax\(0,/);
 });
 
-test('guild emblems use a real image sprite for both playable seals and future locked slots',()=>{
+test('guild emblems use transparent layered image assets for live seals and locked slots',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
  const css=read('src/components/seal/seal-collection.css');
- assert.match(ui,/tc-seal-slot-emblem tc-seal-art/);
- assert.match(ui,/tc-seal-locked-art tc-seal-art/);
- assert.match(ui,/tc-seal-core-art/);
- assert.match(ui,/tc-seal-badge-art/);
+ for(const marker of ['tc-seal-slot-emblem tc-seal-art','tc-seal-locked-art tc-seal-art','tc-seal-core-art','tc-seal-badge-art'])assert.ok(ui.includes(marker),marker);
  assert.doesNotMatch(ui,/item\.id==='guardian'\?'◆':'✦'/);
- assert.match(css,/url\('\.\.\/\.\.\/assets\/ui\/seal-emblems-v1\.webp'\)/);
- for(const id of ['association','guardian','sealed-3','sealed-4'])assert.ok(css.includes('.tc-seal-art.'+id),id);
- const img=readFileSync('src/assets/ui/seal-emblems-v1.webp');
- assert.ok(img.length>2048);
- assert.equal(img.subarray(0,4).toString(),'RIFF');
- assert.equal(img.subarray(8,12).toString(),'WEBP');
+ const art=[
+  'seal-combat-core.svg','seal-guardian-core.svg',
+  'seal-combat-frame.svg','seal-guardian-frame.svg',
+  'seal-combat-track.svg','seal-guardian-track.svg',
+  'seal-combat-node-off.svg','seal-combat-node-on.svg',
+  'seal-guardian-node-off.svg','seal-guardian-node-on.svg',
+  'seal-combat-plate.svg','seal-guardian-plate.svg',
+  'seal-combat-flare-1.svg','seal-combat-flare-2.svg',
+  'seal-guardian-flare-1.svg','seal-guardian-flare-2.svg',
+  'seal-sealed-3.svg','seal-sealed-4.svg'
+ ];
+ for(const name of art){
+  const source=read('src/assets/ui/seals/'+name);
+  assert.match(source,/<svg[^>]*viewBox/);
+  assert.doesNotMatch(source,/<image[^>]*href="https?:/);
+  assert.ok(source.length>550,'art asset is too sparse: '+name);
+  assert.ok(css.includes('seals/'+name),'CSS must use '+name);
+ }
+ assert.doesNotMatch(css,/seal-emblems-v1\.webp/);
+ assert.match(css,/\.tc-seal-multi \.tc-seal-node\.active/);
+ assert.match(css,/\.tc-seal-multi \.tc-seal-rank-cartouche/);
 });
 
 test('seal upgrade dial engraves the real 0 to 30 level over illustrated metalwork',()=>{
@@ -92,4 +104,18 @@ test('seal upgrade dial engraves the real 0 to 30 level over illustrated metalwo
  assert.match(css,/\.tc-seal-multi\.tc-seal-guardian \.tc-seal-rank-cartouche/);
  assert.match(frame,/<svg/);
  assert.match(frame,/linearGradient/);
+});
+
+test('new forged seal visuals show every rank and the immediate next server-derived bonus',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-collection.css');
+ assert.match(ui,/const nextLevel=Math\.min\(ASSOCIATION_SEAL_MAX_LEVEL,level\+1\)/);
+ assert.match(ui,/rewardFor\(selected,nextLevel\)/);
+ assert.match(ui,/SEAL_MILESTONES\.map/);
+ assert.match(ui,/--seal-progress/);
+ assert.match(ui,/tc-seal-flare/);
+ assert.match(ui,/tc-seal-milestone-label/);
+ assert.match(css,/\.tc-seal-multi\.tc-seal-guardian \.tc-seal-progress-arc/);
+ assert.doesNotMatch(ui,/style=\{\{[^}]*Math\.random/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
 });
