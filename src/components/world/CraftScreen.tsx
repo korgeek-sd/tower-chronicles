@@ -55,7 +55,7 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  return <div className="tc-craft tc-game-craft tc-blueprint-craft tc-iron-craft" data-craft-state={craftState} role="region" aria-label="제작소" tabIndex={-1} aria-busy={busy}>
   <header className="tc-craft-header">
    <div className="tc-workshop-location"><span>{town.name}</span><small>{LIFE_MASTERY_NAMES[track]} <b>Lv.{level}</b> · 경험치 {mastery.toLocaleString()}{nextXp===null?' / MAX':` / ${nextXp.toLocaleString()}`} · 제작 +{bonus}%</small></div>
-   <div className="tc-craft-ap"><span>생활 활력 <b>{state.vitality} / 100</b></span><div role="progressbar" aria-label="생활 활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state.vitality}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
+   <div className="tc-craft-ap"><span>생활 활력 <b>{state.vitality} / 100</b></span><div role="progressbar" aria-label="생활 활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100,state.vitality)}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
    <button type="button" disabled={busy} onClick={local?onMap:()=>onTravel?.('city')}>{local?'마을 이동':'노바르로 이동'}</button>
   </header>
   <div className="tc-craft-scroll">

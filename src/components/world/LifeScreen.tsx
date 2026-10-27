@@ -23,7 +23,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
   <header className="tc-life-header">
    <button type="button" className="tc-gather-back tc-feel-press" onClick={onBack} aria-label="마을 지도로 돌아가기">‹ 지도</button>
    <h1>{town.name}<span> · 생산</span></h1>
-   <div className="tc-gather-ap"><small>생활 활력</small><b>{state.vitality}<span> / 100</span></b><div role="progressbar" aria-label="생활 활력" aria-valuenow={state.vitality} aria-valuemin={0} aria-valuemax={100}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
+   <div className="tc-gather-ap"><small>생활 활력</small><b>{state.vitality}<span> / 100</span></b><div role="progressbar" aria-label="생활 활력" aria-valuenow={Math.min(100,state.vitality)} aria-valuemin={0} aria-valuemax={100}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
   </header>
   <div className="tc-gather-scene" data-gather-scene={resource}>
    <img src={assetUrl(`assets/backgrounds/gathering/${resource}.webp`)} alt="" aria-hidden="true" draggable={false} width={1536} height={1024}/>
@@ -45,7 +45,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
    <div className="tc-gather-feedback"><p className="tc-gather-preview">{validCount?`${name} 생산 ${(count*10).toLocaleString()}개 · 활력 ${count}${town.tax>0?' · 세전':''}`:'생산 횟수를 확인해 주세요.'}</p><div className="tc-gather-result" role="status" aria-live="polite">{busy?'채집 요청 확인 중…':message||(herb?'1회 생산 10개 · 활력 1':'고추·감자·밀 중 매회 랜덤 한 종류')}</div></div>
    <button type="button" className="tc-action tc-feel-press tc-gather-main" disabled={busy||!validCount||count>limit} onClick={()=>{if(!busy&&validCount&&count<=limit)onGather(resource);}}><CraftItemArt id={herb?'herb':'wheat'}/><span>{busy?'채집 요청 확인 중…':herb?'약초 채집하기':'농사하기'}</span></button>
    {unavailable&&<p className="tc-gather-unavailable">{unavailable}</p>}
-   <div className="tc-gather-policy"><span>세율 {town.tax}%</span><span title={`다음 초기화까지 ${reset}`}>매일 24:00 초기화 · 한국시간</span></div>
+   <div className="tc-gather-policy"><span>세율 {town.tax}%</span><span title={`다음 초기화까지 ${reset}`}>마을 생산량 매일 24:00 초기화 · 한국시간</span></div>
   </div>
  </section>;
 }
