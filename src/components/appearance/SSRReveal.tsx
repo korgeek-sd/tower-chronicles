@@ -2,7 +2,7 @@ import React,{useEffect,useId,useRef,useState} from 'react';
 import type {AppearanceSummonDraw} from '../../online/appearanceSummon';
 import type {AppearanceData} from '../../game/data/cosmetics';
 import {assetUrl} from '../../game/data/graphics';
-import {playSealImpact,playSsrBell,unlockSsrSound} from './ssrSound';
+import {playSealImpact,playSummonRarityReveal,unlockSsrSound} from './ssrSound';
 import './ssr-reveal.css';
 import {SEAL_MOTES} from './sealMotion';
 export const SSR_REVEAL_DURATION_MS=4000;
@@ -61,9 +61,9 @@ export function SSRReveal(props:Props){
   const motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
   // The reveal is neutral for one beat even after the final tap.
   // The server-selected rarity never changes; only its presentation is delayed.
-  if(motion?.matches){setColorRevealed(true);setReady(true);return;}
+  if(motion?.matches){setColorRevealed(true);setReady(true);stop.current=playSummonRarityReveal(props.draw.rarity);return()=>stop.current();}
   const showColor=setTimeout(()=>setColorRevealed(true),SEAL_RARITY_REVEAL_DELAY_MS);
-  const impact=setTimeout(()=>{stop.current=playSsrBell(props.draw.rarity==='SSR'?1:.55);},props.draw.rarity==='SSR'?920:500);
+  const impact=setTimeout(()=>{stop.current=playSummonRarityReveal(props.draw.rarity);},SEAL_RARITY_REVEAL_DELAY_MS+80);
   const finish=setTimeout(()=>setReady(true),SSR_REVEAL_DURATION_MS-OPENING_OFFSET_MS+(props.draw.rarity==='SSR'?SEAL_SSR_EXTRA_HOLD_MS:0));
   const reduce=()=>{if(motion?.matches){clearTimeout(showColor);clearTimeout(impact);clearTimeout(finish);stop.current();setColorRevealed(true);setReady(true);}};
   motion?.addEventListener?.('change',reduce);skip.current?.focus();

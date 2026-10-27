@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {SSRReveal} from './SSRReveal';
+import {playSummonOrdinaryResult} from './ssrSound';
 import type {AppearanceSummonDraw} from '../../online/appearanceSummon';
 import {APPEARANCES,APPEARANCE_BONUS_LABELS, type AppearanceData} from '../../game/data/cosmetics';
 import {assetUrl} from '../../game/data/graphics';
@@ -40,6 +41,11 @@ export function AppearanceSummonResultView({draws,payment,repeatPayment,canRepea
  const resultClose=useRef<HTMLButtonElement>(null);
  useEffect(()=>{if(revealed)resultClose.current?.focus();},[revealed]);
  const queue=rareSummonDraws(draws);
+ useEffect(()=>{
+  if(!animateSSR||queue.length>0||draws.length===0)return;
+  const grade=draws.some(draw=>draw.rarity==='A')?'A':draws.some(draw=>draw.rarity==='B')?'B':'C';
+  playSummonOrdinaryResult(grade);
+ },[animateSSR,draws]);
  const [revealIndex,setRevealIndex]=useState(0);
  const rare=queue[revealIndex];
  const [detailIndex,setDetailIndex]=useState<number|null>(null);

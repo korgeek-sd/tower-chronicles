@@ -13,7 +13,7 @@ import {Glyph,Screen,Segments} from '../../ui/mobile';
 import './appearance-summon.css';
 import './iron-summon.css';
 import './altar-summon.css';
-import {unlockSsrSound} from './ssrSound';
+import {playSummonRequest,unlockSsrSound} from './ssrSound';
 import {AppearanceSummonResultView} from './AppearanceSummonResultView';
 export {AppearanceSummonResultView} from './AppearanceSummonResultView';
 
@@ -46,6 +46,7 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
   const payment=appearanceSummonPayment(rolls,ownedTickets);
   if(game.market.gold<payment.goldSpent){setStatus('소환에 필요한 골드가 부족합니다.');return;}
   unlockSsrSound();
+  playSummonRequest(rolls);
   const request=pendingRequest.current?.rolls===rolls?pendingRequest.current:{id:crypto.randomUUID(),rolls};
   pendingRequest.current=request;
   setResultError('');setBusy(true);setStatus('서버에서 외형을 소환하고 있습니다.');
