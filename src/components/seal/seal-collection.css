@@ -1,8 +1,8 @@
 /* Multi-seal forge: combat and guardian live, next two slots sealed.
    Overrides existing single-seal mobile styles without changing other screens. */
 .tc-seal.tc-seal-multi{
- display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:stretch;
- height:100%;min-height:0;gap:8px;padding:7px 8px 12px;
+ display:grid;grid-template-rows:64px 24px minmax(0,1fr) 67px 54px;overflow:hidden;align-items:stretch;
+ height:100%;min-height:0;gap:5px;padding:5px 6px 6px;
  background:radial-gradient(ellipse at 50% 19%,#4e341c38,transparent 43%),#0b0c0c;
  scrollbar-color:#524533 #12110f;
 }
@@ -104,3 +104,98 @@
 .tc-seal-slot-lock:before{content:"";position:absolute;left:7px;top:-8px;width:14px;height:13px;border:3px solid #b5a087;border-bottom:0;border-radius:9px 9px 0 0;box-shadow:0 0 5px #000}
 .tc-seal-slot-lock i{display:block;width:14px;height:15px;background:#827059;border-radius:2px;box-shadow:inset 0 0 0 2px #352e2a}
 .tc-seal-slot-lock i:after{content:"";display:block;width:3px;height:6px;background:#24201d;position:relative;left:6px;top:5px;border-radius:50%}
+
+
+/* Compact one-screen forge. The four seal slots remain available, while the
+   duplicated owned/progress/cost panels are represented in the slot, wheel,
+   current status, and primary action controls instead. */
+.tc-seal-multi>*{min-height:0;min-width:0}
+.tc-seal-multi .tc-seal-selector{min-height:0;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tc-seal-multi .tc-seal-slot{min-height:0;padding:4px 2px 5px;gap:2px}
+.tc-seal-multi .tc-seal-slot-emblem{font-size:22px}
+.tc-seal-multi .tc-seal-slot-lock{width:25px;height:25px}
+.tc-seal-multi .tc-seal-slot-lock:before{left:5px;top:-7px;width:11px;height:11px}
+.tc-seal-multi .tc-seal-slot-lock i{width:12px;height:13px}
+.tc-seal-multi .tc-seal-slot-lock i:after{left:5px;top:4px}
+.tc-seal-multi .tc-seal-selection-label{min-height:0;align-items:center;padding:2px 3px;overflow:hidden}
+.tc-seal-multi .tc-seal-selection-label span{font-size:13px;white-space:nowrap}
+.tc-seal-multi .tc-seal-selection-label small{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-seal-multi .tc-seal-stage{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);min-height:0;height:100%;gap:5px}
+.tc-seal-multi .tc-seal-altar{min-height:0;min-width:0;grid-template-rows:auto minmax(0,1fr) auto}
+.tc-seal-multi .tc-seal-stage-number{padding-top:5px;font-size:8px}
+.tc-seal-multi .tc-seal-stage-number strong{font-size:18px}
+.tc-seal-multi .tc-seal-stage-number strong span{font-size:10px}
+.tc-seal-multi .tc-seal-wheel{
+ --seal-wheel-size:clamp(92px,min(31vw,18vh),152px);
+ --seal-radius:calc(var(--seal-wheel-size) * .42);
+ width:var(--seal-wheel-size);height:var(--seal-wheel-size);
+ max-width:95%;max-height:100%;margin:auto;align-self:center;justify-self:center
+}
+.tc-seal-multi .tc-seal-node{width:19px;height:19px}
+.tc-seal-multi .tc-seal-node span{font-size:6px}
+.tc-seal-multi .tc-seal-altar-copy{padding:4px 2px 5px}
+.tc-seal-multi .tc-seal-altar-copy b{font-size:10px}
+.tc-seal-multi .tc-seal-status{
+ min-height:0;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:0;overflow:hidden
+}
+.tc-seal-multi .tc-seal-status>header{
+ grid-template-columns:29px minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;
+ gap:4px;padding:4px 3px
+}
+.tc-seal-multi .tc-seal-status>header>div:last-child{grid-column:auto}
+.tc-seal-multi .tc-seal-badge{width:26px;height:26px;grid-row:auto}
+.tc-seal-multi .tc-seal-badge small{font-size:4px!important}
+.tc-seal-multi .tc-seal-badge b{font-size:10px}
+.tc-seal-multi .tc-seal-status header small{font-size:7px}
+.tc-seal-multi .tc-seal-status header strong{font-size:9px}
+.tc-seal-multi .tc-seal-status h3{padding:4px 5px 2px;font-size:9px}
+.tc-seal-multi .tc-seal-effects{grid-template-columns:minmax(0,1fr);padding:2px 5px}
+.tc-seal-multi .tc-seal-effects>div{display:flex;justify-content:space-between;align-items:center;min-height:24px;font-size:9px;text-align:left}
+.tc-seal-multi .tc-seal-effects>div dt i{display:inline-grid}
+.tc-seal-multi .tc-seal-effects dd{font-size:10px}
+.tc-seal-multi .tc-seal-next{margin:2px 3px;padding:3px}
+.tc-seal-multi .tc-seal-next small{font-size:8px}
+.tc-seal-multi .tc-seal-next b{font-size:8px;line-height:1.25}
+.tc-seal-multi .tc-seal-meta{gap:2px;padding:4px 3px;flex-wrap:wrap;font-size:8px}
+.tc-seal-multi .tc-seal-prob{min-height:0;grid-template-rows:20px minmax(0,1fr)}
+.tc-seal-multi .tc-seal-prob>header{padding:0 6px}
+.tc-seal-multi .tc-seal-prob>header span{font-size:9px}
+.tc-seal-multi .tc-seal-prob>header small{font-size:7px}
+.tc-seal-multi .tc-seal-prob>div{min-height:0;gap:4px;padding:4px}
+.tc-seal-multi .tc-seal-prob>div>span{min-height:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:1px 2px}
+.tc-seal-multi .tc-seal-prob b{font-size:13px}
+.tc-seal-multi .tc-seal-prob strong{font-size:11px}
+.tc-seal-multi .tc-seal-actions{min-height:0;grid-template-columns:1.25fr 1fr;gap:5px}
+.tc-seal-multi .tc-seal-actions button{min-height:44px;min-width:0}
+.tc-seal-multi .tc-seal-actions button span{font-size:12px}
+.tc-seal-multi .tc-seal-actions button small{font-size:9px}
+@media (max-width:560px){
+ .tc-seal-multi .tc-seal-stage{grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);min-height:0;gap:5px}
+ .tc-seal-multi .tc-seal-altar{min-height:0;grid-template-rows:auto minmax(0,1fr) auto}
+ .tc-seal-multi .tc-seal-status{min-height:0}
+ .tc-seal-multi .tc-seal-status>header{grid-template-columns:29px minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto}
+ .tc-seal-multi .tc-seal-effects{grid-template-columns:minmax(0,1fr)}
+ .tc-seal-multi .tc-seal-effects>div{display:flex;min-height:24px;text-align:left}
+ .tc-seal-multi .tc-seal-wheel{width:var(--seal-wheel-size)}
+}
+@media (max-height:680px){
+ .tc-seal.tc-seal-multi{grid-template-rows:54px 20px minmax(0,1fr) 56px 48px;gap:4px;padding:4px}
+ .tc-seal-multi .tc-seal-stage-number{padding-top:2px}
+ .tc-seal-multi .tc-seal-wheel{--seal-wheel-size:clamp(82px,min(28vw,16vh),132px)}
+ .tc-seal-multi .tc-seal-slot-emblem{font-size:18px}
+ .tc-seal-multi .tc-seal-slot strong{font-size:8px}
+ .tc-seal-multi .tc-seal-altar-copy{padding:2px}
+ .tc-seal-multi .tc-seal-next b{font-size:7px}
+ .tc-seal-multi .tc-seal-effects>div{min-height:20px}
+ .tc-seal-multi .tc-seal-prob{grid-template-rows:18px minmax(0,1fr)}
+}
+@media (max-height:560px){
+ .tc-seal.tc-seal-multi{grid-template-rows:48px 18px minmax(0,1fr) 48px 44px;gap:3px}
+ .tc-seal-multi .tc-seal-wheel{--seal-wheel-size:clamp(70px,min(27vw,13vh),116px)}
+ .tc-seal-multi .tc-seal-stage-number strong{font-size:14px}
+ .tc-seal-multi .tc-seal-status>header{padding:2px}
+ .tc-seal-multi .tc-seal-status h3{padding:1px 4px}
+ .tc-seal-multi .tc-seal-effects>div{min-height:17px}
+ .tc-seal-multi .tc-seal-next{margin:1px 2px;padding:2px}
+ .tc-seal-multi .tc-seal-meta{padding:2px}
+}
