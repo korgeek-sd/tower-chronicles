@@ -149,7 +149,7 @@ export function SealScreen({
       aria-pressed={selected===item.id}
       aria-label={item.name+' 선택'}>
       <span className={'tc-seal-slot-emblem tc-seal-art '+item.id} aria-hidden="true"/>
-      <strong>{item.name}</strong><small>Lv. {seals[item.id]?.level??'–'} / 30</small>
+      <strong>{item.name}</strong><small className="tc-seal-slot-level"><span>각인</span><b>{seals[item.id]?.level?.toString().padStart(2,'0')??'–'}</b><span>/30</span></small>
     </button>)}
     {SEALED_SLOT_NUMBERS.map(n=><div key={n} className="tc-seal-slot sealed" aria-label={'제'+n+'의 인장 봉인'}>
       <span className={'tc-seal-locked-art tc-seal-art sealed-'+n} aria-hidden="true"/>
