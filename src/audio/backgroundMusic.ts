@@ -20,7 +20,7 @@ export function saveMusicPreferences(value:MusicPreferences):boolean{
 const notes=decodeTowerTheme();
 const freq=(pitch:number)=>440*Math.pow(2,(pitch-69)/12);
 let context:AudioContext|null=null,master:GainNode|null=null,scheduler:number|null=null;
-let unlocked=false,activating=false,anchor=0,noteIndex=0,loop=0,active=false;
+let anchor=0,noteIndex=0,loop=0,active=false;
 let noiseBuffer:AudioBuffer|null=null;
 function voice(ctx:AudioContext,when:number,length:number,pitch:number,velocity:number,instrument:number,destination:AudioNode){
  const level=Math.min(1,velocity/100);
@@ -81,30 +81,38 @@ function stop(){
  if(scheduler!==null){window.clearInterval(scheduler);scheduler=null;}
  if(context&&master)master.gain.setTargetAtTime(0,context.currentTime,.07);
 }
-async function start(){
- if(activating||active||!unlocked||!readMusicPreferences().enabled||document.hidden)return;
- activating=true;
+/**
+ * Attempt background music as soon as the title screen appears.
+ * Browsers may suspend audio until a trusted user gesture; scheduled notes
+ * remain queued and a direct resume on touch starts playback automatically.
+ */
+function start(){
+ if(active||!readMusicPreferences().enabled||document.hidden)return;
  try{
-  if(!context){context=new window.AudioContext();master=context.createGain();master.gain.value=0;master.connect(context.destination);}
-  await context.resume();
-  if(!readMusicPreferences().enabled||document.hidden)return;
+  if(!context||context.state==='closed'){
+   context=new window.AudioContext();
+   master=context.createGain();master.gain.value=0;master.connect(context.destination);
+  }
   active=true;noteIndex=0;loop=0;anchor=context.currentTime+.08;
   master!.gain.setTargetAtTime(readMusicPreferences().volume*.66,context.currentTime,.08);
   scheduler=window.setInterval(schedule,180);
   schedule();
- }catch{/* Audio is optional and must never interrupt gameplay. */}
- finally{activating=false;}
+  // Keep the context queued even when mobile autoplay is suspended.
+  if(context.state!=='running')void context.resume().catch(()=>{});
+ }catch{stop();}
 }
 export function mountBackgroundMusic():()=>void{
  if(typeof window==='undefined'||typeof document==='undefined')return()=>{};
- const unlock=()=>{unlocked=true;void start();};
- const visibility=()=>{if(document.hidden)stop();else void start();};
- const settings=()=>{const prefs=readMusicPreferences();if(!prefs.enabled){stop();return;}if(active&&master&&context)master.gain.setTargetAtTime(prefs.volume*.66,context.currentTime,.06);else void start();};
+ const unlock=()=>{if(context&&context.state==='suspended')void context.resume().catch(()=>{});start();};
+ const visibility=()=>{if(document.hidden)stop();else start();};
+ const settings=()=>{const prefs=readMusicPreferences();if(!prefs.enabled){stop();return;}if(active&&master&&context)master.gain.setTargetAtTime(prefs.volume*.66,context.currentTime,.06);else start();};
  document.addEventListener('pointerdown',unlock,{capture:true});
  document.addEventListener('keydown',unlock,{capture:true});
  document.addEventListener('visibilitychange',visibility);
  window.addEventListener(MUSIC_PREFERENCES_EVENT,settings);
  window.addEventListener('storage',settings);
+ // Start with the server-selection title, not after pressing Enter.
+ start();
  return ()=>{
   document.removeEventListener('pointerdown',unlock,{capture:true});
   document.removeEventListener('keydown',unlock,{capture:true});
@@ -113,6 +121,5 @@ export function mountBackgroundMusic():()=>void{
   window.removeEventListener('storage',settings);
   stop();
   if(context){void context.close().catch(()=>{});context=null;master=null;noiseBuffer=null;}
-  unlocked=false;
  };
 }

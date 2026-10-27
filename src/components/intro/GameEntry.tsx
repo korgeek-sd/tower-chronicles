@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState,type ReactNode} from 'react';
 import {Studio1524Splash} from '../splash/Studio1524Splash';
+import {BackgroundMusic} from '../BackgroundMusic';
 import {hasSeenWorldIntro,markWorldIntroSeen,WORLD_INTRO_PAGES} from './worldIntroState';
 import './world-intro.css';
 import {getStoredSession} from '../../online/auth';
@@ -44,6 +45,7 @@ export function GameEntry({children,initialError=''}:{children:ReactNode;initial
  function finish(){try{if(!preview)markWorldIntroSeen(localStorage);}catch{/* Storage can be unavailable in private contexts. */}setOpen(false);}
  const current=WORLD_INTRO_PAGES[page];
  return <>
+  {splashDone&&<BackgroundMusic/>}
   {ready&&<div inert={!splashDone||open} aria-hidden={!splashDone||open} style={{display:'contents'}}>{children}</div>}
   {splashDone&&!ready&&!visible&&<StartScreen session={session} initialError={initialError} onEnter={()=>{if(getStoredSession())setEntered(true);}}/>}
   {!splashDone&&<Studio1524Splash onComplete={()=>setSplashDone(true)}/>}
