@@ -49,9 +49,9 @@ test('association seal plays start immediately and server-confirmed stage-specif
 });
 test('seal failure does not play positive result and a canceled reset does not play a success sound',()=>{
  const seal=readFileSync('src/components/seal/SealScreen.tsx','utf8');
- assert.ok(seal.indexOf('const result=await rollOnlineAssociationSeal(onlineLease)')<seal.indexOf("feel.play('seal.roll.result',{step:result.step})"));
- assert.ok(seal.indexOf('const result=await resetOnlineAssociationSeal(onlineLease)')<seal.indexOf("feel.play('seal.reset')"));
- assert.ok(seal.indexOf("if(!window.confirm(")<seal.indexOf('const result=await resetOnlineAssociationSeal(onlineLease)'));
+ assert.ok(seal.indexOf('const result=await rollOnlineSeal(onlineLease,sealId)')<seal.indexOf("feel.play('seal.roll.result',{step:result.step})"));
+ assert.ok(seal.indexOf('const result=await resetOnlineSeal(onlineLease,sealId)')<seal.indexOf("feel.play('seal.reset')"));
+ assert.ok(seal.indexOf("if(!window.confirm(")<seal.indexOf('const result=await resetOnlineSeal(onlineLease,sealId)'));
  const audio=readFileSync('src/audio/gameEffects.ts','utf8');
  assert.match(audio,/\.tc-seal-roll,\.tc-seal-reset,\.tc-seal-audio-preview/);
  const prefs=readFileSync('src/components/SettingsDialog.tsx','utf8');
