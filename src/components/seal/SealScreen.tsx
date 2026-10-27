@@ -67,7 +67,8 @@ export function SealScreen({
  const gold=state?.gold??seals.association?.gold??seals.guardian?.gold??game.market.gold;
  const reward=state??rewardFor(selected,level);
  const nextMilestone=associationSealNextMilestone(level);
- const nextReward=rewardFor(selected,nextMilestone);
+ const nextLevel=Math.min(ASSOCIATION_SEAL_MAX_LEVEL,level+1);
+ const nextReward=rewardFor(selected,nextLevel);
  const completed=level>=ASSOCIATION_SEAL_MAX_LEVEL;
  const canRoll=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&rolls<ASSOCIATION_SEAL_MAX_ROLLS&&gold>=ASSOCIATION_SEAL_ROLL_COST;
  const canReset=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&gold>=ASSOCIATION_SEAL_RESET_COST;
@@ -141,7 +142,7 @@ export function SealScreen({
  </Screen>;
 
  return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span className="tc-seal-wallet">GOLD <b>{gold.toLocaleString()}</b></span>}>
-  <div className={'tc-seal tc-seal-multi'+(selected==='guardian'?' tc-seal-guardian':'')+(busy?' is-working':'')+(completed?' is-complete':'')}>
+  <div className={'tc-seal tc-seal-multi'+(selected==='guardian'?' tc-seal-guardian':'')+(busy?' is-working':'')+(completed?' is-complete':'')+' tc-seal-tier-'+Math.floor(level/5)}>
    <nav className="tc-seal-selector" aria-label="협회 인장 선택">
     {SEALS.map(item=><button key={item.id} type="button"
       className={'tc-seal-slot '+(item.id==='guardian'?'guardian':'combat')+(selected===item.id?' is-selected':'')}
@@ -171,6 +172,7 @@ export function SealScreen({
       <div className="tc-seal-core" aria-hidden="true">
        <span className={'tc-seal-core-art tc-seal-art '+selected}/>
       </div>
+      {lastStep&&<div className={'tc-seal-flare '+selected} aria-hidden="true"><i className="layer-1"/>{lastStep>=2&&<i className="layer-2"/>}</div>}
       <div className="tc-seal-rank-cartouche" aria-hidden="true">
        <div className="tc-seal-engraved-level" key={selected+'-'+level}>
         <strong>{level.toString().padStart(2,'0')}</strong><small>/30</small>
@@ -191,7 +193,7 @@ export function SealScreen({
       {selected==='association'&&<div><dt><i>⚔</i> 공격력</dt><dd>+{percent(reward.attackPercent)}</dd></div>}
       <div><dt><i>◆</i> 방어력</dt><dd>+{percent(reward.defensePercent)}</dd></div>
      </dl>
-     {!completed&&<div className="tc-seal-next"><small>다음 이정표 · {nextMilestone}단계</small>
+     {!completed&&<div className="tc-seal-next"><small>다음 강화 · {nextLevel}단계 <span className="tc-seal-milestone-label">다음 각인 {nextMilestone}단계</span></small>
       <b>HP +{percent(nextReward.hpPercent)} · {selected==='guardian'?'DEF':'ATK/DEF'} +{percent(nextReward.defensePercent)}</b></div>}
      <div className="tc-seal-meta"><span>누적 재주조 <b>{state?.resetCount??0}회</b></span><span>보유 Gold <b>{gold.toLocaleString()}</b></span></div>
     </aside>
