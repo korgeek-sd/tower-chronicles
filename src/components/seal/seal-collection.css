@@ -199,3 +199,46 @@
  .tc-seal-multi .tc-seal-next{margin:1px 2px;padding:2px}
  .tc-seal-multi .tc-seal-meta{padding:2px}
 }
+
+
+/* Generated guild-seal sprite. Four frames share one compressed WebP asset.
+   Selector art, active forge crest and status icon resolve to the same frame. */
+.tc-seal-art{
+ display:block;flex:none;aspect-ratio:1;
+ background-image:url('../../assets/ui/seal-emblems-v1.webp');
+ background-size:400% 100%;background-repeat:no-repeat;
+ image-rendering:auto;
+}
+.tc-seal-art.association{background-position:0% 50%}
+.tc-seal-art.guardian{background-position:33.333333% 50%}
+.tc-seal-art.sealed-3{background-position:66.666667% 50%}
+.tc-seal-art.sealed-4{background-position:100% 50%}
+.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,
+.tc-seal-multi .tc-seal-locked-art.tc-seal-art{
+ width:clamp(25px,7vw,37px);height:clamp(25px,7vw,37px);
+ filter:drop-shadow(0 0 3px #000b);
+}
+.tc-seal-multi .tc-seal-slot.guardian .tc-seal-slot-emblem.tc-seal-art{filter:drop-shadow(0 0 4px #528bbc99)}
+.tc-seal-multi .tc-seal-slot.sealed .tc-seal-locked-art{opacity:.78}
+.tc-seal-multi .tc-seal-core{
+ width:68%;aspect-ratio:1;transform:rotate(45deg);
+ background:none!important;border:0;box-shadow:none;
+}
+.tc-seal-multi .tc-seal-core:before{content:none}
+.tc-seal-multi .tc-seal-core>.tc-seal-core-art{
+ width:100%;height:100%;transform:rotate(-45deg);
+ filter:drop-shadow(0 0 5px #a76b2888);
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-wheel{filter:none}
+.tc-seal-multi.tc-seal-guardian .tc-seal-core>.tc-seal-core-art{filter:drop-shadow(0 0 5px #519bc0aa)}
+.tc-seal-multi .tc-seal-badge{
+ width:27px;height:27px;transform:none;border:none;
+ background:transparent;box-shadow:none;
+}
+.tc-seal-multi .tc-seal-badge>.tc-seal-badge-art{
+ width:100%;height:100%;transform:none;
+}
+@media(max-height:680px){
+ .tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,
+ .tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:26px;height:26px}
+}
