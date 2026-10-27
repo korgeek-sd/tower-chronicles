@@ -24,7 +24,7 @@ test('two server-backed seals with independent state and future sealed slots',()
  assert.match(ui,/disabled=\{busy\|\|!seals\[item.id\]\}/);
  assert.match(ui,/aria-pressed=\{selected===item.id\}/);
  assert.match(ui,/tc-seal-guardian/);
- assert.match(ui,/인장 효과|인장.*효과/);
+ assert.match(ui,/<h3>\{sealName\} 효과<\/h3>/);
 });
 test('guardian RPCs use lease and server replay receipts',()=>{
  const src=read('src/online/seal.ts');
