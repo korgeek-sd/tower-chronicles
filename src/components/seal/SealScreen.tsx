@@ -153,7 +153,7 @@ export function SealScreen({
     </button>)}
     {SEALED_SLOT_NUMBERS.map(n=><div key={n} className="tc-seal-slot sealed" aria-label={'제'+n+'의 인장 봉인'}>
       <span className="tc-seal-slot-chain" aria-hidden="true"/>
-      <span className="tc-seal-slot-lock" aria-hidden="true">♜</span>
+      <span className="tc-seal-slot-lock" aria-hidden="true"><i/></span>
       <strong>봉인된 인장</strong><small>제{n}의 인장</small>
     </div>)}
    </nav>
@@ -227,7 +227,7 @@ export function SealScreen({
      <span>재주조</span><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
     </button>
    </div>
-   <div className="tc-seal-note" role="status"><span>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':completed?sealName+' 30단계 효과가 적용 중입니다.':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'주조 횟수를 모두 사용했습니다. 재주조할 수 있습니다.':'전투·수호 인장은 독립적으로 성장하며, 다른 인장의 단계는 유지됩니다.')}</span></div>
+   <div className="tc-seal-note" role="status"><span>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':completed?sealName+' 30단계 효과가 적용 중입니다.':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'주조 횟수를 모두 사용했습니다. 재주조할 수 있습니다.':'전투·수호 인장은 독립적으로 성장하며, 다른 인장의 단계는 유지됩니다. 언제든지 재주조할 수 있습니다.')}</span></div>
   </div>
  </Screen>;
 }
