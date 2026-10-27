@@ -242,3 +242,120 @@
  .tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,
  .tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:26px;height:26px}
 }
+
+
+/* Rank-crafting art: 30 accurate server-backed levels, six engraved milestones.
+   Digits remain DOM text so every level 0-30 stays legible and accessible. */
+.tc-seal-multi .tc-seal-stage-number{
+ display:flex;align-items:center;justify-content:space-between;gap:3px;
+ padding:4px 5px 1px;color:#b9a180;white-space:nowrap;font-size:8px;line-height:1.15
+}
+.tc-seal-multi .tc-seal-stage-number strong{
+ display:flex;align-items:baseline;gap:3px;
+ font:700 clamp(11px,2.7vw,17px) Georgia,"Noto Serif KR",serif;
+ color:#f1ce91;text-shadow:0 0 5px #b17630aa
+}
+.tc-seal-multi .tc-seal-stage-number strong span{font-size:8px;color:#a38b68}
+.tc-seal-multi .tc-seal-wheel{--seal-rank-glow:#edaa55;--seal-radius:calc(var(--seal-wheel-size)*.44)}
+.tc-seal-multi.tc-seal-guardian .tc-seal-wheel{--seal-rank-glow:#8ccced}
+.tc-seal-multi .tc-seal-progress-arc{
+ position:absolute;z-index:3;inset:0;border-radius:50%;pointer-events:none;
+ background:
+  repeating-conic-gradient(from -90deg,transparent 0deg 10.7deg,#0e0d0c 10.7deg 12deg),
+  conic-gradient(from -90deg,var(--seal-rank-glow) 0 var(--seal-progress),#4a3d2b var(--seal-progress) 100%);
+ -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+ mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+ filter:drop-shadow(0 0 3px var(--seal-rank-glow));
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-progress-arc{background:
+ repeating-conic-gradient(from -90deg,transparent 0deg 10.7deg,#0e1114 10.7deg 12deg),
+ conic-gradient(from -90deg,var(--seal-rank-glow) 0 var(--seal-progress),#304252 var(--seal-progress) 100%)
+}
+.tc-seal-multi .tc-seal-node{
+ z-index:6;width:clamp(13px,calc(var(--seal-wheel-size)*.145),20px);
+ height:clamp(13px,calc(var(--seal-wheel-size)*.145),20px);
+ border-radius:4px;transform:
+ translate(-50%,-50%) rotate(calc(var(--i)*60deg))
+ translateY(calc(var(--seal-radius)*-1)) rotate(calc(var(--i)*-60deg)) rotate(45deg);
+ border:1px solid #776146;background:linear-gradient(135deg,#342820,#10100f);
+ box-shadow:0 0 0 1px #0d0e0e;
+}
+.tc-seal-multi .tc-seal-node span{
+ transform:rotate(-45deg);
+ font:800 clamp(6px,calc(var(--seal-wheel-size)*.066),9px) Georgia,serif;
+ letter-spacing:-.5px;color:#91806d;
+}
+.tc-seal-multi .tc-seal-node.active{
+ border-color:#f2ca85;
+ background:linear-gradient(135deg,#b58346,#53301c 52%,#25150e);
+ box-shadow:0 0 0 1px #21140c,0 0 8px var(--seal-rank-glow);
+}
+.tc-seal-multi .tc-seal-node.active span{color:#fff0c5;text-shadow:0 0 4px #fff4ba}
+.tc-seal-multi.tc-seal-guardian .tc-seal-node.active{
+ border-color:#a7e2fa;background:linear-gradient(135deg,#759bb3,#2b536d 54%,#101c29);
+}
+.tc-seal-multi .tc-seal-node.just-lit{animation:tcSealMilestoneEngrave .55s ease-out}
+@keyframes tcSealMilestoneEngrave{
+ 0%{filter:brightness(.8)}
+ 35%{filter:brightness(1.8);box-shadow:0 0 0 2px #fff2cc,0 0 17px var(--seal-rank-glow)}
+ 100%{filter:none}
+}
+.tc-seal-multi .tc-seal-rank-cartouche{
+ position:absolute;z-index:10;left:50%;top:63%;
+ transform:translate(-50%,-50%);
+ width:clamp(49px,calc(var(--seal-wheel-size)*.62),97px);
+ height:clamp(32px,calc(var(--seal-wheel-size)*.40),58px);
+ display:grid;place-items:center;
+ isolation:isolate;pointer-events:none;
+ filter:drop-shadow(0 2px 3px #000c);
+}
+.tc-seal-multi .tc-seal-rank-cartouche:before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ background:url('../../assets/ui/seal-level-cartouche.svg') center/100% 100% no-repeat;
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-rank-cartouche:before{
+ filter:hue-rotate(160deg) saturate(.8) brightness(1.05)
+}
+.tc-seal-multi .tc-seal-engraved-level{
+ display:flex;align-items:baseline;justify-content:center;gap:2px;
+ width:100%;padding-top:2px;color:#fae0a8;
+ text-shadow:0 1px 1px #160c07,0 0 5px #e6953f77;
+}
+.tc-seal-multi .tc-seal-engraved-level strong{
+ font:800 clamp(17px,calc(var(--seal-wheel-size)*.23),34px)/1 Georgia,"Times New Roman",serif;
+ letter-spacing:-.09em;
+ background:linear-gradient(#fff4ce,#f2cd82 43%,#ad7539 66%,#ffe9b4);
+ -webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 1px 1px #000);
+}
+.tc-seal-multi .tc-seal-engraved-level small{
+ font:700 clamp(6px,calc(var(--seal-wheel-size)*.072),10px)/1 Georgia,serif;
+ color:#bfa06f;letter-spacing:-.04em
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-engraved-level strong{
+ background:linear-gradient(#f4fbff,#a8d7ed 46%,#487a9f 72%,#d9f0ff);
+ -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-engraved-level small{color:#a1cadc}
+.tc-seal-multi .tc-seal-wheel[class*="tc-seal-result-"] .tc-seal-engraved-level strong{
+ animation:tcSealNumeralImprint .36s ease-out
+}
+@keyframes tcSealNumeralImprint{
+ 0%{opacity:.35;filter:brightness(2);transform:scale(1.14)}
+ 100%{opacity:1;filter:drop-shadow(0 1px 1px #000);transform:scale(1)}
+}
+.tc-seal-multi .tc-seal-slot-level{
+ display:flex;justify-content:center;align-items:baseline;gap:2px;
+ line-height:1;white-space:nowrap;font-family:Georgia,serif!important
+}
+.tc-seal-multi .tc-seal-slot-level span{font-size:8px;color:#a99b83}
+.tc-seal-multi .tc-seal-slot-level b{font:800 12px Georgia,serif;color:#f1c785}
+.tc-seal-multi .tc-seal-slot.guardian .tc-seal-slot-level b{color:#a5d9f4}
+@media(max-height:680px){
+ .tc-seal-multi .tc-seal-rank-cartouche{top:61%}
+ .tc-seal-multi .tc-seal-slot-level b{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-seal-multi .tc-seal-node.just-lit,
+ .tc-seal-multi .tc-seal-wheel[class*="tc-seal-result-"] .tc-seal-engraved-level strong{animation:none}
+}
