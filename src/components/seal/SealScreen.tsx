@@ -18,6 +18,7 @@ import './seal-collection.css';
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
 const SEALED_SLOT_NUMBERS=[3,4] as const;
 const SEAL_MILESTONES=[5,10,15,20,25,30] as const;
+const SEAL_PROGRESS_STEPS=Array.from({length:30},(_,index)=>index);
 const SEALS=[
  {id:'association' as const,name:'전투 인장',subtitle:'기존 협회 인장 · 공격과 생존'},
  {id:'guardian' as const,name:'수호 인장',subtitle:'새로운 인장 · 체력과 방어'},
@@ -166,8 +167,10 @@ export function SealScreen({
       aria-label={sealName+' 각인 '+level+'단계, 최대 30단계'}>
       <div className="tc-seal-progress-arc" aria-hidden="true"/>
       <div className="tc-seal-rune-ring" aria-hidden="true"/>
+      {SEAL_PROGRESS_STEPS.map(index=><i key={index} className={'tc-seal-progress-dot'+(index<level?' active':'')}
+       style={{'--p':index} as React.CSSProperties} aria-hidden="true"/>)}
       {SEAL_MILESTONES.map((milestone,index)=><i
-       className={'tc-seal-node '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
+       className={'tc-seal-node milestone-'+milestone+' '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
        style={{'--i':index} as React.CSSProperties} key={milestone} aria-hidden="true"><span>{String(milestone).padStart(2,'0')}</span></i>)}
       <div className="tc-seal-core" aria-hidden="true">
        <span className={'tc-seal-core-art tc-seal-art '+selected}/>
