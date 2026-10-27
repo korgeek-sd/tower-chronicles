@@ -201,47 +201,23 @@
 }
 
 
-/* Generated guild-seal sprite. Four frames share one compressed WebP asset.
-   Selector art, active forge crest and status icon resolve to the same frame. */
-.tc-seal-art{
- display:block;flex:none;aspect-ratio:1;
- background-image:url('../../assets/ui/seal-emblems-v1.webp');
- background-size:400% 100%;background-repeat:no-repeat;
- image-rendering:auto;
-}
-.tc-seal-art.association{background-position:0% 50%}
-.tc-seal-art.guardian{background-position:33.333333% 50%}
-.tc-seal-art.sealed-3{background-position:66.666667% 50%}
-.tc-seal-art.sealed-4{background-position:100% 50%}
-.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,
-.tc-seal-multi .tc-seal-locked-art.tc-seal-art{
- width:clamp(25px,7vw,37px);height:clamp(25px,7vw,37px);
- filter:drop-shadow(0 0 3px #000b);
-}
+/* Transparent SVG art remains sharp in the 44px selector and the central forge. */
+.tc-seal-art{display:block;flex:none;aspect-ratio:1;background-size:contain;background-position:center;background-repeat:no-repeat}
+.tc-seal-art.association{background-image:url('../../assets/ui/seals/seal-combat-core.svg')}
+.tc-seal-art.guardian{background-image:url('../../assets/ui/seals/seal-guardian-core.svg')}
+.tc-seal-art.sealed-3{background-image:url('../../assets/ui/seals/seal-sealed-3.svg')}
+.tc-seal-art.sealed-4{background-image:url('../../assets/ui/seals/seal-sealed-4.svg')}
+.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,.tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:clamp(25px,7vw,37px);height:clamp(25px,7vw,37px);filter:drop-shadow(0 0 3px #000b)}
 .tc-seal-multi .tc-seal-slot.guardian .tc-seal-slot-emblem.tc-seal-art{filter:drop-shadow(0 0 4px #528bbc99)}
 .tc-seal-multi .tc-seal-slot.sealed .tc-seal-locked-art{opacity:.78}
-.tc-seal-multi .tc-seal-core{
- width:68%;aspect-ratio:1;transform:rotate(45deg);
- background:none!important;border:0;box-shadow:none;
-}
-.tc-seal-multi .tc-seal-core:before{content:none}
-.tc-seal-multi .tc-seal-core>.tc-seal-core-art{
- width:100%;height:100%;transform:rotate(-45deg);
- filter:drop-shadow(0 0 5px #a76b2888);
-}
+.tc-seal-multi .tc-seal-core{width:72%;aspect-ratio:1;transform:rotate(45deg);background:none!important;border:0;box-shadow:none}
+.tc-seal-multi .tc-seal-core:before{display:none}
+.tc-seal-multi .tc-seal-core>.tc-seal-core-art{width:100%;height:100%;transform:rotate(-45deg);filter:drop-shadow(0 0 5px #a76b2888)}
 .tc-seal-multi.tc-seal-guardian .tc-seal-wheel{filter:none}
 .tc-seal-multi.tc-seal-guardian .tc-seal-core>.tc-seal-core-art{filter:drop-shadow(0 0 5px #519bc0aa)}
-.tc-seal-multi .tc-seal-badge{
- width:27px;height:27px;transform:none;border:none;
- background:transparent;box-shadow:none;
-}
-.tc-seal-multi .tc-seal-badge>.tc-seal-badge-art{
- width:100%;height:100%;transform:none;
-}
-@media(max-height:680px){
- .tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,
- .tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:26px;height:26px}
-}
+.tc-seal-multi .tc-seal-badge{width:27px;height:27px;transform:none;border:none;background:transparent;box-shadow:none}
+.tc-seal-multi .tc-seal-badge>.tc-seal-badge-art{width:100%;height:100%;transform:none}
+@media(max-height:680px){.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,.tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:26px;height:26px}}
 
 
 /* Rank-crafting art: 30 accurate server-backed levels, six engraved milestones.
@@ -359,3 +335,31 @@
  .tc-seal-multi .tc-seal-node.just-lit,
  .tc-seal-multi .tc-seal-wheel[class*="tc-seal-result-"] .tc-seal-engraved-level strong{animation:none}
 }
+
+/* Detailed layered forge: actual rank values remain authoritative DOM text. */
+.tc-seal-multi .tc-seal-wheel:before{content:"";position:absolute;inset:-4%;z-index:2;pointer-events:none;border:0;box-shadow:none;border-radius:0;background:url('../../assets/ui/seals/seal-combat-frame.svg') center/100% 100% no-repeat}
+.tc-seal-multi.tc-seal-guardian .tc-seal-wheel:before{background-image:url('../../assets/ui/seals/seal-guardian-frame.svg')}
+.tc-seal-multi .tc-seal-wheel:after{display:none}
+.tc-seal-multi .tc-seal-rune-ring{inset:0;border:0;border-radius:0;box-shadow:none;z-index:1;background:url('../../assets/ui/seals/seal-combat-track.svg') center/100% 100% no-repeat}
+.tc-seal-multi.tc-seal-guardian .tc-seal-rune-ring{background-image:url('../../assets/ui/seals/seal-guardian-track.svg')}
+.tc-seal-multi .tc-seal-node{width:clamp(15px,calc(var(--seal-wheel-size)*.16),22px);height:clamp(15px,calc(var(--seal-wheel-size)*.16),22px);border:0;border-radius:0;box-shadow:none;background:url('../../assets/ui/seals/seal-combat-node-off.svg') center/contain no-repeat;transform:translate(-50%,-50%) rotate(calc(var(--i)*60deg)) translateY(calc(var(--seal-radius)*-1)) rotate(calc(var(--i)*-60deg))}
+.tc-seal-multi.tc-seal-guardian .tc-seal-node{background-image:url('../../assets/ui/seals/seal-guardian-node-off.svg')}
+.tc-seal-multi .tc-seal-node.active{border:0;box-shadow:0 0 7px var(--seal-rank-glow);background:url('../../assets/ui/seals/seal-combat-node-on.svg') center/contain no-repeat}
+.tc-seal-multi.tc-seal-guardian .tc-seal-node.active{background-image:url('../../assets/ui/seals/seal-guardian-node-on.svg');border:0;box-shadow:0 0 7px var(--seal-rank-glow)}
+.tc-seal-multi .tc-seal-node span{position:relative;z-index:1;transform:none;font-size:clamp(6px,calc(var(--seal-wheel-size)*.065),9px);color:#d0bca0;text-shadow:0 1px 2px #040404}
+.tc-seal-multi .tc-seal-node.active span{color:#fff6df}
+.tc-seal-multi .tc-seal-rank-cartouche:before{background-image:url('../../assets/ui/seals/seal-combat-plate.svg');background-size:100% 100%}
+.tc-seal-multi.tc-seal-guardian .tc-seal-rank-cartouche:before{background-image:url('../../assets/ui/seals/seal-guardian-plate.svg');filter:none}
+.tc-seal-multi .tc-seal-milestone-label{float:right;font-size:7px;opacity:.8;white-space:nowrap;margin-left:2px}
+.tc-seal-multi .tc-seal-flare{position:absolute;z-index:8;inset:9%;pointer-events:none;opacity:0;animation:tcSealLocalizedSpark .48s ease-out forwards}
+.tc-seal-multi .tc-seal-flare i{position:absolute;inset:0;display:block;background-size:contain;background-position:center;background-repeat:no-repeat}
+.tc-seal-multi .tc-seal-flare.association .layer-1{background-image:url('../../assets/ui/seals/seal-combat-flare-1.svg')}
+.tc-seal-multi .tc-seal-flare.association .layer-2{background-image:url('../../assets/ui/seals/seal-combat-flare-2.svg')}
+.tc-seal-multi .tc-seal-flare.guardian .layer-1{background-image:url('../../assets/ui/seals/seal-guardian-flare-1.svg')}
+.tc-seal-multi .tc-seal-flare.guardian .layer-2{background-image:url('../../assets/ui/seals/seal-guardian-flare-2.svg')}
+@keyframes tcSealLocalizedSpark{0%{opacity:0;transform:scale(.93)}40%{opacity:.76;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
+.tc-seal-multi.tc-seal-tier-0 .tc-seal-core-art{opacity:.66;filter:grayscale(.42) brightness(.73)}
+.tc-seal-multi.tc-seal-tier-1 .tc-seal-core-art{filter:brightness(.94)}
+.tc-seal-multi.tc-seal-tier-3 .tc-seal-core-art,.tc-seal-multi.tc-seal-tier-4 .tc-seal-core-art{filter:brightness(1.12) drop-shadow(0 0 4px var(--seal-rank-glow))}
+.tc-seal-multi.tc-seal-tier-5 .tc-seal-core-art,.tc-seal-multi.tc-seal-tier-6 .tc-seal-core-art{filter:brightness(1.24) drop-shadow(0 0 7px var(--seal-rank-glow))}
+@media(prefers-reduced-motion:reduce){.tc-seal-multi .tc-seal-flare{animation:none;display:none}}
