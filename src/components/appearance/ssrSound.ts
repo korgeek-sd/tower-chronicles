@@ -157,7 +157,8 @@ export function playSealImpact(tap:number):void{
  }catch{cue.stop();}
 }
 /** Only fired after rarity color becomes visible; distinct SR shimmer and SSR cathedral bells. */
-export function playSummonRarityReveal(rarity:'SR'|'SSR'):()=>void{
+export function playSummonRarityReveal(rarity:SummonGrade):()=>void{
+ if(rarity!=='SR'&&rarity!=='SSR')return()=>{};
  const cue=beginCue();if(!cue)return()=>{};
  try{
   const preset=SUMMON_REVEAL_PRESETS[rarity],ssr=rarity==='SSR';
