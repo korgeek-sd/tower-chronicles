@@ -40,3 +40,17 @@ test('guardian RPCs use lease and server replay receipts',()=>{
  assert.match(ddl,/guardian_seal_bonus_json/);
  assert.match(ddl,/revoke all on private\.player_guardian_seals from public,anon,authenticated/);
 });
+
+test('seal collection stays within one screen without duplicate progress or completed footer',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-collection.css');
+ assert.doesNotMatch(ui,/className="tc-seal-progression"/);
+ assert.doesNotMatch(ui,/className="tc-seal-owned"/);
+ assert.doesNotMatch(ui,/className="tc-seal-costs"/);
+ assert.doesNotMatch(ui,/30단계 효과가 적용 중입니다/);
+ assert.match(ui,/role="status"/);
+ assert.match(css,/\.tc-seal\.tc-seal-multi\{[^}]*overflow:hidden/s);
+ assert.doesNotMatch(css,/\.tc-seal\.tc-seal-multi\{[^}]*overflow-y:auto/s);
+ assert.match(css,/\.tc-seal-multi \.tc-seal-actions button\{min-height:44px/);
+ assert.match(css,/@media\s*\(max-width:560px\)\{[\s\S]*?\.tc-seal-multi \.tc-seal-stage\{grid-template-columns:minmax\(0,/);
+});
