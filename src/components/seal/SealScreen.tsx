@@ -18,7 +18,7 @@ import './seal-collection.css';
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
 const SEALED_SLOT_NUMBERS=[3,4] as const;
 const SEAL_MILESTONES=[5,10,15,20,25,30] as const;
-const SEAL_PROGRESS_STEPS=Array.from({length:30},(_,index)=>index);
+const SEAL_RING_STEPS=Array.from({length:ASSOCIATION_SEAL_MAX_LEVEL},(_,index)=>index+1);
 const SEALS=[
  {id:'association' as const,name:'전투 인장',subtitle:'기존 협회 인장 · 공격과 생존'},
  {id:'guardian' as const,name:'수호 인장',subtitle:'새로운 인장 · 체력과 방어'},
@@ -39,6 +39,7 @@ export function SealScreen({
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState('');
  const [lastStep,setLastStep]=useState<number|null>(null);
+ const [rollCount,setRollCount]=useState(1);
  const [litNode,setLitNode]=useState<number|null>(null);
  const feel=useGameFeel();
 
@@ -71,43 +72,58 @@ export function SealScreen({
  const nextLevel=Math.min(ASSOCIATION_SEAL_MAX_LEVEL,level+1);
  const nextReward=rewardFor(selected,nextLevel);
  const completed=level>=ASSOCIATION_SEAL_MAX_LEVEL;
- const canRoll=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&rolls<ASSOCIATION_SEAL_MAX_ROLLS&&gold>=ASSOCIATION_SEAL_ROLL_COST;
+ const remainingRolls=Math.max(0,ASSOCIATION_SEAL_MAX_ROLLS-rolls);
+ const affordableRolls=Math.floor(gold/ASSOCIATION_SEAL_ROLL_COST);
+ const maxSelectableRolls=Math.max(1,Math.min(remainingRolls,affordableRolls));
+ const selectedRolls=Math.min(rollCount,maxSelectableRolls);
+ const canRoll=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&remainingRolls>0&&affordableRolls>0;
  const canReset=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&gold>=ASSOCIATION_SEAL_RESET_COST;
  const activeNodes=Math.floor(level/5);
  const sealName=SEALS.find(item=>item.id===selected)!.name;
 
  function switchSeal(id:AssociationSealId){
   if(busy||selected===id)return;
-  setSelected(id);setLastStep(null);setLitNode(null);setMessage('');
+  setSelected(id);setLastStep(null);setLitNode(null);setMessage('');setRollCount(1);
  }
 
  async function roll(){
   if(!onlineLease||!canRoll)return;
   const sealId=selected;
+  const beginningLevel=level;
+  let processed=0;
+  let finalLevel=level;
+  let lastResultStep:1|2|3=1;
   feel.play('seal.roll.start');
   setBusy(true);setMessage('');setLastStep(null);setLitNode(null);
   try{
-   const result=await rollOnlineSeal(onlineLease,sealId);
-   setSeals(previous=>({
-    ...previous,
-    [sealId]:result.state,
-    // The wallet is shared, so the other seal's displayed Gold must update too.
-    [sealId==='association'?'guardian':'association']:previous[sealId==='association'?'guardian':'association']
-      ?{...previous[sealId==='association'?'guardian':'association']!,gold:result.state.gold}:undefined,
-   }));
-   setLastStep(result.step);
-   const beforeNodes=Math.floor(result.beforeLevel/5);
-   const afterNodes=Math.floor(result.afterLevel/5);
-   setLitNode(afterNodes>beforeNodes?afterNodes-1:null);
-   if(!result.replayed)feel.play('seal.roll.result',{step:result.step});
-   setMessage(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL
-    ?sealName+' 최고 단계를 완성했습니다.'
-    :sealName+' · +'+result.step+'단계 · '+result.beforeLevel+' → '+result.afterLevel);
-   if(onServerRecord)onServerRecord(result.record,'협회 인장 주조 결과를 서버에 저장했습니다.');
-   else setGame(result.record.payload);
+   // There is no bulk RPC. Each forge is a distinct authoritative server action.
+   for(let index=0;index<selectedRolls;index++){
+    const result=await rollOnlineSeal(onlineLease,sealId);
+    processed++;
+    finalLevel=result.afterLevel;
+    lastResultStep=result.step;
+    setSeals(previous=>({
+     ...previous,
+     [sealId]:result.state,
+     [sealId==='association'?'guardian':'association']:previous[sealId==='association'?'guardian':'association']
+       ?{...previous[sealId==='association'?'guardian':'association']!,gold:result.state.gold}:undefined,
+    }));
+    const beforeNodes=Math.floor(result.beforeLevel/5);
+    const afterNodes=Math.floor(result.afterLevel/5);
+    setLitNode(afterNodes>beforeNodes?afterNodes-1:null);
+    if(onServerRecord)onServerRecord(result.record,'협회 인장 주조 결과를 서버에 저장했습니다.');
+    else setGame(result.record.payload);
+    if(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL)break;
+   }
+   setLastStep(lastResultStep);
+   feel.play('seal.roll.result',{step:lastResultStep});
+   setMessage(finalLevel>=ASSOCIATION_SEAL_MAX_LEVEL
+    ?sealName+' 최고 30단계 완성 · '+processed+'회 주조'
+    :sealName+' · '+processed+'회 주조 · '+beginningLevel+' → '+finalLevel+'단계');
   }catch(error){
    feel.play('ui.error');
-   setMessage(error instanceof Error?error.message:'협회 인장 주조에 실패했습니다.');
+   const reason=error instanceof Error?error.message:'인장 주조에 실패했습니다.';
+   setMessage(processed>0?processed+'회 완료 후 중단 · '+reason:reason);
   }finally{setBusy(false);}
  }
 
@@ -143,7 +159,7 @@ export function SealScreen({
  </Screen>;
 
  return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span className="tc-seal-wallet">GOLD <b>{gold.toLocaleString()}</b></span>}>
-  <div className={'tc-seal tc-seal-multi'+(selected==='guardian'?' tc-seal-guardian':'')+(busy?' is-working':'')+(completed?' is-complete':'')+' tc-seal-tier-'+Math.floor(level/5)}>
+  <div className={'tc-seal tc-seal-multi tc-seal-cathedral'+(selected==='guardian'?' tc-seal-guardian':'')+(busy?' is-working':'')+(completed?' is-complete':'')+' tc-seal-tier-'+Math.floor(level/5)}>
    <nav className="tc-seal-selector" aria-label="협회 인장 선택">
     {SEALS.map(item=><button key={item.id} type="button"
       className={'tc-seal-slot '+(item.id==='guardian'?'guardian':'combat')+(selected===item.id?' is-selected':'')}
@@ -167,8 +183,9 @@ export function SealScreen({
       aria-label={sealName+' 각인 '+level+'단계, 최대 30단계'}>
       <div className="tc-seal-progress-arc" aria-hidden="true"/>
       <div className="tc-seal-rune-ring" aria-hidden="true"/>
-      {SEAL_PROGRESS_STEPS.map(index=><i key={index} className={'tc-seal-progress-dot'+(index<level?' active':'')}
-       style={{'--p':index} as React.CSSProperties} aria-hidden="true"/>)}
+      {SEAL_RING_STEPS.map((rank,index)=><i key={rank} className="tc-seal-ring-rank tc-seal-progress-dot"
+       data-active={rank<=level} data-current={rank===level}
+       style={{'--p':index} as React.CSSProperties} aria-hidden="true"><span>{rank}</span></i>)}
       {SEAL_MILESTONES.map((milestone,index)=><i
        className={'tc-seal-node milestone-'+milestone+' '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
        style={{'--i':index} as React.CSSProperties} key={milestone} aria-hidden="true"><span>{String(milestone).padStart(2,'0')}</span></i>)}
@@ -207,10 +224,22 @@ export function SealScreen({
      <i>{index===0?'◇':index===1?'◆':'✦'}</i><b>+{item.step}</b><strong>{item.rate}%</strong>
     </span>)}</div>
    </section>
+   <div className="tc-seal-quantity" aria-label="주조 횟수 선택">
+    <div className="tc-seal-quantity-caption"><strong>주조 횟수</strong><small>남은 횟수 {remainingRolls} / {ASSOCIATION_SEAL_MAX_ROLLS}</small></div>
+    <div className="tc-seal-quantity-stepper">
+     <button type="button" disabled={busy||selectedRolls<=1} aria-label="주조 횟수 1 감소" onClick={()=>setRollCount(value=>Math.max(1,value-1))}>−</button>
+     <output aria-live="polite">{selectedRolls}</output>
+     <button type="button" disabled={busy||selectedRolls>=maxSelectableRolls||!canRoll} aria-label="주조 횟수 1 증가" onClick={()=>setRollCount(value=>Math.min(maxSelectableRolls,value+1))}>+</button>
+    </div>
+    <div className="tc-seal-quantity-presets">
+     {[1,10,20].map(count=><button type="button" key={count} disabled={busy||!canRoll} aria-pressed={selectedRolls===Math.min(count,maxSelectableRolls)}
+      onClick={()=>setRollCount(Math.min(count,maxSelectableRolls))}>{count}</button>)}
+    </div>
+   </div>
    <div className="tc-seal-actions">
     <button type="button" className="tc-seal-roll tc-feel-press" data-game-feel="press" disabled={!canRoll} onClick={()=>void roll()}>
      <span>{busy?'주조 중…':completed?'최고 단계 달성':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'20회 주조 완료':'인장 주조'}</span>
-     <small>{ASSOCIATION_SEAL_ROLL_COST.toLocaleString()} Gold</small>
+     <small>{(selectedRolls*ASSOCIATION_SEAL_ROLL_COST).toLocaleString()} Gold · {selectedRolls}회</small>
     </button>
     <button type="button" className="tc-seal-reset tc-feel-press" data-game-feel="press" title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>void reset()}>
      <span>재주조</span><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
