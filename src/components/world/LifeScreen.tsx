@@ -17,13 +17,13 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
  const validCount=Number.isInteger(count)&&count>=1&&count<=100;
  const remaining=Math.max(0,Math.ceil((state.nextResetAt-now)/1000)),reset=`${Math.floor(remaining/3600)}시간 ${Math.floor(remaining%3600/60)}분`;
  const owner=town.owner==='중립'?'중립':town.owner+' 길드';
- const unavailable=!validCount?'생활 횟수는 1~100 사이여야 합니다.':state.actionPoints<count?'생활 행동력이 부족합니다.':count>limit?'마을의 남은 생산량이 부족합니다.':'';
+ const unavailable=!validCount?'생활 횟수는 1~100 사이여야 합니다.':state.vitality<count?'생활 활력이 부족합니다.':count>limit?'마을의 남은 생산량이 부족합니다.':'';
  const materials:LifeMaterial[]=herb?['herb']:['pepper','potato','wheat'];
  return <section className="tc-life tc-gather-location" aria-label="마을 생활" aria-busy={busy}>
   <header className="tc-life-header">
    <button type="button" className="tc-gather-back tc-feel-press" onClick={onBack} aria-label="마을 지도로 돌아가기">‹ 지도</button>
    <h1>{town.name}<span> · 생산</span></h1>
-   <div className="tc-gather-ap"><small>생활 행동력</small><b>{state.actionPoints}<span> / 100</span></b><div role="progressbar" aria-label="생활 행동력" aria-valuenow={state.actionPoints} aria-valuemin={0} aria-valuemax={100}><i style={{width:Math.max(0,Math.min(100,state.actionPoints))+'%'}}/></div></div>
+   <div className="tc-gather-ap"><small>생활 활력</small><b>{state.vitality}<span> / 100</span></b><div role="progressbar" aria-label="생활 활력" aria-valuenow={state.vitality} aria-valuemin={0} aria-valuemax={100}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
   </header>
   <div className="tc-gather-scene" data-gather-scene={resource}>
    <img src={assetUrl(`assets/backgrounds/gathering/${resource}.webp`)} alt="" aria-hidden="true" draggable={false} width={1536} height={1024}/>
@@ -42,7 +42,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
   </section>
   <div className="tc-gather-controls">
    <section className="tc-life-quantity"><div className="tc-gather-quantity-label"><label htmlFor="life-count">생산 횟수</label><small>현재 최대 {limit}회 가능</small></div><div role="group" aria-label="채집 횟수">{[1,10,limit].map((n,index)=><button type="button" className="tc-feel-press" key={index} aria-pressed={count===n&&(index<2||n!==1&&n!==10)} disabled={busy||n<1||n>limit} onClick={()=>onCount(n)}>{index===2?'최대':`${n}회`}</button>)}<input id="life-count" aria-label="생활 횟수 직접 입력" type="number" inputMode="numeric" min="1" max="100" step="1" value={count} disabled={busy} onChange={e=>onCount(Math.max(1,Math.min(100,Math.trunc(Number(e.target.value)||1))))}/></div></section>
-   <div className="tc-gather-feedback"><p className="tc-gather-preview">{validCount?`${name} 생산 ${(count*10).toLocaleString()}개 · 행동력 ${count}${town.tax>0?' · 세전':''}`:'생산 횟수를 확인해 주세요.'}</p><div className="tc-gather-result" role="status" aria-live="polite">{busy?'채집 요청 확인 중…':message||(herb?'1회 생산 10개 · 행동력 1':'고추·감자·밀 중 매회 랜덤 한 종류')}</div></div>
+   <div className="tc-gather-feedback"><p className="tc-gather-preview">{validCount?`${name} 생산 ${(count*10).toLocaleString()}개 · 활력 ${count}${town.tax>0?' · 세전':''}`:'생산 횟수를 확인해 주세요.'}</p><div className="tc-gather-result" role="status" aria-live="polite">{busy?'채집 요청 확인 중…':message||(herb?'1회 생산 10개 · 활력 1':'고추·감자·밀 중 매회 랜덤 한 종류')}</div></div>
    <button type="button" className="tc-action tc-feel-press tc-gather-main" disabled={busy||!validCount||count>limit} onClick={()=>{if(!busy&&validCount&&count<=limit)onGather(resource);}}><CraftItemArt id={herb?'herb':'wheat'}/><span>{busy?'채집 요청 확인 중…':herb?'약초 채집하기':'농사하기'}</span></button>
    {unavailable&&<p className="tc-gather-unavailable">{unavailable}</p>}
    <div className="tc-gather-policy"><span>세율 {town.tax}%</span><span title={`다음 초기화까지 ${reset}`}>매일 24:00 초기화 · 한국시간</span></div>

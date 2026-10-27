@@ -5,7 +5,7 @@ import {Glyph} from '../../ui/mobile';
 import {WORLD_TOWNS,canTravel,townKindLabel,type TownKind} from './worldMap';
 import './region-board.css';
 import './central-map.css';
-export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints,onLife,war,onDeclareWar,warBusy=false,warPending=false,warError}:{currentId:string;onTravel:(id:string)=>void;towns?:LifeTown[];busy?:boolean;actionPoints?:number;onLife?:()=>void;war?:VillageWarState|null;onDeclareWar?:(id:string)=>void;warBusy?:boolean;warPending?:boolean;warError?:string}){
+export function WorldMapScreen({currentId,onTravel,towns,busy=false,vitality,onLife,war,onDeclareWar,warBusy=false,warPending=false,warError}:{currentId:string;onTravel:(id:string)=>void;towns?:LifeTown[];busy?:boolean;vitality?:number;onLife?:()=>void;war?:VillageWarState|null;onDeclareWar?:(id:string)=>void;warBusy?:boolean;warPending?:boolean;warError?:string}){
  const cancelRef=useRef<HTMLButtonElement|null>(null);
  const data=towns??WORLD_TOWNS;
  const [selectedId,setSelectedId]=useState(currentId),[message,setMessage]=useState(''),[confirmTown,setConfirmTown]=useState<string|null>(null);
@@ -26,7 +26,7 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,actionPoints
  const mapTowns=mapIds.map(id=>data.find(t=>t.id===id)).filter((t):t is typeof data[number]=>!!t);
  const remaining=(id:string,kind:TownKind)=>{const t=towns?.find(t=>t.id===id);if(!t)return '—';const n=kind==='herb'?t.herbRemaining:t.farmRemaining;return n===0?'소진':n.toLocaleString();};
  return <section className="tc-region-board" aria-label="마을 이동">
-  <header className="tc-region-heading"><div><small>REGION BOARD</small><h1>마을 이동</h1></div><div><span>현재 위치 · <b>{current.name}</b></span><span>행동력 <b>{actionPoints===undefined?'—':`${actionPoints} / 100`}</b></span></div></header>
+  <header className="tc-region-heading"><div><small>REGION BOARD</small><h1>마을 이동</h1></div><div><span>현재 위치 · <b>{current.name}</b></span><span>활력 <b>{vitality===undefined?'—':`${vitality} / 100`}</b></span></div></header>
   <div className="tc-territory-map" aria-label="중앙 도시와 네 마을 지도">
    {mapTowns.map(town=><button type="button" key={town.id} data-town-id={town.id} data-map-town={town.id} className={'tc-map-node '+town.kind+(town.id===current.id?' current':'')} aria-pressed={town.id===selected.id} aria-label={`${town.name}, ${resource(town.kind)}, 점령 ${town.owner}`} onClick={()=>select(town.id)}>
     <span className="tc-map-label-stack">{town.id===current.id&&<em className="tc-map-location-flag">현재 위치</em>}

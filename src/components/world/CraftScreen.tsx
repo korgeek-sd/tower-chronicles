@@ -42,7 +42,7 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  const local=town.kind==='city'||town.kind===r.kind,locationHint=r.kind==='city'?'노바르에서 제작':`${r.kind==='herb'?'약초':'농사'} 마을 또는 노바르에서 제작`;
  const limit=craftLimit(state,r.id),quantity=Math.max(1,Math.min(100,Math.floor(count)||1));
  const preview=craftPreview(r.id,quantity,mastery,state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&quantity<=limit;
- const craftState=busy?'working':!local?'location':owned<required?'materials':state.actionPoints<quantity?'action-points':'ready';
+ const craftState=busy?'working':!local?'location':owned<required?'materials':state.vitality<quantity?'action-points':'ready';
  const [confirm,setConfirm]=useState(false),[receipts,setReceipts]=useState<ConfirmedCraftResult[]>([]);
  const dismissReceipt=React.useCallback((id:string)=>setReceipts(v=>v.filter(r=>r.requestId!==id)),[]);
  const craftButton=useRef<HTMLButtonElement>(null);
@@ -55,7 +55,7 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  return <div className="tc-craft tc-game-craft tc-blueprint-craft tc-iron-craft" data-craft-state={craftState} role="region" aria-label="제작소" tabIndex={-1} aria-busy={busy}>
   <header className="tc-craft-header">
    <div className="tc-workshop-location"><span>{town.name}</span><small>{LIFE_MASTERY_NAMES[track]} <b>Lv.{level}</b> · 경험치 {mastery.toLocaleString()}{nextXp===null?' / MAX':` / ${nextXp.toLocaleString()}`} · 제작 +{bonus}%</small></div>
-   <div className="tc-craft-ap"><span>생활 행동력 <b>{state.actionPoints} / 100</b></span><div role="progressbar" aria-label="생활 행동력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state.actionPoints}><i style={{width:Math.max(0,Math.min(100,state.actionPoints))+'%'}}/></div></div>
+   <div className="tc-craft-ap"><span>생활 활력 <b>{state.vitality} / 100</b></span><div role="progressbar" aria-label="생활 활력" aria-valuemin={0} aria-valuemax={100} aria-valuenow={state.vitality}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
    <button type="button" disabled={busy} onClick={local?onMap:()=>onTravel?.('city')}>{local?'마을 이동':'노바르로 이동'}</button>
   </header>
   <div className="tc-craft-scroll">
@@ -78,10 +78,10 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
   <footer className="tc-craft-footer">
     <div className="tc-life-quantity"><div className="tc-craft-section-title"><h3>제작 횟수</h3><span>최대 {limit}회</span></div><div role="group" aria-label="제작 횟수">{[1,10,limit].map((value,index)=><button type="button" className="tc-feel-press" key={index} disabled={busy||value<1||value>limit} aria-pressed={quantity===value&&(index<2||value!==1&&value!==10)} onClick={()=>onCount(value)}>{index===2?'최대':value+'회'}</button>)}</div></div>
    <button ref={craftButton} type="button" className="tc-action tc-feel-press tc-craft-main" disabled={!canCraft} onClick={()=>{feel.play('ui.press');setConfirm(true);}}><Glyph name="craft"/><span>{busy?'제작 중…':`제작하기 ${quantity}회`}</span><small>×{preview.quantity.toLocaleString()}</small></button>
-   <div className="tc-craft-status" role="status">{busy?'제작 요청 처리 중…':!local?locationHint:craftState==='materials'?`재료 부족 · ${required-owned}개 더 필요`:craftState==='action-points'?`행동력 부족 · ${quantity-state.actionPoints} 더 필요`:`제작 가능 · 행동력 ${quantity} · 재료 ${required}개 소비`}</div>
+   <div className="tc-craft-status" role="status">{busy?'제작 요청 처리 중…':!local?locationHint:craftState==='materials'?`재료 부족 · ${required-owned}개 더 필요`:craftState==='action-points'?`활력 부족 · ${quantity-state.vitality} 더 필요`:`제작 가능 · 활력 ${quantity} · 재료 ${required}개 소비`}</div>
    {busy&&<CraftPendingIndicator/>}
   </footer>
   <CraftReceiptNotifications receipts={receipts} onDismiss={dismissReceipt}/>
-  {confirm&&<CraftDialog returnFocus={craftButton} label="제작 확인" onClose={()=>setConfirm(false)}><div className="tc-craft-confirm-art"><CraftItemArt id={r.id}/></div><h3>제작 확인</h3><p>{PRODUCT_NAMES[r.id]} {quantity}회 제작</p><p>행동력 {quantity}, 재료 {required}개 소비</p><div className="tc-craft-dialog-actions"><button type="button" onClick={()=>setConfirm(false)}>취소</button><button type="button" disabled={!canCraft} onClick={()=>{setConfirm(false);onCraft(r.id);}}>제작 확정</button></div></CraftDialog>}
+  {confirm&&<CraftDialog returnFocus={craftButton} label="제작 확인" onClose={()=>setConfirm(false)}><div className="tc-craft-confirm-art"><CraftItemArt id={r.id}/></div><h3>제작 확인</h3><p>{PRODUCT_NAMES[r.id]} {quantity}회 제작</p><p>활력 {quantity}, 재료 {required}개 소비</p><div className="tc-craft-dialog-actions"><button type="button" onClick={()=>setConfirm(false)}>취소</button><button type="button" disabled={!canCraft} onClick={()=>{setConfirm(false);onCraft(r.id);}}>제작 확정</button></div></CraftDialog>}
  </div>;
 }

@@ -6,7 +6,7 @@ import {LifeScreen} from '../src/components/world/LifeScreen';
 import {WORLD_TOWNS} from '../src/components/world/worldMap';
 import type {VillageLifeState} from '../src/online/villageLife';
 
-const state:VillageLifeState={location:'herb-1',actionPoints:24,materials:{herb:42,pepper:10,potato:20,wheat:30},lifeMasteries:{herb:100,farm:700,ticket:0},towns:WORLD_TOWNS.map(t=>({...t,owner:'잿빛',tax:10,herbCapacity:30000,farmCapacity:30000,herbRemaining:180,farmRemaining:90})),serverNow:0,nextResetAt:100000};
+const state:VillageLifeState={location:'herb-1',vitality:24,materials:{herb:42,pepper:10,potato:20,wheat:30},lifeMasteries:{herb:100,farm:700,ticket:0},towns:WORLD_TOWNS.map(t=>({...t,owner:'잿빛',tax:10,herbCapacity:30000,farmCapacity:30000,herbRemaining:180,farmRemaining:90})),serverNow:0,nextResetAt:100000};
 const props={state,busy:false,count:1,now:0,onCount:()=>{},onGather:()=>{},onBack:()=>{},onRefresh:()=>{}};
 const render=(overrides:Partial<React.ComponentProps<typeof LifeScreen>>={})=>renderToStaticMarkup(React.createElement(LifeScreen,{...props,...overrides}));
 
@@ -16,7 +16,7 @@ test('gathering leads with the current town scenery and authoritative ownership,
  assert.match(html,/달그늘 약초밭/);
  assert.match(html,/잿빛 길드/);
  assert.match(html,/세율 10%/);
- assert.match(html,/aria-label="생활 행동력"[^>]*aria-valuenow="24"/);
+ assert.match(html,/aria-label="생활 활력"[^>]*aria-valuenow="24"/);
  assert.match(html,/aria-label="약초 잔여량"[^>]*aria-valuenow="180"[^>]*aria-valuemax="30000"/);
  assert.match(html,/data-craft-art="herb"/);
  assert.match(html,/보유 약초/);
@@ -34,8 +34,8 @@ test('farm location shows crop scenery and random crop rewards without inventing
 });
 
 test('gathering explains insufficient action points and exhausted stock while disabling the main action',()=>{
- const emptyAP=render({state:{...state,actionPoints:0}});
- assert.match(emptyAP,/생활 행동력이 부족합니다/);
+ const emptyAP=render({state:{...state,vitality:0}});
+ assert.match(emptyAP,/생활 활력이 부족합니다/);
  assert.match(emptyAP,/<button[^>]*class="[^"]*tc-gather-main[^"]*"[^>]*disabled/);
  const emptyStock=render({state:{...state,towns:state.towns.map(t=>({...t,herbRemaining:9}))}});
  assert.match(emptyStock,/마을의 남은 생산량이 부족합니다/);
@@ -51,8 +51,8 @@ test('pending keeps gathering and resource selection disabled and only displays 
  assert.match(html,/<button[^>]*aria-pressed="true"[^>]*disabled[^>]*>[^]*?약초 채집/);
  assert.match(html,/채집 요청 확인 중/);
  assert.doesNotMatch(html,/약초 \+10/);
- const confirmed=render({message:'약초 +10 · 행동력 −1'});
- assert.match(confirmed,/약초 \+10 · 행동력 −1/);
+ const confirmed=render({message:'약초 +10 · 활력 −1'});
+ assert.match(confirmed,/약초 \+10 · 활력 −1/);
 });
 
 test('gathering leaves utility actions out and puts specialty selection after the scene',()=>{
@@ -65,7 +65,7 @@ test('gathering displays mastery XP while preserving fixed yield',()=>{
  assert.match(render(),/약초 Lv.2/);
  assert.match(render({state:{...state,location:'farm-1'}}),/농업 Lv.5/);
  for(const html of [render(),render({state:{...state,location:'farm-1'}})]){
-  assert.match(html,/생산 10개/);assert.match(html,/행동력 1/);
+  assert.match(html,/생산 10개/);assert.match(html,/활력 1/);
  }
 });
 
