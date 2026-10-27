@@ -33,12 +33,13 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
  const [previewOpen,setPreviewOpen]=React.useState(()=>typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('artPreview')==='grave-hound');
  const pendingHunt=React.useRef(false);
  const previousResult=React.useRef(hunting?.lastResult);
+ const experienceBeforeHunt=React.useRef(hunting?.experience??0);
  React.useEffect(()=>{
-  if(pendingHunt.current&&hunting?.lastResult&&previousResult.current!==hunting.lastResult){pendingHunt.current=false;setSubmitting(false);setFeedbackRevision(v=>v+1);setView('result');feel.play('hunt.result',{outcome:hunting.lastResult.outcome,grade:hunting.lastResult.equipment?.grade});}
+  if(pendingHunt.current&&hunting?.lastResult&&previousResult.current!==hunting.lastResult){pendingHunt.current=false;setSubmitting(false);setFeedbackRevision(v=>v+1);setView('result');feel.play('hunt.result',{outcome:hunting.lastResult.outcome,grade:hunting.lastResult.equipment?.grade,leveledUp:huntingLevel(hunting.experience)>huntingLevel(experienceBeforeHunt.current)});}
   previousResult.current=hunting?.lastResult;
  },[hunting?.lastResult,feel]);
  React.useEffect(()=>{if(error){pendingHunt.current=false;setSubmitting(false);}},[error]);
- function startHunt(id:HuntMapId=selected){if(huntingNow||pendingHunt.current||!hunting||hunting.vitality<1||game.expedition)return;previousResult.current=hunting?.lastResult;pendingHunt.current=true;setSubmitting(true);feel.play('hunt.start');onHunt(id);}
+ function startHunt(id:HuntMapId=selected){if(huntingNow||pendingHunt.current||!hunting||hunting.vitality<1||game.expedition)return;previousResult.current=hunting?.lastResult;experienceBeforeHunt.current=hunting.experience;pendingHunt.current=true;setSubmitting(true);feel.play('hunt.start');onHunt(id);}
  const regionDialog=React.useRef<HTMLDialogElement>(null);
  const state=hunting?recoverVitality(hunting,now):null,result=state?.lastResult,map=HUNT_MAPS.find(m=>m.id===result?.mapId),player=result?.player??stats(game);
  const enemy=result?.monster??{...HUNT_MONSTERS[map?.id??'plains'][0],hp:map?.hp??1,attack:map?.attack??0,defense:map?.defense??0};

@@ -8,7 +8,7 @@ export type GameFeelEvent=
  |'combat.basic-hit'|'combat.critical-hit'|'combat.player-damaged'|'combat.guard'|'combat.heal'|'combat.death'
  |'market.order-placed'|'market.order-cancelled'|'market.trade-partial'|'market.trade-filled';
 export type GameFeelPayloadMap={
- 'hunt.start':undefined;'hunt.result':{outcome:'victory'|'defeat';grade?:string};
+ 'hunt.start':undefined;'hunt.result':{outcome:'victory'|'defeat';grade?:string;leveledUp?:boolean};
  'ui.press':undefined;'ui.confirm':undefined;'ui.error':undefined;
  'seal.roll.start':undefined;'seal.roll.result':{step:1|2|3};'seal.reset':undefined;
  'enhancement.attempt':undefined;'enhancement.result':{outcome:EnhancementFeelOutcome};
