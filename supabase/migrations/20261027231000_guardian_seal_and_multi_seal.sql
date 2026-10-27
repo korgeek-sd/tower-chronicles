@@ -76,7 +76,7 @@ begin
     on conflict(user_id) do nothing;
   return private.guardian_seal_state_json(v_user);
 end;
-$function$
+$function$;
 
 
 CREATE OR REPLACE FUNCTION public.roll_guardian_seal(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid)
@@ -165,7 +165,7 @@ begin
     'replayed',false
   );
 end;
-$function$
+$function$;
 
 
 CREATE OR REPLACE FUNCTION public.reset_guardian_seal(p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid)
@@ -246,7 +246,7 @@ begin
     'replayed',false
   );
 end;
-$function$
+$function$;
 
 
 CREATE OR REPLACE FUNCTION private.combat_equipment_stats(p_user uuid, p_payload jsonb)
@@ -294,7 +294,7 @@ begin
  if ap->>'id'='crit_damage' then crit_damage:=crit_damage+(case when ap->>'id'='crit_damage' then coalesce((ap->>'value')::numeric,0) else 0 end)/100;end if;
  if ap->>'id'='armor_penetration' then pen:=pen+(case when ap->>'id'='armor_penetration' then coalesce((ap->>'value')::numeric,0) else 0 end)/100;end if;
  return jsonb_build_object('hp',round(hp),'attack',attack,'defense',defense,'critChance',least(.6,crit),'critDamage',crit_damage,'armorPenetration',least(1,pen),'weapon',weapon,'appearanceEffect',ap);
-end $function$
+end $function$;
 
 
 
