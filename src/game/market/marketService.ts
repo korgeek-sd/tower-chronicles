@@ -1,5 +1,7 @@
 import type {EquipmentItem,GameState,Item,MarketOrder,MarketSide,MarketStorageEntry,MarketTrade,Tower} from '../types';
 import type {InventoryCategory,InventoryViewItem} from '../inventoryView';
+import {CRAFT_RECIPES,PRODUCT_NAMES} from '../life/crafting';
+import {MARKET_LIFE_PRODUCT_IDS,marketLifeProductItemId,marketLifeProductName,type MarketLifeProduct} from '../life/marketProducts';
 import {MARKET_LIFE_MATERIAL_IDS,MARKET_LIFE_MATERIAL_NAMES,marketLifeItemId,type MarketLifeMaterial} from '../life/marketMaterials';
 import {TOWERS,towerIds} from '../data/config';
 import {itemName} from '../engine/state';
@@ -21,6 +23,7 @@ export function marketItemIdForEquipment(item:EquipmentItem):string|null{
 }
 export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
  if(item.lifeProduct==='challenge_ticket')return 'other:challenge_ticket';
+ if(item.lifeProduct&&MARKET_LIFE_PRODUCT_IDS.some(id=>id===item.lifeProduct))return marketLifeProductItemId(item.lifeProduct as MarketLifeProduct);
  if(item.lifeMaterial&&MARKET_LIFE_MATERIAL_IDS.some(id=>id===item.lifeMaterial))return marketLifeItemId(item.lifeMaterial as MarketLifeMaterial);
  if(item.lifeMaterial||item.lifeProduct)return null;
  if(item.category==='equipment'){
@@ -104,6 +107,7 @@ function staticItemName(itemId:string,gear?:Item|EquipmentItem){
  if(itemId.startsWith('equipment:'))return equipmentMarketName(itemId);
  if(itemId.startsWith('equipment_v2:'))return itemId.slice('equipment_v2:'.length);
  for(const id of MARKET_LIFE_MATERIAL_IDS)if(itemId===marketLifeItemId(id))return MARKET_LIFE_MATERIAL_NAMES[id];
+ for(const id of MARKET_LIFE_PRODUCT_IDS)if(itemId===marketLifeProductItemId(id))return marketLifeProductName(id);
  const p=parseStack(itemId);
  if(!p)return itemId;
  if(p.kind==='material')return `T${(p.index??0)+1} ${TOWERS[p.tower!].material}`;
@@ -123,7 +127,7 @@ export function marketCatalog(s:GameState){
  return [...known.values()];
 }
 /** Current combat catalog; legacy orders remain accessible through orders/storage. */
-export function currentMarketCatalog(s:GameState,lifeMaterials:Partial<Record<MarketLifeMaterial,number>>={}):MarketItem[]{
+export function currentMarketCatalog(s:GameState,lifeMaterials:Partial<Record<MarketLifeMaterial,number>>={},lifeProducts:Partial<Record<MarketLifeProduct,number>>={}):MarketItem[]{
  const catalog=marketCatalog(s);
  const known=new Map(catalog.map(item=>[item.id,item]));
  // Show every current skillbook for price discovery and buy orders, including unowned books.
@@ -137,6 +141,9 @@ export function currentMarketCatalog(s:GameState,lifeMaterials:Partial<Record<Ma
  for(const id of MARKET_LIFE_MATERIAL_IDS)current.push({id:marketLifeItemId(id),name:MARKET_LIFE_MATERIAL_NAMES[id],
   available:Math.max(0,Number(lifeMaterials[id]??0)),category:'materials',
   description:id==='stone'?'장비 분해로 획득하는 도전권 제작 재료입니다.':'마을 채집으로 획득하는 생활·음식 제작 재료입니다.'});
+ for(const id of MARKET_LIFE_PRODUCT_IDS)current.push({id:marketLifeProductItemId(id),name:PRODUCT_NAMES[id],
+  available:Math.max(0,Number(lifeProducts[id]??0)),category:'other',
+  description:CRAFT_RECIPES.find(recipe=>recipe.id===id)?.description??'거래 가능한 제작 소모품입니다.'});
  return current;
 }
 function available(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.available||0;}

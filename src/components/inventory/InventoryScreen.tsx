@@ -53,7 +53,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  if(item?.category==='cosmetics'){action=()=>setGame(s=>registerAppearance(s,item.sourceId));label=item.registered?'등록 완료':'외형 등록';disabled=!!item.registered;}
  const selectedEquipment=item?.category==='equipment'&&item.modern?(game.equipmentItems??[]).find(value=>value.id===item.sourceId):undefined;
  const marketItemId=item?marketItemIdForInventory(game,item):null;
- const marketVisible=!!item&&(!item.lifeProduct||item.lifeProduct==='challenge_ticket')&&!['potions','cosmetics','foods'].includes(item.category);
+ const marketVisible=!!item&&!!marketItemId&&item.category!=='cosmetics';
  const marketLabel=marketVisible?(marketItemId?'시세 · 거래':'거래 불가'):undefined;
  const marketDisabled=marketVisible&&(!marketItemId||!onMarket);
  const marketAction=marketItemId&&onMarket&&item?()=>onMarket({itemId:marketItemId,inventoryKey:item.key,sourceName:item.name}):undefined;
