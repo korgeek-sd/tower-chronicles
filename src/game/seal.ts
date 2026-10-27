@@ -50,3 +50,9 @@ export function associationSealNextMilestone(level:number){
  const safe=Math.max(0,Math.min(ASSOCIATION_SEAL_MAX_LEVEL,Math.floor(level)));
  return [5,10,15,20,25,30].find(value=>value>safe)??30;
 }
+
+/** Must match private.guardian_seal_bonus_json for server-authoritative stats. */
+export function guardianSealReward(level:number):AssociationSealReward {
+ const combat=associationSealReward(level);
+ return {hpPercent:Number((combat.hpPercent/2).toFixed(2)),attackPercent:0,defensePercent:combat.hpPercent};
+}

@@ -4,8 +4,10 @@ import {getDeviceId,rememberCloudRecord,type CloudSaveRecord} from './cloudSave'
 import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
 
+export type AssociationSealId='association'|'guardian';
+
 export interface OnlineAssociationSealState {
- sealId:'association';
+ sealId:AssociationSealId;
  level:number;
  rollsUsed:number;
  resetCount:number;
@@ -118,4 +120,23 @@ export async function resetOnlineAssociationSeal(
 
 export function applyOnlineAssociationSealWallet(game:GameState,state:OnlineAssociationSealState):GameState{
  return {...game,market:{...game.market,gold:state.gold}};
+}
+
+/** Both seals use independent server-side progress and the same server wallet. */
+export async function getOnlineSealState(lease:GameplayLease,sealId:AssociationSealId):Promise<OnlineAssociationSealState>{
+ return sealId==='association'
+  ?getOnlineAssociationSealState(lease)
+  :rpc<OnlineAssociationSealState>('get_guardian_seal_state',leaseArgs(lease));
+}
+export async function rollOnlineSeal(lease:GameplayLease,sealId:AssociationSealId,requestId:string=crypto.randomUUID()):Promise<OnlineAssociationSealRollResult>{
+ if(sealId==='association')return rollOnlineAssociationSeal(lease,requestId);
+ const result=await rpc<OnlineAssociationSealRollResult>('roll_guardian_seal',{...leaseArgs(lease),p_request_id:requestId});
+ await remember(result.record);
+ return result;
+}
+export async function resetOnlineSeal(lease:GameplayLease,sealId:AssociationSealId,requestId:string=crypto.randomUUID()):Promise<OnlineAssociationSealResetResult>{
+ if(sealId==='association')return resetOnlineAssociationSeal(lease,requestId);
+ const result=await rpc<OnlineAssociationSealResetResult>('reset_guardian_seal',{...leaseArgs(lease),p_request_id:requestId});
+ await remember(result.record);
+ return result;
 }
