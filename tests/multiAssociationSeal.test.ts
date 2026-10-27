@@ -70,3 +70,26 @@ test('guild emblems use a real image sprite for both playable seals and future l
  assert.equal(img.subarray(0,4).toString(),'RIFF');
  assert.equal(img.subarray(8,12).toString(),'WEBP');
 });
+
+test('seal upgrade dial engraves the real 0 to 30 level over illustrated metalwork',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-collection.css');
+ const frame=read('src/assets/ui/seal-level-cartouche.svg');
+ assert.match(ui,/const SEAL_MILESTONES=\[5,10,15,20,25,30\] as const/);
+ assert.match(ui,/Math\.floor\(level\/5\)/);
+ assert.match(ui,/Math\.floor\(result\.beforeLevel\/5\)/);
+ assert.match(ui,/Math\.floor\(result\.afterLevel\/5\)/);
+ assert.match(ui,/--seal-progress/);
+ assert.match(ui,/tc-seal-progress-arc/);
+ assert.match(ui,/tc-seal-rank-cartouche/);
+ assert.match(ui,/tc-seal-engraved-level/);
+ assert.match(ui,/\{level\}/);
+ assert.match(ui,/SEAL_MILESTONES\.map/);
+ assert.doesNotMatch(ui,/\{index\+1\}<\/span>/);
+ assert.match(css,/\.tc-seal-multi \.tc-seal-progress-arc/);
+ assert.match(css,/conic-gradient/);
+ assert.match(css,/seal-level-cartouche\.svg/);
+ assert.match(css,/\.tc-seal-multi\.tc-seal-guardian \.tc-seal-rank-cartouche/);
+ assert.match(frame,/<svg/);
+ assert.match(frame,/linearGradient/);
+});
