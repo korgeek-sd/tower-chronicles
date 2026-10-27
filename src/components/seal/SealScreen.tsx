@@ -3,7 +3,7 @@ import type {GameState} from '../../game/types';
 import {
  ASSOCIATION_SEAL_MAX_LEVEL,ASSOCIATION_SEAL_MAX_ROLLS,
  ASSOCIATION_SEAL_PROBABILITIES,ASSOCIATION_SEAL_RESET_COST,ASSOCIATION_SEAL_ROLL_COST,
- associationSealNextMilestone,associationSealReward,associationSealRoman,guardianSealReward,
+ associationSealNextMilestone,associationSealReward,guardianSealReward,
 } from '../../game/seal';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import type {GameplayLease} from '../../online/gameSession';
@@ -148,12 +148,11 @@ export function SealScreen({
       onClick={()=>switchSeal(item.id)} disabled={busy||!seals[item.id]}
       aria-pressed={selected===item.id}
       aria-label={item.name+' 선택'}>
-      <span className="tc-seal-slot-emblem" aria-hidden="true">{item.id==='guardian'?'◆':'✦'}</span>
+      <span className={'tc-seal-slot-emblem tc-seal-art '+item.id} aria-hidden="true"/>
       <strong>{item.name}</strong><small>Lv. {seals[item.id]?.level??'–'} / 30</small>
     </button>)}
     {SEALED_SLOT_NUMBERS.map(n=><div key={n} className="tc-seal-slot sealed" aria-label={'제'+n+'의 인장 봉인'}>
-      <span className="tc-seal-slot-chain" aria-hidden="true"/>
-      <span className="tc-seal-slot-lock" aria-hidden="true"><i/></span>
+      <span className={'tc-seal-locked-art tc-seal-art sealed-'+n} aria-hidden="true"/>
       <strong>봉인된 인장</strong><small>제{n}의 인장</small>
     </div>)}
    </nav>
@@ -167,8 +166,7 @@ export function SealScreen({
        className={'tc-seal-node '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
        style={{'--i':index} as React.CSSProperties} key={index} aria-hidden="true"><span>{index+1}</span></i>)}
       <div className="tc-seal-core" aria-hidden="true">
-       <i className="tc-seal-spire"/><i className="tc-seal-wing left"/><i className="tc-seal-wing right"/>
-       <span>{completed?'MAX':selected==='guardian'?'◆':associationSealRoman(level)}</span>
+       <span className={'tc-seal-core-art tc-seal-art '+selected}/>
       </div>
      </div>
      <div className="tc-seal-altar-copy"><small>ASSOCIATION SEAL</small>
@@ -176,7 +174,7 @@ export function SealScreen({
      </div>
     </section>
     <aside className="tc-seal-status">
-     <header><div className="tc-seal-badge"><small>SEAL</small><b>{selected==='guardian'?'◆':'✦'}</b></div>
+     <header><div className="tc-seal-badge" aria-hidden="true"><span className={'tc-seal-badge-art tc-seal-art '+selected}/></div>
       <div><small>현재 단계</small><strong>{level} / {ASSOCIATION_SEAL_MAX_LEVEL}</strong></div>
       <div><small>주조 횟수</small><strong>{rolls} / {ASSOCIATION_SEAL_MAX_ROLLS}</strong></div></header>
      <h3>{sealName} 효과</h3>
