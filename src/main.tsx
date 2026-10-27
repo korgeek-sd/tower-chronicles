@@ -70,6 +70,7 @@ import './mobile-game.css';
 import './gameFeel/game-feel.css';
 import './game-fonts.css';
 import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
+import {BackgroundMusic} from './components/BackgroundMusic';
 import {GameEntry} from './components/intro/GameEntry';
 
 configureEventMode(new URLSearchParams(location.search).get('events')==='test'?'test':'production');
@@ -501,7 +502,7 @@ let authStartupError='';
 async function startApp(){
  try{await consumeOAuthRedirect();}
  catch{authStartupError='로그인 응답을 확인하지 못했습니다. Google 로그인을 다시 시작해 주세요.';}
- createRoot(document.getElementById('root')!).render(<GameFeelProvider><GameEntry initialError={authStartupError}><App/></GameEntry></GameFeelProvider>);
+ createRoot(document.getElementById('root')!).render(<GameFeelProvider><BackgroundMusic/><GameEntry initialError={authStartupError}><App/></GameEntry></GameFeelProvider>);
 }
 void startApp();
 
