@@ -54,3 +54,19 @@ test('seal collection stays within one screen without duplicate progress or comp
  assert.match(css,/\.tc-seal-multi \.tc-seal-actions button\{min-height:44px/);
  assert.match(css,/@media\s*\(max-width:560px\)\{[\s\S]*?\.tc-seal-multi \.tc-seal-stage\{grid-template-columns:minmax\(0,/);
 });
+
+test('guild emblems use a real image sprite for both playable seals and future locked slots',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-collection.css');
+ assert.match(ui,/tc-seal-slot-emblem tc-seal-art/);
+ assert.match(ui,/tc-seal-locked-art tc-seal-art/);
+ assert.match(ui,/tc-seal-core-art/);
+ assert.match(ui,/tc-seal-badge-art/);
+ assert.doesNotMatch(ui,/item\.id==='guardian'\?'◆':'✦'/);
+ assert.match(css,/url\('\.\.\/\.\.\/assets\/ui\/seal-emblems-v1\.webp'\)/);
+ for(const id of ['association','guardian','sealed-3','sealed-4'])assert.ok(css.includes('.tc-seal-art.'+id),id);
+ const img=readFileSync('src/assets/ui/seal-emblems-v1.webp');
+ assert.ok(img.length>2048);
+ assert.equal(img.subarray(0,4).toString(),'RIFF');
+ assert.equal(img.subarray(8,12).toString(),'WEBP');
+});
