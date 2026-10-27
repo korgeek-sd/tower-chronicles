@@ -111,3 +111,37 @@ test('new forged seal visuals show every rank and the immediate next server-deri
  assert.doesNotMatch(ui,/style=\{\{[^}]*Math\.random/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+
+test('cathedral seal forge follows the reference composition with a full 30-number orbit',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-collection.css');
+ const backdrop=read('src/assets/ui/seal-cathedral.svg');
+ assert.match(ui,/tc-seal-cathedral/);
+ assert.match(ui,/SEAL_RING_STEPS=Array\.from\(\{length:ASSOCIATION_SEAL_MAX_LEVEL\}/);
+ assert.match(ui,/SEAL_RING_STEPS\.map/);
+ assert.match(ui,/className="tc-seal-ring-rank/);
+ assert.match(ui,/className="tc-seal-quantity"/);
+ assert.match(ui,/className="tc-seal-stage-number"/);
+ assert.match(ui,/className="tc-seal-status"/);
+ assert.match(ui,/SEAL_MILESTONES\.map/);
+ assert.match(css,/\.tc-seal\.tc-seal-multi\.tc-seal-cathedral\{/);
+ assert.match(css,/seal-cathedral\.svg/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-ring-rank/);
+ assert.match(css,/grid-template-rows/);
+ assert.match(css,/overflow:hidden/);
+ assert.match(backdrop,/<svg[^>]*viewBox/);
+ assert.ok(backdrop.length>3500);
+});
+test('quantity controls execute only sequential server-authoritative rolls within limits',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ assert.match(ui,/const \[rollCount,setRollCount\]=useState\(1\)/);
+ assert.match(ui,/const remainingRolls=Math\.max\(0,ASSOCIATION_SEAL_MAX_ROLLS-rolls\)/);
+ assert.match(ui,/const affordableRolls=Math\.floor\(gold\/ASSOCIATION_SEAL_ROLL_COST\)/);
+ assert.match(ui,/const selectedRolls=Math\.min\(rollCount,maxSelectableRolls\)/);
+ assert.match(ui,/for\(let index=0;index<selectedRolls;index\+\+\)/);
+ assert.match(ui,/await rollOnlineSeal\(onlineLease,sealId\)/);
+ assert.match(ui,/if\(result\.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL\)break/);
+ assert.match(ui,/onServerRecord\(result\.record/);
+ assert.doesNotMatch(ui,/Math\.random/);
+ assert.doesNotMatch(ui,/p_roll_count/);
+});
