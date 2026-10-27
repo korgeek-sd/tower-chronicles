@@ -201,23 +201,35 @@
 }
 
 
-/* Transparent SVG art remains sharp in the 44px selector and the central forge. */
-.tc-seal-art{display:block;flex:none;aspect-ratio:1;background-size:contain;background-position:center;background-repeat:no-repeat}
-.tc-seal-art.association{background-image:url('../../assets/ui/seals/seal-combat-core.svg')}
-.tc-seal-art.guardian{background-image:url('../../assets/ui/seals/seal-guardian-core.svg')}
-.tc-seal-art.sealed-3{background-image:url('../../assets/ui/seals/seal-sealed-3.svg')}
-.tc-seal-art.sealed-4{background-image:url('../../assets/ui/seals/seal-sealed-4.svg')}
-.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,.tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:clamp(25px,7vw,37px);height:clamp(25px,7vw,37px);filter:drop-shadow(0 0 3px #000b)}
-.tc-seal-multi .tc-seal-slot.guardian .tc-seal-slot-emblem.tc-seal-art{filter:drop-shadow(0 0 4px #528bbc99)}
-.tc-seal-multi .tc-seal-slot.sealed .tc-seal-locked-art{opacity:.78}
-.tc-seal-multi .tc-seal-core{width:72%;aspect-ratio:1;transform:rotate(45deg);background:none!important;border:0;box-shadow:none}
+/* Fifteen approved PNG designs are packed into one lightweight, dark-backed
+   JPEG atlas. Each 72px cell is used in compact gameplay chrome. */
+.tc-seal-art{
+ display:block;flex:none;aspect-ratio:1;
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-size:400% 400%;background-repeat:no-repeat
+}
+.tc-seal-art.association{background-position:0% 0%}
+.tc-seal-art.guardian{background-position:33.333333% 0%}
+.tc-seal-art.sealed-3{background-position:66.666667% 0%}
+.tc-seal-art.sealed-4{background-position:100% 0%}
+.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,.tc-seal-multi .tc-seal-locked-art.tc-seal-art{
+ width:clamp(26px,7.5vw,39px);height:clamp(26px,7.5vw,39px);
+ border-radius:50%;mix-blend-mode:screen;filter:brightness(1.08)
+}
+.tc-seal-multi .tc-seal-slot.sealed .tc-seal-locked-art{opacity:.74}
+.tc-seal-multi .tc-seal-core{
+ width:80%;aspect-ratio:1;transform:rotate(45deg);border:0;box-shadow:none;background:none!important
+}
 .tc-seal-multi .tc-seal-core:before{display:none}
-.tc-seal-multi .tc-seal-core>.tc-seal-core-art{width:100%;height:100%;transform:rotate(-45deg);filter:drop-shadow(0 0 5px #a76b2888)}
+.tc-seal-multi .tc-seal-core>.tc-seal-core-art{
+ width:100%;height:100%;transform:rotate(-45deg);
+ border-radius:50%;mix-blend-mode:screen;filter:brightness(1.18)
+}
 .tc-seal-multi.tc-seal-guardian .tc-seal-wheel{filter:none}
-.tc-seal-multi.tc-seal-guardian .tc-seal-core>.tc-seal-core-art{filter:drop-shadow(0 0 5px #519bc0aa)}
-.tc-seal-multi .tc-seal-badge{width:27px;height:27px;transform:none;border:none;background:transparent;box-shadow:none}
-.tc-seal-multi .tc-seal-badge>.tc-seal-badge-art{width:100%;height:100%;transform:none}
-@media(max-height:680px){.tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,.tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:26px;height:26px}}
+.tc-seal-multi .tc-seal-badge{width:27px;height:27px;transform:none;border:0;background:transparent;box-shadow:none}
+.tc-seal-multi .tc-seal-badge>.tc-seal-badge-art{width:100%;height:100%;border-radius:50%;mix-blend-mode:screen;transform:none}
+@media(max-height:680px){
+ .tc-seal-multi .tc-seal-slot-emblem.tc-seal-art,.tc-seal-multi .tc-seal-locked-art.tc-seal-art{width:26px;height:26px}
+}
 
 
 /* Rank-crafting art: 30 accurate server-backed levels, six engraved milestones.
@@ -336,30 +348,86 @@
  .tc-seal-multi .tc-seal-wheel[class*="tc-seal-result-"] .tc-seal-engraved-level strong{animation:none}
 }
 
-/* Detailed layered forge: actual rank values remain authoritative DOM text. */
-.tc-seal-multi .tc-seal-wheel:before{content:"";position:absolute;inset:-4%;z-index:2;pointer-events:none;border:0;box-shadow:none;border-radius:0;background:url('../../assets/ui/seals/seal-combat-frame.svg') center/100% 100% no-repeat}
-.tc-seal-multi.tc-seal-guardian .tc-seal-wheel:before{background-image:url('../../assets/ui/seals/seal-guardian-frame.svg')}
+
+/* Illustration atlas row/column positions:
+   0 combat,1 guardian,2 locked-3,3 locked-4;
+   4 combat ring,5 guardian ring,6 dormant gem,7 lit gem;
+   8 tier 10,9 tier 20,10 tier 30,11 lock overlay;
+   12 local spark,13 small lit node,14 small dormant node. */
+.tc-seal-multi .tc-seal-wheel:before{
+ content:"";position:absolute;inset:-4%;z-index:2;pointer-events:none;
+ border:0;border-radius:50%;box-shadow:none;
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-size:400% 400%;background-repeat:no-repeat;
+ background-position:0% 33.333333%;mix-blend-mode:screen
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-wheel:before{background-position:33.333333% 33.333333%}
 .tc-seal-multi .tc-seal-wheel:after{display:none}
-.tc-seal-multi .tc-seal-rune-ring{inset:0;border:0;border-radius:0;box-shadow:none;z-index:1;background:url('../../assets/ui/seals/seal-combat-track.svg') center/100% 100% no-repeat}
-.tc-seal-multi.tc-seal-guardian .tc-seal-rune-ring{background-image:url('../../assets/ui/seals/seal-guardian-track.svg')}
-.tc-seal-multi .tc-seal-node{width:clamp(15px,calc(var(--seal-wheel-size)*.16),22px);height:clamp(15px,calc(var(--seal-wheel-size)*.16),22px);border:0;border-radius:0;box-shadow:none;background:url('../../assets/ui/seals/seal-combat-node-off.svg') center/contain no-repeat;transform:translate(-50%,-50%) rotate(calc(var(--i)*60deg)) translateY(calc(var(--seal-radius)*-1)) rotate(calc(var(--i)*-60deg))}
-.tc-seal-multi.tc-seal-guardian .tc-seal-node{background-image:url('../../assets/ui/seals/seal-guardian-node-off.svg')}
-.tc-seal-multi .tc-seal-node.active{border:0;box-shadow:0 0 7px var(--seal-rank-glow);background:url('../../assets/ui/seals/seal-combat-node-on.svg') center/contain no-repeat}
-.tc-seal-multi.tc-seal-guardian .tc-seal-node.active{background-image:url('../../assets/ui/seals/seal-guardian-node-on.svg');border:0;box-shadow:0 0 7px var(--seal-rank-glow)}
-.tc-seal-multi .tc-seal-node span{position:relative;z-index:1;transform:none;font-size:clamp(6px,calc(var(--seal-wheel-size)*.065),9px);color:#d0bca0;text-shadow:0 1px 2px #040404}
-.tc-seal-multi .tc-seal-node.active span{color:#fff6df}
-.tc-seal-multi .tc-seal-rank-cartouche:before{background-image:url('../../assets/ui/seals/seal-combat-plate.svg');background-size:100% 100%}
-.tc-seal-multi.tc-seal-guardian .tc-seal-rank-cartouche:before{background-image:url('../../assets/ui/seals/seal-guardian-plate.svg');filter:none}
+.tc-seal-multi .tc-seal-rune-ring{inset:2%;z-index:1;border:1px solid #7c694b55;border-radius:50%;box-shadow:0 0 0 2px #12131155}
+.tc-seal-multi .tc-seal-node{
+ width:clamp(16px,calc(var(--seal-wheel-size)*.175),24px);
+ height:clamp(16px,calc(var(--seal-wheel-size)*.175),24px);
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-size:400% 400%;background-repeat:no-repeat;
+ background-position:66.666667% 33.333333%;border:0;border-radius:3px;box-shadow:none;
+ mix-blend-mode:screen;
+ transform:translate(-50%,-50%) rotate(calc(var(--i)*60deg))
+ translateY(calc(var(--seal-radius)*-1)) rotate(calc(var(--i)*-60deg))
+}
+.tc-seal-multi .tc-seal-node.active{
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-position:100% 33.333333%;
+ border:0;box-shadow:none
+}
+.tc-seal-multi .tc-seal-node.active.milestone-10,
+.tc-seal-multi .tc-seal-node.active.milestone-15{background-position:0% 66.666667%}
+.tc-seal-multi .tc-seal-node.active.milestone-20,
+.tc-seal-multi .tc-seal-node.active.milestone-25{background-position:33.333333% 66.666667%}
+.tc-seal-multi .tc-seal-node.active.milestone-30{background-position:66.666667% 66.666667%}
+.tc-seal-multi.tc-seal-guardian .tc-seal-node.active{filter:hue-rotate(150deg) saturate(.9)}
+.tc-seal-multi .tc-seal-node span{
+ font:800 clamp(6px,calc(var(--seal-wheel-size)*.068),9px) Georgia,serif;
+ transform:none;position:relative;z-index:1;
+ color:#f9e3b4;text-shadow:0 1px 2px #010101,0 0 3px #120805
+}
+.tc-seal-multi .tc-seal-progress-dot{
+ position:absolute;left:50%;top:50%;z-index:4;
+ width:clamp(4px,calc(var(--seal-wheel-size)*.045),6px);
+ height:clamp(4px,calc(var(--seal-wheel-size)*.045),6px);
+ border:0;border-radius:50%;pointer-events:none;
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-size:400% 400%;background-repeat:no-repeat;
+ background-position:66.666667% 100%;
+ transform:translate(-50%,-50%) rotate(calc(var(--p)*12deg)) translateY(calc(var(--seal-wheel-size)*-.37));
+ opacity:.48;mix-blend-mode:screen
+}
+.tc-seal-multi .tc-seal-progress-dot.active{
+ background-position:33.333333% 100%;opacity:.95;filter:drop-shadow(0 0 2px var(--seal-rank-glow))
+}
+.tc-seal-multi.tc-seal-guardian .tc-seal-progress-dot.active{filter:hue-rotate(150deg) drop-shadow(0 0 2px var(--seal-rank-glow))}
+.tc-seal-multi .tc-seal-rank-cartouche:before{
+ background-image:url('../../assets/ui/seal-level-cartouche.svg');background-size:100% 100%
+}
 .tc-seal-multi .tc-seal-milestone-label{float:right;font-size:7px;opacity:.8;white-space:nowrap;margin-left:2px}
-.tc-seal-multi .tc-seal-flare{position:absolute;z-index:8;inset:9%;pointer-events:none;opacity:0;animation:tcSealLocalizedSpark .48s ease-out forwards}
-.tc-seal-multi .tc-seal-flare i{position:absolute;inset:0;display:block;background-size:contain;background-position:center;background-repeat:no-repeat}
-.tc-seal-multi .tc-seal-flare.association .layer-1{background-image:url('../../assets/ui/seals/seal-combat-flare-1.svg')}
-.tc-seal-multi .tc-seal-flare.association .layer-2{background-image:url('../../assets/ui/seals/seal-combat-flare-2.svg')}
-.tc-seal-multi .tc-seal-flare.guardian .layer-1{background-image:url('../../assets/ui/seals/seal-guardian-flare-1.svg')}
-.tc-seal-multi .tc-seal-flare.guardian .layer-2{background-image:url('../../assets/ui/seals/seal-guardian-flare-2.svg')}
-@keyframes tcSealLocalizedSpark{0%{opacity:0;transform:scale(.93)}40%{opacity:.76;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
-.tc-seal-multi.tc-seal-tier-0 .tc-seal-core-art{opacity:.66;filter:grayscale(.42) brightness(.73)}
-.tc-seal-multi.tc-seal-tier-1 .tc-seal-core-art{filter:brightness(.94)}
-.tc-seal-multi.tc-seal-tier-3 .tc-seal-core-art,.tc-seal-multi.tc-seal-tier-4 .tc-seal-core-art{filter:brightness(1.12) drop-shadow(0 0 4px var(--seal-rank-glow))}
-.tc-seal-multi.tc-seal-tier-5 .tc-seal-core-art,.tc-seal-multi.tc-seal-tier-6 .tc-seal-core-art{filter:brightness(1.24) drop-shadow(0 0 7px var(--seal-rank-glow))}
+.tc-seal-multi .tc-seal-flare{
+ position:absolute;inset:16%;z-index:8;pointer-events:none;
+ opacity:0;animation:tcSealLocalizedSpark .48s ease-out forwards
+}
+.tc-seal-multi .tc-seal-flare i{
+ position:absolute;inset:0;display:block;
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-size:400% 400%;background-position:0% 100%;
+ background-repeat:no-repeat;mix-blend-mode:screen
+}
+.tc-seal-multi .tc-seal-flare .layer-2{transform:rotate(35deg);filter:brightness(1.4)}
+.tc-seal-multi .tc-seal-flare.guardian{filter:hue-rotate(150deg)}
+@keyframes tcSealLocalizedSpark{
+ 0%{opacity:0;transform:scale(.94)}
+ 40%{opacity:.9;transform:scale(1)}
+ 100%{opacity:0;transform:scale(1.04)}
+}
+.tc-seal-multi.tc-seal-tier-0 .tc-seal-core-art{opacity:.65;filter:grayscale(.45) brightness(.82)}
+.tc-seal-multi.tc-seal-tier-1 .tc-seal-core-art{filter:brightness(.98)}
+.tc-seal-multi.tc-seal-tier-3 .tc-seal-core-art,.tc-seal-multi.tc-seal-tier-4 .tc-seal-core-art{filter:brightness(1.14) drop-shadow(0 0 4px var(--seal-rank-glow))}
+.tc-seal-multi.tc-seal-tier-5 .tc-seal-core-art,.tc-seal-multi.tc-seal-tier-6 .tc-seal-core-art{filter:brightness(1.25) drop-shadow(0 0 7px var(--seal-rank-glow))}
+.tc-seal-multi .tc-seal-slot.sealed:after{
+ content:"";position:absolute;top:-30px;right:-35px;width:72px;height:72px;pointer-events:none;
+ background-image:url('../../assets/ui/seal-generated-atlas.jpg');background-size:400% 400%;background-position:100% 66.666667%;
+ opacity:.18;mix-blend-mode:screen
+}
 @media(prefers-reduced-motion:reduce){.tc-seal-multi .tc-seal-flare{animation:none;display:none}}
