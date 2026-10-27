@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {
  ASSOCIATION_SEAL_MAX_LEVEL,ASSOCIATION_SEAL_MAX_ROLLS,
@@ -17,6 +17,7 @@ import './seal-collection.css';
 
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
 const SEALED_SLOT_NUMBERS=[3,4] as const;
+const SEAL_MILESTONES=[5,10,15,20,25,30] as const;
 const SEALS=[
  {id:'association' as const,name:'전투 인장',subtitle:'기존 협회 인장 · 공격과 생존'},
  {id:'guardian' as const,name:'수호 인장',subtitle:'새로운 인장 · 체력과 방어'},
@@ -70,8 +71,7 @@ export function SealScreen({
  const completed=level>=ASSOCIATION_SEAL_MAX_LEVEL;
  const canRoll=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&rolls<ASSOCIATION_SEAL_MAX_ROLLS&&gold>=ASSOCIATION_SEAL_ROLL_COST;
  const canReset=!!onlineLease&&!!state&&!busy&&!game.expedition&&!completed&&gold>=ASSOCIATION_SEAL_RESET_COST;
- const activeNodes=Math.min(10,Math.ceil(level/3));
- const nodeIndexes=useMemo(()=>Array.from({length:10},(_,index)=>index),[]);
+ const activeNodes=Math.floor(level/5);
  const sealName=SEALS.find(item=>item.id===selected)!.name;
 
  function switchSeal(id:AssociationSealId){
@@ -94,8 +94,8 @@ export function SealScreen({
       ?{...previous[sealId==='association'?'guardian':'association']!,gold:result.state.gold}:undefined,
    }));
    setLastStep(result.step);
-   const beforeNodes=Math.min(10,Math.ceil(result.beforeLevel/3));
-   const afterNodes=Math.min(10,Math.ceil(result.afterLevel/3));
+   const beforeNodes=Math.floor(result.beforeLevel/5);
+   const afterNodes=Math.floor(result.afterLevel/5);
    setLitNode(afterNodes>beforeNodes?afterNodes-1:null);
    if(!result.replayed)feel.play('seal.roll.result',{step:result.step});
    setMessage(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL
@@ -159,14 +159,22 @@ export function SealScreen({
    <div className="tc-seal-selection-label" role="status" aria-live="polite"><span>{sealName}</span><small title={message||undefined}>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':SEALS.find(item=>item.id===selected)!.subtitle)}</small></div>
    <div className="tc-seal-stage">
     <section className="tc-seal-altar" aria-label={sealName+' 주조 제단'}>
-     <div className="tc-seal-stage-number">현재 단계 <strong>{level} <span>/ 30</span></strong></div>
-     <div className={'tc-seal-wheel '+(busy?'is-casting ':'')+(lastStep?'tc-seal-result-'+lastStep:'')}>
+     <div className="tc-seal-stage-number"><span>현재 인장 단계</span><strong>{level.toString().padStart(2,'0')} <span>/ 30</span></strong></div>
+     <div className={'tc-seal-wheel '+(busy?'is-casting ':'')+(lastStep?'tc-seal-result-'+lastStep:'')}
+      style={{'--seal-progress':(level / ASSOCIATION_SEAL_MAX_LEVEL * 100)+'%'} as React.CSSProperties}
+      aria-label={sealName+' 각인 '+level+'단계, 최대 30단계'}>
+      <div className="tc-seal-progress-arc" aria-hidden="true"/>
       <div className="tc-seal-rune-ring" aria-hidden="true"/>
-      {nodeIndexes.map(index=><i
+      {SEAL_MILESTONES.map((milestone,index)=><i
        className={'tc-seal-node '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
-       style={{'--i':index} as React.CSSProperties} key={index} aria-hidden="true"><span>{index+1}</span></i>)}
+       style={{'--i':index} as React.CSSProperties} key={milestone} aria-hidden="true"><span>{String(milestone).padStart(2,'0')}</span></i>)}
       <div className="tc-seal-core" aria-hidden="true">
        <span className={'tc-seal-core-art tc-seal-art '+selected}/>
+      </div>
+      <div className="tc-seal-rank-cartouche" aria-hidden="true">
+       <div className="tc-seal-engraved-level" key={selected+'-'+level}>
+        <strong>{level.toString().padStart(2,'0')}</strong><small>/30</small>
+       </div>
       </div>
      </div>
      <div className="tc-seal-altar-copy"><small>ASSOCIATION SEAL</small>
