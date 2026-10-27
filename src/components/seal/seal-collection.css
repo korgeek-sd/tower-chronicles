@@ -431,3 +431,297 @@
  opacity:.18;mix-blend-mode:screen
 }
 @media(prefers-reduced-motion:reduce){.tc-seal-multi .tc-seal-flare{animation:none;display:none}}
+
+
+/* Cathedral forge layout: a 30-rank circular altar, not a two-column stat form.
+   Art, prices and gameplay are separate: all ranks/currency are server data. */
+.tc-seal.tc-seal-multi.tc-seal-cathedral{
+ --cat-accent:#edb765;--cat-edge:#9b7848;--cat-halo:#d77828;
+ grid-template-rows:52px 24px minmax(0,1fr) 65px 53px 58px;
+ gap:4px;padding:4px 5px 6px;height:100%;overflow:hidden;
+ background:
+ linear-gradient(180deg,#090b0b70 0%,#08090b28 24%,#0907075c 70%,#0a0708e6 100%),
+ url('../../assets/ui/seal-cathedral.svg') center center/cover no-repeat,
+ #0b0b0c;
+ border:1px solid #826239;box-shadow:inset 0 0 0 2px #080808,0 0 16px #090706
+}
+.tc-seal.tc-seal-multi.tc-seal-cathedral.tc-seal-guardian{
+ --cat-accent:#addded;--cat-edge:#6b97b1;--cat-halo:#4c9bc9;
+}
+.tc-seal-cathedral .tc-seal-selector{
+ min-height:0;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px
+}
+.tc-seal-cathedral .tc-seal-slot{
+ min-height:0;padding:3px 2px 3px;gap:0;justify-content:center;
+ border:1px solid #695437;background:linear-gradient(180deg,#18161ade,#090a0cda);
+ box-shadow:inset 0 0 0 1px #060708;color:#d4bc8e
+}
+.tc-seal-cathedral .tc-seal-slot.is-selected{
+ border-color:var(--cat-accent);box-shadow:inset 0 0 0 1px #60411b,0 0 9px #9c632b88
+}
+.tc-seal-cathedral .tc-seal-slot.guardian.is-selected{box-shadow:inset 0 0 0 1px #466275,0 0 9px #5b9cca77}
+.tc-seal-cathedral .tc-seal-slot-emblem.tc-seal-art,.tc-seal-cathedral .tc-seal-locked-art.tc-seal-art{
+ width:clamp(19px,6vw,28px);height:clamp(19px,6vw,28px)
+}
+.tc-seal-cathedral .tc-seal-slot strong{font:700 clamp(8px,2vw,10px) Georgia,"Noto Serif KR",serif}
+.tc-seal-cathedral .tc-seal-slot small{font-size:8px;line-height:1.1}
+.tc-seal-cathedral .tc-seal-slot-level span{font-size:7px}
+.tc-seal-cathedral .tc-seal-slot-level b{font-size:9px}
+.tc-seal-cathedral .tc-seal-selection-label{
+ min-width:0;min-height:0;padding:1px 4px;gap:5px;
+ background:linear-gradient(90deg,#150e0cbb,#0d1112aa);
+ border:1px solid #6a51337a;align-items:center
+}
+.tc-seal-cathedral .tc-seal-selection-label span{
+ font:700 12px Georgia,"Noto Serif KR",serif;color:var(--cat-accent);white-space:nowrap
+}
+.tc-seal-cathedral .tc-seal-selection-label small{
+ flex:1;text-align:right;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.tc-seal-cathedral .tc-seal-stage{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 73px;
+ gap:2px;min-height:0;min-width:0;height:100%
+}
+.tc-seal-cathedral .tc-seal-altar{
+ container-type:size;position:relative;
+ display:grid;grid-template-rows:43px minmax(0,1fr) 19px;
+ align-items:center;justify-items:center;min-height:0;
+ overflow:visible;padding:0 2px;border:0;box-shadow:none;
+ background:radial-gradient(ellipse at 50% 55%,#8c492420,transparent 62%)!important
+}
+.tc-seal-cathedral .tc-seal-altar:before{
+ position:absolute;inset:2% 0 8%;
+ background:linear-gradient(90deg,transparent,#a17c4220 50%,transparent);
+ box-shadow:none;pointer-events:none
+}
+.tc-seal-cathedral .tc-seal-altar:after{
+ box-shadow:none;border:0;pointer-events:none
+}
+.tc-seal-cathedral .tc-seal-stage-number{
+ display:grid;place-items:center;align-content:center;gap:1px;
+ position:relative;z-index:12;
+ width:clamp(125px,43%,210px);height:42px;margin:auto;padding:1px 8px;
+ color:#c1a985;border:1px solid var(--cat-edge);
+ box-shadow:inset 0 0 0 2px #090708,0 3px 8px #000b;
+ background:linear-gradient(180deg,#2c241bdd,#0b0c0de9);
+ text-align:center
+}
+.tc-seal-cathedral .tc-seal-stage-number>span{
+ font:700 10px Georgia,"Noto Serif KR",serif;color:#e2ccac
+}
+.tc-seal-cathedral .tc-seal-stage-number strong{
+ font:800 22px/1 Georgia,serif;color:var(--cat-accent);text-shadow:0 0 6px #e5a85477
+}
+.tc-seal-cathedral .tc-seal-stage-number strong span{font-size:11px;color:#bead90}
+.tc-seal-cathedral .tc-seal-wheel{
+ --seal-wheel-size:min(92cqw, 90cqh, 400px);
+ --seal-radius:calc(var(--seal-wheel-size)*.47);
+ width:var(--seal-wheel-size);height:var(--seal-wheel-size);
+ min-width:0;max-width:100%;max-height:100%;
+ margin:auto;align-self:center;justify-self:center;
+ position:relative;isolation:isolate;border-radius:50%;
+ background:
+ radial-gradient(circle at center,#20100988 0 31%,#140e0a99 31% 48%,#15100dcc 48% 58%,transparent 59%),
+ repeating-conic-gradient(from -6deg,#7b593e33 0deg .8deg,transparent 1.2deg 12deg),
+ radial-gradient(circle,transparent 0 31%,#bd7e3c32 31.4% 32%,transparent 32.5% 65%,#a77c4e26 66% 68%,transparent 69%);
+ box-shadow:0 0 25px #000b,inset 0 0 13px #000b
+}
+.tc-seal-cathedral .tc-seal-wheel:before{inset:-4%;z-index:2;opacity:.85}
+.tc-seal-cathedral .tc-seal-rune-ring{
+ inset:11%;z-index:1;border:1px solid #ba874b69;border-radius:50%;
+ box-shadow:0 0 0 2px #1d110b99,0 0 0 5px #7c53242d,inset 0 0 20px #bc68332a
+}
+.tc-seal-cathedral .tc-seal-progress-arc{
+ z-index:2;inset:-1.5%;
+ -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));
+ mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px))
+}
+.tc-seal-cathedral .tc-seal-ring-rank{
+ position:absolute;left:50%;top:50%;z-index:9;
+ width:clamp(15px,calc(var(--seal-wheel-size)*.073),25px);
+ height:clamp(15px,calc(var(--seal-wheel-size)*.073),25px);
+ display:grid;place-items:center;opacity:1;border-radius:50%;
+ border:1px solid #71574b;background:linear-gradient(145deg,#241b1c,#0b0c10);
+ box-shadow:0 0 0 1px #080809,inset 0 0 3px #26151a;
+ background-image:none;mix-blend-mode:normal;
+ transform:translate(-50%,-50%) rotate(calc(var(--p)*12deg))
+ translateY(calc(var(--seal-wheel-size)*-.401)) rotate(calc(var(--p)*-12deg));
+ font-style:normal;pointer-events:none
+}
+.tc-seal-cathedral .tc-seal-ring-rank span{
+ font:800 clamp(8px,calc(var(--seal-wheel-size)*.028),12px)/1 Georgia,serif;
+ color:#ad9c90;text-shadow:0 1px #000;
+}
+.tc-seal-cathedral .tc-seal-ring-rank[data-active="true"]{
+ border-color:#edb975;background:radial-gradient(circle,#744724,#3b2315 75%,#1d1410);
+ box-shadow:0 0 0 1px #5a3a23,0 0 8px #e7a34f99,inset 0 0 5px #eec27a4d
+}
+.tc-seal-cathedral .tc-seal-ring-rank[data-active="true"] span{color:#fff0ce;text-shadow:0 0 4px #f7dfb4}
+.tc-seal-cathedral.tc-seal-guardian .tc-seal-ring-rank[data-active="true"]{
+ border-color:#b9ddf2;background:radial-gradient(circle,#376d8b,#19293c 75%,#0c151d);
+ box-shadow:0 0 0 1px #466a80,0 0 8px #78b8e3ad,inset 0 0 5px #a9e7ff63
+}
+.tc-seal-cathedral .tc-seal-ring-rank[data-current="true"]{border-width:2px;filter:brightness(1.15)}
+.tc-seal-cathedral .tc-seal-progress-dot{opacity:1}
+.tc-seal-cathedral .tc-seal-node{
+ z-index:8;left:50%;top:50%;width:clamp(10px,calc(var(--seal-wheel-size)*.054),18px);
+ height:clamp(10px,calc(var(--seal-wheel-size)*.054),18px);
+ transform:translate(-50%,-50%) rotate(calc(var(--i)*60deg))
+ translateY(calc(var(--seal-wheel-size)*-.473)) rotate(calc(var(--i)*-60deg));
+ background-position:66.666667% 33.333333%;filter:none;pointer-events:none
+}
+.tc-seal-cathedral .tc-seal-node span{display:none}
+.tc-seal-cathedral .tc-seal-node.active{background-position:100% 33.333333%;filter:drop-shadow(0 0 3px var(--cat-accent))}
+.tc-seal-cathedral .tc-seal-core{
+ width:clamp(90px,56%,230px);height:auto;aspect-ratio:1;
+ position:relative;z-index:5;transform:none;box-shadow:none;border:0;
+ background:radial-gradient(circle,#6a2e17a1,transparent 72%)!important
+}
+.tc-seal-cathedral .tc-seal-core>.tc-seal-core-art{
+ width:100%;height:100%;transform:none;border-radius:50%;mix-blend-mode:screen;
+ filter:brightness(1.17) drop-shadow(0 0 8px #b97739a9)
+}
+.tc-seal-cathedral.tc-seal-guardian .tc-seal-core{background:radial-gradient(circle,#2558789b,transparent 72%)!important}
+.tc-seal-cathedral.tc-seal-guardian .tc-seal-core>.tc-seal-core-art{
+ filter:brightness(1.16) drop-shadow(0 0 8px #568cbea1)
+}
+.tc-seal-cathedral .tc-seal-rank-cartouche{display:none}
+.tc-seal-cathedral .tc-seal-flare{inset:18%;z-index:7}
+.tc-seal-cathedral .tc-seal-altar-copy{
+ position:relative;z-index:10;align-self:end;width:auto;min-width:110px;max-width:95%;
+ padding:2px 10px;border:1px solid #84613b9c;
+ background:#0c0a0cbb;box-shadow:inset 0 0 5px #000;
+ white-space:nowrap
+}
+.tc-seal-cathedral .tc-seal-altar-copy small{display:none}
+.tc-seal-cathedral .tc-seal-altar-copy b{
+ font:700 10px Georgia,"Noto Serif KR",serif;color:#f4d6a1
+}
+.tc-seal-cathedral .tc-seal-status{
+ display:grid;grid-template-rows:15px 25px minmax(0,1fr);
+ min-height:0;max-height:73px;height:100%;gap:0;overflow:hidden;
+ border:1px solid #635139;background:#0a0b0ed9;box-shadow:inset 0 0 0 1px #100d09
+}
+.tc-seal-cathedral .tc-seal-status>header,.tc-seal-cathedral .tc-seal-meta{display:none}
+.tc-seal-cathedral .tc-seal-status h3{
+ padding:2px 7px 0;margin:0;font:700 10px Georgia,"Noto Serif KR",serif;
+ border:0;color:var(--cat-accent)
+}
+.tc-seal-cathedral .tc-seal-effects{
+ margin:0;padding:0 7px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px
+}
+.tc-seal-cathedral .tc-seal-effects>div{
+ min-width:0;min-height:0;display:flex;align-items:center;justify-content:space-between;
+ gap:3px;padding:1px 3px;border:1px solid #5243338e;
+ background:linear-gradient(#201c1aad,#100f0fa5)
+}
+.tc-seal-cathedral .tc-seal-effects dt{
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 9px Georgia,"Noto Serif KR",serif
+}
+.tc-seal-cathedral .tc-seal-effects dt i{display:none}
+.tc-seal-cathedral .tc-seal-effects dd{font:800 10px ui-monospace,monospace;color:#aeda9b}
+.tc-seal-cathedral .tc-seal-next{
+ min-width:0;min-height:0;margin:0 7px 2px;padding:2px 3px;
+ display:flex;align-items:center;justify-content:space-between;gap:4px;
+ border:0;border-top:1px solid #6552376b;background:none
+}
+.tc-seal-cathedral .tc-seal-next small{white-space:nowrap;color:#d5ae78;font-size:8px}
+.tc-seal-cathedral .tc-seal-next b{
+ margin:0;font:700 8px ui-monospace,monospace;color:#d4d7c3;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.tc-seal-cathedral .tc-seal-milestone-label{display:none}
+.tc-seal-cathedral .tc-seal-prob{
+ display:grid;grid-template-rows:20px minmax(0,1fr);min-height:0;height:65px;
+ border:1px solid #937348;background:#0c0a0ddf
+}
+.tc-seal-cathedral .tc-seal-prob>header{
+ justify-content:center;border-bottom:1px solid #8060386e;background:#1c1413b8
+}
+.tc-seal-cathedral .tc-seal-prob>header span{
+ font:700 11px Georgia,"Noto Serif KR",serif;color:#e3c395
+}
+.tc-seal-cathedral .tc-seal-prob>header small{display:none}
+.tc-seal-cathedral .tc-seal-prob>div{padding:4px 5px;gap:5px}
+.tc-seal-cathedral .tc-seal-prob>div>span{
+ display:flex;flex-direction:row;justify-content:center;align-items:center;gap:5px;
+ min-width:0;min-height:0;padding:2px 5px;
+ border:1px solid #6c503f;background:linear-gradient(160deg,#241a19,#0c1012);
+ box-shadow:inset 0 0 0 1px #0c0b0d;
+}
+.tc-seal-cathedral .tc-seal-prob i{display:none}
+.tc-seal-cathedral .tc-seal-prob b{font:800 13px Georgia,serif}
+.tc-seal-cathedral .tc-seal-prob strong{font:800 13px ui-monospace,monospace}
+.tc-seal-cathedral .tc-seal-prob .p1{color:#e5c688}
+.tc-seal-cathedral .tc-seal-prob .p2{color:#a8c9e7}
+.tc-seal-cathedral .tc-seal-prob .p3{color:#e6a7a4}
+.tc-seal-cathedral .tc-seal-quantity{
+ display:grid;grid-template-columns:minmax(80px,1fr) minmax(115px,1.35fr) minmax(118px,1.35fr);
+ gap:6px;padding:4px 6px;min-height:0;
+ border:1px solid #8c6c46;background:linear-gradient(180deg,#1b1513e8,#09090be8);
+ box-shadow:inset 0 0 0 1px #19130d
+}
+.tc-seal-cathedral .tc-seal-quantity-caption{
+ display:flex;flex-direction:column;justify-content:center;min-width:0;gap:2px
+}
+.tc-seal-cathedral .tc-seal-quantity-caption strong{
+ font:700 10px Georgia,"Noto Serif KR",serif;color:#ead0a4;white-space:nowrap
+}
+.tc-seal-cathedral .tc-seal-quantity-caption small{font-size:7px;color:#a99b82;white-space:nowrap}
+.tc-seal-cathedral .tc-seal-quantity-stepper{display:grid;grid-template-columns:38px minmax(25px,1fr) 38px}
+.tc-seal-cathedral .tc-seal-quantity-stepper button,
+.tc-seal-cathedral .tc-seal-quantity-presets button{
+ min-width:0;min-height:43px;padding:0 2px;border:1px solid #95734b;
+ background:linear-gradient(#30251d,#0d0e11);
+ color:#ebd3a7;font:800 15px Georgia,serif
+}
+.tc-seal-cathedral .tc-seal-quantity-stepper output{
+ display:grid;place-items:center;background:#0d0d0f;
+ border-top:1px solid #a18357;border-bottom:1px solid #a18357;
+ color:#f5e3b6;font:800 17px Georgia,serif
+}
+.tc-seal-cathedral .tc-seal-quantity-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+.tc-seal-cathedral .tc-seal-quantity-presets button{font-size:11px}
+.tc-seal-cathedral .tc-seal-quantity-presets button[aria-pressed="true"]{border-color:#efc080;background:#54371c}
+.tc-seal-cathedral .tc-seal-quantity button:disabled{opacity:.4}
+.tc-seal-cathedral .tc-seal-actions{min-height:0;display:grid;grid-template-columns:1.12fr 1fr;gap:5px}
+.tc-seal-cathedral .tc-seal-actions button{
+ min-height:44px;min-width:0;display:grid;place-items:center;align-content:center;gap:3px;
+ border:1px solid #b28b56;box-shadow:inset 0 0 0 1px #190d0a,0 2px 4px #000c
+}
+.tc-seal-cathedral .tc-seal-actions .tc-seal-roll{
+ background:linear-gradient(180deg,#752f26,#391014 70%,#170b0c);color:#fbe3bf;
+ border-color:#d5a569
+}
+.tc-seal-cathedral .tc-seal-actions .tc-seal-reset{
+ background:linear-gradient(180deg,#302525,#151216 70%,#09090c);color:#dcc8b4;
+ border-color:#88724d
+}
+.tc-seal-cathedral .tc-seal-actions button span{font:700 clamp(13px,3vw,17px) Georgia,"Noto Serif KR",serif}
+.tc-seal-cathedral .tc-seal-actions button small{font:700 10px ui-monospace,monospace;color:#e2b976}
+.tc-seal-cathedral .tc-seal-actions button:disabled{opacity:.43}
+@media(max-width:390px){
+ .tc-seal-cathedral .tc-seal-quantity{grid-template-columns:minmax(65px,.85fr) minmax(103px,1.3fr) minmax(100px,1.3fr);gap:3px;padding:4px}
+ .tc-seal-cathedral .tc-seal-quantity-stepper{grid-template-columns:31px minmax(24px,1fr) 31px}
+ .tc-seal-cathedral .tc-seal-quantity-caption strong{font-size:9px}
+ .tc-seal-cathedral .tc-seal-quantity-presets{gap:2px}
+ .tc-seal-cathedral .tc-seal-prob b,.tc-seal-cathedral .tc-seal-prob strong{font-size:11px}
+}
+@media(max-height:700px){
+ .tc-seal.tc-seal-multi.tc-seal-cathedral{grid-template-rows:46px 21px minmax(0,1fr) 56px 48px 51px;gap:3px;padding:3px}
+ .tc-seal-cathedral .tc-seal-stage{grid-template-rows:minmax(0,1fr) 58px}
+ .tc-seal-cathedral .tc-seal-altar{grid-template-rows:37px minmax(0,1fr) 16px}
+ .tc-seal-cathedral .tc-seal-stage-number{height:35px}
+ .tc-seal-cathedral .tc-seal-stage-number strong{font-size:18px}
+ .tc-seal-cathedral .tc-seal-status{height:58px}
+ .tc-seal-cathedral .tc-seal-status h3{font-size:9px}
+ .tc-seal-cathedral .tc-seal-next{display:none}
+ .tc-seal-cathedral .tc-seal-prob{height:56px}
+ .tc-seal-cathedral .tc-seal-prob>header{min-height:17px}
+ .tc-seal-cathedral .tc-seal-quantity-stepper button,.tc-seal-cathedral .tc-seal-quantity-presets button{min-height:40px}
+ .tc-seal-cathedral .tc-seal-wheel{--seal-wheel-size:min(92cqw,92cqh,340px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-seal-cathedral .tc-seal-flare,
+ .tc-seal-cathedral .tc-seal-ring-rank[data-current="true"]{animation:none}
+}
