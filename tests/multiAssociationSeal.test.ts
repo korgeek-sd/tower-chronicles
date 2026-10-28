@@ -111,3 +111,11 @@ test('reset remains confirmation-gated and all server resources remain unchanged
  assert.ok(ui.includes('disabled={!canRoll}'));
  assert.ok(ui.includes('setLitNode(null)'));
 });
+
+test('original seal click sound ownership is preserved after the UI redesign',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const audio=read('src/audio/gameEffects.ts');
+ assert.match(ui,/className="tc-insignia-roll tc-seal-roll tc-feel-press"/);
+ assert.match(ui,/className="tc-insignia-reset tc-seal-reset tc-feel-press"/);
+ assert.match(audio,/button\.matches\('\.tc-hunt-enter,\.tc-hunt-next,\.tc-seal-roll,\.tc-seal-reset,\.tc-seal-audio-preview'\)/);
+});
