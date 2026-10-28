@@ -3,10 +3,16 @@ import assert from'node:assert/strict';
 import{readFileSync}from'node:fs';
 const read=(p:string)=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 
-test('GAME FEEL V2: seal wheel and newly lit node receive local result classes',()=>{
+test('GAME FEEL V2: newly forged obsidian relic and milestones receive local server-driven result feedback',()=>{
  const s=read('src/components/seal/SealScreen.tsx');
- assert.match(s,/tc-seal-wheel[^\n]*result-/);
- assert.match(s,/just-lit/);
+ const css=read('src/components/seal/seal-relic.css');
+ assert.match(s,/data-result=\{lastStep!==null\}/);
+ assert.match(s,/data-lit=\{index<activeNodes\}/);
+ assert.match(s,/data-new=\{litNode===index\}/);
+ assert.match(s,/setLitNode\(afterNodes>beforeNodes\?afterNodes-1:null\)/);
+ assert.match(css,/\.tc-insignia-relic\[data-result="true"\] \.tc-insignia-art/);
+ assert.match(css,/\.tc-insignia-milestone\[data-new="true"\] span/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
 test('GAME FEEL V2: enhancement preview gets outcome-specific local classes',()=>{
