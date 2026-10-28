@@ -13,18 +13,65 @@ import {
 } from '../../online/seal';
 import {Screen} from '../../ui/mobile';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
-import './seal-collection.css';
+import './seal-relic.css';
 
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
 const SEALED_SLOT_NUMBERS=[3,4] as const;
 const SEAL_MILESTONES=[5,10,15,20,25,30] as const;
-const SEAL_RING_STEPS=Array.from({length:ASSOCIATION_SEAL_MAX_LEVEL},(_,index)=>index+1);
 const SEALS=[
  {id:'association' as const,name:'전투 인장',subtitle:'기존 협회 인장 · 공격과 생존'},
  {id:'guardian' as const,name:'수호 인장',subtitle:'새로운 인장 · 체력과 방어'},
 ];
 const rewardFor=(id:AssociationSealId,level:number)=>
  id==='guardian'?guardianSealReward(level):associationSealReward(level);
+
+function RelicSigil({variant}:{variant:AssociationSealId|'sealed'}){
+ const sealed=variant==='sealed';
+ const guardian=variant==='guardian';
+ return <svg className="tc-insignia-art" viewBox="0 0 220 240" fill="none" aria-hidden="true" focusable="false">
+  <path d="M110 8 165 31 195 80 194 164 158 211 110 231 62 211 26 164 25 80 55 31Z"
+   fill="#101416" stroke="currentColor" strokeWidth="3" strokeOpacity=".85"/>
+  <path d="M110 19 157 39 184 85 182 156 153 201 110 219 67 201 38 156 36 85 63 39Z"
+   fill={guardian?'#14252b':sealed?'#1a1b1c':'#271a15'} stroke="currentColor" strokeWidth="1.3" strokeOpacity=".54"/>
+  <path d="M110 31 144 49 173 92 169 149 143 188 110 205 77 188 51 149 47 92 76 49Z"
+   stroke="currentColor" strokeWidth="1" strokeOpacity=".24"/>
+  <path d="M110 6 117 18 110 30 103 18Z M110 212 117 224 110 236 103 224Z
+   M22 120 35 112 47 120 35 128Z M173 120 185 112 198 120 185 128Z"
+   fill="currentColor" fillOpacity=".76"/>
+  <path d="M65 36 79 42M141 42 155 36M44 173 60 165M160 165 176 173"
+   stroke="currentColor" strokeOpacity=".6" strokeWidth="2"/>
+  <circle cx="110" cy="119" r="68" stroke="currentColor" strokeOpacity=".18" strokeWidth="1.5" strokeDasharray="4 8"/>
+  <path d="M110 43V56M110 182V195M49 119H62M158 119H171"
+   stroke="currentColor" strokeOpacity=".75" strokeWidth="2"/>
+  {sealed?
+   <g>
+    <path d="M79 106V92C79 50 141 50 141 92V106" stroke="currentColor" strokeWidth="13" strokeLinecap="round"/>
+    <path d="M80 105H140L149 118V166L137 179H83L71 166V118Z"
+     fill="#25211e" stroke="currentColor" strokeWidth="4"/>
+    <path d="M110 127a9 9 0 013 17l3 18h-12l3-18a9 9 0 013-17Z" fill="currentColor"/>
+   </g>:guardian?
+   <g>
+    <path d="M110 55 155 74 152 131Q147 170 110 192Q73 170 68 131L65 74Z"
+     fill="#182b32" stroke="currentColor" strokeWidth="4.5" strokeLinejoin="round"/>
+    <path d="M110 66 144 81 141 130Q137 158 110 179Q83 158 79 130L76 81Z"
+     fill="#243f48" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.5"/>
+    <path d="M110 87V163M86 124H134" stroke="currentColor" strokeWidth="12" strokeLinecap="square"/>
+    <path d="M110 89V162M87 124H133" stroke="#e1ebe9" strokeWidth="2" strokeLinecap="square"/>
+    <path d="M110 52 121 69 110 86 99 69Z" fill="currentColor"/>
+   </g>:
+   <g>
+    <path d="M110 48 100 70 105 140 101 168 110 193 119 168 115 140 120 70Z"
+     fill="#bc935e" stroke="#f0d1a3" strokeWidth="2.5" strokeLinejoin="round"/>
+    <path d="M110 58V172" stroke="#fff3d4" strokeWidth="2" strokeOpacity=".7"/>
+    <path d="M80 132 99 123H121L140 132 121 142H99Z"
+     fill="#6c4830" stroke="currentColor" strokeWidth="3"/>
+    <path d="M110 113 129 132 110 151 91 132Z" fill="#a34b33" stroke="#f4c08c" strokeWidth="3"/>
+    <path d="M79 89 63 110 77 127 60 120 51 101M141 89 157 110 143 127 160 120 169 101"
+     stroke="currentColor" strokeOpacity=".8" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M110 43 119 58 110 74 101 58Z" fill="currentColor"/>
+   </g>}
+ </svg>;
+}
 
 export function SealScreen({
  game,setGame,onlineLease,onServerRecord,
@@ -150,102 +197,100 @@ export function SealScreen({
  }
 
  if(!onlineLease)return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span>SERVER ONLY</span>}>
-  <div className="tc-seal-locked">
-   <div className="tc-seal-lockmark" aria-hidden="true"><i/><span>印</span></div>
-   <h2>협회 인장 제단</h2>
-   <p>전투 인장과 수호 인장은 서버에 각각 저장됩니다. Google 로그인 후 활성 플레이 세션에서 이용할 수 있습니다.</p>
-   <div><span><small>주조</small><b>{ASSOCIATION_SEAL_ROLL_COST} Gold</b></span><span><small>재주조</small><b>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</b></span><span><small>최대</small><b>30단계</b></span></div>
+  <div className="tc-insignia-locked">
+   <RelicSigil variant="sealed"/>
+   <h2>봉인된 각인의 서</h2>
+   <p>협회 인장은 서버에 저장됩니다. Google 계정으로 로그인하고 활성 플레이 세션을 시작해야 주조할 수 있습니다.</p>
+   <small>주조 {ASSOCIATION_SEAL_ROLL_COST.toLocaleString()} G · 재주조 {ASSOCIATION_SEAL_RESET_COST.toLocaleString()} G</small>
   </div>
  </Screen>;
 
  return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span className="tc-seal-wallet">GOLD <b>{gold.toLocaleString()}</b></span>}>
-  <div className={'tc-seal tc-seal-multi tc-seal-cathedral'+(selected==='guardian'?' tc-seal-guardian':'')+(busy?' is-working':'')+(completed?' is-complete':'')+' tc-seal-tier-'+Math.floor(level/5)}>
-   <nav className="tc-seal-selector" aria-label="협회 인장 선택">
-    {SEALS.map(item=><button key={item.id} type="button"
-      className={'tc-seal-slot '+(item.id==='guardian'?'guardian':'combat')+(selected===item.id?' is-selected':'')}
-      onClick={()=>switchSeal(item.id)} disabled={busy||!seals[item.id]}
-      aria-pressed={selected===item.id}
-      aria-label={item.name+' 선택'}>
-      <span className={'tc-seal-slot-emblem tc-seal-art '+item.id} aria-hidden="true"/>
-      <strong>{item.name}</strong><small className="tc-seal-slot-level"><span>각인</span><b>{seals[item.id]?.level?.toString().padStart(2,'0')??'–'}</b><span>/30</span></small>
-    </button>)}
-    {SEALED_SLOT_NUMBERS.map(n=><div key={n} className="tc-seal-slot sealed" aria-label={'제'+n+'의 인장 봉인'}>
-      <span className={'tc-seal-locked-art tc-seal-art sealed-'+n} aria-hidden="true"/>
-      <strong>봉인된 인장</strong><small>제{n}의 인장</small>
-    </div>)}
+  <div className="tc-insignia-board" data-seal={selected}>
+   <nav className="tc-insignia-tabs" aria-label="인장 선택">
+    {SEALS.map(item=><button key={item.id} type="button" className="tc-insignia-tab"
+      data-active={selected===item.id} aria-pressed={selected===item.id}
+      aria-label={item.name+' 선택'} onClick={()=>switchSeal(item.id)} disabled={busy||!seals[item.id]}>
+      <span className="tc-insignia-tab-icon"><RelicSigil variant={item.id}/></span>
+      <b>{item.name}</b><small>{seals[item.id]?.level??'–'} / 30</small>
+     </button>)}
+    {SEALED_SLOT_NUMBERS.map(n=><div className="tc-insignia-tab is-sealed" key={n} aria-label={'제'+n+'의 봉인된 인장'}>
+      <span className="tc-insignia-tab-icon"><RelicSigil variant="sealed"/></span>
+      <b>봉인된 인장</b><small>제{n}인장</small>
+     </div>)}
    </nav>
-   <div className="tc-seal-selection-label" role="status" aria-live="polite"><span>{sealName}</span><small title={message||undefined}>{message||(game.expedition?'원정 중에는 인장을 주조할 수 없습니다.':SEALS.find(item=>item.id===selected)!.subtitle)}</small></div>
-   <div className="tc-seal-stage">
-    <section className="tc-seal-altar" aria-label={sealName+' 주조 제단'}>
-     <div className="tc-seal-stage-number"><span>현재 인장 단계</span><strong>{level.toString().padStart(2,'0')} <span>/ 30</span></strong></div>
-     <div className={'tc-seal-wheel '+(busy?'is-casting ':'')+(lastStep?'tc-seal-result-'+lastStep:'')}
-      style={{'--seal-progress':(level / ASSOCIATION_SEAL_MAX_LEVEL * 100)+'%'} as React.CSSProperties}
-      aria-label={sealName+' 각인 '+level+'단계, 최대 30단계'}>
-      <div className="tc-seal-progress-arc" aria-hidden="true"/>
-      <div className="tc-seal-rune-ring" aria-hidden="true"/>
-      {SEAL_RING_STEPS.map((rank,index)=><i key={rank} className="tc-seal-ring-rank tc-seal-progress-dot"
-       data-active={rank<=level} data-current={rank===level}
-       style={{'--p':index} as React.CSSProperties} aria-hidden="true"><span>{rank}</span></i>)}
-      {SEAL_MILESTONES.map((milestone,index)=><i
-       className={'tc-seal-node milestone-'+milestone+' '+(index<activeNodes?'active':'')+(litNode===index?' just-lit':'')}
-       style={{'--i':index} as React.CSSProperties} key={milestone} aria-hidden="true"><span>{String(milestone).padStart(2,'0')}</span></i>)}
-      <div className="tc-seal-core" aria-hidden="true">
-       <span className={'tc-seal-core-art tc-seal-art '+selected}/>
-      </div>
-      {lastStep&&<div className={'tc-seal-flare '+selected} aria-hidden="true"><i className="layer-1"/>{lastStep>=2&&<i className="layer-2"/>}</div>}
-      <div className="tc-seal-rank-cartouche" aria-hidden="true">
-       <div className="tc-seal-engraved-level" key={selected+'-'+level}>
-        <strong>{level.toString().padStart(2,'0')}</strong><small>/30</small>
-       </div>
-      </div>
-     </div>
-     <div className="tc-seal-altar-copy"><small>ASSOCIATION SEAL</small>
-      <b>{completed?'완성된 '+sealName:level===0?'미주조 '+sealName:level+'단계 '+sealName}</b>
-     </div>
-    </section>
-    <aside className="tc-seal-status">
-     <header><div className="tc-seal-badge" aria-hidden="true"><span className={'tc-seal-badge-art tc-seal-art '+selected}/></div>
-      <div><small>현재 단계</small><strong>{level} / {ASSOCIATION_SEAL_MAX_LEVEL}</strong></div>
-      <div><small>주조 횟수</small><strong>{rolls} / {ASSOCIATION_SEAL_MAX_ROLLS}</strong></div></header>
-     <h3>{sealName} 효과</h3>
-     <dl className="tc-seal-effects">
-      <div><dt><i>♥</i> 최대 체력</dt><dd>+{percent(reward.hpPercent)}</dd></div>
-      {selected==='association'&&<div><dt><i>⚔</i> 공격력</dt><dd>+{percent(reward.attackPercent)}</dd></div>}
-      <div><dt><i>◆</i> 방어력</dt><dd>+{percent(reward.defensePercent)}</dd></div>
-     </dl>
-     {!completed&&<div className="tc-seal-next"><small>다음 강화 · {nextLevel}단계 <span className="tc-seal-milestone-label">다음 각인 {nextMilestone}단계</span></small>
-      <b>HP +{percent(nextReward.hpPercent)} · {selected==='guardian'?'DEF':'ATK/DEF'} +{percent(nextReward.defensePercent)}</b></div>}
-     <div className="tc-seal-meta"><span>누적 재주조 <b>{state?.resetCount??0}회</b></span><span>보유 Gold <b>{gold.toLocaleString()}</b></span></div>
-    </aside>
-   </div>
-   <section className="tc-seal-prob" aria-label="주조 결과 확률">
-    <header><span>주조 결과 확률</span><small>서버 독립 판정 · 하락/파괴 없음</small></header>
-    <div>{ASSOCIATION_SEAL_PROBABILITIES.map((item,index)=><span className={'p'+item.step+(lastStep===item.step?' hit':'')} key={item.step}>
-     <i>{index===0?'◇':index===1?'◆':'✦'}</i><b>+{item.step}</b><strong>{item.rate}%</strong>
-    </span>)}</div>
-   </section>
-   <div className="tc-seal-quantity" aria-label="주조 횟수 선택">
-    <div className="tc-seal-quantity-caption"><strong>주조 횟수</strong><small>남은 횟수 {remainingRolls} / {ASSOCIATION_SEAL_MAX_ROLLS}</small></div>
-    <div className="tc-seal-quantity-stepper">
-     <button type="button" disabled={busy||selectedRolls<=1} aria-label="주조 횟수 1 감소" onClick={()=>setRollCount(value=>Math.max(1,value-1))}>−</button>
-     <output aria-live="polite">{selectedRolls}</output>
-     <button type="button" disabled={busy||selectedRolls>=maxSelectableRolls||!canRoll} aria-label="주조 횟수 1 증가" onClick={()=>setRollCount(value=>Math.min(maxSelectableRolls,value+1))}>+</button>
-    </div>
-    <div className="tc-seal-quantity-presets">
-     {[1,10,20].map(count=><button type="button" key={count} disabled={busy||!canRoll} aria-pressed={selectedRolls===Math.min(count,maxSelectableRolls)}
-      onClick={()=>setRollCount(Math.min(count,maxSelectableRolls))}>{count}</button>)}
-    </div>
-   </div>
-   <div className="tc-seal-actions">
-    <button type="button" className="tc-seal-roll tc-feel-press" data-game-feel="press" disabled={!canRoll} onClick={()=>void roll()}>
-     <span>{busy?'주조 중…':completed?'최고 단계 달성':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'20회 주조 완료':'인장 주조'}</span>
-     <small>{(selectedRolls*ASSOCIATION_SEAL_ROLL_COST).toLocaleString()} Gold · {selectedRolls}회</small>
-    </button>
-    <button type="button" className="tc-seal-reset tc-feel-press" data-game-feel="press" title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>void reset()}>
-     <span>재주조</span><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
-    </button>
-   </div>
 
+   <section className="tc-insignia-main" aria-label={sealName+' 각인 상태'}>
+    <div className="tc-insignia-main-body">
+     <div className="tc-insignia-relic" data-result={lastStep!==null}
+       style={{'--relic-progress':(level/ASSOCIATION_SEAL_MAX_LEVEL*100)+'%'} as React.CSSProperties}
+       aria-label={sealName+' '+level+'단계'}>
+      <RelicSigil variant={selected}/>
+     </div>
+     <div className="tc-insignia-readout">
+      <small className="tc-insignia-kicker">THE OBSIDIAN CODEX</small>
+      <h2>{sealName}</h2>
+      <div className="tc-insignia-level" aria-label={'현재 '+level+'단계 / 최대 30단계'}>
+       <strong>{String(level).padStart(2,'0')}</strong><span>/ 30</span>
+      </div>
+      <div className="tc-insignia-uses">주조 {rolls} / {ASSOCIATION_SEAL_MAX_ROLLS}회</div>
+      <p className="tc-insignia-status" role="status" aria-live="polite" title={message||undefined}>
+       {message||(game.expedition?'원정 중에는 주조할 수 없습니다.':completed?'최고 단계 각인 완료':'다음 각인 '+nextMilestone+'단계 · HP +'+percent(nextReward.hpPercent))}
+      </p>
+     </div>
+    </div>
+    <div className="tc-insignia-milestones" aria-label="각인 이정표">
+     {SEAL_MILESTONES.map((milestone,index)=><div className="tc-insignia-milestone"
+       data-lit={index<activeNodes} data-new={litNode===index} key={milestone}
+       aria-label={milestone+'단계 '+(milestone<=level?'달성':'미달성')}>
+       <span aria-hidden="true"/><b>{String(milestone).padStart(2,'0')}</b>
+      </div>)}
+    </div>
+   </section>
+
+   <section className="tc-insignia-stats" data-columns={selected==='guardian'?'2':'3'} aria-label={sealName+' 적용 능력치'}>
+    <div className="tc-insignia-stat"><small>최대 체력</small><b>+{percent(reward.hpPercent)}</b></div>
+    {selected==='association'&&<div className="tc-insignia-stat"><small>공격력</small><b>+{percent(reward.attackPercent)}</b></div>}
+    <div className="tc-insignia-stat"><small>방어력</small><b>+{percent(reward.defensePercent)}</b></div>
+   </section>
+
+   <section className="tc-insignia-probability" aria-label="주조 결과 확률">
+    <header><strong>주조 결과 확률</strong><small>하락 · 파괴 없음</small></header>
+    <div className="tc-insignia-rates">
+     {ASSOCIATION_SEAL_PROBABILITIES.map(item=><div className="tc-insignia-rate"
+       data-hit={lastStep===item.step} key={item.step}><b>+{item.step}</b><strong>{item.rate}%</strong></div>)}
+    </div>
+   </section>
+
+   <div className="tc-insignia-controls">
+    <div className="tc-insignia-quantity" aria-label="주조 횟수 선택">
+     <div className="tc-insignia-quantity-caption"><strong>주조 횟수</strong><small>잔여 {remainingRolls} / {ASSOCIATION_SEAL_MAX_ROLLS}</small></div>
+     <div className="tc-insignia-stepper">
+      <button type="button" aria-label="주조 횟수 1 감소" disabled={busy||selectedRolls<=1}
+       onClick={()=>setRollCount(value=>Math.max(1,value-1))}>−</button>
+      <output aria-live="polite">{selectedRolls}</output>
+      <button type="button" aria-label="주조 횟수 1 증가"
+       disabled={busy||selectedRolls>=maxSelectableRolls||!canRoll}
+       onClick={()=>setRollCount(value=>Math.min(maxSelectableRolls,value+1))}>+</button>
+     </div>
+     <div className="tc-insignia-presets">
+      {[1,10,20].map(count=><button key={count} type="button"
+       aria-pressed={selectedRolls===Math.min(count,maxSelectableRolls)} disabled={busy||!canRoll}
+       onClick={()=>setRollCount(Math.min(count,maxSelectableRolls))}>{count}</button>)}
+     </div>
+    </div>
+    <div className="tc-insignia-actions">
+     <button type="button" className="tc-insignia-roll tc-feel-press" data-game-feel="press"
+      disabled={!canRoll} onClick={()=>void roll()}>
+      <b>{busy?'주조 중…':completed?'각인 완성':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'20회 소진':'인장 주조'}</b>
+      <small>{(selectedRolls*ASSOCIATION_SEAL_ROLL_COST).toLocaleString()} Gold · {selectedRolls}회</small>
+     </button>
+     <button type="button" className="tc-insignia-reset tc-feel-press" data-game-feel="press"
+      title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>void reset()}>
+      <b>재주조</b><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
+     </button>
+    </div>
+   </div>
   </div>
  </Screen>;
 }
