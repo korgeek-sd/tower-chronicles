@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {
  ASSOCIATION_SEAL_MAX_LEVEL,ASSOCIATION_SEAL_MAX_ROLLS,
- ASSOCIATION_SEAL_PROBABILITIES,ASSOCIATION_SEAL_RESET_COST,ASSOCIATION_SEAL_ROLL_COST,
+ associationSealProbabilities,ASSOCIATION_SEAL_RESET_COST,ASSOCIATION_SEAL_ROLL_COST,
  associationSealNextMilestone,associationSealReward,guardianSealReward,
 } from '../../game/seal';
 import type {CloudSaveRecord} from '../../online/cloudSave';
@@ -231,7 +231,7 @@ export function SealScreen({
    <section className="tc-insignia-probability" aria-label="주조 결과 확률">
     <header><strong>주조 결과 확률</strong><small>하락 · 파괴 없음</small></header>
     <div className="tc-insignia-rates">
-     {ASSOCIATION_SEAL_PROBABILITIES.map(item=><div className="tc-insignia-rate"
+     {associationSealProbabilities(level).map(item=><div className="tc-insignia-rate"
        data-hit={lastStep===item.step} key={item.step}><b>+{item.step}</b><strong>{item.rate}%</strong></div>)}
     </div>
    </section>

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {
  ASSOCIATION_SEAL_MAX_LEVEL,
  ASSOCIATION_SEAL_MAX_ROLLS,
- ASSOCIATION_SEAL_PROBABILITIES,
+ associationSealProbabilities,
  ASSOCIATION_SEAL_RESET_COST,
  ASSOCIATION_SEAL_ROLL_COST,
  associationSealReward,
@@ -15,7 +15,7 @@ test('ASSOCIATION SEAL 01: final progression rules stay locked',()=>{
  assert.equal(ASSOCIATION_SEAL_MAX_ROLLS,20);
  assert.equal(ASSOCIATION_SEAL_ROLL_COST,300);
  assert.equal(ASSOCIATION_SEAL_RESET_COST,3000);
- assert.deepEqual(ASSOCIATION_SEAL_PROBABILITIES.map(row=>[row.step,row.rate]),[[1,76],[2,20],[3,4]]);
+ assert.deepEqual(associationSealProbabilities(0).map(row=>[row.step,row.rate]),[[1,62.5],[2,33],[3,4.5]]);
 });
 
 test('ASSOCIATION SEAL 02: milestone reward table reaches HP 6 / ATK 3 / DEF 3',()=>{
@@ -30,7 +30,7 @@ test('ASSOCIATION SEAL 02: milestone reward table reaches HP 6 / ATK 3 / DEF 3',
 
 test('ASSOCIATION SEAL 03: UI exposes server-only probabilities and costs with no client RNG',()=>{
  const ui=readFileSync(new URL('../src/components/seal/SealScreen.tsx',import.meta.url),'utf8');
- assert.match(ui,/ASSOCIATION_SEAL_PROBABILITIES/);
+ assert.match(ui,/associationSealProbabilities/);
  assert.match(ui,/ASSOCIATION_SEAL_ROLL_COST/);
  assert.match(ui,/ASSOCIATION_SEAL_RESET_COST/);
  assert.match(ui,/SERVER ONLY/);

@@ -84,7 +84,7 @@ test('seal rewards and roll rates are displayed exclusively from actual game val
  for(const required of ['const nextLevel=Math.min(ASSOCIATION_SEAL_MAX_LEVEL,level+1)',
   'rewardFor(selected,nextLevel)','level/ASSOCIATION_SEAL_MAX_LEVEL*100',
   'percent(reward.hpPercent)','percent(reward.defensePercent)',
-  'ASSOCIATION_SEAL_PROBABILITIES.map','role="status" aria-live="polite"']){
+  'associationSealProbabilities(level).map','role="status" aria-live="polite"']){
   assert.ok(ui.includes(required),required);
  }
  assert.ok(!ui.includes('Math.random'));
