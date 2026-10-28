@@ -41,29 +41,32 @@ test('guardian RPCs use lease and server replay receipts',()=>{
  assert.match(ddl,/revoke all on private\.player_guardian_seals from public,anon,authenticated/);
 });
 
-test('new association seal art is drawn inside React and never loads legacy assets',()=>{
+test('guild seal uses the imported real sprite atlas, not the hand-drawn SVG relic',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
+ const sprite=read('src/components/seal/SealSprite.tsx');
  const css=read('src/components/seal/seal-relic.css');
- for(const required of ["import './seal-relic.css'","function RelicSigil","tc-insignia-board",
-   "tc-insignia-milestone","tc-insignia-probability","tc-insignia-quantity",
-   "tc-insignia-roll","tc-insignia-reset","SEAL_MILESTONES.map"]){
-  assert.ok(ui.includes(required),required);
- }
- for(const old of ['tc-seal-cathedral','tc-seal-wheel','tc-seal-core-art','seal-collection.css']){
-  assert.equal(ui.includes(old),false,old);
- }
- for(const old of ['url(','.webp','.jpg','.png','.svg','seal-cathedral','seal-generated-atlas']){
-  assert.equal(css.includes(old),false,old);
- }
- for(const required of ['.tc-insignia-board{','.tc-insignia-relic{',
-   '@media(max-height:700px)','@media(prefers-reduced-motion:reduce)','min-height:44px']){
-  assert.ok(css.includes(required),required);
- }
+ const raw=readFileSync('src/assets/ui/seals/guild-seal-animations.avif');
+ assert.equal(raw.subarray(4,12).toString(),'ftypavif');
+ assert.ok(raw.length>20000,'animated sprites must contain actual image data');
+ assert.match(ui,/import \{SealSprite,SealSpriteIcon\} from '\.\/SealSprite'/);
+ assert.doesNotMatch(ui,/function RelicSigil|<RelicSigil/);
+ assert.match(ui,/<SealSprite variant=\{selected\} level=\{level\}/);
+ assert.match(ui,/mode=\{visualMode\} sequence=\{visualSequence\}/);
+ assert.match(sprite,/guild-seal-animations\.avif/);
+ assert.match(sprite,/totalFrames=156/);
+ assert.match(sprite,/combat_tier3_forge/);
+ assert.match(sprite,/guardian_tier3_forge/);
+ assert.match(sprite,/combat_reset/);
+ assert.match(sprite,/guardian_reset/);
+ assert.match(sprite,/requestAnimationFrame|setInterval/);
+ assert.match(sprite,/prefers-reduced-motion: reduce/);
+ assert.match(css,/\.tc-insignia-sprite\{/);
+ assert.doesNotMatch(css,/url\(|seal-generated-atlas|seal-cathedral/);
 });
 test('mobile seal layout stays on a single screen and uses six clean milestone marks',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
  const css=read('src/components/seal/seal-relic.css');
- assert.ok(ui.includes('SEAL_MILESTONES.map'));
+ assert.ok(ui.includes('SEAL_MILESTONES.map'));\n assert.ok(ui.includes('<SealSpriteIcon'));
  assert.ok(ui.includes('data-lit={index<activeNodes}'));
  assert.ok(ui.includes('className="tc-insignia-level"'));
  assert.ok(!ui.includes('SEAL_RING_STEPS'));
@@ -118,4 +121,19 @@ test('original seal click sound ownership is preserved after the UI redesign',()
  assert.match(ui,/className="tc-insignia-roll tc-seal-roll tc-feel-press"/);
  assert.match(ui,/className="tc-insignia-reset tc-seal-reset tc-feel-press"/);
  assert.match(audio,/button\.matches\('\.tc-hunt-enter,\.tc-hunt-next,\.tc-seal-roll,\.tc-seal-reset,\.tc-seal-audio-preview'\)/);
+});
+
+test('success sprite animation runs only after server result and resets on selection',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const data=read('src/components/seal/SealSprite.tsx');
+ const roll=ui.indexOf('const result=await rollOnlineSeal(onlineLease,sealId)');
+ const success=ui.indexOf("setVisualMode('forge')");
+ const reset=ui.indexOf("setVisualMode('reset')");
+ const resetRpc=ui.indexOf('const result=await resetOnlineSeal(onlineLease,sealId)');
+ assert.ok(roll>0&&success>roll&&reset>resetRpc);
+ assert.match(ui,/setVisualSequence\(value=>value\+1\)/);
+ assert.match(ui,/setVisualMode\('idle'\)/);
+ assert.match(data,/tierForLevel/);
+ assert.match(data,/level>=20\?3:level>=10\?2:1/);
+ assert.match(data,/clearInterval/);
 });
