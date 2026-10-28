@@ -29,7 +29,7 @@ import {getHuntingState} from '../../online/hunting';
 import type {GameplayLease} from '../../online/gameSession';
 import {huntingLevel,type HuntingState} from '../../game/hunting/model';
 
-export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'towers'|'floor'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
+export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
