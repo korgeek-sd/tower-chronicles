@@ -45,6 +45,7 @@ export function SealScreen({
  const [litNode,setLitNode]=useState<number|null>(null);
  const [visualMode,setVisualMode]=useState<'idle'|'forge'|'reset'>('idle');
  const [visualSequence,setVisualSequence]=useState(0);
+ const [visualFromLevel,setVisualFromLevel]=useState<number|null>(null);
  const feel=useGameFeel();
 
  useEffect(()=>{
@@ -98,6 +99,7 @@ export function SealScreen({
   let processed=0;
   let finalLevel=level;
   let lastResultStep:1|2|3=1;
+  let lastBeforeLevel=level;
   feel.play('seal.roll.start');
   setBusy(true);setMessage('');setLastStep(null);setLitNode(null);
   try{
@@ -107,6 +109,7 @@ export function SealScreen({
     processed++;
     finalLevel=result.afterLevel;
     lastResultStep=result.step;
+    lastBeforeLevel=result.beforeLevel;
     setSeals(previous=>({
      ...previous,
      [sealId]:result.state,
@@ -121,6 +124,7 @@ export function SealScreen({
     if(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL)break;
    }
    setLastStep(lastResultStep);
+   setVisualFromLevel(lastBeforeLevel);
    setVisualMode('forge');setVisualSequence(value=>value+1);
    feel.play('seal.roll.result',{step:lastResultStep});
    setMessage(finalLevel>=ASSOCIATION_SEAL_MAX_LEVEL
@@ -187,7 +191,8 @@ export function SealScreen({
      <div className="tc-insignia-relic" data-result={lastStep!==null}
        style={{'--relic-progress':(level/ASSOCIATION_SEAL_MAX_LEVEL*100)+'%'} as React.CSSProperties}
        aria-label={sealName+' '+level+'단계'}>
-      <SealArtwork variant={selected} level={level} mode={visualMode} sequence={visualSequence}/>
+      <SealArtwork variant={selected} level={level} mode={visualMode} sequence={visualSequence}
+       step={lastStep} fromLevel={visualFromLevel}/>
      </div>
      <div className="tc-insignia-readout">
       <small className="tc-insignia-kicker">현재 단계</small>
