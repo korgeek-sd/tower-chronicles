@@ -36,6 +36,8 @@ create table private.online_associations(association_id uuid,status text,revenue
 await db.exec(readFileSync(new URL('../supabase/migrations/20261011194500_hunting_catalog_combat.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/hunting-skill-setup.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/hunting-three-skill-sets.sql',import.meta.url),'utf8'));
+// Apply the live 25-monster override after historical hunting migrations, matching production.
+await db.exec(readFileSync(new URL('../supabase/migrations/20261028230000_five_hunting_monsters_per_map.sql',import.meta.url),'utf8'));
 await db.exec(`create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select $2->'testStats'$$;`);
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
@@ -82,7 +84,7 @@ await assert.rejects(()=>call('save_hunting_setup',[['heavy','quick'],{...setup,
 await assert.rejects(()=>call('save_hunting_setup',[['heavy','quick'],{...setup,conditions:{heavy:[{kind:'turn_every',value:0}]}}]),/HUNT_PRESET_INVALID/);
 await assert.rejects(()=>call('save_hunting_setup',[['heavy','quick'],{...setup,slots:['quick','heavy',null,null,null,null]}]),/HUNT_PRESET_INVALID/);
 await db.exec(`update private.hunting_states set current_hp=10000;update private.village_life_players set products='{"potion":0}',food_turns='{}';update public.game_saves set payload=jsonb_set(payload,'{testStats}','{"hp":10000,"attack":1,"defense":10000,"critChance":0,"critDamage":1.5,"armorPenetration":0}');`);
-const conditional=await call('hunt_once',[id(),'ruins']);assert.match(conditional.result.turns[0].lines[0],/속공/);assert.doesNotMatch(conditional.result.turns[1].lines.join(' '),/탐사자의 (강타|속공)!/);assert.ok(conditional.result.turns.some((t:any)=>t.turn>=3&&t.lines.some((line:string)=>line.includes('강타'))));
+const conditional=await call('hunt_once',[id(),'ruins']);assert.match(conditional.result.turns[0].lines[0],/속공/);assert.doesNotMatch(conditional.result.turns[1].lines.join(' '),/탐사자의 (강타|속공)!/);assert.ok(conditional.result.turns.some((t:any)=>t.turn>=3&&t.lines.some((line:string)=>line.includes('강타'))),'conditional heavy-skill action was not found in combat log');
 assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon','public.save_hunting_setup(uuid,bigint,text,text,text[],jsonb)','EXECUTE') ok")).rows[0].ok,false);
 await call('save_hunting_preset',[['heavy','quick']]);assert.deepEqual((await call('get_hunting_state')).skillSetup,{});
 // Normalization must preserve the weapon used for eligibility.
@@ -104,7 +106,7 @@ for(const pen of [-1,0,.5,1,2]){
  assert.equal(sqlHit,damage(100,100,1,pen));
 }
 await db.exec(`update private.hunting_states set skills=array[]::text[],current_hp=180;`);
-const waiting=await call('hunt_once',[id(),'plains']);assert.equal(waiting.result.monsterHp,waiting.result.monster.hp);assert.ok(waiting.result.turns[0].lines[0].includes('대기'));
+const waiting=await call('hunt_once',[id(),'plains']);assert.equal(waiting.result.monsterHp,waiting.result.monster.hp);assert.ok(waiting.result.turns[0].lines.some((line:string)=>line.includes('대기')),'no-skill turn must record the wait action: '+JSON.stringify(waiting.result.turns[0].lines));
 assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('authenticated','private.hunting_damage(numeric,numeric,numeric,numeric)','EXECUTE') ok")).rows[0].ok,false);
 const wreq=id();await action('well','well',1,wreq);assert.equal((await get()).health.hp,null);assert.equal((await action('well','well',1,wreq)).replayed,true);await assert.rejects(()=>action('well','well'),/WELL_COOLDOWN/);
 await db.exec(`insert into private.market_assets values('${u}','equipment_v2:drop',1,'{"grade":"rare","tier":3}',now());`);const dis=await call('dismantle_online_equipment',['drop']);assert.equal(dis.splitStones,6);assert.equal((await get()).materials.stone,1006);await action('craft','challenge_ticket');assert.equal((await get()).products.challenge_ticket,1);
@@ -113,7 +115,7 @@ assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon'
 await assert.rejects(()=>db.query(`select public.village_life_action($1,null,'c','d',$2,'city','craft','potion',1)`,[u,id()]),/GAME_SESSION_LOST/);
 
  await db.exec(`update private.hunting_states set vitality=100,current_hp=100000,skills=array['heavy','quick'];create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select '{"hp":100000,"attack":10000,"defense":1000,"critChance":0,"critDamage":1.5,"armorPenetration":0}'::jsonb$$;`);
- for(const [map,xp,minSilver,maxSilver] of [['plains',100,1000,1200],['forest',250,1600,2000],['mine',600,2500,3100],['fortress',1400,3800,4600],['ruins',3000,5500,6500]] as const){const req=id();const r=await call('hunt_once',[req,map]);assert.equal(r.result.mapId,map);assert.equal(r.result.outcome,'victory');assert.equal(r.result.exp,xp);assert.ok(Number.isInteger(r.result.silver)&&r.result.silver>=minSilver&&r.result.silver<=maxSilver);const replay=await call('hunt_once',[req,map]);assert.equal(replay.replayed,true);assert.equal(replay.result.silver,r.result.silver);assert.deepEqual(replay.result.equipment,r.result.equipment);assert.deepEqual(replay.result.monster,r.result.monster);assert.equal(replay.state.vitality,r.state.vitality);}
+ for(const [map,xp,minSilver,maxSilver] of [['plains',100,1000,1200],['forest',250,1600,2000],['mine',600,2500,3100],['fortress',1400,3800,4600],['ruins',3000,5500,6500]] as const){const req=id();const r=await call('hunt_once',[req,map]);assert.equal(r.result.mapId,map);assert.equal(r.result.outcome,'victory');assert.equal(r.result.exp,xp);assert.ok(Number.isInteger(r.result.silver)&&r.result.silver>=minSilver&&r.result.silver<=maxSilver,`silver range failed for ${map}: received ${JSON.stringify(r.result.silver)}, expected ${minSilver}..${maxSilver}`);const replay=await call('hunt_once',[req,map]);assert.equal(replay.replayed,true);assert.equal(replay.result.silver,r.result.silver);assert.deepEqual(replay.result.equipment,r.result.equipment);assert.deepEqual(replay.result.monster,r.result.monster);assert.equal(replay.state.vitality,r.state.vitality);}
 
  await db.exec(`create or replace function private.hunting_equipment_drop(p_map text,p_roll integer,p_kind_index integer) returns jsonb language sql as $$select '{"id":"test-hunt-drop","kind":"association_supply_iron_sword","grade":"legendary","enhancement":0}'::jsonb$$;`);
  const beforeMonster=(await db.query<{last_result:any}>('select last_result from private.hunting_states')).rows[0].last_result.monster;

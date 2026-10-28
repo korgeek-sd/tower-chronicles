@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify village craft and hunting server fixture
+        run: node --import ./tests/register.mjs --test tests/villageCraftSql.test.ts
+
       - name: Run tests
         run: npm test
 
