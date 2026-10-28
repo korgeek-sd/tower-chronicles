@@ -36,7 +36,7 @@ create table private.online_associations(association_id uuid,status text,revenue
 await db.exec(readFileSync(new URL('../supabase/migrations/20261011194500_hunting_catalog_combat.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/hunting-skill-setup.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/hunting-three-skill-sets.sql',import.meta.url),'utf8'));
-await db.exec(`create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $select $2->'testStats'$;`);
+await db.exec(`create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select $2->'testStats'$$;`);
 // Later fixture functions may replace historical definitions. Reaffirm the production RPC ACL
 // in this isolated PGlite database so the permission assertion is deterministic.
 await db.exec(`revoke all on function public.village_life_action(uuid,bigint,text,text,uuid,text,text,text,integer) from public,anon;
