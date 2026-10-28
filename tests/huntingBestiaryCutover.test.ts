@@ -8,9 +8,9 @@ import {initialState} from '../src/game/engine/state';
 import {HUNT_MAPS} from '../src/game/hunting/model';
 import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
 
-test('current monster encyclopedia is backed by the five active hunting maps and fifty monsters',()=>{
+test('current monster encyclopedia is backed by the five active hunting maps and twenty-five monsters',()=>{
  assert.equal(HUNT_MAPS.length,5);
- assert.equal(HUNT_MAPS.reduce((n,map)=>n+HUNT_MONSTERS[map.id].length,0),50);
+ assert.equal(HUNT_MAPS.reduce((n,map)=>n+HUNT_MONSTERS[map.id].length,0),25);
  const html=renderToStaticMarkup(React.createElement(BestiaryScreen,{game:initialState(),onBack:()=>{}}));
  assert.match(html,/사냥 생물록/);
  assert.match(html,/외곽 평야/);

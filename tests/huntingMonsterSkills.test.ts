@@ -6,10 +6,10 @@ import {HUNT_MONSTERS} from '../src/game/hunting/encounters';
 import {HUNT_MAPS,initialHuntingState,resolveHunt} from '../src/game/hunting/model';
 import {monsterSkillAt,resolveMonsterAction,damageOverTime,playerAttackFactor,playerDefenseFactor,blocksPlayerSkill,takeMonsterShield} from '../src/game/hunting/monsterSkills';
 const sql=()=>readFileSync(new URL('../supabase/migrations/20261011100000_new_hunting_monsters.sql',import.meta.url),'utf8');
-test('all five maps have ten unique NEW monsters with exactly three authored skills',()=>{
+test('all five maps have five unique NEW monsters with exactly three authored skills',()=>{
  const ids=new Set<string>();const names=new Set<string>();let count=0;
  for(const map of HUNT_MAPS){
-  assert.equal(HUNT_MONSTERS[map.id].length,10);
+  assert.equal(HUNT_MONSTERS[map.id].length,5);
   for(const m of HUNT_MONSTERS[map.id]){
    assert.ok(!ids.has(m.id));ids.add(m.id);assert.ok(!names.has(m.name));names.add(m.name);
    assert.ok(m.image.startsWith('assets/monsters/new/'));
@@ -19,13 +19,13 @@ test('all five maps have ten unique NEW monsters with exactly three authored ski
    assert.deepEqual([1,2,3,4,5,6,7,8].map(t=>monsterSkillAt(m,t).name),[0,1,0,2,0,1,0,2].map(i=>m.skills[i].name));
   }
  }
- assert.equal(ids.size,50);assert.equal(count,150);
+ assert.equal(ids.size,25);assert.equal(count,75);
  for(const old of ['hide_gnawer','wasteland_boar','carrion_vulture','goblin_miner','fang_nest'])assert.equal(ids.has(old),false);
 });
 test('all three skills affect real guest hunting turns and each monster has its own stats',()=>{
  for(const map of HUNT_MAPS){
-  for(const index of [0,4,9]){
-   const result=resolveHunt(initialHuntingState(0),map.id,{hp:20000,attack:0,defense:100},[],0,()=>index/10+.001).result;
+  for(const index of [0,2,4]){
+   const result=resolveHunt(initialHuntingState(0),map.id,{hp:20000,attack:0,defense:100},[],0,()=>index/5+.001).result;
    const monster=result.monster!;
    assert.equal(monster.hp,HUNT_MONSTERS[map.id][index].hp);
    assert.equal(monster.attack,HUNT_MONSTERS[map.id][index].attack);
@@ -50,14 +50,16 @@ test('persistent debuffs, damage over time, shield, reflect and skill block are 
  assert.equal(action.skillName,m.skills[1].name);
  assert.ok(action.effects.attack_down!==undefined || action.effects.shield!==undefined || action.effects.vulnerable!==undefined);
 });
-test('SQL catalog / deterministic action and client combat calculations agree across 150 skills',async()=>{
+test('SQL catalog / deterministic action and client combat calculations agree across 75 skills',async()=>{
  const db=new PGlite();
  try{
   await db.exec("create schema private;create role anon;create role authenticated;");
   await db.exec(`create function private.hunting_damage(p_attack numeric,p_defense numeric,p_multiplier numeric,p_pen numeric) returns numeric language sql immutable as $$
    select greatest(1,floor(greatest(0,p_attack)*p_multiplier*100/(100+greatest(0,p_defense)*(1-greatest(0,least(1,p_pen)))))) $$;`);
   await db.exec(sql().split('CREATE OR REPLACE FUNCTION public.hunt_once')[0]);
+  await db.exec(readFileSync(new URL('../supabase/migrations/20261028230000_five_hunting_monsters_per_map.sql',import.meta.url),'utf8'));
   for(const [map,monsters] of Object.entries(HUNT_MONSTERS)){
+   assert.equal((await db.query<{count:number}>("select jsonb_array_length(private.hunting_monster_catalog()->$1) count",[map])).rows[0].count,5);
    for(const monster of monsters){
     const server=(await db.query<{monster:any}>("select item monster from jsonb_array_elements(private.hunting_monster_catalog()->$1) item where item->>'id'=$2",[map,monster.id])).rows[0].monster;
     assert.deepEqual(server,monster);

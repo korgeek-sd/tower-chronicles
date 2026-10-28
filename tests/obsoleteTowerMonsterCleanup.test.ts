@@ -21,9 +21,9 @@ test('orphaned retired iron tower sprites are removed without affecting register
  }
 });
 
-test('current hunting encounter registry retains five maps and fifty monsters',()=>{
+test('current hunting encounter registry retains five maps and twenty-five monsters',()=>{
  assert.equal(HUNT_MAPS.length,5);
- assert.equal(HUNT_MAPS.reduce((sum,map)=>sum+HUNT_MONSTERS[map.id].length,0),50);
+ assert.equal(HUNT_MAPS.reduce((sum,map)=>sum+HUNT_MONSTERS[map.id].length,0),25);
  for(const map of HUNT_MAPS)for(const monster of HUNT_MONSTERS[map.id]){
   assert.ok(existsSync(new URL('../public/'+monster.image,import.meta.url)),monster.id);
  }
