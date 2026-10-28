@@ -24,3 +24,8 @@ test('player-facing encyclopedia does not import retired tower encounter catalog
  assert.doesNotMatch(source,/data\/bestiary|bestiaryEntriesForTower|towerIds|TOWERS|graphicFor/);
  assert.match(source,/HUNT_MONSTERS/);
 });
+
+test('retired expedition helper entry point and unused area names are absent from live source',()=>{
+ const source=readFileSync(new URL('../src/game/engine/exploration.ts',import.meta.url),'utf8');
+ assert.doesNotMatch(source,/export function startExpedition|export const REGIONS|export const RESOURCES/);
+});
