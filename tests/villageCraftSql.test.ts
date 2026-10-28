@@ -112,7 +112,10 @@ assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('authe
 const wreq=id();await action('well','well',1,wreq);assert.equal((await get()).health.hp,null);assert.equal((await action('well','well',1,wreq)).replayed,true);await assert.rejects(()=>action('well','well'),/WELL_COOLDOWN/);
 await db.exec(`insert into private.market_assets values('${u}','equipment_v2:drop',1,'{"grade":"rare","tier":3}',now());`);const dis=await call('dismantle_online_equipment',['drop']);assert.equal(dis.splitStones,6);assert.equal((await get()).materials.stone,1006);await action('craft','challenge_ticket');assert.equal((await get()).products.challenge_ticket,1);
 await db.exec(`update private.village_life_players set action_points=0,day=day-1;`);assert.equal((await get()).actionPoints,100);assert.equal((await get()).craftMastery,1012);
-assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon','public.village_life_action(uuid,bigint,text,text,uuid,text,text,text,integer)','EXECUTE') ok")).rows[0].ok,false);
+await db.exec('begin;set local role anon;');
+ try {
+  await assert.rejects(()=>db.query("select public.village_life_action($1,1,'c','d',$2,'city','craft','potion',1)",[u,id()]),/permission denied/i);
+ } finally {await db.exec('rollback;');}
 await assert.rejects(()=>db.query(`select public.village_life_action($1,null,'c','d',$2,'city','craft','potion',1)`,[u,id()]),/GAME_SESSION_LOST/);
 
  await db.exec(`update private.hunting_states set vitality=100,current_hp=100000,skills=array['heavy','quick'];create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select '{"hp":100000,"attack":10000,"defense":1000,"critChance":0,"critDamage":1.5,"armorPenetration":0}'::jsonb$$;`);
