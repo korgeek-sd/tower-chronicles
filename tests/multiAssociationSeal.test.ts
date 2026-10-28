@@ -163,3 +163,24 @@ test('mobile cathedral prioritizes unobstructed 30-stage altar over duplicate st
  assert.match(css,/@media\(max-height:700px\)\{[\s\S]*?\.tc-seal\.tc-seal-multi\.tc-seal-cathedral\{grid-template-rows:46px 19px minmax\(0,1fr\) 50px 46px 52px/);
  assert.match(css,/\.tc-seal-cathedral \.tc-seal-quantity-stepper button,[\s\S]*?min-height:44px/);
 });
+
+
+test('the new association seal UI is entirely drawn in code, not loaded from previous visual assets',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-relic.css');
+ assert.match(ui,/import '\.\/seal-relic\.css'/);
+ assert.match(ui,/function RelicSigil/);
+ assert.match(ui,/tc-insignia-board/);
+ assert.match(ui,/tc-insignia-milestone/);
+ assert.match(ui,/tc-insignia-probability/);
+ assert.match(ui,/tc-insignia-quantity/);
+ assert.match(ui,/tc-insignia-roll/);
+ assert.match(ui,/tc-insignia-reset/);
+ assert.doesNotMatch(ui,/tc-seal-cathedral|tc-seal-art|tc-seal-wheel|tc-seal-core-art/);
+ assert.doesNotMatch(css,/url\(|seal-generated-atlas|seal-cathedral|seal-emblems|\.webp|\.jpg|\.png|\.svg/);
+ assert.match(css,/\.tc-insignia-board\{/);
+ assert.match(css,/\.tc-insignia-relic\{/);
+ assert.match(css,/@media\s*\(max-height:700px\)/);
+ assert.match(css,/@media\s*\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/min-height:44px/);
+});
