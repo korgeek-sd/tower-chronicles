@@ -240,6 +240,12 @@ export function SealScreen({
        aria-pressed={selectedRolls===Math.min(count,maxSelectableRolls)} disabled={busy||!canRoll}
        onClick={()=>setRollCount(Math.min(count,maxSelectableRolls))}>{count}</button>)}
      </div>
+     <select className="tc-insignia-quick-count" aria-label="빠른 주조 횟수 선택"
+      value={selectedRolls} disabled={busy||!canRoll}
+      onChange={event=>setRollCount(Math.min(Number(event.target.value),maxSelectableRolls))}>
+      {!([1,10,20].includes(selectedRolls))&&<option value={selectedRolls}>{selectedRolls}회</option>}
+      {[1,10,20].map(count=><option key={count} value={count}>{count}회</option>)}
+     </select>
     </div>
     <div className="tc-insignia-actions">
      <button type="button" className="tc-insignia-roll tc-seal-roll tc-feel-press" data-game-feel="press"

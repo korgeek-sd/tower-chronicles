@@ -17,17 +17,22 @@ test('reference seal uses raster art and labels all thirty server progress stage
  assert.equal((guardian.match(/data-reached="true"/g)||[]).length,30);
 });
 
-test('reference artwork is present, motion is bounded, and smaller screens retain scroll access',()=>{
+test('reference artwork is present, motion is bounded, and controls fit without scrolling',()=>{
  for(const name of ['seal-solar-reference-v1.png','seal-cathedral-reference-v1.png']){
   const bytes=readFileSync('src/assets/ui/seals/'+name);
   assert.equal(bytes.subarray(1,4).toString(),'PNG');
  }
  const css=readFileSync('src/components/seal/seal-reference.css','utf8');
  assert.match(css,/prefers-reduced-motion/);
- assert.match(css,/overflow-y:auto/);
+ assert.doesNotMatch(css,/overflow-y:auto|minmax\((?:230|270)px,1fr\)/);
+ assert.match(css,/container-name:seal-viewport/);
+ assert.match(css,/@container seal-viewport \(max-height:540px\)/);
+ assert.match(css,/grid-template-rows:44px minmax\(0,1fr\) 36px 54px 104px/);
  assert.doesNotMatch(css,/conic-gradient|clip-path|infinite/);
  const ui=readFileSync('src/components/seal/SealScreen.tsx','utf8');
  assert.match(ui,/<SealArtwork variant=\{selected\} level=\{level\}/);
  assert.match(ui,/disabled=\{!canRoll\}/);
  assert.match(ui,/disabled=\{!canReset\}/);
+ assert.match(ui,/aria-label="빠른 주조 횟수 선택"/);
+ assert.match(ui,/onChange=\{event=>setRollCount\(Math.min\(Number\(event.target.value\),maxSelectableRolls\)\)\}/);
 });
