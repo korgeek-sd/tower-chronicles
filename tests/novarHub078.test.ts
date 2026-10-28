@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 const core=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
-const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function TowersScreen'));
+const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function SkillsScreen'));
 
 test('NOVAR HUB V2: profile and always-on chat use real character and hunting values',()=>{
  assert.match(home,/tc-camp-v2-dossier/);
