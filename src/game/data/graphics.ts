@@ -27,7 +27,6 @@ export const playerGraphicForJob=(jobId:string|null,appearanceId:string):PlayerG
   ?{id:'job:'+job.id,image:{idle:job.visualAssetKey},display:{scale:1.08,offsetX:0,offsetY:2}}
   :playerGraphicFor(appearanceId);
 };
-const ids:Record<Tower,string>={ore:'goblin_miner',leather:'wild_boar',gem:'crystal_guardian',kaleon:'moss_spirit'};
 export const MONSTER_GRAPHICS:MonsterGraphic[]=[];
 MONSTER_GRAPHICS.push(...IRON_T1_MONSTERS.map(m=>({id:m.graphicId,tower:'ore' as const,name:m.displayName,image:{idle:`assets/monsters/iron-t1/${m.id}.png`},display:{scale:m.boss?1.18:1,offsetX:0,offsetY:m.id==='mine_bat'?0:18}})));
 const ironBossArt:Record<string,string>={iron_maw_burrower:'iron_maw_burrower',black_vein_armor_breaker:'black_vein_armor_breaker',echo_devourer:'echo_devourer',deep_hoist_overseer:'deep_hoist_overseer',iron_core_pulsator:'iron_core_pulsator'};
