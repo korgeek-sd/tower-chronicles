@@ -45,7 +45,7 @@ test('growth reads both existing state endpoints concurrently and preserves part
 
 test('growth is reachable from home and production opens gathering directly',()=>{
  const home=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
- assert.match(home,/aria-label="성장 기록 열기"[^>]*onClick=\{\(\)=>onMove\('growth'\)\}/);
+ assert.match(home,/aria-label="성장 현황 열기"[^>]*onClick=\{\(\)=>onMove\('character'\)\}/);
  assert.match(home,/name:'성장 기록'/);
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
  assert.match(main,/page==='growth'&&<GrowthRecordPage/);
