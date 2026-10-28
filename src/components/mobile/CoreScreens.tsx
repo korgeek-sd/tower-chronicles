@@ -23,7 +23,7 @@ import type {CloudSaveRecord} from '../../online/cloudSave';
 import {EQUIPMENT_GRADE_NAMES,equipmentDefinition} from '../../game/data/equipment';
 import {applyPreset,getPresetSlotLimit,renamePreset,savePreset} from '../../game/engine/presets';
 import {jobById} from '../../game/jobs/catalog';
-import {assetUrl,playerGraphicForJob} from '../../game/data/graphics';
+import {assetUrl,playerGraphicFor,playerGraphicForJob} from '../../game/data/graphics';
 import {lootTotals} from '../../game/engine/loot';
 import {Glyph,Pager,Screen,Segments,Stat} from '../../ui/mobile';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
@@ -51,7 +51,9 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  const equipped=game.expedition?.equipment??game.equipped;
  const st=stats(game,equipped),weaponId=weaponOf(game,equipped),job=jobById(game.currentJobId);
  const equippedArt=playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle;
- const portrait=(game.cosmetics.selectedAppearanceId!=='default'||job?.visualAssetKey)&&equippedArt?assetUrl(equippedArt):null;
+ // The nickname-side portrait always represents the equipped cosmetic, not job art.
+ const portraitArt=playerGraphicFor(game.cosmetics.selectedAppearanceId).image.idle;
+ const portrait=portraitArt?assetUrl(portraitArt):null;
  const mainFacilities=[
   {id:'craft',glyph:'craft',name:'제작',action:()=>onMove('craft')},
   {id:'skills',glyph:'skills',name:'스킬트리',action:()=>onMove('skills')},
