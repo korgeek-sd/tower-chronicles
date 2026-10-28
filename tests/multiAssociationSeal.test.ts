@@ -156,7 +156,7 @@ test('mobile cathedral prioritizes unobstructed 30-stage altar over duplicate st
  assert.match(css,/\.tc-seal\.tc-seal-multi\.tc-seal-cathedral\{[\s\S]*?grid-template-rows:48px 20px minmax\(0,1fr\) 54px 48px 54px/);
  assert.match(css,/\.tc-seal-cathedral \.tc-seal-stage\{[\s\S]*?grid-template-rows:minmax\(0,1fr\) 36px/);
  assert.match(css,/\.tc-seal-cathedral \.tc-seal-altar\{[\s\S]*?grid-template-rows:35px minmax\(0,1fr\) 16px/);
- assert.match(css,/\.tc-seal-cathedral \.tc-seal-wheel\{[\s\S]*?--seal-wheel-size:min\(94cqw,98cqh,400px\)/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-wheel\{[\s\S]*?--seal-wheel-size:min\(94cqw,calc\(100cqh - 57px\),400px\)/);
  assert.match(css,/\.tc-seal-cathedral \.tc-seal-status\{[\s\S]*?height:36px/);
  assert.match(css,/\.tc-seal-cathedral \.tc-seal-status h3,[\s\S]*?\.tc-seal-cathedral \.tc-seal-next\{display:none\}/);
  assert.match(css,/\.tc-seal-cathedral \.tc-seal-ring-rank\{[\s\S]*?--rank-radius/);
