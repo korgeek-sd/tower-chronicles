@@ -23,7 +23,9 @@ export const bossById=(id:string)=>
   (Object.values(IRON_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(IRON_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...IRON_BOSS_STATS[id]}:undefined)??
   (Object.values(RED_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(RED_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...RED_BOSS_STATS[id]}:undefined)??
   (Object.values(CRYSTAL_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(CRYSTAL_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...CRYSTAL_BOSS_STATS[id]}:undefined)??
-  (Object.values(KALEON_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(KALEON_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...KALEON_BOSS_STATS[id]}:undefined);
+  (Object.values(KALEON_BOSS_SLOTS).find(slot=>slot.bossId===id)?{id,displayName:Object.values(KALEON_BOSS_SLOTS).find(slot=>slot.bossId===id)!.name,boss:true,...KALEON_BOSS_STATS[id]}:undefined)??
+  // Preserve validation of historical saved runs without retaining the unspawned catalog entry.
+  (id==='mining_ogre'?{id,displayName:'광산 오우거',boss:true,hpMultiplier:3.2,attackMultiplier:1.75,speedMultiplier:.72}:undefined);
 
 export const bossIdByName=(name:string)=>IRON_T1_MONSTERS.find(m=>m.boss&&m.displayName===name)?.id??null;
 export function bossMonsterFor(id:string,floor:number):Monster|null {
