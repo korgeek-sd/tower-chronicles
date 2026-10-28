@@ -1,5 +1,8 @@
 /* Association seal – Obsidian Codex
    Entirely original geometry, CSS and live SVG. Deliberately NO image URLs. */
+.tc-seal-wallet{font:700 10px ui-monospace,monospace;color:#b7a68c}
+.tc-seal-wallet b{font-size:13px;color:#f1d4a1}
+
 .tc-insignia-board{
  --relic:#dfa968;--relic-hi:#f9ddac;--relic-faint:#785235;--relic-rgb:223,169,104;
  height:100%;min-height:0;min-width:0;overflow:hidden;
