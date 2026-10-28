@@ -327,3 +327,17 @@
 @media(prefers-reduced-motion:reduce){
  .tc-insignia-milestone[data-new="true"]>span{animation:none}
 }
+
+
+/* Nested span rules from the old diamond treatment must not rotate the
+   transparent sprite frame or paint a rectangular metal background. */
+.tc-insignia-milestones{padding:1px 6px 1px}
+.tc-insignia-milestone .tc-insignia-icon,
+.tc-insignia-milestone[data-lit="true"] .tc-insignia-icon{
+ border:0;transform:none;background-color:transparent;box-shadow:none;
+}
+.tc-insignia-milestone .tc-insignia-icon:after{content:none;display:none}
+.tc-insignia-milestone[data-new="true"] .tc-insignia-icon{animation:none}
+@media(max-height:560px){
+ .tc-insignia-milestones{padding:1px 5px}
+}
