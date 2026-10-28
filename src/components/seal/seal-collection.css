@@ -785,8 +785,8 @@
  width:clamp(11px,calc(var(--seal-wheel-size)*.064),21px);
  height:clamp(11px,calc(var(--seal-wheel-size)*.064),21px);
  min-width:0;min-height:0;padding:0;
- transform:translate(-50%,-50%) rotate(var(--rank-step))
- translateY(calc(var(--rank-radius)*-1)) rotate(calc(var(--rank-step)*-1));
+ transform:translate(-50%,-50%) rotate(calc(var(--p)*12deg))
+ translateY(calc(var(--rank-radius)*-1)) rotate(calc(var(--p)*-12deg));
 }
 .tc-seal-cathedral .tc-seal-ring-rank span{
  font:800 clamp(7px,calc(var(--seal-wheel-size)*.034),11px)/1 Georgia,serif;
