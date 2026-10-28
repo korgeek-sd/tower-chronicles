@@ -136,6 +136,14 @@
 }
 .tc-insignia-milestone[data-lit="true"] span:after{background:var(--relic-hi)}
 .tc-insignia-milestone[data-lit="true"] b{color:var(--relic-hi)}
+
+.tc-insignia-milestone[data-new="true"] span{
+ animation:tc-insignia-engrave .42s ease-out both;
+}
+@keyframes tc-insignia-engrave{
+ 0%{filter:brightness(1.8);box-shadow:0 0 0 2px var(--relic-hi),0 0 13px var(--relic)}
+ 100%{filter:brightness(1);box-shadow:0 0 7px rgba(var(--relic-rgb),.37)}
+}
 .tc-insignia-stats{
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-height:0
 }
@@ -254,5 +262,6 @@
  .tc-insignia-stat b{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){
- .tc-insignia-relic[data-result="true"] .tc-insignia-art{animation:none}
+ .tc-insignia-relic[data-result="true"] .tc-insignia-art,
+ .tc-insignia-milestone[data-new="true"] span{animation:none}
 }
