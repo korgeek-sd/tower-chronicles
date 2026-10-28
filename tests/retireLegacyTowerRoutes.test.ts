@@ -10,5 +10,5 @@ test('obsolete tower expedition selection and floor preparation are not in activ
  assert.doesNotMatch(main,/page==='towers'|page==='floor'|<TowersScreen|<FloorScreen/);
  assert.doesNotMatch(core,/export function TowersScreen|export function FloorScreen/);
  assert.match(main,/page==='hunt'&&<HuntingPage/);
- assert.match(core,/onMove\('hunt'\)/);
+ assert.match(core,/onMove\(game\.expedition\?'battle':'hunt'\)/);
 });
