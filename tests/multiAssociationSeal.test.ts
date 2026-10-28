@@ -48,9 +48,10 @@ test('guild seal uses the imported real sprite atlas, not the hand-drawn SVG rel
  const raw=readFileSync('src/assets/ui/seals/guild-seal-animations.avif');
  assert.equal(raw.subarray(4,12).toString(),'ftypavif');
  assert.ok(raw.length>20000,'animated sprites must contain actual image data');
- assert.match(ui,/import \{SealSprite,SealSpriteIcon\} from '\.\/SealSprite'/);
+ assert.match(ui,/import \{SealSpriteIcon\} from '\.\/SealSprite'/);
+ assert.match(ui,/import \{SealArtwork\} from '\.\/SealArtwork'/);
  assert.doesNotMatch(ui,/function RelicSigil|<RelicSigil/);
- assert.match(ui,/<SealSprite variant=\{selected\} level=\{level\}/);
+ assert.match(ui,/<SealArtwork variant=\{selected\} level=\{level\}/);
  assert.match(ui,/mode=\{visualMode\} sequence=\{visualSequence\}/);
  assert.match(sprite,/guild-seal-animations\.avif/);
  assert.match(sprite,/totalFrames=156/);
@@ -63,7 +64,7 @@ test('guild seal uses the imported real sprite atlas, not the hand-drawn SVG rel
  assert.match(css,/\.tc-insignia-sprite\{/);
  assert.doesNotMatch(css,/url\(|seal-generated-atlas|seal-cathedral/);
 });
-test('mobile seal layout stays on a single screen and uses six clean milestone marks',()=>{
+test('seal keeps six milestone semantics alongside the raster thirty-stage display',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
  const css=read('src/components/seal/seal-relic.css');
  assert.ok(ui.includes('SEAL_MILESTONES.map'));

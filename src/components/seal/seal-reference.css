@@ -1,0 +1,99 @@
+/* The cathedral and solar seal are raster assets. CSS owns layout and feedback. */
+.tc-seal-reference-screen .tc-screen-head{border-bottom-color:#8d7047}
+.tc-seal-reference-screen .tc-screen-head h1{font-family:Georgia,"Noto Serif KR",serif;color:#f2dfb4}
+.tc-seal-reference-screen .tc-screen-body{padding-top:4px}
+.tc-seal-reference-screen .tc-seal-wallet{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:9px;letter-spacing:.08em}
+.tc-seal-reference-screen .tc-seal-wallet b{font:700 17px Georgia,serif;letter-spacing:0}
+.tc-seal-reference-screen .tc-insignia-board{
+ grid-template-rows:52px minmax(270px,1fr) 42px 76px 118px;
+ padding:8px;gap:6px;overflow-y:auto;overflow-x:hidden;
+ scrollbar-width:thin;scrollbar-color:#77603b #11100f;
+ background:linear-gradient(#08090c30,#08090c08 55%,#08090c80),url('../../assets/ui/seals/seal-cathedral-reference-v1.png') center/cover;
+ border-color:#8d7047;box-shadow:inset 0 0 0 2px #0a0909,inset 0 0 35px #0009;
+}
+.tc-seal-reference-screen .tc-insignia-tabs{gap:5px}
+.tc-seal-reference-screen .tc-insignia-tab{background:#0c0c0ee8;border-color:#665138;display:grid;grid-template-columns:26px auto;grid-template-rows:1fr 1fr;gap:0 3px;padding:5px}
+.tc-seal-reference-screen .tc-insignia-tab .tc-insignia-tab-icon{grid-row:1/3;width:25px;height:25px}
+.tc-seal-reference-screen .tc-insignia-tab b{font-size:10px;align-self:end}
+.tc-seal-reference-screen .tc-insignia-tab small{font-size:9px;align-self:start}
+.tc-seal-reference-screen .tc-insignia-tab[data-active="true"]{border-color:#d9b46e;background:linear-gradient(#49321de6,#130f0de8);box-shadow:inset 0 0 0 2px #1a120a,0 0 10px #d79a2a30}
+.tc-seal-reference-screen .tc-insignia-main{display:flex;flex-direction:column;border:0;background:none;box-shadow:none;overflow:visible;min-height:270px}
+.tc-seal-reference-screen .tc-insignia-main:before{display:none}
+.tc-seal-reference-screen .tc-insignia-main-body{position:relative;display:flex;flex:1;min-height:0;flex-direction:column;align-items:center}
+.tc-seal-reference-screen .tc-insignia-readout{z-index:2;order:-1;flex:0 0 auto;align-items:center;gap:1px;min-width:132px;padding:5px 20px 6px;background:linear-gradient(#17130ff5,#090909f5);border:1px solid #b38c50;box-shadow:inset 0 0 0 3px #12100c,inset 0 0 0 4px #55422a,0 4px 12px #0009}
+.tc-seal-reference-screen .tc-insignia-kicker{font:10px Georgia,"Noto Serif KR",serif;letter-spacing:.08em;color:#dac69e}
+.tc-seal-reference-screen .tc-insignia-readout h2{font-size:11px;color:#cab58e;font-weight:500}
+.tc-seal-reference-screen .tc-insignia-level{padding:0;border:0;gap:6px}
+.tc-seal-reference-screen .tc-insignia-level strong{font:700 31px/1 Georgia,serif;letter-spacing:0;color:#ffe3a0}
+.tc-seal-reference-screen .tc-insignia-level span{font-size:18px;color:#c8bdab}
+.tc-seal-reference-screen .tc-insignia-uses{font-size:9px;color:#b3a58d}
+.tc-seal-reference-screen .tc-insignia-relic{flex:1;width:100%;min-height:185px;overflow:visible;container-type:size}
+.tc-seal-reference-screen .tc-insignia-relic:before,.tc-seal-reference-screen .tc-insignia-relic:after{display:none}
+.tc-insignia-orbit{position:relative;width:min(100%,100cqh,370px);aspect-ratio:1;max-height:100%;isolation:isolate}
+.tc-insignia-reference-art{position:absolute;width:78%;height:78%;left:11%;top:11%;object-fit:contain;filter:drop-shadow(0 0 7px #ffae3940);pointer-events:none}
+.tc-insignia-orbit[data-variant="guardian"] .tc-insignia-reference-art{filter:hue-rotate(155deg) saturate(.7) drop-shadow(0 0 7px #85cbef50)}
+.tc-insignia-reference-art[data-motion="forge"]{animation:tc-reference-forge .55s ease-out both}
+.tc-insignia-reference-art[data-motion="reset"]{animation:tc-reference-reset .5s ease-out both}
+@keyframes tc-reference-forge{0%{opacity:.35;transform:scale(.92)}45%{opacity:1;transform:scale(1.035)}100%{opacity:1;transform:scale(1)}}
+@keyframes tc-reference-reset{0%{opacity:.2;transform:scale(.8) rotate(-12deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.tc-insignia-ring{list-style:none;margin:0;padding:0;position:absolute;inset:0}
+.tc-insignia-ring-node{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;width:clamp(12px,4.8cqh,25px);height:clamp(12px,4.8cqh,25px);border-radius:50%;border:1px solid #766052;background:#151212ec;box-shadow:0 0 0 1px #0c0909,inset 0 0 0 2px #332720;color:#b2a493;font:700 clamp(7px,2.7cqh,12px) Georgia,serif}
+.tc-insignia-ring-node[data-reached="true"]{border-color:#edbe68;color:#ffe8b6;background:#503217;box-shadow:0 0 7px #ffab3980,inset 0 0 0 2px #36220c}
+.tc-insignia-ring-node[data-current="true"]{outline:1px solid #ffe8a4;outline-offset:2px;box-shadow:0 0 14px #ffab39}
+.tc-insignia-ring-node:last-child{border-color:#b6323e;color:#f1b1a8;background:#360f16}
+.tc-seal-reference-screen .tc-insignia-milestones{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);padding:0;border:0}
+.tc-seal-reference-screen .tc-insignia-status{display:block!important;flex:0 0 auto;max-width:none;min-height:24px;text-align:center;font-size:10px;line-height:1.35;padding:4px 6px;color:#e0cba3;background:#0b090bd9;border:1px solid #665138;overflow:visible}
+.tc-seal-reference-screen .tc-insignia-stats{gap:4px}
+.tc-seal-reference-screen .tc-insignia-stat{background:#0b0b0ee8;border-color:#705436;padding:4px 7px;align-items:center}
+.tc-seal-reference-screen .tc-insignia-stat small{font-size:10px}
+.tc-seal-reference-screen .tc-insignia-stat b{font-size:15px;margin-top:2px}
+.tc-seal-reference-screen .tc-insignia-probability{background:#0b0b0ef0;border:1px solid #a47e46;box-shadow:inset 0 0 0 3px #17130f;grid-template-rows:25px minmax(0,1fr);padding:3px}
+.tc-seal-reference-screen .tc-insignia-probability header{justify-content:center;border:0;gap:12px;padding:0 4px}
+.tc-seal-reference-screen .tc-insignia-probability header strong{font-size:13px;color:#ebdabb;letter-spacing:.08em}
+.tc-seal-reference-screen .tc-insignia-probability header small{font-size:9px}
+.tc-seal-reference-screen .tc-insignia-rates{padding:2px 3px 4px;gap:6px}
+.tc-seal-reference-screen .tc-insignia-rate{position:relative;display:grid;grid-template-columns:1fr;gap:0;background:#272015a8;border-color:#8d7047;text-align:center;overflow:hidden}
+.tc-seal-reference-screen .tc-insignia-rate:before{content:"";position:absolute;left:7px;top:4px;bottom:4px;aspect-ratio:1;background:url('../../assets/ui/seals/seal-solar-reference-v1.png') center/contain no-repeat;opacity:.14}
+.tc-seal-reference-screen .tc-insignia-rate b{font:700 14px/1 Georgia,serif;color:#e7c378}
+.tc-seal-reference-screen .tc-insignia-rate strong{font:700 17px/1 Georgia,serif;color:#f1dfb8}
+.tc-seal-reference-screen .tc-insignia-rate:nth-child(2){background:#121f2a99;border-color:#4a697b}
+.tc-seal-reference-screen .tc-insignia-rate:nth-child(2) b{color:#80c6e6}
+.tc-seal-reference-screen .tc-insignia-rate:nth-child(3){background:#32101799;border-color:#87434a}
+.tc-seal-reference-screen .tc-insignia-rate:nth-child(3) b{color:#ef7984}
+.tc-seal-reference-screen .tc-insignia-controls{grid-template-rows:50px 62px;gap:6px}
+.tc-seal-reference-screen .tc-insignia-quantity{grid-template-columns:minmax(58px,1fr) 132px 136px;gap:4px;padding:2px 4px;border:1px solid #a47e46;background:#0b0b0ef0}
+.tc-seal-reference-screen .tc-insignia-quantity-caption{border:0;background:none;padding:0 2px}
+.tc-seal-reference-screen .tc-insignia-quantity-caption strong{font-size:11px}
+.tc-seal-reference-screen .tc-insignia-stepper{grid-template-columns:44px 1fr 44px}
+.tc-seal-reference-screen .tc-insignia-stepper button,.tc-seal-reference-screen .tc-insignia-presets button{background:linear-gradient(#29231d,#151313);border-color:#8a7254;color:#e0d1b8}
+.tc-seal-reference-screen .tc-insignia-presets button[aria-pressed="true"]{background:#48321f;border-color:#d5af6a;color:#ffe2a4}
+.tc-seal-reference-screen .tc-insignia-actions{gap:8px;grid-template-columns:1.1fr 1fr}
+.tc-seal-reference-screen .tc-insignia-actions button{border:2px solid #c7a063;box-shadow:inset 0 0 0 2px #17100d,inset 0 0 0 3px #7b5634,0 2px 5px #000c;min-height:62px;padding:7px 4px;gap:4px}
+.tc-seal-reference-screen .tc-insignia-roll{background:linear-gradient(135deg,#310b10,#741722 60%,#340b10);color:#f5dfae}
+.tc-seal-reference-screen .tc-insignia-reset{background:linear-gradient(135deg,#24201e,#111114);color:#dbccb5}
+.tc-seal-reference-screen .tc-insignia-actions b{font-size:21px;letter-spacing:.07em}
+.tc-seal-reference-screen .tc-insignia-actions small{font-size:11px}
+.tc-seal-reference-screen .tc-insignia-actions button:disabled{opacity:.55}
+.tc-seal-reference-screen .tc-insignia-locked{background:linear-gradient(#0a090a60,#0a090ab0),url('../../assets/ui/seals/seal-cathedral-reference-v1.png') center/cover}
+@media(max-width:380px){
+ .tc-seal-reference-screen .tc-insignia-board{padding:4px;gap:5px}
+ .tc-seal-reference-screen .tc-insignia-tab{grid-template-columns:1fr;padding:3px}
+ .tc-seal-reference-screen .tc-insignia-tab .tc-insignia-tab-icon{display:none}
+ .tc-seal-reference-screen .tc-insignia-quantity{grid-template-columns:1fr 132px;grid-template-rows:44px 44px;gap:3px;padding:3px}
+ .tc-seal-reference-screen .tc-insignia-presets{grid-column:1/-1}
+ .tc-seal-reference-screen .tc-insignia-presets{gap:1px}
+ .tc-seal-reference-screen .tc-insignia-actions b{font-size:18px}
+ .tc-seal-reference-screen .tc-insignia-probability header small{font-size:8px}
+}
+@media(max-height:700px){
+ .tc-seal-reference-screen .tc-insignia-board{grid-template-rows:46px minmax(230px,1fr) 40px 72px 118px}
+ .tc-seal-reference-screen .tc-insignia-main{min-height:230px}
+ .tc-seal-reference-screen .tc-insignia-relic{min-height:150px}
+ .tc-seal-reference-screen .tc-insignia-readout{padding:3px 16px}
+ .tc-seal-reference-screen .tc-insignia-level strong{font-size:27px}
+}
+@media(max-width:380px){
+ .tc-seal-reference-screen .tc-insignia-board{grid-template-rows:46px minmax(230px,1fr) 40px 72px 165px}
+ .tc-seal-reference-screen .tc-insignia-controls{grid-template-rows:97px 62px}
+}
+@media(prefers-reduced-motion:reduce){.tc-insignia-reference-art[data-motion]{animation:none}}

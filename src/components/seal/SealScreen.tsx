@@ -13,8 +13,10 @@ import {
 } from '../../online/seal';
 import {Screen} from '../../ui/mobile';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
-import {SealSprite,SealSpriteIcon} from './SealSprite';
+import {SealSpriteIcon} from './SealSprite';
+import {SealArtwork} from './SealArtwork';
 import './seal-relic.css';
+import './seal-reference.css';
 
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
 const SEALED_SLOT_NUMBERS=[3,4] as const;
@@ -156,7 +158,7 @@ export function SealScreen({
   }finally{setBusy(false);}
  }
 
- if(!onlineLease)return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span>SERVER ONLY</span>}>
+ if(!onlineLease)return <Screen className="tc-seal-reference-screen" eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span>SERVER ONLY</span>}>
   <div className="tc-insignia-locked">
    <SealSpriteIcon variant="sealed-3" className="tc-insignia-lock-art"/>
    <h2>봉인된 각인의 서</h2>
@@ -165,7 +167,7 @@ export function SealScreen({
   </div>
  </Screen>;
 
- return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span className="tc-seal-wallet">GOLD <b>{gold.toLocaleString()}</b></span>}>
+ return <Screen className="tc-seal-reference-screen" eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span className="tc-seal-wallet">GOLD <b>{gold.toLocaleString()}</b></span>}>
   <div className="tc-insignia-board" data-seal={selected}>
    <nav className="tc-insignia-tabs" aria-label="인장 선택">
     {SEALS.map(item=><button key={item.id} type="button" className="tc-insignia-tab"
@@ -185,20 +187,20 @@ export function SealScreen({
      <div className="tc-insignia-relic" data-result={lastStep!==null}
        style={{'--relic-progress':(level/ASSOCIATION_SEAL_MAX_LEVEL*100)+'%'} as React.CSSProperties}
        aria-label={sealName+' '+level+'단계'}>
-      <SealSprite variant={selected} level={level} mode={visualMode} sequence={visualSequence}/>
+      <SealArtwork variant={selected} level={level} mode={visualMode} sequence={visualSequence}/>
      </div>
      <div className="tc-insignia-readout">
-      <small className="tc-insignia-kicker">THE OBSIDIAN CODEX</small>
+      <small className="tc-insignia-kicker">현재 단계</small>
       <h2>{sealName}</h2>
       <div className="tc-insignia-level" aria-label={'현재 '+level+'단계 / 최대 30단계'}>
        <strong>{String(level).padStart(2,'0')}</strong><span>/ 30</span>
       </div>
       <div className="tc-insignia-uses">주조 {rolls} / {ASSOCIATION_SEAL_MAX_ROLLS}회</div>
-      <p className="tc-insignia-status" role="status" aria-live="polite" title={message||undefined}>
-       {message||(game.expedition?'원정 중에는 주조할 수 없습니다.':completed?'최고 단계 각인 완료':'다음 각인 '+nextMilestone+'단계 · HP +'+percent(nextReward.hpPercent))}
-      </p>
      </div>
     </div>
+    <p className="tc-insignia-status" role="status" aria-live="polite" title={message||undefined}>
+     {message||(game.expedition?'원정 중에는 주조할 수 없습니다.':completed?'최고 단계 각인 완료':'다음 각인 '+nextMilestone+'단계 · HP +'+percent(nextReward.hpPercent))}
+    </p>
     <div className="tc-insignia-milestones" aria-label="각인 이정표">
      {SEAL_MILESTONES.map((milestone,index)=><div className="tc-insignia-milestone"
        data-lit={index<activeNodes} data-new={litNode===index} key={milestone}
