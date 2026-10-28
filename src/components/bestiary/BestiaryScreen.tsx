@@ -1,24 +1,49 @@
-import React,{useMemo,useState} from 'react';
-import type {GameState,Tower} from '../../game/types';
-import {TOWERS,towerIds} from '../../game/data/config';
-import {BESTIARY_ENTRIES,bestiaryEntriesForTower} from '../../game/data/bestiary';
-import {assetUrl,graphicFor} from '../../game/data/graphics';
-import {bestiaryDiscoveredCount,bestiaryEntryView} from './presentation';
-import {Pager,Screen,Segments} from '../../ui/mobile';
+import React,{useState} from 'react';
+import type {GameState} from '../../game/types';
+import {HUNT_MAPS,type HuntMapId} from '../../game/hunting/model';
+import {HUNT_MONSTERS} from '../../game/hunting/encounters';
+import {monsterSkillDescription} from '../../game/hunting/monsterSkills';
+import {assetUrl} from '../../game/data/graphics';
+import {Pager,Screen} from '../../ui/mobile';
 
 const PAGE_SIZE=6;
-const towerTabs=towerIds.map(id=>[id,TOWERS[id].name] as [Tower,string]);
-const skillKind:Record<string,string>={damage:'공격',charge:'준비',reactive_prepare:'반격',effect:'효과'};
 
-export function BestiaryScreen({game,onBack}:{game:GameState;onBack:()=>void}){
- const [tower,setTower]=useState<Tower>('ore'),[selectedId,setSelectedId]=useState<string|null>(null),[page,setPage]=useState(0);
- const entries=useMemo(()=>bestiaryEntriesForTower(tower),[tower]),pages=Math.max(1,Math.ceil(entries.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=entries.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE),selectedEntry=entries.find(e=>e.id===selectedId)??null,selected=selectedEntry?bestiaryEntryView(game,selectedEntry):null;
- return <Screen eyebrow="ASSOCIATION FIELD RECORD" title="탐사 생물록" meta={<><span>{bestiaryDiscoveredCount(game,BESTIARY_ENTRIES)}/{BESTIARY_ENTRIES.length}</span><button className="tc-action secondary slim" onClick={onBack}>닫기</button></>}>
+/** The active bestiary uses the same monster catalog as normal hunting.
+ * Historical tower expedition records remain in saved data but are not shown here.
+ */
+export function BestiaryScreen({onBack}:{game:GameState;onBack:()=>void}){
+ const [mapId,setMapId]=useState<HuntMapId>('plains');
+ const [selectedId,setSelectedId]=useState<string|null>(null);
+ const [page,setPage]=useState(0);
+ const map=HUNT_MAPS.find(item=>item.id===mapId)!;
+ const monsters=HUNT_MONSTERS[mapId];
+ const pages=Math.ceil(monsters.length/PAGE_SIZE);
+ const safe=Math.min(page,pages-1);
+ const shown=monsters.slice(safe*PAGE_SIZE,(safe+1)*PAGE_SIZE);
+ const selected=monsters.find(monster=>monster.id===selectedId)??null;
+ const total=HUNT_MAPS.reduce((sum,item)=>sum+HUNT_MONSTERS[item.id].length,0);
+
+ return <Screen eyebrow="HUNTING FIELD RECORD" title="사냥 생물록" meta={<><span>몬스터 {total}종</span><button className="tc-action secondary slim" onClick={onBack}>닫기</button></>}>
   <div className="tc-bestiary">
-   <Segments items={towerTabs} value={tower} onChange={v=>{setTower(v);setSelectedId(null);setPage(0);}} label="탑별 생물록"/>
-   <div className="tc-bestiary-grid">{shown.map(entry=>{const view=bestiaryEntryView(game,entry),known=view.knowledge!=='UNKNOWN',graphic=known?graphicFor(entry.tower,{name:entry.name}):undefined;return <button key={entry.id} className="tc-beast" aria-pressed={selectedId===entry.id} onClick={()=>setSelectedId(entry.id)}><div className="tc-beast-art">{graphic?.image.idle?<img src={assetUrl(graphic.image.idle)} alt=""/>:<span>?</span>}</div><div><b>{view.displayName}</b><small>{entry.boss?'BOSS':'NORMAL'} · {known?view.floorLabel:'미확인'}</small><small>{known?'조우 '+view.encounters+' · 처치 '+view.defeats:'직접 조우 필요'}</small></div></button>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-beast" aria-hidden="true" key={'b'+i}/>)}</div>
+   <nav className="tc-hunt-bestiary-tabs" aria-label="사냥터별 몬스터">
+    {HUNT_MAPS.map(item=><button type="button" key={item.id} aria-pressed={item.id===mapId} onClick={()=>{setMapId(item.id);setSelectedId(null);setPage(0);}}>{item.name}</button>)}
+   </nav>
+   <div className="tc-bestiary-grid">
+    {shown.map(monster=><button type="button" key={monster.id} className="tc-beast" aria-pressed={monster.id===selectedId} onClick={()=>setSelectedId(monster.id)}>
+     <div className="tc-beast-art"><img src={assetUrl(monster.image)} alt="" loading="lazy"/></div>
+     <div><b>{monster.name}</b><small>{map.name}</small><small>HP {monster.hp} · 공격 {monster.attack}</small></div>
+    </button>)}
+    {Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-beast" aria-hidden="true" key={'empty-'+i}/>)}
+   </div>
    <Pager page={safe} count={pages} onChange={setPage}/>
   </div>
-  {selectedEntry&&selected&&<section className="tc-beast-detail"><div className="tc-beast-detail-head"><div><small className="tc-kicker">{selected.boss?'BOSS RECORD':'FIELD RECORD'}</small><h2>{selected.displayName}</h2></div><button onClick={()=>setSelectedId(null)}>×</button></div><div className="tc-floor-risk">{selected.knowledge==='UNKNOWN'?'직접 조우하면 기본 기록이 공개됩니다.':selected.floorLabel+' · 조우 '+selected.encounters+'회 · 처치 '+selected.defeats+'회'}</div><div className="tc-skill-list">{selected.knowledge==='UNKNOWN'?<article><strong>기록 잠김</strong><p>이름, 외형, 출현층이 확인되지 않았습니다.</p></article>:selected.skills.slice(0,3).map(skill=><article key={skill.id}><strong>{skill.name} · {skillKind[skill.kind]??skill.kind}</strong><p>{selected.knowledge==='MASTERED'?skill.description:'처치 기록을 더 쌓으면 상세 행동이 공개됩니다.'}</p></article>)}</div><div className="tc-floor-risk">{selected.knowledge==='MASTERED'?'협회 분석 완료':selected.boss?'보스 기록은 조우·처치에 따라 갱신됩니다.':'일반 개체 3회 처치 시 상세 행동이 공개됩니다.'}</div></section>}
+  {selected&&<section className="tc-beast-detail" aria-label={selected.name+' 정보'}>
+   <div className="tc-beast-detail-head"><div><small className="tc-kicker">{map.name} · 권장 Lv. {map.recommendedLevel}</small><h2>{selected.name}</h2></div><button type="button" onClick={()=>setSelectedId(null)} aria-label="몬스터 정보 닫기">×</button></div>
+   <div className="tc-floor-risk">HP {selected.hp} · 공격 {selected.attack} · 방어 {selected.defense}</div>
+   <div className="tc-skill-list">
+    {selected.skills.map((skill,index)=><article key={index}><strong>{skill.name}</strong><p>{monsterSkillDescription(skill)}</p></article>)}
+   </div>
+   <div className="tc-floor-risk">{selected.description}</div>
+  </section>}
  </Screen>;
 }
