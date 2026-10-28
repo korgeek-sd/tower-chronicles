@@ -13,6 +13,7 @@ import {
 } from '../../online/seal';
 import {Screen} from '../../ui/mobile';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import {SealSprite,SealSpriteIcon} from './SealSprite';
 import './seal-relic.css';
 
 const percent=(value:number)=>Number(value.toFixed(2)).toString()+'%';
@@ -24,54 +25,6 @@ const SEALS=[
 ];
 const rewardFor=(id:AssociationSealId,level:number)=>
  id==='guardian'?guardianSealReward(level):associationSealReward(level);
-
-function RelicSigil({variant}:{variant:AssociationSealId|'sealed'}){
- const sealed=variant==='sealed';
- const guardian=variant==='guardian';
- return <svg className="tc-insignia-art" viewBox="0 0 220 240" fill="none" aria-hidden="true" focusable="false">
-  <path d="M110 8 165 31 195 80 194 164 158 211 110 231 62 211 26 164 25 80 55 31Z"
-   fill="#101416" stroke="currentColor" strokeWidth="3" strokeOpacity=".85"/>
-  <path d="M110 19 157 39 184 85 182 156 153 201 110 219 67 201 38 156 36 85 63 39Z"
-   fill={guardian?'#14252b':sealed?'#1a1b1c':'#271a15'} stroke="currentColor" strokeWidth="1.3" strokeOpacity=".54"/>
-  <path d="M110 31 144 49 173 92 169 149 143 188 110 205 77 188 51 149 47 92 76 49Z"
-   stroke="currentColor" strokeWidth="1" strokeOpacity=".24"/>
-  <path d="M110 6 117 18 110 30 103 18Z M110 212 117 224 110 236 103 224Z
-   M22 120 35 112 47 120 35 128Z M173 120 185 112 198 120 185 128Z"
-   fill="currentColor" fillOpacity=".76"/>
-  <path d="M65 36 79 42M141 42 155 36M44 173 60 165M160 165 176 173"
-   stroke="currentColor" strokeOpacity=".6" strokeWidth="2"/>
-  <circle cx="110" cy="119" r="68" stroke="currentColor" strokeOpacity=".18" strokeWidth="1.5" strokeDasharray="4 8"/>
-  <path d="M110 43V56M110 182V195M49 119H62M158 119H171"
-   stroke="currentColor" strokeOpacity=".75" strokeWidth="2"/>
-  {sealed?
-   <g>
-    <path d="M79 106V92C79 50 141 50 141 92V106" stroke="currentColor" strokeWidth="13" strokeLinecap="round"/>
-    <path d="M80 105H140L149 118V166L137 179H83L71 166V118Z"
-     fill="#25211e" stroke="currentColor" strokeWidth="4"/>
-    <path d="M110 127a9 9 0 013 17l3 18h-12l3-18a9 9 0 013-17Z" fill="currentColor"/>
-   </g>:guardian?
-   <g>
-    <path d="M110 55 155 74 152 131Q147 170 110 192Q73 170 68 131L65 74Z"
-     fill="#182b32" stroke="currentColor" strokeWidth="4.5" strokeLinejoin="round"/>
-    <path d="M110 66 144 81 141 130Q137 158 110 179Q83 158 79 130L76 81Z"
-     fill="#243f48" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.5"/>
-    <path d="M110 87V163M86 124H134" stroke="currentColor" strokeWidth="12" strokeLinecap="square"/>
-    <path d="M110 89V162M87 124H133" stroke="#e1ebe9" strokeWidth="2" strokeLinecap="square"/>
-    <path d="M110 52 121 69 110 86 99 69Z" fill="currentColor"/>
-   </g>:
-   <g>
-    <path d="M110 48 100 70 105 140 101 168 110 193 119 168 115 140 120 70Z"
-     fill="#bc935e" stroke="#f0d1a3" strokeWidth="2.5" strokeLinejoin="round"/>
-    <path d="M110 58V172" stroke="#fff3d4" strokeWidth="2" strokeOpacity=".7"/>
-    <path d="M80 132 99 123H121L140 132 121 142H99Z"
-     fill="#6c4830" stroke="currentColor" strokeWidth="3"/>
-    <path d="M110 113 129 132 110 151 91 132Z" fill="#a34b33" stroke="#f4c08c" strokeWidth="3"/>
-    <path d="M79 89 63 110 77 127 60 120 51 101M141 89 157 110 143 127 160 120 169 101"
-     stroke="currentColor" strokeOpacity=".8" strokeWidth="3" strokeLinecap="round"/>
-    <path d="M110 43 119 58 110 74 101 58Z" fill="currentColor"/>
-   </g>}
- </svg>;
-}
 
 export function SealScreen({
  game,setGame,onlineLease,onServerRecord,
@@ -88,6 +41,8 @@ export function SealScreen({
  const [lastStep,setLastStep]=useState<number|null>(null);
  const [rollCount,setRollCount]=useState(1);
  const [litNode,setLitNode]=useState<number|null>(null);
+ const [visualMode,setVisualMode]=useState<'idle'|'forge'|'reset'>('idle');
+ const [visualSequence,setVisualSequence]=useState(0);
  const feel=useGameFeel();
 
  useEffect(()=>{
@@ -131,6 +86,7 @@ export function SealScreen({
  function switchSeal(id:AssociationSealId){
   if(busy||selected===id)return;
   setSelected(id);setLastStep(null);setLitNode(null);setMessage('');setRollCount(1);
+  setVisualMode('idle');setVisualSequence(value=>value+1);
  }
 
  async function roll(){
@@ -163,6 +119,7 @@ export function SealScreen({
     if(result.afterLevel>=ASSOCIATION_SEAL_MAX_LEVEL)break;
    }
    setLastStep(lastResultStep);
+   setVisualMode('forge');setVisualSequence(value=>value+1);
    feel.play('seal.roll.result',{step:lastResultStep});
    setMessage(finalLevel>=ASSOCIATION_SEAL_MAX_LEVEL
     ?sealName+' 최고 30단계 완성 · '+processed+'회 주조'
@@ -186,7 +143,10 @@ export function SealScreen({
     [sealId==='association'?'guardian':'association']:previous[sealId==='association'?'guardian':'association']
       ?{...previous[sealId==='association'?'guardian':'association']!,gold:result.state.gold}:undefined,
    }));
-   if(!result.replayed)feel.play('seal.reset');
+   if(!result.replayed){
+    setVisualMode('reset');setVisualSequence(value=>value+1);
+    feel.play('seal.reset');
+   }
    setMessage(sealName+' 재주조 완료 · 누적 '+result.state.resetCount+'회');
    if(onServerRecord)onServerRecord(result.record,'협회 인장 재주조를 서버에 저장했습니다.');
    else setGame(result.record.payload);
@@ -198,7 +158,7 @@ export function SealScreen({
 
  if(!onlineLease)return <Screen eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span>SERVER ONLY</span>}>
   <div className="tc-insignia-locked">
-   <RelicSigil variant="sealed"/>
+   <SealSpriteIcon variant="sealed-3" className="tc-insignia-lock-art"/>
    <h2>봉인된 각인의 서</h2>
    <p>협회 인장은 서버에 저장됩니다. Google 계정으로 로그인하고 활성 플레이 세션을 시작해야 주조할 수 있습니다.</p>
    <small>주조 {ASSOCIATION_SEAL_ROLL_COST.toLocaleString()} G · 재주조 {ASSOCIATION_SEAL_RESET_COST.toLocaleString()} G</small>
@@ -211,11 +171,11 @@ export function SealScreen({
     {SEALS.map(item=><button key={item.id} type="button" className="tc-insignia-tab"
       data-active={selected===item.id} aria-pressed={selected===item.id}
       aria-label={item.name+' 선택'} onClick={()=>switchSeal(item.id)} disabled={busy||!seals[item.id]}>
-      <span className="tc-insignia-tab-icon"><RelicSigil variant={item.id}/></span>
+      <span className="tc-insignia-tab-icon"><SealSpriteIcon variant={item.id} level={seals[item.id]?.level??0}/></span>
       <b>{item.name}</b><small>{seals[item.id]?.level??'–'} / 30</small>
      </button>)}
     {SEALED_SLOT_NUMBERS.map(n=><div className="tc-insignia-tab is-sealed" key={n} aria-label={'제'+n+'의 봉인된 인장'}>
-      <span className="tc-insignia-tab-icon"><RelicSigil variant="sealed"/></span>
+      <span className="tc-insignia-tab-icon"><SealSpriteIcon variant={n===3?'sealed-3':'sealed-4'}/></span>
       <b>봉인된 인장</b><small>제{n}인장</small>
      </div>)}
    </nav>
@@ -225,7 +185,7 @@ export function SealScreen({
      <div className="tc-insignia-relic" data-result={lastStep!==null}
        style={{'--relic-progress':(level/ASSOCIATION_SEAL_MAX_LEVEL*100)+'%'} as React.CSSProperties}
        aria-label={sealName+' '+level+'단계'}>
-      <RelicSigil variant={selected}/>
+      <SealSprite variant={selected} level={level} mode={visualMode} sequence={visualSequence}/>
      </div>
      <div className="tc-insignia-readout">
       <small className="tc-insignia-kicker">THE OBSIDIAN CODEX</small>
@@ -243,7 +203,7 @@ export function SealScreen({
      {SEAL_MILESTONES.map((milestone,index)=><div className="tc-insignia-milestone"
        data-lit={index<activeNodes} data-new={litNode===index} key={milestone}
        aria-label={milestone+'단계 '+(milestone<=level?'달성':'미달성')}>
-       <span aria-hidden="true"/><b>{String(milestone).padStart(2,'0')}</b>
+       <span aria-hidden="true"><SealSpriteIcon milestone={milestone} active={index<activeNodes}/></span><b>{String(milestone).padStart(2,'0')}</b>
       </div>)}
     </div>
    </section>
