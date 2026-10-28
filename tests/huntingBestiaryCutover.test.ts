@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import {BestiaryScreen} from '../src/components/bestiary/BestiaryScreen';
 import {initialState} from '../src/game/engine/state';
 import {HUNT_MAPS} from '../src/game/hunting/model';
@@ -26,6 +26,6 @@ test('player-facing encyclopedia does not import retired tower encounter catalog
 });
 
 test('retired expedition helper entry point and unused area names are absent from live source',()=>{
- const source=readFileSync(new URL('../src/game/engine/exploration.ts',import.meta.url),'utf8');
- assert.doesNotMatch(source,/export function startExpedition|export const REGIONS|export const RESOURCES/);
+ assert.equal(existsSync(new URL('../src/game/engine/exploration.ts',import.meta.url)),false);
+ assert.equal(existsSync(new URL('../src/components/RegionBackgrounds.tsx',import.meta.url)),false);
 });
