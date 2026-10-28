@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {existsSync} from 'node:fs';
 import {HUNT_MONSTERS,chooseHuntMonster} from '../src/game/hunting/encounters';
 import {HUNT_MAPS,resolveHunt,initialHuntingState} from '../src/game/hunting/model';
-test('ten distinct monsters exist per map with NEW images and never repeat immediately',()=>{
+test('five distinct monsters exist per map with NEW images and never repeat immediately',()=>{
  for(const map of HUNT_MAPS){
-  const pool=HUNT_MONSTERS[map.id];assert.equal(pool.length,10);
+  const pool=HUNT_MONSTERS[map.id];assert.equal(pool.length,5);
   for(const monster of pool){
    assert.ok(existsSync(new URL('../public/'+monster.image,import.meta.url)),monster.image);
    for(const draw of [0,.2,.5,.999999])assert.notEqual(chooseHuntMonster(map.id,monster.id,draw).id,monster.id);
@@ -26,12 +26,14 @@ test('successive guest hunts change opponents and use real individual monster st
  const next=resolveHunt({...failed.state,vitality:100},'plains',{hp:1,attack:0,defense:0},[],0,()=>0);
  assert.notEqual(failed.result.monster!.id,next.result.monster!.id);
 });
-test('server encounters use the same ten-monster catalogs and skip prior monster',async()=>{
+test('server encounters use the same five-monster catalogs and skip prior monster',async()=>{
  const {PGlite}=await import('@electric-sql/pglite');const {readFileSync}=await import('node:fs');const db=new PGlite();
  try{
   await db.exec('create schema private;create role anon;create role authenticated;');
   const source=readFileSync(new URL('../supabase/migrations/20261011100000_new_hunting_monsters.sql',import.meta.url),'utf8');
   await db.exec(source.split('CREATE OR REPLACE FUNCTION public.hunt_once')[0]);
+  const five=readFileSync(new URL('../supabase/migrations/20261028230000_five_hunting_monsters_per_map.sql',import.meta.url),'utf8');
+  await db.exec(five);
   for(const map of HUNT_MAPS)for(const monster of HUNT_MONSTERS[map.id])for(const draw of [0,.5,.999999]){
    const result=(await db.query<{m:any}>('select private.choose_hunting_monster($1,$2,$3) m',[map.id,monster.id,draw])).rows[0].m;
    assert.deepEqual(result,chooseHuntMonster(map.id,monster.id,draw));
