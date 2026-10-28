@@ -31,3 +31,24 @@ test('hub portrait uses the equipped appearance instead of overriding it with jo
  assert.match(markup,/alt="현재 캐릭터 외형"/);
  assert.ok(!markup.includes('src="./assets/characters/jobs/duelist.webp"'));
 });
+
+test('nickname-side portrait follows the equipped cosmetic, including the default skin',()=>{
+ const game=initialState();
+ game.currentJobId='duelist';
+ const renderPortrait=()=>{
+  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game,nickname:'테스트 모험가',onMove:()=>{},onOpenJobs:()=>{}}));
+  const match=html.match(/<button[^>]*class="tc-camp-v2-portrait[^"]*"[^>]*>([\s\S]*?)<\/button>/);
+  assert.ok(match,'Hub portrait button should exist');
+  return {html,portrait:match[1]};
+ };
+ const starter=appearanceById('default')!;
+ const initial=renderPortrait();
+ assert.ok(initial.portrait.includes('src="'+assetUrl(starter.imagePath!)+'"'),'Default equipped appearance must be shown next to the nickname');
+ assert.ok(!initial.portrait.includes('assets/characters/jobs/duelist.webp'),'Job art must not replace the nickname portrait');
+ assert.ok(initial.html.includes('src="'+assetUrl('assets/characters/jobs/duelist.webp')+'"'),'Village character job art must remain unchanged when default skin is equipped');
+ game.cosmetics.unlockedAppearanceIds.push('valkyrie');
+ game.cosmetics.selectedAppearanceId='valkyrie';
+ assert.ok(renderPortrait().portrait.includes('src="'+assetUrl(appearanceById('valkyrie')!.imagePath!)+'"'),'Equipping a new skin updates the nickname portrait');
+ game.cosmetics.selectedAppearanceId='default';
+ assert.ok(renderPortrait().portrait.includes('src="'+assetUrl(starter.imagePath!)+'"'),'Re-equipping the starter skin restores its portrait');
+});
