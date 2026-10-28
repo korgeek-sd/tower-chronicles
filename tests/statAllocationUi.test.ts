@@ -6,3 +6,15 @@ test('hub exposes stat allocation and screen shows real stats with unavailable a
  for(const label of ['스탯 분배','거점으로','공격력','방어력','최대 HP','치명타 확률','배분 확정'])assert.ok(html.includes(label));
  assert.doesNotMatch(html,/포인트 지급 규칙과 서버 저장 연결 후 배분할 수 있습니다/);assert.match(html,/<button[^>]*disabled=""[^>]*>배분 확정/);assert.doesNotMatch(html,/<dialog/);
 });
+
+test('camp portrait and nickname are keyboard-accessible growth overview shortcuts',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const game=initialState();
+ const home=renderToStaticMarkup(React.createElement(HomeScreen,{game,nickname:'모험가 검증',onMove:()=>{},onOpenJobs:()=>{}}));
+ assert.match(home,/<button[^>]*class="tc-camp-v2-portrait[^"\n]*"[^>]*aria-label="캐릭터 아이콘으로 성장 현황 열기"/);
+ assert.match(home,/<button[^>]*class="tc-camp-v2-bio[^"\n]*"[^>]*aria-label="닉네임으로 성장 현황 열기"[^>]*><strong>모험가 검증<\/strong>/);
+ const source=readFileSync('src/components/mobile/CoreScreens.tsx','utf8');
+ for(const label of ['캐릭터 아이콘으로 성장 현황 열기','닉네임으로 성장 현황 열기']){
+  assert.ok(source.includes(`aria-label="${label}" onClick={()=>onMove('character')}`));
+ }
+});

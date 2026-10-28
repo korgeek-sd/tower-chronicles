@@ -77,16 +77,16 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
  return <Screen title="노바르 거점" className="tc-camp-screen tc-camp-v2-screen tc-iron-camp-screen tc-village-camp-screen" meta={<span className="tc-camp-status">{game.expedition?'원정 중':'출정 대기'}</span>}>
   <div className="tc-camp-v2" aria-label="노바르 거점 로비">
    <section className="tc-camp-v2-dossier" aria-label="캐릭터 정보">
-    <div className="tc-camp-v2-portrait">{portrait?<img src={portrait} alt="현재 캐릭터 외형"/>:<Glyph name={weaponId}/>}</div>
-    <div className="tc-camp-v2-bio">
+    <button type="button" className="tc-camp-v2-portrait tc-feel-press" data-game-feel="press" aria-label="캐릭터 아이콘으로 성장 현황 열기" onClick={()=>onMove('character')}>{portrait?<img src={portrait} alt="현재 캐릭터 외형"/>:<Glyph name={weaponId}/>}</button>
+    <button type="button" className="tc-camp-v2-bio tc-feel-press" data-game-feel="press" aria-label="닉네임으로 성장 현황 열기" onClick={()=>onMove('character')}>
      <strong>{nickname??'모험가'}</strong>
      <span>{job?.displayName??'직업 미선택'} {job?.rarity&&<small>{job.rarity}</small>} · Lv.{huntStatus?huntingLevel(huntStatus.experience):'—'}</span>
-     <div className="tc-camp-v2-stats">
+     <span className="tc-camp-v2-stats">
       <span><b>HP</b><strong>{Math.round(huntStatus?.maxHp??st.hp).toLocaleString()}</strong></span>
       <span><b>MP</b><strong>{huntStatus?.maxMp?.toLocaleString()??'—'}</strong></span>
       <span><b>활력</b><strong>{huntStatus?.vitality.toLocaleString()??'—'}</strong></span>
-     </div>
-    </div>
+     </span>
+    </button>
     <button type="button" className="tc-camp-v2-profile-link" aria-label="성장 현황 열기" title="성장 현황" onClick={()=>onMove('character')}><span>성장<br/>현황</span></button>
    </section>
    <section className="tc-village" aria-label="거점 시설">

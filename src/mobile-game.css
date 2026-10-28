@@ -3503,3 +3503,8 @@ html,body,#root{
  .tc-camp-v2-primary .tc-glyph{font-size:18px}
  .tc-camp-v2-primary button b{font-size:12px}
 }
+
+/* Keep profile shortcuts within the existing dossier layout. */
+button.tc-camp-v2-portrait{padding:0;border-radius:0;min-height:44px;min-width:44px}
+button.tc-camp-v2-bio{padding:0;border:0;border-radius:0;background:none;color:inherit;text-align:left;min-height:44px;width:100%}
+.tc-camp-v2-bio>.tc-camp-v2-stats{overflow:visible;white-space:normal}
