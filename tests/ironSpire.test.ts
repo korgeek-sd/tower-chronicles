@@ -70,9 +70,10 @@ test('철맥 06: 일반 몬스터와 보스 그래픽 경로를 canonical id로 
  assert.equal(backgroundFor('ore',10),'assets/backgrounds/ore/t1.png');
 });
 
-test('철맥 07: legacy 몬스터 카탈로그는 5 normal + 1 compatibility boss 구성을 유지한다',()=>{
+test('철맥 07: obsolete boss registration is excluded while the five normal compatibility monsters remain',()=>{
  assert.equal(IRON_T1_MONSTERS.filter(monster=>!monster.boss).length,5);
- assert.equal(IRON_T1_MONSTERS.filter(monster=>monster.boss).length,1);
+ assert.equal(IRON_T1_MONSTERS.filter(monster=>monster.boss).length,0);
+ assert.equal(bossById('mining_ogre')?.boss,true);
  assert.ok(IRON_T1_MONSTERS.every(monster=>monster.graphicId===monster.id));
 });
 
