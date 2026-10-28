@@ -280,12 +280,12 @@ export function SealScreen({
      </div>
     </div>
     <div className="tc-insignia-actions">
-     <button type="button" className="tc-insignia-roll tc-feel-press" data-game-feel="press"
+     <button type="button" className="tc-insignia-roll tc-seal-roll tc-feel-press" data-game-feel="press"
       disabled={!canRoll} onClick={()=>void roll()}>
       <b>{busy?'주조 중…':completed?'각인 완성':rolls>=ASSOCIATION_SEAL_MAX_ROLLS?'20회 소진':'인장 주조'}</b>
       <small>{(selectedRolls*ASSOCIATION_SEAL_ROLL_COST).toLocaleString()} Gold · {selectedRolls}회</small>
      </button>
-     <button type="button" className="tc-insignia-reset tc-feel-press" data-game-feel="press"
+     <button type="button" className="tc-insignia-reset tc-seal-reset tc-feel-press" data-game-feel="press"
       title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>void reset()}>
       <b>재주조</b><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
      </button>
