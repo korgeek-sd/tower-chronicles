@@ -7,7 +7,6 @@ import {KALEON_NORMAL_DEFINITIONS,KALEON_BOSS_DEFINITIONS} from '../src/game/dat
 import {bestiaryEntriesForTower} from '../src/game/data/bestiary.ts';
 import {bossIdFor,bossMonsterFor} from '../src/game/engine/bossTracking.ts';
 import {monsterFor} from '../src/game/engine/drops.ts';
-import {entryStatus} from '../src/game/engine/exploration.ts';
 import {monsterDefinitionById,validateMonsterDefinition} from '../src/game/engine/monsterAi.ts';
 
 test('RELEASE 0.1.45: save schema and four playable towers remain compatible',()=>{
@@ -52,7 +51,8 @@ test('RELEASE 0.1.45: Caleon boss mapping is fixed to floors 6 through 10',()=>{
  }
 });
 
-test('RELEASE 0.1.45: Caleon first floor can be entered with starter ticket',()=>{
+test('RELEASE 0.1.45: historical Caleon starter tickets remain save-compatible',()=>{
  const s=initialState();
- assert.equal(entryStatus(s,'kaleon',1),'READY');
+ assert.equal(s.tickets.kaleon[0],20);
+ assert.equal(s.expedition,null);
 });

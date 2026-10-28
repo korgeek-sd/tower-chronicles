@@ -1,0 +1,4 @@
+.tc-hunt-bestiary-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;min-width:0}
+.tc-hunt-bestiary-tabs button{min-width:0;min-height:32px;padding:2px 1px;border:1px solid var(--line);background:#121715;color:var(--soft);font-size:clamp(6px,1.7vw,9px);line-height:1.15;word-break:keep-all;overflow-wrap:anywhere}
+.tc-hunt-bestiary-tabs button[aria-pressed="true"]{color:var(--brass);background:#25251d;border-color:var(--brass)}
+.tc-hunt-bestiary-tabs button:focus-visible{outline:2px solid var(--brass);outline-offset:1px}

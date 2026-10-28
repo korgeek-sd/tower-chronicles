@@ -1,7 +1,7 @@
 import {resolveEvent} from '../events/service';
 import type {BossTracking,GameState,Monster,Tower} from '../types';
 import {COMBAT} from '../data/config';
-import {IRON_T1_MONSTER_BY_ID,IRON_T1_MONSTERS,ironFloorContent,IRON_BOSS_SLOTS,IRON_BOSS_STATS} from '../data/ironSpire';
+import {IRON_T1_MONSTER_BY_ID,ironFloorContent,IRON_BOSS_SLOTS,IRON_BOSS_STATS} from '../data/ironSpire';
 import {RED_T1_MONSTER_BY_ID,redFloorContent,RED_BOSS_SLOTS,RED_BOSS_STATS} from '../data/redFang';
 import {CRYSTAL_T1_MONSTER_BY_ID,crystalFloorContent,CRYSTAL_BOSS_SLOTS,CRYSTAL_BOSS_STATS} from '../data/crystalTower';
 import {KALEON_T1_MONSTER_BY_ID,kaleonFloorContent,KALEON_BOSS_SLOTS,KALEON_BOSS_STATS} from '../data/kaleon';
@@ -27,7 +27,6 @@ export const bossById=(id:string)=>
   // Preserve validation of historical saved runs without retaining the unspawned catalog entry.
   (id==='mining_ogre'?{id,displayName:'광산 오우거',boss:true,hpMultiplier:3.2,attackMultiplier:1.75,speedMultiplier:.72}:undefined);
 
-export const bossIdByName=(name:string)=>IRON_T1_MONSTERS.find(m=>m.boss&&m.displayName===name)?.id??null;
 export function bossMonsterFor(id:string,floor:number):Monster|null {
   const m=bossById(id);
   if(!m?.boss)return null;

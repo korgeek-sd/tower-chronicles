@@ -1,15 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CONFIG,floorSafety,PLAYABLE_TOWERS} from '../src/game/data/config.ts';
+import {CONFIG,floorSafety,isValidTowerFloor,PLAYABLE_TOWERS} from '../src/game/data/config.ts';
 import {BOSS_FLOORS} from '../src/game/data/graphics.ts';
 import {IRON_T1_FLOORS,IRON_NORMAL_POOL} from '../src/game/data/ironSpire.ts';
-import {entryStatus} from '../src/game/engine/exploration.ts';
 import {monsterFor} from '../src/game/engine/drops.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {createRepository,migrateV20,SAVE_KEY,validSave} from '../src/storage/repository.ts';
 
 test('v0.1.30: each tower exposes exactly 1 through 10 floors and marks safe/PK metadata',()=>{
- const state=initialState();assert.equal(CONFIG.maxFloor,10);assert.equal(entryStatus(state,'ore',1),'READY');assert.equal(entryStatus(state,'ore',10),'NO_PASS');assert.equal(entryStatus(state,'ore',11),'INVALID');
+ assert.equal(CONFIG.maxFloor,10);assert.equal(isValidTowerFloor(1),true);assert.equal(isValidTowerFloor(10),true);assert.equal(isValidTowerFloor(11),false);
  assert.equal(floorSafety(1),'SAFE');assert.equal(floorSafety(2),'SAFE');assert.equal(floorSafety(3),'PK_ELIGIBLE');assert.equal(floorSafety(10),'PK_ELIGIBLE');
 });
 test('v0.1.30: all iron floors use the same normal pool and only runtime stats scale',()=>{
