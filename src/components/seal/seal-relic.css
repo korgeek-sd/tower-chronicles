@@ -1,5 +1,4 @@
-/* Association seal – Obsidian Codex
-   Entirely original geometry, CSS and live SVG. Deliberately NO image URLs. */
+/* Association seal – Obsidian Codex, now using original sprite atlas artwork. */
 .tc-seal-wallet{font:700 10px ui-monospace,monospace;color:#b7a68c}
 .tc-seal-wallet b{font-size:13px;color:#f1d4a1}
 
@@ -264,4 +263,67 @@
 @media(prefers-reduced-motion:reduce){
  .tc-insignia-relic[data-result="true"] .tc-insignia-art,
  .tc-insignia-milestone[data-new="true"] span{animation:none}
+}
+
+
+/* Real 156-frame texture atlas imported by SealSprite.tsx.
+   Only layout/states are CSS; visible art comes from the sprite sheet. */
+.tc-insignia-icon{
+ display:block;width:100%;height:100%;
+ aspect-ratio:1;
+ background-color:transparent;background-repeat:no-repeat;
+ image-rendering:auto;flex-shrink:0;
+}
+.tc-insignia-tab .tc-insignia-tab-icon{
+ width:28px;height:28px;display:grid;place-items:center;
+}
+.tc-insignia-tab .tc-insignia-tab-icon>.tc-insignia-icon{
+ width:27px;height:27px;
+}
+.tc-insignia-sprite{
+ width:min(96%,230px);height:auto;max-height:100%;
+ aspect-ratio:1;object-fit:contain;display:block;
+ position:relative;z-index:3;isolation:isolate;pointer-events:none;
+ image-rendering:auto;filter:drop-shadow(0 0 8px rgba(var(--relic-rgb),.18));
+}
+.tc-insignia-relic[data-result="true"] .tc-insignia-sprite{
+ filter:drop-shadow(0 0 9px rgba(var(--relic-rgb),.34));
+}
+.tc-insignia-milestone{
+ grid-template-rows:23px 10px;gap:0;
+}
+.tc-insignia-milestone>span{
+ display:grid;place-items:center;
+ width:23px;height:23px;
+ border:0;background:none;transform:none;
+ box-shadow:none;
+}
+.tc-insignia-milestone>span:after{display:none}
+.tc-insignia-milestone .tc-insignia-icon{
+ width:23px;height:23px;opacity:.76;
+}
+.tc-insignia-milestone[data-lit="true"]>span{
+ border:0;background:none;box-shadow:none;
+}
+.tc-insignia-milestone[data-lit="true"] .tc-insignia-icon{
+ opacity:1;filter:drop-shadow(0 0 3px rgba(var(--relic-rgb),.55));
+}
+.tc-insignia-board[data-seal="guardian"] .tc-insignia-milestone[data-lit="true"] .tc-insignia-icon{
+ filter:hue-rotate(155deg) drop-shadow(0 0 3px #619cda);
+}
+.tc-insignia-milestone[data-new="true"]>span{
+ animation:tc-insignia-engrave .42s ease-out both;
+}
+.tc-insignia-locked .tc-insignia-lock-art{
+ display:block;width:110px;height:110px;margin:auto;
+ opacity:.67;
+}
+@media(max-height:560px){
+ .tc-insignia-tab .tc-insignia-tab-icon,
+ .tc-insignia-tab .tc-insignia-tab-icon>.tc-insignia-icon{width:20px;height:20px}
+ .tc-insignia-milestone{grid-template-rows:18px 9px}
+ .tc-insignia-milestone>span,.tc-insignia-milestone .tc-insignia-icon{width:18px;height:18px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-insignia-milestone[data-new="true"]>span{animation:none}
 }
