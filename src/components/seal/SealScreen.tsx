@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {
  ASSOCIATION_SEAL_MAX_LEVEL,ASSOCIATION_SEAL_MAX_ROLLS,
@@ -15,6 +15,7 @@ import {Screen} from '../../ui/mobile';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import {SealSpriteIcon} from './SealSprite';
 import {SealArtwork} from './SealArtwork';
+import {SealResetDialog} from './SealResetDialog';
 import './seal-relic.css';
 import './seal-reference.css';
 
@@ -39,6 +40,9 @@ export function SealScreen({
  const [seals,setSeals]=useState<Partial<Record<AssociationSealId,OnlineAssociationSealState>>>({});
  const [selected,setSelected]=useState<AssociationSealId>('association');
  const [busy,setBusy]=useState(false);
+ const [resetOpen,setResetOpen]=useState(false);
+ const [resetError,setResetError]=useState('');
+ const resetPending=useRef(false);
  const [message,setMessage]=useState('');
  const [lastStep,setLastStep]=useState<number|null>(null);
  const [rollCount,setRollCount]=useState(1);
@@ -138,9 +142,10 @@ export function SealScreen({
  }
 
  async function reset(){
-  if(!onlineLease||!canReset)return;
+  if(!onlineLease||!canReset||!resetOpen||resetPending.current)return;
   const sealId=selected;
-  if(!window.confirm(sealName+' '+level+'단계와 주조 횟수를 초기화하고 '+ASSOCIATION_SEAL_RESET_COST.toLocaleString()+' Gold로 재주조하시겠습니까? 다른 인장은 유지됩니다.'))return;
+  resetPending.current=true;
+  setResetError('');
   setBusy(true);setMessage('');setLastStep(null);setLitNode(null);
   try{
    const result=await resetOnlineSeal(onlineLease,sealId);
@@ -153,13 +158,15 @@ export function SealScreen({
     setVisualMode('reset');setVisualSequence(value=>value+1);
     feel.play('seal.reset');
    }
+   setResetOpen(false);
    setMessage(sealName+' 재주조 완료 · 누적 '+result.state.resetCount+'회');
    if(onServerRecord)onServerRecord(result.record,'협회 인장 재주조를 서버에 저장했습니다.');
    else setGame(result.record.payload);
   }catch(error){
    feel.play('ui.error');
-   setMessage(error instanceof Error?error.message:'협회 인장 재주조에 실패했습니다.');
-  }finally{setBusy(false);}
+   const reason=error instanceof Error?error.message:'협회 인장 재주조에 실패했습니다.';
+   setMessage(reason);setResetError(reason);
+  }finally{resetPending.current=false;setBusy(false);}
  }
 
  if(!onlineLease)return <Screen className="tc-seal-reference-screen" eyebrow="NOVAR ASSOCIATION" title="협회 인장" meta={<span>SERVER ONLY</span>}>
@@ -259,11 +266,14 @@ export function SealScreen({
       <small>{(selectedRolls*ASSOCIATION_SEAL_ROLL_COST).toLocaleString()} Gold · {selectedRolls}회</small>
      </button>
      <button type="button" className="tc-insignia-reset tc-seal-reset tc-feel-press" data-game-feel="press"
-      title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>void reset()}>
+      title="언제든지 재주조할 수 있습니다." disabled={!canReset} onClick={()=>{setResetError('');setResetOpen(true);}}>
       <b>재주조</b><small>{ASSOCIATION_SEAL_RESET_COST.toLocaleString()} Gold</small>
      </button>
     </div>
    </div>
   </div>
+  {resetOpen&&<SealResetDialog sealName={sealName} level={level} rolls={rolls}
+   busy={busy} error={resetError} canConfirm={canReset}
+   onCancel={()=>{if(!resetPending.current)setResetOpen(false);}} onConfirm={()=>void reset()}/>}
  </Screen>;
 }

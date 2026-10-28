@@ -1,0 +1,21 @@
+dialog.tc-seal-reset-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(400px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:4px;border:1px solid #ac8a52;border-radius:2px;background:#17130f;color:#e9dcc0;box-shadow:0 20px 70px #000c,0 0 0 3px #17130f;font-family:inherit;overflow-y:auto;}
+.tc-seal-reset-dialog::backdrop{background:#080604c9;}
+.tc-seal-reset-panel{padding:20px 16px 16px;border:1px solid #655036;background:linear-gradient(150deg,#30251a70,#0b0b0be8);}
+.tc-seal-reset-panel header{padding-bottom:12px;border-bottom:1px solid #655036;}
+.tc-seal-reset-panel header small{color:#b59968;font-size:12px;letter-spacing:2px;}
+.tc-seal-reset-panel h2{margin:6px 0 0;font-size:23px;color:#f1dba9;}
+.tc-seal-reset-panel p{margin:16px 0;font-size:14px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere;}
+.tc-seal-reset-panel p strong{color:#f0d9a5;}
+.tc-seal-reset-summary{display:grid;gap:12px;margin:0;padding:14px 12px;border:1px solid #58472f;background:#08080780;font-size:13px;}
+.tc-seal-reset-summary div{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.tc-seal-reset-summary dt{color:#b7aa92;}
+.tc-seal-reset-summary dd{margin:0;text-align:right;color:#efd49b;font-weight:700;}
+.tc-seal-reset-summary dd span{white-space:nowrap;}
+.tc-seal-reset-panel p.tc-seal-reset-note{margin:12px 0 18px;color:#aea18a;font-size:12px;}
+.tc-seal-reset-panel p.tc-seal-reset-error{color:#f1aaa0;}
+.tc-seal-reset-panel footer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tc-seal-reset-panel button{min-height:48px;min-width:44px;padding:10px 8px;border:1px solid #806a47;border-radius:1px;background:#201e19;color:#dbceb6;font:inherit;font-size:15px;cursor:pointer;}
+.tc-seal-reset-panel button.tc-seal-reset-confirm{border-color:#b68b50;background:linear-gradient(#58201d,#30100f);color:#f3dba9;}
+.tc-seal-reset-panel button:disabled{opacity:.5;cursor:default;}
+.tc-seal-reset-panel button:focus-visible{outline:2px solid #f1dba9;outline-offset:3px;}
+@media(max-width:360px){.tc-seal-reset-panel{padding:16px 12px 12px;}.tc-seal-reset-summary{padding:12px 8px;font-size:12px;}}

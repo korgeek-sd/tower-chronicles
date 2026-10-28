@@ -108,7 +108,7 @@ test('batch forge continues to execute single-roll RPCs sequentially with server
 });
 test('reset remains confirmation-gated and all server resources remain unchanged',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
- const a=ui.indexOf('if(!window.confirm(');
+ const a=ui.indexOf('if(!onlineLease||!canReset||!resetOpen||resetPending.current)return;');
  const b=ui.indexOf('const result=await resetOnlineSeal(onlineLease,sealId)');
  const c=ui.indexOf("feel.play('seal.reset')");
  assert.ok(a>0&&b>a&&c>b);
