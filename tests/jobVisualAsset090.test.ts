@@ -40,7 +40,7 @@ test('JOB ART FAST PATH 03: active UI remains registry-driven rather than job-sp
  const inventory=read('src/components/inventory/InventoryScreen.tsx');
  assert.match(battle,/playerGraphicForJob\(jobId,appearanceId\)/);
  assert.match(jobs,/visualAssetKey/);
- assert.match(home,/job\?\.visualAssetKey/);
+ assert.match(home,/playerGraphicForJob\(game\.currentJobId,game\.cosmetics\.selectedAppearanceId\)/);
  assert.doesNotMatch(inventory,/playerGraphicForJob|tc-loadout-character/);
  for(const id of Object.keys(JOB_VISUAL_ASSETS)){
   assert.equal(battle.includes(id),false,'battle must not hard-code '+id);
