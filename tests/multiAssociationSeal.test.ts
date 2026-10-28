@@ -66,7 +66,8 @@ test('guild seal uses the imported real sprite atlas, not the hand-drawn SVG rel
 test('mobile seal layout stays on a single screen and uses six clean milestone marks',()=>{
  const ui=read('src/components/seal/SealScreen.tsx');
  const css=read('src/components/seal/seal-relic.css');
- assert.ok(ui.includes('SEAL_MILESTONES.map'));\n assert.ok(ui.includes('<SealSpriteIcon'));
+ assert.ok(ui.includes('SEAL_MILESTONES.map'));
+ assert.ok(ui.includes('<SealSpriteIcon'));
  assert.ok(ui.includes('data-lit={index<activeNodes}'));
  assert.ok(ui.includes('className="tc-insignia-level"'));
  assert.ok(!ui.includes('SEAL_RING_STEPS'));
