@@ -12,7 +12,6 @@ export const IRON_T1_MONSTERS:MonsterContent[]=[
  {id:'goblin_overseer',displayName:'고블린 감독관',role:'elite',graphicId:'goblin_overseer',boss:false,hpMultiplier:1.25,attackMultiplier:1.18,speedMultiplier:1.03,silverMultiplier:1.15}
 ];
 export const IRON_T1_MONSTER_BY_ID=Object.fromEntries(IRON_T1_MONSTERS.map(m=>[m.id,m])) as Record<string,MonsterContent>;
-export const ironMonsterByName=(name:string)=>IRON_T1_MONSTERS.find(m=>m.displayName===name);
 const floor=(normalPool:string[],bossId?:string):FloorContent=>({normalPool,bossId});
 /** One tower-wide normal pool. Floors only alter runtime stat scaling. */
 export const IRON_NORMAL_POOL=['goblin_miner','cave_rat','mine_bat','goblin_carrier','goblin_overseer'];
