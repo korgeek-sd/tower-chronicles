@@ -145,3 +145,21 @@ test('quantity controls execute only sequential server-authoritative rolls withi
  assert.doesNotMatch(ui,/Math\.random/);
  assert.doesNotMatch(ui,/p_roll_count/);
 });
+
+test('mobile cathedral prioritizes unobstructed 30-stage altar over duplicate status chrome',()=>{
+ const ui=read('src/components/seal/SealScreen.tsx');
+ const css=read('src/components/seal/seal-collection.css');
+ assert.match(ui,/SEAL_RING_STEPS\.map/);
+ assert.match(ui,/data-active=\{rank<=level\}/);
+ assert.match(ui,/tc-seal-stage-number/);
+ assert.match(css,/\/\* Screenshot-driven mobile cathedral refinement \*\//);
+ assert.match(css,/\.tc-seal\.tc-seal-multi\.tc-seal-cathedral\{[\s\S]*?grid-template-rows:48px 20px minmax\(0,1fr\) 54px 48px 54px/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-stage\{[\s\S]*?grid-template-rows:minmax\(0,1fr\) 36px/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-altar\{[\s\S]*?grid-template-rows:35px minmax\(0,1fr\) 16px/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-wheel\{[\s\S]*?--seal-wheel-size:min\(94cqw,98cqh,400px\)/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-status\{[\s\S]*?height:36px/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-status h3,[\s\S]*?\.tc-seal-cathedral \.tc-seal-next\{display:none\}/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-ring-rank\{[\s\S]*?--rank-radius/);
+ assert.match(css,/@media\(max-height:700px\)\{[\s\S]*?\.tc-seal\.tc-seal-multi\.tc-seal-cathedral\{grid-template-rows:46px 19px minmax\(0,1fr\) 50px 46px 52px/);
+ assert.match(css,/\.tc-seal-cathedral \.tc-seal-quantity-stepper button,[\s\S]*?min-height:44px/);
+});
