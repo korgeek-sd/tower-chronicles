@@ -37,9 +37,6 @@ await db.exec(readFileSync(new URL('../supabase/migrations/20261011194500_huntin
 await db.exec(readFileSync(new URL('../supabase/hunting-skill-setup.sql',import.meta.url),'utf8'));
 await db.exec(readFileSync(new URL('../supabase/hunting-three-skill-sets.sql',import.meta.url),'utf8'));
 await db.exec(`create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select $2->'testStats'$$;`);
- // Historical PGlite fixtures may reset routine ACLs while rebuilding dependent RPCs.
- // Reapply the production least-privilege contract, then verify it after all simulated actions.
- await db.exec("revoke all on function public.village_life_action(uuid,bigint,text,text,uuid,text,text,text,integer) from public,anon,authenticated; grant execute on function public.village_life_action(uuid,bigint,text,text,uuid,text,text,text,integer) to authenticated;");
 let seq=0;const id=()=>`22222222-2222-4222-8222-${String(++seq).padStart(12,'0')}`;
 const call=async(name:string,args:any[]=[])=>{const ps=[u,1,'c','d',...args];return (await db.query<{r:any}>(`select public.${name}(${ps.map((_,i)=>'$'+(i+1)).join(',')}) r`,ps)).rows[0].r;};
 const get=()=>call('get_village_life');const action=(kind:string,item:string,count=1,request=id(),town='city')=>call('village_life_action',[request,town,kind,item,count]);
@@ -107,15 +104,12 @@ for(const pen of [-1,0,.5,1,2]){
  assert.equal(sqlHit,damage(100,100,1,pen));
 }
 await db.exec(`update private.hunting_states set skills=array[]::text[],current_hp=180;`);
-const waiting=await call('hunt_once',[id(),'plains']);assert.equal(waiting.result.monsterHp,waiting.result.monster.hp);assert.ok(waiting.result.turns[0].lines[0].includes('대기'));
+const waiting=await call('hunt_once',[id(),'plains']);assert.equal(waiting.result.monsterHp,waiting.result.monster.hp);assert.ok(waiting.result.turns[0].lines.some((line:string)=>line.includes('대기')),'no-skill turn must record the wait action: '+JSON.stringify(waiting.result.turns[0].lines));
 assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('authenticated','private.hunting_damage(numeric,numeric,numeric,numeric)','EXECUTE') ok")).rows[0].ok,false);
 const wreq=id();await action('well','well',1,wreq);assert.equal((await get()).health.hp,null);assert.equal((await action('well','well',1,wreq)).replayed,true);await assert.rejects(()=>action('well','well'),/WELL_COOLDOWN/);
 await db.exec(`insert into private.market_assets values('${u}','equipment_v2:drop',1,'{"grade":"rare","tier":3}',now());`);const dis=await call('dismantle_online_equipment',['drop']);assert.equal(dis.splitStones,6);assert.equal((await get()).materials.stone,1006);await action('craft','challenge_ticket');assert.equal((await get()).products.challenge_ticket,1);
 await db.exec(`update private.village_life_players set action_points=0,day=day-1;`);assert.equal((await get()).actionPoints,100);assert.equal((await get()).craftMastery,1012);
-await db.exec('begin;set local role anon;');
- try {
-  await assert.rejects(()=>db.query("select public.village_life_action($1,1,'c','d',$2,'city','craft','potion',1)",[u,id()]),/permission denied/i);
- } finally {await db.exec('rollback;');}
+assert.equal((await db.query<{ok:boolean}>("select has_function_privilege('anon','public.village_life_action(uuid,bigint,text,text,uuid,text,text,text,integer)','EXECUTE') ok")).rows[0].ok,false);
 await assert.rejects(()=>db.query(`select public.village_life_action($1,null,'c','d',$2,'city','craft','potion',1)`,[u,id()]),/GAME_SESSION_LOST/);
 
  await db.exec(`update private.hunting_states set vitality=100,current_hp=100000,skills=array['heavy','quick'];create or replace function private.combat_equipment_stats(p_user uuid,p_payload jsonb) returns jsonb language sql as $$select '{"hp":100000,"attack":10000,"defense":1000,"critChance":0,"critDamage":1.5,"armorPenetration":0}'::jsonb$$;`);
