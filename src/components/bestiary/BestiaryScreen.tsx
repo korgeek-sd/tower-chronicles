@@ -5,6 +5,7 @@ import {HUNT_MONSTERS} from '../../game/hunting/encounters';
 import {monsterSkillDescription} from '../../game/hunting/monsterSkills';
 import {assetUrl} from '../../game/data/graphics';
 import {Pager,Screen} from '../../ui/mobile';
+import './hunting-bestiary.css';
 
 const PAGE_SIZE=6;
 
