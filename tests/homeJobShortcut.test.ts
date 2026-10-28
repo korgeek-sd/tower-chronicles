@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
- const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
+ const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function SkillsScreen'));
  assert.match(home,/name:'제작'/);
  assert.match(home,/id:'craft'/);
  assert.match(home,/onMove\('craft'\)/);
@@ -17,7 +17,7 @@ test('HOME JOB SHORTCUT 01: base camp replaces registration with crafting',()=>{
 
 test('HOME JOB SHORTCUT 02: existing job shortcut opens the job list instead of duplicating the gacha entry',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
- const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
+ const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function SkillsScreen'));
  assert.match(home,/name:'외형 목록'/);
  assert.match(home,/id:'jobs-list'/);
  assert.match(home,/onOpenJobs\('list'\)/);
@@ -38,7 +38,7 @@ test('HOME JOB SHORTCUT 03: app routes the selected home shortcut to the request
 
 test('HOME FACILITY 04: base camp removes retired enhancement shortcut',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
- const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function TowersScreen'));
+ const home=source.slice(source.indexOf('export function HomeScreen'),source.indexOf('export function SkillsScreen'));
  assert.match(home,/name:'골드 거래소'/);
  assert.match(home,/id:'gold-exchange'/);
  assert.match(home,/onMove\('gold-exchange'\)/);

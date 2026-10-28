@@ -20,7 +20,7 @@ test('EQUIPMENT LOOP 04: skill tree is accessible from the camp and routed to it
  assert.match(core,/\|'skills'/);
  assert.match(main,/<SkillBooksPage key=/);
  assert.match(main,/page==='skills'/);
- const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function TowersScreen'));
+ const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function SkillsScreen'));
  assert.doesNotMatch(home,/title:'전투 스킬'/);
  assert.match(home,/id:'skills',glyph:'skills',name:'스킬트리'/);
  assert.match(home,/onMove\('skills'\)/);
