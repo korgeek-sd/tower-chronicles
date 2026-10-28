@@ -725,3 +725,143 @@
  .tc-seal-cathedral .tc-seal-flare,
  .tc-seal-cathedral .tc-seal-ring-rank[data-current="true"]{animation:none}
 }
+
+
+/* Screenshot-driven mobile cathedral refinement */
+/* A square orbit must fit the altar's ACTUAL second grid row. The previous
+   min(90cqh) sizing was clipped by max-height:100%, making an oval on phones. */
+.tc-seal.tc-seal-multi.tc-seal-cathedral{
+ grid-template-rows:48px 20px minmax(0,1fr) 54px 48px 54px;
+ gap:3px;padding:3px 4px 5px;
+}
+.tc-seal-cathedral .tc-seal-selector{gap:3px}
+.tc-seal-cathedral .tc-seal-slot{
+ min-height:44px;gap:0;padding:2px 1px 2px;
+}
+.tc-seal-cathedral .tc-seal-slot-emblem.tc-seal-art,
+.tc-seal-cathedral .tc-seal-locked-art.tc-seal-art{
+ width:21px;height:21px
+}
+.tc-seal-cathedral .tc-seal-slot strong{font-size:9px;line-height:1.05}
+.tc-seal-cathedral .tc-seal-slot-level b{font-size:9px}
+.tc-seal-cathedral .tc-seal-selection-label{
+ height:20px;min-height:0;padding:1px 5px;
+}
+.tc-seal-cathedral .tc-seal-selection-label span{font-size:11px}
+.tc-seal-cathedral .tc-seal-selection-label small{font-size:8px}
+.tc-seal-cathedral .tc-seal-stage{
+ grid-template-rows:minmax(0,1fr) 36px;gap:2px;min-height:0
+}
+.tc-seal-cathedral .tc-seal-altar{
+ grid-template-rows:35px minmax(0,1fr) 16px;
+ justify-items:center;align-items:center
+}
+.tc-seal-cathedral .tc-seal-stage-number{
+ height:34px;min-height:0;
+ width:clamp(130px,44%,200px);padding:1px 8px
+}
+.tc-seal-cathedral .tc-seal-stage-number>span{font-size:9px}
+.tc-seal-cathedral .tc-seal-stage-number strong{font-size:20px}
+.tc-seal-cathedral .tc-seal-wheel{
+ --seal-wheel-size:min(94cqw,calc(100cqh - 57px),400px);
+ --rank-radius:calc(var(--seal-wheel-size)*.415);
+ --seal-radius:calc(var(--seal-wheel-size)*.47);
+ width:var(--seal-wheel-size);height:var(--seal-wheel-size);
+ min-width:0;max-width:none;max-height:none;
+ aspect-ratio:1 / 1;
+ align-self:center;justify-self:center;
+ overflow:visible;margin:0 auto;
+ flex-shrink:0
+}
+.tc-seal-cathedral .tc-seal-wheel:before{
+ inset:-3%;border-radius:50%;opacity:.92
+}
+.tc-seal-cathedral .tc-seal-core{
+ width:65%;min-width:0;max-width:230px;
+ border-radius:50%;aspect-ratio:1
+}
+.tc-seal-cathedral .tc-seal-ring-rank{
+ --rank-step:calc(var(--p)*12deg);
+ width:clamp(11px,calc(var(--seal-wheel-size)*.064),21px);
+ height:clamp(11px,calc(var(--seal-wheel-size)*.064),21px);
+ min-width:0;min-height:0;padding:0;
+ transform:translate(-50%,-50%) rotate(var(--rank-step))
+ translateY(calc(var(--rank-radius)*-1)) rotate(calc(var(--rank-step)*-1));
+}
+.tc-seal-cathedral .tc-seal-ring-rank span{
+ font:800 clamp(7px,calc(var(--seal-wheel-size)*.034),11px)/1 Georgia,serif;
+ letter-spacing:-.08em;white-space:nowrap;
+}
+.tc-seal-cathedral .tc-seal-node{
+ width:clamp(8px,calc(var(--seal-wheel-size)*.055),17px);
+ height:clamp(8px,calc(var(--seal-wheel-size)*.055),17px);
+ min-width:0;min-height:0;
+}
+.tc-seal-cathedral .tc-seal-altar-copy{
+ padding:1px 6px;min-height:15px
+}
+.tc-seal-cathedral .tc-seal-altar-copy b{font-size:9px}
+.tc-seal-cathedral .tc-seal-status{
+ display:grid;grid-template-rows:minmax(0,1fr);
+ height:36px;min-height:0;max-height:none;
+ border-color:#5e462e9a
+}
+.tc-seal-cathedral .tc-seal-status h3,
+.tc-seal-cathedral .tc-seal-next{display:none}
+.tc-seal-cathedral .tc-seal-effects{
+ height:100%;min-height:0;display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:3px;padding:3px 4px
+}
+.tc-seal-cathedral .tc-seal-effects>div{
+ min-width:0;min-height:0;gap:2px;padding:1px 3px
+}
+.tc-seal-cathedral .tc-seal-effects dt{font-size:8px}
+.tc-seal-cathedral .tc-seal-effects dd{font-size:9px}
+.tc-seal-cathedral .tc-seal-prob{
+ height:54px;min-height:0;grid-template-rows:18px minmax(0,1fr)
+}
+.tc-seal-cathedral .tc-seal-prob>header span{font-size:10px}
+.tc-seal-cathedral .tc-seal-prob>div{padding:3px 4px;gap:4px}
+.tc-seal-cathedral .tc-seal-prob>div>span{gap:4px;padding:1px 3px}
+.tc-seal-cathedral .tc-seal-prob b,
+.tc-seal-cathedral .tc-seal-prob strong{font-size:12px}
+.tc-seal-cathedral .tc-seal-quantity{
+ min-height:0;height:48px;padding:2px 4px;gap:3px
+}
+.tc-seal-cathedral .tc-seal-quantity-stepper{grid-template-columns:32px minmax(24px,1fr) 32px}
+.tc-seal-cathedral .tc-seal-quantity-stepper button,
+.tc-seal-cathedral .tc-seal-quantity-presets button{
+ min-height:44px;max-height:44px
+}
+.tc-seal-cathedral .tc-seal-quantity-caption strong{font-size:9px}
+.tc-seal-cathedral .tc-seal-quantity-caption small{font-size:7px}
+.tc-seal-cathedral .tc-seal-actions{height:54px;min-height:0}
+.tc-seal-cathedral .tc-seal-actions button{min-height:44px}
+@media(max-width:390px){
+ .tc-seal-cathedral .tc-seal-quantity{
+  grid-template-columns:minmax(64px,.9fr) minmax(95px,1.3fr) minmax(96px,1.3fr)
+ }
+ .tc-seal-cathedral .tc-seal-quantity-stepper{grid-template-columns:31px minmax(25px,1fr) 31px}
+}
+@media(max-height:700px){
+ .tc-seal.tc-seal-multi.tc-seal-cathedral{
+  grid-template-rows:46px 19px minmax(0,1fr) 50px 46px 52px;
+  gap:3px;padding:3px 4px 4px;
+ }
+ .tc-seal-cathedral .tc-seal-stage{grid-template-rows:minmax(0,1fr) 34px}
+ .tc-seal-cathedral .tc-seal-altar{grid-template-rows:32px minmax(0,1fr) 14px}
+ .tc-seal-cathedral .tc-seal-wheel{
+  --seal-wheel-size:min(94cqw,calc(100cqh - 51px),360px);
+  max-height:none;max-width:none
+ }
+ .tc-seal-cathedral .tc-seal-stage-number{height:31px}
+ .tc-seal-cathedral .tc-seal-stage-number strong{font-size:18px}
+ .tc-seal-cathedral .tc-seal-status{height:34px;max-height:none}
+ .tc-seal-cathedral .tc-seal-prob{height:50px}
+ .tc-seal-cathedral .tc-seal-quantity{height:46px}
+ .tc-seal-cathedral .tc-seal-actions{height:52px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-seal-cathedral .tc-seal-ring-rank{transition:none;animation:none}
+}
