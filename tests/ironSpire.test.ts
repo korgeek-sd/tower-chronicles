@@ -5,7 +5,7 @@ import {monsterFor,reward} from '../src/game/engine/drops.ts';
 import {initialState} from '../src/game/engine/state.ts';
 import {enter,leave} from '../src/game/engine/expedition.ts';
 import {graphicFor,backgroundFor} from '../src/game/data/graphics.ts';
-import {bossIdFor,bossMonsterFor} from '../src/game/engine/bossTracking.ts';
+import {bossIdFor,bossMonsterFor,bossById} from '../src/game/engine/bossTracking.ts';
 import {createRepository} from '../src/storage/repository.ts';
 import {TOWERS} from '../src/game/data/config.ts';
 
@@ -49,12 +49,11 @@ test('철맥 04: 6~10층 boss slot은 다섯 신규 보스로 고정되고 일�
  assert.equal(bossIdFor('ore',5),null);
 });
 
-test('철맥 05: legacy 광산 오우거는 호환 데이터로 남지만 현재 6~10F boss slot에는 사용되지 않는다',()=>{
- const legacy=IRON_T1_MONSTER_BY_ID.mining_ogre;
- assert.equal(legacy?.displayName,'광산 오우거');
- assert.equal(legacy?.boss,true);
+test('철맥 05: obsolete mining ogre leaves the authored catalog while legacy saves remain compatible',()=>{
+ assert.equal(IRON_T1_MONSTER_BY_ID.mining_ogre,undefined);
  assert.equal(Object.values(IRON_BOSS_SLOTS).some(slot=>slot.bossId==='mining_ogre'),false);
  assert.equal(Object.values(IRON_T1_FLOORS).some(floor=>floor.bossId==='mining_ogre'),false);
+ assert.equal(bossById('mining_ogre')?.boss,true);
 });
 
 test('철맥 06: 일반 몬스터와 보스 그래픽 경로를 canonical id로 조회한다',()=>{
@@ -71,9 +70,10 @@ test('철맥 06: 일반 몬스터와 보스 그래픽 경로를 canonical id로 
  assert.equal(backgroundFor('ore',10),'assets/backgrounds/ore/t1.png');
 });
 
-test('철맥 07: legacy 몬스터 카탈로그는 5 normal + 1 compatibility boss 구성을 유지한다',()=>{
+test('철맥 07: obsolete boss registration is excluded while the five normal compatibility monsters remain',()=>{
  assert.equal(IRON_T1_MONSTERS.filter(monster=>!monster.boss).length,5);
- assert.equal(IRON_T1_MONSTERS.filter(monster=>monster.boss).length,1);
+ assert.equal(IRON_T1_MONSTERS.filter(monster=>monster.boss).length,0);
+ assert.equal(bossById('mining_ogre')?.boss,true);
  assert.ok(IRON_T1_MONSTERS.every(monster=>monster.graphicId===monster.id));
 });
 
