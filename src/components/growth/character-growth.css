@@ -41,7 +41,7 @@
 @container character-growth (max-height:480px){
  .tc-character-heading{height:40px;flex-basis:40px}
  .tc-character-heading h1{font-size:19px}
- .tc-character-content{grid-template-rows:minmax(46px,.75fr) 44px minmax(68px,1fr) minmax(46px,.7fr) minmax(67px,1fr) minmax(61px,.9fr) 44px;gap:2px;padding:3px}
+ .tc-character-content{grid-template-rows:minmax(48px,.75fr) 44px minmax(68px,1fr) minmax(46px,.7fr) minmax(67px,1fr) minmax(61px,.9fr) 44px;gap:2px;padding:3px}
  .tc-character-panel{padding:2px 4px}
  .tc-character-panel header{min-height:15px}
  .tc-character-panel h2{font-size:11px}
