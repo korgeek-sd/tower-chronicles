@@ -55,7 +55,7 @@ test('growth overview stays reachable on short mobile viewports without clipping
  assert.match(css,/\.tc-character-metrics\{[^}]*grid-template-rows:repeat\(2,minmax\(44px,1fr\)\)/,'standard stat rows must fit touch targets');
  assert.match(css,/@container character-growth \(max-height:620px\)\{[^\n]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/,'short phone layout must show all four stats in one row');
  assert.doesNotMatch(css,/\.tc-character-(?:tabs|actions)\{display:none\}/,'tabs and footer actions must stay reachable');
- const rowTemplates=[...css.matchAll(/\.tc-character-content\{[^}]*grid-template-rows:([^;]+);/g)].map(match=>match[1].trim().split(/\s+/));
+ const rowTemplates=[...css.matchAll(/\.tc-character-content\{[^}]*grid-template-rows:([^;}]+)/g)].map(match=>match[1].trim().split(/\s+/));
  assert.equal(rowTemplates.length,4,'base and three short-height layouts are expected');
  for(const tracks of rowTemplates)assert.equal(tracks.length,7,'all seven overview sections must retain grid tracks');
 });
