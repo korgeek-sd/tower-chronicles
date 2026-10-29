@@ -74,7 +74,7 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"proletaria",name:"프롤레타리아",rarity:"A",imagePath:"assets/characters/appearances/proletaria-a229ecdc09eb.webp",
-  description:"검은 긴 머리와 낡은 작업복, 거대한 망치와 낫을 지닌 혁명가.",
+  description:"평범한 노동계급",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -89,22 +89,22 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"valkyrie",name:"발키리",rarity:"A",imagePath:"assets/characters/appearances/valkyrie-a22cd8cc46a8.webp",
-  description:"백색 날개와 빛나는 후광, 은빛 갑옷을 두르고 검과 성서를 든 전사.",
+  description:"신의 명령에 따라 전사자의 영혼을 인도했지만 어느 전장에서 자신이 데려가야 할 영혼이 아직 살아 있음을 발견한 천상의 전사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"seraphim",name:"세라핌",rarity:"A",imagePath:"assets/characters/appearances/seraphim-3ca6492f504e.webp",
-  description:"수많은 눈과 겹겹의 흑백 날개, 가시 후광과 사슬 장식으로 이루어진 천사.",
+  description:"신의 가장 가까운 곳에서 영원히 찬송하던 천사였으나 어느 날 자신이 부르던 찬송의 마지막 구절이 사라졌음을 깨달은 존재.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"ophanim",name:"오파님",rarity:"A",imagePath:"assets/characters/appearances/ophanim-293fd8efbd0b.webp",
-  description:"거대한 눈을 중심으로 수많은 눈이 박힌 백금빛 고리와 사슬 장식이 교차하는 천사.",
+  description:"세상의 모든 죄와 운명을 지켜보도록 만들어졌지만 탑의 기록에서 지워진 자들만큼은 끝내 바라볼 수 없었던 천사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"cain",name:"카인",rarity:"SR",imagePath:"assets/characters/appearances/cain-2d736a29c0e5.webp",
-  description:"이마에 붉은 표식을 새기고 돌칼과 사슬에 묶인 돌을 든 방랑자.",
+  description:"최초로 형제의 피를 흘린 뒤 신에게 표식을 받고 영원히 죽음보다 긴 추방의 길을 걷게 된 죄인.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -119,27 +119,27 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"nidhogg",name:"니드호그",rarity:"SSR",imagePath:"assets/characters/appearances/nidhogg-b1f245699fec.webp",
-  description:"검은 비늘과 거대한 날개에 사슬과 적갈색 장식을 두른 고대의 용.",
+  description:"세상의 뿌리를 갉아먹으며 종말을 기다리던 고대의 용으로, 그가 삼킨 이름들은 탑의 기록에서도 영원히 사라졌다고 전해진다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"bahamut",name:"바하무트",rarity:"SSR",imagePath:"assets/characters/appearances/bahamut-6f2bad33f638.webp",
-  description:"검은 비늘과 적갈색 지느러미를 지닌 거대한 고대 물고기.",
+  description:"세상이 기록되기 이전의 바다를 떠받치던 태초의 존재로, 그 깊은 심연에는 신조차 기록하지 못한 최초의 비밀이 잠들어 있다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"baal",name:"바알",rarity:"SSR",imagePath:"assets/characters/appearances/baal-d5dd22a83f6c.webp",
-  description:"굽은 뿔과 붉은 꼬리를 지니고 거대한 창을 든 악마.",
+  description:"수많은 왕국이 신이라 숭배했던 고대의 존재로, 그의 신전과 신도들이 말소된 뒤에도 제물의 이름만큼은 기억하고 있다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"puppeteer",name:"인형술사",rarity:"SSR",imagePath:"assets/characters/appearances/puppeteer-9b1c4849e516.webp",
-  description:"검은 베일과 긴 은발을 지니고 붉은 실로 관절 인형을 조종하는 인형술사.",
+  description:"왕과 영웅의 운명마저 붉은 실로 움직였다고 전해지는 존재로, 그가 끊어 버린 실의 주인들은 탑의 기록에서 흔적도 없이 사라졌다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"rat_king",name:"쥐들의 왕",rarity:"SR",imagePath:"assets/characters/appearances/rat_king-1442030871fd.webp",
-  description:"낡은 왕관과 해진 로브를 걸치고 쥐 무리를 거느리며 왕홀을 든 쥐들의 왕.",
+  description:"역병과 기근으로 버려진 도시에서 살아남은 자들을 다스렸으나 마지막 백성마저 죽은 뒤에도 왕관을 내려놓지 못한 왕.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -174,7 +174,7 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"saintess",name:"성녀",rarity:"SR",imagePath:"assets/characters/appearances/saintess-29a1458166d1.webp",
-  description:"검은 성의를 걸치고 해골 장식의 지팡이와 펼친 성서를 든 성녀.",
+  description:"수많은 기적으로 사람들을 구원했지만 자신이 받은 계시가 신이 아닌 탑의 기록에서 비롯되었음을 알게 된 성녀.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -217,59 +217,59 @@ export const APPEARANCES:AppearanceData[]=[
 ,
  {id:"apprentice_mage",name:"견습 마법사",rarity:"C",imagePath:"assets/characters/appearances/apprentice_mage-405af5eafc3a.webp",description:"스승의 금서를 펼쳤다가 자신의 미래가 기록된 백지 한 장을 발견한 견습생.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"advanced_mage",name:"고급 마법사",rarity:"A",imagePath:"assets/characters/appearances/advanced_mage-fa1aafe579fe.webp",description:"붉은 안감의 고깔모자와 로브를 걸치고 루비 장식 지팡이를 지닌 고급 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"advanced_mage",name:"고급 마법사",rarity:"A",imagePath:"assets/characters/appearances/advanced_mage-fa1aafe579fe.webp",description:"수백 년간 전해지던 마법의 진리를 증명했지만 마지막 연구에서 세상의 법칙이 누군가에 의해 고쳐지고 있다는 사실을 발견한 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"archmage",name:"대마법사",rarity:"SR",imagePath:"assets/characters/appearances/archmage-098128fade40.webp",description:"긴 은발과 붉은 안감의 로브를 두르고 거대한 마법진과 불꽃을 펼치는 대마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"archmage",name:"대마법사",rarity:"SR",imagePath:"assets/characters/appearances/archmage-098128fade40.webp",description:"세상의 모든 마법을 이해한 끝에 자신이 사용하는 주문조차 누군가 미리 기록해 두었다는 사실을 발견한 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"alchemist",name:"연금술사",rarity:"B",imagePath:"assets/characters/appearances/alchemist-c694c0994604.webp",description:"죽음을 되돌리는 영약을 완성했지만 그 대가로 자신의 남은 수명을 모두 잃어버린 연금술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
-{id:"nameless_sinner",name:"이름없는 죄인",rarity:"SR",imagePath:"assets/characters/appearances/nameless_sinner-d1e1ca138f17.webp",description:"해진 옷과 붕대를 두르고 끊어진 사슬과 수갑을 찬 이름없는 죄인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+{id:"nameless_sinner",name:"이름없는 죄인",rarity:"SR",imagePath:"assets/characters/appearances/nameless_sinner-d1e1ca138f17.webp",description:"자신이 저지르지 않은 죄까지 모두 짊어지고 처형되었으나 죽음 이후에도 죄를 고백하라는 명령을 받는 자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"blacksmith",name:"대장장이",rarity:"B",imagePath:"assets/characters/appearances/blacksmith-bbbc6ce0235c.webp",description:"수많은 영웅의 무기를 만들었지만 자신이 벼린 검으로 왕이 살해된 뒤 모든 기록에서 이름이 지워진 장인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"bourgeoisie",name:"부르주아지",rarity:"SR",imagePath:"assets/characters/appearances/bourgeoisie-55ec362a480e.webp",description:"금빛 장식의 롱코트와 조끼를 입고 지팡이와 금화를 지닌 부르주아지.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"bourgeoisie",name:"부르주아지",rarity:"SR",imagePath:"assets/characters/appearances/bourgeoisie-55ec362a480e.webp",description:"왕국의 전쟁과 평화를 모두 돈으로 사들였지만 정작 자신의 죽음을 막을 대가는 끝내 마련하지 못한 자본가.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"contract_mercenary",name:"계약용병",rarity:"B",imagePath:"assets/characters/appearances/contract_mercenary-e9050d6bf383.webp",description:"어떤 의뢰도 거절하지 않았지만 마지막 계약서에는 자신의 목숨을 대가로 바친다는 조항이 적혀 있었다.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"lumpen",name:"룸펜",rarity:"C",imagePath:"assets/characters/appearances/lumpen-af215675cc90.webp",description:"가진 것도 지킬 것도 없이 세상을 떠돌다 자신의 존재마저 잊힌 자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
-{id:"intellectual",name:"인텔리",rarity:"SR",imagePath:"assets/characters/appearances/intellectual-46ec6e964259.webp",description:"긴 학자 외투와 회중시계를 갖추고 책과 두루마리를 지닌 인텔리.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+{id:"intellectual",name:"인텔리",rarity:"SR",imagePath:"assets/characters/appearances/intellectual-46ec6e964259.webp",description:"탑의 기록에 존재하지 않는 역사를 연구하다 자신이 밝혀낸 진실과 함께 모든 학문에서 이름이 지워진 지식인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"golem",name:"골렘",rarity:"C",imagePath:"assets/characters/appearances/golem-32a3c62e0a47.webp",description:"주인이 사라진 뒤에도 마지막 명령을 수행하며 존재의 이유를 묻는 피조물.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"butcher",name:"도축업자",rarity:"C",imagePath:"assets/characters/appearances/butcher-a95c87e77ae8.webp",description:"평생 생명을 도살하다 어느 날부터 죽은 자들의 목소리를 듣게 된 도축업자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"necromancer",name:"사령술사",rarity:"SR",imagePath:"assets/characters/appearances/necromancer-ea3c02973234.webp",description:"해골 장식 지팡이와 마법서를 지니고 보랏빛 영혼 불꽃을 다루는 사령술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"necromancer",name:"사령술사",rarity:"SR",imagePath:"assets/characters/appearances/necromancer-ea3c02973234.webp",description:"죽은 자들의 영혼을 불러 수많은 비밀을 알아냈지만 어느 날부터 모든 망자가 똑같은 이름 하나만 속삭이기 시작한 술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"grave_robber",name:"도굴꾼",rarity:"C",imagePath:"assets/characters/appearances/grave_robber-651bca2f1018.webp",description:"수많은 무덤을 파헤치다 자신의 이름이 새겨진 관을 발견한 도굴꾼.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"court_jester",name:"궁정 광대",rarity:"C",imagePath:"assets/characters/appearances/court_jester-f3273b99a6ec.webp",description:"왕국이 멸망하던 날에도 왕의 명령에 따라 홀로 웃고 있던 광대.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"noble_knight",name:"귀족기사",rarity:"SR",imagePath:"assets/characters/appearances/noble_knight-c890a64f92e7.webp",description:"모피 망토와 금빛 장식의 붉은 의장을 두르고 화려한 대검을 지닌 귀족기사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"noble_knight",name:"귀족기사",rarity:"SR",imagePath:"assets/characters/appearances/noble_knight-c890a64f92e7.webp",description:"수많은 전쟁에서 왕국을 지켜 영웅으로 추앙받았지만 자신이 섬긴 왕이 백성들의 이름을 탑에서 지우고 있음을 알게 된 기사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"crossbowman",name:"석궁병",rarity:"C",imagePath:"assets/characters/appearances/crossbowman-64b4356b6055.webp",description:"평생 명령에 따라 화살을 쏘았지만 자신이 누구를 죽였는지 알지 못한 병사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"lumberjack",name:"벌목꾼",rarity:"C",imagePath:"assets/characters/appearances/lumberjack-38ee59603c16.webp",description:"평생 숲을 베어 길을 만들다 마지막 나무와 함께 자신의 고향마저 잃어버린 벌목꾼.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"nameless_king",name:"이름 잃은 왕",rarity:"SSR",imagePath:"assets/characters/appearances/nameless_king-0e66257e14de.webp",
-  description:"빛바랜 왕관과 찢어진 모피 망토를 두르고 피 묻은 대검과 사슬을 지닌, 기록에서 이름이 지워진 왕.",
+  description:"세상의 모든 왕국을 정복하고 자신의 이름을 영원히 남기려 했지만 탑의 기록에서 단 한 글자도 남기지 못한 채 말소된 왕.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
 ,
  {id:"first_forgotten_one",name:"첫 번째 잊혀진 자",rarity:"SSR",imagePath:"assets/characters/appearances/first_forgotten_one-d6f47fb1a875.webp",
-  description:"뱀이 휘감긴 몸과 가시덩굴, 피 묻은 선악과를 든 최초의 추방자. 그의 이름은 탑의 기록에서 지워졌다.",
+  description:"금지된 열매를 취해 최초의 원죄를 세상에 남겼으나 정작 탑의 기록에서는 자신의 이름을 빼앗긴 최초의 추방자.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
 ,
  {id:"false_savior",name:"거짓 구원자",rarity:"SSR",imagePath:"assets/characters/appearances/false_savior-314bb25e8c12.webp",
-  description:"가시관을 닮은 후광과 피로 물든 성의를 걸치고 붉은 보석이 박힌 성장을 든, 구원을 사칭하는 자.",
+  description:"모든 죄를 대신 짊어지겠다며 세상에 나타났으나 그가 구원한 자들의 이름은 하나둘 탑의 기록에서 지워지고 있었다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SSR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"antichrist",name:"적그리스도",rarity:"SR",imagePath:"assets/characters/appearances/antichrist-f1e4175ae584.webp",
-  description:"검게 지워진 얼굴과 가시 후광, 속이 빈 손바닥과 찢어진 성의를 지닌 거짓된 메시아.",
+  description:"신의 계시를 전한다며 사람들을 현혹했으나 그의 손바닥에 새겨진 빈 상처에서 흘러나온 것은 구원이 아닌 말소의 예언이었다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
