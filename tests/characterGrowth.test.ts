@@ -48,14 +48,28 @@ test('overview shows actual values, equipment, seals and explicitly pending coll
 });
 
 
-test('growth overview stays reachable on short mobile viewports without clipping stats or navigation',()=>{
+test('growth overview fits a mobile viewport without scrolling or hiding navigation',()=>{
  const css=readFileSync('src/components/growth/character-growth.css','utf8');
- assert.match(css,/\.tc-character-content\{[^}]*overflow-y:auto/,'the content must scroll when its natural height exceeds the viewport');
- assert.match(css,/\.tc-character-content\{[^}]*overflow-x:hidden/);
- assert.match(css,/\.tc-character-metrics\{[^}]*grid-template-rows:repeat\(2,minmax\(44px,1fr\)\)/,'standard stat rows must fit touch targets');
- assert.match(css,/@container character-growth \(max-height:620px\)\{[^\n]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/,'short phone layout must show all four stats in one row');
- assert.doesNotMatch(css,/\.tc-character-(?:tabs|actions)\{display:none\}/,'tabs and footer actions must stay reachable');
- const rowTemplates=[...css.matchAll(/\.tc-character-content\{[^}]*grid-template-rows:([^;}]+)/g)].map(match=>match[1].trim().split(/\s+/));
- assert.equal(rowTemplates.length,4,'base and three short-height layouts are expected');
- for(const tracks of rowTemplates)assert.equal(tracks.length,7,'all seven overview sections must retain grid tracks');
+ const first=css.match(/\.tc-character-content\{[^}]*\}/)?.[0]??'';
+ assert.match(first,/overflow:hidden/,'the growth overview must not scroll');
+ assert.doesNotMatch(first,/overflow-y:(auto|scroll)/,'a scrolling overview is a regression');
+ assert.match(css,/\.tc-character-metrics\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/,'all final stats must share one compact row');
+ assert.match(css,/\.tc-character-metrics\{[^}]*grid-template-rows:minmax\(44px,1fr\)/);
+ assert.match(css,/@container character-growth \(max-height:560px\)/);
+ assert.match(css,/@container character-growth \(max-height:480px\)/);
+ assert.doesNotMatch(css,/\.tc-character-(?:tabs|actions)\{display:none\}/,'tabs and footer buttons must remain on-screen');
+ const templates=[...css.matchAll(/\.tc-character-content\{[^}]*grid-template-rows:([^;}]+)/g)].map(match=>match[1].trim().split(/\s+/));
+ assert.equal(templates.length,3,'base, compact and short-viewport layouts are required');
+ for(const tracks of templates){
+  assert.equal(tracks.length,7,'all seven overview sections must have their own grid row');
+  assert.ok(tracks.every(track=>track.includes('px')),'all grid tracks must have predictable minimum heights');
+ }
+ const minHeight=(tracks:string[])=>tracks.reduce((sum,track)=>{
+  const match=track.match(/^(?:minmax\()?([0-9]+)px/);
+  assert.ok(match,'unable to determine minimum row height: '+track);
+  return sum+Number(match[1]);
+ },0);
+ assert.ok(minHeight(templates[1])+6*3+2*4+42<=560,'compact grid must fit a 560px page');
+ assert.ok(minHeight(templates[2])+6*2+2*3+40<=480,'short grid must fit a 480px page');
 });
+
