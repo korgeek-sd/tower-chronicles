@@ -1,3 +1,4 @@
+import {HubIcon} from './components/mobile/HubIcon';
 import {mergeServerRecordState} from './online/serverRecordState';
 import {PremiumStatus} from './components/PremiumStatus';
 import {PremiumDialog} from './components/PremiumDialog';
@@ -491,7 +492,7 @@ function App(){
 
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world','bank','character','growth','production','craft','stats'].includes(page))} onClick={()=>move(p)}><Glyph name={g}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,g,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world','bank','character','growth','production','craft','stats'].includes(page))} onClick={()=>move(p)}>{page==='home'?<HubIcon name={p}/>:<Glyph name={g}/>}{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
   <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'} inlineAtHome={page==='home'}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;

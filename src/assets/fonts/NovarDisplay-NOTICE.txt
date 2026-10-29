@@ -1,0 +1,4 @@
+Novar Display is a UI-label subset of Nanum Myeongjo Bold.
+Source: https://github.com/google/fonts/tree/main/ofl/nanummyeongjo
+Converted to WOFF and renamed for this game. See NanumMyeongjo-OFL.txt.
+Dynamic names and body text use system fonts.
