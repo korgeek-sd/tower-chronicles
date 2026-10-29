@@ -1,0 +1,128 @@
+/* Moonlit Novar reference: live HUD and controls over a text-free town painting.
+   Scoped to home so the battle, inventory and modal layouts retain their rules. */
+.tc-app:has(.tc-moonlit-camp-screen){
+ --moon-gold:#b39561;--moon-paper:#f0dfb8;--moon-ink:#080f1c;
+ --top:calc(48px + env(safe-area-inset-top,0px));--nav:64px;
+ grid-template-rows:var(--top) minmax(0,1fr) calc(var(--nav) + var(--safe-b));
+ background:#080f1c;border-color:#584831;
+}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-statusbar{display:none}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-main{padding:0;background:none}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-topbar{padding:env(safe-area-inset-top,0px) 9px 0;gap:6px;background:linear-gradient(110deg,#070b13,#12233b 65%,#080e1a);border-bottom:1px solid #a08450;box-shadow:inset 0 -3px #02060b}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-brand{gap:5px;min-height:44px}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-brand b{font-size:clamp(16px,4.3vw,23px);letter-spacing:.05em;color:#e8cea2;white-space:nowrap}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-brand small{display:none}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-brand-mark{display:none}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-wallet{gap:5px}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-header-funds{display:flex;align-items:center;max-width:none;gap:7px;min-width:0}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-coin{grid-template-columns:10px minmax(0,1fr) auto;gap:3px;padding:5px 1px;background:#03070dbb;border-radius:2px;max-width:110px}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-coin b{font-size:11px;color:#e9e7de;max-width:70px}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-coin i{width:10px;height:10px;background:radial-gradient(circle at 35% 30%,#fff0bb,#b38436 65%,#64421c);box-shadow:0 0 0 1px #e2bf73}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-coin.gold i{border-radius:0;clip-path:polygon(50% 0,100% 35%,50% 100%,0 35%);background:linear-gradient(130deg,#ceffff,#2ac5ff 48%,#1a5fcc 52%,#81deff);box-shadow:none}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-premium-status{min-width:57px;min-height:44px;padding:3px 5px;gap:2px;border:0;background:transparent;color:#e8c981;box-shadow:none}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-premium-status strong{font-size:10px}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-premium-status small{font-size:8px;color:#ac9770}
+.tc-moonlit-camp-screen .tc-screen-body{padding:0!important}
+.tc-moonlit-camp-screen .tc-camp-v2{grid-template-rows:82px minmax(0,1fr) 44px;gap:0;background:#080f1c}
+.tc-moonlit-camp-screen .tc-camp-v2-dossier{position:relative;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:8px 10px;border-bottom:1px solid #9b7f4f;background:linear-gradient(90deg,#080e1bed,#0a1729dc),url('../../../public/assets/backgrounds/hub/novar-moonlit-v3.webp') center 7%/cover}
+.tc-moonlit-camp-screen .tc-camp-v2-portrait{border:1px solid #bc9e69;background:linear-gradient(140deg,#343044,#060b14);box-shadow:inset 0 0 0 3px #0b0c12,0 0 0 1px #342e27;overflow:hidden}
+.tc-moonlit-camp-screen .tc-camp-v2-portrait img{object-fit:contain;filter:drop-shadow(0 2px 3px #000)}
+.tc-moonlit-camp-screen .tc-camp-v2-bio{padding:0;border:0;background:none;text-align:left;gap:3px;color:#eedbb4}
+.tc-moonlit-camp-screen .tc-camp-v2-bio>strong{font:600 19px/1.1 'Noto Serif KR',serif;color:#f2e8cf}
+.tc-moonlit-camp-screen .tc-camp-v2-bio>span{font-size:11px;color:#c4a774}
+.tc-moonlit-camp-screen .tc-camp-v2-profile-link{position:absolute;left:51px;bottom:8px;width:44px;height:44px;min-height:44px;padding:0;border:0;background:none;font-size:0;color:#e5c38a}
+.tc-moonlit-camp-screen .tc-camp-v2-profile-link:after{content:'↗';position:absolute;left:0;bottom:0;display:grid;place-items:center;width:20px;height:20px;font:18px/1 serif;border:1px solid #a88c5d;background:#101525}
+.tc-moonlit-camp-screen .tc-camp-v2-stats{gap:8px;margin:2px 0 0;overflow:visible!important}
+.tc-moonlit-camp-screen .tc-camp-v2-stats>span{position:relative;display:flex;flex-direction:row;justify-content:flex-start;gap:4px;padding:0 0 7px;border:0;background:linear-gradient(#273345,#273345) left bottom/100% 4px no-repeat;color:#f38179;overflow:hidden}
+.tc-moonlit-camp-screen .tc-camp-v2-stats>span:nth-child(2){color:#74c8f6}
+.tc-moonlit-camp-screen .tc-camp-v2-stats>span:nth-child(3){color:#a9dc69}
+.tc-moonlit-camp-screen .tc-camp-v2-stats b{color:inherit!important;font-size:10px}
+.tc-moonlit-camp-screen .tc-camp-v2-stats strong{color:inherit;font:500 clamp(9px,2.6vw,12px)/1.3 system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis}
+.tc-moonlit-camp-screen .tc-camp-v2-stats em{font-style:normal;opacity:.85}
+.tc-moonlit-camp-screen .tc-camp-v2-stats i{position:absolute;bottom:0;left:0;height:4px;max-width:100%;background:currentColor;border-radius:3px;box-shadow:0 0 4px currentColor}
+.tc-moonlit-camp-screen .tc-village{grid-template-rows:minmax(0,1fr) 62px 54px;background:#080f1c}
+.tc-moonlit-camp-screen .tc-village-heading{position:absolute;top:0;left:0;right:0;z-index:4;height:44px;padding:0 9px;background:linear-gradient(90deg,#070e1ce8,transparent);border-bottom:1px solid #ac8a4959;pointer-events:none}
+.tc-moonlit-camp-screen .tc-village-heading h2{display:flex;align-items:center;gap:8px;color:#ecd4a0;font:600 19px/1.2 'Noto Serif KR',serif;text-shadow:0 2px 3px #000}
+.tc-moonlit-camp-screen .tc-village-heading h2>.tc-glyph{font-size:23px;color:#c3a163}
+.tc-moonlit-camp-screen .tc-village-heading button{pointer-events:auto;min-width:84px;min-height:44px;color:#e7cf9f;font-size:11px;background:linear-gradient(#050a12d9,#0b1420e8);border:1px solid #8d7049;box-shadow:inset 0 0 0 2px #090c12}
+.tc-moonlit-camp-screen .tc-village-all{top:48px;right:9px;min-height:44px;min-width:84px;justify-content:center;padding:0 5px;z-index:5;color:#d8c5a1;background:#090f1de8;border:1px solid #8d7049;font-size:11px;box-shadow:inset 0 0 0 2px #090c12}
+.tc-moonlit-camp-screen .tc-village-scene{background:#0b1628}
+.tc-moonlit-camp-screen .tc-village-map{position:absolute;inset:0;transform:none;width:100%;height:100%;aspect-ratio:auto}
+.tc-moonlit-camp-screen .tc-village-art{object-fit:cover;object-position:50% 55%;opacity:1;image-rendering:auto}
+.tc-moonlit-camp-screen .tc-camp-v2-quick{position:absolute;inset:0}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button{min-width:110px;width:38%;max-width:42%;height:44px;min-height:44px;gap:7px;padding:5px 7px;color:#f3dfb3;background:linear-gradient(135deg,#b99b65,#57462e 20%,#d2ae68 50%,#57462e 80%,#b99b65);clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);border:0;box-shadow:none;isolation:isolate}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button:before{content:'';position:absolute;inset:2px;z-index:-1;background:linear-gradient(110deg,#161a1d,#05090eef 55%,#111620);clip-path:inherit;border:1px solid #816c46}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button .tc-glyph{display:grid;font-size:21px;color:#dfc182;filter:drop-shadow(0 1px 1px #000)}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button>.tc-village-nameplate{padding:0;border:0;background:none;box-shadow:none;font:600 clamp(11px,3.1vw,15px)/1.2 'Noto Serif KR',serif;letter-spacing:.02em}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button:hover:before{background:#282337}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button:hover>.tc-village-nameplate,.tc-moonlit-camp-screen .tc-camp-v2-quick button:focus-visible>.tc-village-nameplate{background:none}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=craft]{left:26%;top:33%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=skills]{left:78%;top:37%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=gold-exchange]{left:24%;top:58%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=appearance-summon]{left:77%;top:63%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=occupation]{left:26%;top:90%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=mail]{left:76%;top:91%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button>small{z-index:2;top:2px;right:5px;background:#922e30;border:1px solid #e0b66f;min-width:18px;font-size:10px}
+.tc-moonlit-camp-screen .tc-village-player{display:grid;left:44%;top:57%;height:15%;width:12%;filter:drop-shadow(0 4px 2px #000c)}
+.tc-moonlit-camp-screen .tc-camp-v2-extra{z-index:6;inset:96px 8px 8px;border:1px solid #b99a62;background:#070e1cf5;box-shadow:0 6px 24px #000a}
+.tc-moonlit-camp-screen .tc-camp-v2-extra button{background:#111a29;border:1px solid #5e513e;color:#e6d5b3}
+.tc-moonlit-camp-screen .tc-village-services{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:5px 8px 3px;min-height:44px;border-top:1px solid #b2935b;border-bottom:0;background:linear-gradient(#101622,#060b13)}
+.tc-moonlit-camp-screen .tc-village-services button{position:relative;display:flex;flex-direction:column;gap:4px;padding:3px 1px;min-height:44px;border:1px solid #77674d;border-radius:3px;box-shadow:inset 0 0 0 2px #0b111a,inset 0 0 0 3px #2e3032;background:linear-gradient(135deg,#162131,#080e18 65%);font-size:11px;color:#e4ddcd}
+.tc-moonlit-camp-screen .tc-village-services button>.tc-glyph{width:26px;height:26px;font-size:26px;color:#d8b87c;filter:drop-shadow(0 1px 1px #000)}
+.tc-moonlit-camp-screen .tc-camp-v2-primary{padding:5px 9px;background:#080d16}
+.tc-moonlit-camp-screen .tc-camp-v2-primary .tc-camp-v2-hunt{position:relative;gap:14px;border:1px solid #bca06c;background:linear-gradient(105deg,#4e1525,#8a293b 50%,#461423);box-shadow:inset 0 0 0 3px #250c16,inset 0 0 0 4px #956746;min-height:44px}
+.tc-moonlit-camp-screen .tc-camp-v2-primary button b{font-size:25px;letter-spacing:.16em;color:#fff0cc;text-shadow:0 2px 2px #230608}
+.tc-moonlit-camp-screen .tc-camp-v2-primary button>.tc-glyph{display:grid;font-size:27px;color:#f0d198}
+.tc-moonlit-camp-screen .tc-camp-v2-primary .tc-camp-v2-hunt:before,.tc-moonlit-camp-screen .tc-camp-v2-primary .tc-camp-v2-hunt:after{content:'◆';position:absolute;top:50%;transform:translateY(-50%);color:#d0ac70;font-size:12px;text-shadow:0 0 3px #000}
+.tc-moonlit-camp-screen .tc-camp-v2-hunt:before{left:-5px}.tc-moonlit-camp-screen .tc-camp-v2-hunt:after{right:-5px}
+.tc-moonlit-camp-screen .tc-camp-v2-chat-dock{margin:0 9px;border:1px solid #77674b;min-height:44px;height:44px;background:#080f1c;box-shadow:inset 0 0 0 2px #111b29}
+.tc-moonlit-camp-screen .tc-chat-inline{height:100%;display:block;background:transparent}
+.tc-moonlit-camp-screen .tc-chat-inline-heading{display:flex;gap:7px;height:42px;min-height:42px;padding:0 0 0 8px;border:0;background:transparent}
+.tc-moonlit-camp-screen .tc-chat-inline-heading strong{flex-shrink:0;color:#d3c8b1;font-size:11px}
+.tc-moonlit-camp-screen .tc-chat-inline-heading>.tc-chat-status{display:none}
+.tc-chat-inline-preview{display:none}
+.tc-moonlit-camp-screen .tc-chat-inline-preview{display:block;flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;color:#b5b0a8;border-left:1px solid #66563d;padding-left:7px}
+.tc-moonlit-camp-screen .tc-chat-inline-preview b{font-weight:400;color:#c2a370}
+.tc-moonlit-camp-screen .tc-chat-inline-expand{flex-shrink:0;min-width:44px;width:44px;min-height:44px;font-size:0;color:#dfc28c}
+.tc-moonlit-camp-screen .tc-chat-inline-expand:after{content:'›';font:27px/1 serif}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav{padding:5px 7px var(--safe-b);margin-top:0;border-top:1px solid #a18550;background:linear-gradient(#0c1524,#060a11);box-shadow:inset 0 3px #02060b}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button{font-size:12px;gap:4px;color:#c5bcad;border-right:1px solid #544731;background:transparent}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button:last-child{border-right:0}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-glyph{font-size:27px;color:#b6a17e;filter:drop-shadow(0 2px 1px #000)}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button[aria-current=true]{color:#f7e1a6;background:radial-gradient(ellipse at 50% 100%,#84652b66,transparent 75%);box-shadow:inset 0 -2px #be9b56}
+.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button[aria-current=true]>.tc-glyph{color:#ffdf92;filter:drop-shadow(0 0 5px #dea63b80)}
+.tc-moonlit-camp-screen button:focus-visible{outline:2px solid #ffe4a0;outline-offset:-3px}
+@media(max-width:380px){
+ .tc-app:has(.tc-moonlit-camp-screen) .tc-header-funds{display:grid;gap:2px}
+ .tc-app:has(.tc-moonlit-camp-screen) .tc-coin{padding:0;min-height:13px}
+ .tc-moonlit-camp-screen .tc-camp-v2-dossier{grid-template-columns:54px minmax(0,1fr);gap:7px;padding-inline:7px}
+ .tc-moonlit-camp-screen .tc-camp-v2-profile-link{left:42px}
+ .tc-moonlit-camp-screen .tc-camp-v2-stats{gap:5px}
+ .tc-moonlit-camp-screen .tc-camp-v2-stats>span{gap:3px}
+ .tc-moonlit-camp-screen .tc-village-services{gap:3px;padding-inline:5px}
+ .tc-moonlit-camp-screen .tc-village-services button{font-size:10px}
+}
+@media(max-height:700px){
+ .tc-app:has(.tc-moonlit-camp-screen){--nav:54px}
+ .tc-moonlit-camp-screen .tc-camp-v2{grid-template-rows:70px minmax(0,1fr) 44px}
+ .tc-moonlit-camp-screen .tc-village{grid-template-rows:minmax(0,1fr) 54px 50px}
+ .tc-moonlit-camp-screen .tc-camp-v2-dossier{padding-block:5px}
+ .tc-moonlit-camp-screen .tc-camp-v2-bio>strong{font-size:16px}
+ .tc-moonlit-camp-screen .tc-village-services button>.tc-glyph{width:21px;height:21px;font-size:21px}
+ .tc-moonlit-camp-screen .tc-camp-v2-primary{padding-block:3px}
+ .tc-moonlit-camp-screen .tc-camp-v2-primary button b{font-size:22px}
+ .tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-glyph{font-size:22px}
+ .tc-moonlit-camp-screen .tc-village-player{top:55%}
+ .tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=craft],.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=skills]{top:40%}
+ .tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=gold-exchange],.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=appearance-summon]{top:64%}
+ .tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=occupation],.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=mail]{top:89%}
+}
+@media(prefers-reduced-motion:reduce){.tc-moonlit-camp-screen *{animation:none!important;transition:none!important}}
+
+.tc-app:has(.tc-moonlit-camp-screen) .tc-moonlit-gold-add{width:44px;min-width:44px;min-height:44px;padding:0;border:0;background:none;color:#e1c18a;font:25px/1 serif;cursor:pointer}
+.tc-app:has(.tc-moonlit-camp-screen) .tc-moonlit-gold-add:focus-visible{outline:2px solid #ffe4a0;outline-offset:-3px}
+@media(max-width:450px){
+ .tc-app:has(.tc-moonlit-camp-screen) .tc-header-funds{display:grid;gap:2px}
+ .tc-app:has(.tc-moonlit-camp-screen) .tc-coin{padding:0;min-height:13px}
+ .tc-app:has(.tc-moonlit-camp-screen) .tc-wallet{gap:2px}
+}
