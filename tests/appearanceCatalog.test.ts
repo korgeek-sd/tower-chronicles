@@ -128,8 +128,8 @@ test('all 26 C-grade appearance descriptions use authored single-line Tower lore
  assert.equal(new Set(cGrade.map(a=>a.description)).size,26);
  for(const a of cGrade){
   assert.ok(a.description.length>=24,a.name+' description must have narrative detail');
-  assert.doesNotMatch(a.description,/\\r|\\n/,a.name+' must fit on a single line');
-  assert.match(a.description,/\\.$/,a.name+' must be a complete sentence');
+  assert.doesNotMatch(a.description,/\r|\n/,a.name+' must fit on a single line');
+  assert.match(a.description,/\.$/,a.name+' must be a complete sentence');
  }
  assert.equal(appearanceById('default')?.description,'탑을 오르기 시작한 모험가의 기본 전신 외형');
  assert.equal(appearanceById('slime')?.description,'수많은 것을 삼켰지만 자신의 것이라 부를 것은 아무것도 없는 존재.');
