@@ -162,3 +162,48 @@ test('all 13 B-grade appearances retain the approved one-line lore descriptions'
   assert.doesNotMatch(appearance.description,/\r|\n/,appearance.id+' lore must be one line');
  }
 });
+
+
+test('A, SR and SSR appearances use their approved descriptions without changing grades',()=>{
+ const approved:Record<'A'|'SR'|'SSR',Record<string,string>>={
+  "A": {
+    "proletaria": "평범한 노동계급",
+    "valkyrie": "신의 명령에 따라 전사자의 영혼을 인도했지만 어느 전장에서 자신이 데려가야 할 영혼이 아직 살아 있음을 발견한 천상의 전사.",
+    "seraphim": "신의 가장 가까운 곳에서 영원히 찬송하던 천사였으나 어느 날 자신이 부르던 찬송의 마지막 구절이 사라졌음을 깨달은 존재.",
+    "ophanim": "세상의 모든 죄와 운명을 지켜보도록 만들어졌지만 탑의 기록에서 지워진 자들만큼은 끝내 바라볼 수 없었던 천사.",
+    "advanced_mage": "수백 년간 전해지던 마법의 진리를 증명했지만 마지막 연구에서 세상의 법칙이 누군가에 의해 고쳐지고 있다는 사실을 발견한 마법사."
+  },
+  "SR": {
+    "cain": "최초로 형제의 피를 흘린 뒤 신에게 표식을 받고 영원히 죽음보다 긴 추방의 길을 걷게 된 죄인.",
+    "rat_king": "역병과 기근으로 버려진 도시에서 살아남은 자들을 다스렸으나 마지막 백성마저 죽은 뒤에도 왕관을 내려놓지 못한 왕.",
+    "saintess": "수많은 기적으로 사람들을 구원했지만 자신이 받은 계시가 신이 아닌 탑의 기록에서 비롯되었음을 알게 된 성녀.",
+    "archmage": "세상의 모든 마법을 이해한 끝에 자신이 사용하는 주문조차 누군가 미리 기록해 두었다는 사실을 발견한 마법사.",
+    "nameless_sinner": "자신이 저지르지 않은 죄까지 모두 짊어지고 처형되었으나 죽음 이후에도 죄를 고백하라는 명령을 받는 자.",
+    "bourgeoisie": "왕국의 전쟁과 평화를 모두 돈으로 사들였지만 정작 자신의 죽음을 막을 대가는 끝내 마련하지 못한 자본가.",
+    "intellectual": "탑의 기록에 존재하지 않는 역사를 연구하다 자신이 밝혀낸 진실과 함께 모든 학문에서 이름이 지워진 지식인.",
+    "necromancer": "죽은 자들의 영혼을 불러 수많은 비밀을 알아냈지만 어느 날부터 모든 망자가 똑같은 이름 하나만 속삭이기 시작한 술사.",
+    "noble_knight": "수많은 전쟁에서 왕국을 지켜 영웅으로 추앙받았지만 자신이 섬긴 왕이 백성들의 이름을 탑에서 지우고 있음을 알게 된 기사.",
+    "antichrist": "신의 계시를 전한다며 사람들을 현혹했으나 그의 손바닥에 새겨진 빈 상처에서 흘러나온 것은 구원이 아닌 말소의 예언이었다."
+  },
+  "SSR": {
+    "nidhogg": "세상의 뿌리를 갉아먹으며 종말을 기다리던 고대의 용으로, 그가 삼킨 이름들은 탑의 기록에서도 영원히 사라졌다고 전해진다.",
+    "bahamut": "세상이 기록되기 이전의 바다를 떠받치던 태초의 존재로, 그 깊은 심연에는 신조차 기록하지 못한 최초의 비밀이 잠들어 있다.",
+    "baal": "수많은 왕국이 신이라 숭배했던 고대의 존재로, 그의 신전과 신도들이 말소된 뒤에도 제물의 이름만큼은 기억하고 있다.",
+    "puppeteer": "왕과 영웅의 운명마저 붉은 실로 움직였다고 전해지는 존재로, 그가 끊어 버린 실의 주인들은 탑의 기록에서 흔적도 없이 사라졌다.",
+    "nameless_king": "세상의 모든 왕국을 정복하고 자신의 이름을 영원히 남기려 했지만 탑의 기록에서 단 한 글자도 남기지 못한 채 말소된 왕.",
+    "first_forgotten_one": "금지된 열매를 취해 최초의 원죄를 세상에 남겼으나 정작 탑의 기록에서는 자신의 이름을 빼앗긴 최초의 추방자.",
+    "false_savior": "모든 죄를 대신 짊어지겠다며 세상에 나타났으나 그가 구원한 자들의 이름은 하나둘 탑의 기록에서 지워지고 있었다."
+  }
+};
+ assert.deepEqual(Object.fromEntries((['A','SR','SSR'] as const).map(grade=>[grade,APPEARANCES.filter(a=>a.rarity===grade).length])),{A:5,SR:10,SSR:7});
+ for(const grade of ['A','SR','SSR'] as const){
+  const current=APPEARANCES.filter(a=>a.rarity===grade);
+  assert.deepEqual(current.map(a=>a.id).sort(),Object.keys(approved[grade]).sort());
+  for(const a of current){
+   assert.equal(a.description,approved[grade][a.id],a.name+' must keep approved lore');
+   assert.doesNotMatch(a.description,/\r|\n/,a.name+' must have single-line text');
+  }
+ }
+ assert.equal(appearanceById('proletaria')?.description,'평범한 노동계급');
+ assert.equal(appearanceById('default')?.description,'탑을 오르기 시작한 모험가의 기본 전신 외형');
+});
