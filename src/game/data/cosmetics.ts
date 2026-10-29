@@ -63,13 +63,13 @@ export const APPEARANCES:AppearanceData[]=[
  {
   id:'corsair',name:'코르세어',rarity:'B',
   imagePath:"assets/characters/appearances/corsair-23cd3b78fe82.webp",
-  description:'황금 장식의 삼각모와 커틀라스, 화승총을 지닌 고딕 해적.',
+  description:'수많은 보물을 약탈했지만 마지막 항해에서 자신의 배가 세상의 모든 해도에서 지워졌음을 알게 된 해적.',
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'
  }
 ,
  {id:"teddy",name:"테디",rarity:"B",imagePath:"assets/characters/appearances/teddy-90735135ad9b.webp",
-  description:"곰돌이 후드와 포근한 갈색 코트를 입은 모험가.",
+  description:"전쟁터의 아이들에게 곰 인형을 나눠주던 방랑자, 마지막 인형을 건넨 날 자신의 이름마저 잊어버렸다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -109,12 +109,12 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"plague_doctor",name:"역병의사",rarity:"B",imagePath:"assets/characters/appearances/plague_doctor-4e692458eaea.webp",
-  description:"검은 의복과 새부리 가면을 쓰고 지팡이와 붉은 등불을 든 역병의사.",
+  description:"수천 명의 목숨을 구했지만 자신이 치료한 환자들이 모두 같은 날 죽음을 맞이한 이유를 알지 못한 의사.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"knight",name:"기사",rarity:"B",imagePath:"assets/characters/appearances/knight-a15fd8a32dbd.webp",
-  description:"청록빛 문양이 새겨진 판금갑옷을 입고 장검과 커다란 방패를 든 기사.",
+  description:"평생 왕에게 충성을 맹세했지만 마지막으로 받은 명령은 자신의 왕을 처형하라는 것이었다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -179,7 +179,7 @@ export const APPEARANCES:AppearanceData[]=[
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"summoner",name:"소환술사",rarity:"B",imagePath:"assets/characters/appearances/summoner-158e9c44bd6e.webp",
-  description:"봉인된 두루마리와 사슬을 지니고 검은 늑대와 동행하는 소환술사.",
+  description:"죽은 벗의 영혼을 다시 불러내는 데 성공했지만 돌아온 존재는 그를 전혀 기억하지 못했다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -197,11 +197,11 @@ export const APPEARANCES:AppearanceData[]=[
 ,
  {id:"nameless_pilgrim",name:"이름없는 순례자",rarity:"C",imagePath:"assets/characters/appearances/nameless_pilgrim-d1b7cd17fa98.webp",description:"자신이 지은 죄조차 모른 채 평생 용서를 구하며 탑을 떠도는 순례자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"cultist",name:"이교도",rarity:"B",imagePath:"assets/characters/appearances/cultist-39f49aebf524.webp",description:"낡은 두건과 누더기 로브를 걸치고 단검과 해진 경전을 지닌 이교도.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"cultist",name:"이교도",rarity:"B",imagePath:"assets/characters/appearances/cultist-39f49aebf524.webp",description:"메아쿨파의 외경을 진실이라 믿고 금서를 탐독하다 마침내 자신의 이름이 기록된 장을 발견한 신도.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"scout",name:"정찰병",rarity:"C",imagePath:"assets/characters/appearances/scout-79aa0d899db2.webp",description:"누구보다 먼저 위험을 발견했지만 단 한 번도 동료들을 구하지 못한 병사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"celestial_archer",name:"천상의 사수",rarity:"B",imagePath:"assets/characters/appearances/celestial_archer-163199b8d562.webp",description:"백색 날개와 은빛 갑옷을 두르고 정교한 활을 든 천상의 사수.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"celestial_archer",name:"천상의 사수",rarity:"B",imagePath:"assets/characters/appearances/celestial_archer-163199b8d562.webp",description:"신의 명령에 따라 단 한 번도 빗나가지 않는 화살을 쏘았지만 마지막 표적은 자신이 섬기던 천사였다.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"arcane_archer",name:"비전궁수",rarity:"C",imagePath:"assets/characters/appearances/arcane_archer-733d3d2a8fe7.webp",description:"별의 움직임을 따라 화살을 쏘다 자신의 운명을 가리키는 별을 잃어버린 사수.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -213,7 +213,7 @@ export const APPEARANCES:AppearanceData[]=[
 ,
  {id:"bounty_hunter",name:"현상금 사냥꾼",rarity:"C",imagePath:"assets/characters/appearances/bounty_hunter-c9baeeca1bf2.webp",description:"수많은 죄인을 추적하다 어느 날 자신의 이름이 적힌 수배서를 발견한 사냥꾼.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"assault_gunner",name:"돌격포수",rarity:"B",imagePath:"assets/characters/appearances/assault_gunner-c943be85cea4.webp",description:"해진 망토와 탄약 벨트를 걸치고 넓은 포구의 대형 총포를 든 돌격포수.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"assault_gunner",name:"돌격포수",rarity:"B",imagePath:"assets/characters/appearances/assault_gunner-c943be85cea4.webp",description:"적의 성벽을 무너뜨리는 데 평생을 바쳤지만 마지막 포격으로 자신이 지켜야 할 도시를 파괴한 병사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"apprentice_mage",name:"견습 마법사",rarity:"C",imagePath:"assets/characters/appearances/apprentice_mage-405af5eafc3a.webp",description:"스승의 금서를 펼쳤다가 자신의 미래가 기록된 백지 한 장을 발견한 견습생.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -221,15 +221,15 @@ export const APPEARANCES:AppearanceData[]=[
 ,
  {id:"archmage",name:"대마법사",rarity:"SR",imagePath:"assets/characters/appearances/archmage-098128fade40.webp",description:"긴 은발과 붉은 안감의 로브를 두르고 거대한 마법진과 불꽃을 펼치는 대마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"alchemist",name:"연금술사",rarity:"B",imagePath:"assets/characters/appearances/alchemist-c694c0994604.webp",description:"붉은 물약 플라스크와 여러 시약병을 지니고 해진 앞치마를 두른 연금술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"alchemist",name:"연금술사",rarity:"B",imagePath:"assets/characters/appearances/alchemist-c694c0994604.webp",description:"죽음을 되돌리는 영약을 완성했지만 그 대가로 자신의 남은 수명을 모두 잃어버린 연금술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
 {id:"nameless_sinner",name:"이름없는 죄인",rarity:"SR",imagePath:"assets/characters/appearances/nameless_sinner-d1e1ca138f17.webp",description:"해진 옷과 붕대를 두르고 끊어진 사슬과 수갑을 찬 이름없는 죄인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"blacksmith",name:"대장장이",rarity:"B",imagePath:"assets/characters/appearances/blacksmith-bbbc6ce0235c.webp",description:"낡은 가죽 앞치마와 도구 벨트를 두르고 망치와 집게를 든 대장장이.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"blacksmith",name:"대장장이",rarity:"B",imagePath:"assets/characters/appearances/blacksmith-bbbc6ce0235c.webp",description:"수많은 영웅의 무기를 만들었지만 자신이 벼린 검으로 왕이 살해된 뒤 모든 기록에서 이름이 지워진 장인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"bourgeoisie",name:"부르주아지",rarity:"SR",imagePath:"assets/characters/appearances/bourgeoisie-55ec362a480e.webp",description:"금빛 장식의 롱코트와 조끼를 입고 지팡이와 금화를 지닌 부르주아지.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"contract_mercenary",name:"계약용병",rarity:"B",imagePath:"assets/characters/appearances/contract_mercenary-e9050d6bf383.webp",description:"해진 붉은 망토와 가죽 장비를 걸치고 커다란 검을 어깨에 멘 계약용병.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"contract_mercenary",name:"계약용병",rarity:"B",imagePath:"assets/characters/appearances/contract_mercenary-e9050d6bf383.webp",description:"어떤 의뢰도 거절하지 않았지만 마지막 계약서에는 자신의 목숨을 대가로 바친다는 조항이 적혀 있었다.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"lumpen",name:"룸펜",rarity:"C",imagePath:"assets/characters/appearances/lumpen-af215675cc90.webp",description:"가진 것도 지킬 것도 없이 세상을 떠돌다 자신의 존재마저 잊힌 자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.C},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
@@ -275,13 +275,13 @@ export const APPEARANCES:AppearanceData[]=[
 
 ,
  {id:"wandering_preacher",name:"떠돌이 설교사",rarity:"B",imagePath:"assets/characters/appearances/wandering_preacher-e4b366ac97d0.webp",
-  description:"낡은 성의와 회색 두건을 걸치고, 종과 십자가 장식 및 경전을 지닌 채 탑을 떠도는 설교사.",
+  description:"죄를 고백하면 누구나 구원받을 수 있다고 설교했지만 자신의 죄를 고백한 날부터 신의 목소리가 들리지 않았다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
 ,
  {id:"shepherd",name:"양치기",rarity:"B",imagePath:"assets/characters/appearances/shepherd-0117a18adfac.webp",
-  description:"낡은 양털 망토와 붉은 목도리를 두르고 구부러진 목자 지팡이와 여장을 지닌 방랑하는 양치기.",
+  description:"잃어버린 양 한 마리를 찾아 탑에 들어섰지만 수십 년이 지난 지금도 그 양이 누구의 것이었는지 기억하지 못한다.",
   proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},
   sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 
