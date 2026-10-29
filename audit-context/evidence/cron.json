@@ -1,0 +1,38 @@
+[
+  {
+    "jobname": "server-bank-settlement",
+    "schedule": "* * * * *",
+    "command": "select private.process_server_bank_due();",
+    "active": true
+  },
+  {
+    "jobname": "tc-market-mail-expiry",
+    "schedule": "* * * * *",
+    "command": "select private.maintain_game_mail()",
+    "active": true
+  },
+  {
+    "jobname": "tower-premium-daily",
+    "schedule": "0 15 * * *",
+    "command": "select private.run_premium_daily()",
+    "active": true
+  },
+  {
+    "jobname": "tower-system-monitor",
+    "schedule": "* * * * *",
+    "command": "select private.collect_system_monitor_snapshot();",
+    "active": true
+  },
+  {
+    "jobname": "tower-world-chat-retention",
+    "schedule": "17 * * * *",
+    "command": "delete from public.game_chat_messages where created_at < now()-interval '7 days'",
+    "active": true
+  },
+  {
+    "jobname": "village-war-settlement",
+    "schedule": "* * * * *",
+    "command": "select private.settle_village_wars()",
+    "active": true
+  }
+]
