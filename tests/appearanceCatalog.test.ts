@@ -136,3 +136,29 @@ test('all 26 C-grade appearance descriptions use authored single-line Tower lore
  assert.equal(appearanceById('faceless_one')?.description,'모든 기록에서 얼굴과 이름이 지워져 존재조차 증명할 수 없게 된 자.');
  assert.equal(appearanceById('court_jester')?.description,'왕국이 멸망하던 날에도 왕의 명령에 따라 홀로 웃고 있던 광대.');
 });
+
+
+test('all 13 B-grade appearances retain the approved one-line lore descriptions',()=>{
+ const expected:Record<string,string>={
+  "corsair": "수많은 보물을 약탈했지만 마지막 항해에서 자신의 배가 세상의 모든 해도에서 지워졌음을 알게 된 해적.",
+  "teddy": "전쟁터의 아이들에게 곰 인형을 나눠주던 방랑자, 마지막 인형을 건넨 날 자신의 이름마저 잊어버렸다.",
+  "plague_doctor": "수천 명의 목숨을 구했지만 자신이 치료한 환자들이 모두 같은 날 죽음을 맞이한 이유를 알지 못한 의사.",
+  "knight": "평생 왕에게 충성을 맹세했지만 마지막으로 받은 명령은 자신의 왕을 처형하라는 것이었다.",
+  "summoner": "죽은 벗의 영혼을 다시 불러내는 데 성공했지만 돌아온 존재는 그를 전혀 기억하지 못했다.",
+  "cultist": "메아쿨파의 외경을 진실이라 믿고 금서를 탐독하다 마침내 자신의 이름이 기록된 장을 발견한 신도.",
+  "celestial_archer": "신의 명령에 따라 단 한 번도 빗나가지 않는 화살을 쏘았지만 마지막 표적은 자신이 섬기던 천사였다.",
+  "assault_gunner": "적의 성벽을 무너뜨리는 데 평생을 바쳤지만 마지막 포격으로 자신이 지켜야 할 도시를 파괴한 병사.",
+  "alchemist": "죽음을 되돌리는 영약을 완성했지만 그 대가로 자신의 남은 수명을 모두 잃어버린 연금술사.",
+  "blacksmith": "수많은 영웅의 무기를 만들었지만 자신이 벼린 검으로 왕이 살해된 뒤 모든 기록에서 이름이 지워진 장인.",
+  "contract_mercenary": "어떤 의뢰도 거절하지 않았지만 마지막 계약서에는 자신의 목숨을 대가로 바친다는 조항이 적혀 있었다.",
+  "wandering_preacher": "죄를 고백하면 누구나 구원받을 수 있다고 설교했지만 자신의 죄를 고백한 날부터 신의 목소리가 들리지 않았다.",
+  "shepherd": "잃어버린 양 한 마리를 찾아 탑에 들어섰지만 수십 년이 지난 지금도 그 양이 누구의 것이었는지 기억하지 못한다."
+};
+ const bGrade=APPEARANCES.filter(a=>a.rarity==='B');
+ assert.equal(bGrade.length,13);
+ assert.deepEqual(bGrade.map(a=>a.id).sort(),Object.keys(expected).sort());
+ for(const appearance of bGrade){
+  assert.equal(appearance.description,expected[appearance.id],appearance.id+' lore must match approved copy');
+  assert.doesNotMatch(appearance.description,/\r|\n/,appearance.id+' lore must be one line');
+ }
+});
