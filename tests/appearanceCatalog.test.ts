@@ -120,3 +120,19 @@ test('both catalog tabs render safely with no active collections',()=>{
  else assert.match(html,/코르세어/);
  }
 });
+
+
+test('all 26 C-grade appearance descriptions use authored single-line Tower lore',()=>{
+ const cGrade=APPEARANCES.filter(a=>a.rarity==='C');
+ assert.equal(cGrade.length,26);
+ assert.equal(new Set(cGrade.map(a=>a.description)).size,26);
+ for(const a of cGrade){
+  assert.ok(a.description.length>=24,a.name+' description must have narrative detail');
+  assert.doesNotMatch(a.description,/\r|\n/,a.name+' must fit on a single line');
+  assert.match(a.description,/\.$/,a.name+' must be a complete sentence');
+ }
+ assert.equal(appearanceById('default')?.description,'탑을 오르기 시작한 모험가의 기본 전신 외형');
+ assert.equal(appearanceById('slime')?.description,'수많은 것을 삼켰지만 자신의 것이라 부를 것은 아무것도 없는 존재.');
+ assert.equal(appearanceById('faceless_one')?.description,'모든 기록에서 얼굴과 이름이 지워져 존재조차 증명할 수 없게 된 자.');
+ assert.equal(appearanceById('court_jester')?.description,'왕국이 멸망하던 날에도 왕의 명령에 따라 홀로 웃고 있던 광대.');
+});
