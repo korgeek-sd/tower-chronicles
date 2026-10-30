@@ -3,7 +3,7 @@ import type {GameState,EquipmentItem} from '../../game/types';
 import {RECORD_COLLECTIONS,collectionRecordProgress,collectionRecordBonuses,equipmentRecordEntryId,type CollectionRecord} from '../../game/data/recordCollections';
 import {appearanceById} from '../../game/data/cosmetics';
 import {assetUrl} from '../../game/data/graphics';
-import {EQUIPMENT_GRADE_NAMES,equipmentItemName} from '../../game/data/equipment';
+import {equipmentItemName} from '../../game/data/equipment';
 import {EquipmentArt} from '../inventory/EquipmentArt';
 import {registerCollectionEquipment} from '../../game/engine/collection';
 import {getCollectionEquipmentRegistrations,registerOnlineCollectionEquipment} from '../../online/collection';
@@ -23,7 +23,7 @@ type Props={
 const rarityLabels={C:'일반',B:'고급',A:'희귀',SR:'영웅',SSR:'전설'};
 const bonusLabels={hp:'최대 HP',attack:'공격력',defense:'방어력'};
 const rewardText=(record:CollectionRecord)=>bonusLabels[record.reward.stat]+' +'+record.reward.value;
-const requirementLabel=(item:{kind:EquipmentItem['kind'];grade:EquipmentItem['grade']})=>EQUIPMENT_GRADE_NAMES[item.grade]+' '+equipmentItemName({...item,id:'preview',enhancement:0});
+const requirementLabel=(item:{kind:EquipmentItem['kind'];grade:EquipmentItem['grade']})=>equipmentItemName({...item,id:'preview',enhancement:0});
 /** A single scrollable list and a modal for details; never swallow the primary hub navigation. */
 export function RecordCollectionsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord,onAppearanceList,onClose}:Props){
  const [kind,setKind]=useState<'appearance'|'equipment'>('appearance');
