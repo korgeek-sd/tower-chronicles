@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
@@ -23,6 +23,21 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
  const [registered,setRegistered]=useState<string[]>([]);
  const [loading,setLoading]=useState(false),[working,setWorking]=useState(false);
  const [error,setError]=useState(''),[itemId,setItemId]=useState('');
+ // A bounded, page-based collection list: no scrolling in the game viewport.
+ const listRef=useRef<HTMLDivElement|null>(null);
+ const [page,setPage]=useState(0);
+ const [pageSize,setPageSize]=useState(2);
+ useEffect(()=>{
+  const element=listRef.current;
+  if(!element)return;
+  // 72px entry + 4px gap; leave a little tolerance for fractional device pixels.
+  const measure=()=>setPageSize(Math.max(1,Math.min(5,Math.floor((element.clientHeight+4)/76))));
+  measure();
+  if(typeof ResizeObserver==='undefined')return;
+  const observer=new ResizeObserver(measure);
+  observer.observe(element);
+  return()=>observer.disconnect();
+ },[]);
  useEffect(()=>{
   if(!onlineLease){setRegistered([]);setLoading(false);return;}
   let active=true;setLoading(true);setError('');
@@ -45,12 +60,15 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
    ))||(status==='progress'&&!recordCollectionProgress(set,unlocked,known).complete))&&
   (!query.trim()||(set.name+' '+set.description+' '+set.appearanceIds.map(id=>appearanceById(id)?.name).join(' ')+' '+recordEquipmentLabel(set)).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
  );
+ const pageCount=Math.max(1,Math.ceil(lists.length/pageSize));
+ const activePage=Math.min(page,pageCount-1);
+ const visibleRecords=lists.slice(activePage*pageSize,(activePage+1)*pageSize);
  const selected=selectedId?RECORD_COLLECTION_SETS.find(set=>set.id===selectedId&&set.kind===kind):undefined;
  const progress=selected?recordCollectionProgress(selected,unlocked,known):null;
  const canRegister=!!selected&&selected.kind==='equipment'&&!known.has(selected.id)&&!game.expedition&&!working&&!loading&&(!onlineAccount||!!onlineLease);
  const requirement=selected?.equipment;
  const candidates=requirement?game.equipmentItems.filter(item=>item.kind===requirement.kind&&item.grade===requirement.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id)):[];
- const changeKind=(next:RecordKind)=>{setKind(next);setSelectedId(null);setRarity('ALL');setStatus('all');setQuery('');setItemId('');setError('');};
+ const changeKind=(next:RecordKind)=>{setPage(0);setKind(next);setSelectedId(null);setRarity('ALL');setStatus('all');setQuery('');setItemId('');setError('');};
  const close=()=>{if(!working){setSelectedId(null);setItemId('');setError('');}};
  useEffect(()=>{
   if(!selectedId)return;
@@ -105,13 +123,13 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
     </button>)}
    </nav>
    <div className="tc-record-filters">
-    <label className="tc-record-search"><Glyph name="search"/><span className="sr-only">컬렉션 검색</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="기록 이름·재료 검색" aria-label="컬렉션 검색"/></label>
-    <select aria-label="진행 상태" value={status} onChange={e=>setStatus(e.target.value as typeof status)}><option value="all">전체</option><option value="progress">미완성</option><option value="ready">진행 중·등록 가능</option><option value="complete">완성</option></select>
+    <label className="tc-record-search"><Glyph name="search"/><input value={query} onChange={e=>{setPage(0);setQuery(e.target.value);}} placeholder="기록 이름·재료 검색" aria-label="컬렉션 검색"/></label>
+    <select aria-label="진행 상태" value={status} onChange={e=>{setPage(0);setStatus(e.target.value as typeof status);}}><option value="all">전체</option><option value="progress">미완성</option><option value="ready">진행 중·등록 가능</option><option value="complete">완성</option></select>
    </div>
-   <div className="tc-record-rarity" role="group" aria-label="등급 선택">{RARITIES.map(value=><button key={value} className={'tc-record-grade-'+value} type="button" aria-pressed={rarity===value} onClick={()=>setRarity(value)}>{value==='ALL'?'전체':value}</button>)}</div>
+   <div className="tc-record-rarity" role="group" aria-label="등급 선택">{RARITIES.map(value=><button key={value} className={'tc-record-grade-'+value} type="button" aria-pressed={rarity===value} onClick={()=>{setPage(0);setRarity(value);}}>{value==='ALL'?'전체':value}</button>)}</div>
    {error&&!selected&&<p className="tc-record-error" role="alert">{error}</p>}
-   <div className="tc-record-list" role="list" aria-label={kind==='appearance'?'인물의 기록 목록':'유물의 기록 목록'}>
-    {lists.map(set=>{
+   <div ref={listRef} className="tc-record-list" role="list" aria-label={kind==='appearance'?'인물의 기록 목록':'유물의 기록 목록'}>
+    {visibleRecords.map(set=>{
      const p=recordCollectionProgress(set,unlocked,known);
      const portrait=set.kind==='appearance'?appearanceById(set.appearanceIds[0]):null;
      return <button type="button" role="listitem" className={'tc-record-entry tc-record-entry-'+set.rarity+(p.complete?' is-complete':'')} key={set.id} onClick={()=>{setSelectedId(set.id);setItemId('');setError('');}}>
@@ -135,7 +153,12 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
     })}
     {lists.length===0&&<p className="tc-record-empty">조건에 맞는 기록이 없습니다.</p>}
    </div>
-   <footer className="tc-record-footnote"><span aria-hidden="true">ⓘ</span> 인물은 해금 즉시 자동 등록 · 유물은 장비 소모 시 등록 · 완성 보너스 영구 적용</footer>
+   <div className="tc-record-pagination" aria-label="컬렉션 페이지 이동">
+    <button type="button" disabled={activePage===0} onClick={()=>setPage(activePage-1)} aria-label="이전 컬렉션 페이지">‹ 이전</button>
+    <span><b>{activePage+1}</b> / {pageCount}<small>전체 {lists.length}개 기록</small></span>
+    <button type="button" disabled={activePage>=pageCount-1} onClick={()=>setPage(activePage+1)} aria-label="다음 컬렉션 페이지">다음 ›</button>
+   </div>
+   <footer className="tc-record-footnote"><span aria-hidden="true">ⓘ</span> 인물 자동 등록 · 유물은 장비 소모 · 보너스 영구 적용</footer>
   </div>
   {selected&&progress&&<div className="tc-record-overlay" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)close();}}>
    <section className="tc-record-dialog" role="dialog" aria-modal="true" aria-label="기록 상세 정보">

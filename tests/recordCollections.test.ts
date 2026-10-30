@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {initialState} from '../src/game/engine/state';
@@ -37,4 +38,16 @@ test('unknown record IDs cannot consume guest inventory',()=>{
  const result=registerCollectionEquipment(initial,'record_people_knights','anything');
  assert.equal(result.equipmentItems.length,initial.equipmentItems.length);
  assert.equal(result.collectionRegisteredItems?.record_people_knights,undefined);
+});
+
+
+test('archive mobile UI uses bounded pagination instead of a scrollable list',()=>{
+ const tsx=readFileSync('src/components/mobile/RecordCollectionScreen.tsx','utf8');
+ const css=readFileSync('src/components/mobile/record-collection.css','utf8');
+ assert.match(tsx,/visibleRecords=lists\.slice\(/);
+ assert.match(tsx,/ref=\{listRef\}/);
+ assert.match(tsx,/aria-label="다음 컬렉션 페이지"/);
+ assert.doesNotMatch(tsx,/className="sr-only">컬렉션 검색/);
+ assert.match(css,/\.tc-record-list\{[^}]*overflow:hidden!important/);
+ assert.match(css,/\.tc-record-screen>\.tc-screen-body\{[^}]*overflow:hidden/);
 });

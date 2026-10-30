@@ -100,3 +100,92 @@
 @media(max-width:359px){.tc-record-root{padding:4px;gap:4px}.tc-record-header{min-height:76px}.tc-record-heading h1{font-size:21px}.tc-record-appearance-link{font-size:7px}.tc-record-entry{grid-template-columns:59px minmax(0,1fr) 81px 8px;gap:3px}.tc-record-summary-attributes>div{gap:4px;font-size:9px}.tc-record-summary-mark{display:none}.tc-record-completion{padding:5px}.tc-record-entry-reward>strong{font-size:10px}}
 @media(max-height:740px){.tc-record-header{min-height:65px;padding-bottom:3px}.tc-record-heading h1{font-size:20px;margin:2px 0}.tc-record-heading p{font-size:8px}.tc-record-summary{min-height:55px}.tc-record-completion-copy strong{font-size:20px}.tc-record-tabs,.tc-record-tabs button{min-height:37px}.tc-record-entry{flex-basis:79px;min-height:79px}.tc-record-entry-art img{max-height:76px}.tc-record-footnote{min-height:20px;font-size:8px}}
 @media(prefers-reduced-motion:reduce){.tc-record-entry,.tc-record-tabs button{transition:none!important}}
+
+
+/* 2026-10-30 single-viewport redesign — compact, no document/list/dialog scrolling.
+   Keep the summary/tabs/filters fixed. The middle list measures its own available
+   height and paginates, so content never crops at the bottom of a phone. */
+.tc-record-screen>.tc-screen-body{padding:0!important;min-height:0;overflow:hidden}
+.tc-record-root{gap:4px;padding:3px 5px 2px;max-height:100%;overflow:hidden}
+.tc-record-header{min-height:0;height:65px;box-sizing:border-box;flex:0 0 65px;padding:2px 4px 5px}
+.tc-record-header:before,.tc-record-header:after{width:62px;height:66px;bottom:-28px;opacity:.24}
+.tc-record-header-art{font-size:27px;padding:0 10px;opacity:.5}
+.tc-record-heading{padding-top:1px}
+.tc-record-heading small{font-size:7px;letter-spacing:1.45px}
+.tc-record-heading h1{font-size:22px;line-height:1.05;margin:3px 0;color:#f5d69e}
+.tc-record-heading p{font-size:8px;line-height:1.2;max-width:290px;margin:0 auto}
+.tc-record-appearance-link{top:0;right:0;min-height:21px;padding:1px 4px;font-size:8px}
+.tc-record-appearance-link .tc-glyph{font-size:10px}
+.tc-record-summary{min-height:0;height:59px;flex:0 0 59px;grid-template-columns:36% 64%}
+.tc-record-completion{gap:5px;padding:4px}
+.tc-record-summary-mark{flex-basis:25px;height:31px;font-size:20px}
+.tc-record-completion-copy{font-size:9px}
+.tc-record-completion-copy strong{font-size:21px}
+.tc-record-summary-attributes{padding:4px 3px 4px 6px;gap:3px;font-size:9px}
+.tc-record-summary-attributes>div{gap:5px;font-size:9px}
+.tc-record-summary-attributes .tc-glyph{font-size:10px}
+.tc-record-tabs{min-height:0;height:38px;flex:0 0 38px;gap:4px}
+.tc-record-tabs button{min-height:0;height:38px;padding:1px 3px;gap:5px;font-size:12px}
+.tc-record-tabs button .tc-glyph{font-size:15px}
+.tc-record-tabs button small{font-size:8px}
+.tc-record-filters{grid-template-columns:minmax(0,1fr) 97px;gap:4px}
+.tc-record-filters .tc-record-search{min-width:0;overflow:hidden}
+.tc-record-search input{min-height:31px;height:31px;line-height:normal;font-size:10px}
+.tc-record-filters select{min-height:31px;height:33px;font-size:10px}
+.tc-record-rarity{gap:4px}
+.tc-record-rarity button{height:27px;min-height:27px;font-size:10px;padding:0 1px}
+.tc-record-list{flex:1 1 auto;min-height:0;overflow:hidden!important;scrollbar-width:none;gap:4px;padding:1px 0;align-content:start}
+.tc-record-entry{height:72px;min-height:0;flex:0 0 72px;grid-template-columns:65px minmax(0,1fr) minmax(81px,29%) 8px;gap:4px;padding:3px 3px 3px 0}
+.tc-record-entry-art img{max-height:68px;object-position:center 18%}
+.tc-record-entry-crest{width:18px;height:18px;font-size:11px}
+.tc-record-entry-info{gap:3px}
+.tc-record-entry-info>strong{font-size:12px;line-height:1.14}
+.tc-record-entry-description{font-size:9px;line-height:1.18;-webkit-line-clamp:2}
+.tc-record-rarity-tag{font-size:8px;padding:1px 7px}
+.tc-record-entry-reward{gap:4px;padding-left:4px}
+.tc-record-entry-reward>small:first-child{font-size:8px}
+.tc-record-entry-reward>strong{font-size:10px}
+.tc-record-progress{gap:3px}
+.tc-record-progress b{font-size:9px}
+.tc-record-entry-reward>small:last-child{font-size:8px}
+.tc-record-entry-arrow{font-size:20px}
+.tc-record-pagination{height:29px;min-height:29px;flex:0 0 29px;display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:5px;align-items:center;border-top:1px solid #604a32;border-bottom:1px solid #51412e;background:linear-gradient(90deg,#131817,#252017 50%,#131817)}
+.tc-record-pagination button{height:25px;min-height:25px;border:1px solid #88663e;background:#2a261d;color:#f3d4a4;font-size:10px;padding:0 5px}
+.tc-record-pagination button:disabled{opacity:.33}
+.tc-record-pagination>span{display:flex;align-items:center;justify-content:center;gap:4px;font:11px Georgia,serif;color:#e7cfac;white-space:nowrap}
+.tc-record-pagination>span b{color:#f2c67e}
+.tc-record-pagination>span small{font:8px/1 inherit;color:#9c8e78;margin-left:5px}
+.tc-record-footnote{min-height:0;height:18px;flex:0 0 18px;line-height:1;white-space:nowrap;font-size:8px;border-top:0;padding:0 1px;gap:3px}
+.tc-record-footnote span{font-size:10px}
+.tc-record-dialog{max-height:calc(100% - 14px);overflow:hidden;gap:5px;padding:8px}
+.tc-record-dialog header h2{font-size:17px}
+.tc-record-dialog>p{font-size:10px;line-height:1.25;max-height:29px;overflow:hidden}
+.tc-record-dialog-reward{padding:6px}
+.tc-record-materials{gap:4px}
+.tc-record-material{min-height:0;padding:4px 2px;gap:3px}
+.tc-record-material-art{height:48px}
+.tc-record-material-art img{max-height:48px}
+.tc-record-register{gap:3px}
+.tc-record-register small{font-size:9px;line-height:1.25}
+.tc-record-dialog footer{padding-top:4px}
+.tc-record-dialog footer button{min-height:32px;padding:6px}
+@media(max-width:359px){
+ .tc-record-header{height:58px;flex-basis:58px}
+ .tc-record-heading h1{font-size:19px}
+ .tc-record-summary-mark{display:none}
+ .tc-record-summary-attributes>div{gap:3px;font-size:8px}
+ .tc-record-entry{grid-template-columns:48px minmax(0,1fr) minmax(75px,30%) 7px}
+ .tc-record-entry-info>strong{font-size:11px}
+ .tc-record-entry-reward>strong{font-size:9px}
+ .tc-record-pagination>span small{display:none}
+}
+@media(max-height:740px){
+ .tc-record-header{height:51px;flex-basis:51px}
+ .tc-record-heading h1{font-size:18px;margin:1px 0}
+ .tc-record-heading p{font-size:7px}
+ .tc-record-summary{height:49px;flex-basis:49px}
+ .tc-record-tabs,.tc-record-tabs button{height:32px;min-height:32px}
+ .tc-record-rarity button{height:25px;min-height:25px}
+ .tc-record-entry{height:65px;flex-basis:65px}
+ .tc-record-entry-art img{max-height:60px}
+}
