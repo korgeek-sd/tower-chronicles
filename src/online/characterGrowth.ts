@@ -12,7 +12,7 @@ export interface CharacterGrowthSnapshot {
  maxMp:number;currentJobId:string|null;selectedAppearanceId:string;
  equipment:{slot:Slot;item:EquipmentItem;stats:EquipmentBaseStats}[];
  seals:Record<'association'|'guardian',{level:number;bonus:AssociationSealReward}>;
- collection:{applied:false;registeredSetIds:string[];unlockedAppearanceIds:string[]};
+ collection:{applied:boolean;bonuses?:{hp:number;attack:number;defense:number};registeredSetIds:string[];unlockedAppearanceIds:string[]};
  foodTurns:Partial<Record<'attack_food'|'defense_food'|'experience_food',number>>;
 }
 export async function getCharacterGrowth(lease:GameplayLease):Promise<CharacterGrowthSnapshot>{
