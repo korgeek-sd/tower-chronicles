@@ -73,7 +73,7 @@ export function validateRecordCollections(){
   if(ids.has(set.id))return false;
   ids.add(set.id);
   return !!set.name&&!!set.description&&set.reward.value>0&&Number.isSafeInteger(set.reward.value)&&
-  (set.kind==='appearance'?!set.equipment&&set.appearanceIds.length>=2&&set.appearanceIds.every(id=>id!=='default'&&known.has(id)):
+  (set.kind==='appearance'?!set.equipment&&set.appearanceIds.length>=2&&new Set(set.appearanceIds).size===set.appearanceIds.length&&set.appearanceIds.every(id=>id!=='default'&&known.has(id)):
    set.appearanceIds.length===0&&!!set.equipment&&!!EQUIPMENT_DEFINITIONS[set.equipment.kind]);
  });
 }
