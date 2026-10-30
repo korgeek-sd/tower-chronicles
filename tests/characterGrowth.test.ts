@@ -40,7 +40,7 @@ test('growth sums sources to the server final value and reports non-applied fixt
 test('overview shows actual values, equipment, seals and explicitly pending collection bonuses',()=>{
  const noop=()=>{},props={data:characterGrowthFixture(),nickname:'검증 캐릭터',loading:false,onRetry:noop,onClose:noop,onStats:noop,onEquipment:noop,onSeals:noop,onCollection:noop,onGrowthRecord:noop};
  const html=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,props));
- for(const text of ['성장 현황','검증 캐릭터','42','전투','수호','공격력 구성','컬렉션','영구 적용','전투 능력치에 반영','협회 보급 철검','음식 제외'])assert.ok(html.includes(text),text);
+ for(const text of ['성장 현황','검증 캐릭터','42','전투','수호','공격력 구성','컬렉션','전투 능력치에는 아직 적용되지 않았습니다','협회 보급 철검','음식 제외'])assert.ok(html.includes(text),text);
  assert.match(html,/공격력 43.2 상세 보기/);
  const failed=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,{...props,data:null,error:'조회 실패'}));
  assert.match(failed,/조회 실패/);assert.match(failed,/다시 확인/);assert.doesNotMatch(failed,/Lv\. 1|2,400|최종 능력치/);
