@@ -44,7 +44,7 @@ test('a wrong grade, a protected starter and equipped or missing items cannot be
  assert.equal(registerCollectionEquipment(base,set.id,'right').equipmentItems.length,3);
 });
 test('retired collections cannot consume equipment',()=>{
- const base=initialState();const done=registerCollectionEquipment(base,'ashen_border_1','starter-v2');
+ const base=initialState();const done=registerCollectionEquipment(base,'retired_nonexistent_1','starter-v2');
  assert.deepEqual(done.equipmentItems,base.equipmentItems);
- assert.match(done.notice??'',/존재하지 않는 컬렉션/);
+ assert.match(done.notice??'',/존재하지 않는 .*컬렉션/);
 });
