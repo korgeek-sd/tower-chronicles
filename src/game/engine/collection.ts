@@ -1,10 +1,11 @@
 import type {GameState} from '../types';
 import {APPEARANCE_SETS,collectionEquipmentLabel} from '../data/appearanceSets';
 import {V2_STARTER_EQUIPMENT_ID} from '../data/equipment';
+import {EQUIPMENT_RECORDS,equipmentRecordEntryId} from '../data/recordCollections';
 
 /** Guest-only registration. Online accounts use the server RPC instead. */
 export function registerCollectionEquipment(state:GameState,setId:string,itemId:string):GameState{
- const set=APPEARANCE_SETS.find(s=>s.id===setId);
+ const set=APPEARANCE_SETS.find(s=>s.id===setId)??EQUIPMENT_RECORDS.flatMap(record=>record.equipment.map((equipment,index)=>({id:equipmentRecordEntryId(record,index),equipment}))).find(entry=>entry.id===setId);
  if(!set)return {...state,notice:'존재하지 않는 컬렉션입니다.'};
  if(state.collectionRegisteredItems?.[setId])return {...state,notice:'이미 이 컬렉션에 장비를 등록했습니다.'};
  if(state.expedition)return {...state,notice:'원정 중에는 아이템을 등록할 수 없습니다.'};
