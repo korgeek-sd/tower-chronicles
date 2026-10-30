@@ -6,6 +6,7 @@ import {SKILLS,WEAPONS} from '../../game/data/config';
 import {equippedItem,itemName,stats,weaponOf} from '../../game/engine/state';
 import {APPEARANCES,APPEARANCE_RARITIES,appearanceById,type AppearanceRarity} from '../../game/data/cosmetics';
 import {APPEARANCE_SETS,collectionSetProgress,collectionSetBonusLabel,collectionEquipmentLabel,type AppearanceSet} from '../../game/data/appearanceSets';
+import {RECORD_COLLECTION_SETS} from '../../game/data/recordCollections';
 import './cosmetics-catalog.css';
 import './iron-catalog.css';
 import './compact-appearances.css';
@@ -130,7 +131,7 @@ function CollectionToken({id,owned,mini=false,onOpen}:{id:string;owned:boolean;m
  const props={className:'tc-collection-token '+(owned?'is-owned ':'is-missing ')+'rarity-'+(a?.rarity??'C')+(mini?' is-mini':''),title:(a?.name??id)+' · '+(owned?'보유':'미보유'), 'data-appearance-id':id,'data-rarity':a?.rarity??'C'};
  return onOpen?<button type="button" {...props} aria-label={(a?.name??id)+' · '+(owned?'보유':'미보유')+' 상세 정보'} onClick={e=>{e.stopPropagation();onOpen(id);}}>{content}</button>:<span {...props}>{content}</span>;
 }
-export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord,initialTab='collection',onSummon}:{onSummon?:()=>void;initialTab?:'collection'|'appearance';game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
+export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=false,onServerRecord,initialTab='collection',onSummon,onCollection}:{onSummon?:()=>void;onCollection?:()=>void;initialTab?:'collection'|'appearance';game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;onlineAccount?:boolean;onServerRecord?:(record:CloudSaveRecord,message:string)=>void}){
  const [tab,setTab]=useState<'collection'|'appearance'>(initialTab);
  const [rarity,setRarity]=useState<'ALL'|AppearanceRarity>('ALL');
  const [query,setQuery]=useState('');
@@ -353,7 +354,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
        <button type="button" aria-label={a.name+' 상세 보기'} onClick={()=>{setAppearanceError('');setAppearanceDetails(a.id);}} className={'tc-cosmetics-icon rarity-'+(a.rarity??'default')+(artReady?' has-art':'')}>{artReady?<img src={assetUrl(a.imagePath!)} alt="" loading="lazy"/>:<Glyph name="cosmetics"/>}</button>
        <div className="tc-cosmetics-item-body"><div className="tc-cosmetics-item-title">{a.rarity&&<span className={'tc-cosmetics-grade rarity-'+a.rarity}>{a.rarity}</span>}<button type="button" className="tc-appearance-name" onClick={()=>{setAppearanceError('');setAppearanceDetails(a.id);}}>{a.name}</button></div><div className="tc-appearance-progress" aria-label={a.id==='default'?'기본 외형':a.name+' 강화 및 전용 조각'}><span className="tc-appearance-level">{a.id==='default'?'기본 외형':level===0?'미해금':'강화 Lv.'+level}</span>{a.id!=='default'&&<span className="tc-appearance-shards">보유 조각 {shardCount}개</span>}</div><span>{previewEffect&&a.rarity?'착용 효과 · '+formatAppearanceEquipEffect(previewEffect.id,a.rarity,Math.max(1,level)):'착용 효과 없음'}</span></div>
        <button type="button" className="tc-cosmetics-equip tc-feel-press" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':'착용'}</button>
-       <button type="button" className="tc-appearance-related" onClick={()=>{setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {APPEARANCE_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button>
+       <button type="button" className="tc-appearance-related" onClick={()=>{onCollection?onCollection():(setRelatedAppearance(a.id),changeTab('collection'));}}>관련 컬렉션 {RECORD_COLLECTION_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button>
       </article>;
      })}
      {viewCount===0&&<p className="tc-cosmetics-empty">표시할 항목이 없어.</p>}
@@ -396,7 +397,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
          <button type="button" className="tc-appearance-advance tc-feel-press" disabled={appearanceBusy||shards<cost||!!game.expedition||!onlineLease||!onServerRecord} onClick={()=>{void submitAppearanceAdvance(a.id);}}>{appearanceBusy?'처리 중':level===0?'외형 해금 (조각 5개)':level>=APPEARANCE_MAX_LEVEL?'최대 강화 완료':'Lv.'+(level+1)+' 강화 (조각 10개)'}</button></>}
          {appearanceError&&<p role="alert">{appearanceError}</p>}
        </section>
-       <div className="tc-appearance-detail-actions"><button type="button" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':game.expedition?'원정 중':'착용'}</button><button type="button" onClick={()=>{setAppearanceDetails(null);setRelatedAppearance(a.id);changeTab('collection');}}>관련 컬렉션 {included.length} ›</button></div>
+       <div className="tc-appearance-detail-actions"><button type="button" disabled={!isOwned||isSelected||!!game.expedition||!artReady} onClick={()=>setGame(s=>selectAppearance(s,a.id))}>{isSelected?'착용 중':!isOwned?'미보유':!artReady?'준비 중':game.expedition?'원정 중':'착용'}</button><button type="button" onClick={()=>{setAppearanceDetails(null);onCollection?onCollection():(setRelatedAppearance(a.id),changeTab('collection'));}}>관련 컬렉션 {RECORD_COLLECTION_SETS.filter(s=>s.appearanceIds.includes(a.id)).length} ›</button></div>
       </div>;
      })():<div className="tc-collection-modal-content"><p>{appearanceById(relatedAppearance!)?.name} 외형이 필요한 컬렉션</p><div className="tc-collection-related-list">{related.map(set=><button type="button" key={set.id} onClick={()=>{setRarity('ALL');setStatus('all');setQuery('');setSelectedSetId(set.id);setRelatedAppearance(null);}}><strong>{set.name}</strong><span>{collectionSetBonusLabel(set)} · {collectionSetProgress(set,owned,registeredIds).count}/{set.appearanceIds.length}</span></button>)}</div></div>}
     </section>
