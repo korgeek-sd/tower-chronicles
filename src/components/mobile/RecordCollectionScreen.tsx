@@ -2,7 +2,7 @@ import React,{useEffect,useMemo,useState} from 'react';
 import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
-import {APPEARANCES,appearanceById,type AppearanceRarity} from '../../game/data/cosmetics';
+import {appearanceById,type AppearanceRarity} from '../../game/data/cosmetics';
 import {EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 import {RECORD_COLLECTION_SETS,recordCollectionProgress,recordCollectionRewardLabel,recordEquipmentLabel,recordCollectionBonuses,type RecordKind,type RecordCollectionSet} from '../../game/data/recordCollections';
 import {registerCollectionEquipment} from '../../game/engine/collection';
@@ -48,7 +48,8 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
  const selected=selectedId?RECORD_COLLECTION_SETS.find(set=>set.id===selectedId&&set.kind===kind):undefined;
  const progress=selected?recordCollectionProgress(selected,unlocked,known):null;
  const canRegister=!!selected&&selected.kind==='equipment'&&!known.has(selected.id)&&!game.expedition&&!working&&!loading&&(!onlineAccount||!!onlineLease);
- const candidates=selected?.equipment?game.equipmentItems.filter(item=>item.kind===selected.equipment?.kind&&item.grade===selected.equipment.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id)):[];
+ const requirement=selected?.equipment;
+ const candidates=requirement?game.equipmentItems.filter(item=>item.kind===requirement.kind&&item.grade===requirement.grade&&item.id!=='starter-v2'&&!Object.values(game.equipped).includes(item.id)):[];
  const changeKind=(next:RecordKind)=>{setKind(next);setSelectedId(null);setRarity('ALL');setStatus('all');setQuery('');setItemId('');setError('');};
  const close=()=>{if(!working){setSelectedId(null);setItemId('');setError('');}};
  useEffect(()=>{
@@ -134,7 +135,7 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
       <label htmlFor="tc-record-equipment-select">등록할 장비</label>
       <select id="tc-record-equipment-select" value={itemId} onChange={e=>setItemId(e.target.value)} disabled={!canRegister}>
        <option value="">장비 선택</option>
-       {candidates.map(item=><option key={item.id} value={item.id}>{EQUIPMENT_GRADE_NAMES[item.grade]} {recordEquipmentLabel(selected)} +{item.enhancement}</option>)}
+       {candidates.map(item=><option key={item.id} value={item.id}>{recordEquipmentLabel(selected)} +{item.enhancement}</option>)}
       </select>
       <small>등록하면 장비 1개가 영구 소모됩니다. 장착 중인 장비와 기본 지급 장비는 등록할 수 없습니다.</small>
      </div>
