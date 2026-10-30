@@ -13,7 +13,7 @@ export interface RecordCollectionSet{
 }
 const people=(id:string,name:string,description:string,appearanceIds:string[],stat:AppearanceBonusStat,value:number):RecordCollectionSet=>{
  const ordered:AppearanceRarity[]=['C','B','A','SR','SSR'];
- const rarity=appearanceIds.reduce((best,id)=>{
+ const rarity=appearanceIds.reduce<AppearanceRarity>((best,id)=>{
   const level=APPEARANCES.find(a=>a.id===id)?.rarity??'C';
   return ordered.indexOf(level)>ordered.indexOf(best)?level:best;
  },'C' as AppearanceRarity);
