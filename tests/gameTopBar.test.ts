@@ -7,7 +7,7 @@ import {initialState} from '../src/game/engine/state';
 import {GameTopBar} from '../src/components/mobile/GameTopBar';
 
 test('profile status bar uses live currencies and accessible actions',()=>{
- const game=initialState();game.silver=10444660;game.market.gold=1250;
+ const game=initialState();game.silver=10444660;game.market.gold=1250;game.goldenRecorder.expiresAt=Date.now()+4*86400000;
  const html=renderToStaticMarkup(React.createElement(GameTopBar,{
   nickname:'별명기록자',game,userId:null,lease:null,now:Date.now(),currentPage:'home',unreadMail:4,
   onProfile:()=>{},onShop:()=>{},onPremium:()=>{},onMail:()=>{},onMenu:()=>{}
