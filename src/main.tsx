@@ -1,6 +1,6 @@
 import {HubIcon} from './components/mobile/HubIcon';
 import {mergeServerRecordState} from './online/serverRecordState';
-import {PremiumStatus} from './components/PremiumStatus';
+import {GameTopBar} from './components/mobile/GameTopBar';
 import {PremiumDialog} from './components/PremiumDialog';
 import {BankScreen} from './components/bank/BankScreen';
 import {SkillBooksPage} from './components/skills/SkillBooksPage';
@@ -73,6 +73,7 @@ import './mobile-game.css';
 import './gameFeel/game-feel.css';
 import './game-fonts.css';
 import './components/mobile/moonlit-camp.css';
+import './components/mobile/game-topbar.css';
 import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
 import {GameEntry} from './components/intro/GameEntry';
 
@@ -446,10 +447,13 @@ function App(){
  if(onlineSession&&!profileReady)return <NicknameGate key={onlineSession.userId} status={profileState.userId===onlineSession.userId&&profileState.status!=='ready'?profileState.status:'loading'} error={profileState.error} onRegister={registerPlayerNickname} onReady={profile=>{if(profile.userId===getStoredSession()?.userId)setProfileState({userId:profile.userId,status:'ready',profile,error:''});}} onRetry={()=>setProfileRetry(n=>n+1)} onLogout={()=>void logoutOnline()}/>;
  return <div className={shellClass}>
    {premiumOpen&&<PremiumDialog onlineAccount={!!onlineSession} key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)} game={game} lease={onlineSession&&gameSessionPhase==='active'?gameplayLease:null} onClose={()=>setPremiumOpen(false)} onGuestBuy={nextGame=>{createRepository(gameStorage).save(nextGame);stateRef.current=nextGame;setGame(nextGame);setSaved('프리미엄 구매');}} onPrepare={async()=>{if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}if(cloudBusy.current||serverEconomyBusy.current)throw Error('저장 동기화 중입니다. 다시 열어 주세요.');await runCloudSync();if(gameSessionPhaseRef.current!=='active'||!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))throw Error('플레이 권한을 다시 확인해 주세요.');}} onPending={value=>{const owner='premium:'+(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0);if(value){if(!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))return;huntingBusyOwner.current=owner;}else{if(huntingBusyOwner.current!==owner)return;huntingBusyOwner.current=null;}serverEconomyBusy.current=value;if(value&&cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}}} onRecord={record=>{if(getStoredSession()?.userId!==onlineSession?.userId||gameSessionPhaseRef.current!=='active'||!isHuntingLeaseCurrent(gameplayLease,gameplayLeaseRef.current))return;if(record?.payload){if(onlineSession)rememberCloudRecord(record,onlineSession.userId);createRepository(gameStorage).save(record.payload);stateRef.current=record.payload;setGame(record.payload);setCloudRevision(record.revision);}}}/>}
-  {!immersive&&<><header className="tc-topbar">
-   <button className="tc-brand" onClick={()=>move('home')}><span className="tc-brand-mark"><i>T</i></span><span><b>탑의 기록</b><small>TOWER CHRONICLES</small></span></button>
-   <div className="tc-wallet"><div className="tc-header-funds"><span className="tc-coin" title={game.silver.toLocaleString()+' 실버'}><i/><b>{game.silver.toLocaleString()}</b><small>S</small></span><span className="tc-coin gold" title={game.market.gold.toLocaleString()+' 골드'}><i/><b>{game.market.gold.toLocaleString()}</b><small>G</small></span></div>{(page==='home'||page==='settings')&&<button type="button" className="tc-moonlit-gold-add" aria-label="골드 상점 열기" onClick={()=>move('shop')}>+</button>}<PremiumStatus key={onlineSession?.userId??'guest'} userId={onlineSession?.userId??null} guestExpiresAt={game.goldenRecorder?.expiresAt} now={now} onOpen={()=>setPremiumOpen(true)}/></div>
-  </header><div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div></>}
+  {!immersive&&<>
+   <GameTopBar nickname={playerNickname} game={game} userId={onlineSession?.userId??null}
+    lease={gameSessionPhase==='active'?gameplayLease:null} currentPage={page} now={now} unreadMail={mailUnread}
+    onProfile={()=>move('character')} onShop={()=>move('shop')} onPremium={()=>setPremiumOpen(true)}
+    onMail={()=>setMailOpen(true)} onMenu={()=>move('settings')}/>
+   <div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div>
+  </>}
   {mailOpen&&<MailDialog key={'mail:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} game={game} setGame={setGame} onClose={()=>setMailOpen(false)} onUnread={setMailUnread}/>}
   <main className={page==='hunt'?'tc-main tc-hunt-main':page==='stats'?'tc-main tc-stat-main':page==='skills'?'tc-main tc-skill-tree-main':'tc-main'}>
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
