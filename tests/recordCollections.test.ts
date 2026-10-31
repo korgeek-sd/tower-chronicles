@@ -50,9 +50,24 @@ test('archive mobile UI uses bounded pagination instead of a scrollable list',()
  const tsx=readFileSync('src/components/mobile/RecordCollectionScreen.tsx','utf8');
  const css=readFileSync('src/components/mobile/record-collection.css','utf8');
  assert.match(tsx,/visibleRecords=lists\.slice\(/);
+ assert.match(tsx,/getComputedStyle\(element\)/);
+ assert.match(tsx,/tc-record-entry-rank/);
+ assert.match(tsx,/tc-record-entry-progress/);
+ assert.doesNotMatch(tsx,/EquipmentArt|assetUrl|tc-record-entry-art|tc-record-material-art/);
+ assert.match(css,/--tc-record-row-height:55px/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(67px,25%\) 38px 10px/);
  assert.match(tsx,/ref=\{listRef\}/);
  assert.match(tsx,/aria-label="다음 컬렉션 페이지"/);
  assert.doesNotMatch(tsx,/className="sr-only">컬렉션 검색/);
  assert.match(css,/\.tc-record-list\{[^}]*overflow:hidden!important/);
  assert.match(css,/\.tc-record-screen>\.tc-screen-body\{[^}]*overflow:hidden/);
+});
+
+test('collection rows are image-free and retain real progress and rewards',()=>{
+ const html=renderToStaticMarkup(React.createElement(RecordCollectionScreen,{game:initialState(),setGame:()=>{}}));
+ assert.ok(html.includes('끝나지 않은 충성'));
+ assert.ok(html.includes('방어력 +1'));
+ assert.ok(html.includes('0 / 2'));
+ assert.match(html,/tc-record-sigil/);
+ assert.doesNotMatch(html,/<img\b|tc-record-entry-art|tc-record-material-art/);
 });

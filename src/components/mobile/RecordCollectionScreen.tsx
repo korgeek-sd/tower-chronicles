@@ -3,12 +3,9 @@ import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import {appearanceById,type AppearanceRarity} from '../../game/data/cosmetics';
-import {EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
-import {RECORD_COLLECTION_SETS,recordCollectionProgress,recordCollectionRewardLabel,recordEquipmentLabel,recordCollectionBonuses,type RecordKind,type RecordCollectionSet} from '../../game/data/recordCollections';
+import {RECORD_COLLECTION_SETS,recordCollectionProgress,recordCollectionRewardLabel,recordEquipmentLabel,recordCollectionBonuses,type RecordKind} from '../../game/data/recordCollections';
 import {registerCollectionEquipment} from '../../game/engine/collection';
 import {getCollectionEquipmentRegistrations,registerOnlineCollectionEquipment} from '../../online/collection';
-import {EquipmentArt} from '../inventory/EquipmentArt';
-import {assetUrl} from '../../game/data/graphics';
 import {Glyph,Screen} from '../../ui/mobile';
 import './record-collection.css';
 
@@ -26,12 +23,18 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
  // A bounded, page-based collection list: no scrolling in the game viewport.
  const listRef=useRef<HTMLDivElement|null>(null);
  const [page,setPage]=useState(0);
- const [pageSize,setPageSize]=useState(2);
+ const [pageSize,setPageSize]=useState(7);
  useEffect(()=>{
   const element=listRef.current;
   if(!element)return;
-  // 72px entry + 4px gap; leave a little tolerance for fractional device pixels.
-  const measure=()=>setPageSize(Math.max(1,Math.min(5,Math.floor((element.clientHeight+4)/76))));
+  // Match the real CSS row and gap sizes so cards never overflow on short devices.
+  const measure=()=>{
+   const style=getComputedStyle(element);
+   const rowHeight=parseFloat(style.getPropertyValue('--tc-record-row-height'))||54;
+   const gap=parseFloat(style.rowGap)||4;
+   const size=Math.max(1,Math.min(10,Math.floor((element.clientHeight+gap)/(rowHeight+gap))));
+   setPageSize(previous=>previous===size?previous:size);
+  };
   measure();
   if(typeof ResizeObserver==='undefined')return;
   const observer=new ResizeObserver(measure);
@@ -125,22 +128,19 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
    <div ref={listRef} className="tc-record-list" role="list" aria-label={kind==='appearance'?'인물의 기록 목록':'유물의 기록 목록'}>
     {visibleRecords.map(set=>{
      const p=recordCollectionProgress(set,unlocked,known);
-     const portrait=set.kind==='appearance'?appearanceById(set.appearanceIds[0]):null;
      return <button type="button" role="listitem" className={'tc-record-entry tc-record-entry-'+set.rarity+(p.complete?' is-complete':'')} key={set.id} onClick={()=>{setSelectedId(set.id);setItemId('');setError('');}}>
-      <span className="tc-record-entry-art" aria-hidden="true">
-       {portrait?.imagePath?<img src={assetUrl(portrait.imagePath)} alt=""/>:set.equipment?<EquipmentArt kind={set.equipment.kind} grade={set.equipment.grade}/>:<Glyph name="cosmetics"/>}
-       <span className="tc-record-entry-crest">{set.kind==='appearance'?'✣':'✦'}</span>
+      <span className="tc-record-entry-identity">
+       <span className="tc-record-sigil" aria-hidden="true">✧</span>
+       <span className={'tc-record-entry-rank rarity-'+set.rarity}>{set.rarity}</span>
+       <span className="tc-record-entry-info">
+        <strong>{set.name}</strong>
+        <small>{set.description}</small>
+       </span>
       </span>
-      <span className="tc-record-entry-info">
-       <strong>{set.name}</strong>
-       <span className="tc-record-entry-description">{set.description}</span>
-       <small className={'tc-record-rarity-tag rarity-'+set.rarity}>{set.rarity}</small>
-      </span>
-      <span className="tc-record-entry-reward">
-       <small>완성 보너스</small>
-       <strong>{recordCollectionRewardLabel(set)}</strong>
-       <span className="tc-record-progress"><i><span style={{width:100*p.count/p.total+'%'}}/></i><b>{p.count}/{p.total}</b></span>
-       <small className={p.complete?'tc-record-done':'tc-record-not-done'}>{p.complete?'✥ 기록 완성':'기록 미완성'}</small>
+      <span className="tc-record-entry-reward">{recordCollectionRewardLabel(set)}</span>
+      <span className="tc-record-entry-progress">
+       <b>{p.count} / {p.total}</b>
+       {p.complete&&<small>완성</small>}
       </span>
       <span className="tc-record-entry-arrow" aria-hidden="true">›</span>
      </button>;
@@ -159,17 +159,17 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
     <p>{selected.description}</p>
     <div className="tc-record-dialog-reward"><span>{progress.complete?'적용 중인 영구 효과':'완성 시 영구 효과'}</span><strong>{recordCollectionRewardLabel(selected)}</strong></div>
     <div className="tc-record-detail-head"><strong>등록 조건</strong><span>{progress.count} / {progress.total}</span></div>
-    <div className="tc-record-materials">
+    <div className="tc-record-materials" aria-label="기록 완성에 필요한 항목">
      {selected.appearanceIds.map(id=>{
       const appearance=appearanceById(id),owned=unlockedSet.has(id);
       return <div className={'tc-record-material'+(owned?' is-owned':'')} key={id}>
-       <div className="tc-record-material-art">{appearance?.imagePath?<img src={assetUrl(appearance.imagePath)} alt=""/>:<span>?</span>}</div>
-       <span>{appearance?.name??id}</span><small>{owned?'자동 등록 완료':'미해금'}</small>
+       <span className="tc-record-material-name">{appearance?.name??id}</span>
+       <small>{owned?'✓ 해금 완료':'미해금'}</small>
       </div>;
      })}
      {selected.equipment&&<div className={'tc-record-material'+(known.has(selected.id)?' is-owned':'')}>
-      <div className="tc-record-material-art"><EquipmentArt kind={selected.equipment.kind} grade={selected.equipment.grade}/></div>
-      <span>{recordEquipmentLabel(selected)}</span><small>{known.has(selected.id)?'등록 완료':'장비 1개 필요'}</small>
+      <span className="tc-record-material-name">{recordEquipmentLabel(selected)}</span>
+      <small>{known.has(selected.id)?'✓ 등록 완료':'장비 1개 필요'}</small>
      </div>}
     </div>
     {selected.kind==='equipment'&&!known.has(selected.id)&&<>
