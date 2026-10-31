@@ -101,11 +101,9 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
     {featured?.imagePath?
      <div className="tc-summon-pickup-figure"><img src={assetUrl(featured.imagePath)} alt={featured.name+' 외형'} draggable={false}/></div>:
      <p className="tc-summon-pickup-placeholder" role="status">{pickupError?'픽업 정보를 불러오지 못했습니다.':'이번 주 픽업 확인 중…'}</p>}
-    <span className="tc-summon-preview-note">{featured?'개별 확률 0.1% · 매주 월요일 00:00 변경':'SSR 전체 확률 0.2%'}</span>
    </section>
    <section className="tc-summon-feature" aria-live="polite">
     <small>WEEKLY SSR PICKUP</small><h2>{featured?.name??'주간 SSR 픽업'}</h2>
-    <div><span>{featured?'픽업 0.1%':'서버 확인 중'}</span><b>SSR 전체 0.2% · 조각 5개 해금</b></div>
    </section>
    <footer className="tc-summon-footer" aria-label="외형 소환 및 보유 소환권">
    <div className="tc-summon-wallet"><div><Glyph name="gold"/><span>보유 골드<b>{game.market.gold.toLocaleString()}</b></span></div><div><Glyph name="ticket"/><span>외형 소환권<b>{appearanceSummonTickets(game).toLocaleString()}장</b></span></div></div>

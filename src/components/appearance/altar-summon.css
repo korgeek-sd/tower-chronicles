@@ -171,3 +171,15 @@
 .tc-weekly-ssr-rate small{font-size:10px;color:#ddc6a3}
 @media(max-height:700px){.tc-screen.tc-altar-summon-screen .tc-appearance-summon{grid-template-rows:40px minmax(0,1fr) 43px auto}.tc-summon-pickup-figure{inset:27px 12px 22px}.tc-screen.tc-altar-summon-screen .tc-summon-feature{height:43px}}
 @media(max-width:360px){.tc-screen.tc-altar-summon-screen .tc-summon-feature>div{font-size:8px;gap:4px}.tc-summon-pickup-figure{inset:31px 8px 24px}}
+
+
+/* Weekly pickup main panel: no repeated probability or refresh notices.
+   Keep the full probability disclosure in the existing rates dialog only. */
+.tc-screen.tc-altar-summon-screen .tc-appearance-summon{grid-template-rows:44px minmax(0,1fr) 38px auto}
+.tc-screen.tc-altar-summon-screen .tc-summon-feature{height:38px;gap:2px}
+.tc-summon-pickup-figure{bottom:10px}
+@media(max-height:700px){
+ .tc-screen.tc-altar-summon-screen .tc-appearance-summon{grid-template-rows:40px minmax(0,1fr) 36px auto}
+ .tc-screen.tc-altar-summon-screen .tc-summon-feature{height:36px}
+ .tc-summon-pickup-figure{bottom:9px}
+}

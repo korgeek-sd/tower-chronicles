@@ -13,7 +13,8 @@ test('weekly SSR showcase shows server-owned pickup and safe disabled actions fo
  assert.match(html,/이번 주 픽업 확인 중/);
  assert.doesNotMatch(html,/class="tc-summon-figure |기존 캐릭터 이미지 미리보기/);
  assert.ok(html.includes('외형 소환'));
- assert.ok(html.includes('SSR 전체 0.2%'));
+ assert.ok(html.includes('WEEKLY SSR PICKUP'));
+ assert.doesNotMatch(html,/개별 확률 0\.1%|픽업 0\.1%|조각 5개 해금|매주 월요일 00:00 변경/);
  assert.ok(html.includes('1회 소환'));
  assert.ok(html.includes('10회 소환'));
  assert.ok(html.includes('disabled=""'));

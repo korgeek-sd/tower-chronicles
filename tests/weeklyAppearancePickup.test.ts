@@ -20,7 +20,10 @@ test('summon stage shows server weekly pickup rather than unrelated job carousel
  assert.doesNotMatch(source,/showcase|setFocus|tc-altar-prev|기존 캐릭터 이미지 미리보기/);
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game:initialState(),onList:()=>{}}));
  assert.match(html,/이번 주 SSR 픽업/);
- assert.match(html,/서버 확인 중/);
+ assert.match(html,/주간 SSR 픽업/);
+ assert.doesNotMatch(html,/개별 확률 0\.1%|픽업 0\.1%|조각 5개 해금|매주 월요일 00:00 변경/);
+ assert.match(source,/panel==='rates'/);
+ assert.match(source,/픽업 외형 개별 확률/);
 });
 
 test('weekly SSR portrait fits inside its bounded altar frame without grid intrinsic overflow',()=>{
