@@ -4,10 +4,9 @@ import {APPEARANCE_SUMMON_GOLD_PRICE,APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT,appe
 import type {GameState} from '../../game/types';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import type {GameplayLease} from '../../online/gameSession';
-import {getAppearanceSummonHistory,summonAppearances,type AppearanceSummonDraw,type AppearanceSummonHistoryEntry} from '../../online/appearanceSummon';
+import {getAppearanceSummonHistory,getWeeklyAppearancePickup,summonAppearances,type WeeklyAppearancePickup,type AppearanceSummonDraw,type AppearanceSummonHistoryEntry} from '../../online/appearanceSummon';
 import {APPEARANCES} from '../../game/data/cosmetics';
 import {APPEARANCE_SUMMON_RATES} from '../../game/data/appearanceSummonRates';
-import {jobById} from '../../game/jobs/catalog';
 import {assetUrl} from '../../game/data/graphics';
 import {Glyph,Screen,Segments} from '../../ui/mobile';
 import './appearance-summon.css';
@@ -17,10 +16,8 @@ import {playSummonRequest,unlockSsrSound} from './ssrSound';
 import {AppearanceSummonResultView} from './AppearanceSummonResultView';
 export {AppearanceSummonResultView} from './AppearanceSummonResultView';
 
-// Existing artwork previews only: these are not summon rewards or appearance IDs.
-const showcase=['relic_collector','lantern_keeper','expedition_medic'].map(id=>jobById(id)!);
 export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lease=null,onPrepare,onPending,onRecord,onEquip}:{game:GameState;onList:()=>void;onCollection?:()=>void;userId?:string|null;lease?:GameplayLease|null;onPrepare?:()=>Promise<void>;onPending?:(busy:boolean)=>void;onRecord?:(record:CloudSaveRecord)=>void;onEquip?:(id:string)=>void}){
- const [focus,setFocus]=useState(1),[panel,setPanel]=useState<'history'|'rates'|'results'|null>(null);
+ const [panel,setPanel]=useState<'history'|'rates'|'results'|null>(null);
  const [busy,setBusy]=useState(false),[status,setStatus]=useState(''),[draws,setDraws]=useState<AppearanceSummonDraw[]>([]);
  const [history,setHistory]=useState<AppearanceSummonHistoryEntry[]>([]);
  const [lastPayment,setLastPayment]=useState({ticketsSpent:0,goldSpent:0});
@@ -28,7 +25,25 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
  const [animateSSR,setAnimateSSR]=useState(false);
  const [resultError,setResultError]=useState('');
  const pendingRequest=useRef<{id:string;rolls:1|10}|null>(null);
- const modal=useRef<HTMLElement>(null),selected=showcase[focus];
+ const modal=useRef<HTMLElement>(null);
+ const [weeklyPickup,setWeeklyPickup]=useState<WeeklyAppearancePickup|null>(null);
+ const [pickupError,setPickupError]=useState(false);
+ const featured=APPEARANCES.find(appearance=>appearance.id===weeklyPickup?.id&&appearance.rarity==='SSR');
+ const others=Math.max(0,(weeklyPickup?.ssrCount??0)-1);
+ useEffect(()=>{
+  let mounted=true;
+  const refresh=async()=>{
+   try{
+    const value=await getWeeklyAppearancePickup();
+    if(mounted){setWeeklyPickup(value);setPickupError(false);}
+   }catch{
+    if(mounted){setWeeklyPickup(null);setPickupError(true);}
+   }
+  };
+  void refresh();
+  const interval=window.setInterval(()=>{void refresh();},60000);
+  return()=>{mounted=false;window.clearInterval(interval);};
+ },[]);
  const available=!!userId&&!!lease;
 
  useEffect(()=>{for(const path of ['assets/vfx/summon/seal-stone-cracks-v5-60f.webp','assets/vfx/summon/seal-stone-dissolve-v2-60f.webp','assets/vfx/summon/seal-rune-mask-v2.webp',...['seal-chamber','seal-flare'].map(name=>'assets/vfx/summon/'+name+'-v1.webp')]){const texture=new Image();texture.src=assetUrl(path);}},[]);
@@ -80,12 +95,18 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
  return <Screen title="외형 소환" eyebrow="APPEARANCE SUMMON" className="tc-appearance-summon-screen tc-iron-summon-screen tc-altar-summon-screen">
   <div className="tc-appearance-summon">
    <Segments items={[['summon','외형 소환'],['list','외형 목록']] as const} value="summon" onChange={value=>{if(value==='list')onList();}} label="외형 메뉴"/>
-   <section className="tc-summon-stage" aria-label="캐릭터 외형 미리보기">
-    <img className="tc-altar-background" src={assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')} alt=""/><p className="tc-altar-title">잊힌 기록을 부르다</p>
-    <div className="tc-summon-figures">{showcase.map((figure,index)=><button type="button" key={figure.id} className={'tc-summon-figure '+(index===focus?'is-focused':'')} aria-pressed={index===focus} aria-label={figure.displayName+' 이미지 미리보기'} onClick={()=>setFocus(index)}>{figure.visualAssetKey&&<img src={assetUrl(figure.visualAssetKey)} alt="" draggable={false}/>}<span>{figure.displayName}</span></button>)}</div>
-    <button type="button" className="tc-altar-prev" aria-label="이전 외형 미리보기" onClick={()=>setFocus(v=>(v+showcase.length-1)%showcase.length)}>‹</button><button type="button" className="tc-altar-next" aria-label="다음 외형 미리보기" onClick={()=>setFocus(v=>(v+1)%showcase.length)}>›</button><span className="tc-summon-preview-note">기존 캐릭터 이미지 미리보기</span>
+   <section className="tc-summon-stage" aria-label="이번 주 SSR 픽업 외형">
+    <img className="tc-altar-background" src={assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')} alt=""/>
+    <p className="tc-altar-title">이번 주 SSR 픽업</p>
+    {featured?.imagePath?
+     <div className="tc-summon-pickup-figure"><img src={assetUrl(featured.imagePath)} alt={featured.name+' 외형'} draggable={false}/></div>:
+     <p className="tc-summon-pickup-placeholder" role="status">{pickupError?'픽업 정보를 불러오지 못했습니다.':'이번 주 픽업 확인 중…'}</p>}
+    <span className="tc-summon-preview-note">{featured?'개별 확률 0.1% · 매주 월요일 00:00 변경':'SSR 전체 확률 0.2%'}</span>
    </section>
-   <section className="tc-summon-feature" aria-live="polite"><small>APPEARANCE PREVIEW</small><h2>{selected.displayName}</h2><div><span>착용 효과</span><b>조각 5개 해금 · 강화마다 10개</b></div></section>
+   <section className="tc-summon-feature" aria-live="polite">
+    <small>WEEKLY SSR PICKUP</small><h2>{featured?.name??'주간 SSR 픽업'}</h2>
+    <div><span>{featured?'픽업 0.1%':'서버 확인 중'}</span><b>SSR 전체 0.2% · 조각 5개 해금</b></div>
+   </section>
    <footer className="tc-summon-footer" aria-label="외형 소환 및 보유 소환권">
    <div className="tc-summon-wallet"><div><Glyph name="gold"/><span>보유 골드<b>{game.market.gold.toLocaleString()}</b></span></div><div><Glyph name="ticket"/><span>외형 소환권<b>{appearanceSummonTickets(game).toLocaleString()}장</b></span></div></div>
    <div className="tc-summon-actions"><button type="button" disabled={!available||busy||game.market.gold<onePayment.goldSpent} onClick={()=>{void summon(1);}}><strong>1회 소환</strong><small>{paymentLabel(onePayment)}</small></button><button type="button" disabled={!available||busy||game.market.gold<tenPayment.goldSpent} onClick={()=>{void summon(10);}}><strong>10회 소환</strong><small>{paymentLabel(tenPayment)}{tenPayment.goldSpent>0?' · '+APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT+'% 할인':''}</small></button></div>
@@ -96,7 +117,9 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
   {panel&&<div className="tc-summon-modal-backdrop" role="presentation" onClick={()=>{if(!busy)setPanel(null);}}>
    <section ref={modal} tabIndex={-1} className={'tc-summon-modal'+(panel==='results'?' tc-summon-result-modal':'')} role="dialog" aria-modal="true" aria-labelledby="summon-modal-title" onClick={e=>e.stopPropagation()}>
     {panel!=='results'&&<header><h2 id="summon-modal-title">{panel==='history'?'소환 기록':'등급별 확률'}</h2><button type="button" aria-label="닫기" onClick={()=>setPanel(null)}>×</button></header>}
-    {panel==='rates'&&<><p>1회 {APPEARANCE_SUMMON_GOLD_PRICE.single} G / 10회 {APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G ({APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인)</p><div className="tc-summon-rate-table">{APPEARANCE_SUMMON_RATES.map(rate=><div key={rate.rarity}><b>{rate.rarity}</b><span>{rate.basisPoints/100}%</span></div>)}</div><p>각 소환마다 해당 외형 전용 조각 1개를 획득합니다. 해금 5개, 강화마다 10개, 최대 Lv.5입니다. 확정 지급과 천장은 없습니다.</p></>}
+    {panel==='rates'&&<><p>1회 {APPEARANCE_SUMMON_GOLD_PRICE.single} G / 10회 {APPEARANCE_SUMMON_GOLD_PRICE.ten.toLocaleString('ko-KR')} G ({APPEARANCE_SUMMON_TEN_DISCOUNT_PERCENT}% 할인)</p><div className="tc-summon-rate-table">{APPEARANCE_SUMMON_RATES.map(rate=><div key={rate.rarity}><b>{rate.rarity}</b><span>{rate.basisPoints/100}%</span></div>)}</div><div className="tc-weekly-ssr-rate"><strong>이번 주 SSR 픽업: {featured?.name??'확인 중'}</strong>
+     {featured?<><span>픽업 외형 개별 확률 {weeklyPickup?.pickupRatePercent}%</span><small>나머지 SSR {others}종은 각각 약 {others>0?((0.2-(weeklyPickup?.pickupRatePercent??0.1))/others).toFixed(6):'0'}%</small><small>다음 갱신: {weeklyPickup?.nextWeekStartKst} 00:00 (한국시간)</small></>:<small>서버에서 주간 픽업을 확인하고 있습니다.</small>}</div>
+     <p>SSR 전체 등장 확률은 0.2%입니다. 픽업은 매주 월요일 00:00(한국시간) 변경됩니다. 각 소환마다 해당 외형 전용 조각 1개를 획득합니다. 해금 5개, 강화마다 10개, 최대 Lv.5입니다. 확정 지급과 천장은 없습니다.</p></>}
     {panel==='results'&&<AppearanceSummonResultView key={resultVersion} animateSSR={animateSSR} draws={draws} payment={lastPayment} repeatPayment={appearanceSummonPayment(draws.length===10?10:1,ownedTickets)} canRepeat={available&&game.market.gold>=appearanceSummonPayment(draws.length===10?10:1,ownedTickets).goldSpent} busy={busy} selectedAppearanceId={game.cosmetics.selectedAppearanceId} ownedAppearanceIds={game.cosmetics.unlockedAppearanceIds} expedition={!!game.expedition} onRepeat={()=>{void summon(draws.length===10?10:1);}} onClose={()=>setPanel(null)} onList={()=>{setPanel(null);onList();}} onEquip={onEquip} error={resultError}/>}
 
     {panel==='history'&&(!history.length?<p>저장된 소환 기록이 없습니다.</p>:<div className="tc-summon-history">{history.map((entry,index)=><div key={index}><small>{new Date(entry.at).toLocaleString('ko-KR')} · {resultPayment(entry.ticketsSpent,entry.goldSpent)}</small><p>{entry.draws.map(draw=>draw.rarity+' '+(names.get(draw.id)??draw.id)).join(' · ')}</p></div>)}</div>)}

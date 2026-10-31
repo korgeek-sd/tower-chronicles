@@ -43,3 +43,25 @@ export function summonAppearances(lease:GameplayLease,userId:string,requestId:st
 export function getAppearanceSummonHistory(lease:GameplayLease,userId:string){
  return rpc<AppearanceSummonHistory>('get_appearance_summon_history',lease,userId);
 }
+
+export interface WeeklyAppearancePickup{
+ id:string;weekStartKst:string;nextWeekStartKst:string;ssrCount:number;
+ ssrRatePercent:number;pickupRatePercent:number;
+}
+export async function getWeeklyAppearancePickup():Promise<WeeklyAppearancePickup>{
+ if(!supabaseConfig)throw Error('온라인 접속 설정이 필요합니다.');
+ const response=await fetch(supabaseConfig.url+'/rest/v1/rpc/get_weekly_appearance_pickup',{
+  method:'POST',cache:'no-store',
+  headers:{apikey:supabaseConfig.publishableKey,'Content-Type':'application/json'},
+  body:'{}',
+ });
+ if(!response.ok)throw Error('주간 SSR 픽업 정보를 불러오지 못했습니다.');
+ const data:unknown=await response.json();
+ if(!data||typeof data!=='object'||Array.isArray(data))throw Error('주간 SSR 픽업 응답이 올바르지 않습니다.');
+ const info=data as Record<string,unknown>;
+ if(typeof info.id!=='string'||!info.id||typeof info.weekStartKst!=='string'||
+    typeof info.nextWeekStartKst!=='string'||typeof info.ssrCount!=='number'||
+    info.ssrCount<1||info.ssrRatePercent!==0.2||typeof info.pickupRatePercent!=='number')
+  throw Error('주간 SSR 픽업 응답을 검증하지 못했습니다.');
+ return info as unknown as WeeklyAppearancePickup;
+}
