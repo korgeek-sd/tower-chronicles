@@ -98,22 +98,16 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
  }
  return <Screen title="기록의 서고" className="tc-record-screen" hideHeader>
   <div className="tc-record-root">
-   <header className="tc-record-header">
-    <div className="tc-record-header-art" aria-hidden="true"><span>✥</span><span>✦</span></div>
-    <div className="tc-record-heading">
-     <small>THE ARCHIVE OF THE TOWER</small>
-     <h1>기록의 서고</h1>
-     <p>잊힌 이름도, 사라진 이야기도 이곳에 다시 기록된다.</p>
-    </div>
-    {onAppearances&&<button className="tc-record-appearance-link" type="button" onClick={onAppearances}><Glyph name="cosmetics"/> 외형 목록 <span aria-hidden="true">›</span></button>}
-   </header>
    <div className="tc-record-summary" aria-label="컬렉션 달성 현황">
     <div className="tc-record-completion">
      <span className="tc-record-summary-mark" aria-hidden="true"><Glyph name="bestiary"/></span>
      <span className="tc-record-completion-copy">완성한 기록 <strong>{completed}<small> / {RECORD_COLLECTION_SETS.length}</small></strong></span>
     </div>
     <div className="tc-record-summary-attributes">
-     <span>누적 능력치</span>
+     <div className="tc-record-summary-heading">
+      <span>누적 능력치</span>
+      {onAppearances&&<button className="tc-record-appearance-link" type="button" onClick={onAppearances}><Glyph name="cosmetics"/> 외형 목록 <span aria-hidden="true">›</span></button>}
+     </div>
      <div><span><Glyph name="sword"/> 공격 <strong>+{totals.attack}</strong></span><span><Glyph name="defense"/> 방어 <strong>+{totals.defense}</strong></span><span><Glyph name="health"/> HP <strong>+{totals.hp}</strong></span></div>
     </div>
    </div>
@@ -158,7 +152,6 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
     <span><b>{activePage+1}</b> / {pageCount}<small>전체 {lists.length}개 기록</small></span>
     <button type="button" disabled={activePage>=pageCount-1} onClick={()=>setPage(activePage+1)} aria-label="다음 컬렉션 페이지">다음 ›</button>
    </div>
-   <footer className="tc-record-footnote"><span aria-hidden="true">ⓘ</span> 인물 자동 등록 · 유물은 장비 소모 · 보너스 영구 적용</footer>
   </div>
   {selected&&progress&&<div className="tc-record-overlay" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)close();}}>
    <section className="tc-record-dialog" role="dialog" aria-modal="true" aria-label="기록 상세 정보">

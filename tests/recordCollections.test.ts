@@ -29,7 +29,12 @@ test('legacy equipment registration counts without re-registering or duplicating
 });
 test('record UI displays tabs, completion conditions and active categories',()=>{
  const html=renderToStaticMarkup(React.createElement(RecordCollectionScreen,{game:initialState(),setGame:()=>{}}));
- for(const text of ['기록의 서고','인물의 기록','유물의 기록','자동 등록','영구 적용','끝나지 않은 충성','완성한 기록'])assert.ok(html.includes(text),text);
+ for(const text of ['인물의 기록','유물의 기록','끝나지 않은 충성','완성한 기록','누적 능력치'])assert.ok(html.includes(text),text);
+ assert.doesNotMatch(html,/THE ARCHIVE OF THE TOWER|잊힌 이름도, 사라진 이야기도|인물 자동 등록 · 유물은 장비 소모/);
+ assert.doesNotMatch(html,/tc-record-header|tc-record-footnote/);
+ const withAppearanceLink=renderToStaticMarkup(React.createElement(RecordCollectionScreen,{game:initialState(),setGame:()=>{},onAppearances:()=>{}}));
+ assert.match(withAppearanceLink,/tc-record-summary-heading/);
+ assert.match(withAppearanceLink,/외형 목록/);
  assert.match(html,/aria-label="인물의 기록 목록"/);
  assert.doesNotMatch(html,/record_relic_armor/);
 });
