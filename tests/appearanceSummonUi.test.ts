@@ -6,12 +6,14 @@ import {readFileSync} from 'node:fs';
 import {AppearanceSummonScreen} from '../src/components/appearance/AppearanceSummonScreen';
 import {initialState} from '../src/game/engine/state';
 
-test('summon showcase has three existing sprites and safe disabled actions for guests',()=>{
+test('weekly SSR showcase shows server-owned pickup and safe disabled actions for guests',()=>{
  const game=initialState(),before=JSON.stringify(game);
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game,onList:()=>{}}));
- assert.equal((html.match(/class="tc-summon-figure /g)??[]).length,3);
+ assert.match(html,/aria-label="이번 주 SSR 픽업 외형"/);
+ assert.match(html,/이번 주 픽업 확인 중/);
+ assert.doesNotMatch(html,/class="tc-summon-figure |기존 캐릭터 이미지 미리보기/);
  assert.ok(html.includes('외형 소환'));
- assert.ok(html.includes('착용 효과'));
+ assert.ok(html.includes('SSR 전체 0.2%'));
  assert.ok(html.includes('1회 소환'));
  assert.ok(html.includes('10회 소환'));
  assert.ok(html.includes('disabled=""'));
@@ -36,10 +38,14 @@ test('iron summon footer keeps the real ticket balance and disabled actions with
  assert.equal(JSON.stringify(game),before);
 });
 
-test('altar layout has a dedicated backdrop and accessible preview navigation',()=>{
+test('altar layout has a dedicated backdrop and exposes weekly SSR preview without stale carousel',()=>{
  const html=renderToStaticMarkup(React.createElement(AppearanceSummonScreen,{game:initialState(),onList:()=>{}}));
  assert.match(html,/tc-altar-summon-screen/);assert.match(html,/summon-altar-v1.webp/);
- assert.match(html,/aria-label="이전 외형 미리보기"/);assert.match(html,/aria-label="다음 외형 미리보기"/);
+ assert.match(html,/aria-label="이번 주 SSR 픽업 외형"/);
+ assert.doesNotMatch(html,/aria-label="이전 외형 미리보기"|aria-label="다음 외형 미리보기"/);
+ const source=readFileSync('src/components/appearance/AppearanceSummonScreen.tsx','utf8');
+ assert.match(source,/getWeeklyAppearancePickup/);
+ assert.match(source,/tc-summon-pickup-figure/);
 });
 
 test('confirmed summon prices are displayed with no guarantee, pity, or shard conversion',()=>{
