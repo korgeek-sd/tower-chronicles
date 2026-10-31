@@ -16,6 +16,7 @@ test('profile status bar uses live currencies and accessible actions',()=>{
   assert.ok(html.includes(token),token);
  assert.match(html,/성장 현황/);
  assert.match(html,/tc-v2-xp/);
+ assert.match(html,/tc-v2-level-row/);
  assert.doesNotMatch(html,/Lv\.78|58\.7%/);
 });
 
@@ -32,4 +33,15 @@ test('topbar routes existing actions and uses actual server growth status',()=>{
  assert.match(css,/max-width:390px/);
  assert.match(css,/max-width:350px/);
  assert.doesNotMatch(css,/padding-top:\s*env\(safe-area-inset-top/);
+});
+
+
+test('concept 2 refinement displays actual XP percentage and compact phone controls',()=>{
+ const screen=readFileSync('src/components/mobile/GameTopBar.tsx','utf8');
+ const css=readFileSync('src/components/mobile/game-topbar.css','utf8');
+ assert.match(screen,/xp\+'%'/);
+ assert.match(screen,/tc-v2-xp-percent/);
+ assert.match(css,/grid-template-columns:minmax\(0,1\.1fr\) minmax\(0,1fr\) 60px 68px/);
+ assert.match(css,/clip-path:polygon\(0 0,100% 0,100% 88%,50% 100%,0 88%\)/);
+ assert.match(css,/\.tc-v2-tools button\{[^}]*min-height:42px/);
 });

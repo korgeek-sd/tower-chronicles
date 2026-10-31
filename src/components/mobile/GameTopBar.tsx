@@ -45,7 +45,7 @@ export function GameTopBar({nickname,game,userId,lease,now,currentPage,unreadMai
  return <header className="tc-topbar tc-topbar-profile-v2" aria-label="캐릭터 및 재화 상태">
   <button className="tc-v2-profile" type="button" onClick={onProfile} aria-label={'성장 현황 열기 · '+name+(progress?' 레벨 '+progress.level:'')}>
    <span className="tc-v2-portrait">{art?<img src={assetUrl(art)} alt=""/>:<Glyph name="cosmetics"/>}</span>
-   <span className="tc-v2-identity"><strong className="tc-v2-nickname">{name}</strong><small>{progress?'Lv.'+progress.level:'성장 현황'}</small>
+   <span className="tc-v2-identity"><strong className="tc-v2-nickname">{name}</strong><span className="tc-v2-level-row"><small>{progress?'Lv.'+progress.level:'성장 현황'}</small><small className="tc-v2-xp-percent">{progress?(progress.nextExp===0?'MAX':xp+'%'):''}</small></span>
     <span className="tc-v2-xp" role="progressbar" aria-label="캐릭터 경험치" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress?xp:undefined} aria-valuetext={experienceText}><i style={{width:xp+'%'}}/></span>
    </span>
   </button>
