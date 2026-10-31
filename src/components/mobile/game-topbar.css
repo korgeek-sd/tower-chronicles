@@ -1,221 +1,132 @@
-/* Selected top HUD concept 2: character profile, live growth, currencies and premium. */
-.tc-app:has(>.tc-topbar-profile-v2){--top:60px}
-.tc-app .tc-topbar.tc-topbar-profile-v2{
- height:var(--top);min-width:0;display:grid;
- grid-template-columns:minmax(0,1.14fr) minmax(0,.94fr) 67px 55px;
- gap:5px;align-items:center;padding:5px 7px;
- border:0;border-bottom:1px solid #ad8550;
- background:linear-gradient(90deg,#15120f,#32261b 55%,#18140f);
- box-shadow:inset 0 2px #795934,inset 0 -2px #0a0907,0 2px 8px #000a
+/* Tower Chronicles premium status bar, concept 1: ornate ribbon and living balances.
+   Artwork: compact sprite cropped from the approved UI concept; all values remain DOM text. */
+.tc-app:has(>.tc-topbar-tapestry){--top:clamp(72px,20vw,86px)}
+.tc-app .tc-topbar.tc-topbar-tapestry{
+ position:relative;z-index:8;height:var(--top);min-width:0;
+ display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,1.04fr) minmax(0,.92fr) 47px;
+ align-items:center;column-gap:2px;padding:5px 7px 4px;
+ border:2px solid #a77740;border-bottom:3px ridge #d5a365;
+ background:radial-gradient(ellipse at 23% 5%,#73432938,transparent 58%),linear-gradient(180deg,#302015 0%,#100e0c 22%,#15100e 75%,#0b0b0d 100%);
+ box-shadow:inset 0 0 0 1px #edba6d,inset 0 0 0 3px #36200f,0 2px 9px #000b;
+ overflow:visible;isolation:isolate
 }
-.tc-topbar-profile-v2 button:focus-visible{outline:2px solid #f8d38d;outline-offset:-2px}
-.tc-topbar-profile-v2 .tc-v2-profile{
- display:flex;gap:5px;align-items:center;height:100%;min-width:0;
- padding:0;border:0;background:none;color:#f2dbad;text-align:left
+.tc-topbar-tapestry::before,.tc-topbar-tapestry::after{
+ content:"";position:absolute;pointer-events:none;z-index:-1
 }
-.tc-topbar-profile-v2 .tc-v2-portrait{
- flex:0 0 40px;position:relative;width:40px;height:40px;
- overflow:hidden;border-radius:50%;border:2px solid #bb9057;
- box-shadow:0 0 0 1px #3c2b1b,inset 0 0 7px #000a;
- background:radial-gradient(circle at 50% 25%,#55402c,#17110e 70%)
+.tc-topbar-tapestry::before{
+ inset:4px 5px;border-top:1px solid #d4a26188;border-bottom:1px solid #c7945377;
+ background:linear-gradient(135deg,#bc8443 0 6px,transparent 6px) top left/15px 15px no-repeat,
+ linear-gradient(225deg,#bc8443 0 6px,transparent 6px) top right/15px 15px no-repeat,
+ linear-gradient(45deg,#bc8443 0 6px,transparent 6px) bottom left/15px 15px no-repeat,
+ linear-gradient(315deg,#bc8443 0 6px,transparent 6px) bottom right/15px 15px no-repeat
 }
-.tc-topbar-profile-v2 .tc-v2-portrait img{
- display:block;width:100%;height:100%;object-fit:cover;
- object-position:center 16%;image-rendering:pixelated
+.tc-topbar-tapestry::after{
+ left:51%;top:11%;height:78%;width:1px;
+ background:linear-gradient(transparent,#bf8c4c,transparent);opacity:.4
 }
-.tc-topbar-profile-v2 .tc-v2-identity{
- min-width:0;flex:1;display:flex;flex-direction:column;
- justify-content:center;gap:3px;overflow:hidden
+.tc-topbar-tapestry button:focus-visible{outline:2px solid #ffdc92;outline-offset:2px}
+.tc-tapestry-brand{position:relative;display:flex;align-items:center;min-width:0;height:100%;padding-left:clamp(28px,8.5vw,41px)}
+.tc-tapestry-banner{
+ position:absolute;left:-3px;top:-8px;z-index:2;display:block;pointer-events:none;
+ width:clamp(29px,8.5vw,39px);height:calc(var(--top) + 8px);
+ background-image:var(--tc-tapestry-sprite);
+ background-position:left top;background-size:100% 100%;
+ filter:drop-shadow(1px 2px 2px #0009)
 }
-.tc-topbar-profile-v2 .tc-v2-nickname{
- color:#f5d9ac;font:700 12px/1.1 "Noto Serif KR",Georgia,serif;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+/* The left 36/59 of the sprite holds the hanging castle banner. */
+.tc-tapestry-banner{background-size:163.89% 100%}
+.tc-tapestry-brand-text{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:4px}
+.tc-tapestry-brand-text strong{
+ display:block;color:#f5d6a0;white-space:nowrap;
+ font:700 clamp(12px,3.65vw,20px)/1.15 "Noto Serif KR",Georgia,serif;
+ letter-spacing:-.055em;text-shadow:0 1px 0 #6c3b1a,0 2px 3px #000,0 0 6px #b77d4044
 }
-.tc-topbar-profile-v2 .tc-v2-identity small{
- color:#ccb391;font:700 9px/1 Georgia,serif;white-space:nowrap
+.tc-tapestry-brand-text small{
+ display:block;min-width:0;color:#c89f61;white-space:nowrap;overflow:hidden;
+ font:400 clamp(4.4px,1.3vw,7px)/1.2 Georgia,serif;letter-spacing:.04em
 }
-.tc-topbar-profile-v2 .tc-v2-xp{
- display:block;height:5px;width:100%;background:#14120e;
- border-radius:8px;border:1px solid #846840;overflow:hidden
+.tc-tapestry-wallet{
+ height:76%;min-width:0;display:flex;flex-direction:column;justify-content:center;
+ gap:2px;padding:2px 3px 2px 4px;border-left:1px solid #88653d;
+ background:linear-gradient(90deg,#18120e,#17100b77)
 }
-.tc-topbar-profile-v2 .tc-v2-xp i{
- display:block;height:100%;background:linear-gradient(90deg,#96713c,#ffd086)
+.tc-tapestry-balance{
+ display:grid;grid-template-columns:17px minmax(0,1fr) 8px 17px;
+ min-width:0;gap:2px;align-items:center;min-height:24px;color:#eee1c7;
+ border-bottom:1px solid #94714455;font:700 clamp(8px,2.25vw,12px)/1.2 Georgia,serif;
+ font-variant-numeric:tabular-nums
 }
-.tc-topbar-profile-v2 .tc-v2-wallet{
- display:flex;flex-direction:column;justify-content:center;gap:3px;
- height:100%;padding:3px 3px 3px 5px;min-width:0;
- border-left:1px solid #766044
+.tc-tapestry-balance:last-child{border-bottom:0}
+.tc-tapestry-amount{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-tapestry-balance small{font-size:8px;color:#d0b58a}
+.tc-tapestry-coin{
+ display:block;width:17px;height:17px;border-radius:50%;
+ background-image:var(--tc-tapestry-sprite);background-repeat:no-repeat;background-size:59px 99px;
+ background-position:-38px -4px;box-shadow:0 1px 3px #0009
 }
-.tc-topbar-profile-v2 .tc-v2-balance{
- display:flex;align-items:center;gap:3px;height:19px;
- color:#f0debc;font:700 10px/1 ui-monospace,monospace;
- font-variant-numeric:tabular-nums;min-width:0
+.tc-tapestry-coin.gold{background-position:-38px -30px}
+.tc-tapestry-balance button{
+ display:grid;place-items:center;width:17px;height:20px;padding:0;
+ background:linear-gradient(145deg,#4b2d1b,#211812);
+ color:#f9d89e;border:1px solid #ad7b43;border-radius:4px;
+ box-shadow:inset 0 0 0 1px #352118,0 1px 2px #0008;font:700 16px/1 Georgia,serif
 }
-.tc-topbar-profile-v2 .tc-v2-balance>span{
- flex:1;min-width:0;white-space:nowrap;text-align:right;
- overflow:hidden;text-overflow:ellipsis
+.tc-tapestry-premium{
+ position:relative;align-self:stretch;min-width:0;
+ display:flex;align-items:center;justify-content:center;padding:0 1px;
+ margin:0 -1px -10px;filter:drop-shadow(0 3px 3px #0009);z-index:2
 }
-.tc-topbar-profile-v2 .tc-v2-balance small{font-size:7px;color:#ad9572;font-weight:400}
-.tc-topbar-profile-v2 .tc-v2-balance>i{
- display:block;flex:0 0 12px;width:12px;height:12px;border-radius:50%;
- border:1px solid #655a44;
- background:radial-gradient(circle at 34% 25%,#e0ddd0 0 12%,#9f988c 17% 54%,#474440 60%);
- box-shadow:inset 0 0 0 1px #14100d8a
+.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ width:100%;min-width:0;max-width:none;height:calc(100% + 3px);min-height:0;
+ margin:0;padding:4px 0 10px;gap:3px;border:1px solid #ce9557;border-radius:0;
+ background:radial-gradient(ellipse at 50% 0%,#8a4333 0%,#562124 40%,#36161c 90%),
+ linear-gradient(#592028,#250f16);
+ color:#ffdb9e;
+ box-shadow:inset 0 0 0 2px #9d5c3a, inset 0 1px 10px #f3b76d29;
+ clip-path:polygon(0 0,100% 0,100% 76%,90% 86%,82% 82%,75% 95%,59% 88%,50% 100%,38% 88%,23% 95%,13% 84%,0 86%)
 }
-.tc-topbar-profile-v2 .tc-v2-balance>i.gold{
- border-color:#b77c31;
- background:radial-gradient(circle at 34% 25%,#fff2b7 0 12%,#e6aa49 17% 54%,#724515 60%)
+.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status::before{
+ content:"♛";display:block;color:#f9cd70;font:20px/.9 Georgia,serif;
+ text-shadow:0 1px #5b241b,0 0 8px #f6b55e88
 }
-.tc-topbar-profile-v2 .tc-v2-gold-add{
- display:grid;place-items:center;flex:0 0 17px;width:17px;height:19px;
- padding:0;border:1px solid #9e7b50;border-radius:2px;
- background:#372b1b;color:#f9d699;font:700 14px Georgia,serif
+.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status strong{
+ display:block;max-width:100%;min-width:0;color:#ffdc9d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:700 clamp(10px,2.6vw,14px)/1.1 "Noto Serif KR",Georgia,serif;text-shadow:0 2px #26110d
 }
-.tc-topbar-profile-v2 .tc-v2-premium{min-width:0;display:grid;place-items:center}
-.tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status,
-.tc-app:has(.tc-moonlit-camp-screen) .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status,
-.tc-app:has(.tc-village-camp-screen) .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status{
- display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
- width:100%;min-width:0;max-width:70px;height:44px;min-height:44px;
- border:1px solid #ba8a54;border-radius:0;padding:3px 2px;
- background:linear-gradient(#4b3029,#2d201a);color:#f9d9aa;
- box-shadow:inset 0 0 0 1px #6f4b32
+.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status small{
+ display:block;max-width:100%;color:#f5ddbe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:600 clamp(8px,2vw,10px)/1.15 "Noto Serif KR",sans-serif
 }
-.tc-topbar-profile-v2 .tc-premium-status:before{
- content:"♛";display:block;font:11px/11px Georgia,serif;color:#f7cd91
+.tc-tapestry-tools{display:grid;grid-template-columns:1fr 1fr;gap:3px;min-width:0;align-items:center}
+.tc-tapestry-tools button{
+ position:relative;display:grid;place-items:center;min-width:0;width:100%;height:35px;padding:0;
+ color:#edcf9e;border:1px solid #aa8052;border-radius:4px;
+ background:linear-gradient(145deg,#3d2c20,#17110e 75%);
+ box-shadow:inset 0 0 0 1px #79513255,0 2px 4px #0008
 }
-.tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status strong{
- max-width:100%;font-size:10px;line-height:1;
- color:#ffe2b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+.tc-tapestry-tools button .tc-glyph{font-size:16px}
+.tc-tapestry-menu-icon{display:grid;gap:3px;width:15px}
+.tc-tapestry-menu-icon i{display:block;height:2px;background:#eed0a1;box-shadow:0 1px #654324}
+.tc-tapestry-unread{
+ position:absolute;right:-5px;top:-5px;display:grid;place-items:center;
+ min-width:12px;height:12px;padding:0 1px;border-radius:8px;
+ background:#d5382a;color:white;font:700 8px/1 sans-serif
 }
-.tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status small{
- max-width:100%;font-size:8px;line-height:1;
- color:#e2b57d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+@media(max-width:380px){
+ .tc-app .tc-topbar.tc-topbar-tapestry{grid-template-columns:minmax(0,1.28fr) minmax(0,1.06fr) minmax(0,.92fr) 46px;padding-inline:5px}
+ .tc-tapestry-wallet{padding-inline:2px}
+ .tc-tapestry-balance{grid-template-columns:15px minmax(0,1fr) 6px 15px;gap:1px}
+ .tc-tapestry-coin{transform:scale(.87);transform-origin:left center}
+ .tc-tapestry-balance button{width:15px;height:19px}
+ .tc-tapestry-tools button{height:32px}
 }
-.tc-topbar-profile-v2 .tc-v2-tools{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- gap:3px;min-width:0;align-items:center;height:100%
+@media(max-width:340px){
+ .tc-app .tc-topbar.tc-topbar-tapestry{grid-template-columns:minmax(0,1.24fr) minmax(0,1.1fr) minmax(0,.88fr) 43px;gap:1px;padding-inline:4px}
+ .tc-tapestry-brand{padding-left:25px}
+ .tc-tapestry-banner{width:27px}
+ .tc-tapestry-brand-text strong{font-size:12px}
+ .tc-tapestry-balance{font-size:8px}
+ .tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status strong{font-size:9px}
 }
-.tc-topbar-profile-v2 .tc-v2-tools button{
- display:grid;place-items:center;position:relative;width:100%;min-width:0;
- min-height:34px;padding:0;border:1px solid #675036;
- background:linear-gradient(#33271c,#151311);color:#ebc895
-}
-.tc-topbar-profile-v2 .tc-v2-tools .tc-glyph{font-size:16px}
-.tc-topbar-profile-v2 .tc-v2-unread{
- position:absolute;right:-4px;top:-5px;min-width:13px;height:13px;
- display:grid;place-items:center;padding:1px 2px;border-radius:10px;
- background:#ab4935;color:#fff;font:700 8px/1 sans-serif
-}
-@media(max-width:390px){
- .tc-app .tc-topbar.tc-topbar-profile-v2{
-  grid-template-columns:minmax(0,1.07fr) minmax(0,.94fr) 61px 53px;
-  gap:4px;padding-inline:5px
- }
- .tc-topbar-profile-v2 .tc-v2-portrait{width:35px;height:35px;flex-basis:35px}
- .tc-topbar-profile-v2 .tc-v2-nickname{font-size:11px}
- .tc-topbar-profile-v2 .tc-v2-wallet{padding-inline:3px}
- .tc-topbar-profile-v2 .tc-v2-balance{gap:2px;font-size:9px}
- .tc-topbar-profile-v2 .tc-v2-balance>i{width:10px;height:10px;flex-basis:10px}
-}
-@media(max-width:350px){
- .tc-app .tc-topbar.tc-topbar-profile-v2{
-  grid-template-columns:minmax(0,1fr) minmax(0,.94fr) 57px 46px;
-  gap:3px;padding-inline:4px
- }
- .tc-topbar-profile-v2 .tc-v2-portrait{width:30px;height:30px;flex-basis:30px}
- .tc-topbar-profile-v2 .tc-v2-nickname{font-size:10px}
- .tc-topbar-profile-v2 .tc-v2-balance{font-size:8px}
- .tc-topbar-profile-v2 .tc-v2-tools .tc-glyph{font-size:14px}
-}
-@media(max-height:700px){.tc-app:has(>.tc-topbar-profile-v2){--top:54px}}
-
-
-/* Concept 2 refinement: real 360px phone layout, compact premium ribbon,
-   full balance legibility, larger mail/settings targets and live XP percentage. */
-.tc-app:has(>.tc-topbar-profile-v2){--top:64px}
-.tc-app .tc-topbar.tc-topbar-profile-v2{
- grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 64px 74px;
- gap:4px;padding:5px 7px;
- background:
-  linear-gradient(90deg,#d1a46d38 0 1px,transparent 1px calc(100% - 1px),#d1a46d38 calc(100% - 1px)),
-  radial-gradient(ellipse at 43% 10%,#5d3f2445,transparent 56%),
-  linear-gradient(180deg,#272017 0%,#171511 55%,#0e1010 100%);
- border-bottom:1px solid #b48e55;
- box-shadow:inset 0 1px #bc9258,inset 0 -2px #0c0b09,0 2px 6px #0008
-}
-.tc-topbar-profile-v2 .tc-v2-profile{gap:6px}
-.tc-topbar-profile-v2 .tc-v2-portrait{
- flex-basis:40px;width:40px;height:40px;
- border:2px solid #bc9460;box-shadow:0 0 0 2px #3e3020,inset 0 0 10px #000
-}
-.tc-topbar-profile-v2 .tc-v2-identity{gap:3px}
-.tc-topbar-profile-v2 .tc-v2-nickname{font-size:clamp(11px,2.9vw,13px);color:#ffe3b5}
-.tc-topbar-profile-v2 .tc-v2-level-row{
- min-width:0;display:flex;align-items:center;justify-content:space-between;gap:3px;
- line-height:1.1;white-space:nowrap
-}
-.tc-topbar-profile-v2 .tc-v2-level-row small{font-size:9px;color:#ddc096}
-.tc-topbar-profile-v2 .tc-v2-level-row .tc-v2-xp-percent{color:#f5d089;font-size:9px}
-.tc-topbar-profile-v2 .tc-v2-xp{
- height:6px;border-color:#94734b;background:#0d1110;
- box-shadow:0 0 0 1px #16130e
-}
-.tc-topbar-profile-v2 .tc-v2-wallet{
- padding:4px 3px 4px 5px;gap:4px;
- border-left:1px solid #a1875b6b
-}
-.tc-topbar-profile-v2 .tc-v2-balance{
- height:19px;gap:3px;font-size:clamp(9px,2.3vw,11px);color:#f5e5c7
-}
-.tc-topbar-profile-v2 .tc-v2-balance>span{letter-spacing:-.2px}
-.tc-topbar-profile-v2 .tc-v2-balance>i{width:12px;height:12px;flex-basis:12px}
-.tc-topbar-profile-v2 .tc-v2-balance small{font-size:8px}
-.tc-topbar-profile-v2 .tc-v2-gold-add{
- flex-basis:18px;width:18px;height:20px;
- border-color:#b78d55;background:#392819;font-size:15px;
- box-shadow:inset 0 0 0 1px #65492c
-}
-.tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status,
-.tc-app:has(.tc-moonlit-camp-screen) .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status,
-.tc-app:has(.tc-village-camp-screen) .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status{
- max-width:none;width:100%;height:47px;min-height:47px;
- padding:3px 1px 5px;gap:3px;border:1px solid #9e7853;
- background:linear-gradient(180deg,#57342c,#43261e 68%,#281b1a);
- box-shadow:inset 0 0 0 1px #a87b493c,0 2px 6px #0007;
- clip-path:polygon(0 0,100% 0,100% 88%,50% 100%,0 88%)
-}
-.tc-topbar-profile-v2 .tc-premium-status:before{font-size:12px;line-height:12px}
-.tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status strong{font-size:10px}
-.tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status small{font-size:9px}
-.tc-topbar-profile-v2 .tc-v2-tools{gap:4px}
-.tc-topbar-profile-v2 .tc-v2-tools button{
- min-height:42px;height:42px;
- background:linear-gradient(#322a20,#171715);
- border-color:#8c704b;color:#f4d49a
-}
-.tc-topbar-profile-v2 .tc-v2-tools .tc-glyph{font-size:19px}
-@media(max-width:390px){
- .tc-app .tc-topbar.tc-topbar-profile-v2{
-  grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 60px 68px;
-  gap:3px;padding-inline:5px
- }
- .tc-topbar-profile-v2 .tc-v2-portrait{flex-basis:35px;width:35px;height:35px}
- .tc-topbar-profile-v2 .tc-v2-balance{font-size:9px;gap:2px}
- .tc-topbar-profile-v2 .tc-v2-balance>i{width:10px;height:10px;flex-basis:10px}
- .tc-topbar-profile-v2 .tc-v2-tools button{min-height:40px;height:40px}
- .tc-topbar-profile-v2 .tc-v2-tools .tc-glyph{font-size:17px}
-}
-@media(max-width:350px){
- .tc-app .tc-topbar.tc-topbar-profile-v2{
-  grid-template-columns:minmax(0,1.08fr) minmax(0,1fr) 55px 62px;
-  gap:2px;padding-inline:4px
- }
- .tc-topbar-profile-v2 .tc-v2-portrait{width:31px;height:31px;flex-basis:31px}
- .tc-topbar-profile-v2 .tc-v2-profile{gap:3px}
- .tc-topbar-profile-v2 .tc-v2-balance{font-size:8px}
- .tc-topbar-profile-v2 .tc-v2-wallet{padding-inline:2px}
- .tc-topbar-profile-v2 .tc-v2-tools{gap:2px}
- .tc-app .tc-topbar-profile-v2 .tc-v2-premium .tc-premium-status strong{font-size:9px}
-}
-@media(max-height:700px){.tc-app:has(>.tc-topbar-profile-v2){--top:58px}}
+@media(max-height:700px){.tc-app:has(>.tc-topbar-tapestry){--top:68px}}

@@ -2,46 +2,49 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {readFileSync} from 'node:fs';
+import {readFileSync,statSync} from 'node:fs';
 import {initialState} from '../src/game/engine/state';
 import {GameTopBar} from '../src/components/mobile/GameTopBar';
 
-test('profile status bar uses live currencies and accessible actions',()=>{
- const game=initialState();game.silver=10444660;game.market.gold=1250;game.goldenRecorder.expiresAt=Date.now()+4*86400000;
+test('ribbon status bar displays live currencies, premium period, and accessible controls',()=>{
+ const game=initialState();game.silver=10444660;game.market.gold=1250;
+ const now=Date.now();game.goldenRecorder.expiresAt=now+4*86400000;
  const html=renderToStaticMarkup(React.createElement(GameTopBar,{
-  nickname:'별명기록자',game,userId:null,lease:null,now:Date.now(),currentPage:'home',unreadMail:4,
+  nickname:'별명기록자',game,userId:null,lease:null,now,currentPage:'home',unreadMail:4,
   onProfile:()=>{},onShop:()=>{},onPremium:()=>{},onMail:()=>{},onMenu:()=>{}
  }));
- for(const token of ['tc-topbar-profile-v2','별명기록자','10,444,660','1,250','프리미엄','우편함 열기','설정 메뉴 열기','골드 상점 열기','4개'])
+ for(const token of ['tc-topbar-tapestry','tc-tapestry-banner','탑의 기록','THE ARCHIVE OF THE TOWER',
+  '10,444,660','1,250','프리미엄','4일 남음','우편함 열기','설정 메뉴 열기','상점 열기 · 실버','상점 열기 · 골드','4개']){
   assert.ok(html.includes(token),token);
- assert.match(html,/성장 현황/);
- assert.match(html,/tc-v2-xp/);
- assert.match(html,/tc-v2-level-row/);
- assert.doesNotMatch(html,/Lv\.78|58\.7%/);
+ }
+ assert.doesNotMatch(html,/별명기록자|tc-v2-portrait|tc-v2-xp|성장 현황|Lv\.78/);
 });
 
-test('topbar routes existing actions and uses actual server growth status',()=>{
+test('topbar preserves action wiring and uses the approved pixel-art sprite',()=>{
  const main=readFileSync('src/main.tsx','utf8');
  const code=readFileSync('src/components/mobile/GameTopBar.tsx','utf8');
  const css=readFileSync('src/components/mobile/game-topbar.css','utf8');
  assert.match(main,/<GameTopBar/);
- for(const token of ["onProfile={()=>move('character')}","onShop={()=>move('shop')}","onPremium={()=>setPremiumOpen(true)}","onMail={()=>setMailOpen(true)}","onMenu={()=>move('settings')}"])
+ for(const token of ["onShop={()=>move('shop')}","onPremium={()=>setPremiumOpen(true)}",
+  "onMail={()=>setMailOpen(true)}","onMenu={()=>move('settings')}"])
   assert.ok(main.includes(token),token);
- assert.match(code,/getCharacterGrowth\(lease\)/);
- assert.match(code,/huntingProgress\(data\.experience\)/);
- assert.match(code,/playerGraphicForJob\(/);
- assert.match(css,/max-width:390px/);
- assert.match(css,/max-width:350px/);
- assert.doesNotMatch(css,/padding-top:\s*env\(safe-area-inset-top/);
+ assert.match(code,/assetUrl\('assets\/ui\/topbar\/tower-topbar-art\.webp'\)/);
+ assert.match(code,/<PremiumStatus /);
+ assert.match(code,/onClick=\{onShop\}/);
+ assert.match(css,/background-image:var\(--tc-tapestry-sprite\)/);
+ assert.ok(statSync('public/assets/ui/topbar/tower-topbar-art.webp').size>100);
+ assert.doesNotMatch(code,/getCharacterGrowth\(|playerGraphicForJob\(|huntingProgress\(/);
 });
 
-
-test('concept 2 refinement displays actual XP percentage and compact phone controls',()=>{
+test('concept 1 is compact, responsive and has an integrated premium banner',()=>{
  const screen=readFileSync('src/components/mobile/GameTopBar.tsx','utf8');
  const css=readFileSync('src/components/mobile/game-topbar.css','utf8');
- assert.match(screen,/xp\+'%'/);
- assert.match(screen,/tc-v2-xp-percent/);
- assert.match(css,/grid-template-columns:minmax\(0,1\.1fr\) minmax\(0,1fr\) 60px 68px/);
- assert.match(css,/clip-path:polygon\(0 0,100% 0,100% 88%,50% 100%,0 88%\)/);
- assert.match(css,/\.tc-v2-tools button\{[^}]*min-height:42px/);
+ assert.match(screen,/tc-tapestry-premium/);
+ assert.match(screen,/tc-tapestry-tools/);
+ assert.match(css,/@media\(max-width:380px\)/);
+ assert.match(css,/@media\(max-width:340px\)/);
+ assert.match(css,/clip-path:polygon\(/);
+ assert.match(css,/\.tc-tapestry-unread/);
+ assert.match(css,/focus-visible/);
+ assert.doesNotMatch(css,/padding-top:\s*env\(safe-area-inset-top/);
 });
