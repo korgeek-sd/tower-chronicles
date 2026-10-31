@@ -22,3 +22,17 @@ test('summon stage shows server weekly pickup rather than unrelated job carousel
  assert.match(html,/이번 주 SSR 픽업/);
  assert.match(html,/서버 확인 중/);
 });
+
+test('weekly SSR portrait fits inside its bounded altar frame without grid intrinsic overflow',()=>{
+ const css=readFileSync('src/components/appearance/altar-summon.css','utf8');
+ const figure=css.match(/\.tc-summon-pickup-figure\{([^}]*)\}/)?.[1]??'';
+ const image=css.match(/\.tc-summon-pickup-figure img\{([^}]*)\}/)?.[1]??'';
+ assert.match(figure,/display:block/);
+ assert.match(figure,/overflow:hidden/);
+ assert.doesNotMatch(figure,/display:grid/);
+ assert.match(image,/position:absolute/);
+ assert.match(image,/min-height:0/);
+ assert.match(image,/max-height:100%/);
+ assert.match(image,/object-fit:contain/);
+ assert.match(image,/object-position:center center/);
+});
