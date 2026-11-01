@@ -1,7 +1,6 @@
 @font-face{font-family:'Novar Display';src:url('../../assets/fonts/NovarDisplay-Bold.woff') format('woff');font-weight:700;font-display:swap}
+/* Hub and header inherit the global DungGeunMo font; never replace the game font on .tc-app. */
 .tc-hub-icon{display:inline-block;flex:none;width:28px;height:28px;background-image:url('../../assets/ui/hub/novar-icons.webp');background-size:400% 400%;background-repeat:no-repeat;filter:drop-shadow(0 1px 1px #0009)}
-.tc-app:has(.tc-moonlit-camp-screen){--game-font:system-ui,'Malgun Gothic',sans-serif}
-.tc-app:has(.tc-moonlit-camp-screen) .tc-brand,.tc-moonlit-camp-screen .tc-village-heading,.tc-moonlit-camp-screen .tc-village-all,.tc-moonlit-camp-screen .tc-village-nameplate,.tc-moonlit-camp-screen .tc-village-services,.tc-moonlit-camp-screen .tc-camp-v2-primary,.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav{--game-font:'Novar Display',serif}
 /* Moonlit Novar reference: live HUD and controls over a text-free town painting.
    Scoped to home so the battle, inventory and modal layouts retain their rules. */
 .tc-app:has(.tc-moonlit-camp-screen){
