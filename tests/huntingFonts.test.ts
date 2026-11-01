@@ -27,9 +27,9 @@ test('the whole game uses the supplied DungGeunMo font including late-loaded scr
   'src/components/mobile/game-topbar.css'
  ]){
   const scoped=readFileSync(path,'utf8');
-  assert.doesNotMatch(scoped,/--game-font\\s*:/,path+' must inherit DungGeunMo');
+  assert.doesNotMatch(scoped,/--game-font\s*:/,path+' must inherit DungGeunMo');
  }
- assert.match(readFileSync('src/components/mobile/moonlit-camp.css','utf8'),/\\.tc-app:has\\(\\.tc-moonlit-camp-screen\\)/);
+ assert.match(readFileSync('src/components/mobile/moonlit-camp.css','utf8'),/\.tc-app:has\(\.tc-moonlit-camp-screen\)/);
  assert.match(readFileSync('src/assets/fonts/LICENSE.txt','utf8'),/Copyright.*Damheo Lee/);
  assert.match(readFileSync('src/assets/fonts/README.md','utf8'),/https:\/\/github.com\/hurss\/fonts/);
  assert.ok(readFileSync('public/dos-font-license.txt','utf8').includes(readFileSync('src/assets/fonts/LICENSE.txt','utf8')));
