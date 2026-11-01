@@ -33,12 +33,12 @@ type ServerTab='shop'|'overview'|'boss'|'auction'|'warehouse'|'territory'|'ranki
 const serverTabs=[['overview','본부'],['boss','보스전'],['auction','경매'],['shop','상점'],['warehouse','금고'],['territory','영지'],['rankings','랭킹'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
 
 type CompanySection='overview'|'combat'|'territory'|'assets'|'people';
-const companySections:readonly {id:CompanySection;label:string;glyph:string;first:ServerTab;tabs:readonly ServerTab[]}[]=[
- {id:'overview',label:'본부',glyph:'association',first:'overview',tabs:['overview','rankings','activity']},
- {id:'combat',label:'전투',glyph:'sword',first:'boss',tabs:['boss']},
- {id:'territory',label:'영지',glyph:'towers',first:'territory',tabs:['territory']},
- {id:'assets',label:'자산',glyph:'market',first:'warehouse',tabs:['warehouse','shop','auction']},
- {id:'people',label:'단원',glyph:'jobs',first:'members',tabs:['members','applications','manage']}
+const companySections:readonly {id:CompanySection;label:string;art:string;first:ServerTab;tabs:readonly ServerTab[]}[]=[
+ {id:'overview',label:'본부',art:'home',first:'overview',tabs:['overview','rankings','activity']},
+ {id:'combat',label:'전투',art:'equipment',first:'boss',tabs:['boss']},
+ {id:'territory',label:'영지',art:'towers',first:'territory',tabs:['territory']},
+ {id:'assets',label:'자산',art:'market',first:'warehouse',tabs:['warehouse','shop','auction']},
+ {id:'people',label:'단원',art:'association',first:'members',tabs:['members','applications','manage']}
 ];
 const PAGE_SIZE=5;
 
@@ -186,7 +186,7 @@ function OnlineAssociationScreen({
    <nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
     {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}
      className={section.id===activeSection.id?'active':''} onClick={()=>navigate(section.first)}>
-     <Glyph name={section.glyph}/><span>{section.label}</span>
+     <img className="tc-company-nav-art" src={assetUrl('assets/ui/navigation/'+section.art+'.png')} alt="" draggable={false}/><span>{section.label}</span>
      {section.id==='people'&&leader&&current.applications.length>0&&<i className="tc-company-pending-dot" aria-label={'가입 신청 '+current.applications.length+'건'}/>}
     </button>)}
    </nav>
