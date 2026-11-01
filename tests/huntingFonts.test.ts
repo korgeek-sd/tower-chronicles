@@ -19,6 +19,17 @@ test('the whole game uses the supplied DungGeunMo font including late-loaded scr
  assert.match(css,/:root, body, body \*\s*\{/);
  assert.match(css,/font-family: var\(--game-font\) !important/);
  assert.doesNotMatch(readFileSync('src/components/hunting/hunting-fonts.css','utf8'),/@font-face/);
+ // The hub is rendered beneath .tc-app, so a scoped custom-property override
+ // would defeat the global !important font-family even in the top status bar.
+ for(const path of [
+  'src/components/mobile/moonlit-camp.css',
+  'src/components/mobile/village-camp.css',
+  'src/components/mobile/game-topbar.css'
+ ]){
+  const scoped=readFileSync(path,'utf8');
+  assert.doesNotMatch(scoped,/--game-font\\s*:/,path+' must inherit DungGeunMo');
+ }
+ assert.match(readFileSync('src/components/mobile/moonlit-camp.css','utf8'),/\\.tc-app:has\\(\\.tc-moonlit-camp-screen\\)/);
  assert.match(readFileSync('src/assets/fonts/LICENSE.txt','utf8'),/Copyright.*Damheo Lee/);
  assert.match(readFileSync('src/assets/fonts/README.md','utf8'),/https:\/\/github.com\/hurss\/fonts/);
  assert.ok(readFileSync('public/dos-font-license.txt','utf8').includes(readFileSync('src/assets/fonts/LICENSE.txt','utf8')));
