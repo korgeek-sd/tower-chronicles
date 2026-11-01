@@ -94,6 +94,12 @@
 .tc-assoc-hq-v2>.tc-company-mainnav button.active .tc-glyph{color:#ffdc8f}
 .tc-company-pending-dot{position:absolute;right:5px;top:4px;width:7px;height:7px;background:#d84f39;border-radius:50%;box-shadow:0 0 0 1px #33120e}
 
+.tc-assoc-hq-v2>.tc-company-mainnav img.tc-company-nav-art{
+ display:block;width:29px;height:29px;flex-shrink:0;
+ object-fit:contain;image-rendering:pixelated;
+ filter:drop-shadow(0 2px 1px #000c);
+}
+.tc-assoc-hq-v2>.tc-company-mainnav button.active img.tc-company-nav-art{filter:drop-shadow(0 0 3px #f7bd6288)}
 /* Secondary tabs restore every old page with no route or RPC change. */
 .tc-assoc-hq-v2>.tc-company-subnav-wrap{min-width:0;min-height:36px}
 .tc-assoc-hq-v2>.tc-company-subnav-wrap>.tc-segments{
@@ -220,6 +226,7 @@
  .tc-assoc-hq-v2>.tc-company-mainnav{gap:2px}
  .tc-assoc-hq-v2>.tc-company-mainnav button{font-size:10px;min-height:51px}
  .tc-assoc-hq-v2>.tc-company-mainnav button .tc-glyph{font-size:19px}
+ .tc-assoc-hq-v2>.tc-company-mainnav img.tc-company-nav-art{width:25px;height:25px}
  .tc-assoc-hq-v2 .tc-company-hero .tc-assoc-banner-meta span{min-width:42px;padding:2px 3px}
  .tc-assoc-hq-v2 .tc-company-hero .tc-assoc-banner-meta b{max-width:63px;font-size:9px}
  .tc-assoc-hq-v2 .tc-company-summary>div{grid-template-columns:19px minmax(0,1fr);gap:2px;padding:6px 3px}
