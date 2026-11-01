@@ -104,7 +104,11 @@ test('raid layout keeps four stats, compact results and no vertical page scroll'
  assert.match(css,/@media\(max-height:620px\)/);
  assert.doesNotMatch(css,/\.tc-guild-boss\{[^}]*overflow-y:auto/);
  const assoc=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
- assert.match(assoc,/tab!=='boss'&&<section className="tc-assoc-banner">/);
+ assert.match(assoc,/tab!=='boss'&&<section className=\{'tc-assoc-banner tc-company-hero'/);
+ const redesigned=readFileSync(new URL('../src/components/association/hq-v2.css',import.meta.url),'utf8');
+ assert.match(assoc,/tc-company-combat-nav/);
+ assert.match(redesigned,/tc-assoc-hq-v2\.tc-assoc-raid-view/);
+ assert.match(redesigned,/grid-template-rows:auto auto minmax\(0,1fr\)/);
  assert.match(assoc,/tc-assoc-raid-view/);
 });
 test('loading boss UI has both boss choices and a live refresh action',()=>{

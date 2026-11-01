@@ -26,9 +26,16 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
  ];
  for(const path of active){
   // The approved village redesign adds one scene, not legacy decorative UI.
+  // The new guild headquarters explicitly reuses approved game pixel art,
+  // while all other rebuilt screens must still avoid legacy decorative imagery.
   const source=path==='src/components/mobile/CoreScreens.tsx'
    ?read(path).replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
-   :read(path);
+   :path==='src/components/association/AssociationScreen.tsx'
+    ?read(path)
+      .replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
+      .replace('assets/ui/navigation-new/association.png','')
+      .replace('assets/ui/navigation/','')
+    :read(path);
   assert.equal(source.includes('assets/ui'),false,path+' references a UI asset');
   assert.equal(source.includes('assets/backgrounds'),false,path+' references a background asset');
   assert.equal(source.includes('eventAsset('),false,path+' references an event-art asset');
