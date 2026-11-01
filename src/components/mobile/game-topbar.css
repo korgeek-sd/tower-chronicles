@@ -1,132 +1,115 @@
-/* Tower Chronicles premium status bar, concept 1: ornate ribbon and living balances.
-   Artwork: compact sprite cropped from the approved UI concept; all values remain DOM text. */
-.tc-app:has(>.tc-topbar-tapestry){--top:clamp(72px,20vw,86px)}
-.tc-app .tc-topbar.tc-topbar-tapestry{
- position:relative;z-index:8;height:var(--top);min-width:0;
- display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,1.04fr) minmax(0,.92fr) 47px;
- align-items:center;column-gap:2px;padding:5px 7px 4px;
- border:2px solid #a77740;border-bottom:3px ridge #d5a365;
- background:radial-gradient(ellipse at 23% 5%,#73432938,transparent 58%),linear-gradient(180deg,#302015 0%,#100e0c 22%,#15100e 75%,#0b0b0d 100%);
- box-shadow:inset 0 0 0 1px #edba6d,inset 0 0 0 3px #36200f,0 2px 9px #000b;
+/* Compact currency-first HUD: no logo, decorative panel, or unused artwork. */
+.tc-app:has(>.tc-topbar-compact){--top:clamp(60px,17vw,72px)}
+.tc-app .tc-topbar.tc-topbar-compact{
+ position:relative;z-index:8;box-sizing:border-box;min-width:0;width:100%;height:var(--top);
+ display:grid;grid-template-columns:minmax(0,1fr) clamp(78px,23vw,106px) clamp(62px,17vw,78px);
+ gap:3px;align-items:center;padding:5px 6px 4px;
+ border:2px solid #a77740;border-bottom:2px solid #d5a365;
+ background:linear-gradient(180deg,#38291b 0%,#18120f 15%,#110e0c 85%,#292018 100%);
+ box-shadow:inset 0 0 0 1px #edba6d,inset 0 0 0 3px #36200f,0 2px 8px #000a;
  overflow:visible;isolation:isolate
 }
-.tc-topbar-tapestry::before,.tc-topbar-tapestry::after{
- content:"";position:absolute;pointer-events:none;z-index:-1
+.tc-topbar-compact::before{
+ content:"";position:absolute;inset:4px 4px 3px;border-top:1px solid #c9966066;border-bottom:1px solid #b7855255;
+ pointer-events:none;z-index:-1
 }
-.tc-topbar-tapestry::before{
- inset:4px 5px;border-top:1px solid #d4a26188;border-bottom:1px solid #c7945377;
- background:linear-gradient(135deg,#bc8443 0 6px,transparent 6px) top left/15px 15px no-repeat,
- linear-gradient(225deg,#bc8443 0 6px,transparent 6px) top right/15px 15px no-repeat,
- linear-gradient(45deg,#bc8443 0 6px,transparent 6px) bottom left/15px 15px no-repeat,
- linear-gradient(315deg,#bc8443 0 6px,transparent 6px) bottom right/15px 15px no-repeat
+.tc-topbar-compact button:focus-visible{outline:2px solid #ffe0a0;outline-offset:1px}
+.tc-topbar-compact .tc-tapestry-wallet{
+ display:flex;min-width:0;min-height:0;height:100%;flex-direction:column;justify-content:center;
+ padding:2px 5px 2px 7px;gap:1px;
+ background:linear-gradient(90deg,#15100e 2%,#1a1310 60%,#221710bb 100%);
+ border-right:1px solid #a47b4d69
 }
-.tc-topbar-tapestry::after{
- left:51%;top:11%;height:78%;width:1px;
- background:linear-gradient(transparent,#bf8c4c,transparent);opacity:.4
-}
-.tc-topbar-tapestry button:focus-visible{outline:2px solid #ffdc92;outline-offset:2px}
-.tc-tapestry-brand{position:relative;display:flex;align-items:center;min-width:0;height:100%;padding-left:clamp(28px,8.5vw,41px)}
-.tc-tapestry-banner{
- position:absolute;left:-3px;top:-8px;z-index:2;display:block;pointer-events:none;
- width:clamp(29px,8.5vw,39px);height:calc(var(--top) + 8px);
- background-image:var(--tc-tapestry-sprite);
- background-position:left top;background-size:100% 100%;
- filter:drop-shadow(1px 2px 2px #0009)
-}
-/* The left 36/59 of the sprite holds the hanging castle banner. */
-.tc-tapestry-banner{background-size:163.89% 100%}
-.tc-tapestry-brand-text{display:flex;min-width:0;flex-direction:column;justify-content:center;gap:4px}
-.tc-tapestry-brand-text strong{
- display:block;color:#f5d6a0;white-space:nowrap;
- font:700 clamp(12px,3.65vw,20px)/1.15 "Noto Serif KR",Georgia,serif;
- letter-spacing:-.055em;text-shadow:0 1px 0 #6c3b1a,0 2px 3px #000,0 0 6px #b77d4044
-}
-.tc-tapestry-brand-text small{
- display:block;min-width:0;color:#c89f61;white-space:nowrap;overflow:hidden;
- font:400 clamp(4.4px,1.3vw,7px)/1.2 Georgia,serif;letter-spacing:.04em
-}
-.tc-tapestry-wallet{
- height:76%;min-width:0;display:flex;flex-direction:column;justify-content:center;
- gap:2px;padding:2px 3px 2px 4px;border-left:1px solid #88653d;
- background:linear-gradient(90deg,#18120e,#17100b77)
-}
-.tc-tapestry-balance{
- display:grid;grid-template-columns:17px minmax(0,1fr) 8px 17px;
- min-width:0;gap:2px;align-items:center;min-height:24px;color:#eee1c7;
- border-bottom:1px solid #94714455;font:700 clamp(8px,2.25vw,12px)/1.2 Georgia,serif;
+.tc-topbar-compact .tc-tapestry-balance{
+ display:grid;grid-template-columns:18px minmax(0,1fr) 10px 25px;align-items:center;
+ gap:4px;min-width:0;min-height:23px;
+ border-bottom:1px solid #98714555;color:#f4e2c4;
+ font:700 clamp(11px,3vw,16px)/1.1 Georgia,"Noto Serif KR",serif;
  font-variant-numeric:tabular-nums
 }
-.tc-tapestry-balance:last-child{border-bottom:0}
-.tc-tapestry-amount{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tc-tapestry-balance small{font-size:8px;color:#d0b58a}
-.tc-tapestry-coin{
- display:block;width:17px;height:17px;border-radius:50%;
- background-image:var(--tc-tapestry-sprite);background-repeat:no-repeat;background-size:59px 99px;
- background-position:-38px -4px;box-shadow:0 1px 3px #0009
+.tc-topbar-compact .tc-tapestry-balance:last-child{border-bottom:0}
+.tc-topbar-compact .tc-tapestry-amount{
+ min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ text-shadow:0 1px 2px #000
 }
-.tc-tapestry-coin.gold{background-position:-38px -30px}
-.tc-tapestry-balance button{
- display:grid;place-items:center;width:17px;height:20px;padding:0;
- background:linear-gradient(145deg,#4b2d1b,#211812);
- color:#f9d89e;border:1px solid #ad7b43;border-radius:4px;
- box-shadow:inset 0 0 0 1px #352118,0 1px 2px #0008;font:700 16px/1 Georgia,serif
+.tc-topbar-compact .tc-tapestry-balance small{font-size:9px;color:#d5b581}
+.tc-topbar-compact .tc-tapestry-coin{
+ display:grid;place-items:center;width:18px;height:18px;flex-shrink:0;
+ border:1px solid #ada494;border-radius:50%;
+ background:radial-gradient(circle at 30% 22%,#f0ece4 0%,#bab6b0 32%,#777774 64%,#34302d 100%);
+ box-shadow:inset 0 0 0 2px #4c4847,inset 0 0 0 3px #d4cfbe,0 1px 3px #0009
 }
-.tc-tapestry-premium{
+.tc-topbar-compact .tc-tapestry-coin:after{
+ content:"◆";font:9px/1 Georgia,serif;color:#4d5053;text-shadow:0 1px #efefeb
+}
+.tc-topbar-compact .tc-tapestry-coin.gold{
+ border-color:#f6d287;
+ background:radial-gradient(circle at 30% 22%,#fff0a9 0%,#f2bc54 35%,#b87825 65%,#5a3517 100%);
+ box-shadow:inset 0 0 0 2px #805322,inset 0 0 0 3px #f5c36d,0 1px 3px #0009
+}
+.tc-topbar-compact .tc-tapestry-coin.gold:after{color:#9b6726;text-shadow:0 1px #ffe6a5}
+.tc-topbar-compact .tc-tapestry-balance>button{
+ display:grid;place-items:center;width:25px;height:23px;min-height:0;min-width:0;padding:0;
+ background:linear-gradient(145deg,#4b2d1b,#211812);color:#ffdb9e;
+ border:1px solid #c08d4d;border-radius:4px;
+ box-shadow:inset 0 0 0 1px #5f452f,0 1px 3px #0008;
+ font:700 18px/1 Georgia,serif
+}
+.tc-topbar-compact .tc-tapestry-premium{
  position:relative;align-self:stretch;min-width:0;
- display:flex;align-items:center;justify-content:center;padding:0 1px;
- margin:0 -1px -10px;filter:drop-shadow(0 3px 3px #0009);z-index:2
+ display:flex;justify-content:center;align-items:center;
+ margin:0 0 -6px;filter:drop-shadow(0 3px 3px #0009);z-index:2
 }
-.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status{
- display:flex;flex-direction:column;align-items:center;justify-content:center;
- width:100%;min-width:0;max-width:none;height:calc(100% + 3px);min-height:0;
- margin:0;padding:4px 0 10px;gap:3px;border:1px solid #ce9557;border-radius:0;
- background:radial-gradient(ellipse at 50% 0%,#8a4333 0%,#562124 40%,#36161c 90%),
- linear-gradient(#592028,#250f16);
- color:#ffdb9e;
- box-shadow:inset 0 0 0 2px #9d5c3a, inset 0 1px 10px #f3b76d29;
- clip-path:polygon(0 0,100% 0,100% 76%,90% 86%,82% 82%,75% 95%,59% 88%,50% 100%,38% 88%,23% 95%,13% 84%,0 86%)
+.tc-app .tc-topbar-compact .tc-tapestry-premium .tc-premium-status{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ width:100%;min-width:0;max-width:none;height:100%;min-height:0;
+ margin:0;padding:3px 2px 8px;border:1px solid #c99554;border-radius:0;
+ background:radial-gradient(ellipse at 50% 8%,#8d4437 0%,#5a2228 52%,#37151d 100%);
+ color:#fce0a4;
+ box-shadow:inset 0 0 0 2px #9d5c3a,inset 0 0 8px #f3b76d23;
+ clip-path:polygon(0 0,100% 0,100% 78%,88% 87%,71% 84%,50% 100%,29% 84%,12% 87%,0 78%)
 }
-.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status::before{
- content:"♛";display:block;color:#f9cd70;font:20px/.9 Georgia,serif;
- text-shadow:0 1px #5b241b,0 0 8px #f6b55e88
+.tc-app .tc-topbar-compact .tc-tapestry-premium .tc-premium-status::before{
+ content:"♛";display:block;color:#ffd88c;font:clamp(15px,4.2vw,21px)/.9 Georgia,serif;
+ text-shadow:0 1px #5b241b,0 0 7px #f6b55e75
 }
-.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status strong{
- display:block;max-width:100%;min-width:0;color:#ffdc9d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- font:700 clamp(10px,2.6vw,14px)/1.1 "Noto Serif KR",Georgia,serif;text-shadow:0 2px #26110d
+.tc-app .tc-topbar-compact .tc-tapestry-premium .tc-premium-status strong{
+ display:block;max-width:100%;color:#ffe0a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:700 clamp(9px,2.5vw,13px)/1.08 "Noto Serif KR",Georgia,serif;text-shadow:0 1px 1px #000
 }
-.tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status small{
- display:block;max-width:100%;color:#f5ddbe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- font:600 clamp(8px,2vw,10px)/1.15 "Noto Serif KR",sans-serif
+.tc-app .tc-topbar-compact .tc-tapestry-premium .tc-premium-status small{
+ display:block;max-width:100%;color:#f4dac2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:600 clamp(8px,2.2vw,10px)/1.12 "Noto Serif KR",sans-serif
 }
-.tc-tapestry-tools{display:grid;grid-template-columns:1fr 1fr;gap:3px;min-width:0;align-items:center}
-.tc-tapestry-tools button{
- position:relative;display:grid;place-items:center;min-width:0;width:100%;height:35px;padding:0;
- color:#edcf9e;border:1px solid #aa8052;border-radius:4px;
- background:linear-gradient(145deg,#3d2c20,#17110e 75%);
- box-shadow:inset 0 0 0 1px #79513255,0 2px 4px #0008
+.tc-topbar-compact .tc-tapestry-tools{
+ display:grid;grid-template-columns:1fr 1fr;gap:3px;align-items:center;min-width:0;width:100%
 }
-.tc-tapestry-tools button .tc-glyph{font-size:16px}
-.tc-tapestry-menu-icon{display:grid;gap:3px;width:15px}
-.tc-tapestry-menu-icon i{display:block;height:2px;background:#eed0a1;box-shadow:0 1px #654324}
-.tc-tapestry-unread{
- position:absolute;right:-5px;top:-5px;display:grid;place-items:center;
+.tc-topbar-compact .tc-tapestry-tools button{
+ display:grid;place-items:center;position:relative;min-width:0;width:100%;height:34px;padding:0;
+ color:#eace9d;background:linear-gradient(145deg,#3d2c20,#17110e 80%);
+ border:1px solid #ac8252;border-radius:4px;
+ box-shadow:inset 0 0 0 1px #65412b66,0 1px 3px #0009
+}
+.tc-topbar-compact .tc-tapestry-tools .tc-glyph{font-size:16px}
+.tc-topbar-compact .tc-tapestry-menu-icon{display:grid;gap:3px;width:14px}
+.tc-topbar-compact .tc-tapestry-menu-icon i{display:block;height:2px;background:#eed0a1;box-shadow:0 1px #654324}
+.tc-topbar-compact .tc-tapestry-unread{
+ position:absolute;right:-4px;top:-5px;display:grid;place-items:center;
  min-width:12px;height:12px;padding:0 1px;border-radius:8px;
  background:#d5382a;color:white;font:700 8px/1 sans-serif
 }
 @media(max-width:380px){
- .tc-app .tc-topbar.tc-topbar-tapestry{grid-template-columns:minmax(0,1.28fr) minmax(0,1.06fr) minmax(0,.92fr) 46px;padding-inline:5px}
- .tc-tapestry-wallet{padding-inline:2px}
- .tc-tapestry-balance{grid-template-columns:15px minmax(0,1fr) 6px 15px;gap:1px}
- .tc-tapestry-coin{transform:scale(.87);transform-origin:left center}
- .tc-tapestry-balance button{width:15px;height:19px}
- .tc-tapestry-tools button{height:32px}
+ .tc-app .tc-topbar.tc-topbar-compact{padding-inline:4px;gap:2px}
+ .tc-topbar-compact .tc-tapestry-wallet{padding-inline:3px}
+ .tc-topbar-compact .tc-tapestry-balance{grid-template-columns:16px minmax(0,1fr) 8px 22px;gap:3px}
+ .tc-topbar-compact .tc-tapestry-coin{width:16px;height:16px}
+ .tc-topbar-compact .tc-tapestry-balance>button{width:22px;height:22px}
+ .tc-topbar-compact .tc-tapestry-tools button{height:33px}
 }
 @media(max-width:340px){
- .tc-app .tc-topbar.tc-topbar-tapestry{grid-template-columns:minmax(0,1.24fr) minmax(0,1.1fr) minmax(0,.88fr) 43px;gap:1px;padding-inline:4px}
- .tc-tapestry-brand{padding-left:25px}
- .tc-tapestry-banner{width:27px}
- .tc-tapestry-brand-text strong{font-size:12px}
- .tc-tapestry-balance{font-size:8px}
- .tc-app .tc-topbar-tapestry .tc-tapestry-premium .tc-premium-status strong{font-size:9px}
+ .tc-app .tc-topbar.tc-topbar-compact{grid-template-columns:minmax(0,1fr) 76px 61px}
+ .tc-topbar-compact .tc-tapestry-balance{grid-template-columns:15px minmax(0,1fr) 7px 20px;gap:2px;font-size:10px}
+ .tc-topbar-compact .tc-tapestry-balance>button{width:20px;height:21px}
+ .tc-app .tc-topbar-compact .tc-tapestry-premium .tc-premium-status strong{font-size:9px}
 }
-@media(max-height:700px){.tc-app:has(>.tc-topbar-tapestry){--top:68px}}
+@media(max-height:700px){.tc-app:has(>.tc-topbar-compact){--top:58px}}
