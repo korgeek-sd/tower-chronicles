@@ -1,7 +1,6 @@
 import React from 'react';
 import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
-import {assetUrl} from '../../game/data/graphics';
 import {PremiumStatus} from '../PremiumStatus';
 import {Glyph} from '../../ui/mobile';
 
@@ -11,17 +10,12 @@ type Props={
  onProfile:()=>void;onShop:()=>void;onPremium:()=>void;onMail:()=>void;onMenu:()=>void;
 };
 
-/** Premium-integrated status bar. No profile, level, or network growth polling. */
+/** Compact currency-first HUD. The game logo and decorative title column are intentionally absent. */
 export function GameTopBar({game,userId,now,unreadMail,onShop,onPremium,onMail,onMenu}:Props){
  const silver=game.silver.toLocaleString('ko-KR');
  const gold=game.market.gold.toLocaleString('ko-KR');
  const unread=unreadMail>0?' · 읽지 않은 우편 '+unreadMail+'개':'';
- const spriteStyle={'--tc-tapestry-sprite':'url("'+assetUrl('assets/ui/topbar/tower-topbar-art.webp')+'")'} as React.CSSProperties;
- return <header className="tc-topbar tc-topbar-tapestry" style={spriteStyle} aria-label="탑의 기록 상단 상태바">
-  <div className="tc-tapestry-brand" aria-label="탑의 기록">
-   <span className="tc-tapestry-banner" aria-hidden="true"/>
-   <span className="tc-tapestry-brand-text"><strong>탑의 기록</strong><small>THE ARCHIVE OF THE TOWER</small></span>
-  </div>
+ return <header className="tc-topbar tc-topbar-tapestry tc-topbar-compact" aria-label="재화 및 프리미엄 상태">
   <div className="tc-tapestry-wallet" aria-label="보유 재화">
    <div className="tc-tapestry-balance">
     <i className="tc-tapestry-coin silver" aria-hidden="true"/>
