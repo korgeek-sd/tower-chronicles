@@ -16,7 +16,10 @@ import {
 
 import {getOccupationState,type OnlineOccupationState} from '../../online/occupation';
 import {TOWERS} from '../../game/data/config';
+import {assetUrl} from '../../game/data/graphics';
+import {getGuildTerritoryState,type GuildTerritoryState} from '../../online/guildTerritory';
 import './hq.css';
+import './hq-v2.css';
 import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildTerritoryPanel} from './GuildTerritoryPanel';
@@ -28,6 +31,15 @@ type LocalTab='overview'|'members'|'activity'|'manage';
 const localTabs=[['overview','본부'],['members','단원'],['activity','기록'],['manage','관리']] as const;
 type ServerTab='shop'|'overview'|'boss'|'auction'|'warehouse'|'territory'|'rankings'|'members'|'applications'|'activity'|'manage';
 const serverTabs=[['overview','본부'],['boss','보스전'],['auction','경매'],['shop','상점'],['warehouse','금고'],['territory','영지'],['rankings','랭킹'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
+
+type CompanySection='overview'|'combat'|'territory'|'assets'|'people';
+const companySections:readonly {id:CompanySection;label:string;glyph:string;first:ServerTab;tabs:readonly ServerTab[]}[]=[
+ {id:'overview',label:'본부',glyph:'association',first:'overview',tabs:['overview','rankings','activity']},
+ {id:'combat',label:'전투',glyph:'sword',first:'boss',tabs:['boss']},
+ {id:'territory',label:'영지',glyph:'towers',first:'territory',tabs:['territory']},
+ {id:'assets',label:'자산',glyph:'market',first:'warehouse',tabs:['warehouse','shop','auction']},
+ {id:'people',label:'단원',glyph:'jobs',first:'members',tabs:['members','applications','manage']}
+];
 const PAGE_SIZE=5;
 
 export function AssociationScreen({
@@ -65,6 +77,18 @@ function OnlineAssociationScreen({
  const [share,setShare]=useState(0);
  const [creating,setCreating]=useState(false),[search,setSearch]=useState(''),[available,setAvailable]=useState(true),[selected,setSelected]=useState<string|null>(null),[memberSelected,setMemberSelected]=useState<string|null>(null),[fullNotice,setFullNotice]=useState(false);
  const [occupation,setOccupation]=useState<OnlineOccupationState|null>(null);
+
+ const [territorySummary,setTerritorySummary]=useState<Pick<GuildTerritoryState,'ownedCount'|'totalCount'>|null>(null);
+ useEffect(()=>{
+  let disposed=false;
+  if(!state?.current||tab!=='overview'){return;}
+  setTerritorySummary(null);
+  void getGuildTerritoryState(lease).then(next=>{
+   if(!disposed)setTerritorySummary({ownedCount:next.ownedCount,totalCount:next.totalCount});
+  }).catch(()=>{if(!disposed)setTerritorySummary(null);});
+  return()=>{disposed=true;};
+ },[state?.current?.associationId,tab,lease.leaseId,lease.generation]);
+
  useEffect(()=>{let disposed=false;if(state?.current&&tab==='overview')void getOccupationState(lease).then(x=>{if(!disposed)setOccupation(x);}).catch(()=>{if(!disposed)setOccupation(null);});return()=>{disposed=true;};},[state?.current?.associationId,tab,lease.leaseId]);
 
 
@@ -144,28 +168,59 @@ function OnlineAssociationScreen({
 
  const leader=current.myRole==='LEADER';
  const visibleTabs=(leader?serverTabs:serverTabs.filter(([id])=>id!=='applications'&&id!=='manage')) as readonly (readonly [ServerTab,string])[];
+ const activeSection=companySections.find(section=>section.tabs.includes(tab))??companySections[0];
+ const subTabs=visibleTabs.filter(([id])=>activeSection.tabs.includes(id));
+ const navigate=(destination:ServerTab)=>{setTab(destination);setPage(0);};
  const source=tab==='members'?current.members:tab==='applications'?current.applications:tab==='activity'?current.activity:[];
  const pages=Math.max(1,Math.ceil(source.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=source.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
  const memberLabel=(userId:string)=>current.members.find(m=>m.userId===userId)?.playerLabel??'탐사자';
 
- return <Screen className={tab==='boss'?'tc-assoc-raid-screen':''} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>}>
-  <div className={"tc-assoc tc-assoc-online tc-assoc-hq"+(tab==='boss'?" tc-assoc-raid-view":"")}>
-   {tab!=='boss'&&<section className="tc-assoc-banner"><span className="tc-assoc-banner-seal"><Glyph name="association"/></span><div className="tc-assoc-banner-copy"><small>{current.recordNumber}</small><b>{current.name}</b><p>{current.description||'등록된 소개가 없습니다.'}</p></div><div className="tc-assoc-banner-meta"><span><small>단장</small><b>{memberLabel(current.leaderUserId)}</b></span><span><small>단원</small><b>{current.members.length}/{current.memberLimit}</b></span></div></section>}
-   <Segments items={visibleTabs} value={visibleTabs.some(([id])=>id===tab)?tab:'overview'} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
+ return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>}>
+  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")}>
+   {tab!=='boss'&&<section className={'tc-assoc-banner tc-company-hero'+(tab==='overview'?' is-home':' is-compact')}
+    style={{backgroundImage:'linear-gradient(90deg,rgba(9,12,20,.96),rgba(10,14,22,.74) 47%,rgba(7,10,16,.18)),url("'+assetUrl('assets/backgrounds/hub/novar-moonlit-v3.webp')+'")'}}>
+    <span className="tc-assoc-banner-seal tc-company-herald"><img src={assetUrl('assets/ui/navigation-new/association.png')} alt="" /></span>
+    <div className="tc-assoc-banner-copy"><small>{current.recordNumber}</small><b>{current.name}</b><p>{current.description||'원정단의 여정을 기록하는 본부'}</p></div>
+    <div className="tc-assoc-banner-meta"><span><small>단장</small><b>{memberLabel(current.leaderUserId)}</b></span><span><small>단원</small><b>{current.members.length}/{current.memberLimit}</b></span></div>
+   </section>}
+   <nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
+    {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}
+     className={section.id===activeSection.id?'active':''} onClick={()=>navigate(section.first)}>
+     <Glyph name={section.glyph}/><span>{section.label}</span>
+     {section.id==='people'&&leader&&current.applications.length>0&&<i className="tc-company-pending-dot" aria-label={'가입 신청 '+current.applications.length+'건'}/>}
+    </button>)}
+   </nav>
+   {subTabs.length>1&&<div className="tc-company-subnav-wrap"><Segments items={subTabs} value={tab} onChange={navigate} label={activeSection.label+' 세부 메뉴'}/></div>}
+   {activeSection.id==='combat'&&<div className="tc-company-combat-nav" role="group" aria-label="공동 전투 기능">
+    <button type="button" aria-current="page" onClick={()=>navigate('boss')}>보스전</button>
+    <button type="button" onClick={onOccupation} disabled={!onOccupation}>점령전 본부 ›</button>
+   </div>}
    {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
    {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
    {tab==='rankings'&&<GuildRankingPanel lease={lease}/>}
    {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
    {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
-   {tab==='overview'&&<section className="tc-assoc-overview">
+   {tab==='overview'&&<section className="tc-assoc-overview tc-company-overview">
+    <div className="tc-company-summary" aria-label="원정단 현황">
+     <div><Glyph name="jobs"/><small>단원 수</small><b>{current.members.length}<em> / {current.memberLimit}</em></b></div>
+     <div><Glyph name="towers"/><small>점령 영지</small><b>{territorySummary?territorySummary.ownedCount:'—'}<em>{territorySummary?' / '+territorySummary.totalCount:''}</em></b></div>
+     <div><Glyph name="market"/><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
+    </div>
     <AssociationSupplyPanel key={current.associationId+'growth'} lease={lease} mode="growth" refreshKey={current.activity[0]?.activityId} expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>
+    <div className="tc-company-section-heading"><b>원정단 활동</b><small>본부에서 바로 이동</small></div>
+    <div className="tc-company-quicklinks">
+     <button type="button" className="tc-hq-occupation tc-hq-boss-entrance" onClick={()=>navigate('boss')}><Glyph name="sword"/><div><b>일일 · 주간 보스전</b><small>공동 토벌과 보상 확인</small></div><span>›</span></button>
+     <button type="button" className="tc-hq-occupation" onClick={onOccupation} disabled={!onOccupation}><Glyph name="towers"/><div><b>점령전 본부</b><small>{occupation?({BIDDING:'입찰 진행 중',LOCKED:'전투 준비',BATTLE:'점령전 진행 중',SETTLED:'전투 종료'}[occupation.window.phase]):'점령 현황 · 입찰 · 전선 참여'}</small><small>{occupation?.towers.filter(t=>t.ownerGroupKey===occupation.identity?.groupKey&&!!t.ownerGroupKey).map(t=>TOWERS[t.tower].name).join(' · ')||'점령한 탑 없음'}</small></div><span>›</span></button>
+     <button type="button" className="tc-hq-occupation" onClick={()=>navigate('territory')}><Glyph name="towers"/><div><b>영지 관리</b><small>소유권 · 세율 · 실제 징수</small></div><span>›</span></button>
+     <button type="button" className="tc-hq-occupation" onClick={()=>navigate('shop')}><Glyph name="shop"/><div><b>원정단 상점</b><small>공헌도 보급품 교환</small></div><span>›</span></button>
+     <button type="button" className="tc-hq-occupation" onClick={()=>navigate('warehouse')}><Glyph name="inventory"/><div><b>원정단 금고</b><small>공용 재화 · 보관함</small></div><span>›</span></button>
+     <button type="button" className="tc-hq-occupation" onClick={()=>navigate('auction')}><Glyph name="market"/><div><b>원정단 경매</b><small>장비 경매 · 입찰 현황</small></div><span>›</span></button>
+    </div>
     <div className="tc-assoc-notice-board"><header><Glyph name="jobs"/><b>원정단 공지</b><small>{current.noticeUpdatedAt?new Date(current.noticeUpdatedAt).toLocaleDateString('ko-KR'):'NOTICE'}</small></header><p className={fullNotice?'':'tc-hq-notice-preview'}>{current.notice||'등록된 공지가 없습니다.'}</p>{current.notice&&<button onClick={()=>setFullNotice(v=>!v)}>{fullNotice?'접기':'공지 전문'}</button>}</div>
-    <div className="tc-hq-economy"><span>공용 실버 <b>{current.treasurySilver.toLocaleString()} S</b></span><span>귀환 수익 분담 <b>{current.revenueShareRatePercent}%</b></span><button type="button" onClick={()=>setTab('warehouse')}>원정단 금고 보기 ›</button></div>
-    <button className="tc-hq-occupation tc-hq-boss-entrance" onClick={()=>setTab('boss')}><Glyph name="sword"/><div><b>원정단 보스전</b><small>일일·주간 보스 · 하루 5회 · 길드 공동 토벌</small></div><span>도전 ›</span></button>
-    <button className="tc-hq-occupation" onClick={onOccupation}><Glyph name="towers"/><div><b>점령전 본부</b><small>{occupation?({BIDDING:'입찰 진행 중',LOCKED:'전투 준비',BATTLE:'점령전 진행 중',SETTLED:'전투 종료'}[occupation.window.phase]):'점령 현황 확인 · 입찰 · 전선 참여'}</small><small>{occupation?.towers.filter(t=>t.ownerGroupKey===occupation.identity?.groupKey&&!!t.ownerGroupKey).map(t=>TOWERS[t.tower].name).join(' · ')||'점령한 탑 없음'}</small></div><span>입장 ›</span></button>
-    <button className="tc-hq-chat" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}><b>원정단 채팅</b><span>단원들과 대화하기 ›</span></button>
-    {leader&&current.applications.length>0&&<button className="tc-assoc-pending" onClick={()=>{setTab('applications');setPage(0);}}>가입 신청 <b>{current.applications.length}</b><span>확인 ›</span></button>}
+    <div className="tc-hq-economy"><span>공용 실버 <b>{current.treasurySilver.toLocaleString()} S</b></span><span>귀환 수익 분담 <b>{current.revenueShareRatePercent}%</b></span><button type="button" onClick={()=>navigate('warehouse')}>원정단 금고 보기 ›</button></div>
+    <button type="button" className="tc-hq-chat" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}><b>원정단 채팅</b><span>단원들과 대화하기 ›</span></button>
+    {leader&&current.applications.length>0&&<button type="button" className="tc-assoc-pending" onClick={()=>navigate('applications')}>가입 신청 <b>{current.applications.length}</b><span>확인 ›</span></button>}
    </section>}
 
    {tab==='members'&&<><div className="tc-member-list">{shown.map((item:any)=>{const member=item as typeof current.members[number];return <div className="tc-member tc-assoc-member" key={member.userId}><div><b>{member.playerLabel}{member.userId===state.userId?' · 나':''}</b><small>{member.role==='LEADER'?'단장':'단원'} · {new Date(member.joinedAt).toLocaleDateString('ko-KR')}</small></div>{leader&&member.role==='MEMBER'&&<button className="tc-hq-member-select" onClick={()=>setMemberSelected(memberSelected===member.userId?null:member.userId)}>관리</button>}{leader&&member.role==='MEMBER'&&memberSelected===member.userId&&<span className="tc-assoc-member-actions"><button disabled={busy} onClick={()=>{if(window.confirm(member.playerLabel+'에게 단장을 위임하시겠습니까?'))void act(()=>transferOnlineAssociationLeadership(lease,member.userId),'원정단장 권한을 위임했습니다.');}}>단장 위임</button><button disabled={busy} onClick={()=>{if(window.confirm(member.playerLabel+'을(를) 내보내시겠습니까?'))void act(()=>kickOnlineAssociationMember(lease,member.userId),'원정단원을 내보냈습니다.');}}>내보내기</button></span>}</div>})}{Array.from({length:Math.max(0,PAGE_SIZE-shown.length)},(_,i)=><div className="tc-member" key={'blank'+i}/>)}</div><Pager page={safe} count={pages} onChange={setPage}/></>}
