@@ -191,7 +191,7 @@ function OnlineAssociationScreen({
    {tab!=='boss'&&<section className={'tc-assoc-banner tc-company-hero'+(tab==='overview'?' is-home':' is-compact')}
     style={{backgroundImage:'linear-gradient(90deg,#10121df9 0%,#101524e8 41%,#10152266 72%,#0e132533),url("'+assetUrl('assets/ui/guild/concept2-castle.webp')+'")'}}>
     <span className="tc-assoc-banner-seal tc-company-herald"><img src={assetUrl('assets/ui/navigation-new/association.png')} alt="" /></span>
-    <div className="tc-assoc-banner-copy"><small>{current.recordNumber} · 원정단 본부</small><b>{current.name}</b><p>{current.description||'원정단의 여정을 기록하는 본부'}</p>
+    <div className="tc-assoc-banner-copy"><small>{current.recordNumber} · 원정단 본부</small><strong className="tc-company-hero-kicker">원정단</strong><b>{current.name}</b><p>{current.description||'원정단의 여정을 기록하는 본부'}</p>
      {tab==='overview'&&heroProgress&&heroLevel&&<div className="tc-company-hero-progress">
       <span>원정단 Lv.{heroProgress.associationLevel} <b>{Math.round(heroLevel.percent)}%</b></span>
       <div role="progressbar" aria-label="원정단 경험치" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(heroLevel.percent)}><i style={{width:heroLevel.percent+'%'}}/></div>
@@ -206,7 +206,7 @@ function OnlineAssociationScreen({
      {section.id==='people'&&leader&&current.applications.length>0&&<i className="tc-company-pending-dot" aria-label={'가입 신청 '+current.applications.length+'건'}/>}
     </button>)}
    </nav>
-   {subTabs.length>1&&<div className="tc-company-subnav-wrap"><Segments items={subTabs} value={tab} onChange={navigate} label={activeSection.label+' 세부 메뉴'}/></div>}
+   {subTabs.length>1&&tab!=='overview'&&<div className="tc-company-subnav-wrap"><Segments items={subTabs} value={tab} onChange={navigate} label={activeSection.label+' 세부 메뉴'}/></div>}
    {activeSection.id==='combat'&&<div className="tc-company-combat-nav" role="group" aria-label="공동 전투 기능">
     <button type="button" aria-current="page" onClick={()=>navigate('boss')}>보스전</button>
     <button type="button" onClick={onOccupation} disabled={!onOccupation}>점령전 본부 ›</button>
@@ -239,6 +239,7 @@ function OnlineAssociationScreen({
     </div>
     <div className="tc-assoc-notice-board"><header><Glyph name="jobs"/><b>원정단 공지</b><small>{current.noticeUpdatedAt?new Date(current.noticeUpdatedAt).toLocaleDateString('ko-KR'):'NOTICE'}</small></header><p className={fullNotice?'':'tc-hq-notice-preview'}>{current.notice||'등록된 공지가 없습니다.'}</p>{current.notice&&<button onClick={()=>setFullNotice(v=>!v)}>{fullNotice?'접기':'공지 전문'}</button>}</div>
     <div className="tc-hq-economy"><span>공용 실버 <b>{current.treasurySilver.toLocaleString()} S</b></span><span>귀환 수익 분담 <b>{current.revenueShareRatePercent}%</b></span><button type="button" onClick={()=>navigate('warehouse')}>원정단 금고 보기 ›</button></div>
+    <div className="tc-company-extra-links"><button type="button" onClick={()=>navigate('rankings')}>원정단 랭킹 보기 ›</button><button type="button" onClick={()=>navigate('activity')}>활동 기록 보기 ›</button></div>
     <button type="button" className="tc-hq-chat" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}><b>원정단 채팅</b><span>단원들과 대화하기 ›</span></button>
     {leader&&current.applications.length>0&&<button type="button" className="tc-assoc-pending" onClick={()=>navigate('applications')}>가입 신청 <b>{current.applications.length}</b><span>확인 ›</span></button>}
    </section>}
