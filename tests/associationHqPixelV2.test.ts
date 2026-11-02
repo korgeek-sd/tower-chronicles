@@ -60,3 +60,25 @@ test('pixel guild layout is scroll-safe on small phones and preserves font choic
   assert.match(body,new RegExp("tab==='"+tab+"'[\\s\\S]*?tc-company-records"));
  }
 });
+
+test('approved concept 2 is a castle-led HQ with one-column, readable action rows',()=>{
+ const joined=screen.slice(screen.indexOf('return <Screen className={tab===\'boss\''),screen.indexOf("   {tab==='members'&&"));
+ assert.match(joined,/hideHeader>/);
+ assert.match(joined,/assets\/ui\/guild\/concept2-castle\.webp/);
+ assert.match(joined,/assets\/ui\/guild\/concept2-company\.webp/);
+ assert.match(joined,/className="tc-company-growth-tile"/);
+ assert.match(joined,/aria-expanded=\{growthOpen\}/);
+ assert.match(joined,/tc-company-hero-progress/);
+ assert.match(joined,/className="tc-company-overview"/);
+ assert.doesNotMatch(joined,/className="tc-assoc-overview tc-company-overview"/);
+ assert.doesNotMatch(joined,/assets\/backgrounds\/hub\/novar-moonlit-v3\.webp/);
+ assert.equal((joined.match(/className="tc-company-action"/g)||[]).length,6);
+ assert.equal((joined.match(/src=\{assetUrl\('assets\/ui\/navigation\/(?:equipment|towers|market|inventory)\.png'\)\}/g)||[]).length,6);
+ assert.doesNotMatch(joined,/\+icon\+/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\);\s*grid-auto-rows:minmax\(59px,auto\)/);
+ assert.match(css,/\.tc-company-action>div>b\{/);
+ assert.match(css,/white-space:nowrap;word-break:keep-all/);
+ assert.match(css,/\.tc-company-screen\.tc-screen\{grid-template-rows:minmax\(0,1fr\)\}/);
+ for(const artwork of ['concept2-castle.webp','concept2-company.webp'])
+  assert.ok(existsSync('public/assets/ui/guild/'+artwork),artwork);
+});

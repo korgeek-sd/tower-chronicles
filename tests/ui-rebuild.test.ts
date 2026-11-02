@@ -34,7 +34,9 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
     ?read(path)
       .replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
       .replace('assets/ui/navigation-new/association.png','')
-      .replace('assets/ui/navigation/','')
+      .replaceAll('assets/ui/navigation/','')
+      .replace('assets/ui/guild/concept2-castle.webp','')
+      .replace('assets/ui/guild/concept2-company.webp','')
     :read(path);
   assert.equal(source.includes('assets/ui'),false,path+' references a UI asset');
   assert.equal(source.includes('assets/backgrounds'),false,path+' references a background asset');
