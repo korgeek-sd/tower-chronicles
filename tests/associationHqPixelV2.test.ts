@@ -2,83 +2,72 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync,readFileSync} from 'node:fs';
 
-const screen=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
-const css=readFileSync(new URL('../src/components/association/hq-v2.css',import.meta.url),'utf8');
+const screen=readFileSync('src/components/association/AssociationScreen.tsx','utf8');
+const homeCss=readFileSync('src/components/association/hq-v3.css','utf8');
+const legacyCss=readFileSync('src/components/association/hq-v2.css','utf8');
+const base='public/assets/ui/guild/new/';
 
-test('pixel guild HQ exposes exactly five major groups while keeping all 11 existing features',()=>{
- const primary=['overview','combat','territory','assets','people'];
+test('guild navigation has five custom illustrated sections and retains all eleven actions',()=>{
  const sections=[...screen.matchAll(/\{id:'(overview|combat|territory|assets|people)',label:'([^']+)',art:'([^']+)',first:'([^']+)',tabs:\[([^\]]+)\]\}/g)];
- assert.deepEqual(sections.map(m=>m[1]),primary);
- assert.deepEqual(sections.map(m=>m[2]),['본부','전투','영지','자산','단원']);
- const routes=sections.flatMap(m=>[...m[5].matchAll(/'([^']+)'/g)].map(x=>x[1]));
- assert.equal(routes.length,11);
+ assert.deepEqual(sections.map(s=>s[2]),['본부','전투','영지','자산','단원']);
+ const routes=sections.flatMap(s=>[...s[5].matchAll(/'([^']+)'/g)].map(a=>a[1]));
  assert.equal(new Set(routes).size,11);
- for(const route of ['overview','rankings','activity','boss','territory','warehouse','shop','auction','members','applications','manage']){
-  assert.ok(routes.includes(route),route);
- }
- for(const match of sections){
-  assert.ok(existsSync('public/assets/ui/navigation/'+match[3]+'.png'),match[3]+' art is missing');
- }
- assert.ok(existsSync('public/assets/backgrounds/hub/novar-moonlit-v3.webp'));
+ for(const tab of ['overview','rankings','activity','boss','territory','warehouse','shop','auction','members','applications','manage'])
+  assert.ok(routes.includes(tab),tab);
+ for(const section of sections)assert.ok(existsSync(base+'nav-'+section[3]+'.svg'),section[3]);
+ assert.match(screen,/assets\/ui\/guild\/new\/nav-'\+section\.art\+'\.svg/);
  assert.match(screen,/role="tablist" aria-label="원정단 주요 메뉴"/);
- assert.match(screen,/className="tc-company-nav-art"/);
- assert.match(screen,/onChange=\{navigate\}/);
-});
-
-test('guild overhaul retains actual live data, occupation navigation and all original panels',()=>{
- for(const token of ['GuildBossPanel','GuildAuctionPanel','GuildTerritoryPanel','GuildRankingPanel',
-  'AssociationWarehousePanel','AssociationSupplyPanel','getGuildTerritoryState','territorySummary.ownedCount',
-  'current.members.length','current.treasurySilver.toLocaleString()','current.revenueShareRatePercent',
-  'setGuildVillageTax','reviewOnlineAssociationApplication','updateOnlineAssociation',
-  'kickOnlineAssociationMember','transferOnlineAssociationLeadership','disbandOnlineAssociation',
-  'leaveOnlineAssociation','tower-open-association-chat']){
-  if(token==='setGuildVillageTax')assert.match(readFileSync('src/components/association/GuildTerritoryPanel.tsx','utf8'),/setGuildVillageTax/);
-  else assert.ok(screen.includes(token),token);
- }
- assert.match(screen,/onAuction=\{\(\)=>setTab\('auction'\)\}/);
- assert.match(screen,/onClick=\{onOccupation\}/);
- assert.match(screen,/tab==='applications'&&leader/);
- assert.match(screen,/tab==='manage'&&leader/);
  assert.match(screen,/leader\?serverTabs:serverTabs.filter/);
- assert.match(screen,/\.filter\(\(\[id\]\)=>activeSection.tabs.includes\(id\)\)/);
+ assert.match(screen,/tab==='manage'&&leader/);
+ assert.match(screen,/tab==='applications'&&leader/);
 });
-
-test('pixel guild layout is scroll-safe on small phones and preserves font choice',()=>{
- assert.match(css,/tc-assoc-hq-v2/);
- assert.match(css,/tc-company-hero/);
- assert.match(css,/tc-company-mainnav/);
- assert.match(css,/tc-company-subnav-wrap/);
- assert.match(css,/tc-company-quicklinks/);
- assert.match(css,/tc-company-records/);
- assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
- assert.match(css,/overflow-y:auto/);
- assert.match(css,/@media\(max-width:360px\)/);
- assert.match(css,/@media\(max-height:710px\)/);
- assert.doesNotMatch(css,/--game-font\s*:/);
- const body=screen.slice(screen.indexOf('function OnlineAssociationScreen'),screen.indexOf('function LocalAssociationScreen'));
- for(const tab of ['members','applications','activity']){
-  assert.match(body,new RegExp("tab==='"+tab+"'[\\s\\S]*?tc-company-records"));
- }
+test('HQ has 6 unique illustrated actions, original banner art, member assets and progress popup',()=>{
+ for(const art of ['castle.svg','emblem.svg','nav-hq.svg','nav-combat.svg','nav-territory.svg','nav-assets.svg','nav-members.svg',
+  'action-boss.svg','action-siege.svg','action-land.svg','action-shop.svg','action-vault.svg','action-auction.svg'])
+  assert.ok(existsSync(base+art),art);
+ const slice=screen.slice(screen.indexOf("return <Screen className={tab==='boss'"),screen.indexOf("   {tab==='members'&&"));
+ assert.ok(slice.length>500);
+ assert.match(slice,/hideHeader>/);
+ assert.match(slice,/assets\/ui\/guild\/new\/castle\.svg/);
+ assert.match(slice,/assets\/ui\/guild\/new\/emblem\.svg/);
+ assert.match(slice,/tc-assoc-hq-v3/);
+ assert.match(slice,/className="tc-company-overview tc-hq-fixed-overview"/);
+ assert.match(slice,/tc-hq-feature-grid/);
+ assert.equal((slice.match(/className="tc-hq-feature"/g)||[]).length,6);
+ for(const name of ['boss','siege','land','shop','vault','auction'])
+  assert.ok(slice.includes('assets/ui/guild/new/action-'+name+'.svg'),name);
+ assert.doesNotMatch(slice,/assets\/ui\/navigation(?:-new)?\//);
+ assert.doesNotMatch(slice,/assets\/ui\/guild\/concept2-/);
+ assert.match(slice,/loadAssociationProgression|heroProgress\?\.associationLevel|heroLevel\?Math\.round/);
+ assert.match(slice,/onClick=\{\(\)=>setGrowthOpen\(true\)\}/);
+ assert.match(slice,/role="dialog" aria-modal="true"/);
+ assert.match(slice,/mode="growth"/);
+ assert.match(slice,/current\.notice\|\|'등록된 공지가 없습니다\.'/);
+ assert.match(slice,/tower-open-association-chat/);
 });
-
-test('approved concept 2 is a castle-led HQ with one-column, readable action rows',()=>{
- const joined=screen.slice(screen.indexOf('return <Screen className={tab===\'boss\''),screen.indexOf("   {tab==='members'&&"));
- assert.match(joined,/hideHeader>/);
- assert.match(joined,/assets\/ui\/guild\/concept2-castle\.webp/);
- assert.match(joined,/assets\/ui\/guild\/concept2-company\.webp/);
- assert.match(joined,/className="tc-company-growth-tile"/);
- assert.match(joined,/aria-expanded=\{growthOpen\}/);
- assert.match(joined,/tc-company-hero-progress/);
- assert.match(joined,/className="tc-company-overview"/);
- assert.doesNotMatch(joined,/className="tc-assoc-overview tc-company-overview"/);
- assert.doesNotMatch(joined,/assets\/backgrounds\/hub\/novar-moonlit-v3\.webp/);
- assert.equal((joined.match(/className="tc-company-action"/g)||[]).length,6);
- assert.equal((joined.match(/src=\{assetUrl\('assets\/ui\/navigation\/(?:equipment|towers|market|inventory)\.png'\)\}/g)||[]).length,6);
- assert.doesNotMatch(joined,/\+icon\+/);
- assert.match(css,/grid-template-columns:minmax\(0,1fr\);\s*grid-auto-rows:minmax\(59px,auto\)/);
- assert.match(css,/\.tc-company-action>div>b\{/);
- assert.match(css,/white-space:nowrap;word-break:keep-all/);
- assert.match(css,/\.tc-company-screen\.tc-screen\{grid-template-rows:minmax\(0,1fr\)\}/);
- for(const artwork of ['concept2-castle.webp','concept2-company.webp'])
-  assert.ok(existsSync('public/assets/ui/guild/'+artwork),artwork);
+test('new overview never scrolls; overlays retain old donation and notices',()=>{
+ assert.match(homeCss,/tc-assoc-hq-v3/);
+ assert.match(homeCss,/grid-template-rows:clamp\(95px,22%,148px\) clamp\(46px,9%,62px\) minmax\(0,1fr\)/);
+ assert.match(homeCss,/\.tc-company-overview\.tc-hq-fixed-overview\{/);
+ assert.match(homeCss,/grid-template-rows:clamp\(40px,10\.5%,54px\) minmax\(0,1fr\) clamp\(29px,7\.5%,37px\) clamp\(29px,7\.5%,37px\)/);
+ assert.match(homeCss,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(homeCss,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(homeCss,/overflow:hidden/);
+ assert.match(homeCss,/@media\(max-width:355px\)/);
+ assert.match(homeCss,/@media\(max-height:680px\)/);
+ assert.match(homeCss,/tc-hq-overlay-panel/);
+ assert.match(homeCss,/overflow:auto/); // only dialog scrolls
+ assert.doesNotMatch(homeCss,/--game-font\s*:/);
+ assert.match(legacyCss,/\.tc-company-records/);
+ assert.match(screen,/tc-company-subnav-wrap/);
+});
+test('all former guild server operations remain wired to their detailed pages',()=>{
+ for(const token of ['GuildBossPanel','GuildAuctionPanel','GuildTerritoryPanel','GuildRankingPanel','AssociationWarehousePanel',
+  'AssociationSupplyPanel','getGuildTerritoryState','territorySummary.ownedCount','current.members.length',
+  'current.treasurySilver.toLocaleString()','current.revenueShareRatePercent',
+  'reviewOnlineAssociationApplication','updateOnlineAssociation','kickOnlineAssociationMember',
+  'transferOnlineAssociationLeadership','disbandOnlineAssociation','leaveOnlineAssociation',
+  'tower-open-association-chat','onClick={onOccupation}','onAuction={()=>setTab(\'auction\')}'])
+  assert.ok(screen.includes(token),token);
+ assert.match(readFileSync('src/components/association/GuildTerritoryPanel.tsx','utf8'),/setGuildVillageTax/);
 });
