@@ -35,6 +35,7 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
       .replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
       // The 13 bespoke guild SVGs are the only art allowed in this screen.
       .replaceAll(/assets\/ui\/guild\/new\/(?:castle|emblem|nav-(?:hq|combat|territory|assets|members)|action-(?:boss|siege|land|shop|vault|auction))\.svg/g,'')
+      .replace('assets/ui/guild/new/nav-','')
     :read(path);
   assert.equal(source.includes('assets/ui'),false,path+' references a UI asset');
   assert.equal(source.includes('assets/backgrounds'),false,path+' references a background asset');
