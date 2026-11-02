@@ -6,13 +6,19 @@ const screen=readFileSync(new URL('../src/components/association/AssociationScre
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 
 test('ASSOCIATION HQ 0.1.80 01: association identity and headquarters replace the dashboard feel',()=>{
- for(const token of ['NOVAR EXPEDITION COMPANY','tc-assoc-banner','tc-assoc-banner-seal','tc-assoc-notice-board','tc-hq-economy'])
+ // The fixed HQ retains every function without the former scrolling notice/economy cards.
+ for(const token of ['NOVAR EXPEDITION COMPANY','tc-company-hero','tc-company-herald',
+  'tc-hq-announcement-strip','tc-hq-chat-strip','tc-company-summary','tc-hq-feature-grid',
+  'current.treasurySilver.toLocaleString()'])
   assert.match(screen,new RegExp(token));
  assert.match(screen,/\['overview','본부'\]/);
 });
 
 test('ASSOCIATION HQ 0.1.80 02: leader decisions remain visible and actionable',()=>{
- assert.match(screen,/tc-assoc-pending/);
+ // Leader requests are visible as a main-tab badge; the approval panel remains protected.
+ assert.match(screen,/tc-company-pending-dot/);
+ assert.match(screen,/tab==='applications'&&leader/);
+ assert.match(screen,/tab==='manage'&&leader/);
  assert.match(screen,/current\.applications\.length/);
  assert.match(screen,/단장 위임/);
  assert.match(screen,/내보내기/);
