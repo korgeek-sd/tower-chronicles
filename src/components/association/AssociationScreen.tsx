@@ -18,11 +18,12 @@ import {getOccupationState,type OnlineOccupationState} from '../../online/occupa
 import {loadAssociationProgression,type AssociationProgression} from '../../online/associationProgression';
 import {associationLevelProgress} from '../../game/association/growthRules';
 import {TOWERS} from '../../game/data/config';
-import {assetUrl} from '../../game/data/graphics';
 import {getGuildTerritoryState,type GuildTerritoryState} from '../../online/guildTerritory';
 import './hq.css';
 import './hq-v2.css';
 import './hq-v3.css';
+import './hq-v4.css';
+import {GuildLineIcon,type GuildLineIconName} from './GuildLineIcon';
 import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildTerritoryPanel} from './GuildTerritoryPanel';
@@ -36,7 +37,7 @@ type ServerTab='shop'|'overview'|'boss'|'auction'|'warehouse'|'territory'|'ranki
 const serverTabs=[['overview','본부'],['boss','보스전'],['auction','경매'],['shop','상점'],['warehouse','금고'],['territory','영지'],['rankings','랭킹'],['members','단원'],['applications','신청'],['activity','기록'],['manage','관리']] as const;
 
 type CompanySection='overview'|'combat'|'territory'|'assets'|'people';
-const companySections:readonly {id:CompanySection;label:string;art:string;first:ServerTab;tabs:readonly ServerTab[]}[]=[
+const companySections:readonly {id:CompanySection;label:string;art:GuildLineIconName;first:ServerTab;tabs:readonly ServerTab[]}[]=[
  {id:'overview',label:'본부',art:'hq',first:'overview',tabs:['overview','rankings','activity']},
  {id:'combat',label:'전투',art:'combat',first:'boss',tabs:['boss']},
  {id:'territory',label:'영지',art:'territory',first:'territory',tabs:['territory']},
@@ -188,14 +189,13 @@ function OnlineAssociationScreen({
  const memberLabel=(userId:string)=>current.members.find(m=>m.userId===userId)?.playerLabel??'탐사자';
 
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
-  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+(tab==='overview'?" tc-assoc-hq-v3":"")}>
-   {tab!=='boss'&&<section className={'tc-assoc-banner tc-company-hero'+(tab==='overview'?' is-home':' is-compact')}
-    style={{backgroundImage:'linear-gradient(90deg,#0d1020f7 0%,#0d1120d8 40%,#0b11215c 78%),url("'+assetUrl('assets/ui/guild/new/castle.svg')+'")'}}>
-    <span className="tc-assoc-banner-seal tc-company-herald"><img src={assetUrl('assets/ui/guild/new/emblem.svg')} alt="" draggable={false}/></span>
+  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+(tab==='overview'?" tc-assoc-hq-v4":" tc-assoc-hq-v4")}>
+   {tab!=='boss'&&<section className={'tc-assoc-banner tc-company-hero'+(tab==='overview'?' is-home':' is-compact')}>
+    <div className="tc-company-herald" aria-hidden="true"><GuildLineIcon name="crest"/></div>
     <div className="tc-assoc-banner-copy">
-     <small>{current.recordNumber} · 원정단 본부</small>
-     {tab==='overview'&&<strong className="tc-company-hero-kicker">원정단</strong>}
+     <small>{current.recordNumber} · 원정단</small>
      <b>{current.name}</b>
+     <p>단장 {memberLabel(current.leaderUserId)}</p>
      {tab==='overview'&&<button type="button" className="tc-hq-progress-button" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
        <span>원정단 Lv.{heroProgress?.associationLevel??'—'} <em>{heroLevel?Math.round(heroLevel.percent)+'%':'—'}</em></span>
        <div className="tc-company-hero-progress"><div role="progressbar" aria-label="원정단 경험치" aria-valuemin={0} aria-valuemax={100} aria-valuenow={heroLevel?Math.round(heroLevel.percent):0}><i style={{width:(heroLevel?.percent??0)+'%'}}/></div></div>
@@ -206,7 +206,7 @@ function OnlineAssociationScreen({
    <nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
     {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}
      className={section.id===activeSection.id?'active':''} onClick={()=>navigate(section.first)}>
-     <img className="tc-company-nav-art" src={assetUrl('assets/ui/guild/new/nav-'+section.art+'.svg')} alt="" draggable={false}/><span>{section.label}</span>
+     <GuildLineIcon name={section.art} className="tc-guild-line-icon tc-company-nav-line"/><span>{section.label}</span>
      {section.id==='people'&&leader&&current.applications.length>0&&<i className="tc-company-pending-dot" aria-label={'가입 신청 '+current.applications.length+'건'}/>}
     </button>)}
    </nav>
@@ -221,45 +221,39 @@ function OnlineAssociationScreen({
    {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
    {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
-   {tab==='overview'&&<section className="tc-company-overview tc-hq-fixed-overview" aria-label="원정단 본부 대시보드">
+   {tab==='overview'&&<section className="tc-company-overview tc-hq-fixed-overview tc-hq-line-overview" aria-label="원정단 본부 대시보드">
     <div className="tc-company-summary" aria-label="원정단 현황">
-     <div><img src={assetUrl('assets/ui/guild/new/nav-members.svg')} alt=""/><small>단원 수</small><b>{current.members.length}<em> / {current.memberLimit}</em></b></div>
-     <div><img src={assetUrl('assets/ui/guild/new/nav-territory.svg')} alt=""/><small>점령 영지</small><b>{territorySummary?territorySummary.ownedCount:'—'}<em>{territorySummary?' / '+territorySummary.totalCount:''}</em></b></div>
-     <div><img src={assetUrl('assets/ui/guild/new/nav-assets.svg')} alt=""/><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
+     <div><GuildLineIcon name="members"/><small>단원 수</small><b>{current.members.length}<em> / {current.memberLimit}</em></b></div>
+     <div><GuildLineIcon name="territory"/><small>점령 영지</small><b>{territorySummary?territorySummary.ownedCount:'—'}<em>{territorySummary?' / '+territorySummary.totalCount:''}</em></b></div>
+     <div><GuildLineIcon name="assets"/><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
     </div>
     <div className="tc-hq-feature-grid" aria-label="원정단 활동 바로가기">
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('boss')}>
-      <img src={assetUrl('assets/ui/guild/new/action-boss.svg')} alt="" draggable={false}/>
-      <span><b>보스전</b><small>일일 · 주간</small></span>
+      <GuildLineIcon name="boss"/><span><b>보스전</b><small>일일 · 주간</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={onOccupation} disabled={!onOccupation}>
-      <img src={assetUrl('assets/ui/guild/new/action-siege.svg')} alt="" draggable={false}/>
-      <span><b>점령전</b><small>영지 쟁탈전</small></span>
+      <GuildLineIcon name="siege"/><span><b>점령전</b><small>영지 쟁탈전</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('territory')}>
-      <img src={assetUrl('assets/ui/guild/new/action-land.svg')} alt="" draggable={false}/>
-      <span><b>영지 관리</b><small>세율 · 징수</small></span>
+      <GuildLineIcon name="land"/><span><b>영지 관리</b><small>세율 · 징수</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('shop')}>
-      <img src={assetUrl('assets/ui/guild/new/action-shop.svg')} alt="" draggable={false}/>
-      <span><b>원정단 상점</b><small>보급품 교환</small></span>
+      <GuildLineIcon name="shop"/><span><b>원정단 상점</b><small>보급품 교환</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('warehouse')}>
-      <img src={assetUrl('assets/ui/guild/new/action-vault.svg')} alt="" draggable={false}/>
-      <span><b>원정단 금고</b><small>공용 재화</small></span>
+      <GuildLineIcon name="vault"/><span><b>원정단 금고</b><small>공용 재화</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('auction')}>
-      <img src={assetUrl('assets/ui/guild/new/action-auction.svg')} alt="" draggable={false}/>
-      <span><b>원정단 경매</b><small>장비 · 입찰</small></span>
+      <GuildLineIcon name="auction"/><span><b>원정단 경매</b><small>장비 · 입찰</small></span>
      </button>
     </div>
     <button type="button" className="tc-hq-announcement-strip" onClick={()=>setFullNotice(true)}>
-     <span className="tc-hq-strip-label">원정단 공지</span>
+     <GuildLineIcon name="notice"/><span className="tc-hq-strip-label">원정단 공지</span>
      <span className="tc-hq-strip-content">{current.notice||'등록된 공지가 없습니다.'}</span>
      <span className="tc-hq-strip-arrow" aria-hidden="true">›</span>
     </button>
     <button type="button" className="tc-hq-chat-strip" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}>
-     <span className="tc-hq-strip-label">원정단 채팅</span>
+     <GuildLineIcon name="chat"/><span className="tc-hq-strip-label">원정단 채팅</span>
      <span className="tc-hq-strip-content">단원들과 대화하기</span>
      <span className="tc-hq-strip-arrow" aria-hidden="true">›</span>
     </button>
