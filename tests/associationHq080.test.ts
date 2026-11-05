@@ -7,7 +7,7 @@ const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8')
 
 test('ASSOCIATION HQ 0.1.80 01: association identity and headquarters replace the dashboard feel',()=>{
  // The fixed HQ retains every function without the former scrolling notice/economy cards.
- for(const token of ['NOVAR EXPEDITION COMPANY','tc-company-hero','tc-company-herald',
+ for(const token of ['NOVAR EXPEDITION COMPANY','tc-gate-identity','tc-gate-emblem',
   '원정단 공지 열기','tc-hq-chat-strip','tc-gate-stats','tc-hq-feature-grid',
   'current.treasurySilver.toLocaleString()'])
   assert.match(screen,new RegExp(token));
