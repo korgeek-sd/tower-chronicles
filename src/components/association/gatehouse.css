@@ -80,6 +80,6 @@
 }
 @media (max-height: 740px) {
   .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
-    grid-template-rows: minmax(0, 1fr) 66px 44px minmax(310px, 4fr);
+    grid-template-rows: minmax(0, 1fr) 66px 44px minmax(330px, 4fr);
   }
 }
