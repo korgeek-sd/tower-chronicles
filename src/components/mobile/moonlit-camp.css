@@ -43,7 +43,7 @@
 .tc-moonlit-camp-screen .tc-camp-v2-stats strong{color:inherit;font:500 clamp(9px,2.6vw,12px)/1.3 system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis}
 .tc-moonlit-camp-screen .tc-camp-v2-stats em{font-style:normal;opacity:.85}
 .tc-moonlit-camp-screen .tc-camp-v2-stats i{position:absolute;bottom:0;left:0;height:4px;max-width:100%;background:currentColor;border-radius:3px;box-shadow:0 0 4px currentColor}
-.tc-moonlit-camp-screen .tc-village{grid-template-rows:minmax(0,1fr) 54px 48px;background:#080f1c}
+.tc-moonlit-camp-screen .tc-village{grid-template-rows:minmax(0,1fr) 48px;background:#080f1c}
 .tc-moonlit-camp-screen .tc-village-heading{position:absolute;top:0;left:0;right:0;z-index:4;height:44px;padding:0 9px;background:linear-gradient(90deg,#070e1ce8,transparent);border-bottom:1px solid #ac8a4959;pointer-events:none}
 .tc-moonlit-camp-screen .tc-village-heading h2{display:flex;align-items:center;gap:8px;color:#ecd4a0;font:700 17px/1.2 'Noto Serif KR',serif;text-shadow:0 2px 3px #000}
 .tc-moonlit-camp-screen .tc-village-heading h2>.tc-glyph{font-size:23px;color:#c3a163}
@@ -64,14 +64,11 @@
 .tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=gold-exchange]{left:24%;top:58%}
 .tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=appearance-summon]{left:77%;top:63%}
 .tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=occupation]{left:26%;top:90%}
-.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=mail]{left:76%;top:91%}
+.tc-moonlit-camp-screen .tc-camp-v2-quick button[data-facility=quests]{left:76%;top:91%}
 .tc-moonlit-camp-screen .tc-camp-v2-quick button>small{z-index:2;top:2px;right:5px;background:#922e30;border:1px solid #e0b66f;min-width:18px;font-size:10px}
 .tc-moonlit-camp-screen .tc-village-player{display:grid;left:44%;top:57%;height:15%;width:12%;filter:drop-shadow(0 4px 2px #000c)}
 .tc-moonlit-camp-screen .tc-camp-v2-extra{z-index:6;inset:96px 8px 8px;border:1px solid #b99a62;background:#070e1cf5;box-shadow:0 6px 24px #000a}
 .tc-moonlit-camp-screen .tc-camp-v2-extra button{background:#111a29;border:1px solid #5e513e;color:#e6d5b3}
-.tc-moonlit-camp-screen .tc-village-services{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:5px 8px 3px;min-height:44px;border-top:1px solid #b2935b;border-bottom:0;background:linear-gradient(#101622,#060b13)}
-.tc-moonlit-camp-screen .tc-village-services button{position:relative;display:flex;flex-direction:column;gap:1px;padding:2px 1px;min-height:44px;border:1px solid #77674d;border-radius:3px;box-shadow:inset 0 0 0 2px #0b111a,inset 0 0 0 3px #2e303255;background:linear-gradient(135deg,#162131,#080e18 65%);font-size:11px;color:#e4ddcd}
-.tc-moonlit-camp-screen .tc-village-services button>.tc-glyph{width:26px;height:26px;font-size:26px;color:#d8b87c;filter:drop-shadow(0 1px 1px #000)}
 .tc-moonlit-camp-screen .tc-camp-v2-primary{padding:2px 9px;background:#080d16}
 .tc-moonlit-camp-screen .tc-camp-v2-primary .tc-camp-v2-hunt{position:relative;gap:14px;border:1px solid #bca06c;background:linear-gradient(105deg,#4e1525,#8a293b 50%,#461423);box-shadow:inset 0 0 0 3px #250c16,inset 0 0 0 4px #956746;min-height:44px}
 .tc-moonlit-camp-screen .tc-camp-v2-primary button b{font-size:24px;letter-spacing:.12em;color:#fff0cc;text-shadow:0 2px 2px #230608}
@@ -102,16 +99,13 @@
  .tc-moonlit-camp-screen .tc-camp-v2-profile-link{left:42px}
  .tc-moonlit-camp-screen .tc-camp-v2-stats{gap:5px}
  .tc-moonlit-camp-screen .tc-camp-v2-stats>span{gap:3px}
- .tc-moonlit-camp-screen .tc-village-services{gap:3px;padding-inline:5px}
- .tc-moonlit-camp-screen .tc-village-services button{font-size:10px}
 }
 @media(max-height:700px){
  .tc-app:has(.tc-moonlit-camp-screen){--nav:48px}
  .tc-moonlit-camp-screen .tc-camp-v2{grid-template-rows:64px minmax(0,1fr) 44px}
- .tc-moonlit-camp-screen .tc-village{grid-template-rows:minmax(0,1fr) 48px 44px}
+ .tc-moonlit-camp-screen .tc-village{grid-template-rows:minmax(0,1fr) 44px}
  .tc-moonlit-camp-screen .tc-camp-v2-dossier{padding-block:5px}
  .tc-moonlit-camp-screen .tc-camp-v2-bio>strong{font-size:16px}
- .tc-moonlit-camp-screen .tc-village-services button>.tc-glyph{width:21px;height:21px;font-size:21px}
  .tc-moonlit-camp-screen .tc-camp-v2-primary{padding-block:0}
  .tc-moonlit-camp-screen .tc-camp-v2-primary button b{font-size:22px}
  .tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-glyph{font-size:22px}
@@ -133,5 +127,4 @@
 .tc-moonlit-camp-screen .tc-village-heading button{right:9px;top:0}
 .tc-moonlit-camp-screen .tc-village-all{top:44px}
 .tc-moonlit-camp-screen .tc-village-heading button:before,.tc-moonlit-camp-screen .tc-village-all:before{content:'';position:absolute;inset:8px 0;z-index:-1;border:1px solid #ac8b58;border-radius:3px;background:#080d17ed;box-shadow:inset 0 0 0 2px #24201b}
-.tc-moonlit-camp-screen .tc-village-services .tc-hub-icon{width:27px;height:27px}
-@media(max-height:700px){.tc-moonlit-camp-screen .tc-village-services{padding-block:2px}.tc-moonlit-camp-screen .tc-village-services .tc-hub-icon{width:24px;height:24px}.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-hub-icon{width:27px;height:27px}}
+@media(max-height:700px){.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-hub-icon{width:27px;height:27px}}

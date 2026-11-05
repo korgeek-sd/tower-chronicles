@@ -33,7 +33,7 @@ import {huntingLevel,VITALITY_CAP,type HuntingState} from '../../game/hunting/mo
 
 export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
 
-export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},mailUnread=0,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
+export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
  const facilityToggle=useRef<HTMLButtonElement>(null);
  const [huntStatus,setHuntStatus]=useState<Pick<HuntingState,'vitality'|'currentHp'|'maxHp'|'currentMp'|'maxMp'|'experience'>|null>(null);
@@ -60,19 +60,17 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
   {id:'appearance-summon',glyph:'jobs',name:'외형 소환',action:()=>onOpenJobs('register')},
   {id:'gold-exchange',glyph:'market',name:'골드 거래소',action:()=>onMove('gold-exchange')},
   {id:'occupation',glyph:'towers',name:'점령전',action:()=>onMove('occupation')},
-  {id:'mail',glyph:'mail',name:'우편함',action:onOpenMail}
+  {id:'quests',glyph:'bestiary',name:'의뢰 게시판',action:()=>onMove('quests')}
  ];
  const extraFacilities=[
+  {id:'seal',glyph:'association',name:'협회 인장',action:()=>onMove('seal')},
+  {id:'cosmetics',glyph:'cosmetics',name:'컬렉션',action:()=>onMove('cosmetics')},
+  {id:'bank',glyph:'tickets',name:'은행·대출',action:()=>onMove('bank')},
   {id:'character',glyph:'skill',name:'성장 현황',action:()=>onMove('character')},
   {id:'growth',glyph:'skill',name:'성장 기록',action:()=>onMove('growth')},
-  {id:'bank',glyph:'tickets',name:'은행·대출',action:()=>onMove('bank')},
-  {id:'quests',glyph:'bestiary',name:'의뢰',action:()=>onMove('quests')},
   {id:'stats',glyph:'skill',name:'스탯 분배',action:()=>onMove('stats')},
   {id:'bestiary',glyph:'bestiary',name:'생물록',action:()=>onMove('bestiary')},
-  {id:'cosmetics',glyph:'cosmetics',name:'컬렉션',action:()=>onMove('cosmetics')},
   {id:'jobs-list',glyph:'jobs',name:'외형 목록',action:()=>onOpenJobs('list')},
-  {id:'seal',glyph:'association',name:'협회 인장',action:()=>onMove('seal')},
-  {id:'association',glyph:'association',name:'원정단',action:()=>onMove('association')},
   {id:'inventory',glyph:'equipment',name:'장비 확인',action:()=>onMove('inventory')},
   {id:'settings',glyph:'settings',name:'설정',action:()=>onMove('settings')}
  ];
@@ -96,13 +94,12 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,onOpenMail=()=>{},ma
     <header className="tc-village-heading"><div><h2><HubIcon name="world"/>노바르 거점</h2><span>{game.expedition?'탑에서 원정이 진행 중입니다':'탑의 그늘 아래, 다시 모이는 거점'}</span></div><button type="button" className="tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/>마을 이동 <span aria-hidden="true">›</span></button></header>
     <div className="tc-village-scene"><div className="tc-village-map">
      <img className="tc-village-art" src={assetUrl('assets/backgrounds/hub/novar-moonlit-v3.webp')} alt="" decoding="async"/>
-     <nav className="tc-camp-v2-quick" aria-label="노바르 마을 시설 지도">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><span className="tc-village-nameplate"><HubIcon name={item.id}/><span>{item.name}</span></span>{item.id==='mail'&&mailUnread>0&&<small aria-label={'미확인 우편 '+mailUnread+'개'}>{mailUnread}</small>}</button>)}</nav>
+     <nav className="tc-camp-v2-quick" aria-label="노바르 마을 시설 지도">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><span className="tc-village-nameplate"><HubIcon name={item.id}/><span>{item.name}</span></span></button>)}</nav>
      <div className="tc-village-player" aria-hidden="true">{equippedArt?<img src={assetUrl(equippedArt)} alt=""/>:<Glyph name={weaponId}/>}</div>
      </div>
      {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설" onKeyDown={e=>{if(e.key==='Escape'){setShowAllFacilities(false);facilityToggle.current?.focus();}}}>{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
      {!showAllFacilities&&<span className="tc-camp-v2-extra-access" data-facility="bestiary" aria-hidden="true"/>}
     </div>
-    <nav className="tc-village-services" aria-label="거점 바로가기">{(['bank','quests','association','seal','cosmetics'] as const).map(id=>{const item=extraFacilities.find(facility=>facility.id===id)!;return <button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><HubIcon name={item.id}/><span>{item.id==='seal'?'인장':item.name}</span></button>;})}</nav>
     <nav className="tc-camp-v2-primary" aria-label="주요 행동"><button type="button" className="tc-camp-v2-hunt tc-feel-press" data-facility="hunt" data-game-feel="press" onClick={()=>onMove(game.expedition?'battle':'hunt')}><HubIcon name="hunt"/><span><b>{game.expedition?'원정 복귀':'출정하기'}</b><small>{game.expedition?'진행 중인 원정으로':'사냥하기 · 사냥터 선택'}</small></span><i aria-hidden="true">→</i></button></nav>
    </section>
    <section id="tc-camp-chat-dock" className="tc-camp-v2-chat-dock" aria-label="거점 실시간 채팅"/>
