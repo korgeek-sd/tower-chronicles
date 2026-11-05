@@ -1,12 +1,4 @@
-/* The gate and its crest come from the selected moonlit hall design. */
-.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
-  grid-template-rows: clamp(54px, 14vw, 72px) minmax(0, 1fr);
-  padding: 0;
-  gap: 0;
-  color: #f5dfb1;
-  background: #081321;
-
-  .tc-company-nav-line { display: none; }
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4:is(.tc-gatehouse,.tc-gate-detail) {
   .tc-gate-identity {
     display: grid; grid-template-columns: 16% minmax(0, 1fr) 36%;
     align-items: center; gap: 2%; padding: 2px 2%; min-height: 0;
@@ -32,6 +24,21 @@
     background: #151513; color: #ffe1ad; font-size: clamp(11px, 3.1vw, 15px);
     box-shadow: inset 0 0 0 1px #392c20;
   }
+  .tc-company-mainnav { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:4px; margin:0; padding:2px 5px; background:#0b1420; }
+  .tc-company-mainnav button { display:grid; align-content:center; justify-items:center; min-height:44px; gap:1px; padding:1px; border:1px solid #766848; border-radius:3px; background:#101a28; color:#ead8b3; font-size:11px; }
+  .tc-company-mainnav button.active { border-color:#daba79; background:#34232a; }
+  .tc-company-mainnav .tc-hub-icon { width:23px; height:23px; }
+}
+
+/* The gate and its crest come from the selected moonlit hall design. */
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
+  grid-template-rows: clamp(54px, 14vw, 72px) minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
+  color: #f5dfb1;
+  background: #081321;
+
+  .tc-company-nav-line { display: none; }
   > .tc-hq-line-overview {
     grid-template-rows: 25px minmax(0, 1fr) 48px 44px 44px;
     padding: 0; gap: 0;
@@ -74,10 +81,6 @@
   }
   .tc-courtyard-plate b { font-size: clamp(11px,3.1vw,15px); white-space: nowrap; }
   .tc-courtyard-plate .tc-gate-icon { width: 19px; height: 19px; }
-  .tc-company-mainnav { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:4px; margin:0; padding:2px 5px; background:#0b1420; }
-  .tc-company-mainnav button { display:grid; align-content:center; justify-items:center; min-height:44px; gap:1px; padding:1px; border:1px solid #766848; border-radius:3px; background:#101a28; color:#ead8b3; font-size:11px; }
-  .tc-company-mainnav button.active { border-color:#daba79; background:#34232a; }
-  .tc-company-mainnav .tc-hub-icon { width:23px; height:23px; }
   .tc-courtyard-dispatch { display:flex; align-items:center; justify-content:center; gap:9px; margin:2px 8px; border:1px solid #c49b62; box-shadow:inset 0 0 0 2px #342314; background:linear-gradient(90deg,#491b28,#692537,#491b28); color:#ffe3ad; font-size:clamp(17px,4.7vw,23px); }
   .tc-hq-strip-label { font-size: clamp(11px, 3.05vw, 15px); }
   .tc-hq-strip-content { font-size: clamp(10px, 2.8vw, 13px); }
@@ -99,12 +102,86 @@
 .tc-gate-icon[data-icon="notice"] { background-position-x: 88.8889%; }
 .tc-gate-icon[data-icon="chat"] { background-position-x: 100.0000%; }
 
-.tc-app:has(.tc-gatehouse) {
+.tc-app:has(.tc-gate-identity) {
   grid-template-rows: var(--top) minmax(0, 1fr) calc(var(--nav) + var(--safe-b));
 }
-.tc-app:has(.tc-gatehouse) > .tc-statusbar,
-.tc-app:has(.tc-gatehouse) .tc-chat-entry { display: none; }
-.tc-app:has(.tc-gatehouse) > .tc-main { padding: 0; background: #081321; }
-.tc-app:has(.tc-gatehouse) > .tc-nav { padding-inline: 5px; background: #091422; border-color: #ae8957; }
-.tc-app:has(.tc-gatehouse) > .tc-nav button { background: transparent; box-shadow: none; color: #e6ce9f; }
-.tc-app:has(.tc-gatehouse) > .tc-nav button[aria-current=true] { box-shadow: inset 0 -2px #cba260; }
+.tc-app:has(.tc-gate-identity) > .tc-statusbar,
+.tc-app:has(.tc-gate-identity) .tc-chat-entry { display: none; }
+.tc-app:has(.tc-gate-identity) > .tc-main { padding: 0; background: #081321; }
+.tc-app:has(.tc-gate-identity) > .tc-nav { padding-inline: 5px; background: #091422; border-color: #ae8957; }
+.tc-app:has(.tc-gate-identity) > .tc-nav button { background: transparent; box-shadow: none; color: #e6ce9f; }
+.tc-app:has(.tc-gate-identity) > .tc-nav button[aria-current=true] { box-shadow: inset 0 -2px #cba260; }
+
+/* Facility screens share the courtyard's crest, tab dock and town-at-night palette. */
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gate-detail {
+  --iron-0: #081321;
+  --iron-1: #101d2c;
+  --iron-2: #18283a;
+  --iron-3: #2b3a49;
+  --line: #766848;
+  --brass: #b39561;
+  --brass-hi: #e0bc79;
+  --paper: #f2dfbb;
+  --soft: #c3b69f;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: var(--iron-0);
+  color: var(--paper);
+
+  > .tc-gate-identity {
+    flex: 0 0 clamp(54px, 14vw, 72px);
+    background: linear-gradient(90deg,#081321 20%,#081321cf),
+      url('../../../public/assets/backgrounds/hub/novar-moonlit-v3.webp') center 9% / cover;
+  }
+  > .tc-company-subnav-wrap, > .tc-company-combat-nav {
+    flex: none;
+    padding: 3px 5px;
+    background: var(--iron-0);
+  }
+  > .tc-company-subnav-wrap .tc-segments { height: 44px; background: transparent; }
+  :is(.tc-company-subnav-wrap,.tc-company-combat-nav) button {
+    min-height: 44px; background: var(--iron-1); color: var(--soft); border-color: var(--line);
+  }
+  :is(.tc-company-subnav-wrap,.tc-company-combat-nav) button:is([aria-selected=true],[aria-current=page]) {
+    background: #34232a; color: var(--paper); border-color: var(--brass-hi);
+    box-shadow: inset 0 -2px var(--brass);
+  }
+  > :is(.tc-guild-boss,.tc-guild-auction,.tc-gr,.tc-territory,.tc-warehouse,.tc-supply,.tc-company-records,.tc-assoc-manage-panel) {
+    flex: 1 1 0; min-width: 0; min-height: 0; height: auto;
+    background: var(--iron-0); color: var(--paper); border-color: var(--line);
+  }
+  > :is(.tc-supply,.tc-assoc-manage-panel,.tc-company-records) { overflow-y: auto; }
+  :is(.tc-ga-register,.tc-ga-reward,.tc-ga-lot,.tc-warehouse-deposit,.tc-warehouse-ledger,
+      .tc-warehouse-balance,.tc-territory-town,.tc-territory-revenue,.tc-gr-entry,
+      .tc-member,.tc-guild-materials,.tc-gm-balances article,.tc-supply-products article,.tc-gr-stats > div,.tc-territory-stats article) {
+    background: var(--iron-1); border-color: var(--line);
+  }
+  :is(.tc-ga-register,.tc-ga-action,.tc-form,.tc-warehouse) :is(input,textarea) {
+    background: var(--iron-0); color: var(--paper); border-color: var(--line);
+  }
+  :is(.tc-guild-auction,.tc-territory,.tc-warehouse,.tc-supply,.tc-gr,.tc-company-records) button:not(:disabled) {
+    color: var(--paper); background-color: var(--iron-2); border-color: var(--line);
+  }
+  .tc-boss-attack, .tc-ga-register > button, .tc-assoc-manage-panel > .tc-action {
+    background: linear-gradient(90deg,#491b28,#692537,#491b28);
+    color: #ffe3ad; border: 1px solid #c49b62;
+  }
+  .tc-company-records .tc-member-list { display: flex; flex-direction: column; gap: 4px; padding: 6px; }
+  .tc-company-records .tc-member { flex: none; min-height: 44px; border: 1px solid var(--line); }
+  .tc-assoc-member > div { display: grid; gap: 3px; }
+  .tc-hq-overlay-panel { background: var(--iron-1); }
+  > .tc-company-mainnav { flex: 0 0 50px; height: 50px; border-top: 1px solid var(--brass); }
+  > .tc-gate-detail-chat {
+    flex: none; display: flex; align-items: center; gap: 7px; min-height: 44px;
+    padding: 0 12px; background: #0a1725; color: var(--paper); border: 1px solid var(--line);
+  }
+  .tc-gate-detail-chat span { margin-left: auto; }
+}
+
+@media (max-height: 740px) {
+  .tc-gate-detail .tc-guild-boss { overflow-y: auto; }
+  .tc-gate-detail .tc-boss-body { flex: 1 0 auto; overflow: visible; }
+  .tc-gate-detail .tc-boss-arena { min-height: 136px; }
+}

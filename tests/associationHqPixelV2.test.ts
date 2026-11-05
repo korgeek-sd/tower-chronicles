@@ -52,10 +52,15 @@ test('courtyard preserves guild counters and illustrated facility labels',()=>{
  assert.match(css,/tc-gate-stats/);
 });
 
-test('home crest, name and growth meter share a dedicated header above the tabs',()=>{
- assert.match(online,/tab==='overview'&&<header className="tc-gate-identity"/);
+test('all member pages share the crest, growth header and pixel navigation',()=>{
+ assert.match(online,/<header className="tc-gate-identity"/);
+ assert.doesNotMatch(online,/tab==='overview'&&<header/);
  assert.match(online,/className="tc-gate-meter" role="progressbar"/);
- assert.match(online,/tab!=='overview'&&tab!=='boss'/);
+ assert.doesNotMatch(online,/tc-company-hero is-compact/);
+ const nav=screen.slice(screen.indexOf('const sectionNav='),screen.indexOf('const playerArt='));
+ assert.match(nav,/<HubIcon/);
+ assert.doesNotMatch(nav,/GuildLineIcon/);
+ assert.match(online,/tc-gate-detail/);
  const css=readFileSync('src/components/association/gatehouse.css','utf8');
  assert.match(css,/tc-courtyard-scene/);
 });

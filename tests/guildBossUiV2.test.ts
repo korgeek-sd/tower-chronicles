@@ -104,8 +104,8 @@ test('raid layout keeps four stats, compact results and no vertical page scroll'
  assert.match(css,/@media\(max-height:620px\)/);
  assert.doesNotMatch(css,/\.tc-guild-boss\{[^}]*overflow-y:auto/);
  const assoc=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
- assert.match(assoc,/tab==='overview'&&<header className="tc-gate-identity"/);
- assert.match(assoc,/tab!=='overview'&&tab!=='boss'&&<section className="tc-assoc-banner tc-company-hero is-compact"/);
+ assert.match(assoc,/<header className="tc-gate-identity"/);
+ assert.doesNotMatch(assoc,/tc-company-hero is-compact/);
  const redesigned=readFileSync(new URL('../src/components/association/hq-v2.css',import.meta.url),'utf8');
  assert.match(assoc,/tc-company-combat-nav/);
  assert.match(redesigned,/tc-assoc-hq-v2\.tc-assoc-raid-view/);
