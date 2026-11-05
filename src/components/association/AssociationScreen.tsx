@@ -30,6 +30,7 @@ import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildTerritoryPanel} from './GuildTerritoryPanel';
 import {GuildRankingPanel} from './GuildRankingPanel';
+import {GuildPages} from './GuildPages';
 import {GuildBossPanel} from './GuildBossPanel';
 import {GuildAuctionPanel} from './GuildAuctionPanel';
 
@@ -145,7 +146,8 @@ function OnlineAssociationScreen({
  if(!current){
   const pending=new Set(state.myApplications.map(item=>item.associationId));
  const directory=state.directory.filter(e=>(!available||(e.joinPolicy!=='CLOSED'&&e.memberCount<e.memberLimit))&&e.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
-  return <Screen eyebrow="NOVAR COMPANY REGISTRY / ONLINE" title="원정단 찾기" meta={<span>{game.silver.toLocaleString()} S</span>}>
+  return <Screen className="tc-guild-directory-screen" eyebrow="NOVAR COMPANY REGISTRY / ONLINE" title="원정단 찾기" meta={<span>{game.silver.toLocaleString()} S</span>}>
+   <GuildPages key={creating?'create':discoveryRankings?'rankings':'directory'} label="원정단 찾기">
    <div className="tc-assoc tc-assoc-online tc-assoc-registry">
     <div className="tc-hq-toolbar"><label>원정단 검색<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="원정단명 검색"/></label><button onClick={()=>{setCreating(x=>!x);setDiscoveryRankings(false);}}>{creating?'목록으로':'원정단 창설'}</button></div>
      <button type="button" className="tc-gr-discover" onClick={()=>{setDiscoveryRankings(x=>!x);setCreating(false);}}>{discoveryRankings?'모집 게시판으로':'원정단 랭킹 보기'}</button>
@@ -177,6 +179,7 @@ function OnlineAssociationScreen({
     </section>}
     {error&&<div className="tc-floor-risk">{error}</div>}
    </div>
+   </GuildPages>
   </Screen>;
  }
 
@@ -221,12 +224,6 @@ function OnlineAssociationScreen({
     <button type="button" aria-current="page" onClick={()=>navigate('boss')}>보스전</button>
     <button type="button" onClick={onOccupation} disabled={!onOccupation}>점령전 본부 ›</button>
    </div>}
-   {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
-   {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
-   {tab==='rankings'&&<GuildRankingPanel lease={lease}/>}
-   {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
-   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
-   {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='overview'&&<section className="tc-company-overview tc-hq-fixed-overview tc-hq-line-overview" aria-label="원정단 본부 대시보드">
     <div className="tc-gate-stats" aria-label="원정단 현황">
      <div><small>단원</small><b>{current.members.length}<em> / {current.memberLimit}</em></b></div>
@@ -271,10 +268,19 @@ function OnlineAssociationScreen({
    {(growthOpen||fullNotice)&&<div className="tc-hq-overlay-backdrop" onClick={()=>{setGrowthOpen(false);setFullNotice(false);}}>
     <section className="tc-hq-overlay-panel" role="dialog" aria-modal="true" aria-label={growthOpen?'원정단 성장 및 기부':'원정단 공지'} onClick={event=>event.stopPropagation()}>
      <header><b>{growthOpen?'원정단 성장 · 기부':'원정단 공지'}</b><button type="button" onClick={()=>{setGrowthOpen(false);setFullNotice(false);}} aria-label="닫기">✕</button></header>
+     <GuildPages label={growthOpen?'원정단 성장':'원정단 공지'}>
      {growthOpen&&<AssociationSupplyPanel key={current.associationId+'growth'} lease={lease} mode="growth" refreshKey={current.activity[0]?.activityId} expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
      {fullNotice&&<p className="tc-hq-notice-full">{current.notice||'등록된 공지가 없습니다.'}</p>}
+     </GuildPages>
     </section>
    </div>}
+   {tab!=='overview'&&<GuildPages key={tab} label={activeSection.label}>
+   {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
+   {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
+   {tab==='rankings'&&<GuildRankingPanel lease={lease}/>}
+   {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
+   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
+   {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='members'&&<section className="tc-company-records"><div className="tc-member-list">{shown.map((item:any)=>{const member=item as typeof current.members[number];return <div className="tc-member tc-assoc-member" key={member.userId}><div><b>{member.playerLabel}{member.userId===state.userId?' · 나':''}</b><small>{member.role==='LEADER'?'단장':'단원'} · {new Date(member.joinedAt).toLocaleDateString('ko-KR')}</small></div>{leader&&member.role==='MEMBER'&&<button className="tc-hq-member-select" onClick={()=>setMemberSelected(memberSelected===member.userId?null:member.userId)}>관리</button>}{leader&&member.role==='MEMBER'&&memberSelected===member.userId&&<span className="tc-assoc-member-actions"><button disabled={busy} onClick={()=>{if(window.confirm(member.playerLabel+'에게 단장을 위임하시겠습니까?'))void act(()=>transferOnlineAssociationLeadership(lease,member.userId),'원정단장 권한을 위임했습니다.');}}>단장 위임</button><button disabled={busy} onClick={()=>{if(window.confirm(member.playerLabel+'을(를) 내보내시겠습니까?'))void act(()=>kickOnlineAssociationMember(lease,member.userId),'원정단원을 내보냈습니다.');}}>내보내기</button></span>}</div>})}</div><Pager page={safe} count={pages} onChange={setPage}/></section>}
 
    {tab==='applications'&&leader&&<section className="tc-company-records"><div className="tc-member-list">{shown.map((item:any)=>{const application=item as typeof current.applications[number];return <div className="tc-member tc-assoc-member tc-assoc-application" key={application.applicationId}><div><b>{application.playerLabel}</b><small>{new Date(application.createdAt).toLocaleString('ko-KR')}</small></div><span className="tc-assoc-member-actions"><button disabled={busy} onClick={()=>void act(()=>reviewOnlineAssociationApplication(lease,application.applicationId,true),'가입 신청을 승인했습니다.')}>승인</button><button disabled={busy} onClick={()=>void act(()=>reviewOnlineAssociationApplication(lease,application.applicationId,false),'가입 신청을 거절했습니다.')}>거절</button></span></div>})}{!shown.length&&<div className="tc-market-v2-empty">대기 중인 가입 신청이 없습니다.</div>}</div><Pager page={safe} count={pages} onChange={setPage}/></section>}
@@ -293,6 +299,7 @@ function OnlineAssociationScreen({
    </section>}
 
    {!leader&&tab==='members'&&<details className="tc-hq-account-menu"><summary>내 소속 관리</summary><button disabled={busy} onClick={()=>{if(window.confirm('원정단에서 탈퇴하시겠습니까?'))void act(()=>leaveOnlineAssociation(lease),'원정단에서 탈퇴했습니다.');}}>원정단 탈퇴</button></details>}
+   </GuildPages>}
    {tab!=='overview'&&sectionNav}
    {tab!=='overview'&&<button type="button" className="tc-gate-detail-chat" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}>
     <i className="tc-gate-icon" data-icon="chat" aria-hidden="true"/>원정단 채팅<span aria-hidden="true">›</span>

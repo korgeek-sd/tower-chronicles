@@ -2,6 +2,8 @@ import React,{useEffect,useId,useMemo,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import './game-scroll-select.css';
 
+export const PagedSelectContext=React.createContext(false);
+
 export type GameScrollOption={
  value:string;
  label:string;
@@ -30,6 +32,8 @@ export function GameScrollSelect({
  options,value,onChange,disabled=false,placeholder='선택하세요',ariaLabel,
  emptyMessage='선택 가능한 항목이 없습니다.',className='',style,id,compact=false,
 }:GameScrollSelectProps){
+ const paged=React.useContext(PagedSelectContext);
+ const [optionPage,setOptionPage]=useState(0);
  const [open,setOpen]=useState(false);
  const [search,setSearch]=useState('');
  const [position,setPosition]=useState<PopupPlacement>({top:0,left:8,width:220,maxHeight:260,above:false});
@@ -47,6 +51,10 @@ export function GameScrollSelect({
   if(!term)return options;
   return options.filter(option=>(option.label+' '+(option.gradeLabel??'')+' '+(option.detail??'')).toLocaleLowerCase('ko-KR').includes(term));
  },[options,search]);
+ const pageSize=3;
+ const pageCount=Math.max(1,Math.ceil(filtered.length/pageSize));
+ const activePage=Math.min(optionPage,pageCount-1);
+ const visibleOptions=paged?filtered.slice(activePage*pageSize,(activePage+1)*pageSize):filtered;
  const syncScroll=()=>{
   const list=listRef.current;
   if(list)setScroll({top:list.scrollTop,client:list.clientHeight||1,total:list.scrollHeight||1});
@@ -133,23 +141,23 @@ export function GameScrollSelect({
  return <div id={id} className={'tc-game-select '+className+(open?' is-open':'')+(disabled?' is-disabled':'')+(compact?' is-compact':'')} style={style} ref={rootRef}>
   <button type="button" className="tc-game-select-trigger" disabled={disabled}
    aria-label={ariaLabel} aria-haspopup="listbox" aria-expanded={open} aria-controls={open?listId:undefined}
-   onClick={()=>{setOpen(v=>!v);setSearch('');}}>
+   onClick={()=>{setOpen(v=>!v);setSearch('');setOptionPage(Math.floor(Math.max(0,options.findIndex(item=>item.value===value))/pageSize));}}>
    <span className="tc-game-select-trigger-icon" aria-hidden="true">◆</span>
    <span className={'tc-game-select-trigger-label'+(!selected?' is-placeholder':'')}>{selected?selected.label:placeholder}</span>
    <span className={'tc-game-select-chevron'+(open?' is-open':'')} aria-hidden="true">⌄</span>
   </button>
-  {open&&portalHost&&createPortal(<div ref={popupRef} className="tc-game-select-expanded"
-    style={{position:'fixed',left:position.left,top:position.top,width:position.width,maxHeight:position.maxHeight,
+  {open&&portalHost&&createPortal(<div ref={popupRef} className={paged?'tc-game-select-expanded tc-game-select-paged':'tc-game-select-expanded'}
+    style={paged?{position:'fixed',left:'50%',top:'50%',width:'min(320px, calc(100% - 16px))',transform:'translate(-50%, -50%)',zIndex:2147483000}:{position:'fixed',left:position.left,top:position.top,width:position.width,maxHeight:position.maxHeight,
      transform:position.above?'translateY(-100%)':undefined,zIndex:2147483000}}>
    <div className="tc-game-select-search-wrap">
-    <input type="search" value={search} onChange={e=>setSearch(e.target.value)}
+    <input type="search" value={search} onChange={e=>{setSearch(e.target.value);setOptionPage(0);}}
      aria-label={ariaLabel+' 검색'} placeholder="이름·등급 검색" autoComplete="off"/>
     <span className="tc-game-select-counter">{filtered.length} / {options.length}</span>
    </div>
    <div className="tc-game-scroll-viewport">
     <div className="tc-game-scroll-list" id={listId} role="listbox" aria-label={ariaLabel} tabIndex={0}
      ref={listRef} onScroll={syncScroll}>
-     {filtered.length?filtered.map(option=><button
+     {visibleOptions.length?visibleOptions.map(option=><button
       type="button" role="option" key={option.value} disabled={option.disabled}
       aria-selected={value===option.value}
       className={'tc-game-scroll-option'+(value===option.value?' is-selected':'')}
@@ -179,7 +187,9 @@ export function GameScrollSelect({
      <div className="tc-game-scroll-thumb" style={{height:thumbHeight||'100%',transform:'translateY('+thumbTop+'px)'}}/>
     </div>
    </div>
-   <div className="tc-game-scroll-hint"><span>목록을 위아래로 밀어 선택</span>
+   <div className="tc-game-scroll-hint"> {paged?<><button type="button" disabled={!activePage} onClick={()=>setOptionPage(activePage-1)}>‹ 이전</button>
+    <span aria-live="polite">{activePage+1} / {pageCount}</span>
+    <button type="button" disabled={activePage+1>=pageCount} onClick={()=>setOptionPage(activePage+1)}>다음 ›</button></>:<span>목록을 위아래로 밀어 선택</span>}
     <button type="button" onClick={()=>setOpen(false)}>접기</button>
    </div>
   </div>,portalHost)}
