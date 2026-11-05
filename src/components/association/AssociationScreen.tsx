@@ -1,3 +1,5 @@
+import {assetUrl,playerGraphicForJob} from '../../game/data/graphics';
+import {HubIcon} from '../mobile/HubIcon';
 import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useMemo,useState} from 'react';
 import type {AssociationPolicy,GameState} from '../../game/types';
@@ -189,6 +191,14 @@ function OnlineAssociationScreen({
  const pages=Math.max(1,Math.ceil(source.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=source.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
  const memberLabel=(userId:string)=>current.members.find(m=>m.userId===userId)?.playerLabel??'탐사자';
 
+ const sectionNav=<nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
+    {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}
+     className={section.id===activeSection.id?'active':''} onClick={()=>navigate(section.first)}>
+     {tab==='overview'?<HubIcon name={section.first==='overview'?'home':section.first==='boss'?'hunt':section.first==='territory'?'world':section.first==='warehouse'?'inventory':'association'}/>:<GuildLineIcon name={section.art} className="tc-guild-line-icon tc-company-nav-line"/>}<span>{section.label}</span>
+     {section.id==='people'&&leader&&current.applications.length>0&&<i className="tc-company-pending-dot" aria-label={'가입 신청 '+current.applications.length+'건'}/>}
+    </button>)}
+   </nav>;
+ const playerArt=tab==='overview'?playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle:null;
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
   <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":"")}>
    {tab==='overview'&&<header className="tc-gate-identity">
@@ -216,13 +226,8 @@ function OnlineAssociationScreen({
      <p>단장 {memberLabel(current.leaderUserId)}</p>
     </div>
    </section>}
-   <nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
-    {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}
-     className={section.id===activeSection.id?'active':''} onClick={()=>navigate(section.first)}>
-     <GuildLineIcon name={section.art} className="tc-guild-line-icon tc-company-nav-line"/><span>{section.label}</span>
-     {section.id==='people'&&leader&&current.applications.length>0&&<i className="tc-company-pending-dot" aria-label={'가입 신청 '+current.applications.length+'건'}/>}
-    </button>)}
-   </nav>
+   {tab!=='overview'&&sectionNav}
+
    {subTabs.length>1&&tab!=='overview'&&<div className="tc-company-subnav-wrap"><Segments items={subTabs} value={tab} onChange={navigate} label={activeSection.label+' 세부 메뉴'}/></div>}
    {activeSection.id==='combat'&&<div className="tc-company-combat-nav" role="group" aria-label="공동 전투 기능">
     <button type="button" aria-current="page" onClick={()=>navigate('boss')}>보스전</button>
@@ -240,31 +245,35 @@ function OnlineAssociationScreen({
      <div><small>점령 영지</small><b>{territorySummary?territorySummary.ownedCount:'—'}<em>{territorySummary?' / '+territorySummary.totalCount:''}</em></b></div>
      <div><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
     </div>
-    <div className="tc-hq-feature-grid" aria-label="원정단 활동 바로가기">
+    <div className="tc-courtyard-scene">
+     <img className="tc-courtyard-art" src={assetUrl('assets/backgrounds/hub/novar-moonlit-v3.webp')} alt="" />
+     <div className="tc-courtyard-heading"><h2><HubIcon name="world"/>원정단 본부</h2>
+      <button type="button" onClick={()=>setFullNotice(true)} aria-label="원정단 공지 열기">원정단 공지 ›</button>
+     </div>
+     {playerArt&&<img className="tc-courtyard-player" src={assetUrl(playerArt)} alt=""/>}
+     <nav className="tc-hq-feature-grid tc-courtyard-places" aria-label="원정단 시설 지도">
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('boss')}>
-      <i className="tc-gate-icon" data-icon="boss" aria-hidden="true"/><span><b>보스전</b><small>일일 · 주간</small></span>
+      <span className="tc-courtyard-plate"><i className="tc-gate-icon" data-icon="boss" aria-hidden="true"/><b>보스전</b></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={onOccupation} disabled={!onOccupation}>
-      <i className="tc-gate-icon" data-icon="siege" aria-hidden="true"/><span><b>점령전</b><small>영지 쟁탈전</small></span>
+      <span className="tc-courtyard-plate"><i className="tc-gate-icon" data-icon="siege" aria-hidden="true"/><b>점령전</b></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('territory')}>
-      <i className="tc-gate-icon" data-icon="land" aria-hidden="true"/><span><b>영지 관리</b><small>세율 · 징수</small></span>
+      <span className="tc-courtyard-plate"><i className="tc-gate-icon" data-icon="land" aria-hidden="true"/><b>영지 관리</b></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('shop')}>
-      <i className="tc-gate-icon" data-icon="shop" aria-hidden="true"/><span><b>원정단 상점</b><small>보급품 교환</small></span>
+      <span className="tc-courtyard-plate"><i className="tc-gate-icon" data-icon="shop" aria-hidden="true"/><b>원정단 상점</b></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('warehouse')}>
-      <i className="tc-gate-icon" data-icon="vault" aria-hidden="true"/><span><b>원정단 금고</b><small>공용 재화</small></span>
+      <span className="tc-courtyard-plate"><i className="tc-gate-icon" data-icon="vault" aria-hidden="true"/><b>원정단 금고</b></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('auction')}>
-      <i className="tc-gate-icon" data-icon="auction" aria-hidden="true"/><span><b>원정단 경매</b><small>장비 · 입찰</small></span>
+      <span className="tc-courtyard-plate"><i className="tc-gate-icon" data-icon="auction" aria-hidden="true"/><b>원정단 경매</b></span>
      </button>
+     </nav>
     </div>
-    <button type="button" className="tc-hq-announcement-strip" onClick={()=>setFullNotice(true)}>
-     <i className="tc-gate-icon" data-icon="notice" aria-hidden="true"/><span className="tc-hq-strip-label">원정단 공지</span>
-     <span className="tc-hq-strip-content">{current.notice||'등록된 공지가 없습니다.'}</span>
-     <span className="tc-hq-strip-arrow" aria-hidden="true">›</span>
-    </button>
+    {sectionNav}
+    <button type="button" className="tc-courtyard-dispatch" onClick={()=>navigate('boss')}><HubIcon name="hunt"/>보스전 출정하기</button>
     <button type="button" className="tc-hq-chat-strip" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}>
      <i className="tc-gate-icon" data-icon="chat" aria-hidden="true"/><span className="tc-hq-strip-label">원정단 채팅</span>
      <span className="tc-hq-strip-content">단원들과 대화하기</span>
