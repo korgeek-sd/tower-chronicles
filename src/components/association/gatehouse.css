@@ -148,11 +148,10 @@
     background: #34232a; color: var(--paper); border-color: var(--brass-hi);
     box-shadow: inset 0 -2px var(--brass);
   }
-  > :is(.tc-guild-boss,.tc-guild-auction,.tc-gr,.tc-territory,.tc-warehouse,.tc-supply,.tc-company-records,.tc-assoc-manage-panel) {
+  .tc-guild-page-flow > :is(.tc-guild-boss,.tc-guild-auction,.tc-gr,.tc-territory,.tc-warehouse,.tc-supply,.tc-company-records,.tc-assoc-manage-panel) {
     flex: 1 1 0; min-width: 0; min-height: 0; height: auto;
     background: var(--iron-0); color: var(--paper); border-color: var(--line);
   }
-  > :is(.tc-supply,.tc-assoc-manage-panel,.tc-company-records) { overflow-y: auto; }
   :is(.tc-ga-register,.tc-ga-reward,.tc-ga-lot,.tc-warehouse-deposit,.tc-warehouse-ledger,
       .tc-warehouse-balance,.tc-territory-town,.tc-territory-revenue,.tc-gr-entry,
       .tc-member,.tc-guild-materials,.tc-gm-balances article,.tc-supply-products article,.tc-gr-stats > div,.tc-territory-stats article) {
@@ -180,8 +179,3 @@
   .tc-gate-detail-chat span { margin-left: auto; }
 }
 
-@media (max-height: 740px) {
-  .tc-gate-detail .tc-guild-boss { overflow-y: auto; }
-  .tc-gate-detail .tc-boss-body { flex: 1 0 auto; overflow: visible; }
-  .tc-gate-detail .tc-boss-arena { min-height: 136px; }
-}

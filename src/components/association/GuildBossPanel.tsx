@@ -64,6 +64,15 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
     </div>
    </div>
   </div>
+  <div className="tc-boss-action">
+   <button type="button" className="tc-boss-attack" disabled={disabled} onClick={onFight}>
+    <span aria-hidden="true" className="tc-boss-attack-icon">⚔</span>
+    <span>{attackLabel(boss,busy,expedition)}</span>
+    {!disabled&&<small>{remainingAttempts}회 가능</small>}
+    <span className="tc-boss-attack-chevron" aria-hidden="true">›</span>
+   </button>
+   <div className="tc-boss-reset"><span>공격 횟수는 매일 00:00 초기화</span><span>활력 소모 없음</span></div>
+  </div>
   <div className="tc-boss-dashboard" aria-label="보스전 현황">
    <div className="tc-boss-attempts"><span>오늘 남은 공격</span><strong>{remainingAttempts}<small> / 5회</small></strong>
     <div className="tc-boss-attempt-pips" aria-label={'공격 가능 '+remainingAttempts+'회'}>
@@ -84,15 +93,6 @@ export function GuildBossDetail({boss,now,result,busy,expedition,error,onFight,o
     <div><span>남은 보스 HP</span><strong>{num(latest.remainingHp)}</strong></div>
    </div>:<div className="tc-boss-result-empty">보스를 공격하면 이곳에 피해량과 결과가 표시됩니다.</div>}
   </section>
-  <div className="tc-boss-action">
-   <button type="button" className="tc-boss-attack" disabled={disabled} onClick={onFight}>
-    <span aria-hidden="true" className="tc-boss-attack-icon">⚔</span>
-    <span>{attackLabel(boss,busy,expedition)}</span>
-    {!disabled&&<small>{remainingAttempts}회 가능</small>}
-    <span className="tc-boss-attack-chevron" aria-hidden="true">›</span>
-   </button>
-   <div className="tc-boss-reset"><span>공격 횟수는 매일 00:00 초기화</span><span>활력 소모 없음</span></div>
-  </div>
   {error&&<div className="tc-boss-error" role="alert">
    <span>{error}</span><button type="button" disabled={busy} onClick={onReload}>상태 확인</button>
   </div>}
