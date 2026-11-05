@@ -52,3 +52,11 @@ test('gatehouse preserves the full moon and uses the approved gold control artwo
  assert.match(screen,/tc-gate-stats/);
  assert.match(css,/tc-gate-stats/);
 });
+
+test('home crest, name and growth meter share a dedicated header above the tabs',()=>{
+ assert.match(online,/tab==='overview'&&<header className="tc-gate-identity"/);
+ assert.match(online,/className="tc-gate-meter" role="progressbar"/);
+ assert.match(online,/tab!=='overview'&&tab!=='boss'/);
+ const css=readFileSync('src/components/association/gatehouse.css','utf8');
+ assert.match(css,/gate-labels\.webp/);
+});
