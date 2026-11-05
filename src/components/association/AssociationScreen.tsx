@@ -195,14 +195,14 @@ function OnlineAssociationScreen({
     <div className="tc-company-herald" aria-hidden="true"><GuildLineIcon name="crest"/></div>
     <div className="tc-assoc-banner-copy">
      <small>{current.recordNumber} · 원정단</small>
-     <b>{current.name}</b>
+     <b>{current.name}{tab==='overview' && ' 원정단'}</b>
      <p>단장 {memberLabel(current.leaderUserId)}</p>
      {tab==='overview'&&<button type="button" className="tc-hq-progress-button" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
        <span>원정단 Lv.{heroProgress?.associationLevel??'—'} <em>{heroLevel?Math.round(heroLevel.percent)+'%':'—'}</em></span>
        <div className="tc-company-hero-progress"><div role="progressbar" aria-label="원정단 경험치" aria-valuemin={0} aria-valuemax={100} aria-valuenow={heroLevel?Math.round(heroLevel.percent):0}><i style={{width:(heroLevel?.percent??0)+'%'}}/></div></div>
       </button>}
     </div>
-    {tab==='overview'&&<div className="tc-hq-hero-links"><button type="button" onClick={()=>navigate('rankings')}>랭킹</button><button type="button" onClick={()=>navigate('activity')}>기록</button></div>}
+    {tab==='overview'&&<div className="tc-hq-hero-links"><button type="button" onClick={()=>navigate('rankings')}><i className="tc-gate-icon" data-icon="ranking" aria-hidden="true"/>랭킹</button><button type="button" onClick={()=>navigate('activity')}><i className="tc-gate-icon" data-icon="record" aria-hidden="true"/>기록</button></div>}
    </section>}
    <nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
     {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}
@@ -223,38 +223,38 @@ function OnlineAssociationScreen({
    {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='overview'&&<section className="tc-company-overview tc-hq-fixed-overview tc-hq-line-overview" aria-label="원정단 본부 대시보드">
-    <div className="tc-company-summary" aria-label="원정단 현황">
-     <div><GuildLineIcon name="members"/><small>단원 수</small><b>{current.members.length}<em> / {current.memberLimit}</em></b></div>
-     <div><GuildLineIcon name="territory"/><small>점령 영지</small><b>{territorySummary?territorySummary.ownedCount:'—'}<em>{territorySummary?' / '+territorySummary.totalCount:''}</em></b></div>
-     <div><GuildLineIcon name="assets"/><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
+    <div className="tc-gate-stats" aria-label="원정단 현황">
+     <div><small>단원</small><b>{current.members.length}<em> / {current.memberLimit}</em></b></div>
+     <div><small>점령 영지</small><b>{territorySummary?territorySummary.ownedCount:'—'}<em>{territorySummary?' / '+territorySummary.totalCount:''}</em></b></div>
+     <div><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
     </div>
     <div className="tc-hq-feature-grid" aria-label="원정단 활동 바로가기">
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('boss')}>
-      <GuildLineIcon name="boss"/><span><b>보스전</b><small>일일 · 주간</small></span>
+      <i className="tc-gate-icon" data-icon="boss" aria-hidden="true"/><span><b>보스전</b><small>일일 · 주간</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={onOccupation} disabled={!onOccupation}>
-      <GuildLineIcon name="siege"/><span><b>점령전</b><small>영지 쟁탈전</small></span>
+      <i className="tc-gate-icon" data-icon="siege" aria-hidden="true"/><span><b>점령전</b><small>영지 쟁탈전</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('territory')}>
-      <GuildLineIcon name="land"/><span><b>영지 관리</b><small>세율 · 징수</small></span>
+      <i className="tc-gate-icon" data-icon="land" aria-hidden="true"/><span><b>영지 관리</b><small>세율 · 징수</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('shop')}>
-      <GuildLineIcon name="shop"/><span><b>원정단 상점</b><small>보급품 교환</small></span>
+      <i className="tc-gate-icon" data-icon="shop" aria-hidden="true"/><span><b>원정단 상점</b><small>보급품 교환</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('warehouse')}>
-      <GuildLineIcon name="vault"/><span><b>원정단 금고</b><small>공용 재화</small></span>
+      <i className="tc-gate-icon" data-icon="vault" aria-hidden="true"/><span><b>원정단 금고</b><small>공용 재화</small></span>
      </button>
      <button type="button" className="tc-hq-feature" onClick={()=>navigate('auction')}>
-      <GuildLineIcon name="auction"/><span><b>원정단 경매</b><small>장비 · 입찰</small></span>
+      <i className="tc-gate-icon" data-icon="auction" aria-hidden="true"/><span><b>원정단 경매</b><small>장비 · 입찰</small></span>
      </button>
     </div>
     <button type="button" className="tc-hq-announcement-strip" onClick={()=>setFullNotice(true)}>
-     <GuildLineIcon name="notice"/><span className="tc-hq-strip-label">원정단 공지</span>
+     <i className="tc-gate-icon" data-icon="notice" aria-hidden="true"/><span className="tc-hq-strip-label">원정단 공지</span>
      <span className="tc-hq-strip-content">{current.notice||'등록된 공지가 없습니다.'}</span>
      <span className="tc-hq-strip-arrow" aria-hidden="true">›</span>
     </button>
     <button type="button" className="tc-hq-chat-strip" onClick={()=>window.dispatchEvent(new CustomEvent('tower-open-association-chat'))}>
-     <GuildLineIcon name="chat"/><span className="tc-hq-strip-label">원정단 채팅</span>
+     <i className="tc-gate-icon" data-icon="chat" aria-hidden="true"/><span className="tc-hq-strip-label">원정단 채팅</span>
      <span className="tc-hq-strip-content">단원들과 대화하기</span>
      <span className="tc-hq-strip-arrow" aria-hidden="true">›</span>
     </button>

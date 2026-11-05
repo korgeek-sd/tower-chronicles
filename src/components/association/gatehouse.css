@@ -1,6 +1,6 @@
 /* The gate and its crest come from the selected moonlit hall design. */
 .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
-  grid-template-rows: minmax(0, 1fr) 84px 44px minmax(0, 3fr);
+  grid-template-rows: auto clamp(54px, 14vw, 72px) 44px minmax(0, 1fr);
   padding: 0;
   gap: 0;
   color: #f5dfb1;
@@ -11,12 +11,14 @@
     position: static;
     inset: auto;
     opacity: 1;
-    background: #101d32 url('./moonlit-gate.webp') center 55% / cover no-repeat;
+    width: 100%;
+    aspect-ratio: 1024 / 223;
+    background: #101d32 url('./moonlit-gate.webp') center / 100% 100% no-repeat;
     border-bottom: 1px solid #987747;
   }
 
   > .tc-company-hero {
-    grid-template-columns: clamp(38px, 13%, 65px) minmax(0, 1fr) auto;
+    grid-template-columns: clamp(48px, 17%, 82px) minmax(0, 1fr) auto;
     gap: 8px;
     padding: 3px 8px;
     border: 0;
@@ -33,10 +35,10 @@
   }
   .tc-company-herald svg, .tc-company-nav-line { display: none; }
   .tc-assoc-banner-copy { gap: 1px; }
-  .tc-assoc-banner-copy > b { max-width: 100%; }
+  .tc-assoc-banner-copy > b { max-width: 100%; font-size: clamp(17px, 4.3vw, 23px); }
   .tc-assoc-banner-copy > small, .tc-assoc-banner-copy > p { display: none; }
   .tc-hq-hero-links { position: static; }
-  .tc-hq-hero-links button { min-width: 44px; min-height: 44px; background: #111922; }
+  .tc-hq-hero-links button { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 44px; min-height: 44px; padding: 3px; font-size: clamp(11px, 2.9vw, 15px); background: #111922; }
   .tc-hq-progress-button { min-height: 44px; justify-content: center; margin: 0; }
   .tc-company-hero-progress i { background: #56b8e5; }
   > .tc-company-mainnav { gap: 0; border-block: 1px solid #927345; }
@@ -46,15 +48,22 @@
   }
   > .tc-company-mainnav button.active { background: #54232e; color: #ffe3a7; }
   > .tc-hq-line-overview {
-    padding: 4px 8px;
-    gap: 4px;
-    grid-template-rows: minmax(30px, .65fr) minmax(0, 4fr) 44px 44px;
+    padding: 6px clamp(7px, 2vw, 12px);
+    gap: 5px;
+    grid-template-rows: minmax(25px, .52fr) minmax(0, 4fr) minmax(44px, .78fr) minmax(44px, .78fr);
   }
-  .tc-company-summary { background: #0b1620; }
-  .tc-company-summary > div { flex-direction: row; flex-wrap: wrap; align-content: center; gap: 2px 4px; }
+  .tc-gate-stats {
+    display: flex; align-items: center; justify-content: space-evenly;
+    gap: 2px; border: 1px solid #9d8053; border-radius: 3px;
+    background: #0a1520; font-size: clamp(9px, 2.7vw, 13px);
+  }
+  .tc-gate-stats > div { display: flex; align-items: baseline; gap: 3px; min-width: 0; white-space: nowrap; }
+  .tc-gate-stats small, .tc-gate-stats em { color: inherit; font: inherit; }
+  .tc-gate-stats b { overflow: hidden; text-overflow: ellipsis; }
+  .tc-gate-stats > div + div::before { content: '·'; color: #ba985f; margin-right: 3px; }
   .tc-hq-feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1.13fr)) repeat(2, minmax(0, 1fr));
     gap: 4px;
   }
   .tc-hq-feature-grid > button {
@@ -68,18 +77,48 @@
   .tc-hq-feature-grid > button:nth-child(-n+2) {
     grid-column: 1 / -1;
     position: relative;
-    background: linear-gradient(90deg, #461e2a, #6b293a, #461e2a);
-    border: 2px solid #c39b62;
-    box-shadow: inset 0 0 0 2px #30151d;
+    background: url('./gate-command.webp') center / 100% 100% no-repeat;
+    border: 0; box-shadow: none; color: #ffe3a7;
   }
   .tc-hq-feature-grid > button:nth-child(-n+2) b { font-size: clamp(16px, 4.8vw, 22px); }
-  .tc-hq-feature-grid > button:nth-child(-n+2)::after {
-    content: '›'; position: absolute; right: 12px; color: #dfbd7e;
-  }
+  .tc-hq-feature-grid > button:nth-child(-n+2) .tc-gate-icon { width: 1.4em; height: 1.4em; }
   .tc-hq-announcement-strip, .tc-hq-chat-strip { background: #0a1725; }
 }
-@media (max-height: 740px) {
-  .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
-    grid-template-rows: minmax(0, 1fr) 66px 44px minmax(330px, 4fr);
+
+.tc-gate-icon {
+  display: inline-block; flex: none; width: 1.35em; height: 1.35em;
+  background: url('./gate-icons.webp') 0 50% / 1000% 100% no-repeat;
+}
+.tc-gate-icon[data-icon="boss"] { background-position-x: 0.0000%; }
+.tc-gate-icon[data-icon="siege"] { background-position-x: 11.1111%; }
+.tc-gate-icon[data-icon="land"] { background-position-x: 22.2222%; }
+.tc-gate-icon[data-icon="shop"] { background-position-x: 33.3333%; }
+.tc-gate-icon[data-icon="vault"] { background-position-x: 44.4444%; }
+.tc-gate-icon[data-icon="auction"] { background-position-x: 55.5556%; }
+.tc-gate-icon[data-icon="ranking"] { background-position-x: 66.6667%; }
+.tc-gate-icon[data-icon="record"] { background-position-x: 77.7778%; }
+.tc-gate-icon[data-icon="notice"] { background-position-x: 88.8889%; }
+.tc-gate-icon[data-icon="chat"] { background-position-x: 100.0000%; }
+
+.tc-app:has(.tc-gatehouse) {
+  grid-template-rows: var(--top) minmax(0, 1fr) calc(var(--nav) + var(--safe-b));
+}
+.tc-app:has(.tc-gatehouse) > .tc-statusbar,
+.tc-app:has(.tc-gatehouse) .tc-chat-entry { display: none; }
+.tc-app:has(.tc-gatehouse) > .tc-main { padding: 0; background: #081321; }
+.tc-app:has(.tc-gatehouse) > .tc-nav { padding-inline: 5px; background: #091422; border-color: #ae8957; }
+.tc-app:has(.tc-gatehouse) > .tc-nav button { background: transparent; box-shadow: none; color: #e6ce9f; }
+.tc-app:has(.tc-gatehouse) > .tc-nav button[aria-current=true] { box-shadow: inset 0 -2px #cba260; }
+/* Two utility controls share a row on short phones to keep the battle commands tappable. */
+@media (max-height: 610px) {
+  .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) > .tc-hq-line-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 25px minmax(0, 1fr) 44px;
+    gap: 3px; padding-block: 3px;
+    .tc-gate-stats, .tc-hq-feature-grid { grid-column: 1 / -1; }
+    .tc-hq-feature-grid { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+    .tc-hq-strip-content { display: none; }
+    .tc-hq-strip-label { border: 0; }
+    .tc-hq-announcement-strip, .tc-hq-chat-strip { grid-template-columns: 18px 1fr 12px; }
   }
 }
