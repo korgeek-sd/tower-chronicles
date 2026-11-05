@@ -11,11 +11,11 @@ test('village hub renders six interactive building facilities, equipped characte
  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game,nickname:'마을 방문자',onMove:()=>{},onOpenJobs:()=>{},mailUnread:9}));
  assert.match(html,/tc-village-camp-screen/);
  assert.match(html,/aria-label="노바르 마을 시설 지도"/);
- for(const id of ['craft','skills','appearance-summon','gold-exchange','occupation','mail'])
+ for(const id of ['craft','skills','appearance-summon','gold-exchange','occupation','quests'])
   assert.equal((html.match(new RegExp('data-facility="'+id+'"','g'))??[]).length,1,id);
  assert.match(html,/novar-moonlit-v3.webp/);
  assert.match(html,/class="tc-village-player"/);
- assert.match(html,/미확인 우편 9개/);
+ assert.match(html,/의뢰 게시판/);
  assert.match(html,/출정하기/);
  assert.match(html,/aria-expanded="false" aria-controls="tc-camp-extra-facilities"/);
  assert.match(html,/id="tc-camp-chat-dock"/);
@@ -44,22 +44,19 @@ test('quiet village uses small nameplates over touch-sized controls and an uncro
  assert.match(css,/min-height:44px/);
 });
 
-test('bank, association and collection are visible before opening all facilities',()=>{
+test('home keeps secondary facilities behind the disclosure and the guild in global navigation',()=>{
  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game:initialState(),onMove:()=>{},onOpenJobs:()=>{}}));
- const toolbar=html.match(/<nav class="tc-village-services"[^>]*>(.*?)<\/nav>/)?.[1];
- assert.ok(toolbar,'persistent services toolbar');
- for(const id of ['bank','association','cosmetics']) assert.match(toolbar,new RegExp('data-facility="'+id+'"'));
- assert.ok(html.indexOf('tc-village-services')<html.indexOf('aria-label="주요 행동"'));
+ assert.doesNotMatch(html,/tc-village-services|data-facility="(?:bank|association|seal|cosmetics)"/);
+ assert.match(html,/data-facility="quests"/);
 });
 
 test('village fits the available viewport without page scrolling',()=>{
  const css=readFileSync('src/components/mobile/village-camp.css','utf8');
  assert.match(css,/\.tc-screen\.tc-village-camp-screen\s*>\s*\.tc-screen-body\s*\{[^}]*overflow:hidden/);
- assert.match(css,/\.tc-village-services\{[^}]*min-height:44px/);
 });
 
  test('village reserves flexible map space and fixed reachable action rows',()=>{
  const css=readFileSync('src/components/mobile/village-camp.css','utf8');
  assert.match(css,/grid-template-rows:60px minmax\(0,1fr\) 44px/);
- assert.match(css,/grid-template-rows:44px minmax\(0,1fr\) 44px 54px/);
+ assert.match(css,/grid-template-rows:44px minmax\(0,1fr\) 54px/);
  });

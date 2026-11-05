@@ -10,7 +10,7 @@ test('iron camp preserves main actions, facility disclosure, live chat dock and 
  const game=initialState(),before=JSON.stringify(game);
  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game,onMove:()=>{},onOpenJobs:()=>{},mailUnread:7}));
  assert.match(html,/tc-iron-camp-screen/);
- for(const label of ['사냥하기','마을 이동','HP','MP','활력','미확인 우편 7개'])assert.ok(html.includes(label),label);
+ for(const label of ['사냥하기','마을 이동','HP','MP','활력','의뢰 게시판'])assert.ok(html.includes(label),label);
  assert.match(html,/aria-expanded="false" aria-controls="tc-camp-extra-facilities"/);
  assert.match(html,/id="tc-camp-chat-dock"/);
  assert.equal(JSON.stringify(game),before);
