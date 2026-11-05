@@ -1,21 +1,10 @@
 /* The gate and its crest come from the selected moonlit hall design. */
 .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
-  grid-template-rows: auto clamp(54px, 14vw, 72px) 44px minmax(0, 1fr);
+  grid-template-rows: clamp(54px, 14vw, 72px) minmax(0, 1fr);
   padding: 0;
   gap: 0;
   color: #f5dfb1;
   background: #081321;
-
-  &::before {
-    content: '';
-    position: static;
-    inset: auto;
-    opacity: 1;
-    width: 100%;
-    aspect-ratio: 1024 / 223;
-    background: #101d32 url('./moonlit-gate.webp') center / 100% 100% no-repeat;
-    border-bottom: 1px solid #987747;
-  }
 
   .tc-company-nav-line { display: none; }
   .tc-gate-identity {
@@ -43,16 +32,9 @@
     background: #151513; color: #ffe1ad; font-size: clamp(11px, 3.1vw, 15px);
     box-shadow: inset 0 0 0 1px #392c20;
   }
-  > .tc-company-mainnav { gap: 0; border-block: 1px solid #927345; }
-  > .tc-company-mainnav button {
-    border: 0; border-radius: 0; background: transparent; box-shadow: none;
-    font-size: clamp(12px, 3.2vw, 16px);
-  }
-  > .tc-company-mainnav button.active { background: #54232e; color: #ffe3a7; }
   > .tc-hq-line-overview {
-    padding: 6px clamp(7px, 2vw, 12px);
-    gap: 5px;
-    grid-template-rows: minmax(25px, .52fr) minmax(0, 4fr) minmax(44px, .78fr) minmax(44px, .78fr);
+    grid-template-rows: 25px minmax(0, 1fr) 48px 44px 44px;
+    padding: 0; gap: 0;
   }
   .tc-gate-stats {
     display: flex; align-items: center; justify-content: space-evenly;
@@ -63,41 +45,40 @@
   .tc-gate-stats small, .tc-gate-stats em { color: inherit; font: inherit; }
   .tc-gate-stats b { overflow: hidden; text-overflow: ellipsis; }
   .tc-gate-stats > div + div::before { content: '·'; color: #ba985f; margin-right: 3px; }
-  .tc-hq-feature-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1.13fr)) repeat(2, minmax(0, 1fr));
-    gap: 4px;
+  .tc-courtyard-scene {
+    position: relative; isolation: isolate; overflow: hidden; min-height: 0;
+    background: #101b2c; border-block: 1px solid #947344;
   }
-  .tc-hq-feature-grid > button {
-    flex-direction: row; gap: 6px; border-radius: 3px;
-    background: #0d1a29; box-shadow: none;
+  .tc-courtyard-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
+  .tc-courtyard-player { position: absolute; left: 44%; top: 55%; width: 12%; height: 15%; object-fit: contain; pointer-events: none; }
+  .tc-courtyard-heading { position: absolute; inset: 0 0 auto; height: 44px; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 0 9px; background: linear-gradient(90deg,#070e1cee,#0a152788); }
+  .tc-courtyard-heading h2 { display: flex; align-items: center; gap: 7px; margin: 0; font-size: clamp(17px,4.3vw,22px); }
+  .tc-courtyard-heading button { min-height: 44px; padding: 0 8px; background: #091321dc; border: 1px solid #997b49; color: #e9d7ae; }
+  .tc-courtyard-places { position: absolute; inset: 0; display: block; padding: 0; margin: 0; }
+  .tc-courtyard-places > button {
+    position: absolute; transform: translate(-50%,-50%); width: 36%; height: 44px;
+    min-height: 44px; padding: 0; display: grid; place-items: center; overflow: visible;
+    border: 0; background: transparent; box-shadow: none;
   }
-  .tc-hq-feature-grid > button > span { width: auto; }
-  .tc-hq-feature-grid > button small { display: none; }
-  .tc-hq-feature-grid > button b { font-size: clamp(12px, 3.4vw, 16px); }
-  .tc-hq-feature-grid > button > svg { width: 20px; height: 20px; }
-  .tc-hq-feature-grid > button:nth-child(-n+2) {
-    grid-column: 1 / -1;
-    position: relative;
-    background: url('./gate-command.webp') center / 100% 100% no-repeat;
-    border: 0; box-shadow: none; color: #ffe3a7;
+  .tc-courtyard-places > button:nth-child(1) { left: 26%; top: 33%; }
+  .tc-courtyard-places > button:nth-child(2) { left: 78%; top: 37%; }
+  .tc-courtyard-places > button:nth-child(3) { left: 24%; top: 58%; }
+  .tc-courtyard-places > button:nth-child(4) { left: 77%; top: 63%; }
+  .tc-courtyard-places > button:nth-child(5) { left: 26%; top: 90%; }
+  .tc-courtyard-places > button:nth-child(6) { left: 76%; top: 91%; }
+  .tc-courtyard-places > button > .tc-courtyard-plate {
+    position: static; display: inline-flex; flex-flow: row nowrap; align-items: center; justify-content: center; gap: 4px;
+    width: auto; min-width: min(95px,100%); max-width: 100%; min-height: 27px; padding: 2px 7px;
+    color: #f2dfb7; border: 1px solid #b49a68; border-radius: 5px; outline: 1px solid #2c2119;
+    background: linear-gradient(110deg,#1a150f,#080b10 60%,#17130d); box-shadow: inset 0 0 0 2px #16120c,inset 0 0 0 3px #685332,0 2px 4px #0009;
   }
-  .tc-hq-feature-grid > button:nth-child(-n+2) b { font-size: clamp(16px, 4.8vw, 22px); }
-  .tc-hq-feature-grid > button:nth-child(-n+2) .tc-gate-icon { width: 1.4em; height: 1.4em; }
-  /* Use the approved pixel lettering for the six fixed labels, keeping the real
-     Korean button names accessible. */
-  .tc-hq-feature-grid > button { position: relative; }
-  .tc-hq-feature-grid > button .tc-gate-icon {
-    display: block; width: min(88%,clamp(112px,34vw,174px)); height: auto;
-    aspect-ratio: 4; background: url('./gate-labels.webp') center var(--gate-y,0%) / 100% 600% no-repeat;
-  }
-  .tc-hq-feature-grid > button:nth-child(-n+2) .tc-gate-icon { width: clamp(115px,34vw,176px); height: auto; }
-  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="siege"] { --gate-y: 20%; }
-  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="land"] { --gate-y: 40%; }
-  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="shop"] { --gate-y: 60%; }
-  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="vault"] { --gate-y: 80%; }
-  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="auction"] { --gate-y: 100%; }
-  .tc-hq-feature-grid > button > span { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .tc-courtyard-plate b { font-size: clamp(11px,3.1vw,15px); white-space: nowrap; }
+  .tc-courtyard-plate .tc-gate-icon { width: 19px; height: 19px; }
+  .tc-company-mainnav { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:4px; margin:0; padding:2px 5px; background:#0b1420; }
+  .tc-company-mainnav button { display:grid; align-content:center; justify-items:center; min-height:44px; gap:1px; padding:1px; border:1px solid #766848; border-radius:3px; background:#101a28; color:#ead8b3; font-size:11px; }
+  .tc-company-mainnav button.active { border-color:#daba79; background:#34232a; }
+  .tc-company-mainnav .tc-hub-icon { width:23px; height:23px; }
+  .tc-courtyard-dispatch { display:flex; align-items:center; justify-content:center; gap:9px; margin:2px 8px; border:1px solid #c49b62; box-shadow:inset 0 0 0 2px #342314; background:linear-gradient(90deg,#491b28,#692537,#491b28); color:#ffe3ad; font-size:clamp(17px,4.7vw,23px); }
   .tc-hq-strip-label { font-size: clamp(11px, 3.05vw, 15px); }
   .tc-hq-strip-content { font-size: clamp(10px, 2.8vw, 13px); }
   .tc-hq-announcement-strip, .tc-hq-chat-strip { background: #0a1725; }
@@ -127,16 +108,3 @@
 .tc-app:has(.tc-gatehouse) > .tc-nav { padding-inline: 5px; background: #091422; border-color: #ae8957; }
 .tc-app:has(.tc-gatehouse) > .tc-nav button { background: transparent; box-shadow: none; color: #e6ce9f; }
 .tc-app:has(.tc-gatehouse) > .tc-nav button[aria-current=true] { box-shadow: inset 0 -2px #cba260; }
-/* Two utility controls share a row on short phones to keep the battle commands tappable. */
-@media (max-height: 610px) {
-  .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) > .tc-hq-line-overview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: 25px minmax(0, 1fr) 44px;
-    gap: 3px; padding-block: 3px;
-    .tc-gate-stats, .tc-hq-feature-grid { grid-column: 1 / -1; }
-    .tc-hq-feature-grid { grid-template-rows: repeat(4, minmax(0, 1fr)); }
-    .tc-hq-strip-content { display: none; }
-    .tc-hq-strip-label { border: 0; }
-    .tc-hq-announcement-strip, .tc-hq-chat-strip { grid-template-columns: 18px 1fr 12px; }
-  }
-}

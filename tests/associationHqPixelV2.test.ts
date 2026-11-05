@@ -21,11 +21,10 @@ test('classic guild HQ has five major tabs and preserves all eleven server route
 test('gatehouse art and layout are limited to the headquarters overview',()=>{
  assert.match(online,/tab==='overview'[^\n]+tc-gatehouse/);
  const styles=readFileSync('src/components/association/gatehouse.css','utf8');
- assert.match(styles,/moonlit-gate\.webp/);
- assert.match(styles,/grid-column: 1 \/ -1/);
+ assert.match(online,/assets\/backgrounds\/hub\/novar-moonlit-v3\.webp/);
+ assert.match(styles,/tc-courtyard-places/);
  assert.equal((online.match(/className="tc-hq-feature"/g)||[]).length,6);
- const banner=readFileSync('src/components/association/moonlit-gate.webp');
- assert.equal(banner.toString('ascii',8,12),'WEBP');
+ assert.match(online,/tc-courtyard-dispatch/);
  assert.match(online,/current\.treasurySilver\.toLocaleString/);
  assert.match(online,/current\.members\.length/);
  assert.match(online,/territorySummary\?territorySummary\.ownedCount/);
@@ -45,9 +44,9 @@ test('all guild functions remain connected to live data and existing permission 
  assert.match(readFileSync('src/components/association/GuildTerritoryPanel.tsx','utf8'),/setGuildVillageTax/);
 });
 
-test('gatehouse preserves the full moon and uses the approved gold control artwork',()=>{
+test('courtyard preserves guild counters and illustrated facility labels',()=>{
  const css=readFileSync('src/components/association/gatehouse.css','utf8');
- assert.match(css,/aspect-ratio: 1024 \/ 223/);
+ assert.match(css,/tc-courtyard-places/);
  assert.match(css,/gate-icons\.webp/);
  assert.match(screen,/tc-gate-stats/);
  assert.match(css,/tc-gate-stats/);
@@ -58,5 +57,5 @@ test('home crest, name and growth meter share a dedicated header above the tabs'
  assert.match(online,/className="tc-gate-meter" role="progressbar"/);
  assert.match(online,/tab!=='overview'&&tab!=='boss'/);
  const css=readFileSync('src/components/association/gatehouse.css','utf8');
- assert.match(css,/gate-labels\.webp/);
+ assert.match(css,/tc-courtyard-scene/);
 });
