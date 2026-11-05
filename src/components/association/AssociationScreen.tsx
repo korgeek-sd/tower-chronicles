@@ -191,18 +191,30 @@ function OnlineAssociationScreen({
 
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
   <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":"")}>
-   {tab!=='boss'&&<section className={'tc-assoc-banner tc-company-hero'+(tab==='overview'?' is-home':' is-compact')}>
+   {tab==='overview'&&<header className="tc-gate-identity">
+    <div className="tc-gate-emblem" aria-hidden="true"/>
+    <button type="button" className="tc-gate-growth" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
+     <b>{current.name} 원정단</b>
+     <span className="tc-gate-level">
+      <span>Lv.{heroProgress?.associationLevel??'—'}</span>
+      <span className="tc-gate-meter" role="progressbar" aria-label="원정단 경험치" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(heroLevel?.percent??0)}>
+       <i style={{width:(heroLevel?.percent??0)+'%'}}/>
+      </span>
+      <span>{heroLevel?Math.round(heroLevel.percent)+'%':'—'}</span>
+     </span>
+    </button>
+    <div className="tc-gate-tools">
+     <button type="button" onClick={()=>navigate('rankings')}><span><i className="tc-gate-icon" data-icon="ranking" aria-hidden="true"/>랭킹</span></button>
+     <button type="button" onClick={()=>navigate('activity')}><span><i className="tc-gate-icon" data-icon="record" aria-hidden="true"/>기록</span></button>
+    </div>
+   </header>}
+   {tab!=='overview'&&tab!=='boss'&&<section className="tc-assoc-banner tc-company-hero is-compact">
     <div className="tc-company-herald" aria-hidden="true"><GuildLineIcon name="crest"/></div>
     <div className="tc-assoc-banner-copy">
      <small>{current.recordNumber} · 원정단</small>
-     <b>{current.name}{tab==='overview' && ' 원정단'}</b>
+     <b>{current.name}</b>
      <p>단장 {memberLabel(current.leaderUserId)}</p>
-     {tab==='overview'&&<button type="button" className="tc-hq-progress-button" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
-       <span>원정단 Lv.{heroProgress?.associationLevel??'—'} <em>{heroLevel?Math.round(heroLevel.percent)+'%':'—'}</em></span>
-       <div className="tc-company-hero-progress"><div role="progressbar" aria-label="원정단 경험치" aria-valuemin={0} aria-valuemax={100} aria-valuenow={heroLevel?Math.round(heroLevel.percent):0}><i style={{width:(heroLevel?.percent??0)+'%'}}/></div></div>
-      </button>}
     </div>
-    {tab==='overview'&&<div className="tc-hq-hero-links"><button type="button" onClick={()=>navigate('rankings')}><i className="tc-gate-icon" data-icon="ranking" aria-hidden="true"/>랭킹</button><button type="button" onClick={()=>navigate('activity')}><i className="tc-gate-icon" data-icon="record" aria-hidden="true"/>기록</button></div>}
    </section>}
    <nav className="tc-company-mainnav" role="tablist" aria-label="원정단 주요 메뉴">
     {companySections.map(section=><button type="button" key={section.id} role="tab" aria-selected={section.id===activeSection.id}

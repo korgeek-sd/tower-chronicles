@@ -17,30 +17,32 @@
     border-bottom: 1px solid #987747;
   }
 
-  > .tc-company-hero {
-    grid-template-columns: clamp(48px, 17%, 82px) minmax(0, 1fr) auto;
-    gap: 8px;
-    padding: 3px 8px;
-    border: 0;
-    box-shadow: none;
-    background: #081321;
+  .tc-company-nav-line { display: none; }
+  .tc-gate-identity {
+    display: grid; grid-template-columns: 16% minmax(0, 1fr) 36%;
+    align-items: center; gap: 2%; padding: 2px 2%; min-height: 0;
+    border-bottom: 1px solid #987747;
   }
-  > .tc-company-hero::after { display: none; }
-  .tc-company-herald {
-    height: 100%;
-    border: 0;
-    box-shadow: none;
-    clip-path: none;
-    background: url('./gate-crest.webp') center / contain no-repeat;
+  .tc-gate-emblem {
+    height: 90%; border-right: 1px solid #846b48;
+    background: url('./gate-crest.webp') left center / 94% auto no-repeat;
   }
-  .tc-company-herald svg, .tc-company-nav-line { display: none; }
-  .tc-assoc-banner-copy { gap: 1px; }
-  .tc-assoc-banner-copy > b { max-width: 100%; font-size: clamp(17px, 4.3vw, 23px); }
-  .tc-assoc-banner-copy > small, .tc-assoc-banner-copy > p { display: none; }
-  .tc-hq-hero-links { position: static; }
-  .tc-hq-hero-links button { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 44px; min-height: 44px; padding: 3px; font-size: clamp(11px, 2.9vw, 15px); background: #111922; }
-  .tc-hq-progress-button { min-height: 44px; justify-content: center; margin: 0; }
-  .tc-company-hero-progress i { background: #56b8e5; }
+  .tc-gate-growth, .tc-gate-tools button {
+    min-width: 0; min-height: 44px; padding: 0; background: none;
+    border: none; box-shadow: none; color: #ffe2a8;
+  }
+  .tc-gate-growth { display: grid; gap: 4px; align-content: center; text-align: left; }
+  .tc-gate-growth b { font-size: clamp(17px, 4.9vw, 25px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tc-gate-level { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 5px; align-items: center; font-size: clamp(10px, 2.8vw, 14px); }
+  .tc-gate-meter { height: 8px; overflow: hidden; border-radius: 2px; background: #39414e; }
+  .tc-gate-meter i { display: block; height: 100%; background: #55b9ec; }
+  .tc-gate-tools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; }
+  .tc-gate-tools button > span {
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+    min-height: 25px; border: 1px solid #b48a54; border-radius: 3px;
+    background: #151513; color: #ffe1ad; font-size: clamp(11px, 3.1vw, 15px);
+    box-shadow: inset 0 0 0 1px #392c20;
+  }
   > .tc-company-mainnav { gap: 0; border-block: 1px solid #927345; }
   > .tc-company-mainnav button {
     border: 0; border-radius: 0; background: transparent; box-shadow: none;
@@ -82,6 +84,22 @@
   }
   .tc-hq-feature-grid > button:nth-child(-n+2) b { font-size: clamp(16px, 4.8vw, 22px); }
   .tc-hq-feature-grid > button:nth-child(-n+2) .tc-gate-icon { width: 1.4em; height: 1.4em; }
+  /* Use the approved pixel lettering for the six fixed labels, keeping the real
+     Korean button names accessible. */
+  .tc-hq-feature-grid > button { position: relative; }
+  .tc-hq-feature-grid > button .tc-gate-icon {
+    display: block; width: min(88%,clamp(112px,34vw,174px)); height: auto;
+    aspect-ratio: 4; background: url('./gate-labels.webp') center var(--gate-y,0%) / 100% 600% no-repeat;
+  }
+  .tc-hq-feature-grid > button:nth-child(-n+2) .tc-gate-icon { width: clamp(115px,34vw,176px); height: auto; }
+  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="siege"] { --gate-y: 20%; }
+  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="land"] { --gate-y: 40%; }
+  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="shop"] { --gate-y: 60%; }
+  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="vault"] { --gate-y: 80%; }
+  .tc-hq-feature-grid > button .tc-gate-icon[data-icon="auction"] { --gate-y: 100%; }
+  .tc-hq-feature-grid > button > span { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .tc-hq-strip-label { font-size: clamp(11px, 3.05vw, 15px); }
+  .tc-hq-strip-content { font-size: clamp(10px, 2.8vw, 13px); }
   .tc-hq-announcement-strip, .tc-hq-chat-strip { background: #0a1725; }
 }
 
