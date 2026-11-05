@@ -1,0 +1,85 @@
+/* The gate and its crest come from the selected moonlit hall design. */
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
+  grid-template-rows: minmax(0, 1fr) 84px 44px minmax(0, 3fr);
+  padding: 0;
+  gap: 0;
+  color: #f5dfb1;
+  background: #081321;
+
+  &::before {
+    content: '';
+    position: static;
+    inset: auto;
+    opacity: 1;
+    background: #101d32 url('./moonlit-gate.webp') center 55% / cover no-repeat;
+    border-bottom: 1px solid #987747;
+  }
+
+  > .tc-company-hero {
+    grid-template-columns: clamp(38px, 13%, 65px) minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 3px 8px;
+    border: 0;
+    box-shadow: none;
+    background: #081321;
+  }
+  > .tc-company-hero::after { display: none; }
+  .tc-company-herald {
+    height: 100%;
+    border: 0;
+    box-shadow: none;
+    clip-path: none;
+    background: url('./gate-crest.webp') center / contain no-repeat;
+  }
+  .tc-company-herald svg, .tc-company-nav-line { display: none; }
+  .tc-assoc-banner-copy { gap: 1px; }
+  .tc-assoc-banner-copy > b { max-width: 100%; }
+  .tc-assoc-banner-copy > small, .tc-assoc-banner-copy > p { display: none; }
+  .tc-hq-hero-links { position: static; }
+  .tc-hq-hero-links button { min-width: 44px; min-height: 44px; background: #111922; }
+  .tc-hq-progress-button { min-height: 44px; justify-content: center; margin: 0; }
+  .tc-company-hero-progress i { background: #56b8e5; }
+  > .tc-company-mainnav { gap: 0; border-block: 1px solid #927345; }
+  > .tc-company-mainnav button {
+    border: 0; border-radius: 0; background: transparent; box-shadow: none;
+    font-size: clamp(12px, 3.2vw, 16px);
+  }
+  > .tc-company-mainnav button.active { background: #54232e; color: #ffe3a7; }
+  > .tc-hq-line-overview {
+    padding: 4px 8px;
+    gap: 4px;
+    grid-template-rows: minmax(30px, .65fr) minmax(0, 4fr) 44px 44px;
+  }
+  .tc-company-summary { background: #0b1620; }
+  .tc-company-summary > div { flex-direction: row; flex-wrap: wrap; align-content: center; gap: 2px 4px; }
+  .tc-hq-feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .tc-hq-feature-grid > button {
+    flex-direction: row; gap: 6px; border-radius: 3px;
+    background: #0d1a29; box-shadow: none;
+  }
+  .tc-hq-feature-grid > button > span { width: auto; }
+  .tc-hq-feature-grid > button small { display: none; }
+  .tc-hq-feature-grid > button b { font-size: clamp(12px, 3.4vw, 16px); }
+  .tc-hq-feature-grid > button > svg { width: 20px; height: 20px; }
+  .tc-hq-feature-grid > button:nth-child(-n+2) {
+    grid-column: 1 / -1;
+    position: relative;
+    background: linear-gradient(90deg, #461e2a, #6b293a, #461e2a);
+    border: 2px solid #c39b62;
+    box-shadow: inset 0 0 0 2px #30151d;
+  }
+  .tc-hq-feature-grid > button:nth-child(-n+2) b { font-size: clamp(16px, 4.8vw, 22px); }
+  .tc-hq-feature-grid > button:nth-child(-n+2)::after {
+    content: '›'; position: absolute; right: 12px; color: #dfbd7e;
+  }
+  .tc-hq-announcement-strip, .tc-hq-chat-strip { background: #0a1725; }
+}
+@media (max-height: 740px) {
+  .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gatehouse:has(> .tc-hq-line-overview) {
+    grid-template-rows: minmax(0, 1fr) 66px 44px minmax(330px, 4fr);
+  }
+}

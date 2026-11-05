@@ -23,6 +23,7 @@ import './hq.css';
 import './hq-v2.css';
 import './hq-v3.css';
 import './hq-v4.css';
+import './gatehouse.css';
 import {GuildLineIcon,type GuildLineIconName} from './GuildLineIcon';
 import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
@@ -189,7 +190,7 @@ function OnlineAssociationScreen({
  const memberLabel=(userId:string)=>current.members.find(m=>m.userId===userId)?.playerLabel??'탐사자';
 
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
-  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+(tab==='overview'?" tc-assoc-hq-v4":" tc-assoc-hq-v4")}>
+  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":"")}>
    {tab!=='boss'&&<section className={'tc-assoc-banner tc-company-hero'+(tab==='overview'?' is-home':' is-compact')}>
     <div className="tc-company-herald" aria-hidden="true"><GuildLineIcon name="crest"/></div>
     <div className="tc-assoc-banner-copy">
