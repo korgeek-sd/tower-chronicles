@@ -44,3 +44,11 @@ test('all guild functions remain connected to live data and existing permission 
  assert.match(screen,/tc-company-subnav-wrap/);
  assert.match(readFileSync('src/components/association/GuildTerritoryPanel.tsx','utf8'),/setGuildVillageTax/);
 });
+
+test('gatehouse preserves the full moon and uses the approved gold control artwork',()=>{
+ const css=readFileSync('src/components/association/gatehouse.css','utf8');
+ assert.match(css,/aspect-ratio: 1024 \/ 223/);
+ assert.match(css,/gate-icons\.webp/);
+ assert.match(screen,/tc-gate-stats/);
+ assert.match(css,/tc-gate-stats/);
+});
