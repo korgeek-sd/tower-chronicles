@@ -32,7 +32,7 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
    ?read(path).replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
    :path==='src/components/association/AssociationScreen.tsx'
     ?read(path)
-      .replace('assets/backgrounds/association/guild-courtyard-v2.webp','')
+      .replace('assets/backgrounds/association/guild-courtyard-v3.webp','')
       // The 13 bespoke guild SVGs are the only art allowed in this screen.
       .replaceAll(/assets\/ui\/guild\/new\/(?:castle|emblem|nav-(?:hq|combat|territory|assets|members)|action-(?:boss|siege|land|shop|vault|auction))\.svg/g,'')
       .replace('assets/ui/guild/new/nav-','')
