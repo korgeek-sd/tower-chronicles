@@ -39,8 +39,8 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Confirm hosted Android SDK
+        run: test -d "${ANDROID_HOME}" && test -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
 
       - name: Create locked Capacitor dependency graph
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
