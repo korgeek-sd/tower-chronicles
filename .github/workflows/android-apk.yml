@@ -1,0 +1,95 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - 'codex/android-capacitor-*'
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.ts'
+      - 'scripts/configure-android.mjs'
+      - '.github/workflows/android-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: write # Initial Android branch lockfile sync; no production credentials are used.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Confirm hosted Android SDK
+        run: test -d "${ANDROID_HOME}" && test -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+
+      - name: Create locked Capacitor dependency graph
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Save generated lockfile to Android integration branch
+        if: startsWith(github.ref, 'refs/heads/codex/android-capacitor-')
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "build(android): lock Capacitor dependencies"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
+          fi
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify web app
+        run: |
+          npm run typecheck
+          node --test tests/androidPackaging.test.mjs
+          # Full regression suite remains enforced by Tower Chronicles CI.
+
+      - name: Build bundled offline web assets
+        env:
+          VITE_SUPABASE_URL: https://zecdhceihrdwdkdykxhx.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_bjJQ-qJg2eB6w88-QHS-vg_68OVgFK7
+        run: npm run build
+
+      - name: Generate native Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+          node scripts/configure-android.mjs
+
+      - name: Compile installable debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Check output
+        run: test -s android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tower-chronicles-android-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

@@ -34,6 +34,8 @@ import {loadPlayerProfile,registerPlayerNickname,type PlayerProfile} from './onl
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
 import {consumeOAuthRedirect,getStoredSession,signOutOnline,type OnlineSession} from './online/auth';
+import {initializeNativeOAuth} from './online/nativeAuth';
+import {Capacitor} from '@capacitor/core';
 import {onlineConfigured} from './online/config';
 import {reconcileCloudState,type CloudSyncStatus} from './online/cloudSync';
 import {stableStringify,loadCloudSave,rememberCloudRecord,CloudSessionLostError} from './online/cloudSave';
@@ -504,7 +506,13 @@ function App(){
 }
 let authStartupError='';
 async function startApp(){
- try{await consumeOAuthRedirect();}
+ if(Capacitor.isNativePlatform()){
+  // Preserve the browser layout; only Android WebView can extend under hidden system bars.
+  document.documentElement.classList.add('tc-native-immersive');
+  const viewport=document.querySelector('meta[name="viewport"]');
+  if(viewport)viewport.setAttribute('content','width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover');
+ }
+ try{await initializeNativeOAuth();await consumeOAuthRedirect();}
  catch{authStartupError='로그인 응답을 확인하지 못했습니다. Google 로그인을 다시 시작해 주세요.';}
  createRoot(document.getElementById('root')!).render(<GameFeelProvider><GameEntry initialError={authStartupError}><App/></GameEntry></GameFeelProvider>);
 }

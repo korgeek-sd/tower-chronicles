@@ -1,3 +1,5 @@
+import {Capacitor} from '@capacitor/core';
+import {Browser} from '@capacitor/browser';
 import {supabaseConfig,type SupabasePublicConfig} from './config';
 
 export const AUTH_SESSION_KEY='tower-auth-v1';
@@ -42,18 +44,27 @@ const storeSession=(session:OnlineSession,storage:Storage=localStorage)=>{storag
 export const OAUTH_TRANSACTION_KEY='tower-oauth-pkce-v1';
 const OAUTH_STATE_PARAM='tc_auth_state';
 const OAUTH_TTL_MS=10*60_000;
-type OAuthTransaction={state:string;verifier:string;createdAt:number;redirectBase:string};
+type OAuthTransaction={state:string;verifier:string;createdAt:number;redirectBase:string;mode?:'native'};
 const base64url=(bytes:Uint8Array)=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const randomSecret=()=>base64url(crypto.getRandomValues(new Uint8Array(32)));
 
 /** Supabase Auth uses lowercase s256 for its PKCE authorize API. */
-export async function createGoogleOAuthUrl(config:SupabasePublicConfig,redirectTo:string,transactions:Storage=sessionStorage):Promise<string>{
+export async function createGoogleOAuthUrl(
+ config:SupabasePublicConfig,redirectTo:string,transactions:Storage=sessionStorage,mode:'web'|'native'='web'
+):Promise<string>{
  const redirect=new URL(redirectTo);
  redirect.hash='';redirect.searchParams.delete('code');redirect.searchParams.delete(OAUTH_STATE_PARAM);
+ if(mode==='native'&&redirect.toString()!==NATIVE_OAUTH_REDIRECT)throw Error('AUTH_NATIVE_REDIRECT_INVALID');
  const state=randomSecret(),verifier=randomSecret();
  const challenge=base64url(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))));
- transactions.setItem(OAUTH_TRANSACTION_KEY,JSON.stringify({state,verifier,createdAt:Date.now(),redirectBase:redirect.origin+redirect.pathname} satisfies OAuthTransaction));
- redirect.searchParams.set(OAUTH_STATE_PARAM,state);
+ transactions.setItem(OAUTH_TRANSACTION_KEY,JSON.stringify({
+  state,verifier,createdAt:Date.now(),
+  // A native callback must exactly match the Supabase allowlist entry. PKCE binds
+  // the returned code to this device's one-time verifier without a query nonce.
+  redirectBase:mode==='native'?NATIVE_OAUTH_REDIRECT:redirect.origin+redirect.pathname,
+  ...(mode==='native'?{mode:'native' as const}:{})
+ } satisfies OAuthTransaction));
+ if(mode==='web')redirect.searchParams.set(OAUTH_STATE_PARAM,state);
  const url=new URL('/auth/v1/authorize',config.url);
  url.searchParams.set('provider','google');url.searchParams.set('redirect_to',redirect.toString());
  url.searchParams.set('code_challenge',challenge);url.searchParams.set('code_challenge_method','s256');
@@ -83,9 +94,16 @@ export async function completeGoogleOAuth(config:SupabasePublicConfig|null,url:s
  let transaction:OAuthTransaction;
  try{transaction=JSON.parse(raw??'null');}catch{throw Error('AUTH_REQUEST_MISSING');}
  const code=current.searchParams.get('code'),state=current.searchParams.get(OAUTH_STATE_PARAM);
+ const isNative=transaction?.mode==='native';
+ const callbackMatches=isNative
+  ?(transaction.redirectBase===NATIVE_OAUTH_REDIRECT
+    &&current.protocol==='towerchronicles:'&&current.hostname==='auth'&&current.pathname==='/callback'
+    &&!current.searchParams.has(OAUTH_STATE_PARAM)&&!current.username&&!current.password&&!current.port)
+  :(transaction?.redirectBase===current.origin+current.pathname
+    &&state===transaction?.state&&current.searchParams.getAll(OAUTH_STATE_PARAM).length===1);
  if(!transaction||typeof transaction.state!=='string'||typeof transaction.verifier!=='string'||!/^[-_A-Za-z0-9]{43}$/.test(transaction.verifier)||
   !Number.isFinite(transaction.createdAt)||transaction.createdAt>Date.now()||Date.now()-transaction.createdAt>OAUTH_TTL_MS||
-  transaction.redirectBase!==current.origin+current.pathname||state!==transaction.state||current.searchParams.getAll(OAUTH_STATE_PARAM).length!==1)throw Error('AUTH_REQUEST_MISMATCH');
+  !callbackMatches)throw Error('AUTH_REQUEST_MISMATCH');
  if(current.searchParams.has('error')||fragment.has('error'))throw Error('AUTH_PROVIDER_REJECTED');
  if(!config||!code||code.length>2048||current.searchParams.getAll('code').length!==1)throw Error('AUTH_RESPONSE_INVALID');
  const previous=storage.getItem(AUTH_SESSION_KEY);
@@ -110,8 +128,16 @@ export async function consumeOAuthRedirect(url=window.location.href,storage:Stor
  return completeGoogleOAuth(supabaseConfig,url,storage,sessionStorage);
 }
 
+export const NATIVE_OAUTH_REDIRECT='towerchronicles://auth/callback';
+
 export async function signInWithGoogle(redirectTo=window.location.origin+window.location.pathname){
  if(!supabaseConfig)throw Error('Supabase 공개 설정이 필요합니다.');
+ if(Capacitor.isNativePlatform()){
+  // Google OAuth cannot run in an embedded WebView. Chrome Custom Tabs returns via Android deep link.
+  const authorize=await createGoogleOAuthUrl(supabaseConfig,NATIVE_OAUTH_REDIRECT,localStorage,'native');
+  await Browser.open({url:authorize});
+  return;
+ }
  if(new URL(redirectTo).origin!==window.location.origin)throw Error('로그인 복귀 주소를 확인해 주세요.');
  window.location.assign(await createGoogleOAuthUrl(supabaseConfig,redirectTo));
 }
@@ -154,6 +180,7 @@ export async function signOutOnline(storage:Storage=localStorage):Promise<void>{
  // Clear immediately so an in-flight refresh cannot restore the signed-out account.
  storage.removeItem(AUTH_SESSION_KEY);
  try{sessionStorage.removeItem(OAUTH_TRANSACTION_KEY);}catch{}
+ storage.removeItem(OAUTH_TRANSACTION_KEY);
  if(session&&supabaseConfig)await fetch(supabaseConfig.url+'/auth/v1/logout',{
   method:'POST',headers:{apikey:supabaseConfig.publishableKey,Authorization:'Bearer '+session.accessToken},signal:AbortSignal.timeout(15000),
  });

@@ -97,3 +97,57 @@ test('credential fragments are scrubbed from history before rejection',async()=>
   if(oldStorage)Object.defineProperty(globalThis,'sessionStorage',oldStorage);else Reflect.deleteProperty(globalThis,'sessionStorage');
  }
 });
+
+test('native PKCE redirects to the exact registered deep link and returns to the app',async()=>{
+ const sessions=storage(),transactions=storage();
+ const authorize=new URL(await createGoogleOAuthUrl(config,'towerchronicles://auth/callback',transactions,'native'));
+ const redirect=authorize.searchParams.get('redirect_to');
+ assert.equal(redirect,'towerchronicles://auth/callback');
+ assert.ok(!redirect?.includes('tc_auth_state'));
+ assert.equal(authorize.searchParams.get('code_challenge_method'),'s256');
+ const stored=JSON.parse(transactions.getItem(OAUTH_TRANSACTION_KEY)!);
+ assert.equal(stored.mode,'native');
+ assert.equal(stored.redirectBase,redirect);
+ const callback='towerchronicles://auth/callback?code=valid-native-code';
+ let calls=0;
+ const request=(async(url,options)=>{
+  calls++;
+  if(calls===1){
+   assert.match(String(url),/grant_type=pkce$/);
+   assert.deepEqual(JSON.parse(options!.body as string),{auth_code:'valid-native-code',code_verifier:stored.verifier});
+   return json(token);
+  }
+  assert.match(String(url),/\/user$/);
+  return json({id:'native-user',email:'native@example.com'});
+ }) as typeof fetch;
+ const result=await completeGoogleOAuth(config,callback,sessions,transactions,request);
+ assert.equal(result?.userId,'native-user');
+ assert.equal(calls,2);
+ assert.equal(transactions.getItem(OAUTH_TRANSACTION_KEY),null);
+ assert.equal(getStoredSession(sessions)?.userId,'native-user');
+ await assert.rejects(()=>completeGoogleOAuth(config,callback,sessions,transactions,request),/AUTH_REQUEST_MISMATCH/);
+ assert.equal(calls,2);
+});
+
+test('native callback rejects another scheme, path, query state and expired verifier without exchanging code',async()=>{
+ const invalid=[
+  'https://auth/callback?code=test',
+  'towerchronicles://evil/callback?code=test',
+  'towerchronicles://auth/other?code=test',
+  'towerchronicles://auth/callback?tc_auth_state=forged&code=test',
+ ];
+ for(const callback of invalid){
+  const sessions=storage(),transactions=storage();
+  await createGoogleOAuthUrl(config,'towerchronicles://auth/callback',transactions,'native');
+  await assert.rejects(()=>completeGoogleOAuth(config,callback,sessions,transactions,async()=>{throw Error('NO_NETWORK');}),/AUTH_REQUEST_MISMATCH/);
+  assert.equal(transactions.getItem(OAUTH_TRANSACTION_KEY),null);
+  assert.equal(getStoredSession(sessions),null);
+ }
+ const transactions=storage(),sessions=storage();
+ await createGoogleOAuthUrl(config,'towerchronicles://auth/callback',transactions,'native');
+ const value=JSON.parse(transactions.getItem(OAUTH_TRANSACTION_KEY)!);
+ value.createdAt-=11*60_000;
+ transactions.setItem(OAUTH_TRANSACTION_KEY,JSON.stringify(value));
+ await assert.rejects(()=>completeGoogleOAuth(config,'towerchronicles://auth/callback?code=test',sessions,transactions,async()=>{throw Error('NO_NETWORK');}),/AUTH_REQUEST_MISMATCH/);
+ await assert.rejects(()=>createGoogleOAuthUrl(config,'towerchronicles://auth/another',transactions,'native'),/AUTH_NATIVE_REDIRECT_INVALID/);
+});

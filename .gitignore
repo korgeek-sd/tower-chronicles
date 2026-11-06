@@ -39,3 +39,6 @@ secrets*.json
 # Editor settings
 .idea/
 .vscode/
+
+# Generated Capacitor Android native project (regenerated in CI)
+/android/
