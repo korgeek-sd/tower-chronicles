@@ -236,7 +236,7 @@ function OnlineAssociationScreen({
      <div><small>공용 실버</small><b>{current.treasurySilver.toLocaleString()}<em> S</em></b></div>
     </div>
     <div className="tc-courtyard-scene">
-     <img className="tc-courtyard-art" src={assetUrl('assets/backgrounds/association/guild-courtyard-v1.webp')} alt="" />
+     <img className="tc-courtyard-art" src={assetUrl('assets/backgrounds/association/guild-courtyard-v2.webp')} alt="" />
      <div className="tc-courtyard-heading"><h2><HubIcon name="world"/>원정단 본부</h2>
       <button type="button" onClick={()=>setFullNotice(true)} aria-label="원정단 공지 열기">원정단 공지 ›</button>
      </div>

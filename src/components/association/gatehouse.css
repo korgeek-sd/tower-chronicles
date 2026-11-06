@@ -133,7 +133,7 @@
   > .tc-gate-identity {
     flex: 0 0 clamp(54px, 14vw, 72px);
     background: linear-gradient(90deg,#081321 20%,#081321cf),
-      url('../../../public/assets/backgrounds/association/guild-courtyard-v1.webp') center 9% / cover;
+      url('../../../public/assets/backgrounds/association/guild-courtyard-v2.webp') center 9% / cover;
   }
   > .tc-company-subnav-wrap, > .tc-company-combat-nav {
     flex: none;
