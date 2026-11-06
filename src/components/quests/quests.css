@@ -7,49 +7,47 @@
 .tc-quest-toolbar small,.tc-quest-status {font-size:12px}
 .tc-quest-status {display:flex;align-items:center;justify-content:space-between;color:#efdbb7}
 .tc-quest-status button {min-height:44px}
+/* The grid coordinates match the illustrated sheets and their wax seals. */
 .tc-quest-wall {
- container-type:size;isolation:isolate;position:relative;flex:1;min-height:0;
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1.25fr) minmax(0,1fr);
- gap:clamp(6px,1.3vh,13px);padding:clamp(20px,6vh,58px) 4% clamp(20px,6vh,58px);
- border:3px ridge #775331;
- background:linear-gradient(90deg,#170c0866,transparent 14% 86%,#170c0866),url('./art/planks.webp') center / 36% 100%;
+ position:relative;flex:1;min-height:0;container-type:size;
+ display:grid;grid-template-columns:7% 41.5% 3% 41.5% 7%;
+ grid-template-rows:12.8% 41% 3% 29.5% 13.7%;
+ background:url('./art/notice-daily.webp') center / 100% 100% no-repeat;
 }
-.tc-quest-wall::before,.tc-quest-wall::after {content:'';position:absolute;inset:0 0 auto;height:12%;background:url('./art/beam.webp') center top / 100% 100%;z-index:-1}
-.tc-quest-wall::after {inset:auto 0 0;background-image:url('./art/shelf.webp')}
-.tc-quest-wall.is-weekly {grid-template-rows:repeat(3,minmax(0,1fr))}
-.tc-quest-paper {
- position:relative;min-height:0;min-width:0;display:flex;flex-direction:column;align-items:stretch;justify-content:center;
- gap:clamp(3px,1.6cqh,10px);padding:8px clamp(6px,2.3cqw,14px);
- color:#352111;text-align:center;border:2px ridge #a47843;border-radius:3px 6px 3px 1px;
- box-shadow:1px 3px 4px #120a06;
- background:linear-gradient(98deg,#a36b375c,transparent 17% 80%,#9e662e52),url('./art/paper.webp') repeat,#dfbd83;
+.tc-quest-wall.is-weekly {
+ grid-template-rows:8.95% 28.65% 1.45% 28.65% 2.1% 20.6% 9.6%;
+ background-image:url('./art/notice-weekly.webp');
 }
-.tc-quest-paper::before {content:'';position:absolute;top:-5px;left:48%;width:9px;height:9px;border-radius:50%;background:radial-gradient(at 35% 22%,#dfa762,#6c421e 55%,#301706);box-shadow:1px 2px 1px #4c341c}
-.tc-quest-paper:last-child:nth-child(odd) {grid-column:1/-1}
-.tc-quest-paper strong {font-size:clamp(13px,4cqw,21px);line-height:1.18;word-break:keep-all}
-.tc-quest-emblem {font-size:clamp(19px,8cqh,39px);color:#77512f;line-height:1}
-.tc-quest-progress {font-size:13px}
-.tc-quest-track {height:6px;border:1px solid #62401f;background:#8b7353;margin:3px auto 0;max-width:290px}
-.tc-quest-track i {display:block;height:100%;background:#ecac37}
-.tc-quest-foot {display:flex;align-items:center;justify-content:space-between;gap:3px}
-.tc-quest-foot small {font-size:11px;line-height:1.2;overflow-wrap:anywhere}
-.tc-quest-seal {
- border-radius:49% 44% 46% 40%;border:3px ridge #a43e30;background:radial-gradient(ellipse at 40% 28%,#964338,#671e1c 68%,#461312);
- color:#fff0c4;padding:3px;min-height:44px;min-width:44px;font:inherit;font-size:11px;box-shadow:inset 0 0 0 1px #b25e41,1px 2px 1px #67492f;
+.tc-quest-paper {position:relative;grid-column:2;grid-row:2;min-width:0;min-height:0;text-align:center;color:#30200f}
+.tc-quest-paper:nth-child(even) {grid-column:4}
+.tc-quest-paper:nth-child(n+3) {grid-row:4}
+.tc-quest-paper:nth-child(n+5) {grid-row:6}
+.tc-quest-paper:last-child:nth-child(odd) {grid-column:2/5}
+.tc-quest-paper strong,.tc-quest-emblem,.tc-quest-progress,.tc-quest-foot small,.tc-quest-seal {
+ position:absolute;transform:translate(-50%,-50%);left:50%;margin:0;
 }
-.tc-quest-seal::after {content:'';position:absolute;inset:0}
-.tc-quest-paper:focus-within {outline:2px solid #ffe593;outline-offset:2px}
-.tc-quest-paper.is-ready .tc-quest-seal {border-color:#e9b95b}
-.tc-quest-paper.is-claimed .tc-quest-seal {filter:saturate(.22)}
-@container (max-height:390px) {
- .tc-quest-emblem {display:none}
- .tc-quest-paper {gap:3px;padding-block:3px}
- .is-weekly .tc-quest-foot {justify-content:center}
- .is-weekly .tc-quest-seal {min-height:18px;border-width:1px;border-radius:9px}
+.tc-quest-paper strong {width:94%;top:34%;font-size:clamp(12px,3.55cqw,19px);line-height:1.1;word-break:keep-all}
+.tc-quest-emblem {top:20%;font-size:clamp(16px,min(5.6cqw,5cqh),32px);color:#624121;line-height:1}
+.tc-quest-progress {top:55%;font-size:clamp(11px,3cqw,16px);width:76%}
+.tc-quest-track {height:clamp(4px,1.35cqh,10px);margin:2px auto 0;border:1px solid #64401d;border-radius:3px;background:#674828;box-shadow:0 0 0 1px #ebca91}
+.tc-quest-track i {display:block;height:100%;background:linear-gradient(#ffd46b,#dba034);border-radius:2px}
+.tc-quest-foot small {left:30%;top:77%;width:53%;font-size:clamp(10px,2.6cqw,14px);line-height:1.18;overflow-wrap:anywhere}
+.tc-quest-foot small::before {content:'◇';margin-right:2px}
+.tc-quest-paper .tc-quest-seal span {
+ position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;left:74.5%;top:83%;width:38%;height:30%;padding:0;color:#ffe8b9;background:none;border:0;
+ box-shadow:none;text-shadow:0 1px 2px #350c00;font:inherit;font-size:clamp(10px,2.75cqw,15px);line-height:1.1;
 }
-@container (max-height:310px) {
- .is-weekly .tc-quest-paper {display:grid;grid-template-columns:1fr auto;align-content:center;gap:1px 2px}
- .is-weekly .tc-quest-paper strong,.is-weekly .tc-quest-foot {grid-column:1/-1}
- .is-weekly .tc-quest-progress {grid-column:1/-1;font-size:11px}
- .is-weekly .tc-quest-track {display:none}
+.tc-quest-paper:nth-child(even) .tc-quest-seal span {left:73%}
+.tc-quest-paper:focus-within {outline:2px solid #ffe593}
+.tc-quest-paper.is-claimed .tc-quest-seal {color:#ddd0bb}
+.tc-quest-paper:last-child:nth-child(odd) .tc-quest-emblem {left:21%;top:22%}
+.tc-quest-paper:last-child:nth-child(odd) strong {left:50%;top:22%;width:57%}
+.tc-quest-paper:last-child:nth-child(odd) .tc-quest-progress {left:36%;top:56%;width:51%}
+.tc-quest-paper:last-child:nth-child(odd) .tc-quest-foot small {left:32%;top:78%}
+.tc-quest-paper:last-child:nth-child(odd) .tc-quest-seal span {left:78%;top:72%;width:21%;height:40%}
+@container (max-height:420px) {
+ .is-weekly .tc-quest-paper strong {font-size:clamp(10px,3cqw,14px)}
+ .is-weekly .tc-quest-emblem {font-size:14px;top:17%}
+ .is-weekly .tc-quest-progress,.is-weekly .tc-quest-foot small {font-size:10px}
 }
+.tc-quest-paper button.tc-quest-seal {position:absolute;inset:0;transform:none;width:100%;height:100%;border:0;background:none;padding:0;box-shadow:none}

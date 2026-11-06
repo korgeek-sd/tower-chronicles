@@ -20,7 +20,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
     {error || message || '의뢰 불러오는 중'}
     {error && onRetry && <button type="button" disabled={busy} onClick={onRetry}>다시 확인</button>}
    </div>}
-   <div className={'tc-quest-wall ' + (tab === 'weekly' ? 'is-weekly' : '')} aria-label={tab === 'daily' ? '일일 의뢰 목록' : '주간 의뢰 목록'}>
+   <div className={'tc-quest-wall ' + (tab === 'weekly' ? 'is-weekly' : 'is-daily')} aria-label={tab === 'daily' ? '일일 의뢰 목록' : '주간 의뢰 목록'}>
     {quests.map(q => {
      const index = (ids[tab] as readonly string[]).indexOf(q.id);
      const definition = (tab === 'daily' ? DAILY_QUESTS : WEEKLY_QUESTS)[index];
@@ -42,7 +42,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
       </div>
       <div className="tc-quest-foot">
        <small>{q.claimed && q.reward ? questRewardSummary(q.reward) : q.claimed ? '수령 완료' : '랜덤 보상'}</small>
-       <button type="button" className="tc-quest-seal" aria-label={name+' '+action} disabled={q.claimed||busy||(q.completed&&!onClaim)} onClick={activate}>{action}</button>
+       <button type="button" className="tc-quest-seal" aria-label={name+' '+action} disabled={q.claimed||busy||(q.completed&&!onClaim)} onClick={activate}><span>{action}</span></button>
       </div>
      </article>;
     })}
