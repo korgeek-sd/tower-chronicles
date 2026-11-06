@@ -76,3 +76,16 @@ test('STUDIO 1524 intro plays once per app session, not again after OAuth reload
   seen.clear();fakeWindow.location.search='';
   assert.equal(evaluate(),true,'new app session plays the logo again');
 });
+
+
+test('studio splash hides native media play overlays and shows video only after playback begins',()=>{
+  const splash=readFileSync(new URL('../src/components/splash/Studio1524Splash.tsx',import.meta.url),'utf8');
+  const css=readFileSync(new URL('../src/components/splash/studio1524-splash.css',import.meta.url),'utf8');
+  assert.match(splash,/onPlaying=\{\(\)=>setPlaying\(true\)\}/,'reveal only after autoplay actually starts');
+  assert.match(splash,/studio1524-splash__video--playing/,'video has a playback-ready visual state');
+  assert.match(splash,/controls=\{false\}/,'native video controls must be explicitly disabled');
+  assert.match(css,/\.studio1524-splash__video\s*\{[^}]*opacity:\s*0\s*;/s,'loading video and its overlays stay invisible');
+  assert.match(css,/\.studio1524-splash__video--playing\s*\{[^}]*opacity:\s*1\s*;/s,'playing logo is visible');
+  assert.match(css,/::-webkit-media-controls-overlay-play-button/,'hide WebKit play icon');
+  assert.match(css,/::-webkit-media-controls-start-playback-button/,'hide iOS start-play icon');
+});
