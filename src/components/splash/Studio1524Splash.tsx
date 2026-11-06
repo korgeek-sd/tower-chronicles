@@ -4,10 +4,18 @@ import './studio1524-splash.css';
 const VIDEO_URL=import.meta.env.BASE_URL+'assets/studio1524/splash.mp4?v=studio1524-20261022-1';
 // The selected cinematic lasts six seconds; allow loading time before the failsafe.
 const MAX_WAIT_MS=10000;
+// Remains set across Google OAuth's WebView reload/redirect, but resets on a new app session.
+const SPLASH_SESSION_KEY='tower-studio1524-splash-played-v1';
 
 function shouldPlayIntro():boolean {
   if(new URLSearchParams(window.location.search).get('skipSplash')==='1')return false;
-  return !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return false;
+  try{
+    if(window.sessionStorage.getItem(SPLASH_SESSION_KEY)==='1')return false;
+    // Mark before playback so a login redirect/reload cannot replay the studio logo.
+    window.sessionStorage.setItem(SPLASH_SESSION_KEY,'1');
+  }catch{/* In restricted storage contexts, preserve the existing intro behavior. */}
+  return true;
 }
 
 /** The intro overlays the mounted app, so game/session loading can proceed underneath. */
