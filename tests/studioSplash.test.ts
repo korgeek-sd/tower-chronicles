@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
 
 
 const expectedDurationMs=6000;
@@ -47,4 +48,31 @@ test('startup uses the new STUDIO 1524 branding consistently',()=>{
   assert.match(splash,/STUDIO 1524/);
   assert.match(start,/STUDIO 1524/);
   assert.doesNotMatch(start,/STUDIO 0322/);
+});
+
+test('STUDIO 1524 intro plays once per app session, not again after OAuth reload',()=>{
+  const source=readFileSync(new URL('../src/components/splash/Studio1524Splash.tsx',import.meta.url),'utf8');
+  const key=source.match(/^const SPLASH_SESSION_KEY=.*;$/m)?.[0];
+  const functionSource=source.match(/function shouldPlayIntro\(\):boolean \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(key,'splash needs a session-scoped playback marker');
+  assert.ok(functionSource,'splash playback decision must be testable');
+
+  const seen=new Map<string,string>();
+  const fakeWindow={
+    location:{search:''},
+    matchMedia:()=>({matches:false}),
+    sessionStorage:{
+      getItem:(name:string)=>seen.get(name)??null,
+      setItem:(name:string,value:string)=>{seen.set(name,value);},
+    },
+  };
+  const evaluate=()=>runInNewContext(key+'\n'+functionSource.replace('():boolean','()')+'\nshouldPlayIntro()',{
+    window:fakeWindow,URLSearchParams,
+  }) as boolean;
+  assert.equal(evaluate(),true,'new app session plays the logo');
+  assert.equal(evaluate(),false,'OAuth return/reload must not replay the logo');
+  fakeWindow.location.search='?skipSplash=1';
+  assert.equal(evaluate(),false,'existing skip flag still suppresses the logo');
+  seen.clear();fakeWindow.location.search='';
+  assert.equal(evaluate(),true,'new app session plays the logo again');
 });
