@@ -33,4 +33,16 @@
   flex-shrink: 0;
   background: #000;
   pointer-events: none;
+  /* Hide the Android/WebKit play affordance during media preparation. */
+  opacity: 0;
 }
+.studio1524-splash__video--playing {
+  opacity: 1;
+}
+.studio1524-splash__video::-webkit-media-controls,
+.studio1524-splash__video::-webkit-media-controls-enclosure,
+.studio1524-splash__video::-webkit-media-controls-overlay-play-button,
+.studio1524-splash__video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}
+
