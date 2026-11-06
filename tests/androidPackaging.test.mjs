@@ -69,3 +69,13 @@ test('generated Android activity uses true immersive fullscreen while restoring 
   rmSync(root,{recursive:true,force:true});
  }
 });
+
+test('native-only full viewport keeps browser layouts unchanged',()=>{
+ const main=read('src/main.tsx'),css=read('src/mobile-game.css');
+ assert.match(main,/Capacitor\.isNativePlatform\(\)/);
+ assert.match(main,/classList\.add\('tc-native-immersive'\)/);
+ assert.match(main,/viewport-fit=cover/);
+ assert.match(css,/html\.tc-native-immersive/);
+ assert.match(css,/height:100dvh/);
+ assert.match(css,/background:#050707/);
+});

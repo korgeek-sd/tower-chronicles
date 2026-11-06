@@ -3508,3 +3508,21 @@ html,body,#root{
 button.tc-camp-v2-portrait{padding:0;border-radius:0;min-height:44px;min-width:44px}
 button.tc-camp-v2-bio{padding:0;border:0;border-radius:0;background:none;color:inherit;text-align:left;min-height:44px;width:100%}
 .tc-camp-v2-bio>.tc-camp-v2-stats{overflow:visible;white-space:normal}
+
+/* Android APK immersive shell. Browser page appearance stays unchanged. */
+html.tc-native-immersive,
+html.tc-native-immersive body,
+html.tc-native-immersive #root{
+ width:100%;
+ height:100%;
+ min-height:100dvh;
+ margin:0;
+ overflow:hidden;
+ background:#050707;
+}
+html.tc-native-immersive .tc-app{
+ height:100dvh;
+ min-height:100dvh;
+ padding-top:env(safe-area-inset-top,0px);
+ background:#050707;
+}
