@@ -9,6 +9,8 @@ The existing React / Vite game remains the source of truth. Capacitor packages t
 - Display orientation: portrait
 - Native source directory: `android/` is generated locally or in CI and deliberately gitignored.
 
+Capacitor Android runtime and CLI are pinned to patched version `8.6.0`; the native App and Browser plugins are major-version compatible. Keep these dependencies audited before publishing builds.
+
 ## Automatic debug APK
 On pushes to the Android integration branch or `main`, the GitHub Actions workflow **Build Android APK** installs dependencies, tests, builds the web game, regenerates the Android project, and publishes `tower-chronicles-android-debug-apk` as a downloadable Actions artifact. Unzip the artifact and install `app-debug.apk` on an Android phone.
 
