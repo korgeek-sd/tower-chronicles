@@ -1,47 +1,55 @@
-.tc-quest-screen{--quest-edge:#8e7655;--quest-text:#e6d6b8;--quest-muted:#b39b77}
-.tc-quest-screen .tc-screen-head{height:auto;align-items:center;border-bottom:0;padding:0 3px 6px}
-.tc-quest-screen .tc-screen-head h1{font-size:20px;color:var(--quest-text);margin:0}
-.tc-quest-screen .tc-screen-body{min-height:0;overflow:hidden}
-.tc-quest-board{height:100%;display:flex;flex-direction:column;gap:10px;min-height:0;color:var(--quest-text)}
-.tc-quest-board .tc-segments{gap:4px;background:none;border:0;grid-auto-columns:minmax(0,1fr)}
-.tc-quest-board .tc-segments button:last-child{border-right:8px solid transparent}
-.tc-quest-board .tc-segments button,.tc-quest-buttons button,.tc-quest-status button{border:8px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/button.webp') 24 fill stretch;background:none;min-height:48px;padding:3px 5px;font-size:13px;color:var(--quest-text)}
-.tc-quest-board .tc-segments button[aria-selected=true],.tc-quest-buttons .is-ready:not(:disabled){border-image-source:url('../../../public/assets/ui/iron-bronze/button-active.webp');color:#f5ddb4}
-.tc-quest-board .tc-segments button:active,.tc-quest-buttons button:active:not(:disabled){transform:translateY(1px);filter:brightness(.88)}
-.tc-quest-buttons button:disabled{border-image-source:url('../../../public/assets/ui/iron-bronze/button-disabled.webp');color:#9d9281;opacity:1;cursor:not-allowed}
-.tc-quest-reset{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;font-size:11px;color:var(--quest-muted);padding:0 3px}
-.tc-quest-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#756044 #121414;padding:2px}
-.tc-quest-row{flex-shrink:0;min-height:132px;display:grid;grid-template-columns:36px minmax(0,1fr) 48px 92px;gap:9px;align-items:center;padding:14px 8px;border:8px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/panel.webp') 24 fill stretch;background:none;box-sizing:border-box}
-.tc-quest-symbol,.tc-quest-reward-slot{display:grid;place-items:center;border:6px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/slot.webp') 24 fill stretch;background:none;color:#bca785}
-.tc-quest-symbol{height:42px;font-size:24px}
-.tc-quest-objective{min-width:0}
-.tc-quest-objective strong{display:block;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
-.tc-quest-objective small{display:block;font-size:11px;line-height:1.5;color:var(--quest-muted);overflow-wrap:anywhere}
-.tc-quest-track{height:11px;margin:10px 0 5px;border:1px solid var(--quest-edge);background:#080b0c;overflow:hidden;clip-path:polygon(3px 0,calc(100% - 3px) 0,100% 3px,100% calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,0 calc(100% - 3px),0 3px)}
-.tc-quest-track i{display:block;height:100%;background:linear-gradient(#d6ac64,#9c733d);box-shadow:inset 0 1px #efce90}
-.tc-quest-mystery{text-align:center;color:var(--quest-muted);min-width:0}
-.tc-quest-reward-slot{height:48px;width:48px;font-size:23px;margin:auto}
-.tc-quest-reward-slot b{font-weight:400;color:#c2b49b}
-.tc-quest-mystery small{display:block;margin-top:5px;font-size:10px;line-height:1.4;white-space:nowrap}
-.tc-quest-buttons{display:grid;gap:6px;min-width:0;text-align:center}
-.tc-quest-state{font-size:11px;color:var(--quest-muted)}
-.tc-quest-row.is-completed .tc-quest-state{color:#e8c68b}
-.tc-quest-row.is-claimed .tc-quest-track i{background:#706955;box-shadow:none}
-.tc-quest-row.is-claimed .tc-quest-symbol,.tc-quest-row.is-claimed .tc-quest-reward-slot{filter:saturate(.3);color:#978b75}
-.tc-quest-note{text-align:center;font-size:11px;line-height:1.5;color:var(--quest-muted);margin:0;padding:3px 4px}
-.tc-quest-status{font-size:12px;line-height:1.5;padding:9px;border:1px solid var(--quest-edge);background:#171916;overflow-wrap:anywhere}
-.tc-quest-status button{margin:5px 0 0 8px}
-.tc-quest-board button:focus-visible{outline:2px solid #f0d2a0;outline-offset:2px}
-@media(max-width:370px){
- .tc-quest-row{grid-template-columns:30px minmax(0,1fr) 82px;gap:6px 9px;padding:10px 5px;min-height:142px}
- .tc-quest-symbol{grid-column:1;grid-row:1/3;height:36px;font-size:20px;border-width:4px}
- .tc-quest-objective{grid-column:2;grid-row:1}
- .tc-quest-mystery{grid-column:2;grid-row:2;display:flex;align-items:center;gap:6px;text-align:left}
- .tc-quest-reward-slot{width:30px;height:30px;border-width:4px;font-size:17px;margin:0}
- .tc-quest-mystery small{margin:0}
- .tc-quest-buttons{grid-column:3;grid-row:1/3}
- .tc-quest-objective strong{font-size:13px}
- .tc-quest-buttons button{font-size:12px;padding-inline:0}
+.tc-quest-screen .tc-screen-head {border:0}
+.tc-quest-screen .tc-screen-body {padding-top:0}
+.tc-quest-board {height:100%;min-height:0;display:flex;flex-direction:column;gap:5px}
+.tc-quest-toolbar {display:flex;align-items:center;justify-content:space-between;color:#cfb58a}
+.tc-quest-toolbar .tc-segments {width:min(48%,200px)}
+.tc-quest-toolbar .tc-segments button {min-height:44px}
+.tc-quest-toolbar small,.tc-quest-status {font-size:12px}
+.tc-quest-status {display:flex;align-items:center;justify-content:space-between;color:#efdbb7}
+.tc-quest-status button {min-height:44px}
+.tc-quest-wall {
+ container-type:size;isolation:isolate;position:relative;flex:1;min-height:0;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1.25fr) minmax(0,1fr);
+ gap:clamp(6px,1.3vh,13px);padding:clamp(20px,6vh,58px) 4% clamp(20px,6vh,58px);
+ border:3px ridge #775331;
+ background:linear-gradient(90deg,#170c0866,transparent 14% 86%,#170c0866),url('./art/planks.webp') center / 36% 100%;
 }
-@media(max-height:740px){.tc-quest-board{gap:7px}.tc-quest-row{min-height:112px;padding-block:9px}.tc-quest-list{gap:7px}}
-@media(prefers-reduced-motion:reduce){.tc-quest-board button:active{transform:none}}
+.tc-quest-wall::before,.tc-quest-wall::after {content:'';position:absolute;inset:0 0 auto;height:12%;background:url('./art/beam.webp') center top / 100% 100%;z-index:-1}
+.tc-quest-wall::after {inset:auto 0 0;background-image:url('./art/shelf.webp')}
+.tc-quest-wall.is-weekly {grid-template-rows:repeat(3,minmax(0,1fr))}
+.tc-quest-paper {
+ position:relative;min-height:0;min-width:0;display:flex;flex-direction:column;align-items:stretch;justify-content:center;
+ gap:clamp(3px,1.6cqh,10px);padding:8px clamp(6px,2.3cqw,14px);
+ color:#352111;text-align:center;border:2px ridge #a47843;border-radius:3px 6px 3px 1px;
+ box-shadow:1px 3px 4px #120a06;
+ background:linear-gradient(98deg,#a36b375c,transparent 17% 80%,#9e662e52),url('./art/paper.webp') repeat,#dfbd83;
+}
+.tc-quest-paper::before {content:'';position:absolute;top:-5px;left:48%;width:9px;height:9px;border-radius:50%;background:radial-gradient(at 35% 22%,#dfa762,#6c421e 55%,#301706);box-shadow:1px 2px 1px #4c341c}
+.tc-quest-paper:last-child:nth-child(odd) {grid-column:1/-1}
+.tc-quest-paper strong {font-size:clamp(13px,4cqw,21px);line-height:1.18;word-break:keep-all}
+.tc-quest-emblem {font-size:clamp(19px,8cqh,39px);color:#77512f;line-height:1}
+.tc-quest-progress {font-size:13px}
+.tc-quest-track {height:6px;border:1px solid #62401f;background:#8b7353;margin:3px auto 0;max-width:290px}
+.tc-quest-track i {display:block;height:100%;background:#ecac37}
+.tc-quest-foot {display:flex;align-items:center;justify-content:space-between;gap:3px}
+.tc-quest-foot small {font-size:11px;line-height:1.2;overflow-wrap:anywhere}
+.tc-quest-seal {
+ border-radius:49% 44% 46% 40%;border:3px ridge #a43e30;background:radial-gradient(ellipse at 40% 28%,#964338,#671e1c 68%,#461312);
+ color:#fff0c4;padding:3px;min-height:44px;min-width:44px;font:inherit;font-size:11px;box-shadow:inset 0 0 0 1px #b25e41,1px 2px 1px #67492f;
+}
+.tc-quest-seal::after {content:'';position:absolute;inset:0}
+.tc-quest-paper:focus-within {outline:2px solid #ffe593;outline-offset:2px}
+.tc-quest-paper.is-ready .tc-quest-seal {border-color:#e9b95b}
+.tc-quest-paper.is-claimed .tc-quest-seal {filter:saturate(.22)}
+@container (max-height:390px) {
+ .tc-quest-emblem {display:none}
+ .tc-quest-paper {gap:3px;padding-block:3px}
+ .is-weekly .tc-quest-foot {justify-content:center}
+ .is-weekly .tc-quest-seal {min-height:18px;border-width:1px;border-radius:9px}
+}
+@container (max-height:310px) {
+ .is-weekly .tc-quest-paper {display:grid;grid-template-columns:1fr auto;align-content:center;gap:1px 2px}
+ .is-weekly .tc-quest-paper strong,.is-weekly .tc-quest-foot {grid-column:1/-1}
+ .is-weekly .tc-quest-progress {grid-column:1/-1;font-size:11px}
+ .is-weekly .tc-quest-track {display:none}
+}
