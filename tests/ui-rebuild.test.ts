@@ -26,13 +26,13 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
  ];
  for(const path of active){
   // The approved village redesign adds one scene, not legacy decorative UI.
-  // The new guild headquarters explicitly reuses approved game pixel art,
+  // The guild headquarters uses a dedicated six-building pixel-art courtyard,
   // while all other rebuilt screens must still avoid legacy decorative imagery.
   const source=path==='src/components/mobile/CoreScreens.tsx'
    ?read(path).replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
    :path==='src/components/association/AssociationScreen.tsx'
     ?read(path)
-      .replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
+      .replace('assets/backgrounds/association/guild-courtyard-v1.webp','')
       // The 13 bespoke guild SVGs are the only art allowed in this screen.
       .replaceAll(/assets\/ui\/guild\/new\/(?:castle|emblem|nav-(?:hq|combat|territory|assets|members)|action-(?:boss|siege|land|shop|vault|auction))\.svg/g,'')
       .replace('assets/ui/guild/new/nav-','')

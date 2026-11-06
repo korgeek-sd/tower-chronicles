@@ -56,7 +56,7 @@
     position: relative; isolation: isolate; overflow: hidden; min-height: 0;
     background: #101b2c; border-block: 1px solid #947344;
   }
-  .tc-courtyard-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
+  .tc-courtyard-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
   .tc-courtyard-player { position: absolute; left: 44%; top: 55%; width: 12%; height: 15%; object-fit: contain; pointer-events: none; }
   .tc-courtyard-heading { position: absolute; inset: 0 0 auto; height: 44px; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 0 9px; background: linear-gradient(90deg,#070e1cee,#0a152788); }
   .tc-courtyard-heading h2 { display: flex; align-items: center; gap: 7px; margin: 0; font-size: clamp(17px,4.3vw,22px); }
@@ -67,12 +67,12 @@
     min-height: 44px; padding: 0; display: grid; place-items: center; overflow: visible;
     border: 0; background: transparent; box-shadow: none;
   }
-  .tc-courtyard-places > button:nth-child(1) { left: 26%; top: 33%; }
-  .tc-courtyard-places > button:nth-child(2) { left: 78%; top: 37%; }
-  .tc-courtyard-places > button:nth-child(3) { left: 24%; top: 58%; }
-  .tc-courtyard-places > button:nth-child(4) { left: 77%; top: 63%; }
-  .tc-courtyard-places > button:nth-child(5) { left: 26%; top: 90%; }
-  .tc-courtyard-places > button:nth-child(6) { left: 76%; top: 91%; }
+  .tc-courtyard-places > button:nth-child(1) { left: 25%; top: 23%; }
+  .tc-courtyard-places > button:nth-child(2) { left: 76%; top: 24%; }
+  .tc-courtyard-places > button:nth-child(3) { left: 25%; top: 49%; }
+  .tc-courtyard-places > button:nth-child(4) { left: 76%; top: 51%; }
+  .tc-courtyard-places > button:nth-child(5) { left: 25%; top: 82%; }
+  .tc-courtyard-places > button:nth-child(6) { left: 76%; top: 82%; }
   .tc-courtyard-places > button > .tc-courtyard-plate {
     position: static; display: inline-flex; flex-flow: row nowrap; align-items: center; justify-content: center; gap: 4px;
     width: auto; min-width: min(95px,100%); max-width: 100%; min-height: 27px; padding: 2px 7px;
@@ -133,7 +133,7 @@
   > .tc-gate-identity {
     flex: 0 0 clamp(54px, 14vw, 72px);
     background: linear-gradient(90deg,#081321 20%,#081321cf),
-      url('../../../public/assets/backgrounds/hub/novar-moonlit-v3.webp') center 9% / cover;
+      url('../../../public/assets/backgrounds/association/guild-courtyard-v1.webp') center 9% / cover;
   }
   > .tc-company-subnav-wrap, > .tc-company-combat-nav {
     flex: none;
