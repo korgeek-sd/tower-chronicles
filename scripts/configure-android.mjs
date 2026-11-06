@@ -28,3 +28,46 @@ if(!xml.includes('android.permission.INTERNET')){
 }
 writeFileSync(path,xml);
 console.log('Android configured: portrait, Internet, and scoped OAuth callback intent-filter.');
+
+
+// Keep Android's bottom navigation bar while hiding only the top system status bar.
+// This file is created by "npx cap add android" and is regenerated on each APK build.
+const mainActivityPath='android/app/src/main/java/com/studio1524/towerchronicles/MainActivity.java';
+const generatedActivity=readFileSync(mainActivityPath,'utf8');
+if(!/^package com\.studio1524\.towerchronicles;/m.test(generatedActivity)||
+   !/public class MainActivity extends BridgeActivity\s*\{\s*\}/m.test(generatedActivity)){
+ throw Error('Unexpected generated Capacitor MainActivity; refused to overwrite custom native code');
+}
+const fullscreenActivity=String.raw`package com.studio1524.towerchronicles;
+
+import android.os.Bundle;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        hideStatusBar();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) hideStatusBar();
+    }
+
+    private void hideStatusBar() {
+        WindowInsetsControllerCompat bars =
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        bars.setSystemBarsBehavior(
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        );
+        bars.hide(WindowInsetsCompat.Type.statusBars());
+    }
+}
+`;
+writeFileSync(mainActivityPath,fullscreenActivity);
+console.log('Android configured: hide top status bar, keep system navigation buttons.');

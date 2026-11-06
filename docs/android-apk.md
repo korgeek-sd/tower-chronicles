@@ -41,3 +41,6 @@ To change the app ID or OAuth callback, update `capacitor.config.ts`, `src/onlin
 
 ## Android OAuth callback fix (2026-11-06)
 The previous Android build appended `?tc_auth_state=<random>` to `towerchronicles://auth/callback` while the Supabase allowlist contained only the exact address. The unmatched address could fall back to the web Site URL in Chrome. Android now requests the exact registered deep link, retaining a random single-use PKCE verifier in native localStorage and checking the scheme, host, path, freshness, and account identity on return. Browser logins continue using the existing query state. Install the freshly built APK, not an earlier artifact; debug APK signatures may differ between GitHub-hosted runner builds, so an uninstall/reinstall might be necessary after cloud data has been verified.
+
+## Full-height Android game viewport (2026-11-06)
+The native `MainActivity` generated during `android:sync` hides only `WindowInsetsCompat.Type.statusBars()` (clock, battery, connectivity) on creation and when returning to the game from an external Chrome login. The bottom Android system navigation bar remains available. Edge swipes can temporarily reveal hidden Android system bars. Browser deployment is unchanged; the generated Android source remains gitignored and is reproducibly configured by `scripts/configure-android.mjs`.

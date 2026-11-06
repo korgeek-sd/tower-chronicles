@@ -27,3 +27,41 @@ test('native Android OAuth uses an external browser, exact callback and PKCE tra
  assert.match(auth,/if\(mode==='web'\)redirect.searchParams.set\(OAUTH_STATE_PARAM,state\)/);
  assert.match(auth,/redirectBase:mode==='native'\?NATIVE_OAUTH_REDIRECT/);
 });
+
+
+test('generated Android activity hides only the top status bar and restores it after app focus',async()=>{
+ const {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync}=await import('node:fs');
+ const {tmpdir}=await import('node:os');
+ const {join}=await import('node:path');
+ const {spawnSync}=await import('node:child_process');
+ const {fileURLToPath}=await import('node:url');
+ const root=mkdtempSync(join(tmpdir(),'tower-android-viewport-'));
+ try {
+  const base=join(root,'android/app/src/main');
+  const activityPath=join(base,'java/com/studio1524/towerchronicles/MainActivity.java');
+  mkdirSync(join(base,'java/com/studio1524/towerchronicles'),{recursive:true});
+  writeFileSync(join(base,'AndroidManifest.xml'),
+   '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application>'+
+   '<activity android:name=".MainActivity" android:exported="true"><intent-filter>'+
+   '<action android:name="android.intent.action.MAIN"/></intent-filter></activity>'+
+   '</application></manifest>');
+  writeFileSync(activityPath,
+   'package com.studio1524.towerchronicles;\n'+
+   'import com.getcapacitor.BridgeActivity;\n'+
+   'public class MainActivity extends BridgeActivity {}\n');
+  const result=spawnSync(process.execPath,[fileURLToPath(new URL('../scripts/configure-android.mjs',import.meta.url))],{cwd:root,encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+  const activity=readFileSync(activityPath,'utf8');
+  assert.match(activity,/bars\.hide\(WindowInsetsCompat\.Type\.statusBars\(\)\)/);
+  assert.doesNotMatch(activity,/bars\.hide\(WindowInsetsCompat\.Type\.(?:systemBars|navigationBars)\(\)\)/);
+  assert.match(activity,/onWindowFocusChanged\(boolean hasFocus\)/);
+  assert.match(activity,/if \(hasFocus\) hideStatusBar\(\)/);
+  assert.match(activity,/BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE/);
+  const manifest=readFileSync(join(base,'AndroidManifest.xml'),'utf8');
+  assert.match(manifest,/android:screenOrientation="portrait"/);
+  assert.match(manifest,/android:scheme="towerchronicles"/);
+  assert.match(manifest,/android.permission.INTERNET/);
+ }finally{
+  rmSync(root,{recursive:true,force:true});
+ }
+});
