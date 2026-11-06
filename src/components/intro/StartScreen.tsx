@@ -1,4 +1,5 @@
 import React,{useRef,useState} from 'react';
+import {Capacitor} from '@capacitor/core';
 import {signInWithGoogle,signOutOnline,getFreshSession,getStoredSession,type OnlineSession} from '../../online/auth';
 import {GAME_SERVERS,loadPreferredServer,resolveServer,savePreferredServer} from './serverSelection';
 import {onlineConfigured} from '../../online/config';
@@ -34,7 +35,7 @@ export function StartScreen({initialError='',session,onEnter}:{initialError?:str
  async function login(){
   if(pending.current)return;
   pending.current=true;setBusy(true);setError('');
-  try{await signInWithGoogle();}
+  try{await signInWithGoogle();if(Capacitor.isNativePlatform()){pending.current=false;setBusy(false);}}
   catch{pending.current=false;setBusy(false);setError('Google 로그인을 시작하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.');}
  }
  return <main className="tc-start-screen" aria-label="탑의 기록 시작화면">

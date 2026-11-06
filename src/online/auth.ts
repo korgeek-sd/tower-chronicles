@@ -1,3 +1,5 @@
+import {Capacitor} from '@capacitor/core';
+import {Browser} from '@capacitor/browser';
 import {supabaseConfig,type SupabasePublicConfig} from './config';
 
 export const AUTH_SESSION_KEY='tower-auth-v1';
@@ -110,8 +112,16 @@ export async function consumeOAuthRedirect(url=window.location.href,storage:Stor
  return completeGoogleOAuth(supabaseConfig,url,storage,sessionStorage);
 }
 
+export const NATIVE_OAUTH_REDIRECT='towerchronicles://auth/callback';
+
 export async function signInWithGoogle(redirectTo=window.location.origin+window.location.pathname){
  if(!supabaseConfig)throw Error('Supabase 공개 설정이 필요합니다.');
+ if(Capacitor.isNativePlatform()){
+  // Google OAuth cannot run in an embedded WebView. Chrome Custom Tabs returns via Android deep link.
+  const authorize=await createGoogleOAuthUrl(supabaseConfig,NATIVE_OAUTH_REDIRECT,localStorage);
+  await Browser.open({url:authorize});
+  return;
+ }
  if(new URL(redirectTo).origin!==window.location.origin)throw Error('로그인 복귀 주소를 확인해 주세요.');
  window.location.assign(await createGoogleOAuthUrl(supabaseConfig,redirectTo));
 }
@@ -154,6 +164,7 @@ export async function signOutOnline(storage:Storage=localStorage):Promise<void>{
  // Clear immediately so an in-flight refresh cannot restore the signed-out account.
  storage.removeItem(AUTH_SESSION_KEY);
  try{sessionStorage.removeItem(OAUTH_TRANSACTION_KEY);}catch{}
+ storage.removeItem(OAUTH_TRANSACTION_KEY);
  if(session&&supabaseConfig)await fetch(supabaseConfig.url+'/auth/v1/logout',{
   method:'POST',headers:{apikey:supabaseConfig.publishableKey,Authorization:'Bearer '+session.accessToken},signal:AbortSignal.timeout(15000),
  });
