@@ -62,7 +62,8 @@ jobs:
       - name: Verify web app
         run: |
           npm run typecheck
-          npm test
+          node --test tests/androidPackaging.test.mjs
+          # Full regression suite remains enforced by Tower Chronicles CI.
 
       - name: Build bundled offline web assets
         env:

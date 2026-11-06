@@ -17,9 +17,11 @@ export function isNativeGoogleOAuthCallback(value:string):boolean{
 export async function initializeNativeOAuth():Promise<void>{
  if(!Capacitor.isNativePlatform())return;
  let processing=false;
+ let lastHandledUrl='';
  const finish=async(url:string,reload:boolean)=>{
-  if(processing||!isNativeGoogleOAuthCallback(url))return;
+  if(processing||url===lastHandledUrl||!isNativeGoogleOAuthCallback(url))return;
   processing=true;
+  lastHandledUrl=url;
   try{
    if(!supabaseConfig)throw Error('AUTH_CONFIG_MISSING');
    await completeGoogleOAuth(supabaseConfig,url,localStorage,localStorage);
