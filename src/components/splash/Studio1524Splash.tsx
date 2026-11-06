@@ -21,6 +21,7 @@ function shouldPlayIntro():boolean {
 /** The intro overlays the mounted app, so game/session loading can proceed underneath. */
 export function Studio1524Splash({onComplete}:{onComplete?:()=>void}={}){
   const [visible,setVisible]=useState(shouldPlayIntro);
+  const [playing,setPlaying]=useState(false);
   const finished=useRef(false);
   const finish=useCallback(()=>{
     if(finished.current)return;
@@ -42,14 +43,16 @@ export function Studio1524Splash({onComplete}:{onComplete?:()=>void}={}){
     <div className="studio1524-splash" role="dialog" aria-modal="true" aria-label="STUDIO 1524 게임 시작 영상">
       <div className="studio1524-splash__stage">
       <video
-        className="studio1524-splash__video"
+        className={playing?'studio1524-splash__video studio1524-splash__video--playing':'studio1524-splash__video'}
         src={VIDEO_URL}
         autoPlay
+        controls={false}
         muted
         playsInline
         preload="auto"
         disablePictureInPicture
         aria-hidden="true"
+        onPlaying={()=>setPlaying(true)}
         onEnded={finish}
         onError={finish}
       />
