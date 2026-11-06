@@ -1,0 +1,100 @@
+/* Each section shows its primary task. Secondary operations open a focused dialog. */
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gate-detail {
+  .tc-gate-identity { flex-basis: 54px; grid-template-columns: 44px minmax(0,1fr) 104px 36px; }
+  .tc-gate-growth b { font-size: 16px; }
+  .tc-gate-level { font-size: 10px; }
+  .tc-guild-chat-tool { padding: 0; min-height: 44px; background: transparent; border: 0; color: #e6ce9f; }
+  .tc-guild-workspace { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .tc-guild-workspace > section { flex: 1; min-height: 0; height: auto; overflow: hidden; }
+  .tc-guild-workspace > .tc-guild-auction, .tc-guild-workspace > .tc-warehouse {
+    display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
+    grid-auto-rows: minmax(44px,auto); align-content: start; gap: 8px;
+  }
+  :is(.tc-ga-heading,.tc-warehouse-head,.tc-warehouse-balances) { grid-column: 1 / -1; }
+  .tc-warehouse-head p { display: none; }
+  .tc-warehouse-balance { min-height: 65px; }
+  .tc-company-records { display: flex; flex-direction: column; gap: 6px; }
+  .tc-company-records .tc-member-list { flex: 1; min-height: 0; overflow: hidden; }
+  .tc-member { min-height: 44px; padding: 6px; }
+  .tc-member:empty { display: none; }
+  .tc-assoc-manage-panel { display: flex; flex-direction: column; gap: 8px; padding: 8px; }
+  .tc-assoc-manage-panel .tc-form { display: grid; gap: 8px; overflow: visible; }
+  .tc-assoc-manage-panel .tc-form > label { display: grid; grid-template-columns: 90px minmax(0,1fr); align-items: center; }
+  .tc-assoc-manage-panel .tc-form small { grid-column: 1 / -1; }
+}
+.tc-guild-task-open {
+  min-height: 44px; padding: 8px; font: inherit; color: #f2dfbb;
+  border: 1px solid #a18452; border-radius: 3px; background: #132337;
+}
+.tc-guild-task {
+  width: min(480px,calc(100vw - 16px)); max-width: none;
+  height: min(610px,calc(100dvh - 24px)); max-height: none; padding: 12px;
+  box-sizing: border-box; overflow: hidden; color: #f2dfbb; background: #081321;
+  border: 1px solid #c49b62; border-radius: 5px; font-size: 12px;
+}
+.tc-guild-task[open] { display: flex; flex-direction: column; gap: 10px; }
+.tc-guild-task::backdrop { background: #020711cc; }
+.tc-guild-task > header { display: flex; align-items: center; justify-content: space-between; min-height: 44px; border-bottom: 1px solid #766848; flex: none; }
+.tc-guild-task > header button { min-height: 44px; min-width: 44px; background: transparent; color: #f2dfbb; border: 0; }
+.tc-guild-task-content { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 8px; }
+.tc-guild-task-content > :is(section,div) { min-height: 0; }
+.tc-guild-task-content button { min-height: 44px; }
+.tc-guild-task-content :is(input,textarea) { box-sizing: border-box; width: 100%; min-height: 44px; padding: 6px; color: #f2dfbb; background: #101d2c; border: 1px solid #766848; font: inherit; }
+.tc-guild-task-content textarea { height: 95px; resize: none; }
+.tc-guild-task-content label { display: grid; gap: 5px; }
+.tc-guild-task-content p { line-height: 1.5; margin: 4px 0; }
+.tc-guild-task-content :is(.tc-ga-register,.tc-ga-lot,.tc-ga-reward,.tc-territory-detail,.tc-gm-editor,.tc-warehouse-transfer) {
+  padding: 8px; background: #101d2c; border-color: #766848; display: grid; gap: 7px;
+}
+.tc-guild-task-content :is(.tc-ga-register,.tc-ga-material-form) > p { font-size: 10px; line-height: 1.4; }
+.tc-guild-task-content .tc-ga-section-title small { font-size: 9px; }
+.tc-guild-task-content .tc-warehouse-transfer { gap: 5px; }
+.tc-guild-task-content .tc-warehouse-note { font-size: 9px; }
+.tc-guild-task-content :is(.tc-warehouse-ledger,.tc-gm-ledger,.tc-territory-history,.tc-gr-details) { overflow: visible; max-height: none; }
+.tc-guild-task-content .tc-warehouse-ledger-rows { overflow: visible; max-height: none; }
+.tc-guild-task-content .tc-guild-materials { display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.tc-guild-task-content .tc-gm-balances { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.tc-guild-task-content .tc-gr-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.tc-guild-workspace .tc-guild-boss { gap: 4px; padding: 4px; }
+.tc-guild-workspace .tc-boss-toolbar { flex-basis: 44px; }
+.tc-guild-workspace .tc-boss-refresh { min-width: 34px; }
+.tc-guild-workspace .tc-boss-body { flex: 1; min-height: 0; }
+.tc-guild-workspace .tc-boss-arena { flex: 1; min-height: 110px; padding: 5px 7px; }
+.tc-guild-workspace .tc-boss-title h2 { font-size: clamp(17px,4.5vw,22px); }
+.tc-guild-workspace .tc-boss-title p { font-size: 9px; }
+.tc-guild-workspace .tc-boss-action { flex: 0 0 58px; }
+.tc-guild-workspace .tc-boss-attack { min-height: 44px; }
+.tc-raid-tools { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; flex: none; }
+.tc-raid-tools button { padding: 4px; min-height: 44px; font-size: 10px; }
+.tc-raid-tools .tc-boss-auction-link { height: auto; }
+.tc-raid-tools .tc-boss-auction-link > span:last-child { display: none; }
+.tc-raid-last-hit { margin: 0; font-size: 11px; text-align: center; }
+.tc-guild-task .tc-boss-result { flex: none; min-height: 70px; }
+.tc-guild-task .tc-boss-dashboard { flex: none; min-height: 70px; }
+.tc-guild-workspace .tc-territory-scroll { flex: 1; overflow: visible; display: grid; align-content: start; gap: 8px; }
+.tc-guild-workspace :is(.tc-territory-head p,.tc-gr-header p,.tc-gr-stats,.tc-gr-rule) { display: none; }
+.tc-guild-workspace .tc-territory-stats article { padding: 7px 2px; }
+.tc-guild-workspace .tc-gr-list { overflow: hidden; }
+.tc-guild-workspace .tc-gr-entry { padding: 0; }
+.tc-guild-workspace .tc-gr-entry .tc-guild-task-open { min-height: 28px; font-size: 10px; width: 100%; padding: 2px; }
+.tc-guild-workspace .tc-gr-summary { min-height: 44px; }
+.tc-guild-workspace .tc-supply-shop { overflow: hidden; }
+.tc-supply-products { display: grid; gap: 8px; }
+
+.tc-game-select-paged .tc-game-scroll-list { max-height: none; overflow: visible; }
+.tc-game-select-paged .tc-game-scroll-rail { display: none; }
+.tc-game-select-paged .tc-game-scroll-hint button { min-height: 44px; }
+.tc-guild-directory-screen > .tc-screen-body { overflow: hidden; }
+.tc-guild-directory-screen .tc-assoc-directory { overflow: hidden; }
+@media(max-height:620px) {
+  .tc-guild-task { padding: 8px; gap: 6px; }
+  .tc-guild-task-content { gap: 6px; }
+  .tc-guild-task-content .tc-ga-register { gap: 5px; }
+  .tc-guild-task-content .tc-warehouse-panel-title small { font-size: 8px; }
+}
+.tc-guild-workspace .tc-gr-entry .tc-guild-task-open { padding: 0; min-height: 48px; }
+.tc-guild-workspace .tc-gr-summary { min-height: 48px; padding: 3px; }
+.tc-guild-workspace .tc-gr-footer > span { display: none; }
+.tc-guild-task-content textarea { height: 130px; line-height: 1.4; }
+.tc-guild-task-content .tc-action { min-height: 44px; margin-top: auto; }

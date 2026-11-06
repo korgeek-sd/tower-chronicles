@@ -1,3 +1,4 @@
+import {GuildTask} from './GuildTask';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
@@ -126,8 +127,8 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
      <strong>{fmt(balance(item.id,'treasury'))}</strong><em>{item.unit}</em>
     </div>)}
    </div>
-   <details className="tc-guild-fold"><summary>재료 창고</summary><GuildMaterialsPanel lease={lease} associationId={associationId} expedition={expedition}/></details>
-    {state.myRole==='LEADER'&&<details className="tc-guild-fold"><summary>금고 입출금{pending?' · 재확인 필요':''}</summary><section className="tc-warehouse-transfer" aria-label="길드장 금고 입출금">
+   <GuildTask title="재료 창고" feedback={error||notice}><GuildMaterialsPanel lease={lease} associationId={associationId} expedition={expedition}/></GuildTask>
+    {state.myRole==='LEADER'&&<GuildTask title="금고 입출금" feedback={error||notice}><section className="tc-warehouse-transfer" aria-label="길드장 금고 입출금">
     <div className="tc-warehouse-panel-title"><b>금고 입출금</b><small>길드장 전용 · 공헌도 지급 없음</small></div>
     <div className="tc-warehouse-direction" role="group" aria-label="거래 유형">
      <button type="button" className={direction==='WITHDRAW'?'active':''} onClick={()=>setDirection('WITHDRAW')} disabled={busy}>인출</button>
@@ -157,13 +158,13 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
      <button type="button" disabled={busy} onClick={()=>void send(true)}>이전 요청 재확인</button>
     </div>}
     <p className="tc-warehouse-note">일일 입출금 한도 없음 · 보유 잔액 내에서 자유롭게 거래 · 거래 즉시 영구 장부 기록 · 공헌도 미지급</p>
-   </section></details>}
-   <details className="tc-guild-fold"><summary>금고 운영 안내</summary><div className="tc-warehouse-source">
+   </section></GuildTask>}
+   <GuildTask title="금고 운영 안내" feedback={error||notice}><div className="tc-warehouse-source">
     <p>사냥 세금과 본부의 실버·골드·도전권 기부는 기존대로 자동 적립됩니다.</p>
     <p>길드장만 금고에 입출금할 수 있으며, 길드원은 기록을 모두 열람할 수 있습니다.</p>
     <p>인출한 공금은 길드장 캐릭터의 개인 보유 재화로 이동합니다.</p>
-   </div></details>
-   <details className="tc-guild-fold"><summary>공개 거래 장부</summary><div className="tc-warehouse-ledger">
+   </div></GuildTask>
+   <GuildTask title="공개 거래 장부" feedback={error||notice}><div className="tc-warehouse-ledger">
     <div className="tc-warehouse-panel-title"><b>공개 거래 장부</b><small>인출자 · 시간 · 금액 · 잔액</small></div>
     <div className="tc-warehouse-history-filter">
      <button type="button" aria-pressed={!withdrawalsOnly} className={!withdrawalsOnly?'active':''} onClick={()=>{setWithdrawalsOnly(false);setLedgerPage(0);}}>전체 기록</button>
@@ -178,7 +179,7 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
     </div>
     <Pager page={ledgerIndex} count={ledgerPages} onChange={setLedgerPage}/>
     {hasMore&&<button type="button" className="tc-warehouse-more" disabled={historyBusy} onClick={()=>void more()}>{historyBusy?'불러오는 중…':'이전 거래 기록 더 보기'}</button>}
-   </div></details>
+   </div></GuildTask>
   </>}
   {notice&&<p role="status" className="tc-warehouse-success">{notice}</p>}
   {error&&<p role="alert" className="tc-warehouse-error">{error}</p>}

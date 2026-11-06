@@ -1,3 +1,4 @@
+import {GuildTask,GuildRecord} from './GuildTask';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {GameScrollSelect} from '../../ui/GameScrollSelect';
@@ -44,7 +45,7 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false}:{leas
  return <section className="tc-guild-materials" aria-label="길드 재료 창고">
   <div className="tc-gm-title"><b>길드 재료 창고</b><small>마을 채집 세금 보관 · 입출고 기록 공개</small></div>
   <div className="tc-gm-balances">{GUILD_MATERIAL_IDS.map(id=><article key={id}><small>{GUILD_MATERIAL_NAMES[id]}</small><b>{format(state.materials[id]??0)}</b></article>)}</div>
-  {state.isLeader&&<div className="tc-gm-editor">
+  {state.isLeader&&<GuildTask title="재료 입출고" feedback={error||notice}><div className="tc-gm-editor">
    <div className="tc-gm-title"><b>재료 입출고</b><small>인출 후 개인 제작·거래 가능</small></div>
    <div className="tc-gm-tabs"><button type="button" className={direction==='WITHDRAW'?'active':''} onClick={()=>setDirection('WITHDRAW')} disabled={busy}>창고에서 인출</button><button type="button" className={direction==='DEPOSIT'?'active':''} onClick={()=>setDirection('DEPOSIT')} disabled={busy}>창고에 입고</button></div>
    <GameScrollSelect ariaLabel="재료 선택" options={GUILD_MATERIAL_IDS.map(id=>({value:id,label:GUILD_MATERIAL_NAMES[id],detail:'창고 '+format(state.materials[id]??0)+'개'}))} value={material} onChange={value=>setMaterial(value as GuildMaterial)} disabled={busy}/>
@@ -55,16 +56,16 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false}:{leas
     {busy?'처리 중…':direction==='WITHDRAW'?'재료 인출':'재료 입고'}
    </button>
    {pending&&<button type="button" disabled={busy} onClick={()=>send(true)}>이전 입출고 결과 재확인</button>}
-  </div>}
-  <div className="tc-gm-title"><b>재료 거래 기록</b><small>최근 {state.ledger.length}건</small></div>
+  </div></GuildTask>}
+  <GuildTask title="재료 거래 기록"><div className="tc-gm-title"><b>재료 거래 기록</b><small>최근 {state.ledger.length}건</small></div>
   <div className="tc-gm-ledger">
-   {state.ledger.length?state.ledger.map(e=><article key={e.entryId}>
+   {state.ledger.length?<GuildRecord items={state.ledger} id={e=>String(e.entryId)} label={e=>GUILD_MATERIAL_NAMES[e.material]+' · '+e.actorName+' · '+new Date(e.createdAt).toLocaleDateString('ko-KR')} title="거래 선택">{e=><article key={e.entryId}>
     <div><b>{e.operation==='GATHER_TAX'?'채집 세금':e.operation==='WITHDRAW'?'길드장 인출':e.operation==='DEPOSIT'?'길드장 입고':e.operation==='AUCTION_LIST'?'경매 등록':'경매 반환'}</b>
      <small> · {GUILD_MATERIAL_NAMES[e.material]} · {e.actorName}</small>
      <div><small>{new Date(e.createdAt).toLocaleString('ko-KR')} · {e.detail}</small></div></div>
     <strong>{e.amount>0?'+':''}{format(Math.abs(e.amount))}{e.amount<0?' 출고':' 입고'}</strong>
-   </article>):<p>아직 재료 거래 내역이 없습니다.</p>}
-  </div>
+   </article>}</GuildRecord>:<p>아직 재료 거래 내역이 없습니다.</p>}
+  </div></GuildTask>
   {notice&&<p role="status" className="tc-gm-notice">{notice}</p>}
   {error&&<p role="alert" className="tc-gm-error">{error}</p>}
  </section>;

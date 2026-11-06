@@ -1,3 +1,5 @@
+import {GuildTask,GuildRecord} from './GuildTask';
+import {GameScrollSelect} from '../../ui/GameScrollSelect';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {GUILD_MATERIAL_IDS,GUILD_MATERIAL_NAMES,setGuildVillageTax} from '../../online/guildMaterials';
@@ -78,17 +80,10 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
    </div>
   </div>
   <div className="tc-territory-scroll">
-   <div className="tc-territory-towns">
-    {visible.map(t=><button type="button" key={t.townId}
-     onClick={()=>changeSelection(t.townId)} aria-pressed={selected===t.townId}
-     className={'tc-territory-town'+(t.owned?' own':'')+(selected===t.townId?' selected':'')}>
-     <span className="tc-territory-town-head"><b>{t.name}</b><small>{t.owned?'우리 영지':t.ownerAssociationId?'타 길드':'중립'}</small></span>
-     <span>{kindLabel(t.kind)} · 세율 {t.rate}%</span>
-     <span>점령: {t.ownerName}</span>
-    </button>)}
-   </div>
+   {visible.length>0&&<GameScrollSelect ariaLabel="운영할 영지" value={chosen} onChange={changeSelection}
+    options={visible.map(t=>({value:t.townId,label:t.name,detail:kindLabel(t.kind)+' · '+t.ownerName+' · 세율 '+t.rate+'%'}))}/>}
    {visible.length===0&&<p className="tc-territory-empty">점령 중인 마을이 없습니다. 전체 목록에서 각 마을의 소유권을 확인할 수 있습니다.</p>}
-   {town&&<section className="tc-territory-detail" aria-label={town.name+' 운영 정보'}>
+   {town&&<GuildTask title="선택 영지 운영" feedback={error||notice}><section className="tc-territory-detail" aria-label={town.name+' 운영 정보'}>
     <div className="tc-territory-section-title"><h3>{town.name}</h3><span>{kindLabel(town.kind)}</span></div>
     <div className="tc-territory-info">
      <div><small>현재 점령 길드</small><b>{town.ownerName}</b></div>
@@ -113,15 +108,15 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
       {cooldownLeft>0&&<p role="status">다음 세율 변경: {fmtDate(new Date(cooldownEnds).toISOString())} (서버 기준)</p>}
      </div>}
     {!state.isLeader&&town.owned&&<p className="tc-territory-note">세율 변경 권한은 길드장에게 있습니다.</p>}
-   </section>}
-   <section className="tc-territory-history" aria-label="최근 공성전 정산 기록">
+   </section></GuildTask>}
+   <GuildTask title="점령전 기록"><section className="tc-territory-history" aria-label="최근 공성전 정산 기록">
     <div className="tc-territory-section-title"><h3>최근 점령전 기록</h3><span>최대 20건</span></div>
-    {state.history.length?state.history.map(h=><article key={h.eventId}>
+    {state.history.length?<GuildRecord items={state.history} id={h=>h.eventId} label={h=>h.townName+' · '+fmtDate(h.settledAt)} title="점령 기록 선택">{h=><article key={h.eventId}>
      <div><b>{h.townName}</b><small>{fmtDate(h.settledAt)}</small></div>
      <p>{h.previousOwner} → {h.outcome==='UNDECIDED'?'승자 없음 · 소유권 유지':h.winner}</p>
      <span>{h.outcome==='CAPTURED'?'점령 변경':h.outcome==='DEFENDED'?'기존 길드 방어':'소유권 유지'}</span>
-    </article>):<p className="tc-territory-empty">아직 정산된 마을 공성전 기록이 없습니다.</p>}
-   </section>
+    </article>}</GuildRecord>:<p className="tc-territory-empty">아직 정산된 마을 공성전 기록이 없습니다.</p>}
+   </section></GuildTask>
   </div>
   {notice&&<p role="status" className="tc-territory-notice">{notice}</p>}
   {error&&<p role="alert" className="tc-territory-error">{error}</p>}

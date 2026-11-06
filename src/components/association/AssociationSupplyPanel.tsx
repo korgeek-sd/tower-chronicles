@@ -1,6 +1,7 @@
+import {GuildTask,GuildRecord} from './GuildTask';
 import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useRef,useState} from 'react';
-import {Pager,Segments} from '../../ui/mobile';
+import {Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import {donateToAssociation,loadAssociationProgression,type AssociationProgression} from '../../online/associationProgression';
@@ -16,7 +17,7 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
 }){
  const [progress,setProgress]=useState<AssociationProgression|null>(null);
  const [shop,setShop]=useState<OnlineAssociationShopState|null>(null);
- const [period,setPeriod]=useState<AssociationShopReset>('DAILY'),[page,setPage]=useState(0);
+ const [period,setPeriod]=useState<AssociationShopReset>('DAILY');
  const [currency,setCurrency]=useState<'silver'|'gold'|'ticket'>('silver'),[amount,setAmount]=useState(10000);
  const [busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[message,setMessage]=useState('');
  const running=useRef(false),mounted=useRef(true);
@@ -67,26 +68,26 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
    <header><b>원정단 성장 <strong>Lv.{progress.associationLevel}</strong></b><span>공헌도 <b>{progress.contributionPoint.toLocaleString()}</b></span></header>
    <div className="tc-supply-exp" role="progressbar" aria-label="원정단 경험치" aria-valuenow={Math.round(level.percent)} aria-valuemin={0} aria-valuemax={100}><i style={{width:level.percent+'%'}}/></div>
    <small>{progress.associationExp.toLocaleString()} / {level.nextExp.toLocaleString()} EXP {level.level===10?'· 최고 레벨':''}</small>
-   <details className="tc-supply-donation-fold"><summary>원정단에 기부하기 <span>실버·골드·도전권</span></summary>
+   <GuildTask title="원정단에 기부하기" feedback={message}><div className="tc-supply-donation-fold">
    <Segments items={[['silver','실버 기부'],['gold','골드 기부'],['ticket','도전권 기부']] as const} value={currency} onChange={c=>{setCurrency(c);setAmount(c==='silver'?10000:c==='gold'?100:10);}} label="기부 재화"/>
    <div className="tc-supply-donate"><label>기부량<GameSelect disabled={busy||expedition} value={amount} onChange={e=>setAmount(Number(e.target.value))}>{(currency==='silver'?[10000,20000,30000,40000,50000]:currency==='gold'?[100,200,500,1000]:[1,5,10,25,50,100]).map(n=><option key={n} value={n}>{n.toLocaleString()} {currency==='silver'?'Silver':currency==='gold'?'Gold':'장'}</option>)}</GameSelect></label><button disabled={busy||expedition||amount+used>limit||balance<amount} onClick={()=>void donate()}>기부 · +{associationDonationGain(currency,amount)}</button></div>
    <small>오늘 {used.toLocaleString()} / {limit.toLocaleString()} · 공용 금고 적립 · 경험치·공헌도 각각 +{associationDonationGain(currency,amount)}</small>
    <small>매일 00:00 초기화 (한국 시간){expedition?' · 안전 귀환 후 이용':''}</small>
-   </details>
+   </div></GuildTask>
    {message&&<p role="status">{message}</p>}
   </section>;
  }
  if(!shop)return null;
- const items=period==='DAILY'?shop.daily:shop.weekly,pages=Math.max(1,Math.ceil(items.length/3)),safe=Math.min(page,pages-1);
+ const items=period==='DAILY'?shop.daily:shop.weekly;
  return <section className="tc-supply tc-supply-shop">
   <header><b>원정단 보급소 <small>Lv.{shop.level}</small></b><span>공헌도 <b>{shop.contribution.toLocaleString()}</b></span></header>
-  <Segments items={[['DAILY','일일 보급'],['WEEKLY','주간 보급']] as const} value={period} onChange={p=>{setPeriod(p);setPage(0);}} label="보급 기간"/>
+  <Segments items={[['DAILY','일일 보급'],['WEEKLY','주간 보급']] as const} value={period} onChange={setPeriod} label="보급 기간"/>
   <small>{period==='DAILY'?'매일':'매주 월요일'} 00:00 초기화 · 한국 시간</small>
-  <div className="tc-supply-products">{items.slice(safe*3,safe*3+3).map(item=>{
+  <div className="tc-supply-products"><GuildRecord items={items} id={item=>item.itemId} label={item=>item.name} title="보급품 선택">{item=>{
    const locked=shop.level<item.requiredLevel,sold=item.purchased>=item.purchaseLimit;
    return <article key={item.itemId}><div><b>{item.name}</b><small>{item.description}</small><small>{item.contributionCost.toLocaleString()} 공헌도 · {item.purchased}/{item.purchaseLimit}회 구매</small></div><button disabled={busy||expedition||locked||sold||shop.contribution<item.contributionCost} onClick={()=>void buy(item.itemId)}>{locked?'Lv.'+item.requiredLevel+' 해금':sold?'구매 완료':'구매'}</button></article>;
-  })}</div>
-  <Pager page={safe} count={pages} onChange={setPage}/>
+  }}</GuildRecord></div>
+
   {expedition&&<small>안전 귀환 후 구매할 수 있습니다.</small>}
   <p role="status">{message}</p>
   <button className="tc-supply-refresh" disabled={busy} onClick={()=>void refresh()}>잔액·구매 현황 새로고침</button>
