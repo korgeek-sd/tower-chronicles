@@ -30,7 +30,7 @@ writeFileSync(path,xml);
 console.log('Android configured: portrait, Internet, and scoped OAuth callback intent-filter.');
 
 
-// Keep Android's bottom navigation bar while hiding only the top system status bar.
+// Immersive fullscreen: hide both Android system bars and lay the WebView edge-to-edge.
 // This file is created by "npx cap add android" and is regenerated on each APK build.
 const mainActivityPath='android/app/src/main/java/com/studio1524/towerchronicles/MainActivity.java';
 const generatedActivity=readFileSync(mainActivityPath,'utf8');
@@ -40,7 +40,9 @@ if(!/^package com\.studio1524\.towerchronicles;/m.test(generatedActivity)||
 }
 const fullscreenActivity=String.raw`package com.studio1524.towerchronicles;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.view.WindowManager;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -50,24 +52,34 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideStatusBar();
+        // Native window color is dark even before the embedded game finishes drawing.
+        getWindow().setBackgroundDrawableResource(android.R.color.black);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams params = getWindow().getAttributes();
+            params.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(params);
+        }
+        applyImmersiveFullscreen();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) hideStatusBar();
+        if (hasFocus) applyImmersiveFullscreen();
     }
 
-    private void hideStatusBar() {
+    private void applyImmersiveFullscreen() {
+        // Without this, hiding the bars leaves unused/white system inset bands.
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         WindowInsetsControllerCompat bars =
             WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         bars.setSystemBarsBehavior(
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         );
-        bars.hide(WindowInsetsCompat.Type.statusBars());
+        bars.hide(WindowInsetsCompat.Type.systemBars());
     }
 }
 `;
 writeFileSync(mainActivityPath,fullscreenActivity);
-console.log('Android configured: hide top status bar, keep system navigation buttons.');
+console.log('Android configured: immersive edge-to-edge, both system bars hidden.');

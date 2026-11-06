@@ -29,7 +29,7 @@ test('native Android OAuth uses an external browser, exact callback and PKCE tra
 });
 
 
-test('generated Android activity hides only the top status bar and restores it after app focus',async()=>{
+test('generated Android activity uses true immersive fullscreen while restoring it after app focus',async()=>{
  const {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync}=await import('node:fs');
  const {tmpdir}=await import('node:os');
  const {join}=await import('node:path');
@@ -52,11 +52,15 @@ test('generated Android activity hides only the top status bar and restores it a
   const result=spawnSync(process.execPath,[fileURLToPath(new URL('../scripts/configure-android.mjs',import.meta.url))],{cwd:root,encoding:'utf8'});
   assert.equal(result.status,0,result.stderr);
   const activity=readFileSync(activityPath,'utf8');
-  assert.match(activity,/bars\.hide\(WindowInsetsCompat\.Type\.statusBars\(\)\)/);
-  assert.doesNotMatch(activity,/bars\.hide\(WindowInsetsCompat\.Type\.(?:systemBars|navigationBars)\(\)\)/);
+  assert.match(activity,/WindowCompat\.setDecorFitsSystemWindows\(getWindow\(\), false\)/);
+  assert.match(activity,/bars\.hide\(WindowInsetsCompat\.Type\.systemBars\(\)\)/);
+  assert.doesNotMatch(activity,/bars\.hide\(WindowInsetsCompat\.Type\.statusBars\(\)\)/);
+  assert.match(activity,/getWindow\(\)\.setBackgroundDrawableResource\(android\.R\.color\.black\)/);
+  assert.match(activity,/LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES/);
   assert.match(activity,/onWindowFocusChanged\(boolean hasFocus\)/);
-  assert.match(activity,/if \(hasFocus\) hideStatusBar\(\)/);
+  assert.match(activity,/if \(hasFocus\) applyImmersiveFullscreen\(\)/);
   assert.match(activity,/BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE/);
+  assert.doesNotMatch(activity,/LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER/);
   const manifest=readFileSync(join(base,'AndroidManifest.xml'),'utf8');
   assert.match(manifest,/android:screenOrientation="portrait"/);
   assert.match(manifest,/android:scheme="towerchronicles"/);
