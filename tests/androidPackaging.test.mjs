@@ -18,10 +18,12 @@ test('native Android OAuth uses an external browser, exact callback and PKCE tra
  const app=read('src/online/nativeAuth.ts');
  const manifest=read('scripts/configure-android.mjs');
  assert.match(auth,/Browser\.open\(\{url:authorize\}\)/);
- assert.match(auth,/createGoogleOAuthUrl\(supabaseConfig,NATIVE_OAUTH_REDIRECT,localStorage\)/);
+ assert.match(auth,/createGoogleOAuthUrl\(supabaseConfig,NATIVE_OAUTH_REDIRECT,localStorage,'native'\)/);
  assert.match(app,/completeGoogleOAuth\(supabaseConfig,url,localStorage,localStorage\)/);
  assert.match(app,/App\.addListener\('appUrlOpen'/);
  assert.match(app,/App\.getLaunchUrl\(\)/);
  assert.match(manifest,/android:path="\/callback"/);
  assert.match(manifest,/android:screenOrientation/);
+ assert.match(auth,/if\(mode==='web'\)redirect.searchParams.set\(OAUTH_STATE_PARAM,state\)/);
+ assert.match(auth,/redirectBase:mode==='native'\?NATIVE_OAUTH_REDIRECT/);
 });
