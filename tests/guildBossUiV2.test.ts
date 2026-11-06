@@ -37,8 +37,8 @@ test('guild boss mobile UI foregrounds shared HP, attempts, attack and compact r
  assert.match(html,/aria-label="공격 가능 3회"/);
  assert.match(html,/<button type="button" class="tc-boss-attack"/);
  assert.match(html,/>보스 공격<\/span>/);
- assert.match(html,/길드 피해량 순위/);
- assert.match(html,/<details class="tc-boss-leaderboard">/);
+ assert.match(html,/피해량 순위/);
+ assert.match(html,/aria-haspopup="dialog">피해량 순위/);
  assert.doesNotMatch(html,/<details class="tc-boss-leaderboard" open/);
  assert.match(html,/토벌 보상 · 길드 경매장/);
  assert.doesNotMatch(html,/<img/);
@@ -82,7 +82,7 @@ test('a resolved attack shows a compact result, with long turn logs still folded
  assert.match(html,/\+300/);
  assert.match(html,/1,500/);
  assert.match(html,/턴별 전투 기록/);
- assert.match(html,/<details class="tc-boss-turn-details">/);
+ assert.match(html,/aria-haspopup="dialog">전투 기록/);
  assert.match(html,/강타 · 300 피해/);
  assert.doesNotMatch(html,/<details class="tc-boss-turn-details" open/);
  const mismatched=show({...base,encounterId:'bbbb0000-0000-4000-8000-000000000002'},result);
