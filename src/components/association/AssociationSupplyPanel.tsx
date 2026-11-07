@@ -9,6 +9,7 @@ import {buyOnlineAssociationShopItem,loadOnlineAssociationShop,type OnlineAssoci
 import {associationDonationGain,associationLevelProgress} from '../../game/association/growthRules';
 import {pendingGrowthRequest,completeGrowthRequest} from '../../online/associationPendingRequests';
 import './supply.css';
+import {AssociationShopShowcase} from './AssociationShopShowcase';
 
 export type ShopFilter='ALL'|'DAILY'|'WEEKLY'|'CURRENCY';
 const SHOP_FILTERS:readonly (readonly [ShopFilter,string])[]=[['ALL','전체'],['DAILY','일일'],['WEEKLY','주간'],['CURRENCY','재화']];
@@ -114,16 +115,14 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
   </section>;
  }
  if(!shop)return null;
- return <section className="tc-supply tc-supply-shop tc-supply-shop-v3">
-  <header className="tc-supply-v3-head">
-   <b>원정단 상점 <small>Lv.{shop.level}</small></b>
-   <div className="tc-supply-v3-balance"><span>공헌도 <b>{shop.contribution.toLocaleString()}</b></span><button type="button" className="tc-supply-v3-refresh" disabled={busy} onClick={()=>void refresh()} aria-label="잔액·구매 현황 새로고침">↻</button></div>
-  </header>
-  <div className="tc-supply-v3-filters" role="group" aria-label="원정단 상점 품목 필터">
-   {SHOP_FILTERS.map(([id,label])=><button type="button" key={id} className={shopFilter===id?'active':''} aria-pressed={shopFilter===id} onClick={()=>setShopFilter(id)}>{label}</button>)}
-  </div>
-  <AssociationShopCatalog shop={shop} filter={shopFilter} busy={busy} expedition={expedition} onBuy={id=>void buy(id)}/>
-  {expedition&&<small className="tc-supply-v3-notice">안전 귀환 후 구매할 수 있습니다.</small>}
-  {message&&<p role="status" className="tc-supply-v3-message">{message}</p>}
- </section>;
+ return <AssociationShopShowcase
+  shop={shop}
+  filter={shopFilter}
+  onFilter={setShopFilter}
+  busy={busy}
+  expedition={expedition}
+  onBuy={id=>void buy(id)}
+  onRefresh={()=>void refresh()}
+  message={message}
+ />;
 }
