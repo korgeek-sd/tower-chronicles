@@ -53,7 +53,7 @@
  width:100%;padding:9px 11px;
  border:1px solid #ad7857!important;border-radius:5px;
  background:linear-gradient(90deg,#1f1a26 0%,#40222cdd 56%,#191a2ab3 100%),
- url('/assets/backgrounds/association/guild-courtyard-v3.webp') center 42%/cover!important;
+ url('../../../public/assets/backgrounds/association/guild-courtyard-v3.webp') center 42%/cover!important;
  box-shadow:inset 0 0 0 1px #eab27b33,0 3px 8px #0008;
  color:#fff0dc!important;
 }
