@@ -14,10 +14,10 @@ test('INVENTORY UI 0.1.81 01: storage fills inventory without the retired charac
  assert.doesNotMatch(inventory,/tc-loadout-stage|tc-loadout-character|tc-equip-slot/);
 });
 
-test('INVENTORY UI 0.1.81 02: storage grid exposes grade enhancement and comparison state',()=>{
+test('INVENTORY UI 0.1.81 02: storage grid exposes grade and comparison state without enhancement badge',()=>{
  assert.match(inventory,/tc-storage-item/);
  assert.match(inventory,/grade-/);
- assert.match(inventory,/tc-storage-enhance/);
+ assert.doesNotMatch(inventory,/tc-storage-enhance/);
  assert.match(inventory,/equipmentStatComparison/);
  assert.match(inventory,/aria-pressed=\{selected===i\.key\}/);
 });
