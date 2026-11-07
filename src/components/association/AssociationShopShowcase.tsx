@@ -72,11 +72,11 @@ export function AssociationShopShowcase({
    </div>
    <button type="button" className="tc-supply-v5-refresh" disabled={busy} aria-label="상점 정보 새로고침" onClick={onRefresh}>↻</button>
   </header>
-  {featured&&<button type="button" className="tc-supply-v5-feature" onClick={chooseFeatured} aria-label={featured.name+' 추천 상품 선택'}>
+  {featured&&<button type="button" className="tc-supply-v5-feature" onClick={chooseFeatured} aria-label={featured.name+' 상품 보기'}>
    <span className="tc-supply-v5-feature-copy">
     <small>✦ 원정단 추천 보급 ✦</small>
     <strong>{featured.name}</strong>
-    <span>주간 보급 · 보유 공헌도로 교환</span>
+    <span>{featured.reset==='DAILY'?'일일':'주간'} 보급 · 보유 공헌도로 교환</span>
     <span className="tc-supply-v5-feature-price"><i aria-hidden="true">✥</i>{featured.contributionCost.toLocaleString()} <em>· 잔여 {remaining(featured)}회</em></span>
    </span>
    <span className="tc-supply-v5-feature-art" aria-hidden="true"><ShopRewardArt itemId={featured.itemId} large/></span>
