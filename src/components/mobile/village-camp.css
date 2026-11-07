@@ -61,10 +61,6 @@
 /* Only the home shell loses its decorative frames; other screens keep their skin. */
 .tc-app:has(.tc-village-camp-screen) .tc-topbar{background:#101110;box-shadow:none;border-color:#514735}
 .tc-app:has(.tc-village-camp-screen) .tc-premium-status{background:transparent;border:1px solid #625438;box-shadow:none}
-.tc-app:has(.tc-village-camp-screen) .tc-nav{background:#101110;box-shadow:none;border-color:#514735}
-.tc-app:has(.tc-village-camp-screen) .tc-nav button{background:transparent;border:0;box-shadow:none;color:#918b7d}
-.tc-app:has(.tc-village-camp-screen) .tc-nav button[aria-current=true]{background:transparent;color:#d0ac65;box-shadow:inset 0 -2px #b19053}
-.tc-app:has(.tc-village-camp-screen) .tc-nav button[aria-current=true]:after{display:none}
 @media(max-width:360px){
  .tc-village-camp-screen .tc-camp-v2-dossier{grid-template-columns:48px minmax(0,1fr) 44px;gap:4px}
  .tc-village-camp-screen .tc-camp-v2-stats>span{gap:3px;padding:1px}

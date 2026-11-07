@@ -113,9 +113,6 @@
 .tc-app:has(.tc-gate-identity) > .tc-statusbar,
 .tc-app:has(.tc-gate-identity) .tc-chat-entry { display: none; }
 .tc-app:has(.tc-gate-identity) > .tc-main { padding: 0; background: #081321; }
-.tc-app:has(.tc-gate-identity) > .tc-nav { padding-inline: 5px; background: #091422; border-color: #ae8957; }
-.tc-app:has(.tc-gate-identity) > .tc-nav button { background: transparent; box-shadow: none; color: #e6ce9f; }
-.tc-app:has(.tc-gate-identity) > .tc-nav button[aria-current=true] { box-shadow: inset 0 -2px #cba260; }
 
 /* Facility screens share the courtyard's crest, tab dock and town-at-night palette. */
 .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gate-detail {

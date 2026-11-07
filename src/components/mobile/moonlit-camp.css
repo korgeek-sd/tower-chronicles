@@ -85,12 +85,12 @@
 .tc-moonlit-camp-screen .tc-chat-inline-preview b{font-weight:400;color:#c2a370}
 .tc-moonlit-camp-screen .tc-chat-inline-expand{flex-shrink:0;min-width:44px;width:44px;min-height:44px;font-size:0;color:#dfc28c}
 .tc-moonlit-camp-screen .tc-chat-inline-expand:after{content:'›';font:27px/1 serif}
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav{padding:2px 7px var(--safe-b);margin-top:0;border-top:1px solid #a18550;background:linear-gradient(#0c1524,#060a11);box-shadow:inset 0 3px #02060b}
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button{font-size:11px;gap:1px;color:#c5bcad;border-right:1px solid #544731;background:transparent}
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button:last-child{border-right:0}
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-glyph{font-size:27px;color:#b6a17e;filter:drop-shadow(0 2px 1px #000)}
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button[aria-current=true]{color:#f7e1a6;background:radial-gradient(ellipse at 50% 100%,#84652b66,transparent 75%);box-shadow:inset 0 -2px #be9b56}
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav button[aria-current=true]>.tc-glyph{color:#ffdf92;filter:drop-shadow(0 0 5px #dea63b80)}
+.tc-app>.tc-nav{padding:2px 7px var(--safe-b);margin-top:0;border-top:1px solid #a18550;background:linear-gradient(#0c1524,#060a11);box-shadow:inset 0 3px #02060b}
+.tc-app>.tc-nav button{font-size:11px;gap:1px;color:#c5bcad;border-right:1px solid #544731;background:transparent}
+.tc-app>.tc-nav button:last-child{border-right:0}
+.tc-app>.tc-nav .tc-glyph{font-size:27px;color:#b6a17e;filter:drop-shadow(0 2px 1px #000)}
+.tc-app>.tc-nav button[aria-current=true]{color:#f7e1a6;background:radial-gradient(ellipse at 50% 100%,#84652b66,transparent 75%);box-shadow:inset 0 -2px #be9b56}
+.tc-app>.tc-nav button[aria-current=true]>.tc-glyph{color:#ffdf92;filter:drop-shadow(0 0 5px #dea63b80)}
 .tc-moonlit-camp-screen button:focus-visible{outline:2px solid #ffe4a0;outline-offset:-3px}
 @media(max-width:380px){
  .tc-app:has(.tc-moonlit-camp-screen) .tc-header-funds{display:grid;gap:2px}
@@ -108,7 +108,7 @@
  .tc-moonlit-camp-screen .tc-camp-v2-bio>strong{font-size:16px}
  .tc-moonlit-camp-screen .tc-camp-v2-primary{padding-block:0}
  .tc-moonlit-camp-screen .tc-camp-v2-primary button b{font-size:22px}
- .tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-glyph{font-size:22px}
+ .tc-app>.tc-nav .tc-glyph{font-size:22px}
  .tc-moonlit-camp-screen .tc-village-player{top:55%}
 }
 @media(prefers-reduced-motion:reduce){.tc-moonlit-camp-screen *{animation:none!important;transition:none!important}}
@@ -120,11 +120,16 @@
  .tc-app:has(.tc-moonlit-camp-screen) .tc-coin{padding:0;min-height:13px}
  .tc-app:has(.tc-moonlit-camp-screen) .tc-wallet{gap:2px}
 }
-.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-hub-icon{width:31px;height:31px}
+.tc-app>.tc-nav .tc-hub-icon{width:31px;height:31px}
 .tc-moonlit-camp-screen .tc-camp-v2-primary .tc-hub-icon{width:30px;height:30px}
 .tc-moonlit-camp-screen .tc-village-heading h2>.tc-hub-icon{width:25px;height:25px}
 .tc-moonlit-camp-screen .tc-village-heading button,.tc-moonlit-camp-screen .tc-village-all{position:absolute;width:84px;height:44px;border:0;box-shadow:none;background:none;isolation:isolate}
 .tc-moonlit-camp-screen .tc-village-heading button{right:9px;top:0}
 .tc-moonlit-camp-screen .tc-village-all{top:44px}
 .tc-moonlit-camp-screen .tc-village-heading button:before,.tc-moonlit-camp-screen .tc-village-all:before{content:'';position:absolute;inset:8px 0;z-index:-1;border:1px solid #ac8b58;border-radius:3px;background:#080d17ed;box-shadow:inset 0 0 0 2px #24201b}
-@media(max-height:700px){.tc-app:has(.tc-moonlit-camp-screen)>.tc-nav .tc-hub-icon{width:27px;height:27px}}
+@media(max-height:700px){.tc-app>.tc-nav .tc-hub-icon{width:27px;height:27px}}
+
+/* Shared across all primary routes: the Novar hub navigation is the single canonical dock. */
+.tc-app:has(>.tc-nav){--nav:54px}
+.tc-app>.tc-nav button[aria-current=true]::after{display:none}
+@media(max-height:700px){.tc-app:has(>.tc-nav){--nav:48px}}
