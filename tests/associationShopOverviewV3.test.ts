@@ -53,7 +53,7 @@ test('compact two-column shop does not hide merchandise inside one-at-a-time rec
  const source=readFileSync(new URL('../src/components/association/AssociationSupplyPanel.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/components/association/supply.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-supply-v3-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/s);
- assert.match(css,/\.tc-supply-v3-catalog\s*\{[^}]*overflow-y:\s*auto/s);
+ assert.match(css,/\.tc-supply-v3-catalog\s*\{[^}]*overflow:\s*hidden/s);
  assert.doesNotMatch(source,/<GuildRecord items=\{items\}/);
  assert.match(source,/buyOnlineAssociationShopItem\(lease,itemId,id\)/);
  assert.match(source,/onRecord\(next.record/);
