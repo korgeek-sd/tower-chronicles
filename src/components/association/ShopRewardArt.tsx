@@ -32,6 +32,9 @@ export function ShopRewardArt({itemId,large=false}:{itemId:string;large?:boolean
    <path d="M14 9v10M9 14h10M101 47v12M95 53h12" stroke="#f8dda2" strokeWidth="2" opacity=".7"/>
   </svg>
  </span>;
+ if(box&&(gold||silver))return <span className={'tc-shop-art tc-shop-art-chest tc-shop-art-chest-image'+(large?' is-large':'')+(gold?' is-gold':' is-silver')}>
+  <img src={assetUrl(gold?'assets/ui/shop/gold_supply_chest.webp':'assets/ui/shop/silver_supply_chest.webp')} alt="" decoding="async"/>
+ </span>;
  if(box)return <span className={'tc-shop-art tc-shop-art-chest'+(large?' is-large':'')+(gold?' is-gold':silver?' is-silver':rare?' is-rare':'')}>
   <svg viewBox="0 0 128 112" role="img" aria-label={gold?'골드 보급 상자':silver?'실버 상자':'희귀 장비 상자'} focusable="false">
    <defs>
