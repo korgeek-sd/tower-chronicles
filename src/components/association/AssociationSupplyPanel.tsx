@@ -13,7 +13,7 @@ import './supply.css';
 export type ShopFilter='ALL'|'DAILY'|'WEEKLY'|'CURRENCY';
 const SHOP_FILTERS:readonly (readonly [ShopFilter,string])[]=[['ALL','전체'],['DAILY','일일'],['WEEKLY','주간'],['CURRENCY','재화']];
 const isCurrencyProduct=(item:OnlineAssociationShopItem)=>item.itemId==='silver_box_daily'||item.itemId==='gold_box_weekly';
-const shopProductIcon=(id:string)=>id.startsWith('enhancement_stone')?'materials':id.startsWith('greater_potion')?'potions':id.startsWith('job_draw_ticket')?'tickets':id==='rare_equipment_weekly'?'inventory':'market';
+const shopProductIcon=(id:string)=>id.startsWith('enhancement_stone')?'materials':(id.startsWith('greater_potion')||id.startsWith('vitality_potion'))?'potions':id.startsWith('job_draw_ticket')?'tickets':id==='rare_equipment_weekly'?'inventory':'market';
 
 /** Visible catalogue reflects the current server-managed products, not a locally seeded inventory. */
 export function AssociationShopCatalog({shop,filter,busy,expedition,onBuy}:{shop:OnlineAssociationShopState;filter:ShopFilter;busy:boolean;expedition:boolean;onBuy:(id:string)=>void}){
