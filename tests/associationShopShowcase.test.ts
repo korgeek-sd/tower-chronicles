@@ -26,8 +26,8 @@ test('mobile shop renders all six live offers as selectable cards with a single 
  assert.equal((html.match(/data-shop-item-id=/g)||[]).length,6);
  assert.equal((html.match(/상품 선택/g)||[]).length,6);
  assert.equal((html.match(/구매하기/g)||[]).length,1);
- assert.match(html,/원정단 추천 보급품/);
- assert.match(html,/필요 공헌도/);
+ assert.match(html,/원정단 추천 보급/);
+ assert.match(html,/구매 가격/);
  assert.doesNotMatch(html,/40%|30% 할인|10,000 Silver 지급|희귀 \+0/);
 });
 
@@ -39,8 +39,21 @@ test('daily, weekly and currency tabs honor the existing live catalogue',()=>{
 
 test('the shop CSS uses a three-column no-scroll catalogue and a fixed purchase area',()=>{
  const css=readFileSync(new URL('../src/components/association/supply-showcase.css',import.meta.url),'utf8');
- assert.match(css,/\.tc-supply-v4-tiles\s*\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/s);
- assert.match(css,/\.tc-supply-v4-catalog\s*\{[^}]*overflow:hidden/s);
- assert.match(css,/\.tc-supply-v4-detail\s*\{[^}]*flex:none/s);
- assert.match(css,/\.tc-supply-v4-purchase\s*\{[^}]*min-height:44px/s);
+ assert.match(css,/\.tc-supply-v5-tiles\s*\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/s);
+ assert.match(css,/\.tc-supply-v5-catalog\s*\{[^}]*overflow:hidden/s);
+ assert.match(css,/\.tc-supply-v5-detail\s*\{[^}]*flex:0 0 146px/s);
+ assert.match(css,/\.tc-supply-v5-purchase\s*\{[^}]*min-height:44px/s);
+});
+
+
+test('shop screen hides duplicate guild navigation and uses a real back/dock route',()=>{
+ const css=readFileSync(new URL('../src/components/association/supply-showcase.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-assoc-shop-immersive>\.tc-gate-identity/);
+ assert.match(css,/\.tc-app:has\(\.tc-assoc-shop-immersive\)>\.tc-nav/);
+ const html=renderToStaticMarkup(React.createElement(AssociationShopShowcase,{
+  shop,filter:'ALL' as const,onFilter:()=>{},busy:false,expedition:false,onBuy:()=>{},onRefresh:()=>{},
+  onNavigate:()=>{}
+ }));
+ assert.match(html,/원정단 본부로 돌아가기/);
+ assert.match(html,/원정단 시설 바로가기/);
 });
