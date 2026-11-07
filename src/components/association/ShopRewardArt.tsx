@@ -15,22 +15,11 @@ export function ShopRewardArt({itemId,large=false}:{itemId:string;large?:boolean
  const mid=gold?'#8e5426':silver?'#516779':rare?'#633a8e':'#7d5432';
  const dark=gold?'#3c211a':silver?'#263241':rare?'#251b4b':'#36241a';
  const face='shop-face-'+id,metal='shop-metal-'+id,shimmer='shop-shimmer-'+id;
- if(potion)return <span className={'tc-shop-art tc-shop-art-potion'+(large?' is-large':'')}>
-  <img src={assetUrl("assets/ui/crafting/potion.png")} alt="" decoding="async"/>
+ if(potion)return <span className={'tc-shop-art tc-shop-art-potion tc-shop-art-pixel'+(large?' is-large':'')}>
+  <img src={assetUrl("assets/ui/shop/vitality_potion_pixel.webp")} alt="" decoding="async"/>
  </span>;
- if(ticket)return <span className={'tc-shop-art tc-shop-art-ticket'+(large?' is-large':'')}>
-  <svg viewBox="0 0 118 108" role="img" aria-label="소환권 묶음" focusable="false">
-   <defs><linearGradient id={face} x2="1" y2="1"><stop stopColor="#b48d58"/><stop offset=".45" stopColor="#48344f"/><stop offset="1" stopColor="#261c39"/></linearGradient><linearGradient id={metal} x2=".1" y2="1"><stop stopColor="#ffe0a6"/><stop offset="1" stopColor="#986d43"/></linearGradient></defs>
-   <path d="M24 22 L97 17 L99 82 L26 90 Z" fill="#1a1728" stroke="#986b52" strokeWidth="3"/>
-   <path d="M18 16 L89 11 L92 79 L20 84 Z" fill={'url(#'+face+')'} stroke={'url(#'+metal+')'} strokeWidth="4"/>
-   <path d="M28 26 L77 23 L80 70 L30 74 Z" fill="#39273e" stroke="#e6b678" strokeWidth="2"/>
-   <path d="M48 31 L52 41 L62 42 L54 49 L56 60 L46 54 L37 61 L40 49 L32 42 L44 41 Z" fill="#f8c867" stroke="#fff0c7" strokeWidth="1.5"/>
-   <path d="M16 58 L92 51 L93 61 L18 69 Z" fill="#a44e3f" stroke="#e3ac70" strokeWidth="2"/>
-   <path d="M55 15 L58 81" stroke="#d3a15a" strokeWidth="5"/>
-   <circle cx="56" cy="57" r="9" fill="#dfb56c" stroke="#674031" strokeWidth="3"/>
-   <path d="M52 57 L56 52 L60 57 L56 62 Z" fill="#805c91"/>
-   <path d="M14 9v10M9 14h10M101 47v12M95 53h12" stroke="#f8dda2" strokeWidth="2" opacity=".7"/>
-  </svg>
+ if(ticket)return <span className={'tc-shop-art tc-shop-art-ticket tc-shop-art-pixel'+(large?' is-large':'')}>
+  <img src={assetUrl("assets/ui/shop/appearance_summon_ticket_pixel.webp")} alt="" decoding="async"/>
  </span>;
  if(box&&(gold||silver||rare))return <span className={'tc-shop-art tc-shop-art-chest tc-shop-art-chest-image tc-shop-art-pixel'+(large?' is-large':'')+(gold?' is-gold':silver?' is-silver':' is-rare')}>
   <img src={assetUrl(gold?'assets/ui/shop/gold_pixel_supply_chest.webp':silver?'assets/ui/shop/silver_pixel_supply_chest.webp':'assets/ui/shop/rare_pixel_supply_chest.webp')} alt="" decoding="async"/>
