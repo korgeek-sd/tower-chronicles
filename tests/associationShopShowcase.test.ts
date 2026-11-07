@@ -64,6 +64,17 @@ test('all shop reward images fit inside their own card, banner and detail areas'
  assert.match(css,/\.tc-supply-v5-tiles\s*\{[^}]*grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/s);
 });
 
+test('short portrait shop cards do not let grid intrinsic image size overflow the artwork area',()=>{
+ const css=readFileSync(new URL('../src/components/association/supply-showcase.css',import.meta.url),'utf8');
+ const patch=css.slice(css.indexOf('/* Pixel art no-crop fix:'));
+ assert.match(patch,/\.tc-supply-v5 \.tc-supply-v5-art > \.tc-shop-art\s*\{[^}]*display:block\s*!important/s);
+ assert.match(patch,/\.tc-supply-v5 \.tc-supply-v5-art > \.tc-shop-art > img,[^}]*position:absolute\s*!important/s);
+ assert.match(patch,/\.tc-supply-v5 \.tc-supply-v5-art > \.tc-shop-art > img,[^}]*object-fit:contain\s*!important/s);
+ assert.match(patch,/\.tc-supply-v5 \.tc-supply-v5-art > \.tc-shop-art > img,[^}]*height:100%\s*!important/s);
+ assert.match(patch,/@media\(max-height:750px\)/);
+ assert.match(patch,/@media\(max-height:590px\)/);
+});
+
 test('shop screen hides duplicate guild navigation and uses a real back/dock route',()=>{
  const css=readFileSync(new URL('../src/components/association/supply-showcase.css',import.meta.url),'utf8');
  assert.match(css,/\.tc-assoc-shop-immersive>\.tc-gate-identity/);
