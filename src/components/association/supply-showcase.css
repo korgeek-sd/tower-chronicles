@@ -1,0 +1,140 @@
+/* Concept 2: compact, native-feeling dark fantasy mobile RPG shop.
+   All prices, purchase limits, locks and rewards continue to come from the server. */
+.tc-guild-workspace .tc-supply-v4 {
+ box-sizing:border-box;display:flex;flex-direction:column;flex:1;min-height:0;height:100%;
+ overflow:hidden;gap:5px;padding:6px;border:1px solid #786046;border-radius:5px;
+ color:#f0dfc4;background:radial-gradient(ellipse at 80% 5%,#432533 0,transparent 39%),
+ linear-gradient(180deg,#1c1a27 0%,#101523 38%,#0d1420 100%);
+ font-size:11px;
+}
+.tc-supply-v4 * {box-sizing:border-box}
+.tc-supply-v4 .tc-supply-v4-head {
+ display:flex;flex:none;align-items:center;gap:6px;min-height:36px;padding:0 2px 4px;
+ border-bottom:1px solid #695545;
+}
+.tc-supply-v4-heading {display:flex;align-items:center;gap:5px;min-width:0;flex:1;white-space:nowrap}
+.tc-supply-v4-heading>.tc-glyph {font-size:20px;color:#dec091}
+.tc-supply-v4-heading>b {overflow:hidden;text-overflow:ellipsis;font-size:clamp(12px,3.6vw,16px);letter-spacing:-.04em}
+.tc-supply-v4-heading>small {flex:none;color:#cbac75;font-size:9px!important}
+.tc-supply-v4-balance {display:flex;align-items:center;gap:5px;flex:none;padding:5px 7px;
+ border:1px solid #8f6e49;border-radius:3px;background:linear-gradient(#292432,#161924);
+ box-shadow:inset 0 1px #6b5051;white-space:nowrap}
+.tc-supply-v4-token {color:#d4ad75;font-size:15px}
+.tc-supply-v4-balance-value {color:#f6db9d;font-size:clamp(10px,3vw,13px);font-weight:800;font-variant-numeric:tabular-nums}
+.tc-supply-v4 .tc-supply-v4-refresh {display:grid;place-items:center;flex:none;width:36px;min-width:36px;min-height:36px;
+ padding:0;border:1px solid #715844;border-radius:4px;background:#1e202b;color:#e6c695;font-size:21px}
+.tc-supply-v4-feature {
+ display:flex;flex:none;align-items:center;gap:9px;min-height:60px;max-height:64px;padding:5px 8px;
+ position:relative;overflow:hidden;isolation:isolate;border:1px solid #a77956;border-radius:4px;
+ background:linear-gradient(90deg,rgba(30,20,28,.96) 5%,rgba(46,22,31,.90) 58%,rgba(17,26,43,.68)),
+ url('../../../public/assets/backgrounds/association/guild-courtyard-v3.webp') center 50%/cover;
+ box-shadow:inset 0 0 0 1px rgba(224,161,103,.22),0 2px 6px rgba(0,0,0,.24);
+}
+.tc-supply-v4-feature:after {content:"";position:absolute;z-index:-1;inset:0;
+ background:radial-gradient(ellipse at 15% 60%,rgba(222,146,69,.23),transparent 42%)}
+.tc-supply-v4-feature-emblem {display:grid;place-items:center;flex:none;width:49px;height:49px;
+ font-size:29px;color:#f4cf8e;border:1px solid #ab794e;border-radius:5px;
+ background:radial-gradient(circle,#865431,#2c1e20 72%);box-shadow:0 0 14px #aa593555}
+.tc-supply-v4-feature-emblem.is-silver {color:#d9e8f5;background:radial-gradient(circle,#526478,#1b2230 72%)}
+.tc-supply-v4-feature-copy {display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}
+.tc-supply-v4-feature-copy small {color:#deaa85;font-size:9px!important;letter-spacing:.04em}
+.tc-supply-v4-feature-copy strong {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ font-size:clamp(13px,3.7vw,17px);color:#fff0d3}
+.tc-supply-v4-feature-copy>span {font-size:10px;color:#ebca92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-supply-v4-feature-copy i {font-style:normal;color:#f4d286}
+.tc-supply-v4-feature-copy em {font-style:normal;color:#c5b0a3}
+.tc-supply-v4 .tc-supply-v4-feature-cta {flex:none;min-height:44px;min-width:48px;padding:0 5px;border-radius:3px;
+ border:1px solid #bb865c;color:#ffdfa8;background:linear-gradient(#67332d,#3b242c);font-size:10px}
+.tc-supply-v4 .tc-supply-v4-tabs {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:none;min-height:38px}
+.tc-supply-v4 .tc-supply-v4-tabs button {min-height:38px;min-width:0;padding:0 3px;border:1px solid #67505a;
+ border-radius:3px;color:#c9b9b6;background:linear-gradient(#292633,#161c29);font-size:clamp(10px,2.8vw,12px)}
+.tc-supply-v4 .tc-supply-v4-tabs button.active {color:#fff0db;background:linear-gradient(#8c4b36,#4c2b2e);
+ border-color:#d49d6b;box-shadow:inset 0 -2px #e1a36e}
+.tc-supply-v4-catalog {display:flex;flex:1 1 auto;min-height:0;overflow:hidden}
+.tc-supply-v4-tiles {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);
+ gap:5px;flex:1;min-width:0;min-height:0}
+.tc-supply-v4-card {min-width:0;min-height:0;overflow:hidden;border:1px solid #625263;
+ border-radius:4px;background:radial-gradient(ellipse at center 35%,rgba(134,77,71,.14),transparent 75%),
+ linear-gradient(#272330,#151b2a);box-shadow:inset 0 0 0 1px #34313b}
+.tc-supply-v4-card.is-selected {border-color:#e9ae6a;
+ box-shadow:inset 0 0 0 1px #b4794f,0 0 9px #b862424d}
+.tc-supply-v4 .tc-supply-v4-product {display:flex;flex-direction:column;align-items:center;gap:1px;
+ justify-content:space-between;width:100%;height:100%;min-height:0;min-width:0;padding:4px 2px 3px;
+ text-align:center;border:0;border-radius:3px;background:transparent;color:#ede2d2;cursor:pointer}
+.tc-supply-v4 .tc-supply-v4-product:focus-visible,.tc-supply-v4 button:focus-visible {outline:2px solid #f1d39e;outline-offset:-2px}
+.tc-supply-v4-card-tag {align-self:flex-start;padding:1px 4px;color:#ffe0c5;background:#773f37;
+ border:1px solid #a35b4a;border-radius:2px;font-size:9px;line-height:1.2}
+.tc-supply-v4-card-tag.weekly {color:#ecdfff;background:#573951;border-color:#83618e}
+.tc-supply-v4-card-art {display:grid;place-items:center;flex:1;min-height:15px;max-height:48px;
+ font-size:clamp(20px,7vw,31px);color:#e2be86;filter:drop-shadow(0 2px 5px #b9764655)}
+.tc-supply-v4-card.is-silver .tc-supply-v4-card-art {color:#c8dfec}
+.tc-supply-v4-card.is-rare .tc-supply-v4-card-art {color:#a9b9fc}
+.tc-supply-v4-card.is-vitality .tc-supply-v4-card-art {color:#ed8b84}
+.tc-supply-v4-card.is-summon .tc-supply-v4-card-art {color:#ba99ff}
+.tc-supply-v4-card-name {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ min-height:21px;max-width:100%;overflow:hidden;overflow-wrap:anywhere;
+ font-size:clamp(9px,2.7vw,12px);line-height:1.13;font-weight:800;color:#f3e7d7}
+.tc-supply-v4-card-limit {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ font-size:9px;color:#aea5ad}
+.tc-supply-v4-card-price {display:block;width:100%;padding:3px 2px 1px;
+ border-top:1px solid #67555d;color:#f6d198;font-size:clamp(10px,2.9vw,13px);
+ font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tc-supply-v4-card-price i {font-style:normal;font-size:12px}
+.tc-supply-v4-card.is-locked {filter:saturate(.55)}
+.tc-supply-v4-empty {align-self:center;width:100%;text-align:center;color:#c0b3a7;padding:12px 4px}
+.tc-supply-v4-detail {display:flex;flex:none;flex-direction:column;gap:5px;padding:7px 8px;
+ min-height:95px;overflow:hidden;border:1px solid #94745a;border-radius:4px;
+ background:linear-gradient(135deg,#292332,#171a25 66%,#241c22);
+ box-shadow:inset 0 0 0 1px #4f4045}
+.tc-supply-v4-detail-top {display:flex;align-items:center;gap:7px;min-height:36px;min-width:0}
+.tc-supply-v4-detail-icon {display:grid;place-items:center;flex:none;width:35px;height:35px;
+ color:#edc88b;background:#422b28;border:1px solid #8d6a4c;border-radius:3px;font-size:23px}
+.tc-supply-v4-detail-icon.is-silver {color:#d8e4ef;background:#273747}
+.tc-supply-v4-detail-icon.is-rare {color:#aeb8fa;background:#292644}
+.tc-supply-v4-detail-icon.is-vitality {color:#f68c84;background:#3d272d}
+.tc-supply-v4-detail-icon.is-summon {color:#cab5f5;background:#322640}
+.tc-supply-v4-detail-copy {display:flex;flex-direction:column;flex:1;min-width:0;gap:2px}
+.tc-supply-v4-detail-copy small {color:#b7a7b0;font-size:8px!important}
+.tc-supply-v4-detail-copy strong {font-size:clamp(11px,3.4vw,14px);line-height:1.1;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ffe4b8}
+.tc-supply-v4-detail-copy>span {font-size:9px;color:#c5b1ae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-supply-v4-detail-cost {display:flex;flex:none;flex-direction:column;align-items:end;gap:2px;white-space:nowrap}
+.tc-supply-v4-detail-cost small {font-size:8px!important;color:#bdaaa7}
+.tc-supply-v4-detail-cost b {font-size:clamp(11px,3.3vw,15px);color:#ffdf9f;font-variant-numeric:tabular-nums}
+.tc-supply-v4-detail-cost i {font-style:normal}
+.tc-supply-v4-detail-action {display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:44px;border-top:1px solid #665057;padding-top:5px}
+.tc-supply-v4-detail-hint {flex:1;min-width:0;color:#c9b9af;font-size:9px;line-height:1.25;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tc-supply-v4 .tc-supply-v4-purchase {display:flex;align-items:center;justify-content:center;gap:6px;
+ flex:none;min-width:40%;min-height:44px;padding:0 10px;border:1px solid #e3a774;border-radius:4px;
+ color:#fff0dc;background:linear-gradient(180deg,#984b37,#682e30);box-shadow:inset 0 1px #d08c68;font-size:12px;font-weight:800}
+.tc-supply-v4 .tc-supply-v4-purchase:disabled {background:#37333b;border-color:#665b5f;color:#b2a7a7;opacity:.8}
+.tc-supply-v4 .tc-supply-v4-purchase .tc-glyph {font-size:16px}
+@media(max-width:360px){
+ .tc-guild-workspace .tc-supply-v4 {gap:4px;padding:4px}
+ .tc-supply-v4-tiles {gap:3px}
+ .tc-supply-v4-detail {padding:6px}
+ .tc-supply-v4-feature {gap:5px;padding:4px 5px}
+ .tc-supply-v4-feature-emblem {width:38px;height:42px;font-size:25px}
+ .tc-supply-v4-card-name {font-size:9px}
+ .tc-supply-v4-detail-icon {display:none}
+}
+@media(max-height:740px){
+ .tc-supply-v4-feature {min-height:48px;max-height:50px}
+ .tc-supply-v4-feature-emblem {width:36px;height:38px;font-size:24px}
+ .tc-supply-v4-detail {min-height:83px;gap:3px;padding:4px 6px}
+ .tc-supply-v4-detail-action {padding-top:3px}
+ .tc-supply-v4-tiles {gap:4px}
+ .tc-supply-v4-card-art {max-height:35px}
+}
+@media(max-height:590px){
+ .tc-supply-v4-feature {display:none}
+ .tc-supply-v4 .tc-supply-v4-head {min-height:32px}
+ .tc-supply-v4 .tc-supply-v4-tabs {min-height:36px}
+ .tc-supply-v4 .tc-supply-v4-tabs button {min-height:36px}
+ .tc-supply-v4-detail {min-height:76px}
+ .tc-supply-v4-card-art {max-height:24px;font-size:21px}
+ .tc-supply-v4-card-tag {font-size:8px}
+ .tc-supply-v4-card-limit {font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.tc-supply-v4 *{transition:none!important;animation:none!important}}
