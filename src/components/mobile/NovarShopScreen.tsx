@@ -1,10 +1,13 @@
-import React,{useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {Screen} from '../../ui/mobile';
 import {HubIcon} from './HubIcon';
 import {assetUrl} from '../../game/data/graphics';
 import {GOLD_SHOP_PACKAGES,formatKrw,getGoldPackageBySku} from '../../shop/catalog';
 import './novar-shop.css';
+import {getFreeAttendanceStatus,claimFreeAttendance,type FreeAttendanceStatus} from '../../online/freeAttendance';
+import type {GameplayLease} from '../../online/gameSession';
+import type {CloudSaveRecord} from '../../online/cloudSave';
 
 type NovarShopTab='recommend'|'gold'|'package'|'attendance';
 type NovarPackageId='starter'|'weekly'|'returning'|'attendance';
@@ -21,12 +24,73 @@ const SHOP_TICKET_ART='assets/ui/shop/appearance_summon_ticket_pixel.webp';
 const SHOP_VITALITY_ART='assets/ui/shop/vitality_potion_pixel.webp';
 const SHOP_SILVER_ART='assets/ui/shop/silver_pixel_supply_chest.webp';
 
-/** Cash purchases and attendance claims are preview-only until server validation and Google Play Billing are connected. */
-export function ShopScreen({game}:{game:GameState}){
+/** Cash purchases remain preview-only; free daily attendance is server-validated. */
+export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRecord}:{
+ game:GameState;userId?:string|null;lease?:GameplayLease|null;
+ onPrepare?:()=>Promise<void>;onPending?:(value:boolean)=>void;
+ onRecord?:(record:CloudSaveRecord)=>void;
+}){
  const [tab,setTab]=useState<NovarShopTab>('recommend');
  const [selectedSku,setSelectedSku]=useState<string|null>(null);
  const [selectedPackage,setSelectedPackage]=useState<NovarPackageId|null>(null);
  const [day,setDay]=useState(1);
+ const [attendance,setAttendance]=useState<FreeAttendanceStatus|null>(null);
+ const [attendanceLoading,setAttendanceLoading]=useState(false);
+ const [attendanceBusy,setAttendanceBusy]=useState(false);
+ const claimingRef=useRef(false);
+ const syncedDayRef=useRef('');
+ const [attendanceError,setAttendanceError]=useState('');
+ const [attendanceNotice,setAttendanceNotice]=useState('');
+ useEffect(()=>{
+  let active=true;
+  if(!userId||!lease){
+   setAttendance(null);setAttendanceLoading(false);
+   setAttendanceError('Google 로그인과 플레이 권한이 필요합니다.');
+   return;
+  }
+  setAttendanceLoading(true);setAttendanceError('');
+  const refresh=async()=>{
+   if(claimingRef.current)return;
+   try{
+    const next=await getFreeAttendanceStatus(lease,userId);
+    if(!active)return;
+    const currentCycle=next.cycleNumber+':'+next.todayKst;
+    if(syncedDayRef.current!==currentCycle){syncedDayRef.current=currentCycle;setDay(next.currentDay);}
+    setAttendance(next);
+    setAttendanceError('');
+   }catch(error){
+    if(active)setAttendanceError(error instanceof Error?error.message:'출석 현황을 확인하지 못했습니다.');
+   }finally{if(active)setAttendanceLoading(false);}
+  };
+  void refresh();
+  const onFocus=()=>{if(!document.hidden)void refresh();};
+  window.addEventListener('focus',onFocus);
+  document.addEventListener('visibilitychange',onFocus);
+  const timer=window.setInterval(()=>{if(!document.hidden)void refresh();},60_000);
+  return()=>{active=false;window.removeEventListener('focus',onFocus);document.removeEventListener('visibilitychange',onFocus);window.clearInterval(timer);};
+ },[userId,lease?.leaseId,lease?.generation]);
+ const claimToday=async()=>{
+  if(!lease||!userId||attendanceBusy||attendance?.todayClaimed)return;
+  claimingRef.current=true;setAttendanceBusy(true);setAttendanceNotice('');setAttendanceError('');
+  let pending=false;
+  try{
+   await onPrepare?.();
+   onPending?.(true);pending=true;
+   const result=await claimFreeAttendance(lease,userId);
+   onRecord?.(result.record);
+   setAttendance(result.status);setDay(result.status.currentDay);
+   setAttendanceNotice(result.alreadyClaimed
+    ? '오늘 무료 보상은 이미 수령했습니다.'
+    : '실버 3,000'+(result.reward.tickets>0?' · 소환권 '+result.reward.tickets+'장':'')+' 지급 완료');
+  }catch(error){
+   setAttendanceError(error instanceof Error?error.message:'무료 출석 보상을 수령하지 못했습니다.');
+   // A lost response may follow a successful database commit: refresh the receipt state.
+   try{if(lease&&userId)setAttendance(await getFreeAttendanceStatus(lease,userId));}catch{}
+  }finally{
+   if(pending)onPending?.(false);
+   claimingRef.current=false;setAttendanceBusy(false);
+  }
+ };
  const selected=selectedSku?getGoldPackageBySku(selectedSku):null;
  const packageInfo=NOVAR_PACKAGES.find(p=>p.id===selectedPackage);
  const modal=!!selected||!!selectedPackage;
@@ -88,23 +152,29 @@ export function ShopScreen({game}:{game:GameState}){
      </div>
      <button type="button" className="tc-novar-passage" onClick={()=>setTab('attendance')}>30일 출석 패스 <span>추가 보상 보기 ›</span></button>
     </section>}
-    {tab==='attendance'&&<section className="tc-novar-attendance-pane" aria-label="30일 출석 보상 미리보기">
-     <div className="tc-novar-section-line"><strong>30일 출석 보상</strong><small>보상 지급 기능 준비 중</small></div>
+    {tab==='attendance'&&<section className="tc-novar-attendance-pane" aria-label="30일 출석 보상">
+     <div className="tc-novar-section-line"><strong>30일 출석 보상</strong><small>{attendance?'오늘 '+attendance.currentDay+'일 차':'한국 시간 00:00 기준'}</small></div>
      <div className="tc-novar-attendance-totals">
       <div><b>무료 보상</b><span>90,000 S</span><small>외형 소환권 30장</small></div>
       <div className="is-paid"><b>유료 추가 보상</b><span>600 G</span><small>외형 소환권 60장 · 포션 4개</small></div>
      </div>
      <div className="tc-novar-attendance-days" role="group" aria-label="날짜별 출석 보상">
-      {Array.from({length:30},(_,index)=>index+1).map(n=><button type="button" key={n} onClick={()=>setDay(n)} className={(day===n?'is-selected ':'')+(n%5===0?'is-milestone':'')} aria-pressed={day===n}>
+      {Array.from({length:30},(_,index)=>index+1).map(n=><button type="button" key={n} onClick={()=>setDay(n)} className={(day===n?'is-selected ':'')+(n%5===0?'is-milestone ':'')+(attendance?.claimedDays.includes(n)?'is-claimed ':'')+(n===attendance?.currentDay?'is-today':'')} aria-pressed={day===n}>
        <small>{n}일</small><img src={assetUrl(n%5===0?SHOP_TICKET_ART:SHOP_SILVER_ART)} alt=""/>
       </button>)}
      </div>
      <div className="tc-novar-day-reward" aria-live="polite">
       <strong>{day}일 차 보상</strong>
-      <span>무료: 실버 3,000{milestones?' · 소환권 5장':''}</span>
-      <span>유료 추가: 골드 20 · 소환권 2장{bonusPotion?' · 활력 포션 1개':''}</span>
+      <span>무료: 실버 3,000{milestones?' · 소환권 5장':''}{attendance?.claimedDays.includes(day)?' · 수령 완료':''}</span>
+      <span>유료 추가(준비 중): 골드 20 · 소환권 2장{bonusPotion?' · 활력 포션 1개':''}</span>
+      {(attendanceNotice||attendanceError||attendanceLoading)&&<small role="status" className={attendanceError?'is-error':''}>{attendanceError||attendanceNotice||(attendanceLoading?'출석 기록을 불러오는 중...':'')}</small>}
      </div>
-     <button type="button" className="tc-novar-attendance-buy" onClick={()=>previewPackage('attendance')}><span>유료 출석 패스 · 30일</span><strong>4,900원 ›</strong></button>
+     <div className="tc-novar-attendance-actions">
+      <button type="button" className="tc-novar-attendance-claim" onClick={()=>void claimToday()} disabled={!userId||!lease||!attendance||attendance.todayClaimed||attendanceBusy}>
+       {attendanceBusy?'수령 중...':attendance?.todayClaimed?'오늘 수령 완료':!userId||!lease?'로그인 후 수령':attendanceLoading?'불러오는 중...':'오늘 무료 받기'}
+      </button>
+      <button type="button" className="tc-novar-attendance-buy" onClick={()=>previewPackage('attendance')}><span>유료 패스</span><strong>4,900원 ›</strong></button>
+     </div>
     </section>}
    </div>
   </div>

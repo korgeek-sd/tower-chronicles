@@ -33,7 +33,7 @@ test('BOTTOM NAV SHOP: shop replaces the battle tab while the hunt route and pur
  assert.ok(navSection.includes("['shop','상점']"));
  assert.ok(!navSection.includes("['hunt','전투']"));
  assert.match(entry,/<HubIcon name=\{p\}/);
- assert.match(entry,/\{page==='shop'&&<ShopScreen game=\{game\}\/>\}/);
+ assert.match(entry,/\{page==='shop'&&<ShopScreen/);
  assert.match(entry,/\{page==='hunt'&&<HuntingPage/);
  assert.match(atlas,/shop:5/);
  assert.match(screen,/결제 준비중/);
@@ -63,10 +63,39 @@ test('NOVAR SHOP 05: attendance previews 30 dates without client-side reward cre
  assert.match(shop,/600 G/);
  assert.match(shop,/4,900원/);
  assert.doesNotMatch(shop,/setGame\(/);
- assert.match(shop,/보상 지급 기능 준비 중/);
+ assert.match(shop,/claimFreeAttendance\(lease,userId\)/);
+ assert.match(shop,/getFreeAttendanceStatus\(lease,userId\)/);
+ assert.match(shop,/오늘 무료 받기/);
+ assert.match(shop,/attendance\.todayClaimed/);
+ assert.match(shop,/유료 추가\(준비 중\)/);
  const style=readFileSync(new URL('../src/components/mobile/novar-shop.css',import.meta.url),'utf8');
  assert.match(style,/\.tc-novar-shop\{/);
  assert.match(style,/\.tc-novar-shop-view\{/);
  assert.match(style,/grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
  assert.match(style,/@media\(max-height:700px\)/);
+});
+
+test('FREE ATTENDANCE: Supabase RPC uses the active lease, server-calculated rewards, and cloud record',()=>{
+ const client=readFileSync(new URL('../src/online/freeAttendance.ts',import.meta.url),'utf8');
+ const migration=readFileSync(new URL('../supabase/migrations/20261107163408_free_attendance_30_day_server_claim.sql',import.meta.url),'utf8');
+ assert.match(client,/get_free_attendance_status/);
+ assert.match(client,/claim_free_attendance/);
+ assert.match(client,/p_lease_id:lease\.leaseId/);
+ assert.match(client,/getFreshSession/);
+ assert.match(client,/getDeviceId/);
+ assert.match(migration,/private\.require_active_game_session/);
+ assert.match(migration,new RegExp("time zone 'Asia/Seoul'","i"));
+ assert.match(migration,/primary key \\(user_id, cycle_number, day_number\\)/);
+ assert.match(migration,/unique \\(user_id, claimed_on\\)/);
+ assert.match(migration,/v_day % 5 = 0 then 5 else 0/);
+ assert.match(migration,/private\.appearance_ticket_wallets/);
+ assert.match(migration,/private\.persist_market_economy_to_save\\(v_user\\)/);
+ assert.match(migration,/revoke all on function public\.claim_free_attendance/);
+ assert.match(migration,/grant execute on function public\.claim_free_attendance/);
+ assert.doesNotMatch(migration,/p_reward|p_silver|p_ticket_quantity/);
+ assert.match(screen,/setAttendance\\(result\.status\\)/);
+ assert.match(entryOrEmpty(),/onRecord=\\{record=>\\{/);
+ function entryOrEmpty(){
+   return readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+ }
 });

@@ -128,7 +128,7 @@
  display:flex;align-items:center;justify-content:space-between;padding:5px 12px;color:#f0d29a;font-size:13px;font-weight:700;
 }
 .tc-novar-passage span{font-size:10px;color:#d3b579}
-.tc-novar-attendance-pane{display:grid;grid-template-rows:26px 83px minmax(145px,1fr) 67px 44px;gap:7px}
+.tc-novar-attendance-pane{display:grid;grid-template-rows:26px 83px minmax(140px,1fr) 78px 48px;gap:7px}
 .tc-novar-attendance-totals{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
 .tc-novar-attendance-totals>div{
  min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:5px;
@@ -150,14 +150,24 @@
 .tc-novar-attendance-days button small{font-size:9px;line-height:1;white-space:nowrap}
 .tc-novar-attendance-days button img{width:70%;min-width:0;height:63%;object-fit:contain;image-rendering:pixelated}
 .tc-novar-attendance-days button.is-milestone{border-color:#bc8e52;background:linear-gradient(#5a2934,#231622)}
+.tc-novar-attendance-days button.is-claimed{opacity:.58;border-color:#657856}
+.tc-novar-attendance-days button.is-claimed:after{content:'✓';position:absolute;right:2px;bottom:0;font-size:11px;color:#a8cf89;font-weight:800}
+.tc-novar-attendance-days button{position:relative}
+.tc-novar-attendance-days button.is-today{border-color:#c6a066}
 .tc-novar-attendance-days button.is-selected{border-color:#f5d08d;box-shadow:inset 0 0 0 2px #d6aa5b,0 0 7px #bc895555;color:#ffe5a9}
 .tc-novar-day-reward{
  display:grid;grid-template-columns:1fr;gap:2px;align-content:center;padding:5px 10px;
  border:1px solid #7b6345;background:#121e2e;min-width:0;
 }
+.tc-novar-day-reward small{font-size:9px;color:#a8cf89;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-novar-day-reward small.is-error{color:#ed9c8b}
+.tc-novar-attendance-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
+.tc-novar-attendance-actions>.tc-novar-attendance-claim{min-height:0;border:1px solid #b38d52;background:linear-gradient(#3a5739,#1e3228);box-shadow:inset 0 0 0 2px #12251d;color:#f0dfb5;font-size:12px;font-weight:800;padding:4px}
+.tc-novar-attendance-actions>.tc-novar-attendance-claim:disabled{opacity:.64}
 .tc-novar-day-reward strong{color:#f0dcae;font-size:12px}
 .tc-novar-day-reward span{font-size:10px;color:#dbcaa7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-novar-attendance-buy{
+ min-height:0;
  border:1px solid #b78b4d;background:linear-gradient(#5a2531,#391923);
  color:#ffe2ad;display:flex;align-items:center;justify-content:space-between;gap:7px;
  padding:5px 12px;font-size:11px;min-height:0;
@@ -200,7 +210,7 @@
  .tc-novar-package-pane{grid-template-rows:23px minmax(0,1fr) 35px;gap:4px}
  .tc-novar-package-list{gap:4px}
  .tc-novar-package-info{gap:3px}
- .tc-novar-attendance-pane{grid-template-rows:22px 67px minmax(125px,1fr) 53px 36px;gap:4px}
+ .tc-novar-attendance-pane{grid-template-rows:22px 67px minmax(125px,1fr) 67px 40px;gap:4px}
  .tc-novar-attendance-totals>div{padding:4px;gap:3px}
  .tc-novar-attendance-totals span{font-size:16px}
  .tc-novar-attendance-days{gap:2px;padding:3px}
@@ -213,7 +223,7 @@
  .tc-novar-recommend{grid-template-rows:minmax(66px,1.1fr) 18px minmax(80px,1fr) 35px;gap:3px}
  .tc-novar-recommend-product img{max-height:42px}
  .tc-novar-recommend-label b{font-size:10px}
- .tc-novar-attendance-pane{grid-template-rows:20px 56px minmax(100px,1fr) 50px 34px;gap:3px}
+ .tc-novar-attendance-pane{grid-template-rows:20px 56px minmax(100px,1fr) 59px 34px;gap:3px}
  .tc-novar-attendance-totals span{font-size:14px}
  .tc-novar-attendance-totals b{font-size:9px}
  .tc-novar-attendance-totals small{font-size:7px}
