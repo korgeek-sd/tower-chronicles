@@ -58,3 +58,13 @@ test('compact two-column shop does not hide merchandise inside one-at-a-time rec
  assert.match(source,/buyOnlineAssociationShopItem\(lease,itemId,id\)/);
  assert.match(source,/onRecord\(next.record/);
 });
+
+test('shop cards omit item description while keeping prices, limits and buying controls',()=>{
+ const html=render('ALL');
+ assert.doesNotMatch(html,/기존 서버 상품 설명/);
+ assert.doesNotMatch(html,/tc-supply-v3-description/);
+ assert.match(html,/외형 소환권 ×5/);
+ assert.match(html,/공헌도 1,000/);
+ assert.match(html,/0\/1회/);
+ assert.equal((html.match(/aria-label="[^"]+ 구매"/g)||[]).length,6);
+});
