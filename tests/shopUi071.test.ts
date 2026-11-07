@@ -38,3 +38,35 @@ test('BOTTOM NAV SHOP: shop replaces the battle tab while the hunt route and pur
  assert.match(atlas,/shop:5/);
  assert.match(screen,/결제 준비중/);
 });
+
+test('NOVAR SHOP 04: all four tabs and the three cash package plans are reachable',()=>{
+ const start=screen.indexOf('export function ShopScreen');
+ const end=screen.indexOf('export function ExpeditionCompleteScreen',start);
+ const shop=screen.slice(start,end);
+ for(const key of ["'recommend'","'gold'","'package'","'attendance'"])assert.ok(screen.includes(key),key);
+ for(const name of ['신규 모험가 패키지','주간 원정 지원','복귀 모험가 패키지','30일 출석 보상'])assert.ok(screen.includes(name),name);
+ assert.match(shop,/setTab\('attendance'\)/);
+ assert.match(shop,/setTab\('gold'\)/);
+ assert.match(shop,/setSelectedSku\(item.sku\)/);
+ assert.match(shop,/previewPackage\(p.id\)/);
+ assert.match(shop,/type="button"[^>]*disabled>결제 준비중/);
+});
+
+test('NOVAR SHOP 05: attendance previews 30 dates without client-side reward credits',()=>{
+ const start=screen.indexOf('export function ShopScreen');
+ const end=screen.indexOf('export function ExpeditionCompleteScreen',start);
+ const shop=screen.slice(start,end);
+ assert.match(shop,/Array.from\(\{length:30\}/);
+ assert.match(shop,/외형 소환권 30장/);
+ assert.match(shop,/외형 소환권 60장/);
+ assert.match(shop,/90,000 S/);
+ assert.match(shop,/600 G/);
+ assert.match(shop,/4,900원/);
+ assert.doesNotMatch(shop,/setGame\(/);
+ assert.match(shop,/보상 지급 기능 준비 중/);
+ const style=readFileSync(new URL('../src/components/mobile/novar-shop.css',import.meta.url),'utf8');
+ assert.match(style,/\.tc-novar-shop\{/);
+ assert.match(style,/\.tc-novar-shop-view\{/);
+ assert.match(style,/grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+ assert.match(style,/@media\(max-height:700px\)/);
+});

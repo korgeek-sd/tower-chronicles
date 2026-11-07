@@ -1,0 +1,221 @@
+/* Novar supply shop: one-viewport dark-fantasy pixel interface.
+   Decorative artwork reuses production item assets. Purchases remain disabled. */
+.tc-app:has(.tc-novar-shop)>.tc-main{padding:0}
+.tc-novar-shop-screen{
+ --shop-gold:#cfaa65;--shop-cream:#eeddb6;--shop-line:#876439;
+ --shop-ink:#080f1d;--shop-panel:#10192b;
+ background:
+ radial-gradient(ellipse at 64% 9%,#26375455,transparent 58%),
+ repeating-linear-gradient(0deg,transparent 0 24px,#ffffff03 24px 25px),
+ #080e18;
+ min-height:0;overflow:hidden;
+}
+.tc-novar-shop-screen .tc-screen-head{
+ height:47px;min-height:47px;align-items:center;padding:5px 12px;
+ border-block:1px solid #72532a;
+ background:linear-gradient(90deg,#0e1928,#182538 40%,#090f1b);
+ box-shadow:inset 0 2px #090f18,inset 0 -2px #090f18;
+}
+.tc-novar-shop-screen .tc-screen-head h1{font-size:20px;color:#f2ddb0;text-shadow:1px 2px #010305;margin:3px 0 0}
+.tc-novar-shop-screen .tc-screen-head small{color:#c4a26d;font-size:7px;letter-spacing:.16em}
+.tc-novar-shop-screen .tc-screen-meta{color:#dec994;font-size:11px;font-weight:700}
+.tc-novar-shop-screen>.tc-screen-body{height:100%;min-height:0;padding:0}
+.tc-novar-shop{display:grid;grid-template-rows:50px minmax(0,1fr);height:100%;min-height:0;overflow:hidden}
+.tc-novar-shop-tabs{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px 8px 5px;
+ background:linear-gradient(#0b111d,#0a111d);border-bottom:1px solid #725735;
+}
+.tc-novar-shop-tabs button{
+ min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;gap:4px;
+ border:1px solid #675035;background:linear-gradient(#171c26,#0b111b);
+ color:#ccb992;font-size:11px;font-weight:700;padding:2px;
+ box-shadow:inset 0 1px #ffffff12,0 2px 0 #05070d;position:relative;
+}
+.tc-novar-shop-tabs button .tc-hub-icon{width:22px;height:22px;filter:drop-shadow(0 1px #000)}
+.tc-novar-shop-tabs button.is-active{
+ color:#f8df9c;border-color:#d4a85a;
+ background:linear-gradient(180deg,#67302c,#3d1d24);
+ box-shadow:inset 0 0 0 1px #ab6840,0 0 7px #ab603533;
+}
+.tc-novar-shop-tabs button.is-active:after{content:'';position:absolute;bottom:-6px;left:45%;width:9px;height:9px;transform:rotate(45deg);background:#d1a25c;clip-path:polygon(0 0,100% 0,0 100%)}
+.tc-novar-shop-view{min-height:0;overflow:hidden;padding:8px;display:block}
+.tc-novar-shop-view>section{height:100%;min-height:0;overflow:hidden}
+.tc-novar-shop button{touch-action:manipulation}
+.tc-novar-shop button:not(:disabled):active{filter:brightness(1.15)}
+.tc-novar-recommend{display:grid;grid-template-rows:minmax(125px,1.45fr) 27px minmax(130px,1fr) 70px;gap:8px}
+.tc-novar-feature{
+ min-height:0;display:flex;position:relative;overflow:hidden;text-align:left;
+ padding:15px;border:1px solid #b18b53;
+ color:#f4ddae;background:
+ radial-gradient(ellipse at 84% 56%,#9a5c23a8,transparent 56%),
+ linear-gradient(115deg,#130c15 0%,#351823 56%,#251420 100%);
+ box-shadow:inset 0 0 0 3px #080b13,inset 0 0 0 4px #60432b,0 4px 0 #03060b;
+}
+.tc-novar-feature:before{content:'';position:absolute;inset:7px;border:1px solid #b58a573b;pointer-events:none}
+.tc-novar-feature-copy{z-index:1;min-width:0;width:63%;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.tc-novar-feature-copy small{color:#bb9360;font:700 8px ui-monospace,monospace;letter-spacing:.13em}
+.tc-novar-feature-copy strong{font-size:clamp(19px,5.3vw,27px);line-height:1.15;color:#ffe0a4;text-shadow:2px 2px #09080d;white-space:nowrap}
+.tc-novar-feature-copy span{font-size:11px;color:#f0d4a5}
+.tc-novar-feature-copy em{font-size:11px;font-style:normal;color:#f6c86d;font-weight:700;border-bottom:1px solid #c2965b;padding-bottom:5px;width:max-content}
+.tc-novar-feature-art{position:absolute;inset:0 3px 0 auto;width:46%;pointer-events:none}
+.tc-novar-feature-art img{position:absolute;max-width:100%;max-height:90%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(2px 4px 5px #06070b)}
+.tc-novar-feature-art img:first-child{height:90%;right:-2%;bottom:0;width:76%}
+.tc-novar-feature-art img:last-child{height:50%;width:51%;left:0;bottom:3%}
+.tc-novar-recommend-label,.tc-novar-section-line{
+ min-width:0;display:flex;justify-content:space-between;align-items:center;gap:8px;
+ border-bottom:1px solid #775634;color:#ebd5aa;padding:0 3px 4px;
+}
+.tc-novar-recommend-label b,.tc-novar-section-line strong{font-size:12px}
+.tc-novar-recommend-label span,.tc-novar-section-line small{font-size:9px;color:#bda781;white-space:nowrap}
+.tc-novar-recommend-products{min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.tc-novar-recommend-product{
+ min-width:0;min-height:0;border:1px solid #785733;background:linear-gradient(#24202a,#111521 60%,#0a101c);
+ display:grid;grid-template-rows:minmax(0,1fr) auto auto;justify-items:center;align-items:center;gap:3px;
+ padding:5px 3px 7px;text-align:center;box-shadow:inset 0 0 0 2px #060a12;
+}
+.tc-novar-recommend-product img{max-width:90%;width:auto;height:100%;max-height:88px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(1px 3px 2px #000)}
+.tc-novar-recommend-product span{font-size:10px;font-weight:700;color:#e7d2ad;line-height:1.2;word-break:keep-all}
+.tc-novar-recommend-product b{font-size:12px;color:#f4cf82;background:#321927;box-shadow:inset 0 1px #9b6942;border:1px solid #8b6439;min-width:90%;padding:4px 2px}
+.tc-novar-gold-promo{
+ display:flex;align-items:center;gap:12px;min-height:0;padding:4px 10px;
+ border:1px solid #785833;background:linear-gradient(105deg,#181727,#171d2d 55%,#22202c);
+ color:#ebd0a3;text-align:left;
+}
+.tc-novar-gold-promo img{width:64px;height:59px;object-fit:contain;image-rendering:pixelated}
+.tc-novar-gold-promo>span{display:grid;gap:3px;flex:1}
+.tc-novar-gold-promo>span b{font-size:15px}
+.tc-novar-gold-promo>span small{font-size:9px;color:#bcb1a0}
+.tc-novar-gold-promo>strong{font-size:10px;color:#dcb56f;white-space:nowrap}
+.tc-novar-gold-pane{display:grid;grid-template-rows:28px minmax(0,1fr) 28px;gap:8px}
+.tc-novar-shop .tc-shop-grid{height:100%;min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:8px}
+.tc-novar-shop .tc-shop-card{
+ border:1px solid #89673b;min-height:0;padding:7px 8px;gap:0 5px;
+ background:radial-gradient(ellipse at 50% 30%,#5a3d2550,transparent 62%),linear-gradient(#202234,#0c1423);
+ box-shadow:inset 0 0 0 2px #080e18;display:grid;
+ grid-template-columns:48% 52%;grid-template-rows:minmax(0,1fr) auto;text-align:center;
+}
+.tc-novar-shop .tc-shop-card>.tc-novar-coin-art{
+ grid-column:1;grid-row:1/3;align-self:center;justify-self:center;
+ width:98%;height:90%;max-width:100%;max-height:100%;
+ object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 3px #000);
+}
+.tc-novar-shop .tc-shop-card>.tc-shop-amount{grid-column:2;grid-row:1;align-self:end;justify-self:center;display:grid;gap:3px}
+.tc-novar-shop .tc-shop-card>.tc-shop-amount b{font-size:clamp(14px,4vw,20px);font-family:inherit;color:#ffe0a0}
+.tc-novar-shop .tc-shop-card>.tc-shop-amount small{color:#bca574;font-size:8px;letter-spacing:.12em}
+.tc-novar-shop .tc-shop-card>strong{
+ grid-column:2;grid-row:2;font-size:11px;justify-self:stretch;padding:5px 2px;
+ background:#4a2530;border:1px solid #a47b4b;color:#ffdf9c;box-shadow:inset 0 1px #cc995a;
+}
+.tc-novar-shop-disclaimer{margin:0;padding:4px 6px;color:#b7a992;text-align:center;font-size:9px;border:1px solid #403d36;background:#111a25}
+.tc-novar-package-pane{display:grid;grid-template-rows:28px minmax(0,1fr) 45px;gap:8px}
+.tc-novar-package-list{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px}
+.tc-novar-package-card{
+ min-height:0;display:grid;grid-template-columns:27% minmax(0,1fr) 83px;align-items:center;gap:7px;
+ border:1px solid #957043;background:linear-gradient(110deg,#281c24,#101623 58%,#141522);
+ box-shadow:inset 0 0 0 2px #090b11;position:relative;padding:7px;
+}
+.tc-novar-package-art{height:100%;min-height:0;display:grid;place-items:center;overflow:hidden}
+.tc-novar-package-art img{width:100%;height:100%;max-height:120px;object-fit:contain;image-rendering:pixelated}
+.tc-novar-package-info{display:flex;flex-direction:column;gap:5px;min-width:0}
+.tc-novar-package-info>strong{font-size:clamp(11px,3.2vw,15px);color:#f1daa9;white-space:normal;line-height:1.16;word-break:keep-all}
+.tc-novar-package-info>small{font-size:9px;color:#a89a8a}
+.tc-novar-package-rewards{display:flex;align-items:center;gap:3px;flex-wrap:wrap;min-width:0}
+.tc-novar-package-rewards span{display:inline-flex;align-items:center;gap:2px;border:1px solid #5a4a38;background:#0a101a;padding:2px 3px;color:#e1c796;white-space:nowrap;font-size:10px}
+.tc-novar-package-rewards img{width:19px;height:19px;object-fit:contain;image-rendering:pixelated}
+.tc-novar-buy{min-width:0;align-self:center;min-height:39px;border:1px solid #c29458;background:linear-gradient(#6c2f37,#451d27);box-shadow:inset 0 0 0 2px #31141c;color:#ffdfa1;font-size:12px;font-weight:800;padding:4px 2px;white-space:nowrap}
+.tc-novar-passage{
+ min-height:0;border:1px solid #997446;background:linear-gradient(100deg,#321d29,#182338);
+ display:flex;align-items:center;justify-content:space-between;padding:5px 12px;color:#f0d29a;font-size:13px;font-weight:700;
+}
+.tc-novar-passage span{font-size:10px;color:#d3b579}
+.tc-novar-attendance-pane{display:grid;grid-template-rows:26px 83px minmax(145px,1fr) 67px 44px;gap:7px}
+.tc-novar-attendance-totals{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
+.tc-novar-attendance-totals>div{
+ min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:5px;
+ padding:8px;background:linear-gradient(#16233b,#0b1524);border:1px solid #8a6b46;
+ box-shadow:inset 0 0 0 2px #060e18;text-align:center;
+}
+.tc-novar-attendance-totals>div.is-paid{background:linear-gradient(#48232e,#261723);border-color:#d09a59}
+.tc-novar-attendance-totals b{font-size:11px;color:#e4ca99}
+.tc-novar-attendance-totals span{font-size:clamp(16px,5vw,23px);font-weight:800;color:#faf0d6}
+.tc-novar-attendance-totals small{font-size:9px;color:#d3b884;white-space:nowrap}
+.tc-novar-attendance-days{
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));gap:4px;min-height:0;
+ padding:6px;border:1px solid #88683e;background:#0a101b;
+}
+.tc-novar-attendance-days button{
+ min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:space-around;
+ padding:1px;border:1px solid #5c5b5c;background:linear-gradient(#262a34,#121722);color:#eee0c7;
+}
+.tc-novar-attendance-days button small{font-size:9px;line-height:1;white-space:nowrap}
+.tc-novar-attendance-days button img{width:70%;min-width:0;height:63%;object-fit:contain;image-rendering:pixelated}
+.tc-novar-attendance-days button.is-milestone{border-color:#bc8e52;background:linear-gradient(#5a2934,#231622)}
+.tc-novar-attendance-days button.is-selected{border-color:#f5d08d;box-shadow:inset 0 0 0 2px #d6aa5b,0 0 7px #bc895555;color:#ffe5a9}
+.tc-novar-day-reward{
+ display:grid;grid-template-columns:1fr;gap:2px;align-content:center;padding:5px 10px;
+ border:1px solid #7b6345;background:#121e2e;min-width:0;
+}
+.tc-novar-day-reward strong{color:#f0dcae;font-size:12px}
+.tc-novar-day-reward span{font-size:10px;color:#dbcaa7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-novar-attendance-buy{
+ border:1px solid #b78b4d;background:linear-gradient(#5a2531,#391923);
+ color:#ffe2ad;display:flex;align-items:center;justify-content:space-between;gap:7px;
+ padding:5px 12px;font-size:11px;min-height:0;
+}
+.tc-novar-attendance-buy strong{font-size:17px;white-space:nowrap}
+.tc-shop-confirm .tc-novar-shop-modal{background:linear-gradient(#1b2230,#0b111e);border:1px solid #be9559;box-shadow:0 12px 38px #000e}
+.tc-novar-shop-modal-title{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid #69583d}
+.tc-novar-shop-modal-title img{width:57px;height:57px;object-fit:contain;image-rendering:pixelated}
+.tc-novar-shop-modal-title small{font-size:9px;color:#bdaa87}
+.tc-novar-shop-modal-title h2{margin:4px 0;color:#f9dfaa;font-size:17px}
+.tc-novar-shop-modal p{font-size:10px;line-height:1.5;color:#cfc5b7}
+.tc-novar-shop-modal .tc-shop-confirm-price{border-bottom:1px solid #69583d}
+.tc-novar-shop-modal .tc-shop-confirm-price b{color:#f7daa3}
+@media(max-width:380px){
+ .tc-novar-shop-tabs{gap:2px;padding-inline:5px}
+ .tc-novar-shop-tabs button{font-size:10px;gap:2px}
+ .tc-novar-shop-tabs button .tc-hub-icon{width:20px;height:20px}
+ .tc-novar-package-card{grid-template-columns:24% minmax(0,1fr) 70px;gap:4px;padding:5px}
+ .tc-novar-buy{font-size:10px}
+ .tc-novar-package-rewards span{font-size:9px}
+ .tc-novar-attendance-totals small{font-size:8px}
+}
+@media(max-height:700px){
+ .tc-novar-shop{grid-template-rows:43px minmax(0,1fr)}
+ .tc-novar-shop-tabs{padding-top:3px;padding-bottom:3px}
+ .tc-novar-shop-view{padding:5px}
+ .tc-novar-recommend{grid-template-rows:minmax(86px,1.3fr) 20px minmax(92px,1fr) 46px;gap:5px}
+ .tc-novar-feature{padding:8px}
+ .tc-novar-feature-copy{gap:4px}
+ .tc-novar-feature-copy strong{font-size:18px}
+ .tc-novar-feature-copy span{font-size:9px}
+ .tc-novar-feature-copy em{font-size:9px}
+ .tc-novar-recommend-product img{max-height:59px}
+ .tc-novar-recommend-product span{font-size:9px}
+ .tc-novar-recommend-product b{font-size:10px;padding:2px}
+ .tc-novar-gold-promo img{height:40px;width:49px}
+ .tc-novar-gold-pane{grid-template-rows:23px minmax(0,1fr) 22px;gap:4px}
+ .tc-novar-shop .tc-shop-grid{gap:4px}
+ .tc-novar-shop .tc-shop-card{padding:4px}
+ .tc-novar-package-pane{grid-template-rows:23px minmax(0,1fr) 35px;gap:4px}
+ .tc-novar-package-list{gap:4px}
+ .tc-novar-package-info{gap:3px}
+ .tc-novar-attendance-pane{grid-template-rows:22px 67px minmax(125px,1fr) 53px 36px;gap:4px}
+ .tc-novar-attendance-totals>div{padding:4px;gap:3px}
+ .tc-novar-attendance-totals span{font-size:16px}
+ .tc-novar-attendance-days{gap:2px;padding:3px}
+ .tc-novar-attendance-days button small{font-size:8px}
+ .tc-novar-day-reward strong{font-size:10px}
+ .tc-novar-day-reward span{font-size:9px}
+ .tc-novar-attendance-buy strong{font-size:14px}
+}
+@media(max-height:560px){
+ .tc-novar-recommend{grid-template-rows:minmax(66px,1.1fr) 18px minmax(80px,1fr) 35px;gap:3px}
+ .tc-novar-recommend-product img{max-height:42px}
+ .tc-novar-recommend-label b{font-size:10px}
+ .tc-novar-attendance-pane{grid-template-rows:20px 56px minmax(100px,1fr) 50px 34px;gap:3px}
+ .tc-novar-attendance-totals span{font-size:14px}
+ .tc-novar-attendance-totals b{font-size:9px}
+ .tc-novar-attendance-totals small{font-size:7px}
+ .tc-novar-day-reward span{font-size:8px}
+}
