@@ -16,7 +16,7 @@ export function ShopRewardArt({itemId,large=false}:{itemId:string;large?:boolean
  const dark=gold?'#3c211a':silver?'#263241':rare?'#251b4b':'#36241a';
  const face='shop-face-'+id,metal='shop-metal-'+id,shimmer='shop-shimmer-'+id;
  if(potion)return <span className={'tc-shop-art tc-shop-art-potion'+(large?' is-large':'')}>
-  <img src={assetUrl("assets/ui/inventory/healing_greater.png")} alt="" decoding="async"/>
+  <img src={assetUrl("assets/ui/crafting/potion.png")} alt="" decoding="async"/>
  </span>;
  if(ticket)return <span className={'tc-shop-art tc-shop-art-ticket'+(large?' is-large':'')}>
   <svg viewBox="0 0 118 108" role="img" aria-label="소환권 묶음" focusable="false">
