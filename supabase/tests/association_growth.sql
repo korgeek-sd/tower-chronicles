@@ -59,7 +59,7 @@ begin
  r:=public.buy_online_association_shop_item(f.l,1,'growth-qa','growth-qa',gen_random_uuid(),'job_draw_ticket_weekly');
  if (r->'record'->'payload'->'cosmetics'->>'summonTickets')::bigint<>35 then raise exception 'Weekly appearance tickets not credited';end if;
  r:=public.buy_online_association_shop_item(f.l,1,'growth-qa','growth-qa',gen_random_uuid(),'vitality_potion_daily');
- if (select (products->>'vitality_potion')::bigint from private.village_life_players where user_id=f.u)<>1 then raise exception 'Vitality potion not granted';end if;
+ if (public.get_village_life(f.l,1,'growth-qa','growth-qa')->'products'->>'vitality_potion')::bigint<>1 then raise exception 'Vitality potion not granted';end if;
  if (r->'reward'->>'type')<>'VITALITY_POTION' then raise exception 'Wrong vitality reward type';end if;
  begin perform public.buy_online_association_shop_item(f.l,1,'growth-qa','growth-qa',gen_random_uuid(),'vitality_potion_daily');raise exception 'Daily vitality limit bypassed';
  exception when others then if sqlerrm not like '%ASSOCIATION_PURCHASE_LIMIT%' then raise;end if;end;
