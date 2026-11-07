@@ -48,10 +48,11 @@ test('the shop CSS uses a three-column no-scroll catalogue and a fixed purchase 
 
 test('all shop reward images fit inside their own card, banner and detail areas',()=>{
  const css=readFileSync(new URL('../src/components/association/supply-showcase.css',import.meta.url),'utf8');
+ const scoped=css.slice(css.indexOf('/* Card, feature banner and detail artwork bounds'));
  const rule=(selector:string)=>{
-  const start=css.lastIndexOf(selector+' {');
+  const start=scoped.indexOf(selector+' {');
   assert.ok(start>=0,'missing clipping fix for '+selector);
-  return css.slice(start,css.indexOf('}',start)+1);
+  return scoped.slice(start,scoped.indexOf('}',start)+1);
  };
  assert.match(rule('.tc-supply-v5 .tc-supply-v5-art'),/position:relative/);
  assert.match(rule('.tc-supply-v5 .tc-supply-v5-art > .tc-shop-art'),/position:absolute/);
