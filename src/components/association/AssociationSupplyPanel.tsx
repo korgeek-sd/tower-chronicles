@@ -34,7 +34,6 @@ export function AssociationShopCatalog({shop,filter,busy,expedition,onBuy}:{shop
       <span className="tc-supply-v3-item-icon"><Glyph name={shopProductIcon(item.itemId)}/></span>
       <div className="tc-supply-v3-item-body">
        <b title={item.name}>{item.name}</b>
-       <small className="tc-supply-v3-description" title={item.description}>{item.description}</small>
        <div className="tc-supply-v3-item-facts"><span className="tc-supply-v3-price" aria-label={'공헌도 '+item.contributionCost.toLocaleString()}><i aria-hidden="true">◇</i>{item.contributionCost.toLocaleString()}</span><span className="tc-supply-v3-limit">{item.purchased}/{item.purchaseLimit}회</span></div>
       </div>
       <button type="button" className="tc-supply-v3-buy tc-feel-press" aria-label={item.name+' 구매'} disabled={busy||expedition||locked||sold||insufficient} onClick={()=>onBuy(item.itemId)}>{locked?'Lv.'+item.requiredLevel+' 해금':sold?'구매 완료':'구매'}</button>
