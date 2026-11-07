@@ -86,7 +86,7 @@ const fixtureNamespace=combatFixtureName?'tower-record-qa-'+combatFixtureName+'-
 const gameStorage=combatFixtureName?{getItem:(key:string)=>localStorage.getItem(fixtureNamespace+key),setItem:(key:string,value:string)=>localStorage.setItem(fixtureNamespace+key,value)}:localStorage;
 
 const nav:[AppPage,string][]=[
- ['home','거점'],['hunt','전투'],['inventory','가방'],['market','거래소'],
+ ['home','거점'],['shop','상점'],['inventory','가방'],['market','거래소'],
  ['association','원정단']
 ];
 

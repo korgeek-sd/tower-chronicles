@@ -25,3 +25,16 @@ test('GOLD SHOP UI 03: mobile shop uses a viewport-contained two-column grid and
  assert.match(css,/\.tc-shop-card[^}]*touch-action:manipulation/s);
  assert.match(css,/\.tc-shop-card:not\(:disabled\):active\{[^}]*transform:/s);
 });
+
+test('BOTTOM NAV SHOP: shop replaces the battle tab while the hunt route and purchase safeguards remain intact',()=>{
+ const entry=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+ const atlas=readFileSync(new URL('../src/components/mobile/HubIcon.tsx',import.meta.url),'utf8');
+ const navSection=entry.slice(entry.indexOf('const nav:'),entry.indexOf('function App(){'));
+ assert.ok(navSection.includes("['shop','상점']"));
+ assert.ok(!navSection.includes("['hunt','전투']"));
+ assert.match(entry,/<HubIcon name=\{p\}/);
+ assert.match(entry,/\{page==='shop'&&<ShopScreen game=\{game\}\/>\}/);
+ assert.match(entry,/\{page==='hunt'&&<HuntingPage/);
+ assert.match(atlas,/shop:5/);
+ assert.match(screen,/결제 준비중/);
+});
