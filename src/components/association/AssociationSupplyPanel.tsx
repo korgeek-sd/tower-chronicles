@@ -47,9 +47,10 @@ export function AssociationShopCatalog({shop,filter,busy,expedition,onBuy}:{shop
 }
 
 
-export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refreshKey,onRecord,onChanged}:{
+export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refreshKey,onRecord,onChanged,onShopNavigate}:{
  lease:GameplayLease;mode:'growth'|'shop';expedition:boolean;silver:number;gold:number;
  refreshKey?:number;
+ onShopNavigate?:(destination:'overview'|'auction'|'warehouse')=>void;
  onRecord:(record:CloudSaveRecord,message:string)=>void;onChanged:()=>void;
 }){
  const [progress,setProgress]=useState<AssociationProgression|null>(null);
@@ -123,6 +124,7 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
   expedition={expedition}
   onBuy={id=>void buy(id)}
   onRefresh={()=>void refresh()}
+  onNavigate={onShopNavigate}
   message={message}
  />;
 }
