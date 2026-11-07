@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-const screen=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
+const screen=readFileSync(new URL('../src/components/mobile/NovarShopScreen.tsx',import.meta.url),'utf8');
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 
 test('GOLD SHOP UI 01: shop renders six-package catalog and purchase confirmation',()=>{
@@ -15,7 +15,7 @@ test('GOLD SHOP UI 01: shop renders six-package catalog and purchase confirmatio
 
 test('GOLD SHOP UI 02: paid shop never exposes gameplay item categories',()=>{
  const start=screen.indexOf('export function ShopScreen');
- const end=screen.indexOf('export function ExpeditionCompleteScreen');
+ const end=screen.length;
  const shop=screen.slice(start,end);
  for(const forbidden of ['소모품','장비 상자','회복물약','외형 상품','Silver 상품'])assert.equal(shop.includes(forbidden),false,forbidden);
 });
@@ -41,7 +41,7 @@ test('BOTTOM NAV SHOP: shop replaces the battle tab while the hunt route and pur
 
 test('NOVAR SHOP 04: all four tabs and the three cash package plans are reachable',()=>{
  const start=screen.indexOf('export function ShopScreen');
- const end=screen.indexOf('export function ExpeditionCompleteScreen',start);
+ const end=screen.length;
  const shop=screen.slice(start,end);
  for(const key of ["'recommend'","'gold'","'package'","'attendance'"])assert.ok(screen.includes(key),key);
  for(const name of ['신규 모험가 패키지','주간 원정 지원','복귀 모험가 패키지','30일 출석 보상'])assert.ok(screen.includes(name),name);
@@ -54,7 +54,7 @@ test('NOVAR SHOP 04: all four tabs and the three cash package plans are reachabl
 
 test('NOVAR SHOP 05: attendance previews 30 dates without client-side reward credits',()=>{
  const start=screen.indexOf('export function ShopScreen');
- const end=screen.indexOf('export function ExpeditionCompleteScreen',start);
+ const end=screen.length;
  const shop=screen.slice(start,end);
  assert.match(shop,/Array.from\(\{length:30\}/);
  assert.match(shop,/외형 소환권 30장/);
