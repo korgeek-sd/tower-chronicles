@@ -1,3 +1,53 @@
 .tc-supply{display:flex;flex-direction:column;gap:8px;min-height:0;padding:10px;background:#19170f;border:1px solid #57482e;color:#d8c7a7;font-size:11px}
 .tc-assoc.tc-assoc-hq{grid-template-rows:auto auto minmax(0,1fr) auto}.tc-assoc-hq .tc-assoc-overview{display:flex;flex-direction:column;overflow:auto;gap:8px}.tc-supply-donation-fold summary{cursor:pointer;min-height:36px;line-height:36px;font-size:11px;color:#dfc397}.tc-supply-donation-fold summary span{float:right;font-size:10px;color:#a59679}.tc-supply-donation-fold>small{display:block;margin-top:6px}.tc-supply-donation-fold .tc-segments{margin-bottom:6px}
 .tc-supply header{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}.tc-supply header strong{color:#e0bb70}.tc-supply header span{font-size:10px}.tc-supply small{font-size:10px;line-height:1.4;color:#b9aa8e}.tc-supply-exp{height:7px;background:#080a08;border:1px solid #57482e}.tc-supply-exp i{display:block;height:100%;background:#a4864d}.tc-supply-donate{display:flex;gap:8px;align-items:end}.tc-supply-donate label{flex:1}.tc-supply select{width:100%;display:block;background:#10110c;border:1px solid #5c5039;color:#e0ceb0;font-size:12px;min-height:40px;margin-top:4px}.tc-supply button{min-height:42px;background:#302719;border:1px solid #80653e;color:#e0c99b;padding:0 10px;font-size:11px}.tc-supply button:disabled{opacity:.45}.tc-supply p{margin:0;min-height:16px;font-size:10px;line-height:1.5}.tc-supply-shop{overflow:auto}.tc-supply-products{display:flex;flex-direction:column;gap:6px}.tc-supply-products article{display:flex;align-items:center;gap:8px;padding:10px 6px;border-bottom:1px solid #51442d;min-height:78px}.tc-supply-products article>div{flex:1;min-width:0}.tc-supply-products article b,.tc-supply-products article small{display:block}.tc-supply-products article b{font-size:12px;margin-bottom:4px}.tc-supply-products article button{min-width:78px}.tc-supply-refresh{align-self:end;background:transparent!important;border:0!important;min-height:32px!important;font-size:10px!important}.tc-supply .tc-segments{flex:none;min-height:36px}.tc-supply-growth{flex-shrink:0}
+
+
+/* V3: dense two-column catalogue, retaining the existing server-managed shop. */
+.tc-guild-workspace .tc-supply-shop.tc-supply-shop-v3 {
+ display:flex; flex-direction:column; gap:4px; min-height:0; height:100%; padding:6px 7px;
+ overflow:hidden; box-sizing:border-box; background:#081523; border:1px solid #886b46; color:#f3dfb7;
+}
+.tc-supply-shop-v3 .tc-supply-v3-head {display:flex;align-items:center;justify-content:space-between;gap:5px;min-height:33px;flex:none;border-bottom:1px solid #735b3d;padding:0 2px 3px}
+.tc-supply-shop-v3 .tc-supply-v3-head>b {min-width:0;font-size:clamp(12px,3.4vw,16px);white-space:nowrap}
+.tc-supply-shop-v3 .tc-supply-v3-head>b small {display:inline;color:#e5bb78;font-size:10px}
+.tc-supply-shop-v3 .tc-supply-v3-balance {display:flex;align-items:center;gap:4px;white-space:nowrap}
+.tc-supply-shop-v3 .tc-supply-v3-balance span {font-size:10px;color:#d0be9d}
+.tc-supply-shop-v3 .tc-supply-v3-balance b {color:#f1d48e;font-size:clamp(11px,3vw,14px)}
+.tc-supply-shop-v3 .tc-supply-v3-refresh {min-width:44px;min-height:44px;padding:0;font-size:20px;background:#101e2d;border-color:#927249}
+.tc-supply-shop-v3 .tc-supply-v3-filters {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:none}
+.tc-supply-shop-v3 .tc-supply-v3-filters button {min-width:0;min-height:44px;padding:0 3px;border:1px solid #826746;border-radius:4px;background:#172638;color:#e4c996;font-size:clamp(10px,2.7vw,12px)}
+.tc-supply-shop-v3 .tc-supply-v3-filters button.active {border-color:#f2c779;background:linear-gradient(180deg,#80532c,#50341f);color:#fff0c7;box-shadow:inset 0 0 0 1px #b8894b}
+.tc-supply-shop-v3 .tc-supply-v3-catalog {display:flex;flex:1;flex-direction:column;gap:7px;overflow-y:auto;overflow-x:hidden;min-height:0;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#957344 #101927;padding:2px 1px 8px}
+.tc-supply-shop-v3 .tc-supply-v3-section {display:flex;flex-direction:column;gap:4px;min-width:0;flex:none}
+.tc-supply-shop-v3 .tc-supply-v3-section-heading {display:flex;align-items:center;justify-content:space-between;gap:4px;min-height:25px;overflow:hidden;border-bottom:1px solid #604b32}
+.tc-supply-shop-v3 .tc-supply-v3-section-heading strong {font-size:clamp(11px,3.1vw,14px);white-space:nowrap;color:#f4d89d}
+.tc-supply-shop-v3 .tc-supply-v3-section-heading strong small {font-size:9px;color:#c2a87b}
+.tc-supply-shop-v3 .tc-supply-v3-section-heading>span {min-width:0;font-size:9px;color:#baae92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-supply-shop-v3 .tc-supply-v3-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;align-content:start}
+.tc-supply-shop-v3 .tc-supply-v3-item {display:grid;grid-template-columns:24px minmax(0,1fr) 48px;align-items:center;gap:3px;min-width:0;min-height:74px;box-sizing:border-box;padding:4px 3px;background:linear-gradient(165deg,#132439,#0c1826);border:1px solid #796344;border-radius:4px;box-shadow:inset 0 0 0 1px #17293b}
+.tc-supply-shop-v3 .tc-supply-v3-item-icon {display:grid;place-items:center;width:24px;height:32px;color:#e8b76e;background:#17253a;border:1px solid #73593b;border-radius:2px;font-size:20px}
+.tc-supply-shop-v3 .tc-supply-v3-item-body {display:flex;flex-direction:column;gap:2px;min-width:0;align-self:stretch;justify-content:center}
+.tc-supply-shop-v3 .tc-supply-v3-item-body>b {display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.1;min-height:21px;font-size:clamp(10px,2.8vw,12px);color:#f0dbb8;overflow-wrap:anywhere}
+.tc-supply-shop-v3 .tc-supply-v3-description {display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:8px;line-height:1.2;color:#baa78c}
+.tc-supply-shop-v3 .tc-supply-v3-item-facts {display:flex;align-items:center;justify-content:space-between;gap:2px;min-width:0;white-space:nowrap;font-size:9px}
+.tc-supply-shop-v3 .tc-supply-v3-price {color:#efca82;font-weight:700;font-variant-numeric:tabular-nums}
+.tc-supply-shop-v3 .tc-supply-v3-price i {font-style:normal;margin-right:1px}
+.tc-supply-shop-v3 .tc-supply-v3-limit {color:#aeb6c4;font-size:9px}
+.tc-supply-shop-v3 .tc-supply-v3-buy {min-width:0;min-height:44px;align-self:center;padding:2px!important;background:linear-gradient(#ad7a3e,#68441f);color:#fff1c9;border:1px solid #c99b5a;border-radius:3px;font-size:10px;line-height:1.2;overflow-wrap:anywhere}
+.tc-supply-shop-v3 .tc-supply-v3-buy:disabled {background:#26313b;color:#a3a6ac;border-color:#59616a;opacity:.8}
+.tc-supply-shop-v3 .tc-supply-v3-empty {padding:16px;text-align:center}
+.tc-supply-shop-v3 .tc-supply-v3-notice,.tc-supply-shop-v3 .tc-supply-v3-message {flex:none;font-size:10px;line-height:1.3}
+@media(max-height:820px) {
+ .tc-supply-shop-v3 .tc-supply-v3-description {display:none}
+ .tc-supply-shop-v3 .tc-supply-v3-item {min-height:68px}
+ .tc-supply-shop-v3 .tc-supply-v3-catalog {gap:4px}
+ .tc-supply-shop-v3 .tc-supply-v3-section-heading {min-height:21px}
+}
+@media(max-width:340px){
+ .tc-supply-shop-v3 .tc-supply-v3-item{grid-template-columns:20px minmax(0,1fr) 44px;gap:2px}
+ .tc-supply-shop-v3 .tc-supply-v3-item-icon{width:20px;font-size:16px}
+ .tc-supply-shop-v3 .tc-supply-v3-item-body>b{font-size:10px}
+ .tc-supply-shop-v3 .tc-supply-v3-section-heading>span{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.tc-supply-shop-v3 .tc-supply-v3-buy{transition:none}}

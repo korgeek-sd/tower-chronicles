@@ -1,14 +1,51 @@
-import {GuildTask,GuildRecord} from './GuildTask';
+import {GuildTask} from './GuildTask';
 import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useRef,useState} from 'react';
-import {Segments} from '../../ui/mobile';
+import {Glyph,Segments} from '../../ui/mobile';
 import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import {donateToAssociation,loadAssociationProgression,type AssociationProgression} from '../../online/associationProgression';
-import {buyOnlineAssociationShopItem,loadOnlineAssociationShop,type OnlineAssociationShopState,type AssociationShopReset} from '../../online/associationShop';
+import {buyOnlineAssociationShopItem,loadOnlineAssociationShop,type OnlineAssociationShopState,type OnlineAssociationShopItem,type AssociationShopReset} from '../../online/associationShop';
 import {associationDonationGain,associationLevelProgress} from '../../game/association/growthRules';
 import {pendingGrowthRequest,completeGrowthRequest} from '../../online/associationPendingRequests';
 import './supply.css';
+
+export type ShopFilter='ALL'|'DAILY'|'WEEKLY'|'CURRENCY';
+const SHOP_FILTERS:readonly (readonly [ShopFilter,string])[]=[['ALL','전체'],['DAILY','일일'],['WEEKLY','주간'],['CURRENCY','재화']];
+const isCurrencyProduct=(item:OnlineAssociationShopItem)=>item.itemId==='silver_box_daily'||item.itemId==='gold_box_weekly';
+const shopProductIcon=(id:string)=>id.startsWith('enhancement_stone')?'materials':id.startsWith('greater_potion')?'potions':id.startsWith('job_draw_ticket')?'tickets':id==='rare_equipment_weekly'?'inventory':'market';
+
+/** Visible catalogue reflects the nine server-managed products, not a locally seeded inventory. */
+export function AssociationShopCatalog({shop,filter,busy,expedition,onBuy}:{shop:OnlineAssociationShopState;filter:ShopFilter;busy:boolean;expedition:boolean;onBuy:(id:string)=>void}){
+ const sections=[
+  {id:'DAILY' as const,label:'일일 보급',reset:'매일 00:00 초기화 · 한국 시간',items:shop.daily},
+  {id:'WEEKLY' as const,label:'주간 보급',reset:'월요일 00:00 초기화 · 한국 시간',items:shop.weekly},
+ ].filter(section=>filter==='ALL'||filter==='CURRENCY'||section.id===filter)
+  .map(section=>({...section,items:filter==='CURRENCY'?section.items.filter(isCurrencyProduct):section.items}));
+ return <div className="tc-supply-v3-catalog" aria-label="원정단 보급품 목록">
+  {sections.filter(section=>section.items.length).map(section=><section className="tc-supply-v3-section" key={section.id} aria-label={section.label}>
+   <div className="tc-supply-v3-section-heading"><strong>{section.label} <small>{section.items.length}종</small></strong><span>{section.reset}</span></div>
+   <div className="tc-supply-v3-grid">
+    {section.items.map(item=>{
+     const locked=shop.level<item.requiredLevel;
+     const sold=item.purchased>=item.purchaseLimit;
+     const insufficient=shop.contribution<item.contributionCost;
+     return <article className={'tc-supply-v3-item'+(locked?' is-locked':'')} key={item.itemId} data-shop-item-id={item.itemId}>
+      <span className="tc-supply-v3-item-icon"><Glyph name={shopProductIcon(item.itemId)}/></span>
+      <div className="tc-supply-v3-item-body">
+       <b title={item.name}>{item.name}</b>
+       <small className="tc-supply-v3-description" title={item.description}>{item.description}</small>
+       <div className="tc-supply-v3-item-facts"><span className="tc-supply-v3-price" aria-label={'공헌도 '+item.contributionCost.toLocaleString()}><i aria-hidden="true">◇</i>{item.contributionCost.toLocaleString()}</span><span className="tc-supply-v3-limit">{item.purchased}/{item.purchaseLimit}회</span></div>
+      </div>
+      <button type="button" className="tc-supply-v3-buy tc-feel-press" aria-label={item.name+' 구매'} disabled={busy||expedition||locked||sold||insufficient} onClick={()=>onBuy(item.itemId)}>{locked?'Lv.'+item.requiredLevel+' 해금':sold?'구매 완료':'구매'}</button>
+     </article>;
+    })}
+   </div>
+  </section>)}
+  {!sections.some(section=>section.items.length)&&<p className="tc-supply-v3-empty">이 분류에 등록된 보급품이 없습니다.</p>}
+ </div>;
+}
+
 
 export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refreshKey,onRecord,onChanged}:{
  lease:GameplayLease;mode:'growth'|'shop';expedition:boolean;silver:number;gold:number;
@@ -17,7 +54,7 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
 }){
  const [progress,setProgress]=useState<AssociationProgression|null>(null);
  const [shop,setShop]=useState<OnlineAssociationShopState|null>(null);
- const [period,setPeriod]=useState<AssociationShopReset>('DAILY');
+ const [shopFilter,setShopFilter]=useState<ShopFilter>('ALL');
  const [currency,setCurrency]=useState<'silver'|'gold'|'ticket'>('silver'),[amount,setAmount]=useState(10000);
  const [busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[message,setMessage]=useState('');
  const running=useRef(false),mounted=useRef(true);
@@ -78,18 +115,16 @@ export function AssociationSupplyPanel({lease,mode,expedition,silver,gold,refres
   </section>;
  }
  if(!shop)return null;
- const items=period==='DAILY'?shop.daily:shop.weekly;
- return <section className="tc-supply tc-supply-shop">
-  <header><b>원정단 보급소 <small>Lv.{shop.level}</small></b><span>공헌도 <b>{shop.contribution.toLocaleString()}</b></span></header>
-  <Segments items={[['DAILY','일일 보급'],['WEEKLY','주간 보급']] as const} value={period} onChange={setPeriod} label="보급 기간"/>
-  <small>{period==='DAILY'?'매일':'매주 월요일'} 00:00 초기화 · 한국 시간</small>
-  <div className="tc-supply-products"><GuildRecord items={items} id={item=>item.itemId} label={item=>item.name} title="보급품 선택">{item=>{
-   const locked=shop.level<item.requiredLevel,sold=item.purchased>=item.purchaseLimit;
-   return <article key={item.itemId}><div><b>{item.name}</b><small>{item.description}</small><small>{item.contributionCost.toLocaleString()} 공헌도 · {item.purchased}/{item.purchaseLimit}회 구매</small></div><button disabled={busy||expedition||locked||sold||shop.contribution<item.contributionCost} onClick={()=>void buy(item.itemId)}>{locked?'Lv.'+item.requiredLevel+' 해금':sold?'구매 완료':'구매'}</button></article>;
-  }}</GuildRecord></div>
-
-  {expedition&&<small>안전 귀환 후 구매할 수 있습니다.</small>}
-  <p role="status">{message}</p>
-  <button className="tc-supply-refresh" disabled={busy} onClick={()=>void refresh()}>잔액·구매 현황 새로고침</button>
+ return <section className="tc-supply tc-supply-shop tc-supply-shop-v3">
+  <header className="tc-supply-v3-head">
+   <b>원정단 상점 <small>Lv.{shop.level}</small></b>
+   <div className="tc-supply-v3-balance"><span>공헌도 <b>{shop.contribution.toLocaleString()}</b></span><button type="button" className="tc-supply-v3-refresh" disabled={busy} onClick={()=>void refresh()} aria-label="잔액·구매 현황 새로고침">↻</button></div>
+  </header>
+  <div className="tc-supply-v3-filters" role="group" aria-label="원정단 상점 품목 필터">
+   {SHOP_FILTERS.map(([id,label])=><button type="button" key={id} className={shopFilter===id?'active':''} aria-pressed={shopFilter===id} onClick={()=>setShopFilter(id)}>{label}</button>)}
+  </div>
+  <AssociationShopCatalog shop={shop} filter={shopFilter} busy={busy} expedition={expedition} onBuy={id=>void buy(id)}/>
+  {expedition&&<small className="tc-supply-v3-notice">안전 귀환 후 구매할 수 있습니다.</small>}
+  {message&&<p role="status" className="tc-supply-v3-message">{message}</p>}
  </section>;
 }
