@@ -1,140 +1,211 @@
-/* Concept 2: compact, native-feeling dark fantasy mobile RPG shop.
-   All prices, purchase limits, locks and rewards continue to come from the server. */
-.tc-guild-workspace .tc-supply-v4 {
- box-sizing:border-box;display:flex;flex-direction:column;flex:1;min-height:0;height:100%;
- overflow:hidden;gap:5px;padding:6px;border:1px solid #786046;border-radius:5px;
- color:#f0dfc4;background:radial-gradient(ellipse at 80% 5%,#432533 0,transparent 39%),
- linear-gradient(180deg,#1c1a27 0%,#101523 38%,#0d1420 100%);
- font-size:11px;
+/* Immersive expedition shop — concept 2, built for a portrait mobile RPG. */
+.tc-app:has(.tc-assoc-shop-immersive) {
+ grid-template-rows:var(--top) minmax(0,1fr)!important;
 }
-.tc-supply-v4 * {box-sizing:border-box}
-.tc-supply-v4 .tc-supply-v4-head {
- display:flex;flex:none;align-items:center;gap:6px;min-height:36px;padding:0 2px 4px;
- border-bottom:1px solid #695545;
+.tc-app:has(.tc-assoc-shop-immersive)>.tc-nav{display:none!important}
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gate-detail.tc-assoc-shop-immersive {
+ display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden;background:#10121d!important;
 }
-.tc-supply-v4-heading {display:flex;align-items:center;gap:5px;min-width:0;flex:1;white-space:nowrap}
-.tc-supply-v4-heading>.tc-glyph {font-size:20px;color:#dec091}
-.tc-supply-v4-heading>b {overflow:hidden;text-overflow:ellipsis;font-size:clamp(12px,3.6vw,16px);letter-spacing:-.04em}
-.tc-supply-v4-heading>small {flex:none;color:#cbac75;font-size:9px!important}
-.tc-supply-v4-balance {display:flex;align-items:center;gap:5px;flex:none;padding:5px 7px;
- border:1px solid #8f6e49;border-radius:3px;background:linear-gradient(#292432,#161924);
- box-shadow:inset 0 1px #6b5051;white-space:nowrap}
-.tc-supply-v4-token {color:#d4ad75;font-size:15px}
-.tc-supply-v4-balance-value {color:#f6db9d;font-size:clamp(10px,3vw,13px);font-weight:800;font-variant-numeric:tabular-nums}
-.tc-supply-v4 .tc-supply-v4-refresh {display:grid;place-items:center;flex:none;width:36px;min-width:36px;min-height:36px;
- padding:0;border:1px solid #715844;border-radius:4px;background:#1e202b;color:#e6c695;font-size:21px}
-.tc-supply-v4-feature {
- display:flex;flex:none;align-items:center;gap:9px;min-height:60px;max-height:64px;padding:5px 8px;
- position:relative;overflow:hidden;isolation:isolate;border:1px solid #a77956;border-radius:4px;
- background:linear-gradient(90deg,rgba(30,20,28,.96) 5%,rgba(46,22,31,.90) 58%,rgba(17,26,43,.68)),
- url('../../../public/assets/backgrounds/association/guild-courtyard-v3.webp') center 50%/cover;
- box-shadow:inset 0 0 0 1px rgba(224,161,103,.22),0 2px 6px rgba(0,0,0,.24);
+.tc-assoc-shop-immersive>.tc-gate-identity,
+.tc-assoc-shop-immersive>.tc-company-subnav-wrap,
+.tc-assoc-shop-immersive>.tc-company-mainnav{display:none!important}
+.tc-assoc-shop-immersive>.tc-guild-workspace {display:flex;flex:1;min-height:0;height:100%;overflow:hidden}
+.tc-assoc-shop-immersive>.tc-guild-workspace>.tc-supply-shop {height:100%;min-height:0}
+
+.tc-guild-workspace .tc-supply-v5 {
+ --shop-gold:#e4bb82;--shop-red:#9b483b;
+ display:flex!important;flex:1 1 auto;flex-direction:column;gap:7px;
+ height:100%;width:100%;min-height:0;margin:0;padding:7px;
+ overflow:hidden!important;box-sizing:border-box;
+ border:0!important;border-radius:0;color:#f2e6d8;
+ background:radial-gradient(ellipse at 50% 0%,#342331 0,transparent 35%),
+ linear-gradient(180deg,#211c29 0%,#0b1421 54%,#090f1a 100%)!important;
+ font-size:12px;
 }
-.tc-supply-v4-feature:after {content:"";position:absolute;z-index:-1;inset:0;
- background:radial-gradient(ellipse at 15% 60%,rgba(222,146,69,.23),transparent 42%)}
-.tc-supply-v4-feature-emblem {display:grid;place-items:center;flex:none;width:49px;height:49px;
- font-size:29px;color:#f4cf8e;border:1px solid #ab794e;border-radius:5px;
- background:radial-gradient(circle,#865431,#2c1e20 72%);box-shadow:0 0 14px #aa593555}
-.tc-supply-v4-feature-emblem.is-silver {color:#d9e8f5;background:radial-gradient(circle,#526478,#1b2230 72%)}
-.tc-supply-v4-feature-copy {display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}
-.tc-supply-v4-feature-copy small {color:#deaa85;font-size:9px!important;letter-spacing:.04em}
-.tc-supply-v4-feature-copy strong {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
- font-size:clamp(13px,3.7vw,17px);color:#fff0d3}
-.tc-supply-v4-feature-copy>span {font-size:10px;color:#ebca92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-supply-v4-feature-copy i {font-style:normal;color:#f4d286}
-.tc-supply-v4-feature-copy em {font-style:normal;color:#c5b0a3}
-.tc-supply-v4 .tc-supply-v4-feature-cta {flex:none;min-height:44px;min-width:48px;padding:0 5px;border-radius:3px;
- border:1px solid #bb865c;color:#ffdfa8;background:linear-gradient(#67332d,#3b242c);font-size:10px}
-.tc-supply-v4 .tc-supply-v4-tabs {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:none;min-height:38px}
-.tc-supply-v4 .tc-supply-v4-tabs button {min-height:38px;min-width:0;padding:0 3px;border:1px solid #67505a;
- border-radius:3px;color:#c9b9b6;background:linear-gradient(#292633,#161c29);font-size:clamp(10px,2.8vw,12px)}
-.tc-supply-v4 .tc-supply-v4-tabs button.active {color:#fff0db;background:linear-gradient(#8c4b36,#4c2b2e);
- border-color:#d49d6b;box-shadow:inset 0 -2px #e1a36e}
-.tc-supply-v4-catalog {display:flex;flex:1 1 auto;min-height:0;overflow:hidden}
-.tc-supply-v4-tiles {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);
- gap:5px;flex:1;min-width:0;min-height:0}
-.tc-supply-v4-card {min-width:0;min-height:0;overflow:hidden;border:1px solid #625263;
- border-radius:4px;background:radial-gradient(ellipse at center 35%,rgba(134,77,71,.14),transparent 75%),
- linear-gradient(#272330,#151b2a);box-shadow:inset 0 0 0 1px #34313b}
-.tc-supply-v4-card.is-selected {border-color:#e9ae6a;
- box-shadow:inset 0 0 0 1px #b4794f,0 0 9px #b862424d}
-.tc-supply-v4 .tc-supply-v4-product {display:flex;flex-direction:column;align-items:center;gap:1px;
- justify-content:space-between;width:100%;height:100%;min-height:0;min-width:0;padding:4px 2px 3px;
- text-align:center;border:0;border-radius:3px;background:transparent;color:#ede2d2;cursor:pointer}
-.tc-supply-v4 .tc-supply-v4-product:focus-visible,.tc-supply-v4 button:focus-visible {outline:2px solid #f1d39e;outline-offset:-2px}
-.tc-supply-v4-card-tag {align-self:flex-start;padding:1px 4px;color:#ffe0c5;background:#773f37;
- border:1px solid #a35b4a;border-radius:2px;font-size:9px;line-height:1.2}
-.tc-supply-v4-card-tag.weekly {color:#ecdfff;background:#573951;border-color:#83618e}
-.tc-supply-v4-card-art {display:grid;place-items:center;flex:1;min-height:15px;max-height:48px;
- font-size:clamp(20px,7vw,31px);color:#e2be86;filter:drop-shadow(0 2px 5px #b9764655)}
-.tc-supply-v4-card.is-silver .tc-supply-v4-card-art {color:#c8dfec}
-.tc-supply-v4-card.is-rare .tc-supply-v4-card-art {color:#a9b9fc}
-.tc-supply-v4-card.is-vitality .tc-supply-v4-card-art {color:#ed8b84}
-.tc-supply-v4-card.is-summon .tc-supply-v4-card-art {color:#ba99ff}
-.tc-supply-v4-card-name {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
- min-height:21px;max-width:100%;overflow:hidden;overflow-wrap:anywhere;
- font-size:clamp(9px,2.7vw,12px);line-height:1.13;font-weight:800;color:#f3e7d7}
-.tc-supply-v4-card-limit {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
- font-size:9px;color:#aea5ad}
-.tc-supply-v4-card-price {display:block;width:100%;padding:3px 2px 1px;
- border-top:1px solid #67555d;color:#f6d198;font-size:clamp(10px,2.9vw,13px);
- font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-.tc-supply-v4-card-price i {font-style:normal;font-size:12px}
-.tc-supply-v4-card.is-locked {filter:saturate(.55)}
-.tc-supply-v4-empty {align-self:center;width:100%;text-align:center;color:#c0b3a7;padding:12px 4px}
-.tc-supply-v4-detail {display:flex;flex:none;flex-direction:column;gap:5px;padding:7px 8px;
- min-height:95px;overflow:hidden;border:1px solid #94745a;border-radius:4px;
- background:linear-gradient(135deg,#292332,#171a25 66%,#241c22);
- box-shadow:inset 0 0 0 1px #4f4045}
-.tc-supply-v4-detail-top {display:flex;align-items:center;gap:7px;min-height:36px;min-width:0}
-.tc-supply-v4-detail-icon {display:grid;place-items:center;flex:none;width:35px;height:35px;
- color:#edc88b;background:#422b28;border:1px solid #8d6a4c;border-radius:3px;font-size:23px}
-.tc-supply-v4-detail-icon.is-silver {color:#d8e4ef;background:#273747}
-.tc-supply-v4-detail-icon.is-rare {color:#aeb8fa;background:#292644}
-.tc-supply-v4-detail-icon.is-vitality {color:#f68c84;background:#3d272d}
-.tc-supply-v4-detail-icon.is-summon {color:#cab5f5;background:#322640}
-.tc-supply-v4-detail-copy {display:flex;flex-direction:column;flex:1;min-width:0;gap:2px}
-.tc-supply-v4-detail-copy small {color:#b7a7b0;font-size:8px!important}
-.tc-supply-v4-detail-copy strong {font-size:clamp(11px,3.4vw,14px);line-height:1.1;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ffe4b8}
-.tc-supply-v4-detail-copy>span {font-size:9px;color:#c5b1ae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-supply-v4-detail-cost {display:flex;flex:none;flex-direction:column;align-items:end;gap:2px;white-space:nowrap}
-.tc-supply-v4-detail-cost small {font-size:8px!important;color:#bdaaa7}
-.tc-supply-v4-detail-cost b {font-size:clamp(11px,3.3vw,15px);color:#ffdf9f;font-variant-numeric:tabular-nums}
-.tc-supply-v4-detail-cost i {font-style:normal}
-.tc-supply-v4-detail-action {display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:44px;border-top:1px solid #665057;padding-top:5px}
-.tc-supply-v4-detail-hint {flex:1;min-width:0;color:#c9b9af;font-size:9px;line-height:1.25;
- display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.tc-supply-v4 .tc-supply-v4-purchase {display:flex;align-items:center;justify-content:center;gap:6px;
- flex:none;min-width:40%;min-height:44px;padding:0 10px;border:1px solid #e3a774;border-radius:4px;
- color:#fff0dc;background:linear-gradient(180deg,#984b37,#682e30);box-shadow:inset 0 1px #d08c68;font-size:12px;font-weight:800}
-.tc-supply-v4 .tc-supply-v4-purchase:disabled {background:#37333b;border-color:#665b5f;color:#b2a7a7;opacity:.8}
-.tc-supply-v4 .tc-supply-v4-purchase .tc-glyph {font-size:16px}
+.tc-supply-v5 * {box-sizing:border-box}
+.tc-supply-v5 button {font:inherit;cursor:pointer}
+.tc-supply-v5 button:focus-visible {outline:2px solid #f9d6a1;outline-offset:-2px}
+.tc-supply-v5 .tc-supply-v5-top {
+ display:flex;align-items:center;gap:7px;flex:0 0 46px;min-height:46px;
+ padding:2px 2px 6px;border-bottom:1px solid #715548;
+}
+.tc-supply-v5 .tc-supply-v5-back,
+.tc-supply-v5 .tc-supply-v5-refresh {
+ display:grid;place-items:center;flex:0 0 39px;min-height:42px;width:39px;padding:0;
+ color:#ffe0ae!important;border:1px solid #816b59!important;border-radius:4px;
+ background:linear-gradient(180deg,#403139,#181b28)!important;
+ box-shadow:inset 0 1px #a17b644a;
+}
+.tc-supply-v5-back{font-size:31px!important;line-height:1}
+.tc-supply-v5-refresh{font-size:23px!important}
+.tc-supply-v5-title {display:flex;flex:1;flex-direction:column;gap:1px;min-width:0}
+.tc-supply-v5-title>small{color:#c3987b!important;font-size:8px!important;letter-spacing:.12em}
+.tc-supply-v5-title h2{margin:0;font:800 clamp(16px,4.6vw,22px)/1.13 Georgia,'Noto Serif KR',serif;
+ letter-spacing:-.035em;color:#fff0d8;text-shadow:0 1px #000}
+.tc-supply-v5-wallet {display:flex;flex:none;flex-direction:column;align-items:end;gap:2px;white-space:nowrap}
+.tc-supply-v5-wallet>small {color:#c8aea4!important;font-size:8px!important}
+.tc-supply-v5-wallet>b {font-size:clamp(10px,3.2vw,14px);font-variant-numeric:tabular-nums;color:#f7d69b}
+.tc-supply-v5-wallet i,.tc-supply-v5-total i {margin-right:4px;font-style:normal;color:#eab26c}
+
+.tc-supply-v5 .tc-supply-v5-feature {
+ position:relative;isolation:isolate;display:flex;align-items:center;
+ flex:0 0 108px;min-height:92px;max-height:108px;overflow:hidden;text-align:left;
+ width:100%;padding:9px 11px;
+ border:1px solid #ad7857!important;border-radius:5px;
+ background:linear-gradient(90deg,#1f1a26 0%,#40222cdd 56%,#191a2ab3 100%),
+ url('/assets/backgrounds/association/guild-courtyard-v3.webp') center 42%/cover!important;
+ box-shadow:inset 0 0 0 1px #eab27b33,0 3px 8px #0008;
+ color:#fff0dc!important;
+}
+.tc-supply-v5-feature:before {content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(ellipse at 87% 63%,#a9535259 0,transparent 44%),
+ linear-gradient(0deg,#2c14294a,transparent);}
+.tc-supply-v5-feature-copy {position:relative;z-index:2;display:flex;flex-direction:column;gap:4px;
+ max-width:70%;min-width:0}
+.tc-supply-v5-feature-copy>small{color:#f5c68f!important;font-size:10px!important;font-weight:800}
+.tc-supply-v5-feature-copy>strong{font:800 clamp(16px,4.7vw,24px)/1.18 Georgia,'Noto Serif KR',serif;
+ color:#fff1dd;text-shadow:0 2px 2px #160b10;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-supply-v5-feature-copy>span{color:#d7c1b2;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-supply-v5-feature-copy>.tc-supply-v5-feature-price{color:#f6d49f;font-size:12px;font-weight:900}
+.tc-supply-v5-feature-price i {font-style:normal;margin-right:5px}
+.tc-supply-v5-feature-price em{font-style:normal;font-size:10px;color:#e1baab;font-weight:400}
+.tc-supply-v5-feature-art {position:absolute;right:16px;top:2px;bottom:0;width:36%;z-index:1;
+ display:grid;place-items:center;filter:drop-shadow(0 3px 9px #000)}
+.tc-supply-v5-feature-art .tc-shop-art{width:100%;height:100%;max-height:105px}
+.tc-supply-v5-feature-chevron {position:absolute;right:4px;bottom:2px;font-size:20px;color:#edc6a0}
+
+.tc-supply-v5-filterbar {display:flex;align-items:stretch;flex:0 0 42px;min-height:42px;gap:6px}
+.tc-supply-v5-tabs {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex:1;min-width:0;gap:4px}
+.tc-supply-v5 .tc-supply-v5-tabs button {min-width:0;min-height:42px;padding:0 3px;
+ border:1px solid #6d5960!important;border-radius:4px;
+ background:linear-gradient(#312b39,#151c29)!important;
+ color:#d3c6c2!important;font-size:clamp(11px,2.9vw,13px);font-weight:700}
+.tc-supply-v5 .tc-supply-v5-tabs button.active {
+ color:#ffe2bd!important;border-color:#e1aa73!important;
+ background:linear-gradient(#85493c,#442b32)!important;
+ box-shadow:inset 0 -3px #e6b177,0 0 10px #c964403a;
+}
+.tc-supply-v5-pager {display:flex;align-items:center;gap:2px;font-size:10px;white-space:nowrap}
+.tc-supply-v5 .tc-supply-v5-pager button {min-width:22px;min-height:42px;padding:0 2px;
+ background:#241e2b!important;color:#ffe0af!important;border:1px solid #69535a!important}
+
+.tc-supply-v5-catalog {flex:1 1 auto;display:flex;min-height:0;overflow:hidden}
+.tc-supply-v5-tiles {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ grid-template-rows:repeat(2,minmax(0,1fr));flex:1;min-width:0;min-height:0;gap:6px}
+.tc-supply-v5-card {display:flex;min-height:0;min-width:0;overflow:hidden;border:1px solid #7f6266;
+ border-radius:5px;background:radial-gradient(ellipse at 50% 40%,#50313866,transparent 68%),
+ linear-gradient(160deg,#2b2635,#151c2b 82%);box-shadow:inset 0 0 0 1px #4b3e4a}
+.tc-supply-v5-card.is-selected {border-color:#f6c079;
+ box-shadow:inset 0 0 0 1px #bf865c,0 0 10px #dd8b5063}
+.tc-supply-v5-card.is-silver {background:radial-gradient(ellipse at 50% 40%,#50647952,transparent 70%),linear-gradient(#292d38,#141d2d)}
+.tc-supply-v5-card.is-rare {background:radial-gradient(ellipse at 50% 40%,#6e3b8d52,transparent 70%),linear-gradient(#292538,#14152d)}
+.tc-supply-v5-card.is-vitality {background:radial-gradient(ellipse at 50% 40%,#78363a52,transparent 70%),linear-gradient(#2b2435,#161924)}
+.tc-supply-v5-card.is-summon {background:radial-gradient(ellipse at 50% 40%,#663a7952,transparent 70%),linear-gradient(#2b2435,#161924)}
+.tc-supply-v5-card.is-locked{filter:saturate(.57)}
+.tc-supply-v5 .tc-supply-v5-product {
+ display:grid;grid-template-rows:17px minmax(0,1fr) minmax(25px,auto) 15px 25px;
+ align-items:stretch;justify-items:center;min-height:0;width:100%;height:100%;
+ min-width:0;padding:5px 3px 0!important;gap:1px;border:0!important;
+ background:transparent!important;color:#f5e5d0!important;text-align:center;
+}
+.tc-supply-v5-tag {justify-self:start;padding:2px 4px;border-radius:2px;
+ border:1px solid #bd6f59;background:#7e3d37;color:#ffdebe;
+ font-size:9px;font-weight:700;line-height:1;white-space:nowrap}
+.tc-supply-v5-tag.weekly {background:#624059;border-color:#a17895;color:#f1d1f1}
+.tc-supply-v5-art {display:grid;place-items:center;width:100%;min-height:0;overflow:hidden}
+.tc-shop-art {display:grid;place-items:center;width:100%;height:100%;min-height:0;
+ max-width:96px;filter:drop-shadow(0 2px 4px #000a)}
+.tc-shop-art svg {display:block;width:100%;height:100%;max-height:104px}
+.tc-shop-art img {display:block;max-width:82%;max-height:88%;object-fit:contain;image-rendering:pixelated;
+ filter:drop-shadow(0 1px 5px #ed888755)}
+.tc-shop-art.is-large {max-width:none}
+.tc-supply-v5-card-name {display:-webkit-box;align-self:center;width:100%;overflow:hidden;
+ -webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere;
+ font:800 clamp(10px,2.9vw,13px)/1.13 Georgia,'Noto Serif KR',serif;min-height:23px;
+ color:#f6e9dd;text-shadow:0 1px #000}
+.tc-supply-v5-card-limit {align-self:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font-size:9px;color:#cdbdb6}
+.tc-supply-v5-card-price {display:flex;align-self:stretch;align-items:center;justify-content:center;
+ width:calc(100% + 6px);margin:0 -3px;padding:0 2px;
+ border-top:1px solid #715d61;background:#191b28c4;color:#f7d99d;
+ font-size:clamp(11px,3vw,14px);font-weight:800;font-variant-numeric:tabular-nums}
+.tc-supply-v5-card-price i {font-style:normal;margin-right:5px;color:#eeb881}
+.tc-supply-v5-empty {color:#cabdb0;text-align:center;padding:20px;width:100%}
+
+.tc-supply-v5-detail {display:grid;grid-template-columns:101px minmax(0,1fr);gap:7px;
+ flex:0 0 146px;min-height:128px;overflow:hidden;padding:8px;
+ border:1px solid #9e7559;border-radius:5px;
+ background:linear-gradient(135deg,#382a36,#191923 68%,#211e2a);
+ box-shadow:inset 0 0 0 1px #624351,0 2px 7px #0008}
+.tc-supply-v5-detail-art {display:grid;place-items:center;overflow:hidden;
+ border:1px solid #7e564b;background:radial-gradient(ellipse at center,#78503b66,transparent 70%),#251d2a;
+ border-radius:4px}
+.tc-supply-v5-detail-art .tc-shop-art{width:100%;max-height:120px}
+.tc-supply-v5-detail-body {display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-width:0}
+.tc-supply-v5-detail-heading {display:flex;gap:4px;align-items:start;justify-content:space-between;min-width:0}
+.tc-supply-v5-detail-heading>div{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.tc-supply-v5-detail-heading small {font-size:9px!important;color:#bdaaac!important}
+.tc-supply-v5-detail-heading h3 {margin:0;color:#ffead0;
+ font:800 clamp(12px,3.6vw,16px)/1.2 Georgia,'Noto Serif KR',serif;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-supply-v5-detail-heading>span{padding:3px 4px;border:1px solid #81565e;color:#e1b9ac;
+ border-radius:3px;background:#492f36;font-size:9px;white-space:nowrap}
+.tc-supply-v5-detail-meta{display:flex;flex-wrap:wrap;gap:3px 7px;color:#bdadae;font-size:9px}
+.tc-supply-v5-detail-purchase {display:flex;gap:6px;align-items:end;min-width:0}
+.tc-supply-v5-total {display:flex;flex-direction:column;flex:1;min-width:0;gap:3px}
+.tc-supply-v5-total small {font-size:9px!important;color:#cdb6a6!important}
+.tc-supply-v5-total b {color:#ffe0a8;font-size:clamp(13px,3.5vw,16px);font-variant-numeric:tabular-nums}
+.tc-supply-v5 .tc-supply-v5-purchase {display:flex;align-items:center;justify-content:center;gap:5px;
+ flex:0 0 auto;min-width:47%;max-width:60%;min-height:44px;padding:4px 7px!important;
+ color:#ffedcb!important;background:linear-gradient(180deg,#a45b44,#71313a)!important;
+ border:1px solid #f0ab75!important;border-radius:4px;
+ font-size:clamp(11px,3vw,13px);font-weight:900;line-height:1.2;
+ box-shadow:inset 0 1px #eeac76}
+.tc-supply-v5 .tc-supply-v5-purchase:disabled {background:#33303a!important;border-color:#665662!important;
+ color:#c5b1b1!important;opacity:.8}
+.tc-supply-v5-purchase .tc-glyph {font-size:18px;flex:none}
+.tc-supply-v5-feedback {flex:none;color:#e2c6b0;font-size:10px!important;line-height:1.1;min-height:0!important}
+
+.tc-supply-v5-dock {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+ flex:0 0 49px;min-height:49px;padding-top:5px;border-top:1px solid #9e7055}
+.tc-supply-v5 .tc-supply-v5-dock button {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+ min-width:0;min-height:43px;padding:2px!important;border:1px solid #604b54!important;
+ border-radius:3px;background:linear-gradient(#242331,#151925)!important;
+ color:#d2c4bd!important;font-size:9px;line-height:1.1}
+.tc-supply-v5-dock .tc-glyph{font-size:18px}
+.tc-supply-v5 .tc-supply-v5-dock button[aria-current=page]{border-color:#d6a36a!important;
+ background:linear-gradient(#653b3b,#3c2833)!important;color:#ffe0b6!important;box-shadow:inset 0 2px #ba7e5c}
+
 @media(max-width:360px){
- .tc-guild-workspace .tc-supply-v4 {gap:4px;padding:4px}
- .tc-supply-v4-tiles {gap:3px}
- .tc-supply-v4-detail {padding:6px}
- .tc-supply-v4-feature {gap:5px;padding:4px 5px}
- .tc-supply-v4-feature-emblem {width:38px;height:42px;font-size:25px}
- .tc-supply-v4-card-name {font-size:9px}
- .tc-supply-v4-detail-icon {display:none}
+ .tc-guild-workspace .tc-supply-v5 {padding:5px;gap:5px}
+ .tc-supply-v5-tiles {gap:4px}
+ .tc-supply-v5 .tc-supply-v5-feature {padding:6px 8px}
+ .tc-supply-v5-detail {grid-template-columns:78px minmax(0,1fr);padding:5px}
+ .tc-supply-v5-tag {font-size:8px}
+ .tc-supply-v5 .tc-supply-v5-product {padding:4px 2px 0!important}
+ .tc-supply-v5-card-name {font-size:10px}
 }
-@media(max-height:740px){
- .tc-supply-v4-feature {min-height:48px;max-height:50px}
- .tc-supply-v4-feature-emblem {width:36px;height:38px;font-size:24px}
- .tc-supply-v4-detail {min-height:83px;gap:3px;padding:4px 6px}
- .tc-supply-v4-detail-action {padding-top:3px}
- .tc-supply-v4-tiles {gap:4px}
- .tc-supply-v4-card-art {max-height:35px}
+@media(max-height:750px){
+ .tc-guild-workspace .tc-supply-v5 {gap:4px;padding:4px}
+ .tc-supply-v5 .tc-supply-v5-top{flex-basis:40px;min-height:40px}
+ .tc-supply-v5 .tc-supply-v5-feature{flex-basis:79px;min-height:79px;max-height:79px}
+ .tc-supply-v5 .tc-supply-v5-filterbar{flex-basis:37px;min-height:37px}
+ .tc-supply-v5 .tc-supply-v5-tabs button{min-height:37px}
+ .tc-supply-v5 .tc-supply-v5-dock{flex-basis:45px;min-height:45px}
+ .tc-supply-v5-detail{flex-basis:119px;min-height:119px;padding:6px}
+ .tc-supply-v5-tiles{gap:4px}
+ .tc-supply-v5 .tc-supply-v5-product{grid-template-rows:15px minmax(0,1fr) minmax(22px,auto) 13px 23px;padding:3px 2px 0!important}
+ .tc-supply-v5-card-price{min-height:23px}
+ .tc-supply-v5-feature-copy>span:not(.tc-supply-v5-feature-price){display:none}
 }
 @media(max-height:590px){
- .tc-supply-v4-feature {display:none}
- .tc-supply-v4 .tc-supply-v4-head {min-height:32px}
- .tc-supply-v4 .tc-supply-v4-tabs {min-height:36px}
- .tc-supply-v4 .tc-supply-v4-tabs button {min-height:36px}
- .tc-supply-v4-detail {min-height:76px}
- .tc-supply-v4-card-art {max-height:24px;font-size:21px}
- .tc-supply-v4-card-tag {font-size:8px}
- .tc-supply-v4-card-limit {font-size:8px}
+ .tc-supply-v5 .tc-supply-v5-feature{flex-basis:64px;min-height:64px;max-height:64px}
+ .tc-supply-v5-feature-art{width:25%}
+ .tc-supply-v5-detail{grid-template-columns:60px minmax(0,1fr);flex-basis:96px;min-height:96px}
+ .tc-supply-v5-detail-heading>div{gap:1px}
+ .tc-supply-v5-detail-meta{display:none}
+ .tc-supply-v5-card-limit{display:none}
+ .tc-supply-v5 .tc-supply-v5-product{grid-template-rows:14px minmax(0,1fr) 22px 0 22px}
+ .tc-supply-v5-title>small{display:none}
 }
-@media(prefers-reduced-motion:reduce){.tc-supply-v4 *{transition:none!important;animation:none!important}}
+@media(prefers-reduced-motion:reduce){.tc-supply-v5 *{transition:none!important;animation:none!important}}
