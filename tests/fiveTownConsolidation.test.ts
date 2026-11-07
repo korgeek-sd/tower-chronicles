@@ -15,7 +15,7 @@ test('only the five approved locations can be visited or declared for war',()=>{
  for(const id of kept)assert.equal(validWarDeclarationRequest({id:uuid,townId:id}),true);
 });
 test('server migration retires removed towns without deleting historical records',()=>{
- const sql=readFileSync(new URL('../supabase/migrations/20261107050000_retire_six_towns_preserve_history.sql',import.meta.url),'utf8');
+ const sql=readFileSync(new URL('../supabase/migrations/20261107013719_retire_six_towns_preserve_history.sql',import.meta.url),'utf8');
  assert.match(sql,/ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true/);
  assert.match(sql,/UPDATE private\.village_life_towns/);
  assert.match(sql,/WHERE is_active/);
