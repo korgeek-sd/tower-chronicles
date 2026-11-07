@@ -71,7 +71,7 @@ jobs:
           echo "Published file count: $(find dist -type f | wc -l)"
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
