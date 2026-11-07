@@ -19,7 +19,7 @@ test('server migration retires removed towns without deleting historical records
  assert.match(sql,/ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true/);
  assert.match(sql,/UPDATE private\.village_life_towns/);
  assert.match(sql,/WHERE is_active/);
- assert.match(sql,/AND is_active/);
+ assert.match(sql,/and is_active/i);
  assert.match(sql,/t\.is_active/);
  assert.doesNotMatch(sql,/DELETE\s+FROM\s+private\.village_war_events|DELETE\s+FROM\s+private\.village_life_receipts/i);
 });
