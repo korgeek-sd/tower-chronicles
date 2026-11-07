@@ -209,3 +209,27 @@
  .tc-supply-v5-title>small{display:none}
 }
 @media(prefers-reduced-motion:reduce){.tc-supply-v5 *{transition:none!important;animation:none!important}}
+
+
+/* Artwork is the primary element: tags float above it rather than occupying full grid rows. */
+.tc-supply-v5 .tc-supply-v5-product {
+ position:relative;
+ grid-template-rows:minmax(0,1fr) minmax(27px,auto) 25px;
+ gap:2px;padding:4px 3px 0!important;
+}
+.tc-supply-v5-tag {position:absolute;z-index:2;top:4px;left:4px}
+.tc-supply-v5-card-limit {
+ position:absolute;z-index:2;top:4px;right:4px;max-width:49%;padding:2px 3px;
+ border-radius:2px;background:#0d121cca;color:#d5c6bc;font-size:8px;line-height:1.1;
+}
+.tc-supply-v5-art {min-height:0;padding-top:11px}
+.tc-supply-v5-card-price {min-height:25px}
+@media(max-height:750px){
+ .tc-supply-v5 .tc-supply-v5-product {grid-template-rows:minmax(0,1fr) 24px 23px;padding:3px 2px 0!important}
+ .tc-supply-v5-card-price {min-height:23px}
+}
+@media(max-height:590px){
+ .tc-supply-v5 .tc-supply-v5-product {grid-template-rows:minmax(0,1fr) 21px 20px}
+ .tc-supply-v5-art {padding-top:10px}
+ .tc-supply-v5-card-limit {display:none}
+}
