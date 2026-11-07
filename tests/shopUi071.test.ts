@@ -85,16 +85,16 @@ test('FREE ATTENDANCE: Supabase RPC uses the active lease, server-calculated rew
  assert.match(client,/getDeviceId/);
  assert.match(migration,/private\.require_active_game_session/);
  assert.match(migration,new RegExp("time zone 'Asia/Seoul'","i"));
- assert.match(migration,/primary key \\(user_id, cycle_number, day_number\\)/);
- assert.match(migration,/unique \\(user_id, claimed_on\\)/);
+ assert.match(migration,/primary key \(user_id, cycle_number, day_number\)/);
+ assert.match(migration,/unique \(user_id, claimed_on\)/);
  assert.match(migration,/v_day % 5 = 0 then 5 else 0/);
  assert.match(migration,/private\.appearance_ticket_wallets/);
- assert.match(migration,/private\.persist_market_economy_to_save\\(v_user\\)/);
+ assert.match(migration,/private\.persist_market_economy_to_save\(v_user\)/);
  assert.match(migration,/revoke all on function public\.claim_free_attendance/);
  assert.match(migration,/grant execute on function public\.claim_free_attendance/);
  assert.doesNotMatch(migration,/p_reward|p_silver|p_ticket_quantity/);
- assert.match(screen,/setAttendance\\(result\.status\\)/);
- assert.match(entryOrEmpty(),/onRecord=\\{record=>\\{/);
+ assert.match(screen,/setAttendance\(result\.status\)/);
+ assert.match(entryOrEmpty(),/onRecord=\{record=>\{/);
  function entryOrEmpty(){
    return readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
  }
