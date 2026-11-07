@@ -245,3 +245,61 @@
 }
 
 .tc-supply-v5 .tc-shop-art-pixel img{image-rendering:pixelated!important;}
+
+/* Card, feature banner and detail artwork bounds (no clipping, no page scroll). */
+/* Redistribute only a few vertical pixels to give both catalogue rows more art space. */
+.tc-guild-workspace .tc-supply-v5 {gap:6px}
+.tc-supply-v5 .tc-supply-v5-feature {flex-basis:101px;min-height:91px;max-height:101px}
+.tc-supply-v5 .tc-supply-v5-detail {flex-basis:137px;min-height:125px}
+
+/* Instead of letting a 100%-high image dictate the intrinsic grid size,
+   fit the entire sprite within the actual free region ABOVE the product name. */
+.tc-supply-v5 .tc-supply-v5-product {
+ grid-template-rows:minmax(0,1fr) minmax(26px,auto) 25px;
+ gap:2px;
+}
+.tc-supply-v5 .tc-supply-v5-art {
+ position:relative;display:block;min-width:0;min-height:0;
+ width:100%;padding:0!important;overflow:hidden;
+}
+.tc-supply-v5 .tc-supply-v5-art > .tc-shop-art {
+ position:absolute;inset:clamp(18px,2.6vh,23px) 7px 6px;
+ min-width:0;min-height:0;width:auto;height:auto;max-width:none;
+}
+.tc-supply-v5 .tc-supply-v5-art > .tc-shop-art img {
+ display:block;width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain;object-position:center center;
+}
+.tc-supply-v5 .tc-supply-v5-art > .tc-shop-art.tc-shop-art-pixel img {
+ image-rendering:pixelated!important;
+}
+
+/* The larger banner and the smaller detail thumbnail get their own image boxes. */
+.tc-supply-v5 .tc-supply-v5-feature-art {
+ top:7px;bottom:7px;right:17px;width:34%;min-width:0;
+}
+.tc-supply-v5 .tc-supply-v5-feature-art > .tc-shop-art {
+ display:grid;place-items:center;width:100%;height:100%;max-height:none;
+}
+.tc-supply-v5 .tc-supply-v5-feature-art > .tc-shop-art img {
+ display:block;width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain;object-position:center;
+}
+.tc-supply-v5 .tc-supply-v5-detail-art {min-width:0;min-height:0;padding:5px}
+.tc-supply-v5 .tc-supply-v5-detail-art > .tc-shop-art {
+ width:100%;height:100%;max-height:none;
+}
+.tc-supply-v5 .tc-supply-v5-detail-art > .tc-shop-art img {
+ display:block;width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain;object-position:center;
+}
+@media(max-height:750px){
+ .tc-supply-v5 .tc-supply-v5-feature {flex-basis:75px;min-height:75px;max-height:75px}
+ .tc-supply-v5 .tc-supply-v5-detail {flex-basis:112px;min-height:112px}
+ .tc-supply-v5 .tc-supply-v5-art > .tc-shop-art {inset:19px 5px 4px}
+}
+@media(max-height:590px){
+ .tc-supply-v5 .tc-supply-v5-feature {flex-basis:61px;min-height:61px;max-height:61px}
+ .tc-supply-v5 .tc-supply-v5-detail {flex-basis:91px;min-height:91px}
+ .tc-supply-v5 .tc-supply-v5-art > .tc-shop-art {inset:16px 4px 2px}
+}
