@@ -130,4 +130,4 @@ do $$begin
  if has_table_privilege('authenticated','private.online_association_member_progression','update') then raise exception 'Direct point mutation allowed';end if;
 end $$;
 rollback;
-select 'PASS: atomic donations, all six active products, idempotency, ticket draws, limits, KST reset, guild hopping, membership and permissions; synthetic fixtures rolled back' result;
+select 'PASS: atomic donations, all six active products, idempotency, appearance tickets, vitality rewards, limits, KST reset, guild hopping, membership and permissions; synthetic fixtures rolled back' result;

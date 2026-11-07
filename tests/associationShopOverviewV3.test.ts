@@ -44,7 +44,7 @@ test('shop category filters only rearrange existing server offerings',()=>{
 test('shop cards respect real unlocked levels, available contribution and purchase limits',()=>{
  const html=render('ALL');
  assert.match(html,/Lv\.3 해금/);assert.match(html,/Lv\.5 해금/);
- assert.match(html,/100/);assert.match(html,/1,000/);
+ assert.match(html,/500/);assert.match(html,/1,000/);
  assert.equal((html.match(/aria-label="[^"]+ 구매"/g)||[]).length,6);
  const exhausted:OnlineAssociationShopState={...shop,daily:shop.daily.map(item=>item.itemId==='vitality_potion_daily'?{...item,purchased:item.purchaseLimit}:item)};
  assert.match(render('DAILY',exhausted),/구매 완료/);
