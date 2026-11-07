@@ -43,3 +43,8 @@ test('only equipment enhancement tags disappear; appearance and seal advancement
  assert.match(inventory,/자동 장착/);
  assert.match(inventory,/tc-storage-grade/);
 });
+
+test('equipment market filter layout has only kind and grade columns',()=>{
+ const styles=read('src/mobile-game.css');
+ assert.match(styles,/tc-equipment-market-filters\{display:grid;grid-template-columns:minmax\(0,1\.45fr\) minmax\(0,1fr\)/);
+});
