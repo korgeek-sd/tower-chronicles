@@ -63,6 +63,7 @@ begin
   update private.player_wallets set silver=silver+case when item.reward_type='SILVER' then item.reward_quantity else 0 end,
   gold=gold+case when item.reward_type='GOLD' then item.reward_quantity else 0 end,updated_at=now() where user_id=u;
  elsif item.reward_type='VITALITY_POTION' then
+  insert into private.village_life_players(user_id) values(u) on conflict(user_id) do nothing;
   perform private.grant_vitality_potions(u,item.reward_quantity);
  elsif item.reward_type='APPEARANCE_TICKET' then
   insert into private.appearance_ticket_wallets(user_id,quantity) values(u,item.reward_quantity)

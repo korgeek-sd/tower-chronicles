@@ -15,7 +15,7 @@ const SHOP_FILTERS:readonly (readonly [ShopFilter,string])[]=[['ALL','전체'],[
 const isCurrencyProduct=(item:OnlineAssociationShopItem)=>item.itemId==='silver_box_daily'||item.itemId==='gold_box_weekly';
 const shopProductIcon=(id:string)=>id.startsWith('enhancement_stone')?'materials':id.startsWith('greater_potion')?'potions':id.startsWith('job_draw_ticket')?'tickets':id==='rare_equipment_weekly'?'inventory':'market';
 
-/** Visible catalogue reflects the nine server-managed products, not a locally seeded inventory. */
+/** Visible catalogue reflects the current server-managed products, not a locally seeded inventory. */
 export function AssociationShopCatalog({shop,filter,busy,expedition,onBuy}:{shop:OnlineAssociationShopState;filter:ShopFilter;busy:boolean;expedition:boolean;onBuy:(id:string)=>void}){
  const sections=[
   {id:'DAILY' as const,label:'일일 보급',reset:'매일 00:00 초기화 · 한국 시간',items:shop.daily},
