@@ -21,7 +21,8 @@ test('classic guild HQ has five major tabs and preserves all eleven server route
 test('gatehouse art and layout are limited to the headquarters overview',()=>{
  assert.match(online,/tab==='overview'[^\n]+tc-gatehouse/);
  const styles=readFileSync('src/components/association/gatehouse.css','utf8');
- assert.match(online,/assets\/backgrounds\/hub\/novar-moonlit-v3\.webp/);
+ assert.match(online,/assets\/backgrounds\/association\/guild-courtyard-v3\.webp/);
+ assert.doesNotMatch(online,/assets\/backgrounds\/hub\/novar-moonlit-v3\.webp/);
  assert.match(styles,/tc-courtyard-places/);
  assert.equal((online.match(/className="tc-hq-feature"/g)||[]).length,6);
  assert.match(online,/tc-courtyard-dispatch/);

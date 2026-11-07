@@ -2,6 +2,7 @@ import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
 import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
+import {isActiveTownId} from '../components/world/worldMap';
 
 export interface VillageWarDeclaration{
  townId:string;
@@ -72,7 +73,7 @@ export function validWarDeclarationRequest(value:unknown):value is {id:string;to
  if(!value||typeof value!=='object')return false;
  const v=value as {id:string;townId:string};
  return typeof v.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.id)&&
- typeof v.townId==='string'&&/^(city|herb-[1-2]|farm-[1-2])$/.test(v.townId);
+ isActiveTownId(v.townId);
 }
 
 export interface VillageWarFront{frontId:number;defenderUserId:string|null;defenderName:string|null;associationId:string|null;associationName:string|null;defenderEpoch:number;revision:number;hp:number|null;maxHp:number|null;mp:number|null;maxMp:number|null;occupiedAt:string|null}

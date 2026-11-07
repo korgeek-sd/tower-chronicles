@@ -3,7 +3,7 @@ import {getFreshSession} from './auth';
 import {getDeviceId} from './cloudSave';
 import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
-import type {WorldTown} from '../components/world/worldMap';
+import {isActiveTownId,type WorldTown} from '../components/world/worldMap';
 export type LifeResource='herb'|'farm';
 export type LifeMaterial='herb'|'pepper'|'potato'|'wheat'|'stone';
 export interface LifeTown extends WorldTown{herbCapacity:number;farmCapacity:number;herbRemaining:number;farmRemaining:number}
@@ -28,4 +28,4 @@ export const villageLifeAction=(lease:GameplayLease,r:LifeActionRequest)=>rpc<Li
 export const LIFE_MATERIAL_NAMES:Record<LifeMaterial,string>={herb:'약초',pepper:'고추',potato:'감자',wheat:'밀',stone:'분해석'};
 export function lifeVitalityAt(s:VillageLifeState,now:number){const value=Math.max(0,Math.floor(s.vitality));if(value>=100||!Number.isFinite(s.recoveredAt))return value;return Math.min(100,value+Math.floor(Math.max(0,now-(s.recoveredAt??now))/300000));}
 export function lifeBatchLimit(s:VillageLifeState,resource:LifeResource){const t=s.towns.find(t=>t.id===s.location);if(!t||t.kind!==resource&&t.kind!=='city')return 0;return Math.max(0,Math.min(100,s.vitality,Math.floor((resource==='herb'?t.herbRemaining:t.farmRemaining)/10)));}
-export function validGatherRequest(value:unknown):value is GatherRequest{if(!value||typeof value!=='object')return false;const r=value as GatherRequest;return typeof r.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.id)&&typeof r.town==='string'&&/^(city|herb-[1-5]|farm-[1-5])$/.test(r.town)&&(r.resource==='herb'||r.resource==='farm')&&Number.isInteger(r.count)&&r.count>=1&&r.count<=100;}
+export function validGatherRequest(value:unknown):value is GatherRequest{if(!value||typeof value!=='object')return false;const r=value as GatherRequest;return typeof r.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.id)&&isActiveTownId(r.town)&&(r.resource==='herb'||r.resource==='farm')&&Number.isInteger(r.count)&&r.count>=1&&r.count<=100;}

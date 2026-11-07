@@ -21,6 +21,7 @@ import {loadAssociationProgression,type AssociationProgression} from '../../onli
 import {associationLevelProgress} from '../../game/association/growthRules';
 import {TOWERS} from '../../game/data/config';
 import {getGuildTerritoryState,type GuildTerritoryState} from '../../online/guildTerritory';
+import {ACTIVE_TOWN_ID_SET} from '../world/worldMap';
 import './hq.css';
 import './hq-v2.css';
 import './hq-v3.css';
@@ -101,7 +102,10 @@ function OnlineAssociationScreen({
   if(!state?.current||tab!=='overview'){return;}
   setTerritorySummary(null);
   void getGuildTerritoryState(lease).then(next=>{
-   if(!disposed)setTerritorySummary({ownedCount:next.ownedCount,totalCount:next.totalCount});
+   if(!disposed){
+    const active=next.towns.filter(t=>ACTIVE_TOWN_ID_SET.has(t.townId));
+    setTerritorySummary({ownedCount:active.filter(t=>t.owned).length,totalCount:active.length});
+   }
   }).catch(()=>{if(!disposed)setTerritorySummary(null);});
   return()=>{disposed=true;};
  },[state?.current?.associationId,tab,lease.leaseId,lease.generation]);

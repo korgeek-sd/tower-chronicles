@@ -2,6 +2,7 @@ import {GuildTask,GuildRecord} from './GuildTask';
 import {GameScrollSelect} from '../../ui/GameScrollSelect';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
+import {ACTIVE_TOWN_IDS,ACTIVE_TOWN_ID_SET} from '../world/worldMap';
 import {GUILD_MATERIAL_IDS,GUILD_MATERIAL_NAMES,setGuildVillageTax} from '../../online/guildMaterials';
 import {getGuildTerritoryState,type GuildTerritoryTown,type GuildTerritoryState} from '../../online/guildTerritory';
 import './guildTerritory.css';
@@ -26,8 +27,9 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
    const next=await getGuildTerritoryState(lease);
    if(!active.current)return;
    offset.current=next.serverNow-Date.now();
+   const activeTowns=next.towns.filter(t=>ACTIVE_TOWN_ID_SET.has(t.townId));
    setState(next);setNow(next.serverNow);setError('');
-   setSelected(previous=>previous&&next.towns.some(t=>t.townId===previous)?previous:next.towns.find(t=>t.owned)?.townId??next.towns[0]?.townId??null);
+   setSelected(previous=>previous&&activeTowns.some(t=>t.townId===previous)?previous:activeTowns.find(t=>t.owned)?.townId??activeTowns[0]?.townId??null);
   }catch(e){if(active.current)setError(e instanceof Error?e.message:'영지 현황을 불러오지 못했습니다.');}
  };
  useEffect(()=>{
@@ -38,7 +40,8 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
   window.addEventListener('focus',focus);
   return()=>{active.current=false;window.clearInterval(tick);window.removeEventListener('focus',focus);};
  },[lease.leaseId,lease.generation,associationId]);
- const town=state?.towns.find(t=>t.townId===selected);
+ const activeTowns=state?.towns.filter(t=>ACTIVE_TOWN_ID_SET.has(t.townId))??[];
+ const town=activeTowns.find(t=>t.townId===selected);
  const chosen=town?.townId??'';
  const changeSelection=(id:string)=>{setSelected(id);setRate(null);setNotice('');setError('');};
  const applyTax=async()=>{
@@ -54,9 +57,9 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
   }catch(e){if(active.current)setError(e instanceof Error?e.message:'마을 세율 변경 실패');}
   finally{locked.current=false;if(active.current)setBusy(false);}
  };
- if(!state)return <section className="tc-territory" aria-label="영지 관리"><div className="tc-territory-head"><h2>영지 관리</h2><span>11개 마을</span></div><p role="status">{error||'영지 운영 기록을 불러오는 중입니다.'}</p><button className="tc-territory-refresh" onClick={()=>void load()}>다시 불러오기</button></section>;
- const owned=state.towns.filter(t=>t.owned);
- const visible=mineOnly?owned:state.towns;
+ if(!state)return <section className="tc-territory" aria-label="영지 관리"><div className="tc-territory-head"><h2>영지 관리</h2><span>{ACTIVE_TOWN_IDS.length}개 거점</span></div><p role="status">{error||'영지 운영 기록을 불러오는 중입니다.'}</p><button className="tc-territory-refresh" onClick={()=>void load()}>다시 불러오기</button></section>;
+ const owned=activeTowns.filter(t=>t.owned);
+ const visible=mineOnly?owned:activeTowns;
  const cooldownEnds=town?.changedAt&&town.owned?Date.parse(town.changedAt)+86400000:0;
  const cooldownLeft=Math.max(0,cooldownEnds-now);
  const next=rate===null?(town?.rate??0):rate.trim()?Number(rate):NaN;
@@ -67,7 +70,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
    <button type="button" className="tc-territory-refresh" disabled={busy} onClick={()=>void load()}>새로고침</button>
   </header>
   <div className="tc-territory-stats">
-   <article><small>점령 영지</small><b>{state.ownedCount}<span> / {state.totalCount}</span></b></article>
+   <article><small>점령 영지</small><b>{owned.length}<span> / {activeTowns.length}</span></b></article>
    <article><small>오늘 징수</small><b>{number(state.todayTax)}<span> 개</span></b></article>
    <article><small>7일 징수</small><b>{number(state.weekTax)}<span> 개</span></b></article>
    <article><small>현재 재료 창고</small><b>{number(state.stockTotal)}<span> 개</span></b></article>
@@ -75,7 +78,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
   <div className="tc-territory-toolbar">
    <strong>영지 목록 <span>{visible.length}곳</span></strong>
    <div role="group" aria-label="영지 목록 필터">
-    <button type="button" className={!mineOnly?'active':''} aria-pressed={!mineOnly} onClick={()=>setMineOnly(false)}>전체 11</button>
+    <button type="button" className={!mineOnly?'active':''} aria-pressed={!mineOnly} onClick={()=>setMineOnly(false)}>전체 {activeTowns.length}</button>
     <button type="button" className={mineOnly?'active':''} aria-pressed={mineOnly} onClick={()=>{setMineOnly(true);if(!town?.owned){setSelected(owned[0]?.townId??null);setRate(null);}}}>우리 영지 {owned.length}</button>
    </div>
   </div>

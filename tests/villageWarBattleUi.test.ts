@@ -45,3 +45,9 @@ test('war battle preview uses expanded visible log with at least five recent eve
  assert.match(html,/제1전선 공격/);
  assert.match(html,/제5전선 점령/);
 });
+
+test('occupation selection contains five playable settlements, not retired locations',()=>{
+ const html=renderToStaticMarkup(React.createElement(VillageWarBattleScreen,{game:initialState(),nickname:'테스트',initialWar:war,initialPreview:true}));
+ assert.equal((html.match(/<option[^>]*value="(?:city|herb-\d|farm-\d)"/g)??[]).length,5);
+ for(const name of ['해오름','풍요뜰','밀바람','안개골','은잎골','초록샘'])assert.doesNotMatch(html,new RegExp(name));
+});

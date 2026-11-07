@@ -1,4 +1,5 @@
 import type {VillageLifeState} from '../../online/villageLife';
+import {isActiveTownId} from '../../components/world/worldMap';
 export type ProductId='vitality_potion'|'potion'|'attack_food'|'defense_food'|'experience_food'|'challenge_ticket';
 export type FoodId=Extract<ProductId,`${string}_food`>;
 export type LifeMasteryTrack='herb'|'farm'|'ticket';
@@ -20,7 +21,7 @@ export const CRAFT_RECIPES:readonly {id:ProductId;material:'herb'|'pepper'|'pota
 export interface LifeActionRequest{id:string;town:string;action:'craft'|'food'|'well'|'vitality';item:ProductId|'well';count:number}
 export function validLifeAction(value:unknown):value is LifeActionRequest{
  if(!value||typeof value!=='object')return false;const r=value as LifeActionRequest;
- return typeof r.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.id)&&typeof r.town==='string'&&/^(city|herb-[1-5]|farm-[1-5])$/.test(r.town)&&Number.isInteger(r.count)&&r.count>=1&&r.count<=100&&(r.action==='craft'?CRAFT_RECIPES.some(x=>x.id===r.item):r.action==='food'?['attack_food','defense_food','experience_food'].includes(r.item):(r.action==='vitality'?r.item==='vitality_potion'&&r.count===1:r.action==='well'&&r.item==='well'&&r.count===1));
+ return typeof r.id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(r.id)&&isActiveTownId(r.town)&&Number.isInteger(r.count)&&r.count>=1&&r.count<=100&&(r.action==='craft'?CRAFT_RECIPES.some(x=>x.id===r.item):r.action==='food'?['attack_food','defense_food','experience_food'].includes(r.item):(r.action==='vitality'?r.item==='vitality_potion'&&r.count===1:r.action==='well'&&r.item==='well'&&r.count===1));
 }
 export function craftLimit(s:VillageLifeState,id:ProductId){const r=CRAFT_RECIPES.find(x=>x.id===id),t=s.towns.find(x=>x.id===s.location);if(!r||!t||t.kind!=='city'&&t.kind!==r.kind)return 0;return Math.max(0,Math.min(100,s.vitality,Math.floor((s.materials[r.material]??0)/10)));}
 export function craftPreview(id:ProductId,count:number,mastery:number,carry:number){const base=CRAFT_RECIPES.find(x=>x.id===id)!.base;let quantity=0;for(let i=0;i<count;i++){carry+=base*lifeMasteryBonus(mastery);quantity+=base+Math.floor(carry/100);carry%=100;mastery=Math.min(LIFE_MASTERY_MAX_XP,mastery+1);}return {quantity,carry,mastery};}
