@@ -14,13 +14,15 @@ test('five primary routes share the exact hub pixel atlas icons and keep their n
  assert.match(entry,/nav\.map\(\(\[p,label\]\)=>/);
  assert.match(entry,/<HubIcon name=\{p\}\/\>/);
  assert.doesNotMatch(entry,/page==='home'\|\|page==='association'\)\?<HubIcon/);
- for(const id of ['home','hunt','inventory','market','association']){
+ for(const id of ['home','shop','inventory','market','association']){
   assert.ok(entry.includes("['"+id+"',"),'missing route '+id);
   const html=renderToStaticMarkup(React.createElement(HubIcon,{name:id}));
   assert.match(html,/tc-hub-icon/);
   assert.ok(html.includes('data-hub-icon="'+id+'"'));
  }
  assert.match(entry,/onClick=\{\(\)=>move\(p\)\}/);
+ assert.ok(!entry.slice(entry.indexOf('const nav:'),entry.indexOf('function App(){')).includes("['hunt','전투']"));
+ assert.match(entry,/\{page==='hunt'&&<HuntingPage/);
 });
 
 test('the hub dock styling applies to all screens and keeps the same selected indicator',()=>{
