@@ -22,7 +22,6 @@ import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 type Mode='buy'|'sell'|'mine';
 type GradeFilter='all'|EquipmentGrade;
 type KindFilter='all'|EquipmentKind;
-type EnhancementFilter='all'|number;
 
 const modes=[['buy','구매'],['sell','판매 등록'],['mine','내 등록']] as const;
 const money=(value:number)=>Math.round(value).toLocaleString()+' S';
@@ -41,7 +40,6 @@ export function EquipmentMarketPanel({
  const [mode,setMode]=useState<Mode>('buy');
  const [kindFilter,setKindFilter]=useState<KindFilter>('all');
  const [gradeFilter,setGradeFilter]=useState<GradeFilter>('all');
- const [enhancementFilter,setEnhancementFilter]=useState<EnhancementFilter>('all');
  const [selectedSell,setSelectedSell]=useState<string|null>(null);
  const [price,setPrice]=useState('');
  const [busy,setBusy]=useState(false);
@@ -50,10 +48,9 @@ export function EquipmentMarketPanel({
  const listings=useMemo(()=>snapshot.equipmentListings
   .filter(listing=>kindFilter==='all'||listing.kind===kindFilter)
   .filter(listing=>gradeFilter==='all'||listing.grade===gradeFilter)
-  .filter(listing=>enhancementFilter==='all'||listing.enhancement===enhancementFilter)
   .slice()
-  .sort((a,b)=>a.kind.localeCompare(b.kind)||EQUIPMENT_GRADES.indexOf(a.grade)-EQUIPMENT_GRADES.indexOf(b.grade)||a.enhancement-b.enhancement||a.price-b.price||a.createdAt-b.createdAt),
- [snapshot.equipmentListings,kindFilter,gradeFilter,enhancementFilter]);
+  .sort((a,b)=>a.kind.localeCompare(b.kind)||EQUIPMENT_GRADES.indexOf(a.grade)-EQUIPMENT_GRADES.indexOf(b.grade)||a.price-b.price||a.createdAt-b.createdAt),
+ [snapshot.equipmentListings,kindFilter,gradeFilter]);
 
  const owned=useMemo(()=>snapshot.assets
   .filter(asset=>asset.itemId.startsWith('equipment_v2:')&&asset.gear)
@@ -108,15 +105,11 @@ export function EquipmentMarketPanel({
      <option value="all">전체 등급</option>
      {EQUIPMENT_GRADES.map(grade=><option value={grade} key={grade}>{EQUIPMENT_GRADE_NAMES[grade]}</option>)}
     </GameSelect>
-    <GameSelect aria-label="강화 단계" value={String(enhancementFilter)} onChange={e=>setEnhancementFilter(e.target.value==='all'?'all':Number(e.target.value))}>
-     <option value="all">전체 강화</option>
-     {Array.from({length:11},(_,i)=><option value={i} key={i}>+{i}</option>)}
-    </GameSelect>
    </div>
    <div className="tc-equipment-market-list">
     {listings.map(listing=><article key={listing.listingId} className="tc-equipment-market-row">
      <span className="tc-market-v2-mini"><Glyph name={iconFor(listing.gear)}/></span>
-     <div className="name"><b>{equipmentItemName(listing.gear)}</b><small>{EQUIPMENT_GRADE_NAMES[listing.grade]} · +{listing.enhancement} · {hoursLeft(listing.expiresAt)}시간 남음</small></div>
+     <div className="name"><b>{equipmentItemName(listing.gear)}</b><small>{EQUIPMENT_GRADE_NAMES[listing.grade]} · {hoursLeft(listing.expiresAt)}시간 남음</small></div>
      <div className="price"><b>{money(listing.price)}</b><small>{listing.mine?'내 등록':'즉시 구매'}</small></div>
      <button disabled={listing.mine||busy||!!game.expedition||snapshot.wallet.silver<listing.price} onClick={()=>buy(listing)}>{listing.mine?'내 매물':'즉시 구매'}</button>
     </article>)}

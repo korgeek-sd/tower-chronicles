@@ -367,7 +367,7 @@ export function CosmeticsScreen({game,setGame,onlineLease=null,onlineAccount=fal
        {registeredIds.has(selected.id)?<p>이미 등록한 컬렉션이야. 등록한 아이템은 인벤토리에서 소모되었어.</p>:<>
         <p>등록 시 선택한 장비 1개가 영구 소모되며 되돌릴 수 없어. 외형은 해금 상태만 확인하고 소모하지 않아.</p>
         <div className="tc-collection-register-items" role="group" aria-label="소모할 장비 선택">
-         {eligibleItems.length===0?<p>장착하지 않은 해당 등급·종류의 장비가 없어. 인벤토리에서 장착을 해제하거나 장비를 획득해 줘.</p>:eligibleItems.map(item=><button type="button" key={item.id} className={registerItemId===item.id?'active':''} aria-pressed={registerItemId===item.id} disabled={registering} onClick={()=>setRegisterItemId(item.id)}><Glyph name={equipmentDefinition(item.kind).slot==='weapon'?'sword':'armor'}/>{EQUIPMENT_GRADE_NAMES[item.grade]} {equipmentDefinition(item.kind).name} +{item.enhancement}</button>)}
+         {eligibleItems.length===0?<p>장착하지 않은 해당 등급·종류의 장비가 없어. 인벤토리에서 장착을 해제하거나 장비를 획득해 줘.</p>:eligibleItems.map(item=><button type="button" key={item.id} className={registerItemId===item.id?'active':''} aria-pressed={registerItemId===item.id} disabled={registering} onClick={()=>setRegisterItemId(item.id)}><Glyph name={equipmentDefinition(item.kind).slot==='weapon'?'sword':'armor'}/>{EQUIPMENT_GRADE_NAMES[item.grade]} {equipmentDefinition(item.kind).name}</button>)}
         </div>
         {registrationError&&<p role="alert">{registrationError}</p>}
         <button type="button" className="tc-collection-register-confirm tc-feel-press" disabled={!registerItemId||!registerReady} onClick={()=>void submitRegistration()}>{registering?'서버 등록 처리 중…':registrationLoading?'등록 내역 확인 중…':'장비 1개 소모하여 영구 등록'}</button>

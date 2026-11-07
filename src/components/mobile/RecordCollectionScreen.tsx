@@ -177,7 +177,7 @@ export function RecordCollectionScreen({game,setGame,onlineLease=null,onlineAcco
       <label htmlFor="tc-record-equipment-select">등록할 장비</label>
       <select id="tc-record-equipment-select" value={itemId} onChange={e=>setItemId(e.target.value)} disabled={!canRegister}>
        <option value="">장비 선택</option>
-       {candidates.map(item=><option key={item.id} value={item.id}>{recordEquipmentLabel(selected)} +{item.enhancement}</option>)}
+       {candidates.map(item=><option key={item.id} value={item.id}>{recordEquipmentLabel(selected)}</option>)}
       </select>
       <small>등록하면 장비 1개가 영구 소모됩니다. 장착 중인 장비와 기본 지급 장비는 등록할 수 없습니다.</small>
      </div>
