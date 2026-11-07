@@ -31,7 +31,7 @@ test('server phase disables declaration entry outside bidding',()=>{
 });
 test('client declaration is never shown as completed based on preview owners',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{},war,onDeclareWar:()=>{}}));
- assert.equal(WORLD_TOWNS.length,11);
+ assert.equal(WORLD_TOWNS.length,5);
  assert.match(html,/0개 길드/);
 });
 

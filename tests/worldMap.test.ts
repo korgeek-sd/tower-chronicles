@@ -4,12 +4,13 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {WORLD_TOWNS,canTravel} from '../src/components/world/worldMap';
 import {WorldMapScreen} from '../src/components/world/WorldMapScreen';
-test('world has ten specialty towns and one central city with connected travel',()=>{
- assert.equal(WORLD_TOWNS.length,11);
- assert.equal(WORLD_TOWNS.filter(t=>t.kind==='herb').length,5);
- assert.equal(WORLD_TOWNS.filter(t=>t.kind==='farm').length,5);
+test('world has four specialty towns and one central city with connected travel',()=>{
+ assert.equal(WORLD_TOWNS.length,5);
+ assert.equal(WORLD_TOWNS.filter(t=>t.kind==='herb').length,2);
+ assert.equal(WORLD_TOWNS.filter(t=>t.kind==='farm').length,2);
  for(const town of WORLD_TOWNS){const seen=new Set(['city']);while(true){const before=seen.size;for(const t of WORLD_TOWNS)if([...seen].some(id=>canTravel(id,t.id)))seen.add(t.id);if(seen.size===before)break;}assert.ok(seen.has(town.id));}
  assert.equal(canTravel('city','city'),false);assert.equal(canTravel('city','herb-1'),true);
+ for(const retired of ['herb-3','herb-4','herb-5','farm-3','farm-4','farm-5'])assert.equal(canTravel('city',retired),false);
 });
 test('map exposes owners, preview disclosure, selected town details and travel button',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'city',onTravel:()=>{}}));

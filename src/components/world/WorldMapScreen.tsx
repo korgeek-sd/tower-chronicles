@@ -2,12 +2,12 @@ import type {LifeTown} from '../../online/villageLife';
 import React,{useEffect,useRef,useState} from 'react';
 import type {VillageWarState} from '../../online/villageWar';
 import {Glyph} from '../../ui/mobile';
-import {WORLD_TOWNS,canTravel,townKindLabel,type TownKind} from './worldMap';
+import {ACTIVE_TOWN_IDS,ACTIVE_TOWN_ID_SET,WORLD_TOWNS,canTravel,townKindLabel,type TownKind} from './worldMap';
 import './region-board.css';
 import './central-map.css';
 export function WorldMapScreen({currentId,onTravel,towns,busy=false,vitality,onLife,war,onDeclareWar,warBusy=false,warPending=false,warError}:{currentId:string;onTravel:(id:string)=>void;towns?:LifeTown[];busy?:boolean;vitality?:number;onLife?:()=>void;war?:VillageWarState|null;onDeclareWar?:(id:string)=>void;warBusy?:boolean;warPending?:boolean;warError?:string}){
  const cancelRef=useRef<HTMLButtonElement|null>(null);
- const data=towns??WORLD_TOWNS;
+ const data=(towns??WORLD_TOWNS).filter(town=>ACTIVE_TOWN_ID_SET.has(town.id));
  const [selectedId,setSelectedId]=useState(currentId),[message,setMessage]=useState(''),[confirmTown,setConfirmTown]=useState<string|null>(null);
  useEffect(()=>{if(!confirmTown)return;const previous=document.activeElement as HTMLElement|null;cancelRef.current?.focus();const close=(event:KeyboardEvent)=>{if(event.key==='Escape')setConfirmTown(null);};window.addEventListener('keydown',close);return()=>{window.removeEventListener('keydown',close);previous?.focus();};},[confirmTown]);
  const current=data.find(t=>t.id===currentId)??data.find(t=>t.id==='city')??data[0];
@@ -22,7 +22,7 @@ export function WorldMapScreen({currentId,onTravel,towns,busy=false,vitality,onL
  const resource=(kind:TownKind)=>kind==='city'?'약초 · 농업':kind==='herb'?'약초':'농업';
  const glyph=(kind:TownKind)=>kind==='city'?'association':kind==='herb'?'kaleon':'farm';
  const select=(id:string)=>{setSelectedId(id);setMessage('');};
- const mapIds=['herb-1','farm-1','city','herb-2','farm-2'];
+ const mapIds=ACTIVE_TOWN_IDS;
  const mapTowns=mapIds.map(id=>data.find(t=>t.id===id)).filter((t):t is typeof data[number]=>!!t);
  const remaining=(id:string,kind:TownKind)=>{const t=towns?.find(t=>t.id===id);if(!t)return '—';const n=kind==='herb'?t.herbRemaining:t.farmRemaining;return n===0?'소진':n.toLocaleString();};
  return <section className="tc-region-board" aria-label="마을 이동">

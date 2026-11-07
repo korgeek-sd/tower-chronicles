@@ -14,9 +14,9 @@ test('central map has five primary destinations and uses real stock including ze
  assert.match(html,/실제 길드/);assert.match(html,/1,234/);assert.match(html,/소진/);
  assert.doesNotMatch(html,/4,200|6,800|자원별 마을/);
 });
-test('players at legacy settlements retain current location and travel controls',()=>{
+test('retired locations gracefully fall back to the central city',()=>{
  const html=renderToStaticMarkup(React.createElement(WorldMapScreen,{currentId:'farm-5',onTravel:()=>{},onLife:()=>{},towns}));
- assert.match(html,/밀바람/);assert.match(html,/생산하기/);
+ assert.doesNotMatch(html,/밀바람/);assert.match(html,/생산하기/);
  assert.match(html,/data-map-town="city"/);
 });
 test('map markers expose only compact names, field icons and depletion; detail owns quantities',()=>{
