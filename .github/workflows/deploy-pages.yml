@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages
+  group: pages-publish-recovery
   cancel-in-progress: true
 
 jobs:
@@ -65,6 +65,11 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Report Pages artifact size
+        run: |
+          du -sh dist
+          echo "Published file count: $(find dist -type f | wc -l)"
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -82,7 +87,9 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5.0.1
         with:
-          # Pages may need longer to sync this project's ~190MB artifact.
-          timeout: 1200000
+          # GitHub Pages enforces a 10-minute hard limit.
+          # v5.0.1 includes retry/backoff improvements for status polling.
+          timeout: 600000
+          reporting_interval: 10000
