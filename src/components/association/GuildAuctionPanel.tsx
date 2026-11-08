@@ -185,7 +185,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
     </div>
     <div className="tc-ga-feature-bottom">
      <div className="tc-ga-feature-stats">
-      <span><small>현재 최고 입찰</small><strong>{featured.topBid?n(featured.topBid):'없음'} <i>P</i></strong></span>
+      <span><small>{featured.topBid?'현재 최고 입찰':'경매 시작가'}</small><strong>{n(featured.topBid||featured.startingBid)} <i>P</i></strong></span>
       <span><small>남은 시간</small><strong className="time">{status(featured)}</strong></span>
      </div>
      <button type="button" className="tc-ga-feature-bid" onClick={()=>showLot(featured.listingId)}><span aria-hidden="true">⚒</span> 입찰하기</button>
@@ -201,7 +201,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
     {listRows.map(l=><button role="listitem" type="button" key={l.listingId} className={'tc-ga-list-entry '+(l.status==='OPEN'?'open':'closed')} onClick={()=>showLot(l.listingId)}>
      <AuctionArt lot={l}/>
      <div className="tc-ga-list-title"><b>{lotName(l)}</b><small>{lotSource(l)}{l.source==='MATERIAL'?'':' · '+EQUIPMENT_GRADE_NAMES[l.gear.grade]}</small>{l.isMyTopBid&&<em>현재 내 입찰</em>}</div>
-     <div className="tc-ga-list-stats"><strong>{l.topBid?n(l.topBid):'—'} <i>P</i></strong><small>{status(l)}</small></div><span className="tc-ga-entry-arrow" aria-hidden="true">›</span>
+     <div className="tc-ga-list-stats"><strong>{n(l.topBid||l.startingBid)} <i>P</i></strong><small>{l.topBid?'최고 입찰':'시작가'} · {status(l)}</small></div><span className="tc-ga-entry-arrow" aria-hidden="true">›</span>
     </button>)}
     {!listRows.length&&<div className="tc-ga-empty">{featured?'나머지 경매 물품이 없습니다.':'이 분류에 해당하는 경매 내역이 없습니다.'}</div>}
    </div>
