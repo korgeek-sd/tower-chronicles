@@ -99,6 +99,8 @@ jobs:
           assert "distributionUrl=" in source, "Missing Gradle wrapper distribution"
           # The binary-only distribution is much smaller and contains the same runtime.
           source = source.replace("-all.zip", "-bin.zip")
+          # Direct Gradle CDN avoids GitHub Releases 504 redirects.
+          source = source.replace("services.gradle.org/distributions/", "downloads.gradle.org/distributions/")
           lines = [line for line in source.splitlines() if not line.startswith(("networkTimeout=", "retries=", "retryBackOffMs="))]
           lines.extend(("networkTimeout=120000", "retries=3", "retryBackOffMs=3000"))
           properties.write_text("\n".join(lines) + "\n")
