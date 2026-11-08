@@ -7,6 +7,7 @@ import {
  type AssociationWarehouse,type WarehouseEntry,type WarehouseCurrency,type WarehouseDirection,type WarehouseTransferInput,
 } from '../../online/associationWarehouse';
 import './warehouse.css';
+import './treasuryLedger.css';
 import {Pager} from '../../ui/mobile';
 import {GuildMaterialsPanel} from './GuildMaterialsPanel';
 
