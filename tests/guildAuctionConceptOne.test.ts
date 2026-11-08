@@ -63,7 +63,7 @@ test('chosen visual concept isolates fullscreen auction from duplicate guild and
  assert.match(association,/tc-auction-immersive/);
  assert.match(association,/onBack=\{\(\)=>navigate\('overview'\)\}/);
  assert.match(association,/import '\.\/guildAuctionConcept\.css'/);
- assert.match(design,/\.tc-app:has\(\.tc-auction-immersive\)>\\.tc-nav/);
+ assert.match(design,/\.tc-app:has\(\.tc-auction-immersive\)>\.tc-nav/);
  assert.match(design,/\.tc-assoc\.tc-auction-immersive>\.tc-company-mainnav/);
  assert.match(design,/\.tc-assoc\.tc-auction-immersive>\.tc-company-subnav-wrap/);
  assert.match(design,/\.tc-auction-immersive \.tc-ga-v3 \.tc-ga-feature-bid:not\(:disabled\)/);
