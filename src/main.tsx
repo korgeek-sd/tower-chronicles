@@ -14,6 +14,9 @@ import {WorldPage} from './components/world/WorldPage';
 import {isHuntingLeaseCurrent} from './online/huntingLease';
 import {HuntingPage} from './components/hunting/HuntingPage';
 import {MailDialog} from './components/MailDialog';
+import {NotificationDialog} from './components/NotificationDialog';
+import {getGameNotifications,type GameNotificationTarget} from './online/notifications';
+import {initializeNativePush,stopNativePushListeners,disableNativePush,isAndroidPushAvailable} from './online/nativePush';
 import {loadGameMail} from './online/mail';
 import {SaveManagement} from './components/SaveManagement';
 import React,{useEffect,useRef,useState} from 'react';
@@ -104,6 +107,7 @@ function App(){
  const [premiumOpen,setPremiumOpen]=useState(false);
  useEffect(()=>{const open=()=>setPremiumOpen(true);window.addEventListener('tc-open-premium',open);return()=>window.removeEventListener('tc-open-premium',open);},[]);
  const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
+ const [notificationsOpen,setNotificationsOpen]=useState(false),[notificationsUnread,setNotificationsUnread]=useState(0);
  // Local bank records remain untouched while server banking is under maintenance.
  const [page,setPage]=useState<AppPage>(game.expedition?'battle':'home');
  useEffect(()=>{if(page==='battle'&&!game.expedition)setPage('hunt');},[page,game.expedition]);
@@ -139,7 +143,33 @@ function App(){
  const gameplayLeaseRef=useRef<GameplayLease|null>(null),gameSessionPhaseRef=useRef<GameSessionPhase>(initialGate),handoffBusy=useRef(false),takeoverTimer=useRef<number|null>(null);
  gameplayLeaseRef.current=gameplayLease;gameSessionPhaseRef.current=gameSessionPhase;
  const gameplayWritable=profileReady&&(!onlineSession||gameSessionPhase==='active');
- useEffect(()=>{setMailOpen(false);setMailUnread(0);},[onlineSession?.userId]);
+ useEffect(()=>{setMailOpen(false);setMailUnread(0);setNotificationsOpen(false);setNotificationsUnread(0);},[onlineSession?.userId]);
+ useEffect(()=>{
+  if(!onlineSession||gameSessionPhase!=='active')return;
+  let active=true,busy=false;const userId=onlineSession.userId;
+  const refresh=async()=>{if(busy||document.hidden)return;busy=true;
+   try{const result=await getGameNotifications(userId);if(active&&getStoredSession()?.userId===userId)setNotificationsUnread(result.unread);}
+   catch{}finally{busy=false;}
+  };
+  void refresh();const id=window.setInterval(()=>void refresh(),30000);
+  window.addEventListener('focus',refresh);window.addEventListener('tc-game-notifications-updated',refresh);
+  return()=>{active=false;clearInterval(id);window.removeEventListener('focus',refresh);window.removeEventListener('tc-game-notifications-updated',refresh);};
+ },[onlineSession?.userId,gameSessionPhase]);
+ useEffect(()=>{
+  if(!onlineSession||gameSessionPhase!=='active')return;
+  void initializeNativePush(onlineSession.userId);
+  return()=>{void stopNativePushListeners();};
+ },[onlineSession?.userId,gameSessionPhase]);
+ useEffect(()=>{
+  const tap=(event:Event)=>{
+   const target=(event as CustomEvent<{target:string}>).detail?.target;
+   if(target==='mail'){setMailOpen(true);return;}
+   if(target==='gold-exchange'||target==='bank'||target==='association'||target==='occupation')setPage(target);
+   else setNotificationsOpen(true);
+  };
+  window.addEventListener('tc-game-notification-tap',tap);
+  return()=>window.removeEventListener('tc-game-notification-tap',tap);
+ },[]);
  useEffect(()=>{
   if(!onlineSession||gameSessionPhase!=='active')return;
   let active=true,busy=false;const userId=onlineSession.userId;
@@ -437,7 +467,7 @@ function App(){
   }catch(error){entryRestoreError.current=connectionErrorMessage(error);setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');return false;}
  }
  async function continueOnlineExplorationNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{const result=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'다음 탐험을 서버에서 시작하지 못했습니다.');}}
- async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');window.dispatchEvent(new Event('tower:session-changed'));}}
+ async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);if(onlineSession&&isAndroidPushAvailable())await disableNativePush(onlineSession.userId).catch(()=>{});try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');window.dispatchEvent(new Event('tower:session-changed'));}}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
  if(onlineSession&&!profileReady){
@@ -452,9 +482,10 @@ function App(){
    <GameTopBar nickname={playerNickname} game={game} userId={onlineSession?.userId??null}
     lease={gameSessionPhase==='active'?gameplayLease:null} currentPage={page} now={now} unreadMail={mailUnread}
     onProfile={()=>move('character')} onShop={()=>move('shop')} onPremium={()=>setPremiumOpen(true)}
-    onMail={()=>setMailOpen(true)} onMenu={()=>move('settings')}/>
+    onMail={()=>setMailOpen(true)} onNotifications={()=>setNotificationsOpen(true)} unreadNotifications={notificationsUnread} onMenu={()=>move('settings')}/>
    <div className="tc-statusbar"><span><i className={exp?'live':''}/>{exp?TOWERS[exp.tower].name+' '+exp.floor+'F 원정 중':'노바르 거점'}</span><span>v{APP_VERSION} · {saved}</span></div>
   </>}
+  {notificationsOpen&&<NotificationDialog key={'notifications:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} onClose={()=>setNotificationsOpen(false)} onUnread={setNotificationsUnread} onNavigate={(target:GameNotificationTarget)=>{if(target==='mail')setMailOpen(true);else move(target);}}/>}
   {mailOpen&&<MailDialog key={'mail:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} game={game} setGame={setGame} onClose={()=>setMailOpen(false)} onUnread={setMailUnread}/>}
   <main className={page==='hunt'?'tc-main tc-hunt-main':page==='stats'?'tc-main tc-stat-main':page==='skills'?'tc-main tc-skill-tree-main':'tc-main'}>
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}

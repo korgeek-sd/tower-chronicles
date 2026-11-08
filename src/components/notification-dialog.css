@@ -1,0 +1,25 @@
+.tc-notif-dialog{position:fixed;inset:0;margin:auto;width:min(94vw,430px);max-height:min(88dvh,740px);padding:0;box-sizing:border-box;color:#e9d4b1;background:#15110f;border:2px solid #987044;border-radius:7px;box-shadow:0 15px 50px #000c,inset 0 0 0 1px #463320;font-family:inherit}
+.tc-notif-dialog::backdrop{background:#000b}
+.tc-notif-dialog>header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:linear-gradient(#39291c,#211812);border-bottom:1px solid #8d6739}
+.tc-notif-dialog header small{display:block;letter-spacing:2px;font-size:9px;color:#c3a075}
+.tc-notif-dialog h2{margin:3px 0;font-size:20px;color:#ffe2ae}
+.tc-notif-dialog header button{font-size:26px;line-height:1;border:0;background:none;color:#ead1a6}
+.tc-notif-dialog nav{display:flex;gap:3px;padding:9px;overflow:auto;border-bottom:1px solid #62482d}
+.tc-notif-dialog nav button{flex:1;min-width:42px;padding:6px 3px;font-size:11px;border:1px solid #4c3927;color:#bba88c;background:#221a15;border-radius:3px}
+.tc-notif-dialog nav button[aria-pressed=true]{border-color:#b89159;background:#543820;color:#ffe0a5}
+.tc-notif-list{min-height:180px;max-height:46dvh;overflow-y:auto}
+.tc-notif-list>.empty{text-align:center;padding:60px 10px;color:#ad967a;font-size:13px}
+.tc-notif-list>button{display:flex;align-items:center;gap:10px;width:100%;min-height:74px;padding:11px 13px;text-align:left;color:inherit;background:#191512;border:0;border-bottom:1px solid #3b2d21}
+.tc-notif-list>button.unread{background:#282015}
+.tc-notif-list>button:focus-visible{outline:2px solid #ffdb91;outline-offset:-3px}
+.tc-notif-list .category{flex:none;align-self:flex-start;margin-top:2px;padding:3px 5px;border:1px solid #796043;border-radius:3px;color:#dcbb82;font-size:10px}
+.tc-notif-list .info{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.tc-notif-list .info strong{font-size:13px;font-weight:600;color:#f6dfb8}
+.tc-notif-list .info>span{font-size:11px;color:#bca88d;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-notif-list .info time{font-size:10px;color:#85735e}
+.tc-notif-list .arrow{color:#ad8d5e}
+.tc-notif-dialog footer{padding:11px 12px 13px;border-top:1px solid #62482d;background:#1d1712}
+.tc-notif-actions{display:flex;gap:8px}
+.tc-notif-actions button,.tc-notif-push{padding:9px 12px;border-radius:3px;border:1px solid #916e45;color:#eed8b7;background:#34271b;font:inherit;font-size:12px}
+.tc-notif-push{width:100%;margin-top:10px;border-color:#ba9358;background:#4b3420}
+.tc-notif-dialog footer p{min-height:12px;margin:5px 0 0;font-size:11px;color:#d6ba8e}

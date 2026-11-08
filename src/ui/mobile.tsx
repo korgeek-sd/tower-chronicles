@@ -9,6 +9,7 @@ const ICON_PATHS:Record<string,string>={
  towers:'M5 21h14M7 21V9h10v12M6 5V2m4 3V2m4 3V2m4 3V2M6 5h12v4H6Zm4 16v-6h4v6',
  farm:'M12 22V5m0 4C6 9 6 5 6 3c4 0 6 2 6 6Zm0 5c-6 0-6-4-6-6 4 0 6 2 6 6Zm0-5c6 0 6-4 6-6-4 0-6 2-6 6Zm0 5c6 0 6-4 6-6-4 0-6 2-6 6Z',
  mail:'M3 5h18v14H3Zm0 0 9 7 9-7',
+ notification:'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
  settings:'M4 6h16M4 12h16M4 18h16M8 3v6m8 0v6m-6 0v6',
  jobs:'M5 3h14v18H5ZM8 7h8M8 11h8M8 15h4m2 2 2 2 4-4',
  registration:'M5 3h10l4 4v5M15 3v5h4M5 3v18h7M8 8h3M8 12h5m4 2v8m-4-4h8',

@@ -6,12 +6,12 @@ import {Glyph} from '../../ui/mobile';
 
 type Props={
  nickname?:string;game:GameState;userId:string|null;lease:GameplayLease|null;
- now:number;currentPage:string;unreadMail:number;
- onProfile:()=>void;onShop:()=>void;onPremium:()=>void;onMail:()=>void;onMenu:()=>void;
+ now:number;currentPage:string;unreadMail:number;unreadNotifications:number;
+ onProfile:()=>void;onShop:()=>void;onPremium:()=>void;onMail:()=>void;onNotifications:()=>void;onMenu:()=>void;
 };
 
 /** Compact currency-first HUD. The game logo and decorative title column are intentionally absent. */
-export function GameTopBar({game,userId,now,unreadMail,onShop,onPremium,onMail,onMenu}:Props){
+export function GameTopBar({game,userId,now,unreadMail,unreadNotifications,onShop,onPremium,onMail,onNotifications,onMenu}:Props){
  const silver=game.silver.toLocaleString('ko-KR');
  const gold=game.market.gold.toLocaleString('ko-KR');
  const unread=unreadMail>0?' · 읽지 않은 우편 '+unreadMail+'개':'';
@@ -34,6 +34,9 @@ export function GameTopBar({game,userId,now,unreadMail,onShop,onPremium,onMail,o
   <div className="tc-tapestry-tools">
    <button type="button" aria-label={'우편함 열기'+unread} onClick={onMail}>
     <Glyph name="mail"/>{unreadMail>0&&<span className="tc-tapestry-unread" aria-hidden="true">{unreadMail>9?'9+':unreadMail}</span>}
+   </button>
+   <button type="button" aria-label={'알림센터 열기'+(unreadNotifications>0?' · 읽지 않은 알림 '+unreadNotifications+'개':'')} onClick={onNotifications}>
+    <Glyph name="notification"/>{unreadNotifications>0&&<span className="tc-tapestry-unread" aria-hidden="true">{unreadNotifications>9?'9+':unreadNotifications}</span>}
    </button>
    <button type="button" aria-label="설정 메뉴 열기" onClick={onMenu}><span className="tc-tapestry-menu-icon" aria-hidden="true"><i/><i/><i/></span></button>
   </div>
