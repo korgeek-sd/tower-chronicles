@@ -13,8 +13,9 @@ import {recoverGuildMaterialAuction,GUILD_MATERIAL_NAMES} from '../../online/gui
 const n=(v:number)=>Math.max(0,Math.trunc(v)).toLocaleString('ko-KR');
 const left=(until:string,clock:number)=>{
  const secs=Math.max(0,Math.ceil((Date.parse(until)-clock)/1000));
- const d=Math.floor(secs/86400),h=Math.floor(secs%86400/3600),m=Math.floor(secs%3600/60);
- return d?d+'일 '+h+'시간':h+'시간 '+m+'분';
+ const d=Math.floor(secs/86400),h=Math.floor(secs%86400/3600),m=Math.floor(secs%3600/60),sec=secs%60;
+ const two=(v:number)=>String(v).padStart(2,'0');
+ return d?d+'일 '+two(h)+':'+two(m)+':'+two(sec):two(h)+':'+two(m)+':'+two(sec);
 };
 const describe=(item:GuildAuctionListing)=>{
  if(item.source==='MATERIAL')return '재료 '+(item.materialQuantity??0).toLocaleString('ko-KR')+'개';
@@ -25,7 +26,8 @@ const lotName=(l:GuildAuctionListing)=>l.source==='MATERIAL'?GUILD_MATERIAL_NAME
 const lotSource=(l:GuildAuctionListing)=>l.source==='MATERIAL'?'점령 마을 세금 재료':l.source==='BOSS'?'보스 토벌 전리품':'길드장 등록 장비';
 type PendingBid={id:string;amount:number};
 type AuctionSection='active'|'mine'|'history';
-type AuctionCategory='all'|'gear'|'material'|'boss';
+type AuctionCategory='all'|'gear'|'material'|'consumable'|'rare';
+const gradePriority={common:0,uncommon:1,rare:2,heroic:3,legendary:4} as const;
 type AuctionSort='ending'|'highest'|'lowest';
 function AuctionArt({lot,featured=false}:{lot:GuildAuctionListing;featured?:boolean}){
  return <span className={'tc-ga-art '+(featured?'featured ':'')+(lot.source==='MATERIAL'?'material':'grade-'+lot.gear.grade)} aria-hidden="true">
@@ -41,9 +43,11 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
  const mounted=useRef(true),locking=useRef(false);
  const [section,setSection]=useState<AuctionSection>('active'),[category,setCategory]=useState<AuctionCategory>('all'),[sort,setSort]=useState<AuctionSort>('ending');
  const [selectedLotId,setSelectedLotId]=useState<string|null>(null);
+ const [guideOpen,setGuideOpen]=useState(false);
  const detailRef=useRef<HTMLDialogElement>(null);
  const showLot=(id:string)=>{setSelectedLotId(id);if(!detailRef.current?.open)detailRef.current?.showModal();};
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
+ useEffect(()=>{const ticker=window.setInterval(()=>setClock(Date.now()),1000);return()=>window.clearInterval(ticker);},[]);
  useEffect(()=>{
   try{const raw=window.sessionStorage.getItem('tc-guild-auction-register:'+associationId);
    setPendingRegistration(raw?JSON.parse(raw) as {requestId:string;itemId:string;bid:number}:null);
@@ -56,7 +60,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
  useEffect(()=>{
   let active=true;
   void getGuildAuctionState(lease).then(s=>{if(active)setState(s);}).catch(e=>{if(active)setError(e instanceof Error?e.message:'경매 정보를 불러오지 못했습니다.');});
-  const timer=window.setInterval(()=>{setClock(Date.now());if(!locking.current&&!document.hidden)void getGuildAuctionState(lease).then(s=>{if(active)setState(s);}).catch(()=>{});},15000);
+  const timer=window.setInterval(()=>{if(!locking.current&&!document.hidden)void getGuildAuctionState(lease).then(s=>{if(active)setState(s);}).catch(()=>{});},15000);
   const focus=()=>{if(active&&!locking.current)void getGuildAuctionState(lease).then(s=>{if(active)setState(s);}).catch(()=>{});};
   window.addEventListener('focus',focus);
   return()=>{active=false;window.clearInterval(timer);window.removeEventListener('focus',focus);};
@@ -131,12 +135,12 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
  const subset=records.filter(l=>{
   const isOpen=l.status==='OPEN'&&Date.parse(l.endsAt)>clock;
   const matchesSection=section==='active'?isOpen:section==='mine'?l.isMyTopBid||l.isMyListing:!isOpen;
-  const matchesCategory=category==='all'||category==='gear'&&l.source!=='MATERIAL'||category==='material'&&l.source==='MATERIAL'||category==='boss'&&l.source==='BOSS';
+  const matchesCategory=category==='all'||category==='gear'&&l.source!=='MATERIAL'||category==='material'&&l.source==='MATERIAL'||category==='consumable'&&false||category==='rare'&&l.source!=='MATERIAL'&&gradePriority[l.gear.grade]>=2;
   return matchesSection&&matchesCategory;
  });
  const sorted=[...subset].sort((a,b)=>sort==='ending'?Date.parse(a.endsAt)-Date.parse(b.endsAt):sort==='highest'?b.topBid-a.topBid:a.topBid-b.topBid);
- const featured=section==='active'?sorted[0]:null;
- const listRows=featured?sorted.slice(1):sorted;
+ const featured=section==='active'?[...sorted].sort((a,b)=>(b.source==='MATERIAL'?-1:gradePriority[b.gear.grade])-(a.source==='MATERIAL'?-1:gradePriority[a.gear.grade])||b.topBid-a.topBid||Date.parse(a.endsAt)-Date.parse(b.endsAt))[0]:null;
+ const listRows=featured?sorted.filter(l=>l.listingId!==featured.listingId):sorted;
  const selected=records.find(l=>l.listingId===selectedLotId)??null;
  const detailOpen=!!selected&&selected.status==='OPEN'&&Date.parse(selected.endsAt)>clock;
  const selectedBid=selected?(amounts[selected.listingId]||selected.nextBid):0;
@@ -144,12 +148,16 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
  const status=(l:GuildAuctionListing)=>l.status==='OPEN'&&Date.parse(l.endsAt)>clock?left(l.endsAt,clock):l.status==='UNSOLD'?'유찰':l.status==='CLAIMED'?'수령 완료':l.status==='CANCELLED'?'경매 취소':l.status==='RETURNED'?'반환 완료':l.status==='SOLD'?'낙찰 종료':'경매 종료';
  return <section className="tc-guild-auction tc-ga-v2 tc-ga-v3" aria-label="원정단 경매장">
   <header className="tc-ga-heading">
-   <button className="tc-ga-back" type="button" onClick={()=>onBack?.()} aria-label="원정단 본부로 돌아가기"><span aria-hidden="true">‹</span> 뒤로</button>
-   <div className="tc-ga-heading-title"><small>THE TOWER · GUILD AUCTION</small><h2>원정단 경매장</h2></div>
-   <div className="tc-ga-balance"><small>사용 가능 공헌도</small><strong>{state?n(state.points):'—'} <em>P</em></strong></div>
+   <div className="tc-ga-banner-art" aria-hidden="true"/>
+   <div className="tc-ga-header-top">
+    <button className="tc-ga-back" type="button" onClick={()=>onBack?.()} aria-label="원정단 본부로 돌아가기"><span aria-hidden="true">‹</span> 뒤로</button>
+    <span className="tc-ga-game-title">탑의 기록</span>
+    <div className="tc-ga-balance" title="입찰에 사용할 수 있는 공헌도"><small>사용 가능 공헌도</small><strong>{state?n(state.points):'—'} <em>P</em></strong></div>
+   </div>
+   <div className="tc-ga-heading-title"><small>GUILD AUCTION HOUSE</small><h2>원정단 경매장</h2><p>원정단원이 함께 이용하는 전용 경매장입니다. <button type="button" aria-label="경매 이용 안내" onClick={()=>setGuideOpen(true)}>ⓘ</button></p></div>
   </header>
   {!state?<div className="tc-ga-loading" role="status">{error||'경매 정보를 불러오는 중입니다.'}</div>:<>
-   <div className="tc-ga-intro"><span>원정단 전용 경매 · 공헌도(P)로 입찰</span>
+   <div className="tc-ga-intro"><span>경매는 공헌도(P)를 사용합니다.</span>
     <details className="tc-ga-quick-menu"><summary>경매 관리 <span aria-hidden="true">⌄</span></summary>
    <div className="tc-ga-shortcuts">
     <GuildTask title="경매 이용 안내" trigger="이용 안내" feedback={error||notice}>
@@ -171,15 +179,15 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
     </details>
    </div>
    <nav className="tc-ga-categories" aria-label="경매 물품 분류">
-    {([['all','전체'],['gear','장비'],['material','재료'],['boss','보스 전리품']] as const).map(([id,label])=><button key={id} type="button" className={category===id?'active':''} aria-pressed={category===id} onClick={()=>setCategory(id)}>{label}</button>)}
+    {([['all','전체','✦'],['gear','장비','⚔'],['material','재료','◆'],['consumable','소모품','♧'],['rare','희귀품','✥']] as const).map(([id,label,glyph])=><button key={id} type="button" className={category===id?'active':''} aria-pressed={category===id} onClick={()=>setCategory(id)}><span aria-hidden="true">{glyph}</span>{label}</button>)}
    </nav>
    {featured&&<article className="tc-ga-feature" aria-label="주요 경매 물품">
-    <div className="tc-ga-feature-ribbon"><span>✦ 주요 경매 아이템</span><span>{lotSource(featured)}</span></div>
+    <div className="tc-ga-feature-ribbon"><span>★ 특급 경매 아이템</span><span>{lotSource(featured)}</span></div>
     <div className="tc-ga-feature-main">
      <AuctionArt lot={featured} featured/>
      <div className="tc-ga-feature-copy">
       <b>{lotName(featured)}</b>
-      <span className="tc-ga-feature-rarity"><strong>{featured.source==='MATERIAL'?'재료':EQUIPMENT_GRADE_NAMES[featured.gear.grade]}</strong><small>{lotSource(featured)}</small></span>
+      <span className="tc-ga-feature-rarity"><strong className={featured.source==='MATERIAL'?'grade-material':'grade-'+featured.gear.grade}>{featured.source==='MATERIAL'?'재료':EQUIPMENT_GRADE_NAMES[featured.gear.grade]}</strong><small>{lotSource(featured)}</small></span>
       <p>{describe(featured)||'원정단이 함께 입찰하는 특별 경매 물품입니다.'}</p>
      </div>
     </div>
@@ -188,7 +196,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
       <span><small>{featured.topBid?'현재 최고 입찰':'경매 시작가'}</small><strong>{n(featured.topBid||featured.startingBid)} <i>P</i></strong></span>
       <span><small>남은 시간</small><strong className="time">{status(featured)}</strong></span>
      </div>
-     <button type="button" className="tc-ga-feature-bid" onClick={()=>showLot(featured.listingId)}><span aria-hidden="true">⚒</span> 입찰하기</button>
+     <button type="button" className="tc-ga-feature-bid" onClick={()=>showLot(featured.listingId)}><span aria-hidden="true">⚒</span> {featured.isMyListing?'상세보기':'입찰하기'}</button>
     </div>
    </article>}
    {section==='active'&&!featured&&<div className="tc-ga-feature-empty">진행 중인 경매가 없습니다.<small>다른 분류를 선택하거나 새 경매 등록을 확인해 주세요.</small></div>}
