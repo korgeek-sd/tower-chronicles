@@ -99,3 +99,20 @@ test('FREE ATTENDANCE: Supabase RPC uses the active lease, server-calculated rew
    return readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
  }
 });
+
+test('GOLD SHOP UI 06: every price tier has a distinct approved pixel chest asset',()=>{
+ const art='assets/ui/shop/gold_chest_tiers.png';
+ assert.match(screen,/GOLD_CHEST_TIERS_ART/);
+ assert.match(screen,/GOLD_CHEST_TIER_NAMES/);
+ assert.match(screen,/GOLD_SHOP_PACKAGES\.map\(\(item,index\)=>/);
+ assert.match(screen,/data-tier=\{index\+1\}/);
+ assert.match(screen,/goldChestStyle\(index\+1\)/);
+ assert.match(screen,/goldChestStyle\(GOLD_SHOP_PACKAGES\.findIndex/);
+ assert.equal((screen.match(/GOLD_CHEST_TIERS_ART/g)||[]).length,2);
+ const paths=readFileSync(new URL('../public/'+art,import.meta.url));
+ assert.equal(paths.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+ assert.equal(paths.readUInt32BE(16),384);
+ assert.equal(paths.readUInt32BE(20),64);
+ const tierCss=readFileSync(new URL('../src/components/mobile/novar-shop.css',import.meta.url),'utf8');
+ assert.match(tierCss,/background-size:600% 100%/);
+});

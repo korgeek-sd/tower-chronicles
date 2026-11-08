@@ -23,6 +23,14 @@ const SHOP_GOLD_ART='assets/ui/shop/gold_pixel_supply_chest.webp';
 const SHOP_TICKET_ART='assets/ui/shop/appearance_summon_ticket_pixel.webp';
 const SHOP_VITALITY_ART='assets/ui/shop/vitality_potion_pixel.webp';
 const SHOP_SILVER_ART='assets/ui/shop/silver_pixel_supply_chest.webp';
+const GOLD_CHEST_TIERS_ART='assets/ui/shop/gold_chest_tiers.png';
+const GOLD_CHEST_TIER_NAMES=[
+ '낡은 보급상자','철제 보급상자','은빛 보물상자','황금 보물상자','고대의 보물상자','왕의 보물상자'
+] as const;
+const goldChestStyle=(tier:number)=>({
+ backgroundImage:`url(${assetUrl(GOLD_CHEST_TIERS_ART)})`,
+ backgroundPosition:`${(tier-1)*20}% center`,
+});
 
 /** Cash purchases remain preview-only; free daily attendance is server-validated. */
 export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRecord}:{
@@ -125,8 +133,8 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
     {tab==='gold'&&<section className="tc-novar-gold-pane" aria-label="골드 충전 상품">
      <div className="tc-novar-section-line"><strong>골드 보급</strong><small>현금 충전 · 6종</small></div>
      <div className="tc-shop-grid" aria-label="Gold 충전 상품">
-      {GOLD_SHOP_PACKAGES.map((item,index)=><button type="button" className="tc-shop-card tc-feel-press" data-game-feel="press" key={item.sku} onClick={()=>setSelectedSku(item.sku)}>
-       <img className="tc-novar-coin-art" src={assetUrl(index<2?SHOP_GOLD_ART:index<4?SHOP_SILVER_ART:SHOP_GOLD_ART)} alt=""/>
+      {GOLD_SHOP_PACKAGES.map((item,index)=><button type="button" className="tc-shop-card tc-feel-press" data-tier={index+1} data-game-feel="press" key={item.sku} onClick={()=>setSelectedSku(item.sku)}>
+       <span className="tc-novar-coin-art tc-novar-tier-chest" role="img" aria-label={GOLD_CHEST_TIER_NAMES[index]} style={goldChestStyle(index+1)}/>
        <span className="tc-shop-amount"><b>{item.gold.toLocaleString('ko-KR')}</b><small>GOLD</small></span>
        <strong>{formatKrw(item.priceKrw)}</strong>
       </button>)}
@@ -181,7 +189,9 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
   {modal&&<div className="tc-modalback tc-shop-confirm" role="presentation" onClick={closeModal}>
    <section className="tc-modal tc-novar-shop-modal" role="dialog" aria-modal="true" aria-label="상품 상세 확인" onClick={e=>e.stopPropagation()}>
     <div className="tc-novar-shop-modal-title">
-     <img src={assetUrl(selected?SHOP_GOLD_ART:selectedPackage==='weekly'?SHOP_VITALITY_ART:SHOP_TICKET_ART)} alt=""/>
+     {selected
+      ?<span className="tc-novar-modal-tier-chest tc-novar-tier-chest" role="img" aria-label={GOLD_CHEST_TIER_NAMES[GOLD_SHOP_PACKAGES.findIndex(item=>item.sku===selected.sku)]} style={goldChestStyle(GOLD_SHOP_PACKAGES.findIndex(item=>item.sku===selected.sku)+1)}/>
+      :<img src={assetUrl(selectedPackage==='weekly'?SHOP_VITALITY_ART:SHOP_TICKET_ART)} alt=""/>}
      <div><small>{selected?'GOLD REQUISITION':'NOVAR SUPPLY PACKAGE'}</small><h2>{selected?selected.gold.toLocaleString('ko-KR')+' Gold':selectedPackage==='attendance'?'30일 출석 패스':packageInfo?.title}</h2></div>
     </div>
     <div className="tc-shop-confirm-price"><span>결제 금액</span><b>{formatKrw(selected?selected.priceKrw:selectedPackage==='attendance'?4900:packageInfo?.price??0)}</b></div>

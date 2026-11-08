@@ -229,3 +229,34 @@
  .tc-novar-attendance-totals small{font-size:7px}
  .tc-novar-day-reward span{font-size:8px}
 }
+
+/* Six individually illustrated chest tiers from the approved shop concept.
+   One transparent 384x64 PNG sprite keeps all six silhouettes aligned and small. */
+.tc-novar-tier-chest{
+ display:block;
+ background-repeat:no-repeat;
+ background-size:600% 100%;
+ image-rendering:pixelated;
+ filter:drop-shadow(0 3px 3px #000a);
+}
+.tc-novar-shop .tc-shop-card>.tc-novar-tier-chest{
+ width:100%;
+ max-width:100%;
+ height:auto;
+ aspect-ratio:1;
+ max-height:100%;
+ object-fit:unset;
+}
+.tc-novar-shop .tc-shop-card[data-tier="5"]{
+ border-color:#866a89;
+ background:radial-gradient(ellipse at 32% 40%,#55406555,transparent 64%),linear-gradient(#202234,#0c1423);
+}
+.tc-novar-shop .tc-shop-card[data-tier="6"]{
+ border-color:#c99b54;
+ background:radial-gradient(ellipse at 32% 40%,#93623b55,transparent 64%),linear-gradient(#202234,#0c1423);
+}
+.tc-novar-shop-modal-title>.tc-novar-modal-tier-chest{
+ width:57px;
+ height:57px;
+ flex:0 0 57px;
+}
