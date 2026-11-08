@@ -25,7 +25,7 @@
 }
 .tc-ga-v3 .tc-ga-banner-art{
  position:absolute;z-index:-2;inset:0;pointer-events:none;
- background:url('./auctionReferenceScene.svg') center center / cover no-repeat;
+ background:url('./auctionHeaderArtwork.webp') center center / cover no-repeat;
 }
 .tc-ga-v3 .tc-ga-heading::before{
  content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;
@@ -125,7 +125,7 @@
  border:2px solid #bb8d55!important;border-radius:5px!important;
  background:
  linear-gradient(105deg,#240e13fa 2%,#37191db5 52%,#1a1019d8 100%),
- url('./auctionReferenceScene.svg') right 35% / auto 150% no-repeat!important;
+ url('./auctionHeaderArtwork.webp') right 35% / auto 150% no-repeat!important;
  box-shadow:inset 0 0 0 2px #1b1010,inset 0 0 0 3px #7d4b2e,0 4px 15px #000b!important;
  overflow:visible;
 }
@@ -424,4 +424,5 @@
 }
 
 /* Cropped castle artwork comes from the user-provided visual reference; no UI text is baked in. */
-.tc-ga-v3 .tc-ga-banner-art::after{content:"";position:absolute;right:0;top:27%;width:32%;height:72%;pointer-events:none;background:url('data:image/webp;base64,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') center/cover no-repeat;mask-image:linear-gradient(90deg,transparent,#000 20%,#000);opacity:.86}
+/* Only the new painted WebP remains: no overlapping vector or embedded crop. */
+.tc-ga-v3 .tc-ga-banner-art::after{content:none!important;display:none!important}
