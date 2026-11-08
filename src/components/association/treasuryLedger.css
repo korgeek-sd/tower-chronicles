@@ -102,15 +102,15 @@
  background:linear-gradient(170deg,#32251f,#171518 80%);
 }
 .tc-tl-coin{
- display:grid;place-items:center;flex:none;
+ display:block;flex:none;
  width:clamp(27px,8vw,39px);height:clamp(27px,8vw,39px);
- font-size:clamp(18px,6vw,25px);
- color:#fbd68c;background:radial-gradient(#9d6e34,#332218 72%);
- border:2px ridge #d0a363;border-radius:50%;
- text-shadow:0 1px 3px #160a0a;box-shadow:inset 0 1px 2px #ffdc9b,0 0 5px #be8d4d52;
+ border:0;border-radius:0;box-shadow:none;
+ background-image:url('../mobile/currency-icons.webp');
+ background-repeat:no-repeat;background-size:300% 100%;background-position:0% center;
+ image-rendering:pixelated;
 }
-.tc-tl-gold .tc-tl-coin{color:#ffe4a0;border-color:#f1c56e;background:radial-gradient(#b78b36,#493019)}
-.tc-tl-ticket .tc-tl-coin{color:#efdbb4;border-radius:4px;background:linear-gradient(135deg,#957752,#48362a)}
+.tc-tl-gold .tc-tl-coin{background-position:50% center}
+.tc-tl-ticket .tc-tl-coin{background-position:100% center}
 .tc-tl-balance>div{display:flex;flex-direction:column;gap:4px;min-width:0}
 .tc-tl-balance small{font:700 11px/1.1 Georgia,'Noto Serif KR',serif;color:#e4c9a0}
 .tc-tl-balance strong{
@@ -129,6 +129,11 @@
 }
 .tc-tl-highlights>div+div{border-left:1px solid #72543b}
 .tc-tl-highlight-icon{font-size:23px;color:#d6ab68}
+.tc-tl-highlight-silver{
+ width:26px;height:26px;flex:none;
+ background:url('../mobile/currency-icons.webp') 0% center/300% 100% no-repeat;
+ image-rendering:pixelated;
+}
 .tc-tl-highlights>div>div{min-width:0;display:flex;flex-direction:column;gap:4px}
 .tc-tl-highlights small{
  color:#d5bd9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -262,7 +267,13 @@
  display:flex;align-items:center;gap:9px;padding:10px;
  border:1px solid #806342;background:linear-gradient(#35261d,#1d1a1a);
 }
-.tc-tl-asset-emblem{font-size:24px;color:#e9bc78}
+.tc-tl-asset-emblem{
+ display:block;flex:none;width:34px;height:34px;
+ background:url('../mobile/currency-icons.webp') 0% center/300% 100% no-repeat;
+ image-rendering:pixelated;
+}
+.tc-tl-asset-emblem.tc-tl-gold{background-position:50% center}
+.tc-tl-asset-emblem.tc-tl-ticket{background-position:100% center}
 .tc-tl-asset-list article>div:nth-child(2){display:grid;gap:4px}
 .tc-tl-asset-list article b{font-size:14px}
 .tc-tl-asset-list article small{color:#bfa887;font-size:10px}

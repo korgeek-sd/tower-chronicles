@@ -11,7 +11,7 @@ import './treasuryLedger.css';
 import {Pager} from '../../ui/mobile';
 import {GuildMaterialsPanel} from './GuildMaterialsPanel';
 
-const assets=[{id:'SILVER',name:'실버',glyph:'◉',unit:'S'},{id:'GOLD',name:'골드',glyph:'◆',unit:'G'},{id:'TICKET',name:'도전권',glyph:'⚔',unit:'장'}] as const;
+const assets=[{id:'SILVER',name:'실버',unit:'S'},{id:'GOLD',name:'골드',unit:'G'},{id:'TICKET',name:'도전권',unit:'장'}] as const;
 const fmt=(v:number)=>v.toLocaleString('ko-KR');
 const at=(iso:string)=>new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
 const entryLabel=(e:WarehouseEntry)=>{
@@ -152,13 +152,13 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
   {!state?<div className="tc-tl-loading" role="status">{error||'원정단 금고 정보를 불러오는 중입니다.'}</div>:<>
    {view!=='materials'&&<div className="tc-tl-balances" aria-label="원정단 보유 재화">
     {assets.map(item=><div key={item.id} className={'tc-tl-balance tc-tl-'+item.id.toLowerCase()}>
-     <span aria-hidden="true" className="tc-tl-coin">{item.glyph}</span>
+     <span aria-hidden="true" className="tc-tl-coin"/>
      <div><small>{item.name}</small><strong>{fmt(balance(item.id,'treasury'))}</strong></div>
     </div>)}
    </div>}
    {view!=='materials'&&<div className="tc-tl-highlights" aria-label="금고 현황">
     <div><span className="tc-tl-highlight-icon" aria-hidden="true">▥</span><div><small>최근 기록 · 실버 순변동</small><strong className={ledgerTotal>=0?'positive':'negative'}>{ledgerTotal>=0?'+':'−'}{fmt(Math.abs(ledgerTotal))} <em>S</em></strong></div></div>
-    <div><span className="tc-tl-highlight-icon" aria-hidden="true">◉</span><div><small>현재 공용 실버 잔액</small><strong>{fmt(state.silver)} <em>S</em></strong></div></div>
+    <div><span className="tc-tl-highlight-icon tc-tl-highlight-silver" aria-hidden="true"/><div><small>현재 공용 실버 잔액</small><strong>{fmt(state.silver)} <em>S</em></strong></div></div>
    </div>}
    {view==='ledger'&&<section className="tc-tl-board" aria-label="원정단 거래 장부">
     <header className="tc-tl-board-head"><span aria-hidden="true">▤</span><h3>거래 장부</h3><small>공개 기록 · 최신순</small></header>
@@ -177,7 +177,7 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
    </section>}
    {view==='assets'&&<section className="tc-tl-board tc-tl-assets-view" aria-label="원정단 자산 상세">
     <header className="tc-tl-board-head"><span>◈</span><h3>공용 자산 현황</h3></header>
-    <div className="tc-tl-asset-list">{assets.map(item=><article key={item.id}><div className="tc-tl-asset-emblem">{item.glyph}</div><div><b>{item.name}</b><small>원정단 공동 보관 재화</small></div><strong>{fmt(balance(item.id,'treasury'))} <small>{item.unit}</small></strong></article>)}</div>
+    <div className="tc-tl-asset-list">{assets.map(item=><article key={item.id}><span aria-hidden="true" className={"tc-tl-asset-emblem tc-tl-"+item.id.toLowerCase()}/><div><b>{item.name}</b><small>원정단 공동 보관 재화</small></div><strong>{fmt(balance(item.id,'treasury'))} <small>{item.unit}</small></strong></article>)}</div>
     <p>사냥·원정 수익 분담과 본부 기부가 이 금고에 적립됩니다. 입출금 거래는 원정단 전체에 공개됩니다.</p>
     <button className="tc-tl-open-materials" type="button" onClick={()=>setView('materials')}>재료 창고 열기</button>
    </section>}
