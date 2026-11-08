@@ -146,7 +146,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
   <header className="tc-ga-heading">
    <button className="tc-ga-back" type="button" onClick={()=>onBack?.()} aria-label="원정단 본부로 돌아가기"><span aria-hidden="true">‹</span> 뒤로</button>
    <div className="tc-ga-heading-title"><small>THE TOWER · GUILD AUCTION</small><h2>원정단 경매장</h2></div>
-   <div className="tc-ga-balance"><small>보유 공헌도</small><strong>{state?n(state.points):'—'} <em>P</em></strong></div>
+   <div className="tc-ga-balance"><small>사용 가능 공헌도</small><strong>{state?n(state.points):'—'} <em>P</em></strong></div>
   </header>
   {!state?<div className="tc-ga-loading" role="status">{error||'경매 정보를 불러오는 중입니다.'}</div>:<>
    <div className="tc-ga-intro"><span>원정단 전용 경매 · 공헌도(P)로 입찰</span>
