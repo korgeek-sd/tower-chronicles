@@ -18,7 +18,7 @@ test('reference auction shows the correct game title, header, guide and server c
   assert.ok(html.includes(label),label);
  }
  assert.match(html,/tc-ga-banner-art/);
- assert.match(html,/tc-ga-guide/);
+ assert.match(html,/aria-label="경매 이용 안내"/);
  assert.match(html,/tc-ga-v3/);
  assert.match(html,/경매 정보를 불러오는 중입니다/);
 });
