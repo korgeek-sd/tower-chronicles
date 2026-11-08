@@ -1,12 +1,14 @@
-/* Shared typography for all game screens, dialogs and chat. */
+/* Shared typography for all game screens, dialogs and chat.
+   Fusion Pixel 12px proportional Korean face (2026.10.25), OFL 1.1.
+   The font is bundled locally for GitHub Pages and offline Android APK. */
 @font-face {
- font-family: 'DungGeunMo';
- src: url('./assets/fonts/DungGeunMo.woff2') format('woff2');
+ font-family: 'Fusion Pixel 12 KO';
+ src: url('./assets/fonts/FusionPixel12ProportionalKO.woff2') format('woff2');
  font-weight: 400;
  font-style: normal;
  font-display: swap;
 }
-:root { --game-font: 'DungGeunMo', 'Malgun Gothic', sans-serif; }
+:root { --game-font: 'Fusion Pixel 12 KO', 'Malgun Gothic', sans-serif; }
 /* Component font shorthands and lazy CSS must not restore a different face.
    Override only the family so existing sizes, line heights and spacing remain. */
 :root, body, body * {

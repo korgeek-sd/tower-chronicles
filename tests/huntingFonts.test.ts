@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('the whole game uses the supplied DungGeunMo font including late-loaded screens and controls',()=>{
+test('the whole game uses bundled Fusion Pixel Korean font including late-loaded screens and controls',()=>{
  const css=readFileSync('src/game-fonts.css','utf8');
  assert.match(readFileSync('src/main.tsx','utf8'),/import '\.\/game-fonts\.css'/);
  assert.match(readFileSync('src/components/hunting/HuntingPage.tsx','utf8'),/import '\.\/hunting-fonts\.css'/);
@@ -11,9 +11,14 @@ test('the whole game uses the supplied DungGeunMo font including late-loaded scr
   assert.equal(font.subarray(0,4).toString(),'wOF2');
   assert.ok(font.length<500000,'font download should remain small for mobile');
  }
- assert.match(css,/font-family: 'DungGeunMo'/);
- assert.match(css,/assets\/fonts\/DungGeunMo\.woff2/);
- assert.equal(readFileSync('src/assets/fonts/DungGeunMo.woff2').subarray(0,4).toString(),'wOF2');
+ assert.match(css,/font-family: 'Fusion Pixel 12 KO'/);
+ assert.match(css,/assets\/fonts\/FusionPixel12ProportionalKO\.woff2/);
+ const fusion=readFileSync('src/assets/fonts/FusionPixel12ProportionalKO.woff2');
+ assert.equal(fusion.subarray(0,4).toString(),'wOF2');
+ assert.ok(fusion.length>50000&&fusion.length<3000000,'Korean webfont must be bundled and reasonably sized');
+ assert.match(readFileSync('src/assets/fonts/FusionPixel-OFL.txt','utf8'),/SIL OPEN FONT LICENSE Version 1.1/);
+ assert.match(readFileSync('src/assets/fonts/FusionPixel-source.txt','utf8'),/2026\.10\.25/);
+ assert.doesNotMatch(css,/font-family: 'DungGeunMo'/);
  assert.doesNotMatch(css,/font-family: 'DOS/);
  assert.match(css,/font-display:\s*swap/);
  assert.match(css,/:root, body, body \*\s*\{/);
@@ -27,7 +32,7 @@ test('the whole game uses the supplied DungGeunMo font including late-loaded scr
   'src/components/mobile/game-topbar.css'
  ]){
   const scoped=readFileSync(path,'utf8');
-  assert.doesNotMatch(scoped,/--game-font\s*:/,path+' must inherit DungGeunMo');
+  assert.doesNotMatch(scoped,/--game-font\s*:/,path+' must inherit Fusion Pixel');
  }
  assert.match(readFileSync('src/components/mobile/moonlit-camp.css','utf8'),/\.tc-app:has\(\.tc-moonlit-camp-screen\)/);
  assert.match(readFileSync('src/assets/fonts/LICENSE.txt','utf8'),/Copyright.*Damheo Lee/);
