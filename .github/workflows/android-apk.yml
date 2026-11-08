@@ -71,25 +71,22 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_bjJQ-qJg2eB6w88-QHS-vg_68OVgFK7
         run: npm run build
 
+      - name: Generate native Android project
+        run: npx cap add android
+
       - name: Configure optional Firebase messaging
         env:
           FIREBASE_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_BASE64 }}
         run: |
           if [ -n "$FIREBASE_GOOGLE_SERVICES_JSON_BASE64" ]; then
-            mkdir -p android/app
             echo "$FIREBASE_GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
           else
-            echo "Firebase configuration not provided: APK will build without live FCM delivery."
+            echo "Firebase is not configured; Android notifications require a Firebase project."
           fi
 
-      - name: Generate native Android project
+      - name: Sync native Android plugins
         run: |
-          npx cap add android
           npx cap sync android
-          # Firebase config is optional for CI compilation. It must be provided to receive FCM.
-          if [ -f android/app/google-services.json ]; then
-            echo "Firebase credentials installed in generated native app."
-          fi
           node scripts/configure-android.mjs
 
       - name: Compile installable debug APK
