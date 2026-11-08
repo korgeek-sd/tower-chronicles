@@ -99,10 +99,14 @@ jobs:
           assert "distributionUrl=" in source, "Missing Gradle wrapper distribution"
           # The binary-only distribution is much smaller and contains the same runtime.
           source = source.replace("-all.zip", "-bin.zip")
-          # Direct Gradle CDN avoids GitHub Releases 504 redirects.
-          source = source.replace("services.gradle.org/distributions/", "downloads.gradle.org/distributions/")
-          lines = [line for line in source.splitlines() if not line.startswith(("networkTimeout=", "retries=", "retryBackOffMs="))]
-          lines.extend(("networkTimeout=120000", "retries=3", "retryBackOffMs=3000"))
+          # GitHub Releases currently returns 504 for Gradle distributions.
+          # Use the independent NJU mirror with the SHA-256 from gradle.org.
+          # The fallback mirror below is checked against the same upstream hash.
+          source = source.replace("services.gradle.org/distributions/", "mirror.nju.edu.cn/gradle/")
+          source = source.replace("downloads.gradle.org/distributions/", "mirror.nju.edu.cn/gradle/")
+          checksum = "bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531"
+          lines = [line for line in source.splitlines() if not line.startswith(("networkTimeout=", "retries=", "retryBackOffMs=", "distributionSha256Sum="))]
+          lines.extend(("networkTimeout=120000", "retries=3", "retryBackOffMs=3000", f"distributionSha256Sum={checksum}"))
           properties.write_text("\n".join(lines) + "\n")
           print("Updated Gradle wrapper download configuration")
           PY
@@ -118,6 +122,11 @@ jobs:
             if [ "$attempt" -eq 3 ]; then
               echo "Gradle build failed after three attempts"
               exit 1
+            fi
+            if [ "$attempt" -eq 1 ]; then
+              # Switch away from the first independent mirror if it is unavailable.
+              sed -i 's@mirror.nju.edu.cn/gradle/@mirror.spaceport.work/gradle/@' gradle/wrapper/gradle-wrapper.properties
+              echo "Switching to second SHA-256-verified Gradle mirror"
             fi
             echo "Transient Gradle/download failure; retrying attempt $((attempt + 1))"
             sleep $((attempt * 12))
