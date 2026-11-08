@@ -41,12 +41,12 @@ test('treasury transfers are leader-only while headquarters donations still awar
  assert.match(html,/불러오는 중/);
  const source=readFileSync(new URL('../src/components/association/AssociationWarehousePanel.tsx',import.meta.url),'utf8');
  for(const value of ["name:'실버'","name:'골드'","name:'도전권'"])assert.ok(source.includes(value));
- assert.match(source,/공용 \{item.name\}/);
- assert.match(source,/사냥 수익 분담/);
+ assert.match(source,/원정단 보유 재화/);
+ assert.match(source,/사냥·원정 수익 분담/);
  assert.doesNotMatch(source,/depositAssociationWarehouse|기부하기/);
  assert.match(source,/state.myRole==='LEADER'/);
- assert.match(source,/길드장 전용/);
- assert.match(source,/인출 내역만/);
+ assert.match(source,/원정단장 전용/);
+ assert.match(source,/withdrawalsOnly=filter==='withdraw'/);
  assert.match(source,/loadAssociationWarehouseHistory/);
  assert.match(source,/transferAssociationTreasury/);
  assert.match(source,/공헌도 미지급/);
