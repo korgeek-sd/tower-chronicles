@@ -4,6 +4,9 @@ Online accounts use the top-bar envelope to open mail. Trading settles immediate
 
 ## Delivery rules
 
+- Cancelling a GOLD/SILVER exchange buy or sell order now creates one trade-category informational mail after the server cancels the remaining quantity. It reports the original, filled, cancelled and immediately returned Silver/Gold amounts; no attachment or additional currency is granted. Each order has a unique mail event key to suppress duplicates.
+- GOLD/SILVER exchange placement and fills do not send mail in this release; the separate currency exchange still settles immediately.
+
 - A fully filled buy/sell order creates one summary, using exactly `구매 완료` / `판매 완료`.
 - Partial fills grant assets/proceeds immediately, without intermediate summary mail.
 - At registration +30 days, remaining purchases refund their reserve and remaining sales become attachments. Titles are `구매 주문 만료` / `판매 주문 만료`.

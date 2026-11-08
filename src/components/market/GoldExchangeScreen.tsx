@@ -157,7 +157,7 @@ export function GoldExchangeScreen({
  const cancel=async(orderId:string)=>{
   if(!onlineLease||busy)return;
   setBusy(true);setMessage('');
-  try{apply(await cancelOnlineGoldExchangeOrder(onlineLease,orderId));feel.play('market.order-cancelled');setMessage('남은 주문을 취소하고 에스크로를 반환했습니다.');}
+  try{apply(await cancelOnlineGoldExchangeOrder(onlineLease,orderId));window.dispatchEvent(new Event('tc-game-mail-updated'));feel.play('market.order-cancelled');setMessage('남은 주문을 취소했습니다. 반환 내역은 우편함에서도 확인할 수 있습니다.');}
   catch(error){feel.play('ui.error');setMessage(error instanceof Error?error.message:'골드 거래 주문을 취소하지 못했습니다.');}
   finally{setBusy(false);}
  };

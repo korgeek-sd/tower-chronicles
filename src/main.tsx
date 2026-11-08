@@ -144,8 +144,8 @@ function App(){
   if(!onlineSession||gameSessionPhase!=='active')return;
   let active=true,busy=false;const userId=onlineSession.userId;
   const refresh=async()=>{if(busy||document.hidden)return;busy=true;try{const r=await loadGameMail(userId);if(active&&getStoredSession()?.userId===userId)setMailUnread(r.mails.filter(m=>!m.read||!!m.attachment&&!m.claimed).length);}catch{}finally{busy=false;}};
-  void refresh();const id=setInterval(()=>void refresh(),60000);window.addEventListener('focus',refresh);
-  return()=>{active=false;clearInterval(id);window.removeEventListener('focus',refresh);};
+  void refresh();const id=setInterval(()=>void refresh(),60000);window.addEventListener('focus',refresh);window.addEventListener('tc-game-mail-updated',refresh);
+  return()=>{active=false;clearInterval(id);window.removeEventListener('focus',refresh);window.removeEventListener('tc-game-mail-updated',refresh);};
  },[onlineSession?.userId,gameSessionPhase]);
  async function refreshStrongholdPvp(){
   const lease=gameplayLeaseRef.current,e=stateRef.current.expedition;

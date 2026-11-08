@@ -14,3 +14,10 @@ test('buy cancellation describes reserve refund and retained fills',()=>{
  assert.match(body,/반환 금액: 5,000 실버/);assert.match(body,/이미 구매된 아이템은 유지/);
 });
 
+
+test('GOLD EXCHANGE: cancelled order notice preserves its server-issued text in trade inbox',()=>{
+ const body='골드 거래소에서 주문이 취소되었습니다.\n\n주문 수량: 10 골드\n체결 수량: 3 골드\n취소 수량: 7 골드\n반환 실버: 700 실버\n\n취소한 수량의 재화는 보유 재화에 즉시 반환되었습니다.';
+ const text=mailBody({title:'골드 매수 주문 취소',category:'trade',body,details:{kind:'gold_exchange_cancel'} as any,attachment:null});
+ assert.equal(text,body);
+ assert.doesNotMatch(text,/아이템:|반환 금액:/);
+});
