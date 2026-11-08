@@ -96,8 +96,8 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false,onBack
     <h3><span>◈</span> 보관 중인 재료 <span>◈</span></h3>
     <div className="tc-gmc-material-grid">
      {GUILD_MATERIAL_IDS.map(id=><button key={id} type="button" className="tc-gmc-material" onClick={()=>openTransfer('WITHDRAW',id)} disabled={!state.isLeader||expedition} aria-label={GUILD_MATERIAL_NAMES[id]+' 보관 '+format(state.materials[id]??0)+'개'+(state.isLeader?' · 출고 관리':'')}>
-      <img src={assetUrl('assets/ui/crafting/'+id+'.png')} alt="" loading="lazy"/>
-      <span className="tc-gmc-material-copy"><b>{GUILD_MATERIAL_NAMES[id]}</b><strong>{format(state.materials[id]??0)} <small>개</small></strong></span>
+      <span className="tc-gmc-material-art"><img src={assetUrl('assets/ui/crafting/'+id+'.png')} alt="" loading="lazy"/></span>
+      <span className="tc-gmc-material-copy"><b>{GUILD_MATERIAL_NAMES[id]}</b><strong><span className="tc-gmc-quantity-mark" aria-hidden="true">▤</span>{format(state.materials[id]??0)} <small>개</small></strong></span>
      </button>)}
     </div>
    </section>
@@ -113,8 +113,13 @@ export function GuildMaterialsPanel({lease,associationId,expedition=false,onBack
    </section>
    <section className="tc-gmc-records" aria-label="최근 재료 거래 기록">
     <div className="tc-gmc-records-heading"><h3>▤ 재료 거래 기록</h3><button type="button" onClick={()=>ledgerDialog.current?.showModal()}>전체 기록 보기 ›</button></div>
+    <div className="tc-gmc-record-head" aria-hidden="true"><span>일시</span><span>재료</span><span>수량</span><span>구분</span></div>
     <div className="tc-gmc-record-list">
-     {recentEntries.length?recentEntries.map(ledgerRow):<p className="tc-gmc-empty">등록된 거래 기록이 없습니다.</p>}
+     {recentEntries.length?recentEntries.map(ledgerRow):<div className="tc-gmc-empty-ledger" role="status">
+      <span className="tc-gmc-empty-seal" aria-hidden="true">▤</span>
+      <strong>아직 등록된 거래가 없습니다.</strong>
+      <small>재료를 입고하거나 출고하면 이곳에 기록됩니다.</small>
+     </div>}
     </div>
    </section>
   </>}
