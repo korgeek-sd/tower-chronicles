@@ -1,0 +1,48 @@
+name: Treasury ledger UI quick checks
+
+on:
+  push:
+    branches:
+      - 'codex/**'
+    paths:
+      - 'src/components/association/AssociationWarehousePanel.tsx'
+      - 'src/components/association/AssociationScreen.tsx'
+      - 'src/components/association/treasuryLedger.css'
+      - 'src/components/association/treasuryLedgerBanner.webp'
+      - 'tests/associationTreasuryLedgerUi.test.ts'
+      - 'tests/associationWarehouseUi.test.ts'
+      - '.github/workflows/treasury-quick.yml'
+  pull_request:
+    paths:
+      - 'src/components/association/AssociationWarehousePanel.tsx'
+      - 'src/components/association/AssociationScreen.tsx'
+      - 'src/components/association/treasuryLedger.css'
+      - 'src/components/association/treasuryLedgerBanner.webp'
+      - 'tests/associationTreasuryLedgerUi.test.ts'
+      - 'tests/associationWarehouseUi.test.ts'
+      - '.github/workflows/treasury-quick.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  treasury-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Treasury UI regressions
+        run: node --import ./tests/register.mjs --test tests/associationWarehouseUi.test.ts tests/associationTreasuryLedgerUi.test.ts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
