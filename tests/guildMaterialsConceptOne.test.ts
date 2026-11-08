@@ -69,3 +69,15 @@ test('material screen owns its viewport while retaining the treasury bottom navi
  assert.match(styles,/overflow-y:auto/);
  assert.match(styles,/@media\(max-height:720px\)/);
 });
+
+test('warehouse presentation matches the illustrated ledger hierarchy even with no transactions',()=>{
+ assert.match(material,/tc-gmc-material-art/);
+ assert.match(material,/tc-gmc-record-head/);
+ assert.match(material,/tc-gmc-empty-ledger/);
+ assert.match(material,/tc-gmc-empty-seal/);
+ assert.match(styles,/\.tc-gmc \.tc-gmc-material-art/);
+ assert.match(styles,/\.tc-gmc \.tc-gmc-record-head/);
+ assert.match(styles,/\.tc-gmc \.tc-gmc-empty-ledger/);
+ assert.match(styles,/\.tc-gmc \.tc-gmc-hero h2::before/);
+ assert.match(styles,/\.tc-gmc \.tc-gmc-transfer-actions button/);
+});
