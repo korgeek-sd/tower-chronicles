@@ -1,0 +1,203 @@
+/* Gold exchange v2 – spot market desk inspired by professional trading UIs.
+   Charts and orderbook are derived only from actual server orders and trades. */
+.tc-goldx-v2-screen{background:radial-gradient(ellipse at 90% 5%,#2531442e,transparent 58%),#080e17;color:#e6d6b9}
+.tc-goldx-v2-screen .tc-screen-head{border-bottom:1px solid #76613e;background:linear-gradient(90deg,#111a28,#090f18);padding:5px 7px}
+.tc-goldx-v2-screen .tc-screen-head h1{font-size:18px;color:#f4dfb4}
+.tc-goldx-v2-screen .tc-screen-head small{font-size:8px;color:#baa17a}
+.tc-goldx-v2-screen .tc-screen-body{position:relative;padding-top:5px}
+.tc-goldx-v2{--trading-border:#67563a;--trading-ink:#0a101b;--trading-green:#68c599;--trading-red:#d78982;--trading-text:#e4d5b9}
+.tc-goldx.tc-goldx-v2.tab-market{grid-template-rows:37px 82px minmax(0,1fr);gap:7px}
+.tc-goldx-v2>.tc-segments{height:37px;min-height:37px;background:#111821;border:1px solid #635338}
+.tc-goldx-v2>.tc-segments button{font-size:12px;min-height:35px;font-weight:700;color:#a7a093;letter-spacing:0}
+.tc-goldx-v2>.tc-segments button[aria-selected=true]{background:linear-gradient(#493321,#28251e);color:#f7dba3;box-shadow:inset 0 -2px #d1ad69}
+.tc-goldx-v2 button{touch-action:manipulation}
+.tc-goldx-v2 button:focus-visible{outline:2px solid #e4c17c;outline-offset:-2px}
+.tc-goldx-v2-quote{
+ min-height:0;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.87fr) 64px;
+ align-items:stretch;gap:5px;padding:7px;
+ background:linear-gradient(115deg,#162131,#0b111c);border:1px solid #78603e;
+ box-shadow:inset 0 0 0 2px #090e16;
+}
+.tc-goldx-v2-quote .pair,.tc-goldx-v2-quote .stats{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.tc-goldx-v2-quote .pair>small{font:700 8px ui-monospace,monospace;color:#b9a583;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-goldx-v2-quote .pair>div{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}
+.tc-goldx-v2-quote .pair b{font:700 clamp(16px,4.7vw,23px) ui-monospace,monospace;color:#f1dbab;white-space:nowrap}
+.tc-goldx-v2-quote .pair em{font:700 9px ui-monospace,monospace;font-style:normal}
+.tc-goldx-v2-quote .pair em.up{color:var(--trading-green)}
+.tc-goldx-v2-quote .pair em.down{color:var(--trading-red)}
+.tc-goldx-v2-quote .stats{border-left:1px solid #3d4550;padding-left:7px;gap:3px}
+.tc-goldx-v2-quote .stats span{display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0}
+.tc-goldx-v2-quote .stats small{font-size:8px;color:#a6a39a;white-space:nowrap}
+.tc-goldx-v2-quote .stats b{font:700 9px ui-monospace,monospace;color:#e6d5b5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-goldx-v2-chart-trigger{
+ display:grid;place-content:center;justify-items:center;gap:3px;min-width:0;
+ color:#f0d29b;border:1px solid #a78550;background:linear-gradient(#3d3024,#171c26);
+ box-shadow:inset 0 1px #c19a5f44;font-weight:700;font-size:9px;line-height:1.2;padding:3px;
+}
+.tc-goldx-v2-chart-trigger svg{width:21px;height:21px}
+.tc-goldx-v2-desk{min-height:0;min-width:0;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:6px}
+.tc-goldx-v2-order,.tc-goldx-v2-orderbook{
+ min-height:0;min-width:0;overflow:hidden;border:1px solid var(--trading-border);
+ background:linear-gradient(180deg,#17202d,#0b111b);
+ box-shadow:inset 0 0 0 2px #070b12;
+}
+.tc-goldx-v2-order{
+ padding:7px;display:grid;
+ grid-template-rows:38px 27px 56px 56px 32px 34px minmax(75px,1fr) 43px 28px;
+ gap:5px;
+}
+.tc-goldx-v2-side{display:grid;grid-template-columns:1fr 1fr;min-height:0;gap:2px}
+.tc-goldx-v2-side button{
+ min-width:0;min-height:0;padding:3px 1px;font-size:11px;font-weight:700;
+ color:#b4aea3;background:#10151c;border:1px solid #4d4d46;
+}
+.tc-goldx-v2-side button.active.buy{color:#effbf4;background:linear-gradient(#28704c,#17422f);border-color:#60b98b;box-shadow:inset 0 1px #9bd8b155}
+.tc-goldx-v2-side button.active.sell{color:#fff3f1;background:linear-gradient(#71333a,#492329);border-color:#be6c70;box-shadow:inset 0 1px #d78d8655}
+.tc-goldx-v2-order-kind{display:flex;align-items:center;justify-content:space-between;gap:2px;border-bottom:1px solid #4b453b;min-width:0}
+.tc-goldx-v2-order-kind b{font-size:12px;color:#e6c990}
+.tc-goldx-v2-order-kind span{font-size:8px;color:#92968f;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-goldx-v2-input{min-height:0;min-width:0;display:grid;grid-template-rows:17px minmax(0,1fr);gap:2px}
+.tc-goldx-v2-input>span{font-size:10px;color:#d7c29d;font-weight:700}
+.tc-goldx-v2-input>span small{font-size:8px;font-weight:400;color:#8f958e}
+.tc-goldx-v2-input>div{display:grid;grid-template-columns:minmax(0,1fr) 18px;align-items:center;gap:2px;border:1px solid #605842;background:#080d15;padding:0 6px}
+.tc-goldx-v2-input input{width:100%;height:100%;min-width:0;border:0;background:transparent;color:#f0e0bf;outline:none;font:700 14px ui-monospace,monospace;letter-spacing:0;text-align:right;padding:0}
+.tc-goldx-v2-input input::placeholder{font-size:10px;color:#696f71;font-weight:400}
+.tc-goldx-v2-input em{font-style:normal;font-size:9px;color:#b7a16f;text-align:center}
+.tc-goldx-v2-shares{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;min-height:0}
+.tc-goldx-v2-shares button{border:1px solid #62553d;background:#17202d;color:#d6c4a1;font-size:9px;min-height:0;padding:2px}
+.tc-goldx-v2-shares button:active{background:#514025}
+.tc-goldx-v2-available{border-top:1px solid #4d4538;display:flex;justify-content:space-between;align-items:center;gap:3px;min-width:0}
+.tc-goldx-v2-available small{font-size:9px;color:#9d9e98}
+.tc-goldx-v2-available b{font-size:11px;font-weight:700;color:#ead5a8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-goldx-v2-settlement{min-height:0;display:flex;flex-direction:column;justify-content:center;gap:7px;border:1px solid #4b4336;background:#101721;padding:7px}
+.tc-goldx-v2-settlement>div{display:flex;min-width:0;align-items:baseline;justify-content:space-between;gap:4px}
+.tc-goldx-v2-settlement small{font-size:9px;color:#a9a49a;white-space:nowrap}
+.tc-goldx-v2-settlement b{font-size:11px;color:#edddb9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-goldx-v2-submit{min-height:0;padding:4px;font:700 12px Georgia,"Noto Serif KR",serif;color:#f6e9cb;border:1px solid #bd9a5c;box-shadow:inset 0 0 0 2px #15201d}
+.tc-goldx-v2-submit.buy{background:linear-gradient(#276545,#1b4733)}
+.tc-goldx-v2-submit.sell{background:linear-gradient(#7b3940,#52262c)}
+.tc-goldx-v2-submit:disabled{background:#2c3030;color:#94928d;border-color:#605d51;box-shadow:none;opacity:.75}
+.tc-goldx-v2-feedback{margin:0;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;overflow:hidden;color:#abb2aa;font-size:8px;line-height:1.3}
+.tc-goldx-v2-orderbook{display:grid;grid-template-rows:34px 26px minmax(70px,1fr) 52px minmax(70px,1fr) 36px}
+.tc-goldx-v2-orderbook>header{display:flex;align-items:center;justify-content:space-between;gap:3px;padding:0 9px;background:#192330;border-bottom:1px solid #514939}
+.tc-goldx-v2-orderbook>header b{font-size:12px;color:#e4d0ac}
+.tc-goldx-v2-orderbook>header small{font-size:8px;color:#a7a09b}
+.tc-goldx-v2-orderbook>header small.live{color:#71c997}
+.tc-goldx-v2-book-head{display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #333842;background:#101821}
+.tc-goldx-v2-book-head span{font-size:9px;color:#999b95}
+.tc-goldx-v2-asks,.tc-goldx-v2-bids{min-height:0;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));overflow:hidden}
+.tc-goldx-v2-orderbook .tc-goldx-v2-asks button,.tc-goldx-v2-orderbook .tc-goldx-v2-bids button{
+ display:flex;align-items:center;justify-content:space-between;position:relative;gap:5px;
+ min-height:0;width:100%;padding:2px 7px;border:0;border-bottom:1px solid #34394144;background:#0e1520;overflow:hidden;
+}
+.tc-goldx-v2-orderbook button i{position:absolute;right:0;top:0;bottom:0;opacity:.17;pointer-events:none}
+.tc-goldx-v2-asks button i{background:#c86b73}
+.tc-goldx-v2-bids button i{background:#55b388}
+.tc-goldx-v2-orderbook button b,.tc-goldx-v2-orderbook button span{z-index:1;position:relative;font:700 11px ui-monospace,monospace;white-space:nowrap}
+.tc-goldx-v2-orderbook button span{font-size:10px;color:#c5c1b2;font-weight:400}
+.tc-goldx-v2-asks button b{color:#df8b8b}
+.tc-goldx-v2-bids button b{color:#7bcea1}
+.tc-goldx-v2-asks button:active,.tc-goldx-v2-bids button:active{background:#263144}
+.tc-goldx-v2-empty{grid-row:1/-1;display:grid;place-items:center;color:#888c86;font-size:10px;padding:5px;text-align:center}
+.tc-goldx-v2-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(90deg,#182336,#262a32,#182336);border-block:1px solid #9c814b}
+.tc-goldx-v2-mid b{font:700 clamp(17px,4.6vw,24px) ui-monospace,monospace;color:#f2d49d}
+.tc-goldx-v2-mid small{font-size:9px;color:#c1b49b}
+.tc-goldx-v2-orderbook footer{display:flex;align-items:center;justify-content:center;border-top:1px solid #484336;padding:5px;text-align:center}
+.tc-goldx-v2-orderbook footer span{font-size:8px;line-height:1.4;color:#969d9a}
+
+/* Dedicated real-execution candlestick screen; keeps the existing game chrome. */
+.tc-goldx-v2-screen .tc-screen-body>.tc-goldx{position:relative}
+.tc-goldx-chart-overlay{
+ z-index:35;position:absolute;inset:0;display:grid;grid-template-rows:43px 65px 43px minmax(125px,1fr) 66px minmax(95px,.62fr) 34px;
+ gap:6px;padding:6px;background:radial-gradient(ellipse at 40% 10%,#1c2e414d,transparent 62%),#080d17;
+ border:1px solid #8b6e47;overflow:hidden;
+}
+.tc-goldx-chart-head{display:grid;grid-template-columns:75px minmax(0,1fr) 65px;align-items:center;border-bottom:1px solid #725b3e;gap:3px}
+.tc-goldx-chart-head button{color:#e5cc9e;background:transparent;border:1px solid #67533c;min-height:33px;font-size:12px}
+.tc-goldx-chart-head strong{text-align:center;font-size:14px;color:#f4dcae;white-space:nowrap}
+.tc-goldx-chart-live{text-align:right;font-size:10px;color:#71c997}
+.tc-goldx-chart-quote{display:flex;justify-content:space-between;align-items:center;gap:5px;padding:5px 8px;background:#141f2b;border:1px solid #514638}
+.tc-goldx-chart-quote>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.tc-goldx-chart-quote small{font-size:9px;color:#a6a098}
+.tc-goldx-chart-quote b{font:700 24px ui-monospace,monospace;color:#f4ddac;white-space:nowrap}
+.tc-goldx-chart-quote strong{font-size:14px;white-space:nowrap}
+.tc-goldx-chart-quote strong.up{color:#71c997}
+.tc-goldx-chart-quote strong.down{color:#d9787b}
+.tc-goldx-chart-quote strong.flat{color:#a5a8a5}
+.tc-goldx-chart-periods{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;min-height:0}
+.tc-goldx-chart-periods button{color:#b8b1a2;border:1px solid #504738;background:#161c26;min-width:0;font-size:11px;padding:2px}
+.tc-goldx-chart-periods button[aria-pressed=true]{background:#41311f;border-color:#d1a765;color:#f5dba8;font-weight:700}
+.tc-goldx-chart-canvas{min-width:0;min-height:0;position:relative;border:1px solid #5c503f;background:repeating-linear-gradient(0deg,transparent 0 31px,#ffffff02 31px 32px),#0c1520}
+.tc-goldx-chart-canvas svg{width:100%;height:100%}
+.tc-goldx-chart-no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;text-align:center;padding:10px}
+.tc-goldx-chart-no-data strong{color:#e5c898;font-size:12px}
+.tc-goldx-chart-no-data span{color:#a7a49d;font-size:10px}
+.tc-goldx-chart-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;min-height:0}
+.tc-goldx-chart-stats>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;padding:2px;background:#111b27;border:1px solid #4f493e}
+.tc-goldx-chart-stats small{font-size:9px;color:#a3a19b}
+.tc-goldx-chart-stats b{font-size:11px;color:#e2d0ac;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tc-goldx-chart-trades{min-width:0;min-height:0;display:grid;grid-template-rows:26px minmax(0,1fr);border:1px solid #514c41;background:#101824}
+.tc-goldx-chart-trades header{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:0 8px;border-bottom:1px solid #494638}
+.tc-goldx-chart-trades header b{font-size:11px;color:#e4cd9e}
+.tc-goldx-chart-trades header small{font-size:8px;color:#9da09c}
+.tc-goldx-chart-trades>div{min-height:0;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));overflow:hidden}
+.tc-goldx-chart-trades>div>div{display:grid;grid-template-columns:1fr .8fr 1.15fr;gap:5px;align-items:center;padding:1px 8px;border-bottom:1px solid #333c4444}
+.tc-goldx-chart-trades>div>div b{font:700 11px ui-monospace,monospace;color:#ecd6a9}
+.tc-goldx-chart-trades>div>div span,.tc-goldx-chart-trades>div>div time{font-size:9px;color:#aeb6b0;text-align:right}
+.tc-goldx-chart-trades>div>p{grid-row:1/-1;display:grid;place-items:center;font-size:11px;color:#a0a6a2}
+.tc-goldx-chart-overlay footer{display:flex;align-items:center;padding:4px 5px;font-size:9px;line-height:1.4;color:#a9a39b;border-top:1px solid #514838}
+
+@media(max-width:385px){
+ .tc-goldx-v2-quote{grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr) 53px;padding:5px;gap:4px}
+ .tc-goldx-v2-quote .stats small{font-size:7px}
+ .tc-goldx-v2-quote .stats b{font-size:8px}
+ .tc-goldx-v2-quote .pair>small{font-size:7px}
+ .tc-goldx-v2-order{padding:5px;gap:4px}
+ .tc-goldx-v2-desk{gap:4px}
+ .tc-goldx-v2-orderbook button b{font-size:10px}
+ .tc-goldx-v2-orderbook button span{font-size:9px}
+ .tc-goldx-v2-orderbook footer span{font-size:7px}
+ .tc-goldx-v2-available b{font-size:9px}
+ .tc-goldx-v2-chart-trigger{font-size:8px}
+}
+@media(max-height:800px){
+ .tc-goldx.tc-goldx-v2.tab-market{grid-template-rows:34px 72px minmax(0,1fr);gap:5px}
+ .tc-goldx-v2-order{grid-template-rows:33px 23px 45px 45px 27px 27px minmax(58px,1fr) 36px 22px;gap:3px;padding:5px}
+ .tc-goldx-v2-orderbook{grid-template-rows:31px 24px minmax(52px,1fr) 42px minmax(52px,1fr) 27px}
+ .tc-goldx-v2-order-kind b{font-size:11px}
+ .tc-goldx-v2-input{grid-template-rows:14px minmax(0,1fr)}
+ .tc-goldx-v2-input input{font-size:11px}
+ .tc-goldx-v2-settlement{gap:3px;padding:4px}
+ .tc-goldx-v2-settlement small{font-size:8px}
+ .tc-goldx-v2-settlement b{font-size:9px}
+ .tc-goldx-v2-orderbook button b{font-size:10px}
+ .tc-goldx-chart-overlay{grid-template-rows:35px 55px 35px minmax(115px,1fr) 56px minmax(72px,.48fr) 29px;gap:4px;padding:4px}
+ .tc-goldx-chart-head strong{font-size:12px}
+ .tc-goldx-chart-quote b{font-size:19px}
+ .tc-goldx-chart-stats b{font-size:9px}
+ .tc-goldx-chart-trades header{height:22px}
+}
+@media(max-height:640px){
+ .tc-goldx.tc-goldx-v2.tab-market{grid-template-rows:30px 58px minmax(0,1fr);gap:3px}
+ .tc-goldx-v2>.tc-segments{height:30px;min-height:30px}
+ .tc-goldx-v2>.tc-segments button{min-height:28px;font-size:10px}
+ .tc-goldx-v2-quote .pair b{font-size:14px}
+ .tc-goldx-v2-quote .stats span:last-child{display:none}
+ .tc-goldx-v2-order{grid-template-rows:30px 20px 37px 37px 23px 22px minmax(45px,1fr) 32px 16px;gap:2px;padding:3px}
+ .tc-goldx-v2-side button{font-size:9px}
+ .tc-goldx-v2-input>span{font-size:9px}
+ .tc-goldx-v2-input input{font-size:10px}
+ .tc-goldx-v2-orderbook{grid-template-rows:26px 20px minmax(43px,1fr) 37px minmax(43px,1fr) 24px}
+ .tc-goldx-v2-orderbook>header b{font-size:10px}
+ .tc-goldx-v2-mid b{font-size:14px}
+ .tc-goldx-v2-available small{font-size:8px}
+ .tc-goldx-v2-settlement b,.tc-goldx-v2-settlement small{font-size:8px}
+ .tc-goldx-v2-submit{font-size:10px}
+ .tc-goldx-v2-feedback{font-size:7px}
+ .tc-goldx-chart-overlay{grid-template-rows:30px 47px 30px minmax(90px,1fr) 50px minmax(55px,.45fr) 24px;gap:3px}
+ .tc-goldx-chart-stats small{font-size:8px}
+ .tc-goldx-chart-overlay footer{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tc-goldx-v2 *{animation:none!important;transition:none!important}
+}

@@ -13,6 +13,8 @@ import {
 } from '../../online/goldExchange';
 import {Pager,Screen,Segments} from '../../ui/mobile';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
+import {GoldExchangePriceChart} from './GoldExchangePriceChart';
+import './gold-exchange-v2.css';
 
 type Tab='market'|'orders'|'trades';
 const PAGE_SIZE=6;
@@ -31,15 +33,6 @@ function levels(orders:OnlineGoldExchangeOrder[],side:GoldExchangeSide):Level[]{
   .sort((a,b)=>side==='SELL_GOLD'?a.price-b.price:b.price-a.price)
   .slice(0,5);
 }
-function sparkPoints(values:number[]){
- if(values.length<2)return '';
- const min=Math.min(...values),max=Math.max(...values),span=max-min||1;
- return values.map((value,index)=>{
-  const x=index/(values.length-1)*100;
-  const y=31-(value-min)/span*26;
-  return `${x.toFixed(2)},${y.toFixed(2)}`;
- }).join(' ');
-}
 
 export function GoldExchangeScreen({
  game,setGame,onlineLease,
@@ -50,6 +43,7 @@ export function GoldExchangeScreen({
 }){
  const feel=useGameFeel();
  const [tab,setTab]=useState<Tab>('market');
+ const [chartOpen,setChartOpen]=useState(false);
  const [state,setState]=useState<OnlineGoldExchangeState|null>(null);
  const [side,setSide]=useState<GoldExchangeSide>('BUY_GOLD');
  const [price,setPrice]=useState('');
@@ -112,13 +106,12 @@ export function GoldExchangeScreen({
  const maxDepth=Math.max(1,...asks.map(level=>level.quantity),...bids.map(level=>level.quantity));
  const recent24=trades.filter(trade=>trade.executedAt>=Date.now()-86_400_000).slice().sort((a,b)=>a.executedAt-b.executedAt);
  const first24=recent24[0]?.priceSilverPerGold??null;
- const last=trades[0]?.priceSilverPerGold??asks[0]?.price??bids[0]?.price??null;
+ const lastTradePrice=trades[0]?.priceSilverPerGold??null;
+ const last=lastTradePrice??asks[0]?.price??bids[0]?.price??null;
  const change=first24&&last!==null?((last-first24)/first24)*100:0;
- const high=recent24.length?Math.max(...recent24.map(t=>t.priceSilverPerGold)):last;
- const low=recent24.length?Math.min(...recent24.map(t=>t.priceSilverPerGold)):last;
+ const high=recent24.length?Math.max(...recent24.map(t=>t.priceSilverPerGold)):null;
+ const low=recent24.length?Math.min(...recent24.map(t=>t.priceSilverPerGold)):null;
  const volume24=recent24.reduce((sum,trade)=>sum+trade.goldQuantity,0);
- const chartValues=(recent24.length?recent24:trades.slice(0,24).reverse()).map(t=>t.priceSilverPerGold);
- const chart=sparkPoints(chartValues);
 
  const p=/^\d+$/.test(price)?Number(price):NaN;
  const q=/^\d+$/.test(quantity)?Number(quantity):NaN;
@@ -141,6 +134,12 @@ export function GoldExchangeScreen({
   setSide(next);
   setPrice(String(level.price));
   if(!quantity)setQuantity('1');
+ };
+
+ const chooseShare=(share:number)=>{
+  if(!Number.isSafeInteger(p)||p<=0)return;
+  const available=side==='BUY_GOLD'?Math.floor(wallet.silver/p):wallet.gold;
+  setQuantity(String(Math.max(0,Math.floor(available*share))));
  };
 
  const submit=async()=>{
@@ -174,41 +173,76 @@ export function GoldExchangeScreen({
   </Screen>;
  }
 
- return <Screen eyebrow="NOVAR CURRENCY EXCHANGE" title="골드 거래소" meta={<span className={live==='subscribed'?'tc-goldx-live active':'tc-goldx-live'}>{live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</span>}>
-  <div className={'tc-goldx tab-'+tab+(tradePulse?' tc-market-trade-pulse':'')}>
+ return <Screen eyebrow="NOVAR CURRENCY EXCHANGE" title="골드 거래소" className="tc-goldx-v2-screen" meta={<span className={live==='subscribed'?'tc-goldx-live active':'tc-goldx-live'}>{live==='subscribed'?'LIVE':live==='connecting'?'SYNC':'RETRY'}</span>}>
+  <div className={'tc-goldx tc-goldx-v2 tab-'+tab+(tradePulse?' tc-market-trade-pulse':'')}>
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setPage(0);setMessage('');}} label="골드 거래소 메뉴"/>
 
    {tab==='market'&&<>
-    <section className="tc-goldx-hero">
-     <div className="tc-goldx-pair"><div className="tc-goldx-coin" aria-hidden="true">G</div><span><small>통화쌍</small><b>GOLD / SILVER</b><em>1 Gold당 Silver</em></span></div>
-     <div className="tc-goldx-price"><small>최근 체결가</small><b>{last===null?'—':money(last)+' S'}</b><span className={change>=0?'up':'down'}>{recent24.length?pct(change):'체결 대기'}</span></div>
-     <div className="tc-goldx-wallet"><span><small>GOLD</small><b>{money(wallet.gold)}</b></span><span><small>SILVER</small><b>{money(wallet.silver)}</b></span></div>
-    </section>
-
-    <section className="tc-goldx-chart">
-     <div className="plot">{chart?<svg viewBox="0 0 100 34" preserveAspectRatio="none" aria-label="Gold Silver 최근 체결 추이"><polyline points={chart} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<span>체결 데이터가 쌓이면 시세 추이가 표시됩니다.</span>}</div>
-     <div className="stats"><span><small>24H 고가</small><b>{high===null?'—':money(high)+' S'}</b></span><span><small>24H 저가</small><b>{low===null?'—':money(low)+' S'}</b></span><span><small>24H 거래량</small><b>{money(volume24)+' G'}</b></span></div>
-    </section>
-
-    <section className="tc-goldx-book">
-     <header><span>실시간 호가</span><small>가격 S/G · Gold 수량</small></header>
-     <div className="books">
-      <div className="ask"><b>Gold 판매</b>{asks.map(level=><button key={level.price} onClick={()=>chooseLevel('BUY_GOLD',level)}><i style={{width:(level.quantity/maxDepth*100)+'%'}}/><span>{money(level.price)}</span><small>{money(level.quantity)} G</small></button>)}{!asks.length&&<em>판매 주문 없음</em>}</div>
-      <div className="bid"><b>Gold 구매</b>{bids.map(level=><button key={level.price} onClick={()=>chooseLevel('SELL_GOLD',level)}><i style={{width:(level.quantity/maxDepth*100)+'%'}}/><span>{money(level.price)}</span><small>{money(level.quantity)} G</small></button>)}{!bids.length&&<em>구매 주문 없음</em>}</div>
+    <section className="tc-goldx-v2-quote" aria-label="골드 실시간 시세">
+     <div className="pair">
+      <small>GOLD / SILVER · 1 Gold당 Silver</small>
+      <div><b>{last===null?'체결 대기':money(last)+' S'}</b><em className={change<0?'down':'up'}>{recent24.length>1?pct(change):'—'}</em></div>
      </div>
+     <div className="stats">
+      <span><small>24시간 최고</small><b>{high===null?'—':money(high)+' S'}</b></span>
+      <span><small>24시간 최저</small><b>{low===null?'—':money(low)+' S'}</b></span>
+      <span><small>24시간 거래량</small><b>{money(volume24)+' G'}</b></span>
+     </div>
+     <button type="button" className="tc-goldx-v2-chart-trigger tc-feel-press" data-game-feel="press" onClick={()=>setChartOpen(true)} aria-label="골드 시세 캔들 차트 열기">
+      <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.65">
+       <path d="M3 4v16h18M6 14v-4m4-2v10m4-13v8m4-8v13M4 15l5-3 4 2 7-8"/>
+      </svg>
+      <span>시세<br/>차트</span>
+     </button>
     </section>
 
-    <section className="tc-goldx-ticket">
-     <Segments items={[['BUY_GOLD','Gold 매수'],['SELL_GOLD','Gold 매도']] as const} value={side} onChange={setSide} label="골드 거래 방향"/>
-     <div className="fields"><label><small>1G 가격</small><input inputMode="numeric" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><span>S</span></label><label><small>Gold 수량</small><input inputMode="numeric" value={quantity} onChange={e=>setQuantity(e.target.value.replace(/\D/g,''))}/><span>G</span></label></div>
-     <div className="settlement">
-      <span><small>{side==='BUY_GOLD'?'필요 Silver':'판매 총액'}</small><b>{money(gross)} S</b></span>
-      <span><small>{side==='BUY_GOLD'?'매수 수수료':'판매 수수료'}</small><b>{side==='BUY_GOLD'?'없음':`${(feeBps/100).toFixed(0)}% · ${money(sellFee)} S`}</b></span>
-      <span><small>{side==='BUY_GOLD'?'체결 시 수령':'예상 실수령'}</small><b>{side==='BUY_GOLD'?money(q||0)+' G':money(sellNet)+' S'}</b></span>
-     </div>
-     <button className={(side==='BUY_GOLD'?'buy':'sell')+' tc-feel-press'} data-game-feel="press" disabled={!canSubmit} onClick={()=>void submit()}>{busy?'처리 중':side==='BUY_GOLD'?'Gold 매수 주문':'Gold 매도 주문'}</button>
-     <p>{game.expedition?'원정 중에는 주문할 수 없습니다.':message||`즉시 정산 · 등록 수수료 없음 · 판매 체결 수수료 ${(feeBps/100).toFixed(0)}%`}</p>
-    </section>
+    <div className="tc-goldx-v2-desk">
+     <section className="tc-goldx-v2-order" aria-label="골드 지정가 주문">
+      <div className="tc-goldx-v2-side">
+       <button type="button" className={side==='BUY_GOLD'?'active buy':''} aria-pressed={side==='BUY_GOLD'} onClick={()=>setSide('BUY_GOLD')}>골드 매수</button>
+       <button type="button" className={side==='SELL_GOLD'?'active sell':''} aria-pressed={side==='SELL_GOLD'} onClick={()=>setSide('SELL_GOLD')}>골드 매도</button>
+      </div>
+      <div className="tc-goldx-v2-order-kind"><b>지정가</b><span>가격을 지정하여 주문</span></div>
+      <label className="tc-goldx-v2-input">
+       <span>가격 <small>(S / 1G)</small></span>
+       <div><input aria-label="1골드당 실버 가격" inputMode="numeric" placeholder="가격 입력" value={price} onChange={e=>setPrice(e.target.value.replace(/\D/g,''))}/><em>S</em></div>
+      </label>
+      <label className="tc-goldx-v2-input">
+       <span>수량 <small>(Gold)</small></span>
+       <div><input aria-label="거래할 골드 수량" inputMode="numeric" placeholder="수량 입력" value={quantity} onChange={e=>setQuantity(e.target.value.replace(/\D/g,''))}/><em>G</em></div>
+      </label>
+      <div className="tc-goldx-v2-shares" aria-label="보유 자산 기준 수량 선택">
+       {[.25,.5,.75,1].map(share=><button type="button" key={share} onClick={()=>chooseShare(share)}>{Math.round(share*100)}%</button>)}
+      </div>
+      <div className="tc-goldx-v2-available"><small>사용 가능</small><b>{side==='BUY_GOLD'?money(wallet.silver)+' S':money(wallet.gold)+' G'}</b></div>
+      <div className="tc-goldx-v2-settlement">
+       <div><small>{side==='BUY_GOLD'?'필요 Silver':'판매 총액'}</small><b>{money(gross)} S</b></div>
+       <div><small>{side==='BUY_GOLD'?'매수 수수료':'판매 수수료'}</small><b>{side==='BUY_GOLD'?'없음':money(sellFee)+' S'}</b></div>
+       <div><small>{side==='BUY_GOLD'?'체결 시 수령':'예상 실수령'}</small><b>{side==='BUY_GOLD'?money(q||0)+' G':money(sellNet)+' S'}</b></div>
+      </div>
+      <button type="button" className={'tc-goldx-v2-submit '+(side==='BUY_GOLD'?'buy':'sell')+' tc-feel-press'} data-game-feel="press" disabled={!canSubmit} onClick={()=>void submit()}>{busy?'처리 중':side==='BUY_GOLD'?'골드 매수 주문':'골드 매도 주문'}</button>
+      <p className="tc-goldx-v2-feedback" role="status">{game.expedition?'원정 중에는 주문할 수 없습니다.':message||'체결 즉시 정산 · 등록 수수료 없음'}</p>
+     </section>
+
+     <section className="tc-goldx-v2-orderbook" aria-label="실시간 골드 호가창">
+      <header><b>실시간 호가</b><small className={live==='subscribed'?'live':''}>{live==='subscribed'?'● LIVE':live==='connecting'?'연결 중':'재연결 중'}</small></header>
+      <div className="tc-goldx-v2-book-head"><span>가격 (S)</span><span>수량 (G)</span></div>
+      <div className="tc-goldx-v2-asks">
+       {asks.slice().reverse().map(level=><button type="button" key={level.price} onClick={()=>chooseLevel('BUY_GOLD',level)} title={'클릭 시 '+money(level.price)+' S 매수 가격으로 적용'}>
+        <i style={{width:(level.quantity/maxDepth*100)+'%'}}/><b>{money(level.price)}</b><span>{money(level.quantity)}</span>
+       </button>)}
+       {!asks.length&&<div className="tc-goldx-v2-empty">판매 호가 없음</div>}
+      </div>
+      <div className="tc-goldx-v2-mid"><b>{last===null?'—':money(last)+' S'}</b><small>{lastTradePrice===null?'기준 호가':'최근 체결가'}</small></div>
+      <div className="tc-goldx-v2-bids">
+       {bids.map(level=><button type="button" key={level.price} onClick={()=>chooseLevel('SELL_GOLD',level)} title={'클릭 시 '+money(level.price)+' S 매도 가격으로 적용'}>
+        <i style={{width:(level.quantity/maxDepth*100)+'%'}}/><b>{money(level.price)}</b><span>{money(level.quantity)}</span>
+       </button>)}
+       {!bids.length&&<div className="tc-goldx-v2-empty">구매 호가 없음</div>}
+      </div>
+      <footer><span>매수·매도 호가를 누르면 주문 가격이 입력됩니다.</span></footer>
+     </section>
+    </div>
    </>}
 
    {tab==='orders'&&<>
@@ -239,6 +273,7 @@ export function GoldExchangeScreen({
     <Pager page={safeTradePage} count={tradePages} onChange={setPage}/>
     <div className="tc-goldx-note">Gold와 Silver는 체결 즉시 양쪽 서버 지갑에 정산됩니다. 별도 보관함 수령이 없습니다.</div>
    </>}
+   {chartOpen&&<GoldExchangePriceChart trades={trades} lastPrice={lastTradePrice} onClose={()=>setChartOpen(false)}/>}
   </div>
  </Screen>;
 }
