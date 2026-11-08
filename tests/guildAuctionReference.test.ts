@@ -8,7 +8,7 @@ import type {GameplayLease} from '../src/online/gameSession';
 
 const panel=readFileSync(new URL('../src/components/association/GuildAuctionPanel.tsx',import.meta.url),'utf8');
 const theme=readFileSync(new URL('../src/components/association/guildAuctionReference.css',import.meta.url),'utf8');
-const art=readFileSync(new URL('../src/components/association/auctionReferenceScene.svg',import.meta.url),'utf8');
+const art=readFileSync(new URL('../src/components/association/auctionHeaderArtwork.webp',import.meta.url));
 const association=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
 
 test('reference auction shows the correct game title, header, guide and server contribution balance while loading',()=>{
@@ -53,11 +53,13 @@ test('reference auction shows only server-sourced active listing prices and does
 });
 
 test('gold fantasy reference artwork is locally bundled and does not replace live interface interactions',()=>{
- assert.match(art,/<svg/);
- assert.match(art,/id="moon"/);
- assert.match(art,/id="redcloth"/);
- assert.match(art,/id="tower"/);
- assert.match(theme,/auctionReferenceScene\.svg/);
+ assert.ok(art.length>4000,'painted banner must contain meaningful image data');
+ assert.equal(art.subarray(0,4).toString('ascii'),'RIFF');
+ assert.equal(art.subarray(8,12).toString('ascii'),'WEBP');
+ assert.match(theme,/auctionHeaderArtwork\.webp/);
+ assert.doesNotMatch(theme,/auctionReferenceScene\.svg/);
+ assert.doesNotMatch(theme,/data:image\/webp;base64/);
+ assert.match(theme,/\.tc-ga-v3 \.tc-ga-banner-art::after\{content:none!important;display:none!important\}/);
  assert.match(theme,/\.tc-ga-v3 \.tc-ga-row-bid/);
  assert.match(theme,/\.tc-ga-v3 \.tc-ga-bottom-tabs/);
  assert.match(theme,/overflow-y:auto!important/);
