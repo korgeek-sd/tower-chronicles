@@ -1,0 +1,46 @@
+name: Guild Auction UI quick checks
+
+on:
+  push:
+    branches:
+      - 'codex/**'
+    paths:
+      - 'src/components/association/GuildAuctionPanel.tsx'
+      - 'src/components/association/guildAuctionReference.css'
+      - 'src/components/association/auctionReferenceScene.svg'
+      - 'src/components/association/AssociationScreen.tsx'
+      - 'tests/guildAuction*.test.ts'
+      - '.github/workflows/guild-auction-quick.yml'
+  pull_request:
+    paths:
+      - 'src/components/association/GuildAuctionPanel.tsx'
+      - 'src/components/association/guildAuctionReference.css'
+      - 'src/components/association/auctionReferenceScene.svg'
+      - 'src/components/association/AssociationScreen.tsx'
+      - 'tests/guildAuction*.test.ts'
+      - '.github/workflows/guild-auction-quick.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auction-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Focused auction UI regression tests
+        run: node --import ./tests/register.mjs --test tests/guildAuctionConceptOne.test.ts tests/guildAuctionReference.test.ts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build

@@ -37,6 +37,7 @@ import './guild-workspace.css';
 import {GuildBossPanel} from './GuildBossPanel';
 import {GuildAuctionPanel} from './GuildAuctionPanel';
 import './guildAuctionConcept.css';
+import './guildAuctionReference.css';
 
 type LocalTab='overview'|'members'|'activity'|'manage';
 const localTabs=[['overview','본부'],['members','단원'],['activity','기록'],['manage','관리']] as const;

@@ -25,7 +25,7 @@ test('auction board presents featured lot, accurate contribution prices, compact
  for(const required of ['tc-ga-feature','tc-ga-list-entry','tc-ga-categories','tc-ga-sort','tc-ga-bottom-tabs','tc-ga-feature-bid','tc-ga-detail-metrics','getGuildAuctionState','n(state.points)']){
   assert.ok(source.includes(required),required);
  }
- for(const title of ['진행 중','내 입찰','종료 내역','전체','장비','재료','보스 전리품','종료순','높은 입찰','낮은 입찰']){
+ for(const title of ['진행 중','내 입찰','낙찰 내역','전체','장비','재료','소모품','희귀품','남은 시간순','최고 입찰순','낮은 가격순']){
   assert.ok(source.includes(title),title);
  }
  assert.match(source,/assetUrl\('assets\/ui\/equipment\/'\+lot\.gear\.kind\+'\.png'\)/);
