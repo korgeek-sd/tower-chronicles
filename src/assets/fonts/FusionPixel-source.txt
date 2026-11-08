@@ -1,0 +1,7 @@
+Fusion Pixel 12px Proportional, Korean (ko) language build.
+Source: https://github.com/TakWolf/fusion-pixel-font
+Release: https://github.com/TakWolf/fusion-pixel-font/releases/tag/2026.10.25
+Copyright (c) 2022, TakWolf (https://takwolf.com).
+License: SIL Open Font License 1.1 (see FusionPixel-OFL.txt).
+Includes third-party glyph work credited by upstream, including Galmuri.
+This font is distributed unmodified in its original WOFF2 form.
