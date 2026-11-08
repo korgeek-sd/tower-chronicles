@@ -211,7 +211,7 @@ function OnlineAssociationScreen({
    </nav>;
  const playerArt=tab==='overview'?playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle:null;
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
-  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":" tc-gate-detail")+(tab==='shop'?" tc-assoc-shop-immersive":"")+(tab==='auction'?" tc-auction-immersive":"")}>
+  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":" tc-gate-detail")+(tab==='shop'?" tc-assoc-shop-immersive":"")+(tab==='auction'?" tc-auction-immersive":"")+(tab==='warehouse'?" tc-treasury-immersive":"")}>
    <header className="tc-gate-identity">
     <div className="tc-gate-emblem" aria-hidden="true"/>
     <button type="button" className="tc-gate-growth" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
@@ -290,7 +290,7 @@ function OnlineAssociationScreen({
    {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()} onBack={()=>navigate('overview')}/>} 
    {tab==='rankings'&&<GuildRankingPanel lease={lease}/>}
    {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
-   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
+   {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()} onBack={()=>navigate('overview')}/>}
    {tab==='shop'&&<AssociationSupplyPanel key={current.associationId+'shop'} lease={lease} mode="shop" onShopNavigate={navigate} expedition={!!game.expedition} silver={game.silver} gold={game.market.gold} onRecord={applyRecord} onChanged={()=>void refresh()}/>}
    {tab==='members'&&<section className="tc-company-records"><div className="tc-member-list">{shown.map((item:any)=>{const member=item as typeof current.members[number];return <div className="tc-member tc-assoc-member" key={member.userId}><div><b>{member.playerLabel}{member.userId===state.userId?' · 나':''}</b><small>{member.role==='LEADER'?'단장':'단원'} · {new Date(member.joinedAt).toLocaleDateString('ko-KR')}</small></div>{leader&&member.role==='MEMBER'&&<GuildTask title={member.playerLabel+' 관리'} feedback={error}><span className="tc-assoc-member-actions"><button disabled={busy} onClick={()=>{if(window.confirm(member.playerLabel+'에게 단장을 위임하시겠습니까?'))void act(()=>transferOnlineAssociationLeadership(lease,member.userId),'원정단장 권한을 위임했습니다.');}}>단장 위임</button><button disabled={busy} onClick={()=>{if(window.confirm(member.playerLabel+'을(를) 내보내시겠습니까?'))void act(()=>kickOnlineAssociationMember(lease,member.userId),'원정단원을 내보냈습니다.');}}>내보내기</button></span></GuildTask>}</div>})}</div><Pager page={safe} count={pages} onChange={setPage}/></section>}
 
