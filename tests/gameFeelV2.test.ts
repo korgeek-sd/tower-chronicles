@@ -49,3 +49,17 @@ test('GAME FEEL V2: targeted CSS exists with reduced-motion fallback',()=>{
  for(const name of['tc-seal-result-3','tc-enhance-feel-success','tc-combat-impact-critical','tc-market-trade-pulse'])assert.ok(s.includes(name),name);
  assert.match(s,/prefers-reduced-motion:\s*reduce/);
 });
+
+test('GOLD EXCHANGE UX: trade and order notifications do not render expanding circles',async()=>{
+ const {marketRecipe}=await import('../src/gameFeel/recipes/market');
+ const events=['market.order-placed','market.order-cancelled','market.trade-partial','market.trade-filled'] as const;
+ for(const event of events){
+  const recipe=marketRecipe(event);
+  assert.deepEqual(recipe.commands.map(x=>x.kind),['haptic'],event);
+  assert.ok(!recipe.commands.some(x=>['pulse','burst','particles'].includes(x.kind)),event);
+ }
+ const ui=read('src/components/market/GoldExchangeScreen.tsx');
+ assert.match(ui,/placeOnlineGoldExchangeOrder/);
+ assert.match(ui,/cancelOnlineGoldExchangeOrder/);
+ assert.match(ui,/market\.trade-filled/);
+});
