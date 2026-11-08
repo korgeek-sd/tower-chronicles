@@ -190,7 +190,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
      </div>
      <button type="button" className="tc-ga-feature-bid" onClick={()=>showLot(featured.listingId)}><span aria-hidden="true">⚒</span> 입찰하기</button>
     </div>
-   </article>
+   </article>}
    {section==='active'&&!featured&&<div className="tc-ga-feature-empty">진행 중인 경매가 없습니다.<small>다른 분류를 선택하거나 새 경매 등록을 확인해 주세요.</small></div>}
    <div className="tc-ga-toolbar"><span><b>{section==='active'?'경매 목록':section==='mine'?'내 경매 및 입찰':'지난 경매'}</b><small>{subset.length}건</small></span>
     <div className="tc-ga-sort" role="group" aria-label="경매 정렬">
