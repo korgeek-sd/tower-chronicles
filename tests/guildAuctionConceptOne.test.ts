@@ -22,7 +22,7 @@ test('guild auction concept one renders a responsive in-game board and loading s
 });
 
 test('auction board presents featured lot, accurate contribution prices, compact rows and sections',()=>{
- for(const required of ['tc-ga-feature','tc-ga-list-entry','tc-ga-categories','tc-ga-sort','tc-ga-bottom-tabs','tc-ga-feature-cta','tc-ga-detail-metrics','getGuildAuctionState','n(state.points)']){
+ for(const required of ['tc-ga-feature','tc-ga-list-entry','tc-ga-categories','tc-ga-sort','tc-ga-bottom-tabs','tc-ga-feature-bid','tc-ga-detail-metrics','getGuildAuctionState','n(state.points)']){
   assert.ok(source.includes(required),required);
  }
  for(const title of ['진행 중','내 입찰','종료 내역','전체','장비','재료','보스 전리품','종료순','높은 입찰','낮은 입찰']){
@@ -54,4 +54,24 @@ test('entire guild auction view stays one screen; only auction list scrolls',()=
  assert.match(css,/\.tc-ga-detail-dialog\[open\]\{display:flex/);
  assert.match(css,/\.tc-ga-detail-dialog::backdrop/);
  assert.match(css,/@media\(max-height:700px\)/);
+});
+
+
+test('chosen visual concept isolates fullscreen auction from duplicate guild and game navigation',()=>{
+ const association=readFileSync(new URL('../src/components/association/AssociationScreen.tsx',import.meta.url),'utf8');
+ const design=readFileSync(new URL('../src/components/association/guildAuctionConcept.css',import.meta.url),'utf8');
+ assert.match(association,/tc-auction-immersive/);
+ assert.match(association,/onBack=\{\(\)=>navigate\('overview'\)\}/);
+ assert.match(association,/import '\.\/guildAuctionConcept\.css'/);
+ assert.match(design,/\.tc-app:has\(\.tc-auction-immersive\)>\\.tc-nav/);
+ assert.match(design,/\.tc-assoc\.tc-auction-immersive>\.tc-company-mainnav/);
+ assert.match(design,/\.tc-assoc\.tc-auction-immersive>\.tc-company-subnav-wrap/);
+ assert.match(design,/\.tc-auction-immersive \.tc-ga-v3 \.tc-ga-feature-bid:not\(:disabled\)/);
+ assert.match(design,/\.tc-ga-v3 \.tc-ga-feature-rarity/);
+ assert.match(source,/tc-ga-quick-menu/);
+ assert.match(source,/featured\.topBid\|\|featured\.startingBid/);
+ assert.match(source,/l\.topBid\|\|l\.startingBid/);
+ assert.match(source,/tc-ga-feature-main/);
+ assert.match(source,/tc-ga-feature-bottom/);
+ assert.doesNotMatch(source,/tc-ga-feature-cta/);
 });
