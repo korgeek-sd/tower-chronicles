@@ -1,0 +1,67 @@
+# One-time, pinned vendor import. Remove this workflow after it has committed the font.
+name: Import Fusion Pixel Korean font (pinned)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-fusion-font.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact release head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Fetch official Fusion Pixel 12px Korean proportional WOFF2
+        run: |
+          set -euo pipefail
+          curl -fL --retry 4 --retry-delay 3 --connect-timeout 15 \
+            'https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.10.25/fusion-pixel-font-12px-proportional-otf.woff2-v2026.10.25.zip' \
+            -o /tmp/fusion-font.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import re
+          import hashlib
+          bundle=Path('/tmp/fusion-font.zip')
+          target=Path('src/assets/fonts/FusionPixel12ProportionalKO.woff2')
+          with ZipFile(bundle) as archive:
+              names=[name for name in archive.namelist() if name.lower().endswith('.woff2')]
+              print('Available WOFF2 faces:',names,flush=True)
+              ko=[name for name in names if 'proportional' in name.lower() and '12px' in name.lower() and re.search(r'(^|[-_.])ko(?=[-_.])',Path(name).name.lower())]
+              if len(ko)!=1: raise SystemExit(f'Expected one Korean proportional 12px face, got {ko}')
+              data=archive.read(ko[0])
+              assert data[:4]==b'wOF2','Invalid WOFF2 signature'
+              assert 50000<len(data)<3000000,'Unexpected WOFF2 file size'
+              target.parent.mkdir(parents=True,exist_ok=True)
+              target.write_bytes(data)
+              checksum=hashlib.sha256(data).hexdigest()
+              print('Bundled',target,'bytes',len(data),'SHA-256',checksum)
+          PY
+          curl -fL --retry 3 \
+            'https://raw.githubusercontent.com/TakWolf/fusion-pixel-font/2026.10.25/LICENSE-OFL' \
+            -o src/assets/fonts/FusionPixel-OFL.txt
+          grep -q 'SIL OPEN FONT LICENSE Version 1.1' src/assets/fonts/FusionPixel-OFL.txt
+          cat > src/assets/fonts/FusionPixel-source.txt <<'NOTICE'
+          Fusion Pixel 12px Proportional, Korean (ko) language build.
+          Source: https://github.com/TakWolf/fusion-pixel-font
+          Release: https://github.com/TakWolf/fusion-pixel-font/releases/tag/2026.10.25
+          Copyright (c) 2022, TakWolf (https://takwolf.com).
+          License: SIL Open Font License 1.1 (see FusionPixel-OFL.txt).
+          Includes third-party glyph work credited by upstream, including Galmuri.
+          This font is distributed unmodified in its original WOFF2 form.
+          NOTICE
+      - name: Commit unmodified font and license to main
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/assets/fonts/FusionPixel12ProportionalKO.woff2 src/assets/fonts/FusionPixel-OFL.txt src/assets/fonts/FusionPixel-source.txt
+          if git diff --cached --quiet; then echo 'Font already imported'; exit 0; fi
+          git commit -m 'assets(font): vendor Fusion Pixel 12px ko proportional OFL font'
+          git push origin HEAD:main
