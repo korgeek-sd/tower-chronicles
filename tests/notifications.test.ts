@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const read=(path:string)=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
-const migration=read('supabase/migrations/20261108030000_game_notifications_and_gold_expiry.sql');
-const events=read('supabase/migrations/20261108031500_game_notification_auction_war_events.sql');
-const dispatch=read('supabase/migrations/20261108033000_secure_game_push_dispatch.sql');
+const migration=read('supabase/migrations/20261108020455_game_notifications_and_gold_expiry.sql');
+const events=read('supabase/migrations/20261108020641_game_notification_auction_war_events.sql');
+const dispatch=read('supabase/migrations/20261108021027_secure_game_push_dispatch.sql');
 
 test('notification history has server-owned access and user-scoped reads',()=>{
  assert.match(migration,/create table if not exists private\.game_notifications/i);
