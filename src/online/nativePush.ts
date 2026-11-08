@@ -52,9 +52,12 @@ export async function enableNativePush(userId:string){
  return '알림 권한을 확인했습니다. Firebase 연결 시 기기가 자동 등록됩니다.';
 }
 export async function disableNativePush(userId:string){
- if(currentToken&&getStoredSession()?.userId===userId){
-  await setGamePushToken(userId,currentToken,false);
- }
+ const token=currentToken;
  currentToken=null;
- await PushNotifications.unregister();
+ try{
+  if(token&&getStoredSession()?.userId===userId)await setGamePushToken(userId,token,false);
+ }finally{
+  // The native registration must be cleared even if the server is unreachable.
+  await PushNotifications.unregister().catch(()=>{});
+ }
 }
