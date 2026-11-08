@@ -36,6 +36,7 @@ import {GuildTask} from './GuildTask';
 import './guild-workspace.css';
 import {GuildBossPanel} from './GuildBossPanel';
 import {GuildAuctionPanel} from './GuildAuctionPanel';
+import './guildAuctionConcept.css';
 
 type LocalTab='overview'|'members'|'activity'|'manage';
 const localTabs=[['overview','본부'],['members','단원'],['activity','기록'],['manage','관리']] as const;
@@ -209,7 +210,7 @@ function OnlineAssociationScreen({
    </nav>;
  const playerArt=tab==='overview'?playerGraphicForJob(game.currentJobId,game.cosmetics.selectedAppearanceId).image.idle:null;
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
-  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":" tc-gate-detail")+(tab==='shop'?" tc-assoc-shop-immersive":"")}>
+  <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":" tc-gate-detail")+(tab==='shop'?" tc-assoc-shop-immersive":"")+(tab==='auction'?" tc-auction-immersive":"")}>
    <header className="tc-gate-identity">
     <div className="tc-gate-emblem" aria-hidden="true"/>
     <button type="button" className="tc-gate-growth" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
@@ -285,7 +286,7 @@ function OnlineAssociationScreen({
    </div>}
    {tab!=='overview'&&<PagedSelectContext.Provider value={true}><div key={tab} className="tc-guild-workspace">
    {tab==='boss'&&<GuildBossPanel key={current.associationId+'-boss'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onAuction={()=>setTab('auction')}/>}
-   {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>} 
+   {tab==='auction'&&<GuildAuctionPanel key={current.associationId+'-auction'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()} onBack={()=>navigate('overview')}/>} 
    {tab==='rankings'&&<GuildRankingPanel lease={lease}/>}
    {tab==='territory'&&<GuildTerritoryPanel key={current.associationId+'-territory'} lease={lease} associationId={current.associationId}/>}
    {tab==='warehouse'&&<AssociationWarehousePanel key={current.associationId+'-warehouse'} lease={lease} associationId={current.associationId} expedition={!!game.expedition} onRecord={applyRecord} onChanged={()=>void refresh()}/>}

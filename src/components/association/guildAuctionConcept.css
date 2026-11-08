@@ -1,0 +1,292 @@
+/*
+ * Concept 1 / focused expedition auction.
+ * The global HUD remains available; duplicated guild and game docks are
+ * replaced by a single explicit return control only while on the auction tab.
+ * Every price below is from the real server's contribution auction.
+ */
+.tc-app:has(.tc-auction-immersive){
+ grid-template-rows:var(--top) minmax(0,1fr)!important;
+ background:#0f0d0d;
+}
+.tc-app:has(.tc-auction-immersive)>.tc-nav,
+.tc-app:has(.tc-auction-immersive)>.tc-statusbar{display:none!important}
+.tc-app:has(.tc-auction-immersive)>.tc-topbar{
+ background:linear-gradient(180deg,#211a16,#120f10)!important;
+ border-bottom:2px solid #987444;
+}
+.tc-app:has(.tc-auction-immersive)>.tc-main{min-height:0;overflow:hidden}
+.tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-auction-immersive{
+ display:flex;flex-direction:column;width:100%;height:100%;min-height:0;gap:0!important;
+ background:linear-gradient(135deg,#271c16,#131212 45%,#0a0c0f)!important;
+}
+.tc-assoc.tc-auction-immersive>.tc-gate-identity,
+.tc-assoc.tc-auction-immersive>.tc-company-subnav-wrap,
+.tc-assoc.tc-auction-immersive>.tc-company-mainnav{
+ display:none!important;
+}
+.tc-assoc.tc-auction-immersive>.tc-guild-workspace{
+ display:flex;flex:1;min-height:0;height:100%;overflow:hidden!important;
+}
+.tc-assoc.tc-auction-immersive .tc-guild-workspace>.tc-guild-auction.tc-ga-v2.tc-ga-v3{
+ --ga-gold:#e7bf7a;--ga-border:#7c5c35;--ga-muted:#baa98d;
+ display:flex!important;flex-direction:column!important;grid-template-columns:none!important;
+ flex:1 1 0!important;min-width:0;min-height:0;height:100%;align-content:initial;
+ gap:6px!important;padding:9px 9px 7px!important;overflow:hidden!important;
+ background:radial-gradient(ellipse 140% 45% at 48% 0%,#37221c 0%,transparent 67%),linear-gradient(180deg,#171312,#100e10 65%,#0a0b0e)!important;
+ color:#eedbbc;
+}
+.tc-auction-immersive .tc-ga-v3 :is(button,summary){
+ font-family:inherit;touch-action:manipulation;
+}
+.tc-auction-immersive .tc-ga-v3 button:not(:disabled){
+ background-color:#211c19!important;border-color:#67513a!important;color:#e8d5b3!important;
+}
+.tc-auction-immersive .tc-ga-v3 button:focus-visible,
+.tc-auction-immersive .tc-ga-v3 summary:focus-visible{outline:2px solid #efca8f;outline-offset:1px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-heading{
+ position:relative;display:grid!important;grid-template-columns:42px minmax(0,1fr) auto!important;
+ gap:8px;align-items:center;min-height:57px!important;flex:0 0 auto;
+ padding:0 0 7px!important;margin:0 0 1px;
+ border-bottom:1px solid #876442;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-heading-title{min-width:0;text-align:center}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-heading-title>small{
+ display:block;color:#b28b60;font:8px/1.25 ui-monospace,monospace;letter-spacing:.08em;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-heading-title h2{
+ margin:2px 0 0;font-size:clamp(18px,5.5vw,25px);letter-spacing:.01em;
+ color:#f5d59a;text-shadow:0 1px 3px #100806;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-back:not(:disabled){
+ display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;
+ width:40px;min-height:46px;padding:0;background:transparent!important;
+ border:0!important;color:#dbba8b!important;font-size:10px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-back span{font:32px/25px Georgia,serif}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-balance{min-width:76px;text-align:right}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-balance small{font-size:9px;color:#b8a17d}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-balance strong{color:#f3c883;font-size:15px;font-variant-numeric:tabular-nums}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-balance em{color:#d0aa73}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-intro{
+ position:relative;z-index:15;flex:none;display:flex;justify-content:space-between;align-items:center;
+ min-height:25px;gap:6px;color:#ad9678;font-size:10px;padding:0 2px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-intro>span{
+ min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tc-ga-quick-menu{position:relative;flex:none}
+.tc-ga-quick-menu>summary{
+ list-style:none;min-width:74px;padding:4px 7px;cursor:pointer;
+ color:#f0d5ad;background:linear-gradient(#352820,#1b1815);
+ border:1px solid #926c3f;border-radius:3px;font-size:10px;text-align:center;
+}
+.tc-ga-quick-menu>summary::-webkit-details-marker{display:none}
+.tc-ga-quick-menu[open]>summary{background:#614428}
+.tc-ga-quick-menu>.tc-ga-shortcuts{
+ position:absolute;right:0;top:calc(100% + 4px);width:170px;
+ z-index:20;display:flex;flex-direction:column!important;gap:4px;
+ padding:7px;border:1px solid #ad854e;border-radius:3px;
+ background:linear-gradient(#2c221b,#161516);
+ box-shadow:0 8px 20px #000c;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-quick-menu .tc-guild-task-open:not(:disabled){
+ display:block;flex:auto;width:100%;min-height:37px;padding:5px 9px;
+ font-size:11px;background:#2f251d!important;border:1px solid #72583a!important;
+ color:#f2d4a4!important;text-align:left;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-categories{
+ flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;
+ min-height:37px;padding:0;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-categories button:not(:disabled){
+ min-width:0;min-height:37px;padding:5px 2px;white-space:nowrap;
+ font-size:11px;color:#c1ae91!important;background:linear-gradient(180deg,#25201c,#191717)!important;
+ border:1px solid #65503a!important;border-radius:2px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-categories button.active:not(:disabled){
+ color:#ffe3b0!important;border-color:#e4b66b!important;
+ background:linear-gradient(180deg,#997042,#563a22)!important;
+ box-shadow:inset 0 1px 0 #f1d19e,0 2px 5px #150c06!important;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature{
+ flex:0 0 auto;display:flex!important;flex-direction:column;
+ width:100%;min-height:207px!important;padding:9px 10px 8px!important;
+ border:1px solid #b88b52!important;border-radius:3px;
+ background:linear-gradient(100deg,#381e1bea 2%,#201a19e5 51%,#1a1113ec 100%),url('../../../public/assets/backgrounds/association/guild-courtyard-v3.webp') center / cover!important;
+ box-shadow:inset 0 0 0 2px #1a1010,inset 0 0 0 3px #654223,0 4px 12px #0006;
+ position:relative;overflow:hidden;
+}
+.tc-ga-v3 .tc-ga-feature::after{
+ content:"";position:absolute;right:-36px;top:17px;width:145px;height:145px;
+ border-radius:50%;border:1px solid #bd815018;box-shadow:0 0 60px #b73e2818;
+ pointer-events:none;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-ribbon{
+ display:flex;justify-content:space-between;gap:7px;margin:0 0 7px;
+ font-size:10px;line-height:1.2;color:#ffd28e;letter-spacing:.03em;
+ border-bottom:1px solid #a5793b75;padding-bottom:5px;
+}
+.tc-ga-v3 .tc-ga-feature-ribbon span:last-child{color:#c2a17d;font-size:9px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-main{
+ display:grid;grid-template-columns:104px minmax(0,1fr);gap:11px;align-items:center;
+ flex:1;min-height:93px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-art.featured{
+ display:flex;flex:none;width:100px;height:98px;
+ border:1px solid #e6b66c;
+ background:radial-gradient(circle,#644135,#1a1214 72%)!important;
+ box-shadow:inset 0 0 0 2px #271811,0 0 0 2px #4c2e1a,0 0 18px #bb643438!important;
+}
+.tc-ga-v3 .tc-ga-art.featured img{width:96%;height:96%;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 7px #0009)}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-copy{display:flex;flex-direction:column;gap:6px;min-width:0;align-self:center}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-copy>b{
+ display:block;color:#ffefcf;font-size:clamp(14px,4.15vw,19px);
+ line-height:1.32;max-height:2.64em;white-space:normal;overflow:hidden;text-overflow:ellipsis;
+}
+.tc-ga-v3 .tc-ga-feature-rarity{display:flex;align-items:center;gap:7px;min-width:0}
+.tc-ga-v3 .tc-ga-feature-rarity strong{
+ flex:none;font-size:10px;color:#f8d394;padding:3px 6px;
+ border:1px solid #a97939;background:#53331e;
+}
+.tc-ga-v3 .tc-ga-feature-rarity small{
+ display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font-size:9px;color:#cbb192;
+}
+.tc-ga-v3 .tc-ga-feature-copy p{
+ margin:0;color:#d5bda1;font-size:10px;line-height:1.45;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-bottom{
+ display:grid;grid-template-columns:minmax(0,1fr) 116px;align-items:end;gap:9px;
+ margin-top:9px;padding-top:8px;border-top:1px solid #8e664272;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-stats{
+ display:grid;grid-template-columns:1fr 1fr;gap:7px;border:0;padding:0;min-width:0;
+}
+.tc-ga-v3 .tc-ga-feature-stats>span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tc-ga-v3 .tc-ga-feature-stats small{font-size:9px;color:#c3a580}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-stats strong{
+ display:block;margin:0;color:#f6cd84;font-size:clamp(12px,3.6vw,17px);
+ white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-stats strong.time{font-size:clamp(10px,3vw,14px);color:#e7a394}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-bid:not(:disabled){
+ display:flex;align-items:center;justify-content:center;gap:6px;
+ min-height:42px;padding:8px 6px;font-size:14px;font-weight:800;
+ color:#2c1b0b!important;border:1px solid #f0c77c!important;border-radius:3px;
+ background:linear-gradient(#ffe4a5 0%,#d99e44 40%,#b87a2b 100%)!important;
+ box-shadow:inset 0 1px 0 #fff0ca,inset 0 -2px 0 #8c5220,0 2px 8px #0009!important;
+}
+.tc-ga-v3 .tc-ga-feature-bid span{font-size:17px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-toolbar{
+ display:flex;flex:0 0 auto;align-items:center;justify-content:space-between;gap:6px;
+ min-height:36px;padding:0 0 2px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-toolbar>span b{font-size:12px;color:#e9d1aa}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-toolbar>span small{font-size:10px;color:#99846b}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-sort{display:flex;gap:3px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-sort button:not(:disabled){
+ min-height:30px;padding:4px 5px;border-radius:3px;font-size:9px;
+ background:linear-gradient(#201c19,#141415)!important;border:1px solid #574736!important;
+ color:#bda688!important;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-sort button.active:not(:disabled){
+ background:linear-gradient(#63482b,#30241b)!important;border-color:#bd9057!important;color:#f5d7a5!important;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list{
+ display:flex;flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;
+ flex-direction:column;gap:5px;margin:0;padding:0 0 4px;
+ background:linear-gradient(180deg,#14111125,#12111360);
+ scrollbar-width:thin;scrollbar-color:#77573a transparent;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-entry:not(:disabled){
+ display:flex;align-items:center;gap:8px;flex:0 0 auto;width:100%;
+ min-height:63px;padding:7px!important;border-radius:2px;text-align:left;
+ background:linear-gradient(100deg,#30241e,#1a1717)!important;
+ border:1px solid #63503c!important;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-entry:active:not(:disabled){background:#4a3425!important}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-entry .tc-ga-art{width:49px;height:49px;border-radius:2px}
+.tc-ga-v3 .tc-ga-list-title{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-title b{font-size:11px;color:#eed6b5}
+.tc-ga-v3 .tc-ga-list-title small{font-size:9px;color:#a99a85}
+.tc-ga-v3 .tc-ga-list-title em{font-size:9px;color:#bfdf97}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-stats{flex:none;min-width:77px;display:grid;justify-items:end;gap:5px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-stats strong{color:#f5cb8c;font-size:12px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-list-stats small{color:#c9a48a;font-size:9px}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-entry-arrow{font-size:21px;color:#c69a68}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-empty{
+ display:flex;justify-content:center;align-items:center;flex:1;min-height:70px;
+ padding:15px;border:1px dashed #544536;background:linear-gradient(#211b1820,#17141055);
+ color:#9f907c;font-size:10px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-bottom-tabs{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+ flex:none;min-height:44px;border-top:1px solid #9b744f;padding-top:5px;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-bottom-tabs button:not(:disabled){
+ min-height:39px;padding:5px 3px;font-size:11px;
+ border:1px solid #73583d!important;border-radius:3px;
+ background:linear-gradient(#29221d,#171719)!important;color:#cbb596!important;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-bottom-tabs button.active:not(:disabled){
+ border-color:#d2a367!important;color:#ffdda3!important;
+ background:linear-gradient(#876139,#44301d)!important;
+ box-shadow:inset 0 1px 0 #d8aa72,0 0 5px #6f452b65!important;
+}
+.tc-ga-v3 .tc-ga-bottom-tabs small{color:inherit}
+.tc-auction-immersive .tc-ga-v3>.tc-ga-notice,.tc-auction-immersive .tc-ga-v3>.tc-ga-error{
+ flex:none;margin:0;padding:5px 8px;font-size:10px;line-height:1.3;
+}
+.tc-auction-immersive .tc-ga-v3 .tc-ga-feature-empty{
+ display:grid;place-items:center;min-height:185px;background:linear-gradient(135deg,#332219,#1b1819);
+ border:1px solid #956b43;color:#dec19a;
+}
+.tc-ga-v3 .tc-ga-feature-empty small{color:#a68e78}
+/* All guild management dialogs match the warm brass/pitch palette of this page. */
+.tc-app:has(.tc-auction-immersive) .tc-guild-task{
+ color:#eedaaf;background:linear-gradient(160deg,#2d231d,#111416);
+ border-color:#b78b54;
+}
+.tc-app:has(.tc-auction-immersive) .tc-guild-task :is(input,textarea){
+ background:#19191a;color:#f5dfbd;border-color:#856640;
+}
+.tc-app:has(.tc-auction-immersive) .tc-guild-task>header button{color:#f7dfb8}
+.tc-app:has(.tc-auction-immersive) .tc-guild-task .tc-guild-task-open{
+ background:#32251b;color:#f4d5a7;border:1px solid #99734b;
+}
+.tc-app:has(.tc-auction-immersive) .tc-ga-detail-dialog{
+ background:linear-gradient(140deg,#35241a,#161315 74%);
+ border:1px solid #c5975b;box-shadow:0 16px 48px #000e;
+}
+.tc-app:has(.tc-auction-immersive) .tc-ga-detail-dialog .tc-ga-detail-item .tc-ga-art.featured{
+ width:88px;height:88px;border:1px solid #c5975b;
+}
+.tc-app:has(.tc-auction-immersive) .tc-ga-detail-dialog .tc-ga-detail-metrics span{
+ background:#251c18;border-color:#685039;
+}
+@media(max-width:375px){
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-heading{grid-template-columns:37px minmax(0,1fr) 69px!important;gap:4px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-balance strong{font-size:13px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-heading-title h2{font-size:18px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature-main{grid-template-columns:87px minmax(0,1fr);gap:9px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-art.featured{width:84px;height:87px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature-bottom{grid-template-columns:minmax(0,1fr) 104px;gap:5px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature-stats strong{font-size:12px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature-bid:not(:disabled){font-size:12px;padding:5px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-list-entry:not(:disabled){gap:5px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-list-stats{min-width:65px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-list-stats strong{font-size:10px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-sort button:not(:disabled){font-size:8px;padding:4px 3px}
+}
+@media(max-height:660px){
+ .tc-auction-immersive .tc-guild-workspace>.tc-guild-auction.tc-ga-v2.tc-ga-v3{gap:4px!important;padding:5px!important}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-heading{min-height:49px!important;padding-bottom:4px!important}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature{min-height:165px!important;padding:6px 8px!important}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature-main{min-height:74px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-art.featured{height:72px;width:75px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-feature-bottom{margin-top:5px;padding-top:5px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-intro{min-height:20px}
+ .tc-auction-immersive .tc-ga-v3 .tc-ga-bottom-tabs{min-height:38px}
+}
