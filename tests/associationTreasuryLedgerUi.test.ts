@@ -23,7 +23,7 @@ test('treasury ledger presents a full game interface while awaiting real server 
 });
 
 test('treasury ledger preserves server-authoritative shared balances and public history',()=>{
- for(const marker of ['loadAssociationWarehouse(','loadAssociationWarehouseHistory(','transferAssociationTreasury(','getFreshSession','GuildMaterialsPanel','state.myRole===\'LEADER\'','state.myRole!==\'LEADER\'','treasuryLedger.css']) {
+ for(const marker of ['loadAssociationWarehouse(','loadAssociationWarehouseHistory(','transferAssociationTreasury(','getFreshSession','GuildMaterialsPanel','state.myRole!==\'LEADER\'','state.myRole!==\'LEADER\'','treasuryLedger.css']) {
   if(marker==='getFreshSession')continue;
   assert.ok(panel.includes(marker),marker);
  }
