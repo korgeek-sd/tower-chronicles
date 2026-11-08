@@ -1,7 +1,7 @@
-import {Capacitor} from '@capacitor/core';
+import {Capacitor,type PluginListenerHandle} from '@capacitor/core';
 import {getStoredSession} from './auth';
 import {setGamePushToken} from './notifications';
-import {PushNotifications,type PluginListenerHandle} from '@capacitor/push-notifications';
+import {PushNotifications} from '@capacitor/push-notifications';
 
 let listeners:PluginListenerHandle[]=[];
 let currentUser:string|null=null;
