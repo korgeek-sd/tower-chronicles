@@ -44,7 +44,7 @@ test('treasury transfers are leader-only while headquarters donations still awar
  assert.match(source,/원정단 보유 재화/);
  assert.match(source,/사냥·원정 수익 분담/);
  assert.doesNotMatch(source,/depositAssociationWarehouse|기부하기/);
- assert.match(source,/state.myRole==='LEADER'/);
+ assert.match(source,/state.myRole!=='LEADER'/);
  assert.match(source,/원정단장 전용/);
  assert.match(source,/withdrawalsOnly=filter==='withdraw'/);
  assert.match(source,/loadAssociationWarehouseHistory/);
