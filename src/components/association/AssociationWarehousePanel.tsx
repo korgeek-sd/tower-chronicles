@@ -137,8 +137,8 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
    <strong className={entry.amount<0?'negative':'positive'}>{entry.amount<0?'−':'+'}{fmt(Math.abs(entry.amount))}<small> {currencyUnit(entry.currency)}</small></strong>
   </article>
  );
- return <section className="tc-warehouse tc-treasury-ledger" aria-label="원정단 금고">
-  <header className="tc-tl-hero">
+ return <section className={"tc-warehouse tc-treasury-ledger"+(view==='materials'?" tc-tl-show-materials":"")} aria-label="원정단 금고">
+  {view!=='materials'&&<header className="tc-tl-hero">
    <nav className="tc-tl-top-nav" aria-label="금고 화면 상단"><button type="button" className="tc-tl-back" aria-label="원정단 본부로 돌아가기" onClick={()=>onBack?.()}>‹ <span>뒤로</span></button><span>탑의 기록</span><GuildTask title="금고 운영 안내" trigger="ⓘ">
     <div className="tc-warehouse-source">
      <p>원정단 공용 실버·골드·도전권을 보관하고 거래 내역을 공개합니다.</p>
@@ -148,18 +148,18 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
     </div>
    </GuildTask></nav>
    <div className="tc-tl-hero-caption"><h2>원정단 금고</h2><p>원정단의 자산을 관리하는 공동 금고입니다.</p></div>
-  </header>
+  </header>}
   {!state?<div className="tc-tl-loading" role="status">{error||'원정단 금고 정보를 불러오는 중입니다.'}</div>:<>
-   <div className="tc-tl-balances" aria-label="원정단 보유 재화">
+   {view!=='materials'&&<div className="tc-tl-balances" aria-label="원정단 보유 재화">
     {assets.map(item=><div key={item.id} className={'tc-tl-balance tc-tl-'+item.id.toLowerCase()}>
      <span aria-hidden="true" className="tc-tl-coin">{item.glyph}</span>
      <div><small>{item.name}</small><strong>{fmt(balance(item.id,'treasury'))}</strong></div>
     </div>)}
-   </div>
-   <div className="tc-tl-highlights" aria-label="금고 현황">
+   </div>}
+   {view!=='materials'&&<div className="tc-tl-highlights" aria-label="금고 현황">
     <div><span className="tc-tl-highlight-icon" aria-hidden="true">▥</span><div><small>최근 기록 · 실버 순변동</small><strong className={ledgerTotal>=0?'positive':'negative'}>{ledgerTotal>=0?'+':'−'}{fmt(Math.abs(ledgerTotal))} <em>S</em></strong></div></div>
     <div><span className="tc-tl-highlight-icon" aria-hidden="true">◉</span><div><small>현재 공용 실버 잔액</small><strong>{fmt(state.silver)} <em>S</em></strong></div></div>
-   </div>
+   </div>}
    {view==='ledger'&&<section className="tc-tl-board" aria-label="원정단 거래 장부">
     <header className="tc-tl-board-head"><span aria-hidden="true">▤</span><h3>거래 장부</h3><small>공개 기록 · 최신순</small></header>
     <div className="tc-tl-toolbar">
@@ -179,15 +179,15 @@ export function AssociationWarehousePanel({lease,associationId,expedition=false,
     <header className="tc-tl-board-head"><span>◈</span><h3>공용 자산 현황</h3></header>
     <div className="tc-tl-asset-list">{assets.map(item=><article key={item.id}><div className="tc-tl-asset-emblem">{item.glyph}</div><div><b>{item.name}</b><small>원정단 공동 보관 재화</small></div><strong>{fmt(balance(item.id,'treasury'))} <small>{item.unit}</small></strong></article>)}</div>
     <p>사냥·원정 수익 분담과 본부 기부가 이 금고에 적립됩니다. 입출금 거래는 원정단 전체에 공개됩니다.</p>
-    <GuildTask title="재료 창고" trigger="재료 창고 열기"><GuildMaterialsPanel lease={lease} associationId={associationId} expedition={expedition}/></GuildTask>
+    <button className="tc-tl-open-materials" type="button" onClick={()=>setView('materials')}>재료 창고 열기</button>
    </section>}
-   {view==='materials'&&<section className="tc-tl-board tc-tl-materials-view" aria-label="원정단 보관품"><header className="tc-tl-board-head"><span>▣</span><h3>재료 창고</h3><small>원정단 공동 보관품</small></header><GuildMaterialsPanel lease={lease} associationId={associationId} expedition={expedition}/></section>}
-   <div className="tc-tl-actions" role="group" aria-label="금고 관리">
+   {view==='materials'&&<GuildMaterialsPanel lease={lease} associationId={associationId} expedition={expedition} onBack={()=>setView('ledger')}/>} 
+   {view!=='materials'&&<div className="tc-tl-actions" role="group" aria-label="금고 관리">
     <button type="button" className="tc-tl-deposit" onClick={()=>openTransfer('DEPOSIT')} disabled={state.myRole!=='LEADER'||expedition||busy}>◉ 입금</button>
     <button type="button" className="tc-tl-withdraw" onClick={()=>openTransfer('WITHDRAW')} disabled={state.myRole!=='LEADER'||expedition||busy}>↘ 출금</button>
     <button type="button" onClick={()=>historyDialog.current?.showModal()}>▤ 세부 내역</button>
-   </div>
-   {state.myRole!=='LEADER'&&<p className="tc-tl-role-note">입출금은 원정단장 전용입니다. 모든 단원은 장부를 열람할 수 있습니다.</p>}
+   </div>}
+   {view!=='materials'&&state.myRole!=='LEADER'&&<p className="tc-tl-role-note">입출금은 원정단장 전용입니다. 모든 단원은 장부를 열람할 수 있습니다.</p>}
    <nav className="tc-tl-bottom" aria-label="금고 메뉴">
     {([['ledger','▤','장부'],['assets','◉','자산'],['materials','▣','보관품']] as const).map(([id,icon,label])=><button type="button" key={id} aria-current={view===id?'page':undefined} className={view===id?'active':''} onClick={()=>setView(id)}><span aria-hidden="true">{icon}</span>{label}</button>)}
    </nav>
