@@ -16,7 +16,7 @@ import {HuntingPage} from './components/hunting/HuntingPage';
 import {MailDialog} from './components/MailDialog';
 import {NotificationDialog} from './components/NotificationDialog';
 import {getGameNotifications,type GameNotificationTarget} from './online/notifications';
-import {initializeNativePush,stopNativePushListeners} from './online/nativePush';
+import {initializeNativePush,stopNativePushListeners,disableNativePush,isAndroidPushAvailable} from './online/nativePush';
 import {loadGameMail} from './online/mail';
 import {SaveManagement} from './components/SaveManagement';
 import React,{useEffect,useRef,useState} from 'react';
@@ -467,7 +467,7 @@ function App(){
   }catch(error){entryRestoreError.current=connectionErrorMessage(error);setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 원정 복원에 실패했습니다.');return false;}
  }
  async function continueOnlineExplorationNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{const result=await advanceOnlineExploration(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'다음 탐험을 서버에서 시작하지 못했습니다.');}}
- async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');window.dispatchEvent(new Event('tower:session-changed'));}}
+ async function logoutOnline(){if(takeoverTimer.current!==null){window.clearTimeout(takeoverTimer.current);takeoverTimer.current=null;}const lease=gameplayLeaseRef.current;if(lease)try{await releaseGameSession(lease);}catch{}gameplayLeaseRef.current=null;setGameplayLease(null);if(onlineSession&&isAndroidPushAvailable())await disableNativePush(onlineSession.userId).catch(()=>{});try{await signOutOnline();}finally{setOnlineSession(null);setGameSessionPhase('guest');setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');setSaved('저장');window.dispatchEvent(new Event('tower:session-changed'));}}
  const shellClass=immersive?(eventOpen?'tc-app tc-event-mode':'tc-app tc-battle-mode'):'tc-app';
 
  if(onlineSession&&!profileReady){
