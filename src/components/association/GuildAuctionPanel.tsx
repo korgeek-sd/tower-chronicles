@@ -4,6 +4,7 @@ import type {GameplayLease} from '../../online/gameSession';
 import type {CloudSaveRecord} from '../../online/cloudSave';
 import {equipmentItemName,EQUIPMENT_GRADE_NAMES,equipmentItemStats} from '../../game/data/equipment';
 import {GameScrollSelect} from '../../ui/GameScrollSelect';
+import {assetUrl} from '../../game/data/graphics';
 import {getGuildAuctionState,bidGuildAuction,claimGuildBossReward,claimGuildAuctionItem,registerGuildAuctionItem,recoverGuildAuctionItem,relistGuildBossAuctionItem,type GuildAuctionState,type GuildAuctionListing} from '../../online/guildAuction';
 import './guildAuction.css';
 import {GuildMaterialAuctionForm} from './GuildMaterialAuctionForm';
@@ -23,6 +24,14 @@ const describe=(item:GuildAuctionListing)=>{
 const lotName=(l:GuildAuctionListing)=>l.source==='MATERIAL'?GUILD_MATERIAL_NAMES[l.materialId??'herb']+' ×'+n(l.materialQuantity??0):equipmentItemName(l.gear);
 const lotSource=(l:GuildAuctionListing)=>l.source==='MATERIAL'?'점령 마을 세금 재료':l.source==='BOSS'?'보스 토벌 전리품':'길드장 등록 장비';
 type PendingBid={id:string;amount:number};
+type AuctionSection='active'|'mine'|'history';
+type AuctionCategory='all'|'gear'|'material'|'boss';
+type AuctionSort='ending'|'highest'|'lowest';
+function AuctionArt({lot,featured=false}:{lot:GuildAuctionListing;featured?:boolean}){
+ return <span className={'tc-ga-art '+(featured?'featured ':'')+(lot.source==='MATERIAL'?'material':'grade-'+lot.gear.grade)} aria-hidden="true">
+  {lot.source==='MATERIAL'?<span className="tc-ga-material-symbol">◆</span>:<img src={assetUrl('assets/ui/equipment/'+lot.gear.kind+'.png')} alt="" loading="lazy"/>}
+ </span>;
+}
 export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onChanged}:{lease:GameplayLease;associationId:string;expedition:boolean;onRecord:(record:CloudSaveRecord,message:string)=>void;onChanged:()=>void}){
  const [state,setState]=useState<GuildAuctionState|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [amounts,setAmounts]=useState<Record<string,number>>({}),[clock,setClock]=useState(Date.now());
@@ -30,6 +39,10 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
  const [relistPrices,setRelistPrices]=useState<Record<string,string>>({});
  const [pendingRegistration,setPendingRegistration]=useState<{requestId:string;itemId:string;bid:number}|null>(null);
  const mounted=useRef(true),locking=useRef(false);
+ const [section,setSection]=useState<AuctionSection>('active'),[category,setCategory]=useState<AuctionCategory>('all'),[sort,setSort]=useState<AuctionSort>('ending');
+ const [selectedLotId,setSelectedLotId]=useState<string|null>(null);
+ const detailRef=useRef<HTMLDialogElement>(null);
+ const showLot=(id:string)=>{setSelectedLotId(id);if(!detailRef.current?.open)detailRef.current?.showModal();};
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
  useEffect(()=>{
   try{const raw=window.sessionStorage.getItem('tc-guild-auction-register:'+associationId);
@@ -113,76 +126,93 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
   setState(r.state);setNotice(r.replayed?'이미 반환된 재료입니다.':'세금 재료가 길드 재료 창고로 반환됐습니다.');
  });
  const records=state?.listings??[];
- const winners=records.filter(x=>x.status==='SOLD'&&x.isMyTopBid);
- return <section className="tc-guild-auction" aria-label="원정단 경매장">
-  <div className="tc-ga-heading"><div><small>GUILD AUCTION</small><h2>원정단 경매장</h2></div><div><small>사용 가능한 공헌도</small><strong>{state?n(state.points):'—'} P</strong></div></div>
-  <GuildTask title="경매 이용 안내" feedback={error||notice}><p className="tc-ga-description">보스 전리품과 길드장이 등록한 장비·세금 재료를 공헌도로 입찰합니다. 입찰 금액은 보류되고 상위 입찰자가 나오면 반환됩니다. 종료 시각은 서버 기준으로 확정되며, 경매 기간은 등록 후 24시간입니다.</p></GuildTask>
-  {!state?<div role="status">{error||'경매 정보를 불러오는 중입니다.'}</div>:<>
-    {state.claimableRewards.length>0&&<GuildTask title="토벌 보상 수령" feedback={error||notice}><section className="tc-ga-reward"><h3>받지 않은 보스 참여 보상 <b>{state.claimableRewards.length}</b></h3>
-    <GuildRecord items={state.claimableRewards} id={r=>r.encounterId} label={r=>r.name} title="보상 선택">{r=><article key={r.encounterId}><div><b>{r.name} · {r.kind==='DAILY'?'일일':'주간'}</b><small>실버 {n(r.silver)} · 공헌도 {n(r.contribution)} P · 회복 포션 {n(r.potions)}개{r.vitalityPotions?' · 활력 포션 '+r.vitalityPotions+'개':''}</small></div><button disabled={busy||expedition} onClick={()=>claimReward(r.encounterId)}>보상받기</button></article>}</GuildRecord>
-   </section></GuildTask>}
-   {!!winners.length&&<GuildTask title="낙찰 물품 수령" feedback={error||notice}><section className="tc-ga-reward"><h3>낙찰 물품 수령</h3>
-    <GuildRecord items={winners} id={l=>l.listingId} label={lotName} title="낙찰품 선택">{l=><article key={l.listingId}><div><b>{lotName(l)}</b><small>낙찰 공헌도 {n(l.topBid)} P</small></div><button disabled={busy||expedition} onClick={()=>claimEquipment(l)}>{l.source==='MATERIAL'?'재료 받기':'장비 받기'}</button></article>}</GuildRecord>
-   </section></GuildTask>}
-   <GuildTask title="경매 입찰" feedback={error||notice}><div className="tc-ga-section-title"><b>경매 물품</b><small>최근 {records.length}건</small></div>
-   <div className="tc-ga-list">
-    {records.length?<GuildRecord items={records} id={l=>l.listingId} label={lotName} title="경매 물품 선택">{l=>{
-     const open=l.status==='OPEN'&&Date.parse(l.endsAt)>clock,ask=l.nextBid;
-     const bidValue=amounts[l.listingId]||ask;
-     return <article key={l.listingId} className={'tc-ga-lot '+(open?'open':'closed')}>
-      <div className="tc-ga-item">
-       <span className={'tc-ga-grade '+(l.source==='MATERIAL'?'common':l.gear.grade)}>◆</span>
-       <div className="tc-ga-item-copy"><small>{lotSource(l)}{l.source==='MATERIAL'?'':' · '+EQUIPMENT_GRADE_NAMES[l.gear.grade]}</small>
-        <b>{lotName(l)}</b><small>{describe(l)||'고정 능력치 장비'}</small></div>
-       <div className="tc-ga-status">{open?'남은 '+left(l.endsAt,clock):l.status==='UNSOLD'?'유찰':l.status==='CLAIMED'?'수령 완료':l.status==='CANCELLED'?'경매 취소':l.status==='RETURNED'?'반환 완료':'경매 종료'}</div>
-      </div>
-      <div className="tc-ga-bids"><span>현재 최고 입찰 <b>{l.topBid?n(l.topBid)+' P':'없음'}</b></span><span>다음 최소 입찰 <b>{n(ask)} P</b></span></div>
-      {l.isMyTopBid&&<p className="tc-ga-top">내가 현재 최고 입찰자입니다. 입찰 공헌도 {n(l.topBid)}P 보류 중.</p>}
-      {open&&l.source==='LEADER'&&l.isMyListing&&<p className="tc-ga-top">내가 등록한 장비 · 자신의 경매에는 입찰할 수 없습니다.</p>}
-      {open&&<div className="tc-ga-action"><label>입찰 공헌도<input type="number" min={ask} max={1000000000} step={10} inputMode="numeric" value={bidValue} onChange={e=>setAmounts(o=>({...o,[l.listingId]:Number(e.target.value)}))}/></label>
-       <button disabled={busy||l.isMyListing||!Number.isSafeInteger(bidValue)||bidValue<ask||bidValue-(l.isMyTopBid?l.topBid:0)>state.points} onClick={()=>bid(l)}>입찰하기</button></div>}
-      {(l.canCancel||l.canReturn)&&<div className="tc-ga-management">
-       <button type="button" disabled={busy||expedition} onClick={()=>recover(l)}>{l.canCancel?'입찰 없는 경매 취소 · 장비 반환':'유찰 장비 돌려받기'}</button>
-      </div>}
-      {l.source==='MATERIAL'&&l.canReturnMaterial&&<div className="tc-ga-management">
-        <button type="button" disabled={busy} onClick={()=>returnMaterial(l)}>{open?'경매 취소 · 재료 반환':'유찰 재료 창고 반환'}</button>
-       </div>}
-       {l.canRelist&&<div className="tc-ga-management">
-       <label>재경매 시작가
-        <input type="number" min="1" max="1000000000" inputMode="numeric" value={relistPrices[l.listingId]??String(l.startingBid)} onChange={e=>setRelistPrices(a=>({...a,[l.listingId]:e.target.value}))}/>
-       </label>
-       <button type="button" disabled={busy||!Number.isSafeInteger(Number(relistPrices[l.listingId]??l.startingBid))||Number(relistPrices[l.listingId]??l.startingBid)<1} onClick={()=>relist(l)}>보스 전리품 재경매</button>
-      </div>}
-     </article>;
-    }}</GuildRecord>:<div className="tc-ga-empty">현재 등록된 경매 물품이 없습니다. 장비·재료를 등록하거나 보스를 토벌하면 표시됩니다.</div>}
-   </div>
-   </GuildTask>
-   {state.isLeader&&<GuildTask title="장비 등록" feedback={error||notice}><section className="tc-ga-register" aria-label="길드장 장비 경매 등록">
-    <div className="tc-ga-section-title"><b>길드장 장비 등록</b><small>개인 장비 → 길드 경매 · 공용 실버 사용 없음</small></div>
-    <p>장착하지 않은 장비만 등록할 수 있습니다. 입찰 전에는 취소할 수 있으며, 첫 입찰이 들어오면 취소할 수 없습니다.</p>
-    <div className="tc-ga-equip-field">
-     <span className="tc-ga-equip-label">등록할 장비</span>
-     <GameScrollSelect
-      ariaLabel="경매 등록 장비" value={selectedGear} onChange={setSelectedGear}
-      disabled={busy||!!pendingRegistration} placeholder="장비를 선택하세요"
-      emptyMessage="경매에 등록 가능한 미착용 장비가 없습니다."
-      options={state.availableEquipment.map(({itemId,gear})=>{
-       const stats=equipmentItemStats(gear);
-       const detail=[stats.attack?'공격 +'+stats.attack:null,stats.defense?'방어 +'+stats.defense:null,stats.hp?'HP +'+stats.hp:null].filter(Boolean).join(' · ');
-       return {value:itemId,label:equipmentItemName(gear),grade:gear.grade,gradeLabel:EQUIPMENT_GRADE_NAMES[gear.grade],detail};
-      })}
-     />
+ const winners=records.filter(l=>l.status==='SOLD'&&l.isMyTopBid);
+ const openRecords=records.filter(l=>l.status==='OPEN'&&Date.parse(l.endsAt)>clock);
+ const subset=records.filter(l=>{
+  const isOpen=l.status==='OPEN'&&Date.parse(l.endsAt)>clock;
+  const matchesSection=section==='active'?isOpen:section==='mine'?l.isMyTopBid||l.isMyListing:!isOpen;
+  const matchesCategory=category==='all'||category==='gear'&&l.source!=='MATERIAL'||category==='material'&&l.source==='MATERIAL'||category==='boss'&&l.source==='BOSS';
+  return matchesSection&&matchesCategory;
+ });
+ const sorted=[...subset].sort((a,b)=>sort==='ending'?Date.parse(a.endsAt)-Date.parse(b.endsAt):sort==='highest'?b.topBid-a.topBid:a.topBid-b.topBid);
+ const featured=section==='active'?sorted[0]:null;
+ const listRows=featured?sorted.slice(1):sorted;
+ const selected=records.find(l=>l.listingId===selectedLotId)??null;
+ const detailOpen=!!selected&&selected.status==='OPEN'&&Date.parse(selected.endsAt)>clock;
+ const selectedBid=selected?(amounts[selected.listingId]||selected.nextBid):0;
+ const validBid=!!selected&&Number.isSafeInteger(selectedBid)&&selectedBid>=selected.nextBid&&selectedBid<=1000000000&&selectedBid-(selected.isMyTopBid?selected.topBid:0)<=(state?.points??0);
+ const status=(l:GuildAuctionListing)=>l.status==='OPEN'&&Date.parse(l.endsAt)>clock?left(l.endsAt,clock):l.status==='UNSOLD'?'유찰':l.status==='CLAIMED'?'수령 완료':l.status==='CANCELLED'?'경매 취소':l.status==='RETURNED'?'반환 완료':l.status==='SOLD'?'낙찰 종료':'경매 종료';
+ return <section className="tc-guild-auction tc-ga-v2" aria-label="원정단 경매장">
+  <header className="tc-ga-heading">
+   <div><small>GUILD AUCTION</small><h2>원정단 경매장</h2></div>
+   <div className="tc-ga-balance"><small>사용 가능 공헌도</small><strong>{state?n(state.points):'—'} <em>P</em></strong></div>
+  </header>
+  {!state?<div className="tc-ga-loading" role="status">{error||'경매 정보를 불러오는 중입니다.'}</div>:<>
+   <nav className="tc-ga-categories" aria-label="경매 물품 분류">
+    {([['all','전체'],['gear','장비'],['material','재료'],['boss','보스 전리품']] as const).map(([id,label])=><button key={id} type="button" className={category===id?'active':''} aria-pressed={category===id} onClick={()=>setCategory(id)}>{label}</button>)}
+   </nav>
+   {featured&&<button type="button" className="tc-ga-feature" onClick={()=>showLot(featured.listingId)} aria-label={lotName(featured)+' 경매 상세 및 입찰'}>
+    <div className="tc-ga-feature-ribbon"><span>✦ 주요 경매</span><span>{lotSource(featured)}</span></div>
+    <div className="tc-ga-feature-main">
+     <AuctionArt lot={featured} featured/>
+     <div className="tc-ga-feature-copy"><b>{lotName(featured)}</b><small>{featured.source==='MATERIAL'?'세금 재료':EQUIPMENT_GRADE_NAMES[featured.gear.grade]} · {describe(featured)||lotSource(featured)}</small>
+      <div className="tc-ga-feature-stats"><span>현재 최고 입찰 <strong>{featured.topBid?n(featured.topBid):'없음'} <i>P</i></strong></span><span>남은 시간 <strong className="time">{status(featured)}</strong></span></div>
+     </div>
     </div>
-    <label>최소 입찰 공헌도
-     <input type="number" inputMode="numeric" min="1" max="1000000000" step="1" value={startPrice} disabled={busy||!!pendingRegistration} onChange={e=>setStartPrice(e.target.value)}/>
-    </label>
-    <button type="button" disabled={busy||expedition||!!pendingRegistration||!selectedGear||!Number.isSafeInteger(Number(startPrice))||Number(startPrice)<1||Number(startPrice)>1000000000} onClick={register}>24시간 경매 등록</button>
-    {pendingRegistration&&<div className="tc-ga-pending"><span>이전 등록 요청이 처리됐는지 확인해야 합니다. 같은 요청 번호로 재확인합니다.</span>
-      <button disabled={busy} type="button" onClick={register}>이전 등록 재확인</button></div>}
-   </section></GuildTask>}
-   {state.isLeader&&<GuildTask title="재료 등록" feedback={error||notice}><GuildMaterialAuctionForm lease={lease} associationId={associationId} expedition={expedition} onListed={setState}/></GuildTask>}
+    <div className="tc-ga-feature-cta">경매 상세 확인 · 입찰하기 <span aria-hidden="true">›</span></div>
+   </button>}
+   {section==='active'&&!featured&&<div className="tc-ga-feature-empty">진행 중인 경매가 없습니다.<small>다른 분류를 선택하거나 새 경매 등록을 확인해 주세요.</small></div>}
+   <div className="tc-ga-toolbar"><span><b>{section==='active'?'경매 목록':section==='mine'?'내 경매 및 입찰':'지난 경매'}</b><small>{subset.length}건</small></span>
+    <div className="tc-ga-sort" role="group" aria-label="경매 정렬">
+     {([['ending','종료순'],['highest','높은 입찰'],['lowest','낮은 입찰']] as const).map(([id,label])=><button type="button" key={id} aria-pressed={sort===id} className={sort===id?'active':''} onClick={()=>setSort(id)}>{label}</button>)}
+    </div>
+   </div>
+   <div className="tc-ga-list" role="list" aria-label="경매 물품 목록">
+    {listRows.map(l=><button role="listitem" type="button" key={l.listingId} className={'tc-ga-list-entry '+(l.status==='OPEN'?'open':'closed')} onClick={()=>showLot(l.listingId)}>
+     <AuctionArt lot={l}/>
+     <div className="tc-ga-list-title"><b>{lotName(l)}</b><small>{lotSource(l)}{l.source==='MATERIAL'?'':' · '+EQUIPMENT_GRADE_NAMES[l.gear.grade]}</small>{l.isMyTopBid&&<em>현재 내 입찰</em>}</div>
+     <div className="tc-ga-list-stats"><strong>{l.topBid?n(l.topBid):'—'} <i>P</i></strong><small>{status(l)}</small></div><span className="tc-ga-entry-arrow" aria-hidden="true">›</span>
+    </button>)}
+    {!listRows.length&&<div className="tc-ga-empty">{featured?'나머지 경매 물품이 없습니다.':'이 분류에 해당하는 경매 내역이 없습니다.'}</div>}
+   </div>
+   <nav className="tc-ga-bottom-tabs" aria-label="경매 현황">
+    {([['active','진행 중',openRecords.length],['mine','내 입찰',records.filter(l=>l.isMyTopBid||l.isMyListing).length],['history','종료 내역',records.filter(l=>l.status!=='OPEN'||Date.parse(l.endsAt)<=clock).length]] as const).map(([id,label,count])=><button key={id} type="button" className={section===id?'active':''} aria-pressed={section===id} onClick={()=>setSection(id)}>{label} <small>{count}</small></button>)}
+   </nav>
+   <div className="tc-ga-shortcuts">
+    <GuildTask title="경매 이용 안내" trigger="이용 안내" feedback={error||notice}>
+     <p className="tc-ga-description">보스 전리품과 원정단장이 등록한 장비, 세금 재료를 공헌도(P)로 입찰합니다. 입찰 공헌도는 보류되며 다른 단원이 더 높은 금액을 입찰하면 반환됩니다. 경매는 등록 후 24시간 진행되고 서버 시간에 종료됩니다.</p>
+    </GuildTask>
+    {(state.claimableRewards.length>0||winners.length>0)&&<GuildTask title="토벌 보상 · 낙찰 수령" trigger={'수령 대기 '+(state.claimableRewards.length+winners.length)+'건'} feedback={error||notice}>
+     {state.claimableRewards.length>0&&<section className="tc-ga-reward"><h3>받지 않은 토벌 보상</h3><GuildRecord items={state.claimableRewards} id={r=>r.encounterId} label={r=>r.name} title="보상 선택">{r=><article key={r.encounterId}><div><b>{r.name}</b><small>실버 {n(r.silver)} · 공헌도 {n(r.contribution)}P · 회복 포션 {n(r.potions)}개{r.vitalityPotions?' · 활력 포션 '+r.vitalityPotions+'개':''}</small></div><button type="button" disabled={busy||expedition} onClick={()=>claimReward(r.encounterId)}>보상받기</button></article>}</GuildRecord></section>}
+     {winners.length>0&&<section className="tc-ga-reward"><h3>낙찰 물품 수령</h3><GuildRecord items={winners} id={l=>l.listingId} label={lotName} title="낙찰품 선택">{l=><article key={l.listingId}><div><b>{lotName(l)}</b><small>낙찰 공헌도 {n(l.topBid)}P</small></div><button type="button" disabled={busy||expedition} onClick={()=>claimEquipment(l)}>물품 받기</button></article>}</GuildRecord></section>}
+    </GuildTask>}
+    {state.isLeader&&<GuildTask title="장비 경매 등록" trigger="장비 등록" feedback={error||notice}><section className="tc-ga-register" aria-label="길드장 장비 경매 등록">
+     <div className="tc-ga-section-title"><b>길드장 장비 등록</b><small>미착용 장비 · 24시간</small></div><p>장착하지 않은 장비를 등록합니다. 입찰 전에는 취소할 수 있으며 첫 입찰 이후에는 취소할 수 없습니다.</p>
+     <div className="tc-ga-equip-field"><span className="tc-ga-equip-label">등록할 장비</span><GameScrollSelect ariaLabel="경매 등록 장비" value={selectedGear} onChange={setSelectedGear} disabled={busy||!!pendingRegistration} placeholder="장비를 선택하세요" emptyMessage="등록 가능한 미착용 장비가 없습니다." options={state.availableEquipment.map(({itemId,gear})=>{const s=equipmentItemStats(gear);return {value:itemId,label:equipmentItemName(gear),grade:gear.grade,gradeLabel:EQUIPMENT_GRADE_NAMES[gear.grade],detail:[s.attack?'공격 +'+s.attack:null,s.defense?'방어 +'+s.defense:null,s.hp?'HP +'+s.hp:null].filter(Boolean).join(' · ')};})}/></div>
+     <label>시작 입찰 공헌도<input type="number" inputMode="numeric" min="1" max="1000000000" value={startPrice} disabled={busy||!!pendingRegistration} onChange={e=>setStartPrice(e.target.value)}/></label>
+     <button type="button" disabled={busy||expedition||!!pendingRegistration||!selectedGear||!Number.isSafeInteger(Number(startPrice))||Number(startPrice)<1||Number(startPrice)>1000000000} onClick={register}>24시간 경매 등록</button>
+     {pendingRegistration&&<div className="tc-ga-pending"><span>이전 등록 요청을 확인해야 합니다.</span><button type="button" disabled={busy} onClick={register}>이전 등록 재확인</button></div>}
+    </section></GuildTask>}
+    {state.isLeader&&<GuildTask title="세금 재료 경매 등록" trigger="재료 등록" feedback={error||notice}><GuildMaterialAuctionForm lease={lease} associationId={associationId} expedition={expedition} onListed={setState}/></GuildTask>}
+   </div>
   </>}
   {notice&&<p role="status" className="tc-ga-notice">{notice}</p>}
-  {error&&<div role="alert" className="tc-ga-error">{error}<button disabled={busy} onClick={()=>void refresh()}>다시 확인</button></div>}
+  {error&&<div role="alert" className="tc-ga-error">{error}<button type="button" disabled={busy} onClick={()=>void refresh()}>다시 확인</button></div>}
+  <dialog ref={detailRef} className="tc-ga-detail-dialog" aria-label="경매 물품 상세 및 입찰" onCancel={()=>setSelectedLotId(null)}>
+   <header className="tc-ga-detail-head"><div><small>GUILD AUCTION / ITEM</small><h3>경매 상세</h3></div><button type="button" aria-label="경매 상세 닫기" onClick={()=>{detailRef.current?.close();setSelectedLotId(null);}}>닫기</button></header>
+   {selected&&<div className="tc-ga-detail-body">
+    <div className="tc-ga-detail-item"><AuctionArt lot={selected} featured/><div><b>{lotName(selected)}</b><small>{lotSource(selected)}{selected.source==='MATERIAL'?'':' · '+EQUIPMENT_GRADE_NAMES[selected.gear.grade]}</small><p>{describe(selected)||'원정단 경매 물품'}</p></div></div>
+    <div className="tc-ga-detail-metrics"><span>현재 최고 입찰<strong>{selected.topBid?n(selected.topBid)+' P':'입찰 없음'}</strong></span><span>{detailOpen?'남은 시간':'경매 상태'}<strong>{status(selected)}</strong></span><span>다음 최소 입찰<strong>{n(selected.nextBid)} P</strong></span></div>
+    {selected.isMyTopBid&&<p className="tc-ga-top">현재 최고 입찰자입니다. 보류 중인 공헌도 {n(selected.topBid)}P</p>}
+    {selected.isMyListing&&<p className="tc-ga-top">내가 등록한 물품입니다. 자신의 경매에는 입찰할 수 없습니다.</p>}
+    {detailOpen&&<div className="tc-ga-action"><label>입찰할 공헌도(P)<input type="number" inputMode="numeric" min={selected.nextBid} max={1000000000} step={10} value={selectedBid} onChange={e=>setAmounts(o=>({...o,[selected.listingId]:Number(e.target.value)}))}/></label><button type="button" disabled={busy||selected.isMyListing||!validBid} onClick={()=>bid(selected)}>입찰하기</button></div>}
+    {selected.status==='SOLD'&&selected.isMyTopBid&&<button type="button" disabled={busy||expedition} onClick={()=>claimEquipment(selected)}>낙찰 물품 수령</button>}
+    {(selected.canCancel||selected.canReturn)&&<div className="tc-ga-management"><button type="button" disabled={busy||expedition} onClick={()=>recover(selected)}>{selected.canCancel?'경매 취소 · 장비 반환':'유찰 장비 반환'}</button></div>}
+    {selected.source==='MATERIAL'&&selected.canReturnMaterial&&<div className="tc-ga-management"><button type="button" disabled={busy} onClick={()=>returnMaterial(selected)}>{detailOpen?'경매 취소 · 세금 재료 반환':'유찰 재료 창고 반환'}</button></div>}
+    {selected.canRelist&&<div className="tc-ga-management"><label>재경매 시작 공헌도<input type="number" min="1" max="1000000000" inputMode="numeric" value={relistPrices[selected.listingId]??String(selected.startingBid)} onChange={e=>setRelistPrices(a=>({...a,[selected.listingId]:e.target.value}))}/></label><button type="button" disabled={busy||!Number.isSafeInteger(Number(relistPrices[selected.listingId]??selected.startingBid))||Number(relistPrices[selected.listingId]??selected.startingBid)<1} onClick={()=>relist(selected)}>보스 전리품 재경매</button></div>}
+    {notice&&<p role="status" className="tc-ga-notice">{notice}</p>}
+    {error&&<p role="alert" className="tc-ga-error">{error}</p>}
+   </div>}
+  </dialog>
  </section>;
 }
