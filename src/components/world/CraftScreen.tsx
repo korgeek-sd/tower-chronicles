@@ -12,7 +12,7 @@ import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,lifeMasteryTrack,lif
 import {LIFE_MATERIAL_NAMES,type VillageLifeState,type CraftQueueJob} from '../../online/villageLife';
 
 export type ConfirmedCraftResult={requestId:string;product:ProductId;quantity:number};
-type Props={state:VillageLifeState;busy:boolean;count:number;recipe:ProductId;confirmedResult?:ConfirmedCraftResult|null;onRecipe:(id:ProductId)=>void;onCount:(n:number)=>void;onCraft:(id:ProductId)=>void;onTravel?:(id:string)=>void;onMap?:()=>void;queue?:CraftQueueJob[];now?:number;onClaim?:(id:string)=>void;onCancel?:(id:string)=>void};
+type Props={state:VillageLifeState;busy:boolean;count:number;recipe:ProductId;confirmedResult?:ConfirmedCraftResult|null;onRecipe:(id:ProductId)=>void;onCount:(n:number)=>void;onCraft:(id:ProductId)=>void;onTravel?:(id:string)=>void;onMap?:()=>void;onFindMaterials?:(item:ProductId,count:number)=>void;onOpenInventory?:()=>void;queue?:CraftQueueJob[];now?:number;onClaim?:(id:string)=>void;onCancel?:(id:string)=>void};
 
 function CraftDialog({label,onClose,returnFocus,children}:{label:string;onClose:()=>void;returnFocus:React.RefObject<HTMLButtonElement|null>;children:React.ReactNode}){
  const dialog=useRef<HTMLDialogElement>(null);
@@ -39,16 +39,18 @@ function CraftDialog({label,onClose,returnFocus,children}:{label:string;onClose:
 }
 
 function formatCraftTime(milliseconds:number){const total=Math.max(0,Math.ceil(milliseconds/1000));const two=(v:number)=>String(v).padStart(2,'0');return total>=3600?`${two(Math.floor(total/3600))}:${two(Math.floor(total%3600/60))}:${two(total%60)}`:`${two(Math.floor(total/60))}:${two(total%60)}`;}
-export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,onCount,onCraft,onTravel,onMap,queue=[],now=0,onClaim,onCancel}:Props){
+export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,onCount,onCraft,onTravel,onMap,onFindMaterials,onOpenInventory,queue=[],now=0,onClaim,onCancel}:Props){
  const town=state.towns.find(t=>t.id===state.location)!,recipes=CRAFT_RECIPES,r=recipes.find(r=>r.id===recipe)??recipes[0],track=lifeMasteryTrack(r.id),mastery=state.lifeMasteries?.[track]??0,level=lifeMasteryLevel(mastery),nextXp=LIFE_MASTERY_LEVEL_XP[level]??null,bonus=lifeMasteryBonus(mastery);
  const local=town.kind==='city'||town.kind===r.kind,locationHint=r.kind==='city'?'노바르에서 제작':`${r.kind==='herb'?'약초':'농사'} 마을 또는 노바르에서 제작`;
  const limit=craftLimit(state,r.id),quantity=Math.max(1,Math.min(100,Math.floor(count)||1)),queueFull=queue.length>=3;
  const queuedMastery=queue.reduce((total,job)=>total+(lifeMasteryTrack(job.item)===track?job.count:0),0);
  const preview=craftPreview(r.id,quantity,Math.min(LIFE_MASTERY_MAX_XP,mastery+queuedMastery),state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&!queueFull&&quantity<=limit;
- const craftState=busy?'working':queueFull?'queue-full':!local?'location':owned<required?'materials':state.vitality<quantity?'action-points':'ready';
+ const craftState=busy?'working':queueFull?'queue-full':owned<required?'materials':!local?'location':state.vitality<quantity?'action-points':'ready';
+ const mainActionEnabled=!busy&&(canCraft||queueFull||craftState==='materials'&&!!onFindMaterials||craftState==='location'&&!!onTravel||craftState==='action-points'&&!!onOpenInventory);
+ const mainLabel=busy?'제작 중…':queueFull?'제작 대기열 확인':craftState==='materials'?(r.material==='stone'?'장비 분해하러 가기':r.material==='herb'?'약초 채집하러 가기':'농사하러 가기'):craftState==='location'?'제작 가능한 마을 이동':craftState==='action-points'?'활력 회복 포션 확인':`제작하기 ${quantity}회`;
  const [confirm,setConfirm]=useState(false),[receipts,setReceipts]=useState<ConfirmedCraftResult[]>([]);
  const dismissReceipt=React.useCallback((id:string)=>setReceipts(v=>v.filter(r=>r.requestId!==id)),[]);
- const craftButton=useRef<HTMLButtonElement>(null);
+ const craftButton=useRef<HTMLButtonElement>(null),queueTitle=useRef<HTMLHeadingElement>(null);
  const shownRequest=useRef(confirmedResult?.requestId),feel=useGameFeel();
  useEffect(()=>{
   if(!confirmedResult||shownRequest.current===confirmedResult.requestId||busy)return;
@@ -98,8 +100,8 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
     <div role="group" aria-label="제작 횟수">
      <button type="button" className="tc-feel-press tc-craft-step" aria-label="제작 횟수 감소" disabled={busy||quantity<=1} onClick={()=>onCount(Math.max(1,quantity-1))}>−</button>
      <output className="tc-craft-count" aria-live="polite">{quantity}회</output>
-     <button type="button" className="tc-feel-press tc-craft-step" aria-label="제작 횟수 증가" disabled={busy||quantity>=limit} onClick={()=>onCount(Math.min(100,quantity+1))}>＋</button>
-     <button type="button" className="tc-feel-press tc-craft-preset" aria-pressed={quantity===10} disabled={busy||limit<10} onClick={()=>onCount(10)}>10회</button>
+     <button type="button" className="tc-feel-press tc-craft-step" aria-label="제작 횟수 증가" disabled={busy||quantity>=100} onClick={()=>onCount(Math.min(100,quantity+1))}>＋</button>
+     <button type="button" className="tc-feel-press tc-craft-preset" aria-pressed={quantity===10} disabled={busy} onClick={()=>onCount(10)}>10회</button>
      <button type="button" className="tc-feel-press tc-craft-preset" aria-pressed={limit>0&&quantity===limit} disabled={busy||limit<1} onClick={()=>onCount(limit)}>최대</button>
     </div>
    </div>
@@ -107,14 +109,14 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
     <span>◉ 제작 비용 <b>활력 {quantity}</b></span>
     <span>◷ 제작 시간 <b>{formatCraftTime(craftDurationSeconds(r.id,quantity)*1000)}</b></span>
    </div>
-   <button ref={craftButton} type="button" className="tc-action tc-feel-press tc-craft-main" disabled={!canCraft} onClick={()=>{feel.play('ui.press');setConfirm(true);}}><Glyph name="craft"/><span>{busy?'제작 중…':`제작하기 ${quantity}회`}</span><small>×{preview.quantity.toLocaleString()}</small></button>
-   <div className="tc-craft-status" role="status">{busy?'제작 요청 처리 중…':queueFull?'제작 대기열이 가득 찼습니다':!local?locationHint:craftState==='materials'?`재료 부족 · ${required-owned}개 더 필요`:craftState==='action-points'?`활력 부족 · ${quantity-state.vitality} 더 필요`:`제작 가능 · 활력 ${quantity} · 재료 ${required}개 소비`}</div>
+   <button ref={craftButton} type="button" className="tc-action tc-feel-press tc-craft-main" disabled={!mainActionEnabled} onClick={()=>{feel.play('ui.press');if(queueFull){queueTitle.current?.focus();queueTitle.current?.scrollIntoView?.({behavior:'smooth',block:'nearest'});}else if(craftState==='materials')onFindMaterials?.(r.id,quantity);else if(craftState==='location')onTravel?.('city');else if(craftState==='action-points')onOpenInventory?.();else if(canCraft)setConfirm(true);}}><Glyph name="craft"/><span>{mainLabel}</span><small>{craftState==='materials'?`부족 ${Math.max(0,required-owned).toLocaleString()}`:craftState==='ready'?`×${preview.quantity.toLocaleString()}`:''}</small></button>
+   <div className="tc-craft-status" role="status">{busy?'제작 요청 처리 중…':queueFull?'제작 대기열이 가득 찼습니다':craftState==='materials'?`재료 부족 · ${required-owned}개 더 필요 · 수급 화면으로 이동`:!local?locationHint:craftState==='action-points'?`활력 부족 · ${quantity-state.vitality} 더 필요`:`제작 가능 · 활력 ${quantity} · 재료 ${required}개 소비`}</div>
    {busy&&<CraftPendingIndicator/>}
   </footer>
    </div>
   </div>
   <section className="tc-craft-queue" aria-label="제작 대기열">
-   <div className="tc-craft-queue-header"><span className="tc-craft-queue-symbol" aria-hidden="true">⌛</span><h3>제작 대기열</h3><b>{queue.length} / 3</b><small>순차 제작 · 수동 수령</small></div>
+   <div className="tc-craft-queue-header"><span className="tc-craft-queue-symbol" aria-hidden="true">⌛</span><h3 ref={queueTitle} tabIndex={-1}>제작 대기열</h3><b>{queue.length} / 3</b><small>순차 제작 · 수동 수령</small></div>
    <div className="tc-craft-queue-list">
     {Array.from({length:3},(_,slot)=>{
      const job=queue[slot];

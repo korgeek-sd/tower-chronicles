@@ -2,12 +2,13 @@ import React from 'react';
 import {LIFE_MATERIAL_NAMES,lifeBatchLimit,type VillageLifeState,type LifeResource,type LifeMaterial} from '../../online/villageLife';
 import {assetUrl} from '../../game/data/graphics';
 import {CraftItemArt} from './CraftItemArt';
-import {lifeMasteryLevel,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP} from '../../game/life/crafting';
+import {lifeMasteryLevel,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP,PRODUCT_NAMES,type ProductId} from '../../game/life/crafting';
 import './gather-screen.css';
-type Props={state:VillageLifeState;busy:boolean;count:number;now:number;message?:string;onCount:(n:number)=>void;onGather:(r:LifeResource)=>void;onBack:()=>void;onRefresh:()=>void;onWell?:()=>void;onInventory?:()=>void};
-export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack}:Props){
- const [selectedResource,setSelectedResource]=React.useState<LifeResource>('herb');
+type Props={state:VillageLifeState;busy:boolean;count:number;now:number;message?:string;onCount:(n:number)=>void;onGather:(r:LifeResource)=>void;onBack:()=>void;onRefresh:()=>void;onWell?:()=>void;onInventory?:()=>void;target?:{product:ProductId;material:LifeMaterial;required:number}|null;onReturnCraft?:()=>void};
+export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack,target,onReturnCraft}:Props){
+ const [selectedResource,setSelectedResource]=React.useState<LifeResource>(target?.material&&target.material!=='herb'?'farm':'herb');
  const town=state.towns.find(t=>t.id===state.location)!;
+ const targetOwned=target?state.materials[target.material]??0:0,targetMissing=target?Math.max(0,target.required-targetOwned):0;
  const resources:LifeResource[]=town.kind==='city'?['herb','farm']:[town.kind];
  const resource=resources.includes(selectedResource)?selectedResource:resources[0];
  const herb=resource==='herb',name=herb?'약초':'농산물';
@@ -21,7 +22,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
  const materials:LifeMaterial[]=herb?['herb']:['pepper','potato','wheat'];
  return <section className="tc-life tc-gather-location" aria-label="마을 생활" aria-busy={busy}>
   <header className="tc-life-header">
-   <button type="button" className="tc-gather-back tc-feel-press" onClick={onBack} aria-label="마을 지도로 돌아가기">‹ 지도</button>
+   <button type="button" className="tc-gather-back tc-feel-press" onClick={onReturnCraft??onBack} aria-label={onReturnCraft?'제작 공방으로 돌아가기':'마을 지도로 돌아가기'}>{onReturnCraft?'‹ 제작':'‹ 지도'}</button>
    <h1>{town.name}<span> · 생산</span></h1>
    <div className="tc-gather-ap"><small>생활 활력</small><b>{state.vitality}<span> / 100</span></b><div role="progressbar" aria-label="생활 활력" aria-valuenow={Math.min(100,state.vitality)} aria-valuemin={0} aria-valuemax={100}><i style={{width:Math.max(0,Math.min(100,state.vitality))+'%'}}/></div></div>
   </header>
@@ -29,6 +30,7 @@ export function LifeScreen({state,busy,count,now,message,onCount,onGather,onBack
    <img src={assetUrl(`assets/backgrounds/gathering/${resource}.webp`)} alt="" aria-hidden="true" draggable={false} width={1536} height={1024}/>
    <div className="tc-gather-scene-title"><h2>{town.name} {herb?'약초밭':'농장'}</h2></div>
    <small className="tc-gather-owner" title={owner}>점령 · {owner}</small>
+   {target&&<div className="tc-gather-craft-goal" role="status" data-target-material={target.material}><strong>{PRODUCT_NAMES[target.product]} 제작 목표</strong><span>{LIFE_MATERIAL_NAMES[target.material]} {targetOwned.toLocaleString()} / {target.required.toLocaleString()} · {targetMissing>0?`부족 ${targetMissing.toLocaleString()}개`:'재료 확보'}</span>{target.material!=='herb'&&<small>고추·감자·밀은 무작위 수확</small>}</div>}
   </div>
   {resources.length>1&&<div className="tc-life-resource" aria-label="채집 종류">{resources.map(r=><button type="button" className="tc-feel-press" key={r} aria-pressed={resource===r} disabled={busy} onClick={()=>setSelectedResource(r)}><CraftItemArt id={r==='herb'?'herb':'wheat'}/><span>{r==='herb'?'약초 채집':'농사'}</span></button>)}</div>}
   <section className="tc-life-gather" aria-label="선택한 채집 자원">

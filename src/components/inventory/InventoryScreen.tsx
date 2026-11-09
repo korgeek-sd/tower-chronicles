@@ -30,7 +30,7 @@ import {EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 const PAGE_SIZE=36;
 
 
-export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,onSkills,initialSelected,onInitialSelectedConsumed}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;onSkills?:()=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void}){
+export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,onSkills,initialSelected,onInitialSelectedConsumed,initialCategory='all',onReturnCraft}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;onSkills?:()=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void;initialCategory?:InventoryCategory;onReturnCraft?:()=>void}){
  const [skillSetupOpen,setSkillSetupOpen]=useState(false);
  const gridRef=useRef<HTMLDivElement>(null);
  const filterButton=useRef<HTMLButtonElement>(null);
@@ -38,7 +38,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  const [gridRows,setGridRows]=useState(6);
  useEffect(()=>{const grid=gridRef.current;if(!grid)return;const observer=new ResizeObserver(([entry])=>{const rows=Math.max(1,Math.floor((entry.contentRect.height+4)/48));setGridRows(rows);setPageSize(rows*6);});observer.observe(grid);return ()=>observer.disconnect();},[]);
  const life=useInventoryLife(userId,onlineLease??null);
- const [category,setCategory]=useState<InventoryCategory>('all'),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
+ const [category,setCategory]=useState<InventoryCategory>(initialCategory),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const close=useCallback(()=>setSelected(null),[]);
  const items=unifiedInventoryView(game,life.state),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/pageSize)),safe=Math.min(page,pages-1),shown=visible.slice(safe*pageSize,safe*pageSize+pageSize),item=items.find(i=>i.key===selected);
  useEffect(()=>{if(!initialSelected)return;setSelected(initialSelected);onInitialSelectedConsumed?.();},[initialSelected]);
@@ -75,7 +75,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  };
 
  function comparisonFor(sourceId:string){return equipmentStatComparison(game,sourceId);}
- return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<><button className="tc-action secondary slim" style={{minHeight:44}} onClick={()=>setSkillSetupOpen(true)}>스킬 구성</button><span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory tc-iron-inventory">
+ return <Screen eyebrow="NOVAR QUARTERMASTER / LOADOUT" title="장비 · 보관함" meta={<>{onReturnCraft?<button className="tc-action secondary slim" style={{minHeight:44}} onClick={onReturnCraft}>제작 복귀</button>:<button className="tc-action secondary slim" style={{minHeight:44}} onClick={()=>setSkillSetupOpen(true)}>스킬 구성</button>}<span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory tc-iron-inventory">
   <div className="tc-ref-inventory tc-inventory-v081 tc-storage-only">
    <section className={'tc-storage-board'+(pages===1?' tc-storage-single-page':'')}>
     <div className="tc-storage-head"><div><small>QUARTERMASTER STORAGE</small><b>인벤토리</b><em role="status">{life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${inventoryGradeSummary(category,filter.grades??[])} · ${visible.length}종`}</em></div>{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className="tc-auto-equip" title="무기 종류 유지 · 상위 등급 장착" disabled={!!game.expedition||busy||bestEquipmentIds(game).length===0} onClick={()=>setGame(autoEquip)}>자동 장착</button><button ref={filterButton} className={toolsOpen||query||filter.grades?.length||filter.tier||filter.status?'active':''} onClick={()=>setToolsOpen(true)} aria-label="필터" aria-haspopup="dialog" aria-expanded={toolsOpen}><Glyph name="filter"/> 필터</button></div>

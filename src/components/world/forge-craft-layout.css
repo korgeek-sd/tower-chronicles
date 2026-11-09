@@ -193,3 +193,17 @@
  .tc-forge-craft .tc-craft-result{min-height:0}
  .tc-forge-craft .tc-forge-workspace{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#916937 #141312}
 }
+
+
+/* Craft-first material acquisition: the primary action stays reachable when ingredients are missing. */
+.tc-forge-craft[data-craft-state="materials"] .tc-craft-main:not(:disabled),
+.tc-forge-craft[data-craft-state="action-points"] .tc-craft-main:not(:disabled){
+ opacity:1;filter:none;border-color:#dbb776;
+ background:linear-gradient(#715023,#513518 70%,#312415);color:#f5dfb4;
+ box-shadow:inset 0 0 0 2px #543718,inset 0 1px 8px #d7b57433,0 0 0 2px #100b0a,0 2px 8px #000b;
+}
+.tc-forge-craft[data-craft-state="materials"] .tc-craft-main small{color:#ffe19d}
+.tc-forge-craft[data-craft-state="queue-full"] .tc-craft-main:not(:disabled){
+ opacity:1;filter:none;border-color:#a99162;background:linear-gradient(#4b3d2a,#28231c);color:#ead6b2;
+}
+.tc-forge-craft .tc-craft-queue-header h3:focus{outline:2px solid #e6b977;outline-offset:2px}
