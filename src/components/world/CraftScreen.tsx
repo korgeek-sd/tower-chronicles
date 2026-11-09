@@ -7,6 +7,7 @@ import {CraftItemArt} from './CraftItemArt';
 import './craft-screen.css';
 import './forge-craft.css';
 import './forge-craft-layout.css';
+import './forge-craft-mobile-safe.css';
 import {CraftPendingIndicator,CraftReceiptNotifications} from './CraftFeedback';
 import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,lifeMasteryTrack,lifeMasteryLevel,lifeMasteryBonus,craftDurationSeconds,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP,LIFE_MASTERY_MAX_XP,type ProductId} from '../../game/life/crafting';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState,type CraftQueueJob} from '../../online/villageLife';
@@ -47,7 +48,8 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  const preview=craftPreview(r.id,quantity,Math.min(LIFE_MASTERY_MAX_XP,mastery+queuedMastery),state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&!queueFull&&quantity<=limit;
  const craftState=busy?'working':queueFull?'queue-full':state.vitality<1&&r.material!=='stone'?'action-points':owned<required?'materials':!local?'location':state.vitality<quantity?'action-points':'ready';
  const mainActionEnabled=!busy&&(canCraft||queueFull||craftState==='materials'&&!!onFindMaterials||craftState==='location'&&!!onTravel||craftState==='action-points'&&!!onOpenInventory);
- const mainLabel=busy?'제작 중…':queueFull?'제작 대기열 확인':craftState==='materials'?(r.material==='stone'?'장비 분해하러 가기':r.material==='herb'?'약초 채집하러 가기':'농사하러 가기'):craftState==='location'?'제작 가능한 마을 이동':craftState==='action-points'?'활력 회복 포션 확인':`제작하기 ${quantity}회`;
+ const mainLabel=busy?'제작 중…':queueFull?'대기열 확인':craftState==='materials'?(r.material==='stone'?'장비 분해':r.material==='herb'?'약초 채집':'농사하기'):craftState==='location'?'마을 이동':craftState==='action-points'?'활력 회복':`제작하기 ${quantity}회`;
+ const mainAriaLabel=queueFull?'제작 대기열 확인':craftState==='materials'?(r.material==='stone'?'장비 분해하러 가기':r.material==='herb'?'약초 채집하러 가기':'농사하러 가기'):craftState==='action-points'?'활력 회복 포션 확인':undefined;
  const [confirm,setConfirm]=useState(false),[receipts,setReceipts]=useState<ConfirmedCraftResult[]>([]);
  const dismissReceipt=React.useCallback((id:string)=>setReceipts(v=>v.filter(r=>r.requestId!==id)),[]);
  const craftButton=useRef<HTMLButtonElement>(null),queueTitle=useRef<HTMLHeadingElement>(null);
@@ -109,7 +111,7 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
     <span>◉ 제작 비용 <b>활력 {quantity}</b></span>
     <span>◷ 제작 시간 <b>{formatCraftTime(craftDurationSeconds(r.id,quantity)*1000)}</b></span>
    </div>
-   <button ref={craftButton} type="button" className="tc-action tc-feel-press tc-craft-main" disabled={!mainActionEnabled} onClick={()=>{feel.play('ui.press');if(queueFull){queueTitle.current?.focus();queueTitle.current?.scrollIntoView?.({behavior:'smooth',block:'nearest'});}else if(craftState==='materials')onFindMaterials?.(r.id,quantity);else if(craftState==='location')onTravel?.('city');else if(craftState==='action-points')onOpenInventory?.();else if(canCraft)setConfirm(true);}}><Glyph name="craft"/><span>{mainLabel}</span><small>{craftState==='materials'?`부족 ${Math.max(0,required-owned).toLocaleString()}`:craftState==='ready'?`×${preview.quantity.toLocaleString()}`:''}</small></button>
+   <button ref={craftButton} type="button" className="tc-action tc-feel-press tc-craft-main" aria-label={mainAriaLabel} disabled={!mainActionEnabled} onClick={()=>{feel.play('ui.press');if(queueFull){queueTitle.current?.focus();queueTitle.current?.scrollIntoView?.({behavior:'smooth',block:'nearest'});}else if(craftState==='materials')onFindMaterials?.(r.id,quantity);else if(craftState==='location')onTravel?.('city');else if(craftState==='action-points')onOpenInventory?.();else if(canCraft)setConfirm(true);}}><Glyph name="craft"/><span>{mainLabel}</span><small>{craftState==='materials'?`부족 ${Math.max(0,required-owned).toLocaleString()}`:craftState==='ready'?`×${preview.quantity.toLocaleString()}`:''}</small></button>
    <div className="tc-craft-status" role="status">{busy?'제작 요청 처리 중…':queueFull?'제작 대기열이 가득 찼습니다':craftState==='materials'?`재료 부족 · ${required-owned}개 더 필요 · 수급 화면으로 이동`:!local?locationHint:craftState==='action-points'?`활력 부족 · ${quantity-state.vitality} 더 필요`:`제작 가능 · 활력 ${quantity} · 재료 ${required}개 소비`}</div>
    {busy&&<CraftPendingIndicator/>}
   </footer>
