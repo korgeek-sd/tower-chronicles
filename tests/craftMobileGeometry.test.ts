@@ -33,8 +33,13 @@ function chromiumBinary():string|null{
  }
  return null;
 }
+const isolated=process.env.CRAFT_GEOMETRY_E2E==='1';
 const binary=chromiumBinary();
-test('narrow-viewport crafting: ingredients, controls and queue have separate visible rectangles', {skip:binary===null?'Chromium not installed':false},()=>{
+// Chrome can time out under the 1600+ concurrent full-suite tests. Run this
+// expensive real-browser check separately in the focused crafting workflow.
+test('narrow-viewport crafting: ingredients, controls and queue have separate visible rectangles',
+ {skip:!isolated?'Runs independently in the focused UI workflow':false},()=>{
+ assert.ok(binary,'Chromium is required for the isolated crafting UI geometry test');
  for(const [width,height] of [[360,630],[390,750],[320,568]]){
   const folder=fs.mkdtempSync(path.join(os.tmpdir(),'craft-layout-'));
   const html=path.join(folder,'fixture.html');
