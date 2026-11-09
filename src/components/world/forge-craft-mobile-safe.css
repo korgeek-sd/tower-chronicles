@@ -256,3 +256,45 @@
  .tc-craft-page .tc-forge-craft .tc-craft-queue-item .tc-craft-art {width:20px;height:20px;flex-basis:20px;}
  .tc-craft-page .tc-forge-craft .tc-craft-queue-card button {min-height:30px;}
 }
+
+
+/* Main action uses equal flexible side tracks. The label is centered against the
+ * full button width, regardless of icon width or trailing shortage/yield text.
+ * This also fixes off-center labels on larger screens. */
+.tc-craft-page .tc-forge-craft .tc-craft-main {
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);
+ align-items:center;
+ justify-content:normal;
+ column-gap:3px;
+}
+.tc-craft-page .tc-forge-craft .tc-craft-main > .tc-glyph {
+ grid-column:1;
+ justify-self:start;
+ margin:0;
+}
+.tc-craft-page .tc-forge-craft .tc-craft-main > .tc-craft-main-label {
+ grid-column:2;
+ justify-self:center;
+ margin:0;
+ min-width:0;
+ max-width:100%;
+ width:max-content;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+ text-align:center;
+ flex:none;
+}
+.tc-craft-page .tc-forge-craft .tc-craft-main > .tc-craft-main-meta {
+ grid-column:3;
+ justify-self:end;
+ margin:0;
+ min-width:0;
+ max-width:100%;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+ text-align:right;
+ flex:none;
+}
