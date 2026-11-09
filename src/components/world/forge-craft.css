@@ -100,7 +100,7 @@
  box-shadow:0 0 0 2px #483017,0 0 12px #f2ac448a,inset 0 0 0 1px #d7a75c,inset 0 1px 13px #d6a14c33
 }
 .tc-forge-craft .tc-item-tabs button.active:after{
- display:block;content:'';position:absolute;top:50%;right:-12px;inset:auto -12px auto auto;
+ display:block;content:'';position:absolute;top:50%;right:-12px;bottom:auto;left:auto;
  width:0;height:0;border:0;border-top:9px solid transparent;border-bottom:9px solid transparent;
  border-left:11px solid #f3c27b;transform:translateY(-50%);filter:drop-shadow(0 0 4px #d6a34c);pointer-events:none
 }
@@ -171,6 +171,7 @@
 .tc-craft-material-heading strong{font:700 13px Georgia,'Noto Serif KR',serif;color:#f1d8ab}
 .tc-craft-material-heading span{font-size:9px;color:#c8b69b;white-space:nowrap}
 .tc-craft-material-row{display:flex;align-items:center;gap:7px;min-height:55px;padding:6px 8px;min-width:0}
+.tc-forge-craft .tc-craft-material>.tc-craft-material-row{display:flex;flex-direction:row;align-items:center;flex:0 0 auto;gap:7px;min-width:0}
 .tc-forge-craft .tc-craft-material .tc-craft-slot{flex:0 0 39px;width:39px;height:39px;border:3px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/slot.webp') 24 fill stretch;background:#181818}
 .tc-forge-craft .tc-craft-material .tc-craft-slot .tc-craft-art{width:100%;height:100%;object-fit:contain}
 .tc-craft-material-copy{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
