@@ -18,7 +18,7 @@ export function craftingSupplyNeed(state:VillageLifeState,product:ProductId,coun
 const stockFor=(town:LifeTown,source:LifeResource)=>source==='herb'?town.herbRemaining:town.farmRemaining;
 /** Prefer a viable current town, otherwise choose a stocked town rather than sending players to an empty field. */
 export function recommendedCraftSupplyTown(state:VillageLifeState,source:LifeResource):LifeTown|null{
- const candidates=state.towns.filter(t=>(t.kind===source||t.kind==='city')&&stockFor(t,source)>0);
+ const candidates=state.towns.filter(t=>(t.kind===source||t.kind==='city')&&stockFor(t,source)>=10);
  const current=candidates.find(t=>t.id===state.location);
  if(current)return current;
  return [...candidates].sort((a,b)=>stockFor(b,source)-stockFor(a,source)||a.tax-b.tax||a.id.localeCompare(b.id))[0]??null;
