@@ -1,0 +1,31 @@
+name: Craft queue focused checks
+on:
+  pull_request:
+    paths:
+      - 'src/components/world/CraftScreen.tsx'
+      - 'src/components/world/WorldPage.tsx'
+      - 'src/components/world/craft-screen.css'
+      - 'src/online/villageLife.ts'
+      - 'src/game/life/crafting.ts'
+      - 'tests/craftingQueue*.test.ts'
+      - 'supabase/migrations/20261109140000_village_crafting_queue.sql'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-craft-queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - run: npm ci
+      - name: Targeted crafting queue tests
+        run: node --import ./tests/register.mjs --test tests/craftingQueue.test.ts tests/craftingQueueSql.test.ts tests/craftWorkbench.test.ts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
