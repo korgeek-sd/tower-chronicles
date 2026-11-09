@@ -14,7 +14,8 @@ on:
       - 'src/online/villageLife.ts'
       - 'src/game/life/crafting.ts'
       - 'tests/craftingQueue*.test.ts'
-      - 'tests/craftMaterialShortcut.test.ts tests/craftMobileGeometry.test.ts'
+      - 'tests/craftMaterialShortcut.test.ts'
+      - 'tests/craftMobileGeometry.test.ts'
       - 'supabase/migrations/20261109140000_village_crafting_queue.sql'
   workflow_dispatch:
 permissions:
@@ -32,6 +33,8 @@ jobs:
       - run: npm ci
       - name: Targeted crafting queue tests
         run: node --import ./tests/register.mjs --test tests/craftingQueue.test.ts tests/craftingQueueSql.test.ts tests/craftWorkbench.test.ts tests/craftIronUi.test.ts tests/craftVisualRedesign.test.ts tests/craftLayoutFit.test.ts tests/craftMaterialShortcut.test.ts
+      - name: Mobile crafting geometry (isolated Chromium)
+        run: CRAFT_GEOMETRY_E2E=1 node --import ./tests/register.mjs --test tests/craftMobileGeometry.test.ts
       - name: Typecheck
         run: npm run typecheck
       - name: Build
