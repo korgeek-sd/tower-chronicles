@@ -7,7 +7,7 @@ import {CraftItemArt} from './CraftItemArt';
 import './craft-screen.css';
 import './iron-craft.css';
 import {CraftPendingIndicator,CraftReceiptNotifications} from './CraftFeedback';
-import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,lifeMasteryTrack,lifeMasteryLevel,lifeMasteryBonus,craftDurationSeconds,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP,type ProductId} from '../../game/life/crafting';
+import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,lifeMasteryTrack,lifeMasteryLevel,lifeMasteryBonus,craftDurationSeconds,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP,LIFE_MASTERY_MAX_XP,type ProductId} from '../../game/life/crafting';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState,type CraftQueueJob} from '../../online/villageLife';
 
 export type ConfirmedCraftResult={requestId:string;product:ProductId;quantity:number};
@@ -42,7 +42,8 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  const town=state.towns.find(t=>t.id===state.location)!,recipes=CRAFT_RECIPES,r=recipes.find(r=>r.id===recipe)??recipes[0],track=lifeMasteryTrack(r.id),mastery=state.lifeMasteries?.[track]??0,level=lifeMasteryLevel(mastery),nextXp=LIFE_MASTERY_LEVEL_XP[level]??null,bonus=lifeMasteryBonus(mastery);
  const local=town.kind==='city'||town.kind===r.kind,locationHint=r.kind==='city'?'노바르에서 제작':`${r.kind==='herb'?'약초':'농사'} 마을 또는 노바르에서 제작`;
  const limit=craftLimit(state,r.id),quantity=Math.max(1,Math.min(100,Math.floor(count)||1)),queueFull=queue.length>=3;
- const preview=craftPreview(r.id,quantity,mastery,state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&!queueFull&&quantity<=limit;
+ const queuedMastery=queue.reduce((total,job)=>total+(lifeMasteryTrack(job.item)===track?job.count:0),0);
+ const preview=craftPreview(r.id,quantity,Math.min(LIFE_MASTERY_MAX_XP,mastery+queuedMastery),state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&!queueFull&&quantity<=limit;
  const craftState=busy?'working':queueFull?'queue-full':!local?'location':owned<required?'materials':state.vitality<quantity?'action-points':'ready';
  const [confirm,setConfirm]=useState(false),[receipts,setReceipts]=useState<ConfirmedCraftResult[]>([]);
  const dismissReceipt=React.useCallback((id:string)=>setReceipts(v=>v.filter(r=>r.requestId!==id)),[]);
