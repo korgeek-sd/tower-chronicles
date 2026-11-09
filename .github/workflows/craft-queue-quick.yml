@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'src/components/world/CraftScreen.tsx'
+      - 'src/components/world/forge-craft-mobile-safe.css'
       - 'src/components/world/LifeScreen.tsx'
       - 'src/components/world/gather-screen.css'
       - 'src/components/inventory/InventoryScreen.tsx'
@@ -13,7 +14,7 @@ on:
       - 'src/online/villageLife.ts'
       - 'src/game/life/crafting.ts'
       - 'tests/craftingQueue*.test.ts'
-      - 'tests/craftMaterialShortcut.test.ts'
+      - 'tests/craftMaterialShortcut.test.ts tests/craftMobileGeometry.test.ts'
       - 'supabase/migrations/20261109140000_village_crafting_queue.sql'
   workflow_dispatch:
 permissions:
