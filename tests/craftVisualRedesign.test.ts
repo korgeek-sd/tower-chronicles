@@ -49,3 +49,11 @@ test('forge visual CSS covers golden product panel, full-width main action, thre
  assert.ok(css.includes('grid-template-columns'));
  assert.ok(css.includes('min-height:44px')||css.includes('min-height: 44px'));
 });
+
+test('forge material display overrides the legacy column selector and selected arrow stays centered',()=>{
+ const css=readFileSync(new URL('../src/components/world/forge-craft.css',import.meta.url),'utf8');
+ assert.match(css,/\.tc-forge-craft \.tc-craft-material>\.tc-craft-material-row\s*\{[^}]*flex-direction\s*:\s*row/s);
+ assert.match(css,/\.tc-forge-craft \.tc-item-tabs button\.active:after\s*\{[^}]*top\s*:\s*50%/s);
+ const arrow=css.slice(css.indexOf('.tc-forge-craft .tc-item-tabs button.active:after'),css.indexOf('.tc-forge-craft .tc-forge-workspace'));
+ assert.doesNotMatch(arrow,/inset:auto/);
+});
