@@ -101,7 +101,7 @@
 }
 .tc-forge-craft .tc-item-tabs button.active:after{
  display:block;content:'';position:absolute;top:50%;right:-12px;inset:auto -12px auto auto;
- width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;
+ width:0;height:0;border:0;border-top:9px solid transparent;border-bottom:9px solid transparent;
  border-left:11px solid #f3c27b;transform:translateY(-50%);filter:drop-shadow(0 0 4px #d6a34c);pointer-events:none
 }
 .tc-forge-craft .tc-forge-workspace{
