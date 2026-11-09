@@ -23,6 +23,7 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
     craft_carry jsonb default '{}',food_turns jsonb default '{}',well_ready_at timestamptz
    );
    insert into private.village_life_players(user_id) values('${user}');
+   create table private.village_life_action_receipts(user_id uuid not null,request_id uuid not null,town_id text,action text,item text,count integer,result jsonb,created_at timestamptz default now(),primary key(user_id,request_id));
    create table private.hunting_states(user_id uuid primary key,vitality integer default 100);
    insert into private.hunting_states(user_id) values('${user}');
    create function private.village_life_user(uuid,bigint,text,text) returns uuid language sql as $$select '${user}'::uuid$$;
@@ -66,6 +67,7 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
   const claimed=await call('claim_village_craft',[rid(1)]);
   assert.equal(claimed.result.quantity,1030);
   assert.equal(claimed.state.products.potion,1030);
+  assert.equal((await db.query<{n:number}>("select count(*)::int n from private.village_life_action_receipts where action='craft'")).rows[0].n,1,'quest receipt must be written once at claim');
   assert.equal((await call('claim_village_craft',[rid(1)])).replayed,true);
   assert.equal((await db.query<{n:number}>("select count(*)::int n from private.village_craft_queue where status='ACTIVE'")).rows[0].n,1);
   await assert.rejects(()=>call('village_life_action',[rid(5),'city','craft','potion','1']),/CRAFT_QUEUE_REQUIRED/);
