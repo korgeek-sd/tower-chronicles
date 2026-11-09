@@ -45,7 +45,7 @@ export function CraftScreen({state,busy,count,recipe,confirmedResult,onRecipe,on
  const limit=craftLimit(state,r.id),quantity=Math.max(1,Math.min(100,Math.floor(count)||1)),queueFull=queue.length>=3;
  const queuedMastery=queue.reduce((total,job)=>total+(lifeMasteryTrack(job.item)===track?job.count:0),0);
  const preview=craftPreview(r.id,quantity,Math.min(LIFE_MASTERY_MAX_XP,mastery+queuedMastery),state.craftCarry?.[r.id]??0),base=r.base*quantity,required=quantity*10,owned=state.materials[r.material]??0,canCraft=!busy&&!queueFull&&quantity<=limit;
- const craftState=busy?'working':queueFull?'queue-full':owned<required?'materials':!local?'location':state.vitality<quantity?'action-points':'ready';
+ const craftState=busy?'working':queueFull?'queue-full':state.vitality<1&&r.material!=='stone'?'action-points':owned<required?'materials':!local?'location':state.vitality<quantity?'action-points':'ready';
  const mainActionEnabled=!busy&&(canCraft||queueFull||craftState==='materials'&&!!onFindMaterials||craftState==='location'&&!!onTravel||craftState==='action-points'&&!!onOpenInventory);
  const mainLabel=busy?'제작 중…':queueFull?'제작 대기열 확인':craftState==='materials'?(r.material==='stone'?'장비 분해하러 가기':r.material==='herb'?'약초 채집하러 가기':'농사하러 가기'):craftState==='location'?'제작 가능한 마을 이동':craftState==='action-points'?'활력 회복 포션 확인':`제작하기 ${quantity}회`;
  const [confirm,setConfirm]=useState(false),[receipts,setReceipts]=useState<ConfirmedCraftResult[]>([]);
