@@ -24,7 +24,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Targeted crafting queue tests
-        run: node --import ./tests/register.mjs --test tests/craftingQueue.test.ts tests/craftingQueueSql.test.ts tests/craftWorkbench.test.ts
+        run: node --import ./tests/register.mjs --test tests/craftingQueue.test.ts tests/craftingQueueSql.test.ts tests/craftWorkbench.test.ts tests/craftIronUi.test.ts tests/craftVisualRedesign.test.ts
       - name: Typecheck
         run: npm run typecheck
       - name: Build
