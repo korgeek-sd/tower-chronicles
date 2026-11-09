@@ -120,3 +120,47 @@
  .tc-game-craft button:active, .tc-craft-dialog button:active { transform: none; }
  .tc-craft-progress span { width: 100%; }
 }
+
+
+/* Server-owned crafting queue: all three jobs stay reachable without a nested scroll. */
+.tc-craft-duration{display:flex;gap:8px;align-items:center;justify-content:center;min-height:18px;color:var(--craft-soft);font-size:10px}
+.tc-craft-duration b{color:#efd08b;font:700 12px ui-monospace,monospace}
+.tc-game-craft .tc-craft-queue{flex:0 0 auto;min-width:0;padding:6px;border:1px solid #78644a;background:linear-gradient(#2a2520,#13171a);box-shadow:inset 0 0 0 2px #090d0f}
+.tc-craft-queue-header{display:flex;align-items:center;gap:9px;padding:0 2px 5px;border-bottom:1px solid #544939}
+.tc-craft-queue-header h3{margin:0;font:700 12px Georgia,'Noto Serif KR',serif;color:#e8cc95}
+.tc-craft-queue-header b{color:#f0d18b;font:700 12px ui-monospace,monospace}
+.tc-craft-queue-header small{margin-left:auto;font-size:9px;color:#aea697}
+.tc-craft-queue-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:6px}
+.tc-craft-queue-card{display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;min-width:0;gap:3px;padding:5px;border:1px solid #584b3b;background:#111619;min-height:82px}
+.tc-craft-queue-card.complete{border-color:#af8950;background:linear-gradient(#40301d,#14191c)}
+.tc-craft-queue-card.empty{align-items:center;justify-content:center;gap:5px;border:1px dashed #55504b;color:#908980}
+.tc-craft-queue-plus{font-size:20px;line-height:1}
+.tc-craft-queue-item{display:flex;align-items:center;gap:4px;min-width:0}
+.tc-craft-queue-item .tc-craft-art{width:32px;height:32px;flex:0 0 32px;border:1px solid #776148}
+.tc-craft-queue-item>div{min-width:0;display:flex;flex-direction:column}
+.tc-craft-queue-item strong{font-size:10px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-craft-queue-item small{color:#c3aa79;font-size:9px}
+.tc-craft-queue-state{font-size:10px;color:#d4b982}
+.tc-craft-queue-card.waiting .tc-craft-queue-state{color:#a39d91}
+.tc-craft-queue-card.complete .tc-craft-queue-state{color:#f3c86a}
+.tc-craft-queue-progress{height:4px;overflow:hidden;background:#080b0d;border:1px solid #4e493b}
+.tc-craft-queue-progress i{display:block;height:100%;background:#d6a550}
+.tc-craft-queue-time{font:10px ui-monospace,monospace;color:#c6b48e}
+.tc-game-craft .tc-craft-queue-card button{min-height:44px;width:100%;padding:3px 5px;border:1px solid #746249;background:#2a2822;color:#e0cda6;font-size:11px;cursor:pointer}
+.tc-game-craft .tc-craft-queue-card .tc-craft-claim{border-color:#d8a960;background:linear-gradient(#765328,#51391c);color:#ffe1a4;font-weight:700}
+.tc-game-craft .tc-craft-queue-card .tc-craft-cancel{background:#302221;color:#d9a89b}
+@media (max-width:390px){
+ .tc-craft-queue-list{gap:3px}
+ .tc-craft-queue-card{padding:3px}
+ .tc-craft-queue-item .tc-craft-art{width:25px;height:25px;flex-basis:25px}
+ .tc-craft-queue-item strong{font-size:9px}
+ .tc-craft-queue-header small{font-size:8px}
+}
+@media (max-height:700px){
+ .tc-game-craft .tc-craft-queue{padding:4px}
+ .tc-craft-queue-list{margin-top:4px}
+ .tc-craft-queue-card{min-height:69px;gap:2px}
+ .tc-craft-queue-item .tc-craft-art{width:25px;height:25px;flex-basis:25px}
+ .tc-game-craft .tc-craft-queue-card button{min-height:44px}
+ .tc-craft-queue-header{padding-bottom:3px}
+}
