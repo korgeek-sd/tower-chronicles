@@ -78,5 +78,5 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
   assert.equal((await call('claim_village_craft',[rid(1)])).replayed,true);
   assert.equal((await db.query<{n:number}>("select count(*)::int n from private.village_craft_queue where status='ACTIVE'")).rows[0].n,1);
   await assert.rejects(()=>call('village_life_action',[rid(5),'city','craft','potion','1']),/CRAFT_QUEUE_REQUIRED/);
- }catch(e){throw new Error('Craft queue test failed at '+stage+': '+String(e),{cause:e});}finally{await db.close();}
+ }catch(e){const v=e as Record<string,unknown>;throw new Error('Craft queue test failed at '+stage+': '+String(e)+'; detail='+JSON.stringify({position:v.position,where:v.where,internalPosition:v.internalPosition,internalQuery:v.internalQuery,detail:v.detail,hint:v.hint}),{cause:e});}finally{await db.close();}
 });
