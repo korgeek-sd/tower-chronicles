@@ -15,6 +15,7 @@ const read=(p:string)=>fs.readFileSync(new URL(p,root),'utf8');
 const styles=['src/mobile-game.css','src/components/world/world-map.css','src/components/world/craft-screen.css','src/components/world/forge-craft.css','src/components/world/forge-craft-layout.css','src/components/world/forge-craft-mobile-safe.css'].map(read).join('\n');
 const state:VillageLifeState={location:'city',vitality:629,materials:{herb:0,pepper:0,potato:0,wheat:0,stone:0},products:{potion:85431,attack_food:0,defense_food:0,experience_food:0,challenge_ticket:0,vitality_potion:0},lifeMasteries:{herb:244,farm:0,ticket:0},craftCarry:{},towns:WORLD_TOWNS,serverNow:1000,nextResetAt:999999};
 const app=renderToStaticMarkup(React.createElement(CraftScreen,{state,busy:false,count:1,recipe:'potion',queue:[],onRecipe:()=>{},onCount:()=>{},onCraft:()=>{},onFindMaterials:()=>{},onTravel:()=>{},onMap:()=>{},now:1000}));
+const readyApp=renderToStaticMarkup(React.createElement(CraftScreen,{state:{...state,materials:{...state.materials,pepper:200}},busy:false,count:1,recipe:'attack_food',queue:[],onRecipe:()=>{},onCount:()=>{},onCraft:()=>{},onFindMaterials:()=>{},onTravel:()=>{},onMap:()=>{},now:1000}));
 const report=`<script>
 function rect(selector){
  const el=document.querySelector(selector); if(!el)return null;
@@ -25,6 +26,10 @@ const selectors=['.tc-forge-workspace','.tc-craft-result','.tc-craft-material','
 const data=Object.fromEntries(selectors.map(x=>[x,rect(x)]));
 data.buttons=[...document.querySelectorAll('.tc-life-quantity [role="group"] button')].map(x=>{const r=x.getBoundingClientRect();return {x:r.x,right:r.right,y:r.y,bottom:r.bottom}});
 data.viewport={width:window.innerWidth,height:window.innerHeight,matchingMobile:window.matchMedia('(max-width: 520px)').matches};
+const action=document.querySelector('.tc-craft-main');
+const actionLabel=action?.querySelector('.tc-craft-main-label');
+const bRect=action?.getBoundingClientRect(),lRect=actionLabel?.getBoundingClientRect();
+data.actionAlignment={buttonCenter:bRect?bRect.left+bRect.width/2:null,labelCenter:lRect?lRect.left+lRect.width/2:null,labelText:actionLabel?.textContent??'',layout:action?getComputedStyle(action).display:''};
 document.getElementById('layout-results').textContent=JSON.stringify(data);
 </script>`;
 function chromiumBinary():string|null{
@@ -38,13 +43,13 @@ function chromiumBinary():string|null{
 const pause=(ms:number)=>new Promise<void>(resolve=>setTimeout(resolve,ms));
 async function startChrome(binary:string){
  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'craft-cdp-'));
- const child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--remote-allow-origins=*','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore'});
+ const child=spawn(binary,['--headless=new','--no-sandbox','--no-zygote','--disable-gpu','--disable-dev-shm-usage','--disable-extensions','--disable-background-networking','--no-first-run','--remote-allow-origins=*','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore'});
  let ws:WebSocket|null=null;
  const pending=new Map<number,{resolve:(v:any)=>void;reject:(e:Error)=>void}>();
  let seq=0;
  try{
   let port=0;
-  for(let tries=0;tries<130;tries++){
+  for(let tries=0;tries<260;tries++){
    const file=path.join(profile,'DevToolsActivePort');
    if(fs.existsSync(file)){port=Number(fs.readFileSync(file,'utf8').split('\n')[0]);break;}
    if(child.exitCode!==null)throw new Error('Chrome exited before DevTools opened: '+child.exitCode);
@@ -94,7 +99,7 @@ const binary=chromiumBinary();
 // Chrome can time out under the 1600+ concurrent full-suite tests. Run this
 // expensive real-browser check separately in the focused crafting workflow.
 test('narrow-viewport crafting: ingredients, controls and queue have separate visible rectangles',
- {skip:!isolated?'Runs independently in the focused UI workflow':false,timeout:65000},async()=>{
+ {skip:!isolated?'Runs independently in the focused UI workflow':false,timeout:110000},async()=>{
  assert.ok(binary,'Chromium is required for the isolated crafting UI geometry test');
  const browser=await startChrome(binary!);
  try{
@@ -121,7 +126,17 @@ test('narrow-viewport crafting: ingredients, controls and queue have separate vi
    assert.ok(w.bottom<=q.y+3,'Workspace overlaps queue: '+summary);
    assert.ok(main.right<=w.right+3,'Craft action overflows panel horizontally: '+summary);
    assert.ok(g.right<=w.right+3,'Quantity group overflows panel: '+summary);
+   assert.equal(d.actionAlignment.layout,'grid','Craft action should use a balanced 3-track grid: '+summary);
+   assert.ok(Math.abs(d.actionAlignment.buttonCenter-d.actionAlignment.labelCenter)<2,'Gather action title must be centered on the entire button: '+JSON.stringify(d.actionAlignment));
    for(let i=1;i<d.buttons.length;i++)assert.ok(d.buttons[i-1].right<=d.buttons[i].x+2,'Quantity buttons overlap: '+summary);
+   const readyHtml=path.join(folder,'ready.html');
+   fs.writeFileSync(readyHtml,fs.readFileSync(html,'utf8').replace(app,readyApp));
+   const ready=await browser.measure('file://'+readyHtml,width,height);
+   assert.match(ready.actionAlignment.labelText,/제작하기/,'Ready button text did not load in mobile fixture');
+   assert.equal(ready.actionAlignment.layout,'grid');
+   assert.ok(Math.abs(ready.actionAlignment.buttonCenter-ready.actionAlignment.labelCenter)<2,
+     'Ready crafting title must be centered on the entire button: '+JSON.stringify(ready.actionAlignment));
+
   }finally{fs.rmSync(folder,{recursive:true,force:true});}
  }
  }finally{await browser.close();}
