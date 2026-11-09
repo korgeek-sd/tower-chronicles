@@ -43,13 +43,13 @@ function chromiumBinary():string|null{
 const pause=(ms:number)=>new Promise<void>(resolve=>setTimeout(resolve,ms));
 async function startChrome(binary:string){
  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'craft-cdp-'));
- const child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--remote-allow-origins=*','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore'});
+ const child=spawn(binary,['--headless=new','--no-sandbox','--no-zygote','--disable-gpu','--disable-dev-shm-usage','--disable-extensions','--disable-background-networking','--no-first-run','--remote-allow-origins=*','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore'});
  let ws:WebSocket|null=null;
  const pending=new Map<number,{resolve:(v:any)=>void;reject:(e:Error)=>void}>();
  let seq=0;
  try{
   let port=0;
-  for(let tries=0;tries<130;tries++){
+  for(let tries=0;tries<260;tries++){
    const file=path.join(profile,'DevToolsActivePort');
    if(fs.existsSync(file)){port=Number(fs.readFileSync(file,'utf8').split('\n')[0]);break;}
    if(child.exitCode!==null)throw new Error('Chrome exited before DevTools opened: '+child.exitCode);
@@ -99,7 +99,7 @@ const binary=chromiumBinary();
 // Chrome can time out under the 1600+ concurrent full-suite tests. Run this
 // expensive real-browser check separately in the focused crafting workflow.
 test('narrow-viewport crafting: ingredients, controls and queue have separate visible rectangles',
- {skip:!isolated?'Runs independently in the focused UI workflow':false,timeout:65000},async()=>{
+ {skip:!isolated?'Runs independently in the focused UI workflow':false,timeout:110000},async()=>{
  assert.ok(binary,'Chromium is required for the isolated crafting UI geometry test');
  const browser=await startChrome(binary!);
  try{
