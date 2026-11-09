@@ -18,6 +18,7 @@ export const CRAFT_RECIPES:readonly {id:ProductId;material:'herb'|'pepper'|'pota
  {id:'experience_food',material:'wheat',base:1,kind:'farm',description:'PvE 경험치 +10% · 30회 전투'},
  {id:'challenge_ticket',material:'stone',base:1,kind:'city',description:'마을 선전포고 시 100개 소비 · 거래 가능'},
 ];
+export function craftDurationSeconds(id:ProductId,count:number){return (id==='potion'?180:id==='challenge_ticket'?1200:300)*count;}
 export interface LifeActionRequest{id:string;town:string;action:'craft'|'food'|'well'|'vitality';item:ProductId|'well';count:number}
 export function validLifeAction(value:unknown):value is LifeActionRequest{
  if(!value||typeof value!=='object')return false;const r=value as LifeActionRequest;
