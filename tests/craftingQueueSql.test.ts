@@ -42,8 +42,9 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
     return '{}'::jsonb;
    end $$;
   `);
-  stage='database migration';
-  await db.exec(migration);
+  const boundaries=['create function private.village_craft_queue_snapshot','create function public.get_village_craft_queue','create function public.enqueue_village_craft','create function public.claim_village_craft','create function public.cancel_village_craft','-- Disable the previous instant-craft path'];
+  const pieces=[...boundaries.map((b,i)=>i===0?migration.slice(0,migration.indexOf(b)):migration.slice(migration.indexOf(boundaries[i-1]),migration.indexOf(b))),migration.slice(migration.indexOf(boundaries.at(-1)!))];
+  for(let i=0;i<pieces.length;i++){stage='migration block '+i;await db.exec(pieces[i]);}
   const call=async(name:string,args:string[])=>{
    const parms=[user,1,'client','device',...args];
    const v=await db.query<{r:any}>(`select public.${name}(${parms.map((_,i)=>'$'+(i+1)).join(',')}) r`,parms);
