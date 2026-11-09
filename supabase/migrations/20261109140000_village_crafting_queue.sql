@@ -131,6 +131,11 @@ begin
    life_masteries=jsonb_set(life_masteries,array[j.mastery_track],to_jsonb(least(3200,coalesce((life_masteries->>j.mastery_track)::bigint,0)+j.craft_count)),true),
    craft_mastery=craft_mastery+j.craft_count
   where user_id=u;
+  -- Daily/weekly crafting quests count completed and collected work, never cancelled jobs.
+  insert into private.village_life_action_receipts(user_id,request_id,town_id,action,item,count,result)
+  values(u,j.job_id,j.town_id,'craft',j.item,j.craft_count,
+   jsonb_build_object('action','craft','item',j.item,'count',j.craft_count,'quantity',j.quantity,'vitalitySpent',j.vitality_cost))
+  on conflict (user_id,request_id) do nothing;
   update private.village_craft_queue set status='CLAIMED',resolved_at=clock_timestamp() where user_id=u and job_id=p_job_id;
  end if;
  return jsonb_build_object('state',private.village_life_snapshot(u),'queue',private.village_craft_queue_snapshot(u),
