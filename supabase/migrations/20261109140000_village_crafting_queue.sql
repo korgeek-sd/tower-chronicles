@@ -55,7 +55,7 @@ create function public.enqueue_village_craft(
 ) returns jsonb language plpgsql security definer set search_path='' as $$
 declare
  u uuid;s private.village_life_players%rowtype;old private.village_craft_queue%rowtype;
- v_kind text;v_track text;v_material text;v_base integer;v_carry integer;
+ v_kind text;v_recipe_kind text;v_track text;v_material text;v_base integer;v_carry integer;
  v_bonus integer;v_mastery bigint;v_qty bigint:=0;v_start timestamptz;
  v_duration integer;v_now timestamptz:=clock_timestamp();i integer;
 begin
@@ -77,7 +77,8 @@ begin
  select t.kind into v_kind from private.village_life_towns t where t.id=s.location and t.is_active;
  if v_kind is null then raise exception 'TOWN_INVALID';end if;
  v_track:=case when p_item='potion' then 'herb' when p_item='challenge_ticket' then 'ticket' else 'farm' end;
- if v_kind<>'city' and v_kind<>case when p_item='potion' then 'herb' when p_item='challenge_ticket' then 'city' else 'farm' end then raise exception 'RECIPE_LOCATION';end if;
+ v_recipe_kind:=case when p_item='potion' then 'herb' when p_item='challenge_ticket' then 'city' else 'farm' end;
+ if v_kind<>'city' and v_kind<>v_recipe_kind then raise exception 'RECIPE_LOCATION';end if;
  if (select count(*) from private.village_craft_queue where user_id=u and status='ACTIVE')>=3 then raise exception 'CRAFT_QUEUE_FULL';end if;
  if (select vitality from private.hunting_states where user_id=u)<p_count then raise exception 'VITALITY_EMPTY';end if;
  v_material:=case p_item when 'potion' then 'herb' when 'attack_food' then 'pepper' when 'defense_food' then 'potato' when 'experience_food' then 'wheat' else 'stone' end;
