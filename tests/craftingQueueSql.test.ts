@@ -9,6 +9,7 @@ const migration=readFileSync(new URL('../supabase/migrations/20261109140000_vill
 
 test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and cancellation remain atomic',async()=>{
  const db=new PGlite();
+ let stage='fixture setup';
  try {
   await db.exec(`
    create schema private;create schema auth;create role anon;create role authenticated;
@@ -41,6 +42,7 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
     return '{}'::jsonb;
    end $$;
   `);
+  stage='database migration';
   await db.exec(migration);
   const call=async(name:string,args:string[])=>{
    const parms=[user,1,'client','device',...args];
@@ -48,22 +50,26 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
    return v.rows[0].r;
   };
   const enqueue=(i:number,item:string)=>call('enqueue_village_craft',[rid(i),'city',item,'1']);
+  stage='first enqueue';
   const first=await enqueue(1,'potion');
   assert.equal(first.result.quantity,1030);
   assert.equal(first.queue.length,1);
   assert.equal(first.state.vitality,99);
   assert.equal((await enqueue(1,'potion')).replayed,true);
+  stage='second and third enqueue';
   await enqueue(2,'attack_food');await enqueue(3,'challenge_ticket');
   await assert.rejects(()=>enqueue(4,'potion'),/CRAFT_QUEUE_FULL/);
   const order=(await db.query<{item:string;starts_at:string;ends_at:string}>("select item,starts_at,ends_at from private.village_craft_queue where status='ACTIVE' order by starts_at")).rows;
   assert.deepEqual(order.map(r=>r.item),['potion','attack_food','challenge_ticket']);
   assert.equal(new Date(order[0].ends_at).getTime()<=new Date(order[1].starts_at).getTime(),true);
   await assert.rejects(()=>call('claim_village_craft',[rid(1)]),/CRAFT_NOT_READY/);
+  stage='cancel second job';
   const cancelled=await call('cancel_village_craft',[rid(2)]);
   assert.equal(cancelled.queue.length,2);
   assert.equal(cancelled.state.vitality,98);
   assert.equal((await call('cancel_village_craft',[rid(2)])).replayed,true);
   await db.exec(`update private.village_craft_queue set starts_at=clock_timestamp()-interval '10 minutes',ends_at=clock_timestamp()-interval '1 minute' where job_id='${rid(1)}';`);
+  stage='claim first job';
   const claimed=await call('claim_village_craft',[rid(1)]);
   assert.equal(claimed.result.quantity,1030);
   assert.equal(claimed.state.products.potion,1030);
@@ -71,5 +77,5 @@ test('database reserves inputs for 3 FIFO jobs; duplicate requests, claim and ca
   assert.equal((await call('claim_village_craft',[rid(1)])).replayed,true);
   assert.equal((await db.query<{n:number}>("select count(*)::int n from private.village_craft_queue where status='ACTIVE'")).rows[0].n,1);
   await assert.rejects(()=>call('village_life_action',[rid(5),'city','craft','potion','1']),/CRAFT_QUEUE_REQUIRED/);
- }finally{await db.close();}
+ }catch(e){throw new Error('Craft queue test failed at '+stage+': '+String(e),{cause:e});}finally{await db.close();}
 });
