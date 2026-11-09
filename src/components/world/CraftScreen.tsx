@@ -6,6 +6,7 @@ import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import {CraftItemArt} from './CraftItemArt';
 import './craft-screen.css';
 import './forge-craft.css';
+import './forge-craft-layout.css';
 import {CraftPendingIndicator,CraftReceiptNotifications} from './CraftFeedback';
 import {CRAFT_RECIPES,PRODUCT_NAMES,craftLimit,craftPreview,lifeMasteryTrack,lifeMasteryLevel,lifeMasteryBonus,craftDurationSeconds,LIFE_MASTERY_NAMES,LIFE_MASTERY_LEVEL_XP,LIFE_MASTERY_MAX_XP,type ProductId} from '../../game/life/crafting';
 import {LIFE_MATERIAL_NAMES,type VillageLifeState,type CraftQueueJob} from '../../online/villageLife';
