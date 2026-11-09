@@ -34,6 +34,7 @@ test('shortcuts prefer a stocked current town, then select a real stocked locati
  assert.equal(recommendedCraftSupplyTown(noCity,'herb')?.id,'herb-2');
  assert.equal(recommendedCraftSupplyTown(noCity,'farm')?.id,'farm-2');
  assert.equal(recommendedCraftSupplyTown({...state,towns:towns.map(t=>({...t,herbRemaining:0}))},'herb'),null);
+ assert.equal(recommendedCraftSupplyTown({...state,towns:towns.map(t=>({...t,herbRemaining:9}))},'herb'),null,'a village must support at least one 10-unit harvesting action');
 });
 test('missing ingredients keep one primary action enabled when the actual acquisition route is attached',()=>{
  const herb=render(),btn=mainButton(herb);
@@ -41,6 +42,8 @@ test('missing ingredients keep one primary action enabled when the actual acquis
  assert.match(herb,/부족 100/);
  assert.match(render({...props,recipe:'defense_food'}),/농사하러 가기/);
  assert.match(render({...props,recipe:'challenge_ticket'}),/장비 분해하러 가기/);
+ assert.match(render({...props,state:{...state,vitality:0}}),/활력 회복 포션 확인/);
+ assert.match(render({...props,state:{...state,vitality:0},recipe:'challenge_ticket'}),/장비 분해하러 가기/);
  assert.match(mainButton(render({...props,onFindMaterials:undefined})),/disabled/);
  assert.match(render({...props,queue:[{id:'a',item:'potion',count:1,quantity:1000,startsAt:0,endsAt:0,durationSeconds:180,status:'complete'},{id:'b',item:'potion',count:1,quantity:1000,startsAt:0,endsAt:0,durationSeconds:180,status:'complete'},{id:'c',item:'potion',count:1,quantity:1000,startsAt:0,endsAt:0,durationSeconds:180,status:'complete'}]}),/제작 대기열 확인/);
 });
