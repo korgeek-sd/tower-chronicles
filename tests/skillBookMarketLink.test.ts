@@ -20,12 +20,13 @@ test('learn and enhance share a row with a direct book trade button',()=>{
  assert.match(render(),/최대 강화 \+3/);
  assert.match(render(),/class="tc-skill-market"[^>]*>거래소<\/button>/);
 });
-test('direct skillbook order page returns to original skill after trading',()=>{
+test('legacy skillbook market source survives for compatibility while active skill route opens class UI',()=>{
  const main=read('src/main.tsx'),page=read('src/components/skills/SkillBooksPage.tsx'),tree=read('src/components/skills/SkillTreeScreen.tsx');
  assert.ok(main.includes("setMarketIntent({itemId:'skillbook:'+skillId,skillId})"));
- assert.ok(main.includes('onMarket={openMarketFromSkill}'));
+ assert.ok(main.includes("page==='skills'&&<ClassProfessionScreen"));
+ assert.ok(!main.includes('<SkillBooksPage key='));
  assert.ok(main.includes('onReturnToSkill={returnToSkill}'));
- assert.ok(main.includes('initialSkillId={skillReturnId}'));
+ assert.ok(!main.includes('initialSkillId={skillReturnId}'));
  assert.ok(page.includes('initialWeapon={initialSkill?.weapon}'));
  assert.ok(page.includes('initialType={initialSkill?.type}'));
  assert.ok(tree.includes('[family,setFamily]=useState<string|null>(SKILL_TREE_CATALOG.find'));
