@@ -241,3 +241,22 @@
 .tc-class-skill-row:not(.vacant){box-shadow:inset 0 0 0 1px #ae7c4730}
 .tc-class-traits span{background:linear-gradient(#652637ec,#361826e9);border-color:#c08b55}
 .tc-class-actions .tc-class-save{box-shadow:inset 0 0 0 2px #1f121a,0 1px 11px #dc6c4147}
+
+
+/* 2026-11-10: Three original class illustrations, packed left-to-right
+ * warrior / mage / archer. Shared WebP is class-UI only; gameplay job art is untouched.
+ * Crop each atlas cell with a CSS background so selection and hero art remain responsive. */
+.tc-class-portrait-art,.tc-class-feature-illustration{
+ display:block;width:100%;height:100%;min-height:0;min-width:0;
+ background-image:var(--tc-class-illustration-atlas);
+ background-repeat:no-repeat;
+ background-size:300% auto;
+ background-position:0% 22%;
+ image-rendering:auto;
+ pointer-events:none;
+}
+.tc-class-portrait-art{grid-row:1;align-self:stretch;justify-self:stretch;filter:drop-shadow(0 3px 4px #000b)}
+.tc-class-feature-illustration{position:absolute;inset:0;background-position:0% 25%;filter:drop-shadow(0 3px 8px #0009)}
+.tc-class-portrait-art[data-class="warrior"],.tc-class-feature-illustration[data-class="warrior"]{background-position-x:0%}
+.tc-class-portrait-art[data-class="mage"],.tc-class-feature-illustration[data-class="mage"]{background-position-x:50%}
+.tc-class-portrait-art[data-class="archer"],.tc-class-feature-illustration[data-class="archer"]{background-position-x:100%}
