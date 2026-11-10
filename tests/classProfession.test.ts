@@ -87,20 +87,20 @@ test('profession illustrations use three independent decodable image assets inst
   const data=svg.match(/data:image\/webp;base64,([^"]+)"/);
   assert.ok(data);
   assert.deepEqual(Buffer.from(data[1],'base64'),atlas);
-  assert.match(component,new RegExp(name+'-portrait-v2\\.svg'));
+  assert.match(component,/\$\{id\}-portrait-v2\.svg/);
  }
  assert.match(component,/<img className="tc-class-portrait-art"/);
  assert.match(component,/<img className="tc-class-feature-illustration"/);
  assert.match(component,/onError=\{/);
- assert.match(css,/\.tc-class-portrait-art\s*\{/);
- assert.match(css,/\.tc-class-feature-illustration\s*\{/);
+ assert.match(css,/img\.tc-class-portrait-art\s*\{/);
+ assert.match(css,/img\.tc-class-feature-illustration\s*\{/);
  assert.doesNotMatch(css,/background-image:var\(--tc-class-illustration-atlas\)/);
 });
 
 test('short-screen class codex exposes actions with safe scrolling and a sticky footer',()=>{
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  assert.match(css,/@media\s*\(max-height:\s*980px\)/);
- assert.match(css,/\.tc-class-page\s*\{\s*display:flex;\s*flex-direction:column;\s*overflow-y:auto/);
- assert.match(css,/\.tc-class-footer\s*\{[^}]*position:sticky/);
+ assert.match(css,/\.tc-class-content\s*\{display:flex;flex-direction:column;overflow-y:auto/);
+ assert.match(css,/\.tc-class-page\{grid-template-rows:36px minmax\(0,1fr\) 67px 14px\}/);
  assert.match(css,/\.tc-class-move button\{[^}]*height:44px/);
 });
