@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none" role="img" aria-label="금빛 고딕 서고 장식 프레임">
+<defs>
+<linearGradient id="gold" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#6a352c"/><stop offset=".19" stop-color="#f5d99a"/><stop offset=".47" stop-color="#865039"/><stop offset=".72" stop-color="#d6a66a"/><stop offset="1" stop-color="#55342e"/></linearGradient>
+<linearGradient id="dark" x1="0" y1="0" x2="100" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#401c27"/><stop offset=".5" stop-color="#15101b"/><stop offset="1" stop-color="#401c27"/></linearGradient>
+<g id="corner">
+ <path d="M1 26V9Q1 1 9 1H26L19 4H10Q4 4 4 10V19Z" fill="#1d121c" stroke="url(#gold)" stroke-width="1.1"/>
+ <path d="M0 22Q3 22 6 17L9 9L17 6Q22 3 22 0" stroke="#d1a06c" stroke-width=".5"/>
+ <path d="M4 20Q15 23 13 11Q13 7 17 8Q15 13 21 13" stroke="#ba8650" stroke-width=".9"/>
+ <path d="M6 6l3-3 3 3-3 3Z" fill="#f0ca82" stroke="#6b3d2d" stroke-width=".6"/>
+ <path d="M3 27l3-4-3-4-3 4ZM27 3l-4 3-4-3 4-3Z" fill="#8c473f" stroke="#d7a56c" stroke-width=".7"/>
+ <path d="M13 13Q17 11 18 16Q14 16 13 13Z" fill="#c7965b"/>
+ <path d="M2 35l1-11 1 11M35 2l-11 1 11 1" stroke="#9e6c40" stroke-width=".6"/>
+</g>
+</defs>
+<g id="gold-ornaments">
+ <path d="M18 1H82M18 99H82M1 18V82M99 18V82" stroke="#9b633f" stroke-width="1.1" />
+ <path d="M19 3H81M19 97H81M3 19V81M97 19V81" stroke="#e3bd7a" stroke-opacity=".5" stroke-width=".5"/>
+ <path d="M37 1h26M37 99h26" stroke="#eec88c" stroke-width=".55"/>
+ <path d="M45 1l5 2 5-2-5-2ZM45 99l5 2 5-2-5-2ZM1 45l2 5-2 5-2-5ZM99 45l2 5-2 5-2-5Z" fill="#b77450" stroke="#efc98c" stroke-width=".7"/>
+ <use href="#corner"/>
+ <use href="#corner" transform="translate(100 0) scale(-1 1)"/>
+ <use href="#corner" transform="translate(0 100) scale(1 -1)"/>
+ <use href="#corner" transform="translate(100 100) scale(-1 -1)"/>
+ <path d="M7 39v22M93 39v22" stroke="#624333" stroke-width=".6"/>
+ <path d="M8 8h84v84H8Z" stroke="#8b5d48" stroke-opacity=".35" stroke-width=".5"/>
+</g>
+</svg>
