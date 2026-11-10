@@ -288,3 +288,6 @@
  .tc-class-growth{flex-basis:122px}
  .tc-class-order{flex-basis:277px}
 }
+
+/* User-approved painted gothic library. Preserve its aspect ratio in mobile viewports. */
+.tc-class-ambience{background-size:cover;background-position:center top}
