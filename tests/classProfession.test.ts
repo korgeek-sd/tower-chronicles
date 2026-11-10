@@ -74,3 +74,21 @@ test('class codex library image assets show stone arches, shelves, candles, red 
  assert.ok(frame.length>1000);
  assert.match(css,/pointer-events:none/);
 });
+
+test('profession codex uses the three approved illustrated class portraits from a dedicated WebP atlas',()=>{
+ const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const art=readFileSync('public/assets/characters/classes/class-portraits-atlas-v1.webp');
+ assert.ok(art.length>15000,'the atlas must contain the actual class illustrations');
+ assert.equal(art.subarray(0,4).toString('ascii'),'RIFF');
+ assert.equal(art.subarray(8,12).toString('ascii'),'WEBP');
+ assert.match(component,/assets\/characters\/classes\/class-portraits-atlas-v1\.webp/);
+ assert.match(component,/tc-class-portrait-art/);
+ assert.match(component,/tc-class-feature-illustration/);
+ for(const job of ['warrior','mage','archer']){
+  assert.match(css,new RegExp('data-class="'+job+'"'));
+ }
+ assert.match(css,/background-size:\s*300%/);
+ assert.match(css,/tc-class-illustration-atlas/);
+ assert.match(css,/background-position/);
+});

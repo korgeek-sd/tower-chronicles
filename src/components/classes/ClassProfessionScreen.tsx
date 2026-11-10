@@ -73,7 +73,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
  }
  const displaySlots=Array.from({length:5},(_,i)=>activeSkills[i]??null);
  return <section className="tc-class-page" aria-label="직업 화면" data-selected-job={visibleId}
-  style={{'--tc-class-frame':'url('+assetUrl('assets/backgrounds/classes/class-ornament-frame-v1.svg')+')'} as React.CSSProperties}>
+  style={{'--tc-class-frame':'url('+assetUrl('assets/backgrounds/classes/class-ornament-frame-v1.svg')+')','--tc-class-illustration-atlas':'url('+assetUrl('assets/characters/classes/class-portraits-atlas-v1.webp')+')'} as React.CSSProperties}>
   <div className="tc-class-ambience" aria-hidden="true" style={{backgroundImage:'url('+assetUrl('assets/backgrounds/classes/class-library-v1.svg')+')'}}/>
   <header className="tc-class-header">
    <button type="button" className="tc-class-back tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 돌아가기">‹</button>
@@ -85,7 +85,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
     const item=CLASS_CATALOG[id],active=visibleId===id,disabled=hasPersisted&&progress.classId!==id;
     return <button key={id} type="button" className={'tc-class-portrait'+(active?' selected':'')} aria-pressed={active} disabled={disabled} onClick={()=>{if(!hasPersisted)setPreview(id);}}>
      <span className="tc-class-portrait-halo" aria-hidden="true"/>
-     <img src={assetUrl(item.art)} alt={item.name+' 직업 캐릭터'}/>
+     <span className="tc-class-portrait-art" data-class={id} role="img" aria-label={item.name+' 직업 캐릭터'}/>
      <span className="tc-class-portrait-name"><Glyph name={id==='warrior'?'sword':id==='mage'?'staff':'bow'}/>{item.name}</span>
      {hasPersisted&&progress.classId===id&&<span className="tc-class-check" aria-label="선택된 직업">✓</span>}
     </button>;
@@ -93,7 +93,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
   </section>
   <section className="tc-class-featured" aria-label="직업 정보">
    <div className="tc-class-feature-art">
-    <img src={assetUrl(job.art)} alt="" aria-hidden="true"/>
+    <span className="tc-class-feature-illustration" data-class={visibleId} aria-hidden="true"/>
     <span className="tc-class-feature-medallion" aria-hidden="true"><Glyph name={visibleId==='warrior'?'sword':visibleId==='mage'?'staff':'bow'}/></span>
    </div>
    <div className="tc-class-feature-copy">
