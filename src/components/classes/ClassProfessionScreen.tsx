@@ -82,7 +82,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
  const displaySlots=Array.from({length:5},(_,i)=>activeSkills[i]??null);
  return <section className="tc-class-page" aria-label="직업 화면" data-selected-job={visibleId}
   style={{'--tc-class-frame':'url('+assetUrl('assets/backgrounds/classes/class-ornament-frame-v1.svg')+')'} as React.CSSProperties}>
-  <div className="tc-class-ambience" aria-hidden="true" style={{backgroundImage:'url('+assetUrl('assets/backgrounds/classes/class-library-v1.svg')+')'}}/>
+  <div className="tc-class-ambience" aria-hidden="true" style={{backgroundImage:'url('+assetUrl('assets/backgrounds/classes/class-library-redmoon-approved-v2.webp')+')'}}/>
   <header className="tc-class-header">
    <button type="button" className="tc-class-back tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 돌아가기">‹</button>
    <div className="tc-class-brand"><small>탑의 기록</small><h1>직업</h1></div>
