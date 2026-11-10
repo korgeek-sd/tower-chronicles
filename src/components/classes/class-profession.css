@@ -210,3 +210,34 @@
 @media(prefers-reduced-motion:reduce){
  .tc-class-page *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+
+/* The standalone painted library, not the hub scene, supplies the gothic interior.
+   Ornament source: assets/backgrounds/classes/class-ornament-frame-v1.svg
+   Both assets use assetUrl in the class component to respect GitHub Pages and APK bases. */
+.tc-class-page{background:#110c18}
+.tc-class-ambience{opacity:1;background-position:center center;background-size:100% 100%;filter:saturate(.98) contrast(1.02)}
+.tc-class-ambience:after{content:"";position:absolute;inset:0;background:
+ linear-gradient(90deg,#0d09163b 0%,transparent 16%,transparent 84%,#0d09163d 100%),
+ linear-gradient(180deg,#0b091500 0%,#0d09163c 47%,#0b0b17a0 74%,transparent 100%);pointer-events:none}
+.tc-class-page:after{background-image:var(--tc-class-frame);background-size:100% 100%;background-position:center;opacity:.65}
+.tc-class-arch-gallery{background:linear-gradient(180deg,#15102110,transparent 83%);padding-inline:9px}
+.tc-class-portrait{background:radial-gradient(ellipse at 52% 46%,#3a244b9a,#121018ee 82%);border-color:#a1774e}
+.tc-class-portrait:not(.selected){filter:saturate(.65)}
+.tc-class-portrait.selected{box-shadow:0 0 0 1px #dfaa62,0 0 16px #e5aa6470,inset 0 0 0 2px #281621}
+.tc-class-featured{background:
+ radial-gradient(ellipse at 18% 72%,var(--tc-class-accent),transparent 60%),
+ linear-gradient(130deg,#241628e8 0%,#191221de 56%,#0c0b17da 100%);
+ border-color:#bf9661}
+.tc-class-feature-art{background:linear-gradient(0deg,#1a0e1eab,#1d16231a)}
+.tc-class-growth,.tc-class-order{background:linear-gradient(115deg,#15101edb 0%,#0a0b16e9 58%,#1b1021da 100%);border-color:#ab7e52}
+.tc-class-featured:after,.tc-class-growth:after,.tc-class-order:after{
+ content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+ background-image:var(--tc-class-frame);background-repeat:no-repeat;background-size:100% 100%;background-position:center;opacity:.94}
+.tc-class-featured:after{inset:0}
+.tc-class-growth:after{inset:0}
+.tc-class-order:after{inset:0}
+.tc-class-skill-row{background:linear-gradient(90deg,#281723ef,#15111cee 60%,#1c111fed);border-color:#8d6246}
+.tc-class-skill-row:not(.vacant){box-shadow:inset 0 0 0 1px #ae7c4730}
+.tc-class-traits span{background:linear-gradient(#652637ec,#361826e9);border-color:#c08b55}
+.tc-class-actions .tc-class-save{box-shadow:inset 0 0 0 2px #1f121a,0 1px 11px #dc6c4147}
