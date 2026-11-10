@@ -63,7 +63,7 @@ test('class codex library image assets show stone arches, shelves, candles, red 
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  const background=readFileSync('public/assets/backgrounds/classes/class-library-v1.svg','utf8');
  const frame=readFileSync('public/assets/backgrounds/classes/class-ornament-frame-v1.svg','utf8');
- assert.match(component,/assets\/backgrounds\/classes\/class-library-v1\.svg/);
+ assert.match(component,/assets\/backgrounds\/classes\/class-library-redmoon-approved-v2\.webp/);
  assert.match(css,/assets\/backgrounds\/classes\/class-ornament-frame-v1\.svg/);
  assert.match(css,/\.tc-class-ambience\{[^}]*opacity:1/);
  for(const mark of ['id="moon"','id="gothic-arch"','id="bookshelves"','id="candlelight"','id="desk"'])assert.ok(background.includes(mark),mark);
