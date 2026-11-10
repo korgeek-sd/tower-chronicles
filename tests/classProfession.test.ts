@@ -36,16 +36,24 @@ test('class is chosen once; growth is level-gated and each tier is final',()=>{
  assert.equal(normalizeClassProgress({classId:'other',picks:[2],order:[5]}).classId,null);
 });
 
-test('class screen presents the compact three-class layout, level chain and five arrow controlled slots',()=>{
+test('approved concept 3: class codex has arched portraits, a featured hero and a ten-stage path',()=>{
  const screen=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
- for(const name of ['직업 정보','스킬 트리','전투 배치','전사','마법사','궁수','직업 성장','Lv.10','Lv.100','자동 전투 스킬 순서'])assert.ok(screen.includes(name),name);
+ for(const name of ['직업','전사','마법사','궁수','직업 정보','직업 성장','Lv.10','Lv.100','자동 전투 스킬 순서','선택한 직업은 변경할 수 없습니다'])assert.ok(screen.includes(name),name);
+ for(const feature of ['tc-class-arch-gallery','tc-class-featured','tc-class-feature-art','tc-class-traits','tc-class-path','tc-class-skill-list','tc-class-rank-seal'])assert.ok(screen.includes(feature),feature);
+ assert.equal((screen.match(/aria-label="Lv\.(?:10|20|30|40|50|60|70|80|90|100) (?:스킬|패시브|특성) 선택지 확인"/g)??[]).length,10);
  assert.match(screen,/aria-label="스킬 1번 위로 이동"/);
  assert.match(screen,/aria-label="스킬 5번 아래로 이동"/);
  assert.ok(!screen.includes('직업 변경'));
+ assert.ok(!screen.includes('tc-class-tabs'),'concept 3 is one continuous codex, not the old tabbed mockup');
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  assert.match(css,/\.tc-class-page\{/);
+ assert.match(css,/\.tc-class-arch-gallery\{/);
+ assert.match(css,/\.tc-class-featured\{/);
+ assert.match(css,/\.tc-class-path\{/);
+ assert.match(css,/\.tc-class-move button/);
  assert.match(css,/overflow:\s*hidden/);
  assert.doesNotMatch(css,/overflow-y:\s*(auto|scroll)/);
+ assert.match(css,/@media\s*\(max-width:\s*420px\)/);
  const main=readFileSync('src/main.tsx','utf8');
  assert.match(main,/page==='skills'&&<ClassProfessionScreen/);
 });
