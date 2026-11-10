@@ -46,7 +46,7 @@ test('HOME FACILITY 04: base camp removes retired enhancement shortcut',()=>{
  assert.doesNotMatch(home,/subtitle:'장비 강화'/);
  assert.doesNotMatch(home,/onMove\('enhancement'\)/);
  assert.doesNotMatch(home,/title:'전투 스킬'/);
- assert.match(home,/name:'스킬트리'/);
+ assert.match(home,/name:'직업'/);
  assert.match(home,/onMove\('skills'\)/);
  const main=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
  assert.match(main,/page==='enhancement'/);

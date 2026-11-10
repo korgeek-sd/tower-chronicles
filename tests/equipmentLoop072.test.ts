@@ -15,13 +15,13 @@ test('EQUIPMENT LOOP 02: inventory has no enhancement actions',()=>{const invent
 
 test('EQUIPMENT LOOP 03: retired enhancement screen cannot run in the active app',()=>{assert.doesNotMatch(read('src/main.tsx'),/<EnhancementScreen/);});
 
-test('EQUIPMENT LOOP 04: skill tree is accessible from the camp and routed to its grid screen',()=>{
+test('EQUIPMENT LOOP 04: new permanent-class screen replaces the legacy skillbook entry',()=>{
  const core=read('src/components/mobile/CoreScreens.tsx'),main=read('src/main.tsx');
  assert.match(core,/\|'skills'/);
- assert.match(main,/<SkillBooksPage key=/);
+ assert.match(main,/<ClassProfessionScreen key=/);
  assert.match(main,/page==='skills'/);
  const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('export function SkillsScreen'));
  assert.doesNotMatch(home,/title:'전투 스킬'/);
- assert.match(home,/id:'skills',glyph:'skills',name:'스킬트리'/);
+ assert.match(home,/id:'skills',glyph:'jobs',name:'직업'/);
  assert.match(home,/onMove\('skills'\)/);
 });

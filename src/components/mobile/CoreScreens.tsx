@@ -56,7 +56,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=nu
  const portrait=portraitArt?assetUrl(portraitArt):null;
  const mainFacilities=[
   {id:'craft',glyph:'craft',name:'제작',action:()=>onMove('craft')},
-  {id:'skills',glyph:'skills',name:'스킬트리',action:()=>onMove('skills')},
+  {id:'skills',glyph:'jobs',name:'직업',action:()=>onMove('skills')},
   {id:'appearance-summon',glyph:'jobs',name:'외형 소환',action:()=>onOpenJobs('register')},
   {id:'gold-exchange',glyph:'market',name:'골드 거래소',action:()=>onMove('gold-exchange')},
   {id:'occupation',glyph:'towers',name:'점령전',action:()=>onMove('occupation')},
