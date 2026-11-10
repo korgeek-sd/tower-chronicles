@@ -57,3 +57,20 @@ test('approved concept 3: class codex has arched portraits, a featured hero and 
  const main=readFileSync('src/main.tsx','utf8');
  assert.match(main,/page==='skills'&&<ClassProfessionScreen/);
 });
+
+test('class codex library image assets show stone arches, shelves, candles, red moon and ornamental frames without altering gameplay',()=>{
+ const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const background=readFileSync('public/assets/backgrounds/classes/class-library-v1.svg','utf8');
+ const frame=readFileSync('public/assets/backgrounds/classes/class-ornament-frame-v1.svg','utf8');
+ assert.match(component,/assets\/backgrounds\/classes\/class-library-v1\.svg/);
+ assert.match(css,/assets\/backgrounds\/classes\/class-ornament-frame-v1\.svg/);
+ assert.match(css,/\.tc-class-ambience\{[^}]*opacity:1/);
+ for(const mark of ['id="moon"','id="gothic-arch"','id="bookshelves"','id="candlelight"','id="desk"'])assert.ok(background.includes(mark),mark);
+ assert.match(frame,/id="gold-ornaments"/);
+ assert.match(background,/<svg[^>]*viewBox="0 0 520 960"/);
+ assert.match(frame,/<svg[^>]*viewBox="0 0 100 100"/);
+ assert.ok(background.length>5000);
+ assert.ok(frame.length>1000);
+ assert.match(css,/pointer-events:none/);
+});
