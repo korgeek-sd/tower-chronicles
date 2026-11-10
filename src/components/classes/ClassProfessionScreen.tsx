@@ -14,6 +14,14 @@ import './class-profession.css';
 
 type Props={userId:string|null;lease:GameplayLease|null;onHome:()=>void};
 const IDS:ClassId[]=['warrior','mage','archer'];
+const portraitPath=(id:ClassId)=>`assets/characters/classes/${id}-portrait-v2.svg`;
+function showFallbackPortrait(event:React.SyntheticEvent<HTMLImageElement>,originalArt:string){
+ const img=event.currentTarget;
+ if(img.dataset.fallback==='true')return;
+ img.dataset.fallback='true';
+ img.classList.add('tc-class-fallback-art');
+ img.src=assetUrl(originalArt);
+}
 const STAGE_LABELS:Record<'active'|'passive'|'trait',string>={active:'스킬',passive:'패시브',trait:'특성'};
 const KEY=(id:string|null)=>'tower-class-progression-v1:'+(id??'guest');
 function readProgress(id:string|null):ClassProgress{
@@ -73,19 +81,20 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
  }
  const displaySlots=Array.from({length:5},(_,i)=>activeSkills[i]??null);
  return <section className="tc-class-page" aria-label="직업 화면" data-selected-job={visibleId}
-  style={{'--tc-class-frame':'url('+assetUrl('assets/backgrounds/classes/class-ornament-frame-v1.svg')+')','--tc-class-illustration-atlas':'url('+assetUrl('assets/characters/classes/class-portraits-atlas-v1.webp')+')'} as React.CSSProperties}>
+  style={{'--tc-class-frame':'url('+assetUrl('assets/backgrounds/classes/class-ornament-frame-v1.svg')+')'} as React.CSSProperties}>
   <div className="tc-class-ambience" aria-hidden="true" style={{backgroundImage:'url('+assetUrl('assets/backgrounds/classes/class-library-v1.svg')+')'}}/>
   <header className="tc-class-header">
    <button type="button" className="tc-class-back tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 돌아가기">‹</button>
    <div className="tc-class-brand"><small>탑의 기록</small><h1>직업</h1></div>
    <button type="button" className="tc-class-home tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 이동"><Glyph name="home"/></button>
   </header>
+  <div className="tc-class-content">
   <section className="tc-class-arch-gallery" aria-label="직업 선택">
    {IDS.map(id=>{
     const item=CLASS_CATALOG[id],active=visibleId===id,disabled=hasPersisted&&progress.classId!==id;
     return <button key={id} type="button" className={'tc-class-portrait'+(active?' selected':'')} aria-pressed={active} disabled={disabled} onClick={()=>{if(!hasPersisted)setPreview(id);}}>
      <span className="tc-class-portrait-halo" aria-hidden="true"/>
-     <span className="tc-class-portrait-art" data-class={id} role="img" aria-label={item.name+' 직업 캐릭터'}/>
+     <img className="tc-class-portrait-art" data-class={id} src={assetUrl(portraitPath(id))} alt={item.name+' 직업 캐릭터'} loading="eager" onError={event=>showFallbackPortrait(event,item.art)}/>
      <span className="tc-class-portrait-name"><Glyph name={id==='warrior'?'sword':id==='mage'?'staff':'bow'}/>{item.name}</span>
      {hasPersisted&&progress.classId===id&&<span className="tc-class-check" aria-label="선택된 직업">✓</span>}
     </button>;
@@ -93,7 +102,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
   </section>
   <section className="tc-class-featured" aria-label="직업 정보">
    <div className="tc-class-feature-art">
-    <span className="tc-class-feature-illustration" data-class={visibleId} aria-hidden="true"/>
+    <img className="tc-class-feature-illustration" data-class={visibleId} src={assetUrl(portraitPath(visibleId))} alt="" aria-hidden="true" loading="eager" onError={event=>showFallbackPortrait(event,job.art)}/>
     <span className="tc-class-feature-medallion" aria-hidden="true"><Glyph name={visibleId==='warrior'?'sword':visibleId==='mage'?'staff':'bow'}/></span>
    </div>
    <div className="tc-class-feature-copy">
@@ -136,6 +145,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
     </div>)}
    </div>
   </section>
+  </div>
   <div className="tc-class-footer">
    <p className="tc-class-permanent"><span aria-hidden="true">◇</span> 선택한 직업은 변경할 수 없습니다.</p>
    <div className="tc-class-actions">
