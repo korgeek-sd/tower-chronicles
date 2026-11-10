@@ -14,7 +14,7 @@ const appSource=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
 
 test('Novar lobby v1 mockup becomes a real playable home with two primary actions, six map facilities and one bottom navigation',()=>{
  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game:initialState(),nickname:'시안 검사',onMove:()=>{},onOpenJobs:()=>{},onOpenMail:()=>{}}));
- for(const token of ['노바르 거점','시안 검사','HP','MP','활력','사냥하기','마을 이동','거점 시설','제작','스킬트리','외형 소환','골드 거래소','점령전','의뢰 게시판','전체 시설'])
+ for(const token of ['노바르 거점','시안 검사','HP','MP','활력','사냥하기','마을 이동','거점 시설','제작' ,'직업','외형 소환','골드 거래소','점령전','의뢰 게시판','전체 시설'])
   assert.ok(html.includes(token),token);
  const six=['craft','skills','appearance-summon','gold-exchange','occupation','quests'];
  for(const id of six)assert.match(html,new RegExp('data-facility="'+id+'"'));
