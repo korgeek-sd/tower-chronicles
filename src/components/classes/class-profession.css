@@ -243,20 +243,48 @@
 .tc-class-actions .tc-class-save{box-shadow:inset 0 0 0 2px #1f121a,0 1px 11px #dc6c4147}
 
 
-/* 2026-11-10: Three original class illustrations, packed left-to-right
- * warrior / mage / archer. Shared WebP is class-UI only; gameplay job art is untouched.
- * Crop each atlas cell with a CSS background so selection and hero art remain responsive. */
-.tc-class-portrait-art,.tc-class-feature-illustration{
- display:block;width:100%;height:100%;min-height:0;min-width:0;
- background-image:var(--tc-class-illustration-atlas);
- background-repeat:no-repeat;
- background-size:300% auto;
- background-position:0% 22%;
- image-rendering:auto;
+/* Explicit, independently decodable class illustrations.
+ * Avoid the old CSS background-sliced atlas, which rendered empty in the mobile shell. */
+.tc-class-portrait img.tc-class-portrait-art{
+ grid-row:1;
+ display:block;align-self:stretch;justify-self:stretch;
+ width:100%;height:100%;min-height:0;min-width:0;
+ object-fit:cover;object-position:50% 18%;
+ image-rendering:auto;filter:drop-shadow(0 3px 4px #000b);
  pointer-events:none;
 }
-.tc-class-portrait-art{grid-row:1;align-self:stretch;justify-self:stretch;filter:drop-shadow(0 3px 4px #000b)}
-.tc-class-feature-illustration{position:absolute;inset:0;background-position:0% 25%;filter:drop-shadow(0 3px 8px #0009)}
-.tc-class-portrait-art[data-class="warrior"],.tc-class-feature-illustration[data-class="warrior"]{background-position-x:0%}
-.tc-class-portrait-art[data-class="mage"],.tc-class-feature-illustration[data-class="mage"]{background-position-x:50%}
-.tc-class-portrait-art[data-class="archer"],.tc-class-feature-illustration[data-class="archer"]{background-position-x:100%}
+.tc-class-feature-art img.tc-class-feature-illustration{
+ position:absolute;inset:0;
+ display:block;width:100%;height:100%;min-height:0;
+ object-fit:cover;object-position:50% 24%;
+ image-rendering:auto;filter:drop-shadow(0 3px 8px #0009);
+ pointer-events:none;
+}
+.tc-class-portrait img.tc-class-fallback-art,.tc-class-feature-art img.tc-class-fallback-art{
+ object-fit:contain;object-position:center center;
+}
+/* Keep the save controls in view. The original seven-row grid exceeded the
+ * available height inside the Android/web game shell and clipped the footer. */
+.tc-class-page{grid-template-rows:36px minmax(0,1fr) 67px 14px}
+.tc-class-content{
+ display:grid;grid-template-rows:minmax(66px,1.12fr) minmax(86px,1.5fr) minmax(75px,1fr) minmax(275px,2.8fr);
+ gap:4px;min-height:0;min-width:0;overflow:hidden;
+}
+.tc-class-footer{z-index:5;min-height:0}
+/* On short displays, scroll only the content while keeping the header and
+ * save/reset actions fixed. Never compress the 44x44 skill-order controls. */
+@media(max-height:980px){
+ .tc-class-page{grid-template-rows:36px minmax(0,1fr) 67px 14px}
+ .tc-class-content{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;gap:4px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8f6049 transparent}
+ .tc-class-arch-gallery{flex:0 0 105px}
+ .tc-class-featured{flex:0 0 125px}
+ .tc-class-growth{flex:0 0 124px}
+ .tc-class-order{flex:0 0 282px}
+ .tc-class-footer{position:relative;z-index:5;min-height:0;background:linear-gradient(#2b1b28,#0e0c17);border-top:1px solid #ad8155}
+}
+@media(max-width:420px) and (max-height:980px){
+ .tc-class-arch-gallery{flex-basis:96px}
+ .tc-class-featured{flex-basis:112px}
+ .tc-class-growth{flex-basis:122px}
+ .tc-class-order{flex-basis:277px}
+}

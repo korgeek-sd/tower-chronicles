@@ -52,7 +52,7 @@ test('approved concept 3: class codex has arched portraits, a featured hero and 
  assert.match(css,/\.tc-class-path\{/);
  assert.match(css,/\.tc-class-move button/);
  assert.match(css,/overflow:\s*hidden/);
- assert.doesNotMatch(css,/overflow-y:\s*(auto|scroll)/);
+ assert.match(css,/overflow:\s*hidden/); // large-screen layout remains fixed; short-screen fallback may scroll
  assert.match(css,/@media\s*\(max-width:\s*420px\)/);
  const main=readFileSync('src/main.tsx','utf8');
  assert.match(main,/page==='skills'&&<ClassProfessionScreen/);
@@ -75,20 +75,32 @@ test('class codex library image assets show stone arches, shelves, candles, red 
  assert.match(css,/pointer-events:none/);
 });
 
-test('profession codex uses the three approved illustrated class portraits from a dedicated WebP atlas',()=>{
+test('profession illustrations use three independent decodable image assets instead of a CSS atlas',()=>{
  const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
- const art=readFileSync('public/assets/characters/classes/class-portraits-atlas-v1.webp');
- assert.ok(art.length>15000,'the atlas must contain the actual class illustrations');
- assert.equal(art.subarray(0,4).toString('ascii'),'RIFF');
- assert.equal(art.subarray(8,12).toString('ascii'),'WEBP');
- assert.match(component,/assets\/characters\/classes\/class-portraits-atlas-v1\.webp/);
- assert.match(component,/tc-class-portrait-art/);
- assert.match(component,/tc-class-feature-illustration/);
- for(const job of ['warrior','mage','archer']){
-  assert.match(css,new RegExp('data-class="'+job+'"'));
+ const atlas=readFileSync('public/assets/characters/classes/class-portraits-atlas-v1.webp');
+ assert.ok(atlas.length>15000);
+ for(const [name,x] of [['warrior',0],['mage',-224],['archer',-448]]){
+  const svg=readFileSync('public/assets/characters/classes/'+name+'-portrait-v2.svg','utf8');
+  assert.match(svg,/<svg[^>]*viewBox="0 0 224 299"/);
+  assert.match(svg,new RegExp('<image x="'+x+'" y="0" width="672" height="299" href="data:image/webp;base64,'));
+  const data=svg.match(/data:image\/webp;base64,([^"]+)"/);
+  assert.ok(data);
+  assert.deepEqual(Buffer.from(data[1],'base64'),atlas);
+  assert.match(component,/\$\{id\}-portrait-v2\.svg/);
  }
- assert.match(css,/background-size:\s*300%/);
- assert.match(css,/tc-class-illustration-atlas/);
- assert.match(css,/background-position/);
+ assert.match(component,/<img className="tc-class-portrait-art"/);
+ assert.match(component,/<img className="tc-class-feature-illustration"/);
+ assert.match(component,/onError=\{/);
+ assert.match(css,/img\.tc-class-portrait-art\s*\{/);
+ assert.match(css,/img\.tc-class-feature-illustration\s*\{/);
+ assert.doesNotMatch(css,/background-image:var\(--tc-class-illustration-atlas\)/);
+});
+
+test('short-screen class codex exposes actions with safe scrolling and a sticky footer',()=>{
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ assert.match(css,/@media\s*\(max-height:\s*980px\)/);
+ assert.match(css,/\.tc-class-content\s*\{display:flex;flex-direction:column;overflow-y:auto/);
+ assert.match(css,/\.tc-class-page\{grid-template-rows:36px minmax\(0,1fr\) 67px 14px\}/);
+ assert.match(css,/\.tc-class-move button\{[^}]*height:44px/);
 });
