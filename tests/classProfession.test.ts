@@ -40,7 +40,7 @@ test('approved concept 3: class codex has arched portraits, a featured hero and 
  const screen=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
  for(const name of ['직업','전사','마법사','궁수','직업 정보','직업 성장','Lv.10','Lv.100','자동 전투 스킬 순서','선택한 직업은 변경할 수 없습니다'])assert.ok(screen.includes(name),name);
  for(const feature of ['tc-class-arch-gallery','tc-class-featured','tc-class-feature-art','tc-class-traits','tc-class-path','tc-class-skill-list','tc-class-rank-seal'])assert.ok(screen.includes(feature),feature);
- assert.equal((screen.match(/class="tc-class-milestone/g)??[]).length,10);
+ assert.equal((screen.match(/aria-label="Lv\.(?:10|20|30|40|50|60|70|80|90|100) (?:스킬|패시브|특성) 선택지 확인"/g)??[]).length,10);
  assert.match(screen,/aria-label="스킬 1번 위로 이동"/);
  assert.match(screen,/aria-label="스킬 5번 아래로 이동"/);
  assert.ok(!screen.includes('직업 변경'));
