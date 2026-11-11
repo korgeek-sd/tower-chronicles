@@ -157,7 +157,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
     {CLASS_LEVELS.map((required,i)=>{
      const kind=CLASS_STAGE_TYPES[i],learned=progress.picks[i]!==null;
      return <button type="button" key={required}
-      aria-label={'Lv.'+required+' '+(i===9?'스킬':TYPE_NAME[kind])+' 선택지 확인'}
+      aria-label={'Lv.'+required+' '+(kind==='active'?'스킬':TYPE_NAME[kind])+' 선택지 확인'}
       aria-pressed={selectedStage===i}
       className={'tc-class-milestone'+(selectedStage===i?' selected':'')+(learned?' learned':'')+(level!==null&&level<required?' locked':'')}
       onClick={()=>selectStage(i)}>
@@ -195,7 +195,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
     })}
    </div>
    <div className="tc-class-choices-warning" role="note">
-    <Glyph name={learnedChoice!==null?'defense':'alert-triangle'}/>
+    <Glyph name={learnedChoice!==null?'defense':'other'}/>
     <span>{learnedChoice!==null?'선택이 완료된 단계입니다. 변경할 수 없습니다.':unlocked?'선택하지 않은 두 능력은 습득하지 않습니다.':status}</span>
    </div>
   </section>
