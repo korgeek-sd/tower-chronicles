@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {CLASS_CATALOG,CLASS_LEVELS,initialClassProgress,chooseInitialClass,chooseClassGrowth,moveClassSkill,getActiveSkills,normalizeClassProgress} from '../src/game/classes/progression';
-import {ClassProfessionScreen} from '../src/components/classes/ClassProfessionScreen';
+import {ClassProfessionScreen,recommendedClassStage} from '../src/components/classes/ClassProfessionScreen';
 
 test('three permanent classes offer exactly three choices at ten growth milestones',()=>{
  assert.deepEqual(Object.keys(CLASS_CATALOG),['warrior','mage','archer']);
@@ -81,4 +81,35 @@ test('battle priority remains available from an overlay with five reorderable ro
  assert.match(source,/chooseClassGrowth/);
  const screen=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
  assert.match(screen,/선택한 직업은 변경할 수 없습니다/);
+});
+
+
+test('profession opens the first unlearned growth stage, prioritizing currently claimable levels',()=>{
+ const learned=[0,1,...Array(8).fill(null)];
+ assert.equal(recommendedClassStage(learned,22),2,'Lv.22 with two learned skills previews next Lv.30');
+ assert.equal(recommendedClassStage([0,null,...Array(8).fill(null)],22),1,'claimable Lv.20 is prioritized over future Lv.30');
+ assert.equal(recommendedClassStage(Array(10).fill(null),9),0,'first level is Lv.10');
+ assert.equal(recommendedClassStage(Array(10).fill(null),100),0,'earliest claimable unlearned level is prioritized');
+ assert.equal(recommendedClassStage(Array(10).fill(0),100),9,'fully learned class stays on the ultimate');
+});
+
+test('readable no-scroll growth UI shows milestones, statuses, three concise cards and full selected skill details',()=>{
+ const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const source=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ assert.equal((html.match(/aria-label="Lv\.(?:10|20|30|40|50|60|70|80|90|100) (?:스킬|패시브|특성) 선택지 확인"/g)??[]).length,10);
+ assert.equal((html.match(/class="tc-class-choice-card/g)??[]).length,3);
+ assert.match(html,/class="tc-class-choice-detail"/);
+ assert.match(html,/data-stage-state="(?:learned|available|locked|pending)"/);
+ assert.match(source,/setSelectedStage\(recommendedClassStage\(/);
+ assert.match(source,/tc-class-node-state/);
+ assert.match(source,/tc-class-choice-detail/);
+ assert.match(source,/tc-class-choice-description/);
+ assert.match(source,/CHOICE_ART\[i\]/,'reuse the three existing common pictures');
+ assert.doesNotMatch(source,/choiceArtByName|skillArtworkRegistry/,'no per-skill art');
+ assert.match(css,/\.tc-class-choice-art\{[^}]*flex:0 0/,'reduce decorative image height');
+ assert.match(css,/\.tc-class-choice-detail\{/);
+ assert.match(css,/\.tc-class-node-state\{/);
+ assert.match(css,/\.tc-class-milestone-icon\{[^}]*width:clamp\(/);
+ assert.doesNotMatch(css,/overflow-y:\s*(auto|scroll)/);
 });
