@@ -85,7 +85,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
   <div className="tc-class-ambience" aria-hidden="true" style={{backgroundImage:'url('+assetUrl('assets/backgrounds/classes/class-library-redmoon-approved-v2.webp')+')'}}/>
   <header className="tc-class-header">
    <button type="button" className="tc-class-back tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 돌아가기">‹</button>
-   <div className="tc-class-brand"><small>탑의 기록</small><h1>직업</h1></div>
+   <div className="tc-class-brand"><small>탑의 기록 · {job.name}</small><h1>직업</h1></div>
    <button type="button" className="tc-class-home tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 이동"><Glyph name="home"/></button>
   </header>
   <div className="tc-class-content">
@@ -110,7 +110,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
     <div className="tc-class-feature-title"><Glyph name={visibleId==='warrior'?'sword':visibleId==='mage'?'staff':'bow'}/><h2>{job.name}</h2></div>
     <div className="tc-class-traits" aria-label="직업 특성">{job.summary.split(' · ').map(trait=><span key={trait}>{trait}</span>)}</div>
     <p>{job.description}</p>
-    {!hasPersisted?<button className="tc-class-choose tc-feel-press" data-game-feel="press" onClick={()=>setConfirmClass(true)}>이 직업으로 시작</button>:<small className="tc-class-fixed-status"><Glyph name="defense"/> 직업 확정</small>}
+    {hasPersisted&&<small className="tc-class-fixed-status"><Glyph name="defense"/> 직업 확정</small>}
    </div>
   </section>
   <section className="tc-class-growth tc-class-path" aria-label="직업 성장 경로">
@@ -149,8 +149,10 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
   <div className="tc-class-footer">
    <p className="tc-class-permanent"><span aria-hidden="true">◇</span> 선택한 직업은 변경할 수 없습니다.</p>
    <div className="tc-class-actions">
+    {hasPersisted ? <>
     <button type="button" className="tc-class-reset tc-feel-press" data-game-feel="press" onClick={()=>{setProgress(v=>defaultClassSkillOrder(v));setDirty(true);}} disabled={!hasPersisted||activeSkills.length<2}><span aria-hidden="true">↻</span> 기본 순서</button>
     <button type="button" className="tc-class-save tc-feel-press" data-game-feel="press" onClick={saveDraft} disabled={!ready||!hasPersisted}><span aria-hidden="true">▣</span> 저장</button>
+    </> : <button type="button" className="tc-class-choose tc-feel-press" data-game-feel="press" onClick={()=>setConfirmClass(true)} disabled={!ready}><span aria-hidden="true">✦</span> 이 직업으로 시작</button>}
    </div>
   </div>
   <p className={'tc-class-status'+(saveFailed?' error':'')} role="status">{notice||'직업·성장 설정은 이 기기에 저장됩니다. 서버 전투 미연동.'}</p>
