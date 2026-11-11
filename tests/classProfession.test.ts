@@ -113,3 +113,25 @@ test('readable no-scroll growth UI shows milestones, statuses, three concise car
  assert.match(css,/\.tc-class-milestone-icon\{[^}]*width:clamp\(/);
  assert.doesNotMatch(css,/overflow-y:\s*(auto|scroll)/);
 });
+
+
+test('class tabs are text only and circular growth sprites crop the artwork lettering',()=>{
+ const screen=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
+ for(const name of ['전사','마법사','궁수']){
+  const tab=screen.match(new RegExp('<button[^>]*class="tc-class-tab[^"]*"[^>]*>([\\s\\S]*?)<\\/button>','g'))??[];
+  assert.equal(tab.length,3,'three profession tabs remain');
+  assert.ok(tab.some(markup=>markup.includes('<span>'+name+'</span>')),name);
+ }
+ const buttons=screen.match(/<button[^>]*class="tc-class-tab[^"]*"[^>]*>[\s\S]*?<\/button>/g)??[];
+ assert.equal(buttons.length,3);
+ for(const button of buttons)assert.doesNotMatch(button,/<svg|tc-glyph/,'profession tabs must have no icon');
+ const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ assert.match(component,/backgroundSize:\s*'650% 260%'/,'zoom sprite enough to cut labels baked above and below artwork');
+ assert.match(component,/6\.25%/);
+ assert.match(component,/87\.5%/);
+ assert.doesNotMatch(component,/<Glyph name=\{glyphFor\(id\)\}/,'no tab icon in source');
+ assert.match(component,/tc-class-node-sprite/);
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ assert.doesNotMatch(css,/\.tc-class-tab \.tc-glyph/,'old icon style removed');
+ assert.match(css,/\.tc-class-node-kind/,'level type labels remain outside the round artwork');
+});
