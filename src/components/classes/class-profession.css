@@ -263,31 +263,157 @@
 .tc-class-portrait img.tc-class-fallback-art,.tc-class-feature-art img.tc-class-fallback-art{
  object-fit:contain;object-position:center center;
 }
-/* Keep the save controls in view. The original seven-row grid exceeded the
- * available height inside the Android/web game shell and clipped the footer. */
-.tc-class-page{grid-template-rows:36px minmax(0,1fr) 67px 14px}
-.tc-class-content{
- display:grid;grid-template-rows:minmax(66px,1.12fr) minmax(86px,1.5fr) minmax(75px,1fr) minmax(275px,2.8fr);
- gap:4px;min-height:0;min-width:0;overflow:hidden;
-}
-.tc-class-footer{z-index:5;min-height:0}
-/* On short displays, scroll only the content while keeping the header and
- * save/reset actions fixed. Never compress the 44x44 skill-order controls. */
-@media(max-height:980px){
- .tc-class-page{grid-template-rows:36px minmax(0,1fr) 67px 14px}
- .tc-class-content{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;gap:4px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8f6049 transparent}
- .tc-class-arch-gallery{flex:0 0 105px}
- .tc-class-featured{flex:0 0 125px}
- .tc-class-growth{flex:0 0 124px}
- .tc-class-order{flex:0 0 282px}
- .tc-class-footer{position:relative;z-index:5;min-height:0;background:linear-gradient(#2b1b28,#0e0c17);border-top:1px solid #ad8155}
-}
-@media(max-width:420px) and (max-height:980px){
- .tc-class-arch-gallery{flex-basis:96px}
- .tc-class-featured{flex-basis:112px}
- .tc-class-growth{flex-basis:122px}
- .tc-class-order{flex-basis:277px}
-}
-
 /* User-approved painted gothic library. Preserve its aspect ratio in mobile viewports. */
 .tc-class-ambience{background-size:cover;background-position:center top}
+
+
+/* Non-scrolling profession layout.
+ * The game shell already reserves its global top bar, status and bottom nav.
+ * All 5 action rows and the save/confirm button stay visible in its remaining
+ * height; never overflow the middle content as an independently scrollable pane.
+ * The only scrollable region left is the modal opened to inspect skill choices. */
+.tc-class-page{
+ display:grid;grid-template-rows:34px minmax(0,1fr) 60px 12px;
+ gap:2px;padding:4px;overflow:hidden;
+}
+.tc-class-content{
+ min-width:0;min-height:0;overflow:hidden;
+ display:grid;
+ grid-template-rows:minmax(0,1fr) minmax(0,1fr) minmax(112px,.8fr) minmax(248px,3.2fr);
+ gap:3px;
+}
+.tc-class-arch-gallery,.tc-class-featured,.tc-class-growth,.tc-class-order{
+ min-width:0;min-height:0;overflow:hidden;
+}
+.tc-class-arch-gallery{padding:2px 5px 1px;gap:5px}
+.tc-class-portrait{min-height:0}
+.tc-class-portrait-name{min-height:18px}
+.tc-class-feature-copy{gap:2px;padding-block:3px}
+.tc-class-feature-overline{font-size:8px}
+.tc-class-feature-title h2{font-size:18px}
+.tc-class-feature-title>.tc-glyph{font-size:18px}
+.tc-class-feature-copy p{font-size:9px;line-height:1.25;-webkit-line-clamp:2}
+.tc-class-traits span{padding:2px 4px;font-size:8px}
+.tc-class-feature-medallion{width:21px;height:21px}
+.tc-class-growth{grid-template-rows:18px minmax(0,1fr);gap:2px;padding:2px 3px}
+.tc-class-path .tc-class-milestones{
+ grid-template-columns:repeat(5,minmax(0,1fr));
+ grid-template-rows:repeat(2,minmax(0,1fr));
+ gap:1px;
+}
+.tc-class-path .tc-class-milestones:before{display:none}
+.tc-class-milestone{gap:1px;min-height:0;padding:0}
+.tc-class-milestone-icon{width:23px;height:23px}
+.tc-class-milestone-icon .tc-glyph{font-size:14px}
+.tc-class-milestone small{font-size:8px}
+.tc-class-node-name{display:none}
+.tc-class-order{
+ display:grid;grid-template-rows:18px minmax(0,1fr);
+ gap:2px;padding:2px;
+}
+.tc-class-rule{display:none}
+.tc-class-section-heading strong{font-size:11px}
+.tc-class-section-heading strong>span{font-size:9px}
+.tc-class-skill-list{
+ min-height:0;overflow:hidden;
+ grid-template-rows:repeat(5,minmax(44px,1fr));
+ gap:1px;
+}
+.tc-class-skill-row{
+ min-height:0;grid-template-columns:23px 27px minmax(0,1fr) 48px 90px;
+ gap:2px;padding:0 2px;
+}
+.tc-class-rank-seal{width:23px}
+.tc-class-skill-icon{width:27px;height:29px}
+.tc-class-skill-icon .tc-glyph{font-size:17px}
+.tc-class-cost{font-size:9px;padding-left:2px}
+.tc-class-cost small{font-size:8px}
+.tc-class-move button{height:44px;min-height:44px;width:44px;min-width:44px}
+.tc-class-footer{
+ position:relative;z-index:5;min-height:0;
+ display:grid;grid-template-rows:12px minmax(44px,1fr);gap:2px;
+ background:linear-gradient(#2b1b28e8,#0e0c17f5);
+ border-top:1px solid #ad8155;
+}
+.tc-class-permanent{font-size:9px}
+.tc-class-actions{min-height:0;padding-inline:4px;gap:4px}
+.tc-class-actions button{min-height:44px}
+.tc-class-actions .tc-class-choose{
+ grid-column:1/-1;min-height:44px;
+ border:1px solid #d3a66f;
+ background:linear-gradient(#8f3a3d,#512226);
+ font-size:13px;font-weight:700;
+}
+.tc-class-status{min-height:0;line-height:12px}
+@media(min-width:481px) and (min-height:800px){
+ /* Wide phone shells can show all ten nodes in one line. */
+ .tc-class-content{
+  grid-template-rows:minmax(0,1fr) minmax(0,1.1fr) minmax(66px,.8fr) minmax(248px,3fr)
+ }
+ .tc-class-path .tc-class-milestones{
+  grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:minmax(44px,1fr)
+ }
+ .tc-class-milestone small{font-size:9px}
+}
+/* Medium-height handsets: keep all ten growth choices and all five skills;
+ * the featured painting is decoration, not a navigation or save surface. */
+@media(max-height:740px){
+ .tc-class-featured{display:none}
+ .tc-class-page{grid-template-rows:32px minmax(0,1fr) 56px 11px;gap:2px;padding:3px}
+ .tc-class-header{grid-template-columns:39px minmax(0,1fr) 39px}
+ .tc-class-back,.tc-class-home{width:39px;height:39px}
+ .tc-class-header h1{font-size:19px}
+ .tc-class-content{
+  grid-template-rows:minmax(54px,1fr) minmax(108px,1.5fr) minmax(248px,3fr);
+  gap:2px;
+ }
+ .tc-class-portrait-name{min-height:18px;font-size:10px}
+ .tc-class-growth{grid-template-rows:17px minmax(0,1fr);gap:1px}
+ .tc-class-order{grid-template-rows:17px minmax(0,1fr);gap:1px}
+ .tc-class-skill-text small{display:none}
+ .tc-class-footer{grid-template-rows:10px minmax(44px,1fr);gap:1px}
+ .tc-class-permanent{font-size:8px}
+ .tc-class-status{font-size:8px;line-height:11px}
+}
+/* Extra-short viewport: compact the portrait and node labels, not skill controls. */
+@media(max-height:660px){
+ .tc-class-page{grid-template-rows:30px minmax(0,1fr) 54px 10px;gap:1px;padding:2px}
+ .tc-class-content{
+  grid-template-rows:minmax(36px,.6fr) minmax(98px,1.3fr) minmax(245px,3fr);
+  gap:1px;
+ }
+ .tc-class-arch-gallery{padding-block:0}
+ .tc-class-portrait{grid-template-rows:minmax(0,1fr) 16px}
+ .tc-class-portrait-name{min-height:16px;font-size:9px}
+ .tc-class-milestone-icon{width:20px;height:20px}
+ .tc-class-milestone-icon .tc-glyph{font-size:12px}
+ .tc-class-milestone small{font-size:7px}
+ .tc-class-level{font-size:8px}
+ .tc-class-growth,.tc-class-order{padding:1px 2px}
+ .tc-class-growth{grid-template-rows:16px minmax(0,1fr);gap:1px}
+ .tc-class-order{grid-template-rows:16px minmax(0,1fr);gap:1px}
+ .tc-class-section-heading strong{font-size:10px}
+ .tc-class-section-heading small{font-size:8px}
+ .tc-class-skill-list{gap:1px}
+ .tc-class-actions{padding:0 2px}
+}
+/* Landscape/split-screen: show a one-row milestone strip so the five skill
+ * priority buttons retain full-size touch targets without needing scrolling. */
+@media(max-height:600px){
+ .tc-class-content{
+  grid-template-rows:minmax(29px,.45fr) minmax(65px,1fr) minmax(244px,4fr);
+  gap:1px;
+ }
+ .tc-class-portrait{grid-template-rows:minmax(0,1fr) 20px}
+ .tc-class-portrait-art{opacity:.28}
+ .tc-class-portrait-name{grid-row:2;min-height:20px}
+ .tc-class-path .tc-class-milestones{
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  grid-template-rows:minmax(44px,1fr);gap:0;
+ }
+ .tc-class-milestone small{display:none}
+ .tc-class-milestone-icon{width:19px;height:19px}
+ .tc-class-milestone-icon .tc-glyph{font-size:12px}
+ .tc-class-level{font-size:7px}
+ .tc-class-section-heading small{font-size:7px}
+}
