@@ -27,16 +27,16 @@
 .tc-class-tab{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:38px;border:1px solid #987657;border-radius:3px;background:linear-gradient(120deg,#282129,#120f19);font-size:14px;font-weight:700;box-shadow:inset 0 0 0 1px #171019}
 .tc-class-tab.active{border-color:#ffca7e;background:linear-gradient(125deg,var(--class-red),#461821);box-shadow:inset 0 0 0 1px #c78950,0 0 8px #bc693562}
 .tc-class-tab .tc-glyph{font-size:18px;color:#e6c17b}
-.tc-class-featured{position:relative;min-height:0;display:grid;align-content:center;justify-items:center;gap:2px;overflow:hidden;border-bottom:1px solid #a47a56a8;padding:1px 4px 2px;text-align:center;background:linear-gradient(90deg,#0d0c16c9,transparent,#0d0c16c9)}
+.tc-class-featured{position:relative;min-height:0;display:grid;grid-template-columns:62px minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto;align-content:center;align-items:center;gap:1px 7px;overflow:hidden;border-bottom:1px solid #a47a56a8;padding:2px 7px;text-align:left;background:linear-gradient(90deg,#0d0c16c9,transparent,#0d0c16c9)}
 .tc-class-featured:before,.tc-class-featured:after{content:"";position:absolute;top:31%;height:1px;width:19%;background:linear-gradient(90deg,transparent,#b78d56)}
 .tc-class-featured:before{left:5%}.tc-class-featured:after{right:5%;transform:scaleX(-1)}
-.tc-class-crest{display:grid;place-items:center;width:65px;height:30px;min-height:0;overflow:hidden;filter:drop-shadow(0 0 5px #d6a35d6e)}
+.tc-class-crest{grid-column:1;grid-row:1/3;display:grid;place-items:center;width:58px;height:100%;min-height:32px;overflow:hidden;filter:drop-shadow(0 0 5px #d6a35d6e)}
 .tc-class-crest img{width:100%;height:100%;object-fit:contain}
 .tc-class-crest>.tc-glyph{font-size:31px;color:var(--class-accent)}
-.tc-class-featured h2{margin:0;font:700 20px/1.2 Georgia,"Noto Serif KR",serif;color:#f8d19a;text-shadow:0 1px 9px #e17b4077;white-space:nowrap}
-.tc-class-featured p{margin:0;font-size:10px;line-height:1.2;color:#f4d8aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.tc-class-feature-tools{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;font-size:9px;color:#ccb79c}
-.tc-class-feature-tools button{min-width:88px;min-height:27px;padding:2px 9px;border:1px solid #bb8858;border-radius:4px;background:#3b2027;font-size:10px;font-weight:700;color:#f6daa4}
+.tc-class-featured h2{grid-column:2;grid-row:1;align-self:end;margin:0;font:700 18px/1.15 Georgia,"Noto Serif KR",serif;color:#f8d19a;text-shadow:0 1px 9px #e17b4077;white-space:nowrap}
+.tc-class-featured p{grid-column:2;grid-row:2;align-self:start;margin:0;font-size:9px;line-height:1.2;color:#f4d8aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tc-class-feature-tools{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;font-size:9px;color:#ccb79c}
+.tc-class-feature-tools button{min-width:96px;min-height:44px;padding:2px 9px;border:1px solid #bb8858;border-radius:4px;background:#3b2027;font-size:10px;font-weight:700;color:#f6daa4}
 .tc-class-battle-open .tc-glyph{font-size:11px}
 .tc-class-growth.tc-class-path{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid #9a71486d;background:linear-gradient(160deg,#18121edb,#100d17e0);padding:4px 4px 3px;box-shadow:inset 0 0 0 1px #a77d2a26}
 .tc-class-milestones{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:2px;min-height:0;width:100%;height:100%}
@@ -106,10 +106,10 @@
  .tc-class-page{grid-template-rows:32px 34px minmax(48px,.55fr) minmax(135px,1.6fr) minmax(171px,2.6fr) 47px 10px;gap:2px;padding:3px}
  .tc-class-tab{min-height:34px;font-size:12px}
  .tc-class-featured h2{font-size:19px}
- .tc-class-crest{width:60px;height:25px}
+ .tc-class-crest{width:52px;height:100%}
  .tc-class-featured p{font-size:9px}
  .tc-class-feature-tools{gap:6px}
- .tc-class-feature-tools button{min-height:26px;font-size:9px;padding:1px 5px}
+ .tc-class-feature-tools button{min-height:44px;font-size:9px;padding:1px 5px}
  .tc-class-milestone-icon{width:42px;height:42px}
  .tc-class-milestone-icon>.tc-glyph{font-size:19px}
  .tc-class-node-kind{min-width:35px;font-size:8px}
@@ -130,7 +130,7 @@
  .tc-class-featured h2{font-size:17px}
  .tc-class-featured p{font-size:8px}
  .tc-class-feature-tools{font-size:8px}
- .tc-class-feature-tools button{min-height:25px}
+ .tc-class-feature-tools button{min-height:44px}
  .tc-class-milestone-icon{width:37px;height:37px}
  .tc-class-level{font-size:8px}
  .tc-class-node-kind{font-size:7px}
@@ -145,6 +145,10 @@
 @media(max-height:530px){
  .tc-class-page{grid-template-rows:27px 30px minmax(30px,.35fr) minmax(98px,1.2fr) minmax(139px,2fr) 44px 0;gap:1px}
  .tc-class-crest{display:none}
+ .tc-class-featured{grid-template-columns:minmax(0,1fr) auto}
+ .tc-class-featured h2,.tc-class-featured p{grid-column:1}
+ .tc-class-feature-tools{grid-column:2}
+ .tc-class-feature-tools button{min-height:32px}
  .tc-class-featured h2{font-size:15px}
  .tc-class-milestone-icon{width:30px;height:30px}
  .tc-class-choice-card small{-webkit-line-clamp:2;font-size:8px}.tc-class-choice-card em{display:none}
