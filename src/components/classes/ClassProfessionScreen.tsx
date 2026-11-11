@@ -24,6 +24,13 @@ const CHOICE_ART=[
 ] as const;
 const TYPE_NAME={active:'액티브',passive:'패시브',trait:'특성'} as const;
 const KEY=(id:string|null)=>'tower-class-progression-v1:'+(id??'guest');
+/** Display-only recommendation. Prefer a claimable, unchosen stage; otherwise show the next future stage. */
+export function recommendedClassStage(picks:readonly (number|null)[],level:number):number{
+ const claimable=CLASS_LEVELS.findIndex((required,i)=>required<=level&&picks[i]===null);
+ if(claimable!==-1)return claimable;
+ const future=CLASS_LEVELS.findIndex((required,i)=>required>level&&picks[i]===null);
+ return future!==-1?future:9;
+}
 function readProgress(id:string|null):ClassProgress{
  try{return normalizeClassProgress(JSON.parse(localStorage.getItem(KEY(id))??'null'));}
  catch{return initialClassProgress();}
@@ -67,8 +74,8 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
   return()=>{active=false;};
  },[userId,lease?.leaseId,lease?.generation]);
  useEffect(()=>{
-  if(level!==null){setSelectedStage(Math.max(0,Math.min(9,Math.floor(level/10)-1)));setPreviewChoice(null);}
- },[level]);
+  if(ready&&level!==null){setSelectedStage(recommendedClassStage(readProgress(userId).picks,level));setPreviewChoice(null);}
+ },[ready,level,userId]);
  const visibleId=progress.classId??preview;
  const job=CLASS_CATALOG[visibleId];
  const hasPersisted=progress.classId!==null;
@@ -78,6 +85,8 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
  const stage=job.stages[selectedStage];
  const learnedChoice=progress.picks[selectedStage];
  const selectedChoice=learnedChoice??previewChoice;
+ const detailChoice=stage.options[selectedChoice??0];
+ const isDetailPreview=selectedChoice===null;
  const unlocked=level!==null&&level>=stage.level;
  const canLearn=ready&&hasPersisted&&unlocked&&learnedChoice===null&&previewChoice!==null;
  function commitClass(){
@@ -156,10 +165,13 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
    <div className="tc-class-milestones" role="group" aria-label="10레벨부터 100레벨까지 성장 단계">
     {CLASS_LEVELS.map((required,i)=>{
      const kind=CLASS_STAGE_TYPES[i],learned=progress.picks[i]!==null;
+     const stageState=learned?'learned':level===null?'pending':level>=required?'available':'locked';
+     const stageStateLabel=stageState==='learned'?'완료':stageState==='available'?'선택 가능':stageState==='locked'?'잠김':'조회 중';
      return <button type="button" key={required}
       aria-label={'Lv.'+required+' '+(kind==='active'?'스킬':TYPE_NAME[kind])+' 선택지 확인'}
       aria-pressed={selectedStage===i}
-      className={'tc-class-milestone'+(selectedStage===i?' selected':'')+(learned?' learned':'')+(level!==null&&level<required?' locked':'')}
+      data-stage-state={stageState} title={'Lv.'+required+' · '+stageStateLabel}
+      className={'tc-class-milestone'+(selectedStage===i?' selected':'')+(learned?' learned':'')+(stageState==='available'?' available':'')+(stageState==='locked'?' locked':'')}
       onClick={()=>selectStage(i)}>
       <span className="tc-class-level">Lv.{required}</span>
       <span className="tc-class-milestone-icon">
@@ -168,6 +180,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
        {learned&&<span className="tc-class-acquired">✓</span>}
       </span>
       <span className="tc-class-node-kind">{i===9?'궁극기':TYPE_NAME[kind]}</span>
+      <span className="tc-class-node-state" aria-hidden="true">{stageStateLabel}</span>
      </button>;
     })}
    </div>
@@ -180,6 +193,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
      const blocked=learnedChoice!==null&&learnedChoice!==i;
      return <button key={i} type="button" aria-pressed={selected}
       className={'tc-class-choice-card tc-feel-press'+(selected?' chosen':'')+(blocked?' rejected':'')}
+      title={choice.name+' · '+choice.description+(choice.mp!==undefined?' · MP '+choice.mp+' · 대기 '+choice.cooldown+'턴':'')}
       onClick={()=>{if(learnedChoice===null)setPreviewChoice(i);}}
       disabled={learnedChoice!==null}>
       {selected&&<span className="tc-class-choice-mark">{learnedChoice===i?'습득 완료':'선택 중'} <span aria-hidden="true">✓</span></span>}
@@ -189,10 +203,15 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
         :<Glyph name={i===0?glyphFor(visibleId):i===1?'defense':'skills'}/>}
       </span>
       <strong>{choice.name}</strong>
-      <small>{choice.description}</small>
+      <small className="tc-class-choice-description">{choice.description}</small>
       {choice.mp!==undefined&&<em>MP {choice.mp} · 대기 {choice.cooldown}턴</em>}
      </button>;
     })}
+   </div>
+   <div className="tc-class-choice-detail" aria-live="polite">
+    <strong>{isDetailPreview?'미리보기 · ':''}{detailChoice.name}</strong>
+    <span>{detailChoice.description}</span>
+    <em>{detailChoice.mp!==undefined?'MP '+detailChoice.mp+' · 대기 '+detailChoice.cooldown+'턴':'상시 적용'}</em>
    </div>
    <div className="tc-class-choices-warning" role="note">
     <Glyph name={learnedChoice!==null?'defense':'other'}/>
