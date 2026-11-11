@@ -63,8 +63,9 @@ test('approved cropped game art assets are actual WebPs and the job screen refer
   assert.ok(img.length>5000,file);
   assert.equal(img.toString('ascii',0,4),'RIFF');
   assert.equal(img.toString('ascii',8,12),'WEBP');
-  assert.ok(screen.includes(file),file);
+  if(file!=='warrior-growth-icons-v1.webp')assert.ok(screen.includes(file),file);
  }
+ assert.match(screen,/warrior-growth-icons-aligned-v2\.svg/,'new aligned atlas must be used');
  assert.doesNotMatch(screen,/portraitPath\(|showFallbackPortrait/);
  assert.match(screen,/class-library-redmoon-approved-v2\.webp/);
 });
@@ -126,12 +127,25 @@ test('class tabs are text only and circular growth sprites crop the artwork lett
  assert.equal(buttons.length,3);
  for(const button of buttons)assert.doesNotMatch(button,/<svg|tc-glyph/,'profession tabs must have no icon');
  const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
- assert.match(component,/backgroundSize:\s*'650% 260%'/,'zoom sprite enough to cut labels baked above and below artwork');
- assert.match(component,/6\.25%/);
- assert.match(component,/87\.5%/);
+ assert.match(component,/warrior-growth-icons-aligned-v2\.svg/);
+ assert.match(component,/backgroundSize:\s*'500% 200%'/,'normalized atlas tiles align exactly with grid cells');
+ assert.doesNotMatch(component,/650% 260%|6\.25%|87\.5%/,'remove imprecise zoom crop');
  assert.doesNotMatch(component,/<Glyph name=\{glyphFor\(id\)\}/,'no tab icon in source');
  assert.match(component,/tc-class-node-sprite/);
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  assert.doesNotMatch(css,/\.tc-class-tab \.tc-glyph/,'old icon style removed');
  assert.match(css,/\.tc-class-node-kind/,'level type labels remain outside the round artwork');
+});
+
+
+test('normalized growth atlas contains ten centered source crops with no embedded level labels',()=>{
+ const atlas=readFileSync('public/assets/classes/skilltree-20261111/warrior-growth-icons-aligned-v2.svg','utf8');
+ assert.match(atlas,/viewBox="0 0 500 200"/);
+ assert.equal((atlas.match(/<svg x="\d+" y="\d+" width="100" height="100"/g)??[]).length,10);
+ assert.match(atlas,/data:image\/webp;base64,/,'same shared picture atlas, embedded for offline APK use');
+ for(const y of [0,100])for(const x of [0,100,200,300,400]){
+  assert.ok(atlas.includes('<svg x="'+x+'" y="'+y+'" width="100" height="100"'),x+','+y);
+ }
+ for(const text of ['액티브','패시브','특성','궁극기','Lv.10','Lv.100'])assert.ok(!atlas.includes(text),'no old text baked into cropped circles: '+text);
+ assert.match(atlas,/<use href="#source"\/>/);
 });
