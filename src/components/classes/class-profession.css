@@ -16,7 +16,7 @@
 .tc-class-page button{color:inherit;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tc-class-page button:disabled{cursor:default;opacity:.54}
 .tc-class-page button:focus-visible{outline:2px solid #ffe0a8;outline-offset:1px}
-.tc-class-ambience{position:absolute;z-index:-1;inset:0;pointer-events:none;background-size:cover;background-position:center 31%;opacity:1}
+.tc-class-ambience{position:absolute;z-index:-1;inset:0;pointer-events:none;background-size:cover;background-position:center top;opacity:1}
 .tc-class-page:after{content:"";position:absolute;inset:1px;z-index:6;pointer-events:none;border:1px solid #e6b47861;border-radius:3px;background-image:var(--tc-class-frame);background-size:100% 100%;opacity:.45}
 .tc-class-header{min-height:0;display:grid;grid-template-columns:39px minmax(0,1fr) 39px;align-items:center;gap:4px;text-align:center}
 .tc-class-brand small{display:block;font:600 9px/1.2 Georgia,serif;letter-spacing:.16em;color:#c8b18c}
@@ -151,3 +151,4 @@
  .tc-class-choices-warning{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.tc-class-page *{animation:none!important;transition:none!important}}
+.tc-class-choice-card.chosen:disabled{opacity:1;filter:none;cursor:default}
