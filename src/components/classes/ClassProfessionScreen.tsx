@@ -144,7 +144,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
    <div className="tc-class-crest" aria-hidden="true">
     {visibleId==='warrior'?<img src={assetUrl(CREST)} alt=""/>:<Glyph name={glyphFor(visibleId)}/>}
    </div>
-   <h2>{job.name} 스킬트리</h2>
+   <h2>{job.name+' 스킬트리'}</h2>
    <p>10레벨마다 3가지 중 1개를 선택해 성장합니다.</p>
    <div className="tc-class-feature-tools">
     <span>{chosenCount}/10 습득 · {level===null?'레벨 조회 중':'Lv.'+level}</span>
