@@ -1,0 +1,7 @@
+[
+  {
+    "pubname": "supabase_realtime",
+    "schemaname": "public",
+    "tablename": "game_chat_messages"
+  }
+]

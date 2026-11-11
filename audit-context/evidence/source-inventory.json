@@ -1,0 +1,1446 @@
+{
+  "baseline": "d4b88839612d3335e81f537c70c89ca41e9d7f6e",
+  "method": "TypeScript AST literals and call sites; dynamic RPCs may lack a literal reference, and a literal does not prove runtime reachability.",
+  "sourceFiles": 263,
+  "references": [
+    {
+      "file": "src/components/PremiumDialog.tsx",
+      "line": 12,
+      "rpc": "buy_premium_account",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/components/PremiumDialog.tsx",
+      "line": 12,
+      "rpc": "get_premium_account",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/components/PremiumStatus.tsx",
+      "line": 18,
+      "rpc": "get_premium_status",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 124,
+      "rpc": "get_online_association_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 127,
+      "rpc": "create_online_association_v2",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 132,
+      "rpc": "join_online_association",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 137,
+      "rpc": "review_online_association_application",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 142,
+      "rpc": "leave_online_association",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 145,
+      "rpc": "update_online_association",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 154,
+      "rpc": "transfer_online_association_leadership",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 159,
+      "rpc": "kick_online_association_member",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 164,
+      "rpc": "disband_online_association",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationProgression.ts",
+      "line": 28,
+      "rpc": "donate_to_association",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationProgression.ts",
+      "line": 31,
+      "rpc": "get_association_progression",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationShop.ts",
+      "line": 19,
+      "rpc": "get_online_association_shop",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationShop.ts",
+      "line": 21,
+      "rpc": "buy_online_association_shop_item",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationShop.ts",
+      "line": 23,
+      "rpc": "register_online_job_with_tickets",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationWarehouse.ts",
+      "line": 64,
+      "rpc": "get_association_warehouse",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationWarehouse.ts",
+      "line": 73,
+      "rpc": "transfer_association_treasury",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/associationWarehouse.ts",
+      "line": 78,
+      "rpc": "get_association_warehouse_history",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/bank.ts",
+      "line": 18,
+      "rpc": "server_bank_action",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/bank.ts",
+      "line": 18,
+      "rpc": "get_server_bank",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/chat.ts",
+      "line": 115,
+      "rpc": "get_chat_association",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/cloudSave.ts",
+      "line": 78,
+      "rpc": "save_game_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/collection.ts",
+      "line": 36,
+      "rpc": "get_collection_equipment_registrations",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/collection.ts",
+      "line": 39,
+      "rpc": "register_collection_equipment",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/coupons.ts",
+      "line": 46,
+      "rpc": "redeem_game_coupon",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/coupons.ts",
+      "line": 47,
+      "rpc": "is_coupon_admin",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/coupons.ts",
+      "line": 48,
+      "rpc": "list_game_coupons",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/coupons.ts",
+      "line": 49,
+      "rpc": "create_game_coupon",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/coupons.ts",
+      "line": 50,
+      "rpc": "set_game_coupon_enabled",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 136,
+      "rpc": "start_online_expedition",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 142,
+      "rpc": "begin_online_combat_state_v2",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 145,
+      "rpc": "apply_online_basic_attack",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 151,
+      "rpc": "apply_online_job_skill",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 154,
+      "rpc": "apply_online_flee",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 157,
+      "rpc": "apply_online_potion",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 161,
+      "rpc": "resolve_online_revival",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 165,
+      "rpc": "settle_online_expedition_v2",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 170,
+      "rpc": "select_online_job",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 218,
+      "rpc": "get_job_registration_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 225,
+      "rpc": "set_job_registration_pickups",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 235,
+      "rpc": "register_online_job",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 260,
+      "rpc": "exchange_job_residual_record",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 278,
+      "rpc": "exchange_job_residual_recommendation",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 284,
+      "rpc": "dismantle_online_equipment",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 293,
+      "rpc": "enhance_online_equipment",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 301,
+      "rpc": "spend_online_association_fee",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 381,
+      "rpc": "advance_online_exploration",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 382,
+      "rpc": "resolve_online_exploration_event",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 383,
+      "rpc": "claim_online_resource_stronghold",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 384,
+      "rpc": "settle_online_resource_stronghold",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 385,
+      "rpc": "abandon_online_resource_stronghold",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 388,
+      "rpc": "restore_online_expedition",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/friendInvites.ts",
+      "line": 21,
+      "rpc": "get_friend_invite_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/friendInvites.ts",
+      "line": 21,
+      "rpc": "apply_friend_invite_code",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 110,
+      "rpc": "acquire_game_session",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 116,
+      "rpc": "heartbeat_game_session",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 124,
+      "rpc": "inspect_game_session",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 132,
+      "rpc": "request_game_session_takeover",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 138,
+      "rpc": "force_takeover_game_session",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 144,
+      "rpc": "release_game_session",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/goldExchange.ts",
+      "line": 94,
+      "rpc": "get_online_gold_exchange_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/goldExchange.ts",
+      "line": 100,
+      "rpc": "place_online_gold_exchange_order",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/goldExchange.ts",
+      "line": 112,
+      "rpc": "cancel_online_gold_exchange_order",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 28,
+      "rpc": "get_guild_auction_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 30,
+      "rpc": "bid_guild_auction",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 32,
+      "rpc": "claim_guild_boss_reward",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 34,
+      "rpc": "claim_guild_auction_item",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 37,
+      "rpc": "register_guild_auction_item",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 39,
+      "rpc": "recover_guild_auction_item",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildAuction.ts",
+      "line": 41,
+      "rpc": "relist_guild_boss_auction_item",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildBoss.ts",
+      "line": 51,
+      "rpc": "get_guild_boss_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildBoss.ts",
+      "line": 52,
+      "rpc": "attack_guild_boss",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildMaterials.ts",
+      "line": 25,
+      "rpc": "get_guild_materials",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildMaterials.ts",
+      "line": 27,
+      "rpc": "set_guild_village_tax",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildMaterials.ts",
+      "line": 29,
+      "rpc": "transfer_guild_material",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildMaterials.ts",
+      "line": 31,
+      "rpc": "register_guild_material_auction",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildMaterials.ts",
+      "line": 34,
+      "rpc": "recover_guild_material_auction",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildRankings.ts",
+      "line": 16,
+      "rpc": "get_guild_rankings",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/guildTerritory.ts",
+      "line": 24,
+      "rpc": "get_guild_territory_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 16,
+      "rpc": "get_hunting_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 17,
+      "rpc": "save_hunting_preset",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 19,
+      "rpc": "hunt_once",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 25,
+      "rpc": "allocate_hunting_stats",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 26,
+      "rpc": "reset_hunting_stats",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 28,
+      "rpc": "save_hunting_setup",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 30,
+      "rpc": "save_hunting_skill_sets",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/mail.ts",
+      "line": 42,
+      "rpc": "get_game_mail",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/mail.ts",
+      "line": 43,
+      "rpc": "manage_game_mail",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 127,
+      "rpc": "get_online_market_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 133,
+      "rpc": "cancel_online_market_order",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 136,
+      "rpc": "claim_online_market_storage",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 139,
+      "rpc": "claim_all_online_market_storage",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 142,
+      "rpc": "list_online_equipment",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 147,
+      "rpc": "cancel_online_equipment_listing",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 150,
+      "rpc": "buy_online_equipment_listing",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/marketOrderRequests.ts",
+      "line": 20,
+      "rpc": "place_online_market_order_v2",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/monitoring.ts",
+      "line": 61,
+      "rpc": "set_websocket_presence",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/monitoring.ts",
+      "line": 68,
+      "rpc": "get_system_monitoring",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 136,
+      "rpc": "get_occupation_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 139,
+      "rpc": "donate_occupation_tickets",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 144,
+      "rpc": "place_occupation_bid",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 149,
+      "rpc": "join_occupation_front",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 154,
+      "rpc": "apply_occupation_duel_action",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/premium.ts",
+      "line": 15,
+      "rpc": "get_premium_status",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/quests.ts",
+      "line": 22,
+      "rpc": "get_quests",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/quests.ts",
+      "line": 23,
+      "rpc": "claim_quest",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 51,
+      "rpc": "get_resource_stronghold_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 54,
+      "rpc": "advance_resource_stronghold_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 57,
+      "rpc": "request_resource_stronghold",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 60,
+      "rpc": "respond_resource_stronghold_contest",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 63,
+      "rpc": "apply_resource_stronghold_contest_action",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 66,
+      "rpc": "abandon_resource_stronghold",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/seal.ts",
+      "line": 94,
+      "rpc": "get_association_seal_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/seal.ts",
+      "line": 101,
+      "rpc": "roll_association_seal",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/seal.ts",
+      "line": 112,
+      "rpc": "reset_association_seal",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/skillBooks.ts",
+      "line": 9,
+      "rpc": "enhance_catalog_skill",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/skillBooks.ts",
+      "line": 9,
+      "rpc": "learn_catalog_skill",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/skillBooks.ts",
+      "line": 9,
+      "rpc": "get_skill_book_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageLife.ts",
+      "line": 24,
+      "rpc": "get_village_life",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageLife.ts",
+      "line": 25,
+      "rpc": "travel_village",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageLife.ts",
+      "line": 26,
+      "rpc": "gather_village",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageLife.ts",
+      "line": 27,
+      "rpc": "use_vitality_potion",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageLife.ts",
+      "line": 27,
+      "rpc": "village_life_action",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 69,
+      "rpc": "get_village_war_declarations",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 70,
+      "rpc": "declare_village_war",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 83,
+      "rpc": "get_village_war_state",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 85,
+      "rpc": "place_village_war_defender",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 86,
+      "rpc": "remove_village_war_defender",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 87,
+      "rpc": "claim_empty_village_war_front",
+      "kind": "literal-reference"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 93,
+      "rpc": "attack_village_war_front",
+      "kind": "literal-reference"
+    }
+  ],
+  "network": [
+    {
+      "file": "src/components/PremiumDialog.tsx",
+      "line": 12,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+(request?'buy_premium_account':'get_premium_account')"
+    },
+    {
+      "file": "src/components/PremiumStatus.tsx",
+      "line": 18,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/get_premium_status'"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 26,
+      "call": "request",
+      "target": "'ATTACK'"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 26,
+      "call": "request",
+      "target": "'PLACE'"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 26,
+      "call": "request",
+      "target": "'REMOVE'"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 26,
+      "call": "request",
+      "target": "'CLAIM_EMPTY'"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 115,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/association.ts",
+      "line": 185,
+      "call": "WebSocket",
+      "target": "url.toString()"
+    },
+    {
+      "file": "src/online/associationGrowthRpc.ts",
+      "line": 57,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/associationWarehouse.ts",
+      "line": 45,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/auth.ts",
+      "line": 67,
+      "call": "request",
+      "target": "config.url+'/auth/v1/user'"
+    },
+    {
+      "file": "src/online/auth.ts",
+      "line": 92,
+      "call": "request",
+      "target": "config.url+'/auth/v1/token?grant_type=pkce'"
+    },
+    {
+      "file": "src/online/auth.ts",
+      "line": 125,
+      "call": "request",
+      "target": "config.url+'/auth/v1/token?grant_type=refresh_token'"
+    },
+    {
+      "file": "src/online/auth.ts",
+      "line": 157,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/auth/v1/logout'"
+    },
+    {
+      "file": "src/online/bank.ts",
+      "line": 18,
+      "call": "request",
+      "target": "config.url+'/rest/v1/rpc/'+(p?'server_bank_action':'get_server_bank')"
+    },
+    {
+      "file": "src/online/chat.ts",
+      "line": 25,
+      "call": "request",
+      "target": "config.url+'/rest/v1/'+path"
+    },
+    {
+      "file": "src/online/chat.ts",
+      "line": 67,
+      "call": "WebSocket",
+      "target": "url.toString()"
+    },
+    {
+      "file": "src/online/chat.ts",
+      "line": 115,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/get_chat_association'"
+    },
+    {
+      "file": "src/online/cloudSave.ts",
+      "line": 62,
+      "call": "fetch",
+      "target": "url"
+    },
+    {
+      "file": "src/online/cloudSave.ts",
+      "line": 78,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/save_game_state'"
+    },
+    {
+      "file": "src/online/cloudSync.ts",
+      "line": 95,
+      "call": "WebSocket",
+      "target": "wsUrl.toString()"
+    },
+    {
+      "file": "src/online/collection.ts",
+      "line": 21,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/coupons.ts",
+      "line": 43,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/economy.ts",
+      "line": 110,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/friendInvites.ts",
+      "line": 17,
+      "call": "request",
+      "target": "config.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 67,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/gameSession.ts",
+      "line": 187,
+      "call": "WebSocket",
+      "target": "wsUrl.toString()"
+    },
+    {
+      "file": "src/online/goldExchange.ts",
+      "line": 79,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/goldExchange.ts",
+      "line": 157,
+      "call": "WebSocket",
+      "target": "wsUrl.toString()"
+    },
+    {
+      "file": "src/online/guildBoss.ts",
+      "line": 37,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/hunting.ts",
+      "line": 12,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/mail.ts",
+      "line": 35,
+      "call": "fetch",
+      "target": "config.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 112,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/market.ts",
+      "line": 251,
+      "call": "WebSocket",
+      "target": "wsUrl.toString()"
+    },
+    {
+      "file": "src/online/marketOrderRequests.ts",
+      "line": 20,
+      "call": "request",
+      "target": "config.url+'/rest/v1/rpc/place_online_market_order_v2'"
+    },
+    {
+      "file": "src/online/monitoring.ts",
+      "line": 45,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 127,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/occupation.ts",
+      "line": 177,
+      "call": "WebSocket",
+      "target": "url.toString()"
+    },
+    {
+      "file": "src/online/playerProfiles.ts",
+      "line": 20,
+      "call": "request",
+      "target": "config.url+'/rest/v1/game_player_profiles?select=user_id,nickname&user_id=eq.'+encodeURIComponent(s.userId)+'&limit=1'"
+    },
+    {
+      "file": "src/online/playerProfiles.ts",
+      "line": 29,
+      "call": "request",
+      "target": "config.url+'/rest/v1/game_player_profiles?select=user_id,nickname'"
+    },
+    {
+      "file": "src/online/premium.ts",
+      "line": 15,
+      "call": "fetch",
+      "target": "supabaseConfig.url + '/rest/v1/rpc/get_premium_status'"
+    },
+    {
+      "file": "src/online/quests.ts",
+      "line": 17,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 44,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/resourceStronghold.ts",
+      "line": 79,
+      "call": "WebSocket",
+      "target": "url.toString()"
+    },
+    {
+      "file": "src/online/seal.ts",
+      "line": 63,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/skillBooks.ts",
+      "line": 9,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+(expectedLevel!==undefined?'enhance_catalog_skill':skillId?'learn_catalog_skill':'get_skill_book_state')"
+    },
+    {
+      "file": "src/online/villageLife.ts",
+      "line": 19,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    },
+    {
+      "file": "src/online/villageWar.ts",
+      "line": 55,
+      "call": "fetch",
+      "target": "supabaseConfig.url+'/rest/v1/rpc/'+name"
+    }
+  ],
+  "localInputs": [
+    {
+      "file": "src/components/MailDialog.tsx",
+      "line": 25,
+      "call": "loadGameMail"
+    },
+    {
+      "file": "src/components/SaveManagement.tsx",
+      "line": 27,
+      "call": "createRepository(storage).importSave"
+    },
+    {
+      "file": "src/components/association/AssociationWarehousePanel.tsx",
+      "line": 43,
+      "call": "window.sessionStorage.getItem"
+    },
+    {
+      "file": "src/components/association/AssociationWarehousePanel.tsx",
+      "line": 95,
+      "call": "window.sessionStorage.setItem"
+    },
+    {
+      "file": "src/components/association/AssociationWarehousePanel.tsx",
+      "line": 102,
+      "call": "window.sessionStorage.removeItem"
+    },
+    {
+      "file": "src/components/association/GuildAuctionPanel.tsx",
+      "line": 34,
+      "call": "window.sessionStorage.getItem"
+    },
+    {
+      "file": "src/components/association/GuildAuctionPanel.tsx",
+      "line": 73,
+      "call": "window.sessionStorage.getItem"
+    },
+    {
+      "file": "src/components/association/GuildAuctionPanel.tsx",
+      "line": 74,
+      "call": "window.sessionStorage.setItem"
+    },
+    {
+      "file": "src/components/association/GuildAuctionPanel.tsx",
+      "line": 76,
+      "call": "window.sessionStorage.removeItem"
+    },
+    {
+      "file": "src/components/association/GuildAuctionPanel.tsx",
+      "line": 88,
+      "call": "window.sessionStorage.setItem"
+    },
+    {
+      "file": "src/components/association/GuildAuctionPanel.tsx",
+      "line": 91,
+      "call": "window.sessionStorage.removeItem"
+    },
+    {
+      "file": "src/components/association/GuildBossPanel.tsx",
+      "line": 170,
+      "call": "window.sessionStorage.getItem"
+    },
+    {
+      "file": "src/components/association/GuildBossPanel.tsx",
+      "line": 171,
+      "call": "window.sessionStorage.setItem"
+    },
+    {
+      "file": "src/components/association/GuildBossPanel.tsx",
+      "line": 174,
+      "call": "window.sessionStorage.removeItem"
+    },
+    {
+      "file": "src/components/association/GuildMaterialAuctionForm.tsx",
+      "line": 15,
+      "call": "window.sessionStorage.getItem"
+    },
+    {
+      "file": "src/components/association/GuildMaterialAuctionForm.tsx",
+      "line": 26,
+      "call": "sessionStorage.setItem"
+    },
+    {
+      "file": "src/components/association/GuildMaterialAuctionForm.tsx",
+      "line": 28,
+      "call": "window.sessionStorage.removeItem"
+    },
+    {
+      "file": "src/components/association/GuildMaterialsPanel.tsx",
+      "line": 25,
+      "call": "window.sessionStorage.getItem"
+    },
+    {
+      "file": "src/components/association/GuildMaterialsPanel.tsx",
+      "line": 37,
+      "call": "window.sessionStorage.setItem"
+    },
+    {
+      "file": "src/components/association/GuildMaterialsPanel.tsx",
+      "line": 39,
+      "call": "window.sessionStorage.removeItem"
+    },
+    {
+      "file": "src/components/battle/combatAudio.ts",
+      "line": 10,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/battle/combatAudio.ts",
+      "line": 15,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/hunting/HuntingPage.tsx",
+      "line": 17,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/hunting/HuntingPage.tsx",
+      "line": 27,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/hunting/HuntingPage.tsx",
+      "line": 36,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/hunting/HuntingPage.tsx",
+      "line": 39,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/hunting/HuntingPage.tsx",
+      "line": 41,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/hunting/SkillSetupEditor.tsx",
+      "line": 28,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/hunting/SkillSetupEditor.tsx",
+      "line": 49,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/hunting/SkillSetupEditor.tsx",
+      "line": 49,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/inventory/useInventoryLife.ts",
+      "line": 11,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/inventory/useInventoryLife.ts",
+      "line": 11,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/inventory/useInventoryLife.ts",
+      "line": 13,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/inventory/useInventoryLife.ts",
+      "line": 15,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/inventory/useInventoryLife.ts",
+      "line": 17,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/mobile/CoreScreens.tsx",
+      "line": 38,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 11,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 16,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 20,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/occupation/useVillageWarStageOne.ts",
+      "line": 22,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/quests/QuestPage.tsx",
+      "line": 16,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/quests/QuestPage.tsx",
+      "line": 19,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/quests/QuestPage.tsx",
+      "line": 20,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/quests/QuestPage.tsx",
+      "line": 25,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/quests/QuestPage.tsx",
+      "line": 25,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/stats/StatAllocationPage.tsx",
+      "line": 15,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/stats/StatAllocationPage.tsx",
+      "line": 24,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/stats/StatAllocationPage.tsx",
+      "line": 31,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/stats/StatAllocationPage.tsx",
+      "line": 32,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/stats/StatAllocationPage.tsx",
+      "line": 34,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 25,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 29,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 34,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 39,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 39,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 40,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 40,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 47,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 48,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 50,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 56,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 57,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/components/world/WorldPage.tsx",
+      "line": 60,
+      "call": "localStorage.removeItem"
+    },
+    {
+      "file": "src/main.tsx",
+      "line": 77,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/main.tsx",
+      "line": 77,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/main.tsx",
+      "line": 136,
+      "call": "loadGameMail"
+    },
+    {
+      "file": "src/online/auth.ts",
+      "line": 156,
+      "call": "sessionStorage.removeItem"
+    },
+    {
+      "file": "src/online/cloudSave.ts",
+      "line": 105,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/settings/preferences.ts",
+      "line": 6,
+      "call": "localStorage.getItem"
+    },
+    {
+      "file": "src/settings/preferences.ts",
+      "line": 7,
+      "call": "localStorage.setItem"
+    },
+    {
+      "file": "src/storage/repository.ts",
+      "line": 354,
+      "call": "parseSaveImport"
+    }
+  ]
+}
