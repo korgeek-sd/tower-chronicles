@@ -13,6 +13,6 @@ test('approved red-moon gothic library painting is committed and used only in th
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  assert.match(css,/\.tc-class-ambience\s*\{[^}]*background-size:\s*cover/);
  assert.match(css,/\.tc-class-ambience\s*\{[^}]*background-position:\s*center top/);
- assert.match(css,/\.tc-class-content/);
+ assert.match(css,/\.tc-class-choices/);
  assert.match(css,/\.tc-class-footer/);
 });

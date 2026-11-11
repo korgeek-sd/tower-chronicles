@@ -1,433 +1,154 @@
-/* Class codex: approved concept 3. Presentation only; no combat or save schema changes. */
+/* 2026-11-11 · Tower Chronicles permanent professions
+ * Approved character-free Gothic skill tree. All main actions fit the shell without scroll.
+ * The 10 milestones and 3 choices are real buttons backed by the existing progression model.
+ */
 .tc-class-page{
- --tc-class-gold:#e3c485;--tc-class-line:#765637;--tc-class-paper:#f4e3c1;--tc-class-muted:#afa18f;
- --tc-class-ink:#0a0a10;--tc-class-panel:#15111c;--tc-class-accent:#963b3b;--tc-class-glow:#e4aa67;
- position:relative;isolation:isolate;width:100%;height:100%;min-height:0;overflow:hidden;
- display:grid;grid-template-rows:36px minmax(66px,1.12fr) minmax(86px,1.5fr) minmax(75px,1fr) minmax(275px,2.8fr) 67px 14px;
- gap:4px;padding:5px;color:var(--tc-class-paper);border:1px solid #665038;border-radius:6px;
- background:radial-gradient(ellipse at 52% 0%,#43303b,#15101d 35%,#090b11 85%);
+ --class-gold:#e7b970;--class-brass:#a16d47;--class-ivory:#f3dfb9;--class-muted:#bba898;
+ --class-red:#912c32;--class-shadow:#0c0a13;--class-accent:#df8a5b;
+ box-sizing:border-box;position:relative;isolation:isolate;height:100%;min-height:0;min-width:0;width:100%;overflow:hidden;
+ display:grid;grid-template-rows:34px 38px minmax(70px,.85fr) minmax(118px,1.25fr) minmax(170px,2fr) 51px 12px;
+ gap:3px;padding:4px;color:var(--class-ivory);
+ background:#100e17;border:1px solid #aa8056;border-radius:4px;
  font-family:inherit;
 }
-.tc-class-page[data-selected-job="mage"]{--tc-class-accent:#553d85;--tc-class-glow:#b799eb}
-.tc-class-page[data-selected-job="archer"]{--tc-class-accent:#4a543c;--tc-class-glow:#b4c77d}
-.tc-class-page button{color:inherit;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
-.tc-class-page button:disabled{cursor:default;opacity:.5}
-.tc-class-page button:focus-visible{outline:2px solid var(--tc-class-gold);outline-offset:1px}
-.tc-class-ambience{position:absolute;z-index:-1;inset:0;background-position:center top;background-size:cover;opacity:.28;pointer-events:none}
-.tc-class-page:after{content:"";pointer-events:none;position:absolute;inset:2px;z-index:-1;border:1px solid #bd915124;border-radius:4px}
-.tc-class-header,.tc-class-arch-gallery,.tc-class-featured,.tc-class-growth,.tc-class-order,.tc-class-footer,.tc-class-status{position:relative;min-height:0;min-width:0}
-.tc-class-header{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;text-align:center;gap:4px}
-.tc-class-header:after{content:"✦";position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);color:var(--tc-class-gold);font-size:11px;text-shadow:0 0 8px #de9c60}
-.tc-class-brand{align-self:center;display:grid;gap:0}
-.tc-class-brand small{color:#bdac91;font-size:9px;letter-spacing:.16em}
-.tc-class-brand h1{margin:-1px 0 0;color:#f3dcad;font:700 22px/1.15 "Noto Serif KR",Georgia,serif;text-shadow:0 0 10px #b7763a9c}
-.tc-class-back,.tc-class-home{width:42px;height:42px;border:1px solid #8c744d;background:linear-gradient(150deg,#342a2e,#14131b);box-shadow:inset 0 0 0 2px #18141a,0 2px 5px #0009;border-radius:3px}
-.tc-class-back{font-size:27px;line-height:1}.tc-class-home .tc-glyph{font-size:20px;color:#dbbd85}
-.tc-class-arch-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:7px;padding:4px 6px 1px;overflow:hidden}
-.tc-class-portrait{
- position:relative;isolation:isolate;min-width:0;min-height:0;height:100%;overflow:hidden;
- display:grid;grid-template-rows:minmax(0,1fr) 21px;align-items:end;justify-items:center;padding:2px 2px 0;
- border:1px solid #826c50;border-radius:55% 55% 6px 6px / 43% 43% 6px 6px;
- background:radial-gradient(ellipse at 50% 39%,#45364d,#211b2b 55%,#0d0b12);
- box-shadow:inset 0 0 0 2px #140e19,0 3px 6px #000a;
-}
-.tc-class-portrait:before{content:"";position:absolute;inset:3px;z-index:-1;border:1px solid #9b795440;border-radius:55% 55% 4px 4px / 42% 42% 4px 4px}
-.tc-class-portrait.selected{border-color:#f5d28a;box-shadow:0 0 0 1px #d3a45e,0 0 13px var(--tc-class-glow),inset 0 0 0 2px #21121b}
-.tc-class-portrait:not(.selected){filter:saturate(.62)}
-.tc-class-portrait img{display:block;width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 3px 4px #000);image-rendering:auto;pointer-events:none}
-.tc-class-portrait-halo{position:absolute;z-index:-1;inset:8px 14% 17px;border:1px solid #dcb66c2a;border-radius:50% 50% 0 0;background:radial-gradient(ellipse at center,#855c3933,transparent 70%)}
-.tc-class-portrait.selected .tc-class-portrait-halo{border-color:#e5bd635e;box-shadow:0 0 16px #bd724a60}
-.tc-class-portrait-name{width:100%;min-width:0;min-height:21px;display:flex;align-items:center;justify-content:center;gap:5px;
- background:linear-gradient(90deg,#171219c2,#302329ed 35%,#171219de);
- border-top:1px solid #8a6745;font-size:11px;font-weight:700;white-space:nowrap}
-.tc-class-portrait-name .tc-glyph{font-size:13px;color:#d4b580}
-.tc-class-portrait.selected .tc-class-portrait-name{background:linear-gradient(90deg,#582126ed,#722f30eb,#582126ed)}
-.tc-class-check{position:absolute;z-index:2;top:4px;right:8px;color:#f9d38b;font-size:12px;text-shadow:0 0 7px #000}
-.tc-class-featured{
- display:grid;grid-template-columns:39% minmax(0,1fr);gap:6px;overflow:hidden;
- border:1px solid #8b6948;box-shadow:inset 0 0 0 1px #3a2b26,0 0 10px #000b;
- background:radial-gradient(ellipse at 20% 75%,var(--tc-class-accent),transparent 60%),linear-gradient(125deg,#28202c,#171321 64%,#0b111c);
-}
-.tc-class-featured:before{content:"";position:absolute;inset:3px;border:1px solid #9e795137;pointer-events:none}
-.tc-class-feature-art{position:relative;overflow:hidden;min-width:0;align-self:stretch;background:radial-gradient(ellipse at 40% 45%,#6a435055,transparent 75%)}
-.tc-class-feature-art:after{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(90deg,transparent 70%,#16121f),linear-gradient(0deg,#18101b,transparent 33%)}
-.tc-class-feature-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:center 12%;filter:drop-shadow(0 3px 7px #000c);image-rendering:auto}
-.tc-class-feature-medallion{position:absolute;z-index:2;bottom:4px;left:4px;width:29px;height:29px;display:grid;place-items:center;border:1px solid #b79968;background:#311c25;transform:rotate(45deg)}
-.tc-class-feature-medallion .tc-glyph{font-size:19px;color:#e8c17a;transform:rotate(-45deg)}
-.tc-class-feature-copy{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0;padding:6px 7px 6px 0}
-.tc-class-feature-overline{font-size:9px;color:#c2aa83;letter-spacing:.16em}
-.tc-class-feature-title{display:flex;align-items:center;gap:7px;min-width:0}
-.tc-class-feature-title>.tc-glyph{font-size:24px;color:var(--tc-class-glow)}
-.tc-class-feature-title h2{margin:0;color:#f2d6a3;font:700 22px/1.1 "Noto Serif KR",Georgia,serif;text-shadow:0 2px 5px #000}
-.tc-class-traits{display:flex;max-width:100%;flex-wrap:wrap;gap:3px}
-.tc-class-traits span{display:inline-block;white-space:nowrap;padding:3px 5px;border:1px solid #936342;background:linear-gradient(#562730,#321d28);border-radius:2px;font-size:9px;line-height:1.1;color:#f2d4bc}
-.tc-class-feature-copy p{margin:0;color:#dfd0bf;font-size:10px;line-height:1.45;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.tc-class-fixed-status{font-size:9px;color:#d1ba8c;display:flex;align-items:center;gap:4px}.tc-class-fixed-status .tc-glyph{font-size:11px}
-.tc-class-choose{min-height:44px;padding:0 13px;border:1px solid #d3a66f;background:linear-gradient(#8f3a3d,#512226);font-size:11px;font-weight:700}
-.tc-class-growth,.tc-class-order{
- border:1px solid #846746;background:linear-gradient(150deg,#1f1723ed,#0e0c14ef);
- box-shadow:inset 0 0 0 1px #382b27,0 0 6px #0009;overflow:hidden;
-}
-.tc-class-path{border-top-color:#bd955b}
-.tc-class-growth{display:grid;grid-template-rows:22px minmax(0,1fr);gap:2px;padding:3px 5px}
-.tc-class-section-heading{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:5px;border-bottom:1px solid #8b6c4663;padding:0 4px 2px}
-.tc-class-section-heading strong{display:flex;align-items:center;gap:4px;white-space:nowrap;font:700 12px/1.15 "Noto Serif KR",Georgia,serif;color:#ead3a7}
-.tc-class-section-heading strong>.tc-glyph{font-size:15px;color:#c6aa79}
-.tc-class-section-heading strong>span{font-family:inherit;font-size:10px;color:#c8b39e}
-.tc-class-section-heading small{color:#b5a48d;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-class-path .tc-class-milestones{position:relative;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));align-items:stretch;gap:1px;min-width:0;min-height:0}
-.tc-class-path .tc-class-milestones:before{content:"";position:absolute;top:35%;left:3%;right:3%;height:1px;background:linear-gradient(90deg,transparent,#dcaf63,transparent);pointer-events:none}
-.tc-class-milestone{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:44px;padding:0 1px;background:transparent;border:0}
-.tc-class-level{font:700 9px/1 Georgia,serif;color:#e8d1ab;white-space:nowrap}
-.tc-class-milestone-icon{position:relative;display:grid;place-items:center;flex-shrink:0;width:29px;height:29px;border:1px solid #9b7753;border-radius:50%;background:radial-gradient(circle,#493039,#211b28 74%);box-shadow:0 0 0 2px #0f0c13,0 0 0 3px #7b573a;font-size:15px;color:#dab985}
-.tc-class-milestone-icon .tc-glyph{font-size:17px}
-.tc-class-milestone.available .tc-class-milestone-icon{border-color:#e0b974;box-shadow:0 0 0 2px #100e13,0 0 0 3px #c2924c,0 0 8px #be815564}
-.tc-class-milestone.chosen .tc-class-milestone-icon{background:radial-gradient(circle,var(--tc-class-accent),#2c1826);border-color:#e8c680;box-shadow:0 0 0 2px #100e13,0 0 0 3px #d49d4c,0 0 9px var(--tc-class-glow)}
-.tc-class-milestone-icon b{position:absolute;top:-6px;right:-5px;color:#f2cb70;font-size:9px;text-shadow:0 1px 2px #000}
-.tc-class-milestone small{font-size:9px;color:#dac4a5;line-height:1.2;white-space:nowrap}
-.tc-class-node-name{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px;color:#b4aa9c}
-.tc-class-order{display:grid;grid-template-rows:22px 18px minmax(0,1fr);gap:3px;padding:4px}
-.tc-class-rule{display:flex;align-items:center;justify-content:center;gap:5px;min-height:0;min-width:0;
- margin:0;color:#cfc0a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- background:#2e2228a6;border:1px solid #67513e;padding:1px 5px;font-size:9px}
-.tc-class-rule span{color:#edbd6b;border:1px solid #b18e54;display:grid;place-items:center;width:13px;height:13px;border-radius:50%;font-size:10px;font-weight:700}
-.tc-class-skill-list{display:grid;grid-template-rows:repeat(5,minmax(44px,1fr));gap:2px;min-height:0;overflow:hidden}
-.tc-class-skill-row{display:grid;grid-template-columns:25px 31px minmax(0,1fr) 54px 90px;align-items:center;gap:4px;min-width:0;min-height:0;padding:0 3px;
- border:1px solid #5e4838;background:linear-gradient(95deg,#30232b,#17151f 40%,#14141b);box-shadow:inset 0 0 0 1px #261c22}
-.tc-class-rank-seal{width:25px;height:31px;display:grid;place-items:center;border:1px solid #bd9461;background:linear-gradient(#753339,#361d2a);clip-path:polygon(10% 0,90% 0,100% 18%,100% 82%,50% 100%,0 82%,0 18%)}
-.tc-class-rank-seal b{font:700 14px/1 Georgia,serif;color:#f0d6ae}
-.tc-class-skill-icon{display:grid;place-items:center;width:31px;height:31px;border:1px solid #9b7548;background:radial-gradient(circle at 40% 30%,var(--tc-class-accent),#15111e 85%);box-shadow:inset 0 0 0 1px #1c131a}
-.tc-class-skill-icon .tc-glyph{font-size:20px;color:var(--tc-class-glow);filter:drop-shadow(0 0 2px var(--tc-class-accent))}
-.tc-class-skill-text{min-width:0}
-.tc-class-skill-text strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;line-height:1.3;color:#efe0c6}
-.tc-class-skill-text small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:1.2;color:#b7a99a}
-.tc-class-skill-row.vacant .tc-class-skill-text,.tc-class-skill-row.vacant .tc-class-skill-icon{opacity:.55}
-.tc-class-cost{display:grid;gap:1px;border-left:1px solid #665441;padding-left:4px;font-size:9px;color:#a9d5f0;white-space:nowrap}
-.tc-class-cost small{font-size:9px;color:#dbc4a1}
-.tc-class-move{display:flex;justify-content:flex-end;align-items:center;gap:2px;min-width:0}
-.tc-class-move button{width:44px;height:44px;min-width:44px;display:grid;place-items:center;border:1px solid #b9915c;background:linear-gradient(#65404a,#291922);box-shadow:inset 0 0 0 2px #2d1b23;color:#f5d2a0;font-size:13px}
-.tc-class-move button:not(:disabled):active{background:#a15651}
-.tc-class-move button:disabled{opacity:.28}
-.tc-class-footer{display:grid;grid-template-rows:16px minmax(44px,1fr);gap:4px}
-.tc-class-permanent{display:flex;justify-content:center;align-items:center;gap:6px;margin:0;color:#e4a2a1;font-size:10px;white-space:nowrap;text-shadow:0 1px 3px #000}
-.tc-class-permanent span{color:#e1ac6f}
-.tc-class-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch;min-height:0;padding:0 10px}
-.tc-class-actions button{min-height:44px;min-width:0;border:1px solid #b89864;background:linear-gradient(#494049,#241e29);box-shadow:inset 0 0 0 2px #1b1620,0 2px 4px #0008;font-size:15px;font-weight:700;letter-spacing:-.03em}
-.tc-class-actions .tc-class-save{background:linear-gradient(#943d40,#521f26);border-color:#efbc80;color:#fff0d2}
-.tc-class-actions button span{margin-right:8px;font-size:18px;color:#eed09f}
-.tc-class-status{margin:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;font-size:9px;line-height:14px;color:#aba091}
-.tc-class-status.error{color:#f9aca3}
-/* Confirmation and level-choice sheet retains existing interaction and keyboard accessibility. */
-.tc-class-modal-backdrop{position:absolute;z-index:50;inset:0;display:flex;align-items:center;justify-content:center;background:#030308d9;padding:12px}
-.tc-class-modal{width:min(100%,400px);max-height:calc(100% - 12px);overflow:auto;display:grid;gap:12px;padding:14px;
- background:linear-gradient(135deg,#33232e,#0c0c16 85%);border:1px solid #bd925f;box-shadow:0 15px 50px #000c,inset 0 0 0 2px #291a24}
-.tc-class-modal h2{font:700 17px/1.4 "Noto Serif KR",Georgia,serif;margin:0;color:#eed4a0}
-.tc-class-modal p{font-size:12px;line-height:1.6;margin:0;color:#cbbdaa;word-break:keep-all}
-.tc-class-modal>header{display:flex;justify-content:space-between;align-items:center;gap:5px}
-.tc-class-modal>header small{font-size:10px;color:#c6aa84}
-.tc-class-modal>header button{width:44px;height:44px;border:1px solid #795b4a;background:#29222b;font-size:21px}
-.tc-class-modal-actions{display:flex;gap:8px;justify-content:flex-end}
-.tc-class-modal-actions button{min-width:90px;min-height:44px;border:1px solid #96734f;background:#353039;font-size:12px}
-.tc-class-modal-actions button.primary{background:linear-gradient(#873b41,#471d26);border-color:#dcb276}
-.tc-class-stage-options{display:grid;gap:6px}
-.tc-class-stage-option{display:grid;grid-template-columns:28px minmax(0,1fr) 20px;gap:9px;align-items:center;min-height:59px;padding:8px;text-align:left;
- border:1px solid #6f5947;background:#211b28}
-.tc-class-stage-option.picked{border-color:#e0b571;background:#41302d}
-.tc-class-option-index{height:30px;display:grid;place-items:center;background:#59313b;color:#f3c98b}
-.tc-class-stage-option span:nth-child(2){min-width:0}
-.tc-class-stage-option strong{display:block;font-size:12px}
-.tc-class-stage-option small{display:block;margin-top:2px;font-size:10px;color:#c6b9a6;word-break:keep-all}
-.tc-class-stage-option em{display:block;margin-top:3px;font-style:normal;color:#accee5;font-size:10px}
-.tc-class-growth-confirm{display:grid;gap:8px;padding:10px;border:1px solid #ce9b61;background:#37262b}
-.tc-class-growth-confirm strong{font-size:13px;color:#f6d8a8}
-.tc-class-growth-confirm p{font-size:11px}
+.tc-class-page[data-selected-job="mage"]{--class-accent:#ca83f0;--class-red:#623576}
+.tc-class-page[data-selected-job="archer"]{--class-accent:#aecb83;--class-red:#66522e}
+.tc-class-page button{color:inherit;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tc-class-page button:disabled{cursor:default;opacity:.54}
+.tc-class-page button:focus-visible{outline:2px solid #ffe0a8;outline-offset:1px}
+.tc-class-ambience{position:absolute;z-index:-1;inset:0;pointer-events:none;background-size:cover;background-position:center top;opacity:1}
+.tc-class-page:after{content:"";position:absolute;inset:1px;z-index:6;pointer-events:none;border:1px solid #e6b47861;border-radius:3px;background-image:var(--tc-class-frame);background-size:100% 100%;opacity:.45}
+.tc-class-header{min-height:0;display:grid;grid-template-columns:39px minmax(0,1fr) 39px;align-items:center;gap:4px;text-align:center}
+.tc-class-brand small{display:block;font:600 9px/1.2 Georgia,serif;letter-spacing:.16em;color:#c8b18c}
+.tc-class-brand h1{margin:0;font:700 22px/1.15 Georgia,"Noto Serif KR",serif;color:#ffe0aa;text-shadow:0 1px 8px #ae623e}
+.tc-class-back,.tc-class-home{width:39px;height:39px;border:1px solid #c59b63;border-radius:4px;background:linear-gradient(120deg,#3d252c,#15121b);box-shadow:inset 0 0 0 2px #1d1521;font-size:27px;display:grid;place-items:center}
+.tc-class-home .tc-glyph{font-size:21px;color:#e6c384}
+.tc-class-tabs{min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:0 3px}
+.tc-class-tab{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:38px;border:1px solid #987657;border-radius:3px;background:linear-gradient(120deg,#282129,#120f19);font-size:14px;font-weight:700;box-shadow:inset 0 0 0 1px #171019}
+.tc-class-tab.active{border-color:#ffca7e;background:linear-gradient(125deg,var(--class-red),#461821);box-shadow:inset 0 0 0 1px #c78950,0 0 8px #bc693562}
+.tc-class-tab .tc-glyph{font-size:18px;color:#e6c17b}
+.tc-class-featured{position:relative;min-height:0;display:grid;align-content:center;justify-items:center;gap:2px;overflow:hidden;border-bottom:1px solid #a47a56a8;padding:1px 4px 2px;text-align:center;background:linear-gradient(90deg,#0d0c16c9,transparent,#0d0c16c9)}
+.tc-class-featured:before,.tc-class-featured:after{content:"";position:absolute;top:31%;height:1px;width:19%;background:linear-gradient(90deg,transparent,#b78d56)}
+.tc-class-featured:before{left:5%}.tc-class-featured:after{right:5%;transform:scaleX(-1)}
+.tc-class-crest{display:grid;place-items:center;width:78px;height:37px;min-height:0;overflow:hidden;filter:drop-shadow(0 0 5px #d6a35d6e)}
+.tc-class-crest img{width:100%;height:100%;object-fit:contain}
+.tc-class-crest>.tc-glyph{font-size:31px;color:var(--class-accent)}
+.tc-class-featured h2{margin:0;font:700 22px/1.2 Georgia,"Noto Serif KR",serif;color:#f8d19a;text-shadow:0 1px 9px #e17b4077;white-space:nowrap}
+.tc-class-featured p{margin:0;font-size:10px;line-height:1.2;color:#f4d8aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tc-class-feature-tools{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;font-size:9px;color:#ccb79c}
+.tc-class-feature-tools button{min-width:88px;min-height:27px;padding:2px 9px;border:1px solid #bb8858;border-radius:4px;background:#3b2027;font-size:10px;font-weight:700;color:#f6daa4}
+.tc-class-battle-open .tc-glyph{font-size:11px}
+.tc-class-growth.tc-class-path{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid #9a71486d;background:linear-gradient(160deg,#18121edb,#100d17e0);padding:4px 4px 3px;box-shadow:inset 0 0 0 1px #a77d2a26}
+.tc-class-milestones{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:2px;min-height:0;width:100%;height:100%}
+.tc-class-milestone{position:relative;z-index:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;border:0;background:transparent;min-width:0;min-height:0;padding:0}
+.tc-class-milestone:not(:nth-child(5n)):after{content:"";position:absolute;top:54%;left:75%;width:54%;height:2px;background:linear-gradient(90deg,#8f5f35,#e5b565,#8f5f35);z-index:-1;pointer-events:none}
+.tc-class-level{font:700 10px/1 Georgia,serif;color:#ffdf9f;background:#24141dd9;padding:1px 4px;border:1px solid #946341;white-space:nowrap}
+.tc-class-milestone-icon{position:relative;flex:0 0 auto;display:grid;place-items:center;width:clamp(36px,5vw,52px);height:clamp(36px,5vw,52px);border:2px solid #ab7a4d;border-radius:50%;background:radial-gradient(circle,#5d282e,#160f1a 79%);box-shadow:0 0 0 1px #1f121b,0 1px 8px #000a;overflow:visible}
+.tc-class-node-sprite{width:100%;height:100%;border-radius:50%;display:block;background-repeat:no-repeat;filter:saturate(1.02)}
+.tc-class-milestone-icon>.tc-glyph{font-size:24px;color:#e9b77a}
+.tc-class-milestone.selected .tc-class-milestone-icon{border-color:#ffe19c;box-shadow:0 0 0 2px #da843e,0 0 13px var(--class-accent)}
+.tc-class-milestone.learned .tc-class-milestone-icon{box-shadow:0 0 0 1px #d8a65d,0 0 8px #f8bd6f55}
+.tc-class-milestone.locked:not(.selected) .tc-class-milestone-icon{filter:saturate(.72) brightness(.77)}
+.tc-class-acquired{position:absolute;top:-3px;right:-4px;border-radius:50%;display:grid;place-items:center;background:#385d3a;color:#fff9d1;border:1px solid #e5c77f;font-size:9px;width:15px;height:15px}
+.tc-class-node-kind{display:block;min-width:40px;padding:2px 5px;font-size:9px;line-height:1.05;color:#e1c4aa;background:linear-gradient(90deg,#371a24,#1a121a);border:1px solid #93663e;border-radius:2px;white-space:nowrap}
+.tc-class-milestone.selected .tc-class-node-kind{background:linear-gradient(#a74c31,#65202d);color:#fff1bd}
+.tc-class-choices{position:relative;min-width:0;min-height:0;overflow:hidden;display:grid;grid-template-rows:25px minmax(0,1fr) 18px;gap:3px;padding:3px 5px;border:1px solid #bb8255;background:linear-gradient(145deg,#180f17f2,#0d0c15f2);box-shadow:inset 0 0 0 1px #503626}
+.tc-class-choices:before{content:"";position:absolute;inset:2px;pointer-events:none;border:1px solid #cf995a38;background-image:var(--tc-class-frame);background-size:100% 100%;opacity:.7}
+.tc-class-choices-heading{z-index:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid #a5794f7d;white-space:nowrap}
+.tc-class-choices-heading strong{font:700 17px/1.3 Georgia,"Noto Serif KR",serif;color:#f5cf99;text-shadow:0 0 7px #da4737a1}
+.tc-class-choices-heading span{font-size:10px;color:#cebba4;border:1px solid #76533f;padding:1px 4px}
+.tc-class-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-height:0;z-index:1}
+.tc-class-choice-card{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;min-width:0;min-height:0;overflow:hidden;padding:3px 3px 4px;border:1px solid #a37e6c;border-radius:4px;background:linear-gradient(#29202b,#17111c 68%,#110d17);color:#f0d4ac;box-shadow:inset 0 0 0 1px #4b3334}
+.tc-class-choice-card.chosen{border:2px solid #fbd590;background:linear-gradient(#501b29,#28131b);box-shadow:inset 0 0 0 1px #dd9e67,0 0 10px #d8543f88}
+.tc-class-choice-card.rejected{filter:grayscale(.78);opacity:.7}
+.tc-class-choice-art{position:relative;flex:0 0 60%;min-height:0;width:100%;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 45% 65%,#723042,#170d17)}
+.tc-class-choice-art img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+.tc-class-choice-art .tc-glyph{font-size:clamp(28px,7vw,70px);color:var(--class-accent);filter:drop-shadow(0 0 8px var(--class-red))}
+.tc-class-choice-card strong{display:block;width:100%;padding:3px 0 2px;text-align:center;font:700 12px/1.15 "Noto Serif KR",Georgia,serif;color:#f6d8aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-class-choice-card small{font-size:9px;line-height:1.17;color:#ddc6b2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all;text-align:center;min-height:0}
+.tc-class-choice-card em{display:block;font-size:8px;font-style:normal;color:#bdccea;white-space:nowrap;margin-top:2px}
+.tc-class-choice-mark{position:absolute;top:3px;left:3px;z-index:2;background:#6d292d;padding:1px 4px;color:#f8da9d;font-weight:700;font-size:9px;border:1px solid #e6b06f}
+.tc-class-choices-warning{z-index:1;display:flex;gap:6px;align-items:center;justify-content:center;min-height:0;background:#27111bb3;color:#dfb9a1;border-top:1px solid #794a40;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-class-choices-warning .tc-glyph{font-size:13px;color:#edb66c}
+.tc-class-footer{display:grid;align-content:center;justify-items:center;min-height:0;position:relative}
+.tc-class-confirm{width:min(95%,360px);min-width:160px;height:46px;min-height:44px;border:2px solid #edbd7d;border-radius:5px;background:linear-gradient(110deg,#38151f,#932f34 50%,#411820);font:700 18px/1.2 Georgia,"Noto Serif KR",serif;color:#ffe0ad;box-shadow:inset 0 0 0 2px #6d302e,0 2px 8px #bd47397c;text-shadow:0 1px 4px #170e12}
+.tc-class-confirm span{margin-right:5px}
+.tc-class-confirm:disabled{opacity:.58;filter:saturate(.55)}
+.tc-class-footer p{margin:0;font-size:9px;color:#d9aa9f;line-height:12px}
+.tc-class-status{min-height:0;max-width:100%;margin:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;font-size:8px;line-height:12px;color:#b8a896}
+.tc-class-status.error{color:#ffb1a9}
+/* Dialogs are the only overlay layer; no scrolling on the main game page. */
+.tc-class-modal-backdrop{position:absolute;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;padding:10px;background:#030306df}
+.tc-class-modal{display:grid;gap:10px;width:min(100%,430px);max-height:calc(100% - 8px);overflow:auto;padding:12px;border:1px solid #ca9b64;background:linear-gradient(#2c1924,#120e1a);box-shadow:0 8px 40px #000b,inset 0 0 0 2px #432827}
+.tc-class-modal h3{margin:0;font:700 17px/1.2 Georgia,"Noto Serif KR",serif;color:#f4cd98}
+.tc-class-modal p{margin:0;font-size:12px;line-height:1.5;color:#d7c4ac;word-break:keep-all}
+.tc-class-modal-actions{display:flex;justify-content:flex-end;gap:7px}
+.tc-class-modal-actions button{min-width:88px;min-height:44px;border:1px solid #c4a075;background:#29212b;font-size:13px}
+.tc-class-modal-actions button.primary{border-color:#dfac70;background:linear-gradient(#8c343a,#491b25)}
+.tc-class-battle-modal{grid-template-rows:40px auto minmax(0,1fr) 50px;width:min(100%,490px);min-height:min(490px,94%);max-height:96%;gap:5px}
+.tc-class-battle-modal>header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tc-class-battle-modal header h3 small{font-size:10px;color:#c2a988}
+.tc-class-modal-close{min-height:44px;min-width:44px;border:1px solid #81674e;background:#241921;font-size:24px}
+.tc-class-battle-help{font-size:10px!important}
+.tc-class-skill-list{min-height:0;display:grid;grid-template-rows:repeat(5,minmax(44px,1fr));gap:4px}
+.tc-class-skill-row{min-height:0;display:grid;grid-template-columns:28px 30px minmax(0,1fr) 94px;align-items:center;gap:4px;border:1px solid #715139;background:#211822;padding:1px 4px}
+.tc-class-rank-seal{display:grid;place-items:center;height:32px;border:1px solid #b48b55;background:#653038;font:700 15px Georgia,serif}
+.tc-class-skill-symbol{display:grid;place-items:center;width:30px;height:32px;border:1px solid #a27d4a;background:#3c222b}
+.tc-class-skill-symbol .tc-glyph{font-size:19px}
+.tc-class-skill-text{min-width:0;display:grid;gap:1px}
+.tc-class-skill-text strong{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-class-skill-text small{font-size:9px;color:#b8b0a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-class-skill-row.vacant .tc-class-skill-symbol,.tc-class-skill-row.vacant .tc-class-skill-text{opacity:.55}
+.tc-class-move{display:flex;gap:3px;justify-content:flex-end}
+.tc-class-move button{width:44px;height:44px;min-height:44px;min-width:44px;border:1px solid #b88757;background:#4c2d35;display:grid;place-items:center;font-size:14px}
+.tc-class-battle-actions{align-self:end}
 @media(max-width:420px){
- .tc-class-page{grid-template-rows:35px minmax(58px,.86fr) minmax(84px,1.2fr) minmax(112px,1.25fr) minmax(275px,2.8fr) 60px 12px;gap:3px;padding:4px}
- .tc-class-arch-gallery{gap:4px;padding:3px 3px 1px}
- .tc-class-featured{grid-template-columns:35% minmax(0,1fr);gap:4px}
- .tc-class-feature-copy{gap:2px;padding-right:4px}
- .tc-class-feature-title h2{font-size:19px}
- .tc-class-feature-title>.tc-glyph{font-size:20px}
- .tc-class-feature-copy p{font-size:9px;-webkit-line-clamp:2}
- .tc-class-traits span{font-size:8px;padding:2px 4px}
- .tc-class-path .tc-class-milestones{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(44px,1fr));gap:1px}
- .tc-class-path .tc-class-milestones:before{display:none}
- .tc-class-milestone{gap:1px}
- .tc-class-milestone-icon{width:23px;height:23px}
- .tc-class-milestone-icon .tc-glyph{font-size:14px}
- .tc-class-milestone small{font-size:8px}
- .tc-class-node-name{display:none}
- .tc-class-skill-row{grid-template-columns:23px 27px minmax(0,1fr) 45px 90px;gap:2px;padding:0 2px}
- .tc-class-rank-seal{width:23px}
- .tc-class-skill-icon{width:27px;height:29px}
- .tc-class-skill-icon .tc-glyph{font-size:17px}
- .tc-class-skill-text small{display:none}
- .tc-class-cost{font-size:9px;padding-left:2px}
- .tc-class-cost small{font-size:8px}
- .tc-class-section-heading strong{font-size:11px}
- .tc-class-section-heading strong>span{font-size:9px}
- .tc-class-rule{font-size:8px}
- .tc-class-actions button{font-size:13px}
-}
-@media(max-height:760px){
- .tc-class-page{grid-template-rows:32px minmax(52px,.84fr) minmax(71px,1.13fr) minmax(68px,.86fr) minmax(256px,3fr) 60px 12px;gap:2px;padding:3px}
- .tc-class-header h1{font-size:20px}
- .tc-class-back,.tc-class-home{width:39px;height:39px}
- .tc-class-header{grid-template-columns:39px minmax(0,1fr) 39px}
- .tc-class-portrait-name{min-height:19px;font-size:10px}
- .tc-class-portrait{grid-template-rows:minmax(0,1fr) 19px}
- .tc-class-feature-copy p{-webkit-line-clamp:2}
- .tc-class-growth{grid-template-rows:19px minmax(0,1fr);gap:1px;padding:2px}
- .tc-class-order{grid-template-rows:20px minmax(0,1fr);gap:2px;padding:2px}
- .tc-class-rule{display:none}
- .tc-class-node-name{display:none}
- .tc-class-milestone-icon{width:24px;height:24px}
- .tc-class-milestone{gap:1px}
- .tc-class-footer{grid-template-rows:12px minmax(44px,1fr);gap:2px}
- .tc-class-permanent{font-size:9px}
- .tc-class-status{line-height:12px}
+ .tc-class-page{grid-template-rows:32px 34px minmax(58px,.8fr) minmax(112px,1.3fr) minmax(154px,2fr) 47px 10px;gap:2px;padding:3px}
+ .tc-class-tab{min-height:34px;font-size:12px}
+ .tc-class-featured h2{font-size:19px}
+ .tc-class-crest{width:65px;height:29px}
+ .tc-class-featured p{font-size:9px}
+ .tc-class-feature-tools{gap:6px}
+ .tc-class-feature-tools button{min-height:26px;font-size:9px;padding:1px 5px}
+ .tc-class-milestone-icon{width:36px;height:36px}
+ .tc-class-milestone-icon>.tc-glyph{font-size:19px}
+ .tc-class-node-kind{min-width:35px;font-size:8px}
+ .tc-class-choice-card strong{font-size:11px}
+ .tc-class-choice-card small{font-size:8px}
+ .tc-class-choice-card em{font-size:7px}
+ .tc-class-choices-heading strong{font-size:15px}
+ .tc-class-choices{grid-template-rows:23px minmax(0,1fr) 16px;gap:2px;padding:2px}
+ .tc-class-confirm{height:44px;font-size:16px}
+ .tc-class-choices-warning{font-size:8px}
 }
 @media(max-height:650px){
- .tc-class-page{grid-template-rows:30px minmax(46px,.75fr) minmax(60px,.95fr) minmax(62px,.9fr) minmax(252px,3.1fr) 57px 11px;gap:1px;padding:2px}
- .tc-class-portrait-name{font-size:9px}
- .tc-class-feature-overline,.tc-class-feature-copy p,.tc-class-node-name{display:none}
- .tc-class-feature-copy{gap:3px}
- .tc-class-traits span{font-size:8px}
- .tc-class-section-heading small{font-size:8px}
- .tc-class-rule{font-size:8px}
- .tc-class-actions{padding:0 3px;gap:4px}
-}
-@media(max-width:420px) and (max-height:760px){
- /* Ten milestone touch targets use two rows on narrow phones without clipping. */
- .tc-class-page{grid-template-rows:32px minmax(45px,.7fr) minmax(65px,.95fr) minmax(110px,1.4fr) minmax(256px,3fr) 57px 12px}
- .tc-class-path .tc-class-milestones{grid-template-rows:repeat(2,minmax(44px,1fr))}
-}
-@media(max-width:420px) and (max-height:650px){
- .tc-class-page{grid-template-rows:30px minmax(38px,.65fr) minmax(56px,.85fr) minmax(110px,1.4fr) minmax(252px,3fr) 57px 11px}
- .tc-class-feature-medallion{display:none}
- .tc-class-portrait-name{min-height:17px}
-}
-@media(prefers-reduced-motion:reduce){
- .tc-class-page *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-}
-
-
-/* The standalone painted library, not the hub scene, supplies the gothic interior.
-   Ornament source: assets/backgrounds/classes/class-ornament-frame-v1.svg
-   Both assets use assetUrl in the class component to respect GitHub Pages and APK bases. */
-.tc-class-page{background:#110c18}
-.tc-class-ambience{opacity:1;background-position:center center;background-size:100% 100%;filter:saturate(.98) contrast(1.02)}
-.tc-class-ambience:after{content:"";position:absolute;inset:0;background:
- linear-gradient(90deg,#0d09163b 0%,transparent 16%,transparent 84%,#0d09163d 100%),
- linear-gradient(180deg,#0b091500 0%,#0d09163c 47%,#0b0b17a0 74%,transparent 100%);pointer-events:none}
-.tc-class-page:after{background-image:var(--tc-class-frame);background-size:100% 100%;background-position:center;opacity:.65}
-.tc-class-arch-gallery{background:linear-gradient(180deg,#15102110,transparent 83%);padding-inline:9px}
-.tc-class-portrait{background:radial-gradient(ellipse at 52% 46%,#3a244b9a,#121018ee 82%);border-color:#a1774e}
-.tc-class-portrait:not(.selected){filter:saturate(.65)}
-.tc-class-portrait.selected{box-shadow:0 0 0 1px #dfaa62,0 0 16px #e5aa6470,inset 0 0 0 2px #281621}
-.tc-class-featured{background:
- radial-gradient(ellipse at 18% 72%,var(--tc-class-accent),transparent 60%),
- linear-gradient(130deg,#241628e8 0%,#191221de 56%,#0c0b17da 100%);
- border-color:#bf9661}
-.tc-class-feature-art{background:linear-gradient(0deg,#1a0e1eab,#1d16231a)}
-.tc-class-growth,.tc-class-order{background:linear-gradient(115deg,#15101edb 0%,#0a0b16e9 58%,#1b1021da 100%);border-color:#ab7e52}
-.tc-class-featured:after,.tc-class-growth:after,.tc-class-order:after{
- content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
- background-image:var(--tc-class-frame);background-repeat:no-repeat;background-size:100% 100%;background-position:center;opacity:.94}
-.tc-class-featured:after{inset:0}
-.tc-class-growth:after{inset:0}
-.tc-class-order:after{inset:0}
-.tc-class-skill-row{background:linear-gradient(90deg,#281723ef,#15111cee 60%,#1c111fed);border-color:#8d6246}
-.tc-class-skill-row:not(.vacant){box-shadow:inset 0 0 0 1px #ae7c4730}
-.tc-class-traits span{background:linear-gradient(#652637ec,#361826e9);border-color:#c08b55}
-.tc-class-actions .tc-class-save{box-shadow:inset 0 0 0 2px #1f121a,0 1px 11px #dc6c4147}
-
-
-/* Explicit, independently decodable class illustrations.
- * Avoid the old CSS background-sliced atlas, which rendered empty in the mobile shell. */
-.tc-class-portrait img.tc-class-portrait-art{
- grid-row:1;
- display:block;align-self:stretch;justify-self:stretch;
- width:100%;height:100%;min-height:0;min-width:0;
- object-fit:cover;object-position:50% 18%;
- image-rendering:auto;filter:drop-shadow(0 3px 4px #000b);
- pointer-events:none;
-}
-.tc-class-feature-art img.tc-class-feature-illustration{
- position:absolute;inset:0;
- display:block;width:100%;height:100%;min-height:0;
- object-fit:cover;object-position:50% 24%;
- image-rendering:auto;filter:drop-shadow(0 3px 8px #0009);
- pointer-events:none;
-}
-.tc-class-portrait img.tc-class-fallback-art,.tc-class-feature-art img.tc-class-fallback-art{
- object-fit:contain;object-position:center center;
-}
-/* User-approved painted gothic library. Preserve its aspect ratio in mobile viewports. */
-.tc-class-ambience{background-size:cover;background-position:center top}
-
-
-/* Non-scrolling profession layout.
- * The game shell already reserves its global top bar, status and bottom nav.
- * All 5 action rows and the save/confirm button stay visible in its remaining
- * height; never overflow the middle content as an independently scrollable pane.
- * The only scrollable region left is the modal opened to inspect skill choices. */
-.tc-class-page{
- display:grid;grid-template-rows:34px minmax(0,1fr) 60px 12px;
- gap:2px;padding:4px;overflow:hidden;
-}
-.tc-class-content{
- min-width:0;min-height:0;overflow:hidden;
- display:grid;
- grid-template-rows:minmax(0,1fr) minmax(0,1fr) minmax(112px,.8fr) minmax(248px,3.2fr);
- gap:3px;
-}
-.tc-class-arch-gallery,.tc-class-featured,.tc-class-growth,.tc-class-order{
- min-width:0;min-height:0;overflow:hidden;
-}
-.tc-class-arch-gallery{padding:2px 5px 1px;gap:5px}
-.tc-class-portrait{min-height:0}
-.tc-class-portrait-name{min-height:18px}
-.tc-class-feature-copy{gap:2px;padding-block:3px}
-.tc-class-feature-overline{font-size:8px}
-.tc-class-feature-title h2{font-size:18px}
-.tc-class-feature-title>.tc-glyph{font-size:18px}
-.tc-class-feature-copy p{font-size:9px;line-height:1.25;-webkit-line-clamp:2}
-.tc-class-traits span{padding:2px 4px;font-size:8px}
-.tc-class-feature-medallion{width:21px;height:21px}
-.tc-class-growth{grid-template-rows:18px minmax(0,1fr);gap:2px;padding:2px 3px}
-.tc-class-path .tc-class-milestones{
- grid-template-columns:repeat(5,minmax(0,1fr));
- grid-template-rows:repeat(2,minmax(0,1fr));
- gap:1px;
-}
-.tc-class-path .tc-class-milestones:before{display:none}
-.tc-class-milestone{gap:1px;min-height:0;padding:0}
-.tc-class-milestone-icon{width:23px;height:23px}
-.tc-class-milestone-icon .tc-glyph{font-size:14px}
-.tc-class-milestone small{font-size:8px}
-.tc-class-node-name{display:none}
-.tc-class-order{
- display:grid;grid-template-rows:18px minmax(0,1fr);
- gap:2px;padding:2px;
-}
-.tc-class-rule{display:none}
-.tc-class-section-heading strong{font-size:11px}
-.tc-class-section-heading strong>span{font-size:9px}
-.tc-class-skill-list{
- min-height:0;overflow:hidden;
- grid-template-rows:repeat(5,minmax(44px,1fr));
- gap:1px;
-}
-.tc-class-skill-row{
- min-height:0;grid-template-columns:23px 27px minmax(0,1fr) 48px 90px;
- gap:2px;padding:0 2px;
-}
-.tc-class-rank-seal{width:23px}
-.tc-class-skill-icon{width:27px;height:29px}
-.tc-class-skill-icon .tc-glyph{font-size:17px}
-.tc-class-cost{font-size:9px;padding-left:2px}
-.tc-class-cost small{font-size:8px}
-.tc-class-move button{height:44px;min-height:44px;width:44px;min-width:44px}
-.tc-class-footer{
- position:relative;z-index:5;min-height:0;
- display:grid;grid-template-rows:12px minmax(44px,1fr);gap:2px;
- background:linear-gradient(#2b1b28e8,#0e0c17f5);
- border-top:1px solid #ad8155;
-}
-.tc-class-permanent{font-size:9px}
-.tc-class-actions{min-height:0;padding-inline:4px;gap:4px}
-.tc-class-actions button{min-height:44px}
-.tc-class-actions .tc-class-choose{
- grid-column:1/-1;min-height:44px;
- border:1px solid #d3a66f;
- background:linear-gradient(#8f3a3d,#512226);
- font-size:13px;font-weight:700;
-}
-.tc-class-status{min-height:0;line-height:12px}
-@media(min-width:481px) and (min-height:800px){
- /* Wide phone shells can show all ten nodes in one line. */
- .tc-class-content{
-  grid-template-rows:minmax(0,1fr) minmax(0,1.1fr) minmax(66px,.8fr) minmax(248px,3fr)
- }
- .tc-class-path .tc-class-milestones{
-  grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:minmax(44px,1fr)
- }
- .tc-class-milestone small{font-size:9px}
-}
-/* Medium-height handsets: keep all ten growth choices and all five skills;
- * the featured painting is decoration, not a navigation or save surface. */
-@media(max-height:740px){
- .tc-class-featured{display:none}
- .tc-class-page{grid-template-rows:32px minmax(0,1fr) 56px 11px;gap:2px;padding:3px}
- .tc-class-header{grid-template-columns:39px minmax(0,1fr) 39px}
- .tc-class-back,.tc-class-home{width:39px;height:39px}
- .tc-class-header h1{font-size:19px}
- .tc-class-content{
-  grid-template-rows:minmax(54px,1fr) minmax(108px,1.5fr) minmax(248px,3fr);
-  gap:2px;
- }
- .tc-class-portrait-name{min-height:18px;font-size:10px}
- .tc-class-growth{grid-template-rows:17px minmax(0,1fr);gap:1px}
- .tc-class-order{grid-template-rows:17px minmax(0,1fr);gap:1px}
- .tc-class-skill-text small{display:none}
- .tc-class-footer{grid-template-rows:10px minmax(44px,1fr);gap:1px}
- .tc-class-permanent{font-size:8px}
- .tc-class-status{font-size:8px;line-height:11px}
-}
-/* Extra-short viewport: compact the portrait and node labels, not skill controls. */
-@media(max-height:660px){
- .tc-class-page{grid-template-rows:30px minmax(0,1fr) 54px 10px;gap:1px;padding:2px}
- .tc-class-content{
-  grid-template-rows:minmax(36px,.6fr) minmax(98px,1.3fr) minmax(245px,3fr);
-  gap:1px;
- }
- .tc-class-arch-gallery{padding-block:0}
- .tc-class-portrait{grid-template-rows:minmax(0,1fr) 16px}
- .tc-class-portrait-name{min-height:16px;font-size:9px}
- .tc-class-milestone-icon{width:20px;height:20px}
- .tc-class-milestone-icon .tc-glyph{font-size:12px}
- .tc-class-milestone small{font-size:7px}
+ .tc-class-page{grid-template-rows:30px 32px minmax(46px,.65fr) minmax(100px,1.3fr) minmax(132px,1.8fr) 45px 0;gap:2px;padding:2px}
+ .tc-class-brand h1{font-size:18px}
+ .tc-class-tab{min-height:32px}
+ .tc-class-featured{gap:1px;padding:0}
+ .tc-class-crest{height:25px;width:54px}
+ .tc-class-featured h2{font-size:17px}
+ .tc-class-featured p{font-size:8px}
+ .tc-class-feature-tools{font-size:8px}
+ .tc-class-feature-tools button{min-height:25px}
+ .tc-class-milestone-icon{width:31px;height:31px}
  .tc-class-level{font-size:8px}
- .tc-class-growth,.tc-class-order{padding:1px 2px}
- .tc-class-growth{grid-template-rows:16px minmax(0,1fr);gap:1px}
- .tc-class-order{grid-template-rows:16px minmax(0,1fr);gap:1px}
- .tc-class-section-heading strong{font-size:10px}
- .tc-class-section-heading small{font-size:8px}
- .tc-class-skill-list{gap:1px}
- .tc-class-actions{padding:0 2px}
+ .tc-class-node-kind{font-size:7px}
+ .tc-class-choices{grid-template-rows:19px minmax(0,1fr) 14px;gap:1px}
+ .tc-class-choices-heading strong{font-size:13px}
+ .tc-class-choice-card strong{font-size:10px}
+ .tc-class-choice-card small{-webkit-line-clamp:1;font-size:8px}
+ .tc-class-choice-card em{display:none}
+ .tc-class-status{display:none}
+ .tc-class-footer p{display:none}
 }
-/* Landscape/split-screen: show a one-row milestone strip so the five skill
- * priority buttons retain full-size touch targets without needing scrolling. */
-@media(max-height:640px){
- .tc-class-content{
-  grid-template-rows:minmax(29px,.45fr) minmax(65px,1fr) minmax(244px,4fr);
-  gap:1px;
- }
- .tc-class-portrait{grid-template-rows:minmax(0,1fr) 20px}
- .tc-class-portrait-art{opacity:.28}
- .tc-class-portrait-name{grid-row:2;min-height:20px}
- .tc-class-path .tc-class-milestones{
-  grid-template-columns:repeat(10,minmax(0,1fr));
-  grid-template-rows:minmax(44px,1fr);gap:0;
- }
- .tc-class-milestone small{display:none}
- .tc-class-milestone-icon{width:19px;height:19px}
- .tc-class-milestone-icon .tc-glyph{font-size:12px}
- .tc-class-level{font-size:7px}
- .tc-class-section-heading small{font-size:7px}
+@media(max-height:530px){
+ .tc-class-page{grid-template-rows:27px 30px minmax(40px,.5fr) minmax(90px,1.15fr) minmax(112px,1.7fr) 44px 0;gap:1px}
+ .tc-class-crest{display:none}
+ .tc-class-featured h2{font-size:15px}
+ .tc-class-milestone-icon{width:27px;height:27px}
+ .tc-class-choice-card small,.tc-class-choice-card em{display:none}
+ .tc-class-choices-warning{font-size:7px}
 }
-
-/* Very short embedded windows: remove the decorative warning row before
- * sacrificing action targets. The permanent-choice warning stays in the
- * confirmation dialog and all five skill controls remain visible. */
-@media(max-height:590px){
- .tc-class-page{grid-template-rows:30px minmax(0,1fr) 44px 0;gap:1px;padding:2px}
- .tc-class-status,.tc-class-permanent{display:none}
- .tc-class-footer{display:block;padding:0;border-top:0}
- .tc-class-actions{height:44px;min-height:44px}
- .tc-class-content{
-  grid-template-rows:minmax(24px,.5fr) minmax(60px,1fr) minmax(240px,4fr);
-  gap:1px;
- }
-}
+@media(prefers-reduced-motion:reduce){.tc-class-page *{animation:none!important;transition:none!important}}
+.tc-class-choice-card.chosen:disabled{opacity:1;filter:none;cursor:default}
