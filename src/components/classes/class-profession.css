@@ -24,9 +24,8 @@
 .tc-class-back,.tc-class-home{width:39px;height:39px;border:1px solid #c59b63;border-radius:4px;background:linear-gradient(120deg,#3d252c,#15121b);box-shadow:inset 0 0 0 2px #1d1521;font-size:27px;display:grid;place-items:center}
 .tc-class-home .tc-glyph{font-size:21px;color:#e6c384}
 .tc-class-tabs{min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:0 3px}
-.tc-class-tab{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:38px;border:1px solid #987657;border-radius:3px;background:linear-gradient(120deg,#282129,#120f19);font-size:14px;font-weight:700;box-shadow:inset 0 0 0 1px #171019}
+.tc-class-tab{display:flex;align-items:center;justify-content:center;gap:0;min-width:0;min-height:38px;border:1px solid #987657;border-radius:3px;background:linear-gradient(120deg,#282129,#120f19);font-size:14px;font-weight:700;box-shadow:inset 0 0 0 1px #171019}
 .tc-class-tab.active{border-color:#ffca7e;background:linear-gradient(125deg,var(--class-red),#461821);box-shadow:inset 0 0 0 1px #c78950,0 0 8px #bc693562}
-.tc-class-tab .tc-glyph{font-size:18px;color:#e6c17b}
 .tc-class-featured{position:relative;min-height:0;display:grid;grid-template-columns:62px minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto;align-content:center;align-items:center;gap:1px 7px;overflow:hidden;border-bottom:1px solid #a47a56a8;padding:2px 7px;text-align:left;background:linear-gradient(90deg,#0d0c16c9,transparent,#0d0c16c9)}
 .tc-class-featured:before,.tc-class-featured:after{content:"";position:absolute;top:31%;height:1px;width:19%;background:linear-gradient(90deg,transparent,#b78d56)}
 .tc-class-featured:before{left:5%}.tc-class-featured:after{right:5%;transform:scaleX(-1)}
@@ -44,7 +43,7 @@
 .tc-class-milestone:not(:nth-child(5n)):after{content:"";position:absolute;top:54%;left:75%;width:54%;height:2px;background:linear-gradient(90deg,#8f5f35,#e5b565,#8f5f35);z-index:-1;pointer-events:none}
 .tc-class-level{font:700 10px/1 Georgia,serif;color:#ffdf9f;background:#24141dd9;padding:1px 4px;border:1px solid #946341;white-space:nowrap}
 .tc-class-milestone-icon{position:relative;flex:0 0 auto;display:grid;place-items:center;width:clamp(42px,10vw,51px);height:clamp(42px,10vw,51px);border:2px solid #ab7a4d;border-radius:50%;background:radial-gradient(circle,#5d282e,#160f1a 79%);box-shadow:0 0 0 1px #1f121b,0 1px 8px #000a;overflow:visible}
-.tc-class-node-sprite{width:100%;height:100%;border-radius:50%;display:block;background-repeat:no-repeat;filter:saturate(1.02)}
+.tc-class-node-sprite{width:100%;height:100%;border-radius:50%;display:block;background-repeat:no-repeat;filter:saturate(1.02);overflow:hidden}
 .tc-class-milestone-icon>.tc-glyph{font-size:24px;color:#e9b77a}
 .tc-class-milestone.selected .tc-class-milestone-icon{border-color:#ffe19c;box-shadow:0 0 0 2px #da843e,0 0 13px var(--class-accent)}
 .tc-class-milestone.learned .tc-class-milestone-icon{box-shadow:0 0 0 1px #d8a65d,0 0 8px #f8bd6f55}
