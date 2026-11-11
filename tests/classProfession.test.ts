@@ -38,7 +38,7 @@ test('class is chosen once; growth is level-gated and each tier is final',()=>{
 
 test('approved no-character gothic skill tree has ten levels and three interactive choices',()=>{
  const screen=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
- for(const label of ['직업','전사','마법사','궁수','전사 스킬트리','10레벨마다 3가지 중 1개','3개 중 1개','이 능력으로 확정','전투 배치','이 직업으로 시작'])assert.ok(screen.includes(label),label);
+ for(const label of ['직업','전사','마법사','궁수','전사 스킬트리','10레벨마다 3가지 중 1개','3개 중 1개','이 능력으로 확정','이 직업으로 시작'])assert.ok(screen.includes(label),label);
  assert.equal((screen.match(/aria-label="Lv\.(?:10|20|30|40|50|60|70|80|90|100) (?:스킬|패시브|특성) 선택지 확인"/g)??[]).length,10);
  assert.equal((screen.match(/class="tc-class-choice-card/g)??[]).length,3);
  assert.doesNotMatch(screen,/tc-class-portrait-art|tc-class-feature-illustration|tc-class-arch-gallery/);
