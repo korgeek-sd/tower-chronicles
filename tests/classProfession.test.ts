@@ -63,7 +63,7 @@ test('approved cropped game art assets are actual WebPs and the job screen refer
   assert.ok(img.length>5000,file);
   assert.equal(img.toString('ascii',0,4),'RIFF');
   assert.equal(img.toString('ascii',8,12),'WEBP');
-  if(file!=='warrior-growth-icons-v1.webp')assert.ok(screen.includes(file),file);
+  if(file==='warrior-lion-crest-v1.webp')assert.ok(screen.includes(file),file);
  }
  assert.match(screen,/warrior-growth-icons-aligned-v2\.svg/,'new aligned atlas must be used');
  assert.doesNotMatch(screen,/portraitPath\(|showFallbackPortrait/);
@@ -106,7 +106,7 @@ test('readable no-scroll growth UI shows milestones, statuses, three concise car
  assert.match(source,/tc-class-node-state/);
  assert.match(source,/tc-class-choice-detail/);
  assert.match(source,/tc-class-choice-description/);
- assert.match(source,/CHOICE_ART\[i\]/,'reuse the three existing common pictures');
+ assert.match(source,/RUNE_ART/,'reuse exactly three shared ancient rune pictures for every class');
  assert.doesNotMatch(source,/choiceArtByName|skillArtworkRegistry/,'no per-skill art');
  assert.match(css,/\.tc-class-choice-art\{[^}]*flex:0 0/,'reduce decorative image height');
  assert.match(css,/\.tc-class-choice-detail\{/);
@@ -148,4 +148,23 @@ test('normalized growth atlas contains ten centered source crops with no embedde
  }
  for(const text of ['액티브','패시브','특성','궁극기','Lv.10','Lv.100'])assert.ok(!atlas.includes(text),'no old text baked into cropped circles: '+text);
  assert.match(atlas,/<use href="#source"\/>/);
+});
+
+
+test('three approved gold violet and crimson runes replace the skill choice artwork for all professions',()=>{
+ const atlas=readFileSync('public/assets/classes/skilltree-20261111/choice-runes-gold-violet-crimson-v1.webp');
+ assert.ok(atlas.length>12000,'optimized art should be a real image, not a stub');
+ assert.equal(atlas.toString('ascii',0,4),'RIFF');
+ assert.equal(atlas.toString('ascii',8,12),'WEBP');
+ const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ assert.match(component,/choice-runes-gold-violet-crimson-v1\.webp/);
+ assert.match(component,/backgroundSize:'300% 100%'/);
+ assert.match(component,/backgroundPosition:\(i\*50\)\+'% 50%'/);
+ assert.doesNotMatch(component,/CHOICE_ART|warrior-choice-(?:slash|shield|drain)-v1\.webp/);
+ assert.doesNotMatch(component,/visibleId==='warrior'\s*\?\s*<img/,'all professions use shared runes');
+ const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
+ assert.equal((html.match(/choice-runes-gold-violet-crimson-v1\.webp/g)??[]).length,3);
+ for(const pos of ['0% 50%','50% 50%','100% 50%'])assert.ok(html.includes('background-position:'+pos),pos);
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ assert.match(css,/\.tc-class-choice-art\{[^}]*background-repeat:no-repeat/);
 });
