@@ -161,7 +161,9 @@ test('three approved gold violet and crimson runes replace the skill choice artw
  assert.match(component,/backgroundSize:'300% 100%'/);
  assert.match(component,/backgroundPosition:\(i\*50\)\+'% 50%'/);
  assert.doesNotMatch(component,/CHOICE_ART|warrior-choice-(?:slash|shield|drain)-v1\.webp/);
- assert.doesNotMatch(component,/visibleId==='warrior'\s*\?\s*<img/,'all professions use shared runes');
+ const choiceArt=component.slice(component.indexOf('<span className="tc-class-choice-art"'),component.indexOf('<strong>{choice.name}</strong>'));
+ assert.match(choiceArt,/RUNE_ART/);
+ assert.doesNotMatch(choiceArt,/visibleId/,'skill choice artwork must not depend on profession');
  const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
  assert.equal((html.match(/choice-runes-gold-violet-crimson-v1\.webp/g)??[]).length,3);
  for(const pos of ['0% 50%','50% 50%','100% 50%'])assert.ok(html.includes('background-position:'+pos),pos);
