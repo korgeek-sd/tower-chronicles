@@ -97,10 +97,19 @@ test('profession illustrations use three independent decodable image assets inst
  assert.doesNotMatch(css,/background-image:var\(--tc-class-illustration-atlas\)/);
 });
 
-test('short-screen class codex exposes actions with safe scrolling and a sticky footer',()=>{
+test('class screen shows all five skill slots, ten milestones and the save or class-confirm action without scrolling',()=>{
+ const screen=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
+ assert.equal((screen.match(/class="tc-class-skill-row(?: vacant)?"/g)??[]).length,5);
+ assert.equal((screen.match(/aria-label="Lv\.(?:10|20|30|40|50|60|70|80|90|100) (?:스킬|패시브|특성) 선택지 확인"/g)??[]).length,10);
+ assert.match(screen,/class="tc-class-footer"[\s\S]*?이 직업으로 시작[\s\S]*?class="tc-class-status"/);
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
- assert.match(css,/@media\s*\(max-height:\s*980px\)/);
- assert.match(css,/\.tc-class-content\s*\{display:flex;flex-direction:column;overflow-y:auto/);
- assert.match(css,/\.tc-class-page\{grid-template-rows:36px minmax\(0,1fr\) 67px 14px\}/);
+ assert.doesNotMatch(css,/\.tc-class-content\s*\{[^}]*overflow-y:\s*(auto|scroll)/);
+ assert.match(css,/\.tc-class-content\s*\{[^}]*overflow:\s*hidden/);
+ assert.match(css,/\.tc-class-skill-list\{[^}]*grid-template-rows:\s*repeat\(5/);
  assert.match(css,/\.tc-class-move button\{[^}]*height:44px/);
+ assert.match(css,/@media\s*\(max-height:\s*740px\)/);
+ assert.match(css,/@media\s*\(max-height:\s*660px\)/);
+ assert.match(css,/\.tc-class-featured\{\s*display:none/);
+ assert.match(css,/\.tc-class-actions \.tc-class-choose\{[^}]*min-height:44px/);
+ assert.match(css,/\.tc-class-page\{[^}]*overflow:hidden/);
 });
