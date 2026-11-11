@@ -16,7 +16,7 @@ type Props={userId:string|null;lease:GameplayLease|null;onHome:()=>void};
 const IDS:ClassId[]=['warrior','mage','archer'];
 const ART_ROOT='assets/classes/skilltree-20261111/';
 const CREST=ART_ROOT+'warrior-lion-crest-v1.webp';
-const GROWTH_ICONS=ART_ROOT+'warrior-growth-icons-v1.webp';
+const GROWTH_ICONS=ART_ROOT+'warrior-growth-icons-aligned-v2.svg';
 const CHOICE_ART=[
  ART_ROOT+'warrior-choice-slash-v1.webp',
  ART_ROOT+'warrior-choice-shield-v1.webp',
@@ -38,11 +38,10 @@ function readProgress(id:string|null):ClassProgress{
 const glyphFor=(id:ClassId)=>id==='warrior'?'sword':id==='mage'?'staff':'bow';
 const skillGlyph=(type:string,i:number)=>type==='trait'?'skills':type==='passive'?'defense':i===9?'skills':'sword';
 function stageSpriteStyle(i:number):React.CSSProperties{
- // Original shared 5×2 icon atlas includes level/type lettering at the top/bottom
- // of each tile. Crop into its central artwork; level/type stay as live text outside.
- const x=['2.727%','26.364%','50%','73.636%','97.273%'][i%5];
+ // Normalized 5×2 atlas contains only the centered icon artwork. Each tile has
+ // the same bounds, so there is no per-level zoom or positional drift.
  return {backgroundImage:'url('+assetUrl(GROWTH_ICONS)+')',
-  backgroundSize:'650% 260%',backgroundPosition:x+' '+(i<5?'6.25%':'87.5%')};
+  backgroundSize:'500% 200%',backgroundPosition:(i%5*25)+'% '+(i<5?'0%':'100%')};
 }
 
 export function ClassProfessionScreen({userId,lease,onHome}:Props){
