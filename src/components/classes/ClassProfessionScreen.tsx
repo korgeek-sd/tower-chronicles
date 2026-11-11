@@ -38,8 +38,11 @@ function readProgress(id:string|null):ClassProgress{
 const glyphFor=(id:ClassId)=>id==='warrior'?'sword':id==='mage'?'staff':'bow';
 const skillGlyph=(type:string,i:number)=>type==='trait'?'skills':type==='passive'?'defense':i===9?'skills':'sword';
 function stageSpriteStyle(i:number):React.CSSProperties{
+ // Original shared 5×2 icon atlas includes level/type lettering at the top/bottom
+ // of each tile. Crop into its central artwork; level/type stay as live text outside.
+ const x=['2.727%','26.364%','50%','73.636%','97.273%'][i%5];
  return {backgroundImage:'url('+assetUrl(GROWTH_ICONS)+')',
-  backgroundSize:'500% 200%',backgroundPosition:(i%5*25)+'% '+(i<5?'0%':'100%')};
+  backgroundSize:'650% 260%',backgroundPosition:x+' '+(i<5?'6.25%':'87.5%')};
 }
 
 export function ClassProfessionScreen({userId,lease,onHome}:Props){
@@ -145,7 +148,7 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
       className={'tc-class-tab tc-feel-press'+(visibleId===id?' active':'')} data-game-feel="press"
       disabled={hasPersisted&&progress.classId!==id}
       onClick={()=>{if(!hasPersisted){setPreview(id);setPreviewChoice(null);}}}>
-      <Glyph name={glyphFor(id)}/><span>{item.name}</span>
+      <span>{item.name}</span>
     </button>;
    })}
   </nav>
