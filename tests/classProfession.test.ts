@@ -97,7 +97,7 @@ test('readable no-scroll growth UI shows milestones, statuses, three concise car
  const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  const source=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
- assert.equal((html.match(/class="tc-class-milestone/g)??[]).length,10);
+ assert.equal((html.match(/aria-label="Lv\.(?:10|20|30|40|50|60|70|80|90|100) (?:스킬|패시브|특성) 선택지 확인"/g)??[]).length,10);
  assert.equal((html.match(/class="tc-class-choice-card/g)??[]).length,3);
  assert.match(html,/class="tc-class-choice-detail"/);
  assert.match(html,/data-stage-state="(?:learned|available|locked|pending)"/);
