@@ -5,7 +5,7 @@
 .tc-class-page{
  --class-gold:#e7b970;--class-brass:#a16d47;--class-ivory:#f3dfb9;--class-muted:#bba898;
  --class-red:#912c32;--class-shadow:#0c0a13;--class-accent:#df8a5b;
- position:relative;isolation:isolate;height:100%;min-height:0;min-width:0;width:100%;overflow:hidden;
+ box-sizing:border-box;position:relative;isolation:isolate;height:100%;min-height:0;min-width:0;width:100%;overflow:hidden;
  display:grid;grid-template-rows:34px 38px minmax(70px,.85fr) minmax(118px,1.25fr) minmax(170px,2fr) 51px 12px;
  gap:3px;padding:4px;color:var(--class-ivory);
  background:#100e17;border:1px solid #aa8056;border-radius:4px;
@@ -61,10 +61,10 @@
 .tc-class-choice-card{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;min-width:0;min-height:0;overflow:hidden;padding:3px 3px 4px;border:1px solid #a37e6c;border-radius:4px;background:linear-gradient(#29202b,#17111c 68%,#110d17);color:#f0d4ac;box-shadow:inset 0 0 0 1px #4b3334}
 .tc-class-choice-card.chosen{border:2px solid #fbd590;background:linear-gradient(#501b29,#28131b);box-shadow:inset 0 0 0 1px #dd9e67,0 0 10px #d8543f88}
 .tc-class-choice-card.rejected{filter:grayscale(.78);opacity:.7}
-.tc-class-choice-art{position:relative;flex:1 1 auto;min-height:0;width:100%;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 45% 65%,#723042,#170d17)}
+.tc-class-choice-art{position:relative;flex:0 0 60%;min-height:0;width:100%;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 45% 65%,#723042,#170d17)}
 .tc-class-choice-art img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
 .tc-class-choice-art .tc-glyph{font-size:clamp(28px,7vw,70px);color:var(--class-accent);filter:drop-shadow(0 0 8px var(--class-red))}
-.tc-class-choice-card strong{display:block;width:100%;padding:2px 0 1px;text-align:center;font:700 12px/1.15 "Noto Serif KR",Georgia,serif;color:#f6d8aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-class-choice-card strong{display:block;width:100%;padding:3px 0 2px;text-align:center;font:700 12px/1.15 "Noto Serif KR",Georgia,serif;color:#f6d8aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-class-choice-card small{font-size:9px;line-height:1.17;color:#ddc6b2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all;text-align:center;min-height:0}
 .tc-class-choice-card em{display:block;font-size:8px;font-style:normal;color:#bdccea;white-space:nowrap;margin-top:2px}
 .tc-class-choice-mark{position:absolute;top:3px;left:3px;z-index:2;background:#6d292d;padding:1px 4px;color:#f8da9d;font-weight:700;font-size:9px;border:1px solid #e6b06f}
