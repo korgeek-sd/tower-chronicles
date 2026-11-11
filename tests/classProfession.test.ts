@@ -63,8 +63,9 @@ test('approved cropped game art assets are actual WebPs and the job screen refer
   assert.ok(img.length>5000,file);
   assert.equal(img.toString('ascii',0,4),'RIFF');
   assert.equal(img.toString('ascii',8,12),'WEBP');
-  assert.ok(screen.includes(file),file);
+  if(file!=='warrior-growth-icons-v1.webp')assert.ok(screen.includes(file),file);
  }
+ assert.match(screen,/warrior-growth-icons-aligned-v2\.svg/,'new aligned atlas must be used');
  assert.doesNotMatch(screen,/portraitPath\(|showFallbackPortrait/);
  assert.match(screen,/class-library-redmoon-approved-v2\.webp/);
 });
