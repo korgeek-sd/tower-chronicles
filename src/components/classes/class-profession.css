@@ -399,7 +399,7 @@
 }
 /* Landscape/split-screen: show a one-row milestone strip so the five skill
  * priority buttons retain full-size touch targets without needing scrolling. */
-@media(max-height:600px){
+@media(max-height:640px){
  .tc-class-content{
   grid-template-rows:minmax(29px,.45fr) minmax(65px,1fr) minmax(244px,4fr);
   gap:1px;
@@ -416,4 +416,18 @@
  .tc-class-milestone-icon .tc-glyph{font-size:12px}
  .tc-class-level{font-size:7px}
  .tc-class-section-heading small{font-size:7px}
+}
+
+/* Very short embedded windows: remove the decorative warning row before
+ * sacrificing action targets. The permanent-choice warning stays in the
+ * confirmation dialog and all five skill controls remain visible. */
+@media(max-height:590px){
+ .tc-class-page{grid-template-rows:30px minmax(0,1fr) 44px 0;gap:1px;padding:2px}
+ .tc-class-status,.tc-class-permanent{display:none}
+ .tc-class-footer{display:block;padding:0;border-top:0}
+ .tc-class-actions{height:44px;min-height:44px}
+ .tc-class-content{
+  grid-template-rows:minmax(24px,.5fr) minmax(60px,1fr) minmax(240px,4fr);
+  gap:1px;
+ }
 }
