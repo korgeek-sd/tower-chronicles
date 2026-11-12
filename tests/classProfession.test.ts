@@ -219,3 +219,18 @@ test('profession top title and navigation row are removed and growth grid takes 
  assert.match(final,/\.tc-class-choices\{grid-row:4/);
  assert.match(final,/@media\(max-height:530px\)\{[^}]*\.tc-class-page\{[^}]*grid-template-rows:34px 44px minmax\(100px,1\.2fr\)/);
 });
+
+
+test('choice rune artwork returns to original 38% height while card caption is compact',()=>{
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const fix=css.split('/* restore rune artwork proportions: 2026-11-13 */')[1];
+ assert.ok(fix,'rune proportions must be restored after the compact layout overrides');
+ assert.match(fix,/\.tc-class-choice-art\{flex:0 0 38%/,'restore original rune image fraction');
+ assert.match(fix,/\.tc-class-choice-description\{flex:0 1 auto;max-height:/,'text may not consume all the available card height');
+ assert.match(fix,/\.tc-class-choice-card strong\{[^}]*padding:1px 0/,'skill names should use compact padding');
+ assert.match(fix,/\.tc-class-choice-card small\{[^}]*-webkit-line-clamp:2/,'limit descriptions to two short lines');
+ assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-choice-art\{flex:0 0 38%/,'short phones must not reduce runes to 25% again');
+ assert.match(fix,/@media\(max-height:650px\)\{[^}]*\.tc-class-choice-art\{flex:0 0 38%/,'small-height phones must not reduce runes to 29% again');
+ const screen=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ assert.match(screen,/tc-class-choice-detail/,'the full ability description stays accessible below the cards');
+});
