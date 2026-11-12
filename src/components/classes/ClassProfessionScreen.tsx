@@ -41,7 +41,7 @@ function stageSpriteStyle(i:number):React.CSSProperties{
   backgroundSize:'500% 200%',backgroundPosition:(i%5*25)+'% '+(i<5?'0%':'100%')};
 }
 
-export function ClassProfessionScreen({userId,lease,onHome}:Props){
+export function ClassProfessionScreen({userId,lease}:Props){
  const [progress,setProgress]=useState<ClassProgress>(initialClassProgress);
  const [preview,setPreview]=useState<ClassId>('warrior');
  const [ready,setReady]=useState(false);
@@ -132,11 +132,6 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
   <div className="tc-class-ambience" aria-hidden="true" style={{
    backgroundImage:'linear-gradient(180deg,rgba(8,6,14,.68),rgba(13,7,14,.8)),url('+assetUrl('assets/backgrounds/classes/class-library-redmoon-approved-v2.webp')+')'
   }}/>
-  <header className="tc-class-header">
-   <button type="button" className="tc-class-back tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 돌아가기">‹</button>
-   <div className="tc-class-brand"><small>탑의 기록</small><h1>직업</h1></div>
-   <button type="button" className="tc-class-home tc-feel-press" data-game-feel="press" onClick={onHome} aria-label="거점으로 이동"><Glyph name="home"/></button>
-  </header>
   <nav className="tc-class-tabs" aria-label="직업 선택">
    {IDS.map(id=>{
     const item=CLASS_CATALOG[id];
