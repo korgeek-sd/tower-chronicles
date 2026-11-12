@@ -213,5 +213,5 @@ test('profession top buttons are visually compact with 44px extended touch regio
  assert.match(fix,/\.tc-class-back,\.tc-class-home\{[^}]*height:34px/);
  assert.match(fix,/\.tc-class-tab\{[^}]*height:34px/);
  assert.match(fix,/\.tc-class-back::before,\.tc-class-home::before,\.tc-class-tab::before\{[^}]*inset:-5px 0/,'visually smaller buttons must keep a 44px hit region');
- assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-page\{[^}]*grid-template-rows:34px 6px 34px/,'short screens must retain compact rows');
+ assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-page\{[^}]*grid-template-rows:34px 8px 34px/,'short screens must keep enough spacing for 44px extended tap regions');
 });
