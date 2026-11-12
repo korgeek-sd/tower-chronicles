@@ -183,3 +183,20 @@ test('profession mobile layout reserves separate nonoverlapping rows for header,
  assert.match(fix,/\.tc-class-footer\{[^}]*grid-template-rows:44px 12px/,'confirmation button and finality notice must have separate rows');
  assert.match(fix,/\.tc-class-node-state\{display:none/,'state labels must not cover level labels in the tight 5-column skill grid');
 });
+
+
+test('compact profession heading gives lower skill panels space without shrinking touch targets',()=>{
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const source=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ const compact=css.split('/* class-screen compact distribution: 2026-11-13 */')[1];
+ assert.ok(compact,'compact allocation rules must be present');
+ assert.match(compact,/\.tc-class-page\{[^}]*grid-template-rows:44px 44px 48px minmax\(130px,1\.2fr\) minmax\(0,3\.8fr\) 46px 0/);
+ assert.match(compact,/\.tc-class-featured\{[^}]*grid-template-rows:18px 12px 11px/);
+ assert.match(compact,/\.tc-class-feature-tools button\{[^}]*min-height:44px;height:44px/);
+ assert.match(compact,/\.tc-class-feature-progress\{/,'progress moves into the text column, not above the battle button');
+ assert.match(compact,/\.tc-class-footer p,\.tc-class-status\{display:none/,'secondary notices should not waste play area');
+ assert.match(source,/<p>10레벨마다[^<]+<\/p>\s*<span className="tc-class-feature-progress">/);
+ const buttons=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
+ assert.ok(buttons.includes('tc-class-feature-progress'));
+ assert.ok(buttons.includes('tc-class-feature-tools'));
+});
