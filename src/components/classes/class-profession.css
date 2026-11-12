@@ -209,3 +209,72 @@
  .tc-class-choice-detail{grid-template-columns:auto minmax(0,1fr)}
  .tc-class-choice-detail em{display:none}
 }
+
+
+/* class-screen overlap prevention: 2026-11-12 */
+/* Reserve full-height touch rows, and prevent the feature CTA or footer note
+   from escaping their own grid tracks on portrait Android devices. */
+.tc-class-page{
+ grid-template-rows:44px 44px minmax(64px,.7fr) minmax(132px,1.55fr) minmax(0,2.75fr) 59px 12px;
+ gap:3px;
+}
+.tc-class-header{grid-template-columns:44px minmax(0,1fr) 44px}
+.tc-class-back,.tc-class-home{width:44px;height:44px;min-width:44px;min-height:44px}
+.tc-class-tabs{align-items:stretch}
+.tc-class-tab{height:100%;min-height:0}
+.tc-class-featured{
+ grid-template-columns:54px minmax(0,1fr) 98px;
+ grid-template-rows:minmax(0,1fr) 14px;
+ column-gap:5px;row-gap:0;padding:2px 5px;
+}
+.tc-class-crest{width:52px;min-height:0}
+.tc-class-featured h2{min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.16}
+.tc-class-featured p{min-width:0;line-height:1.15}
+.tc-class-feature-tools{height:100%;align-self:stretch;justify-content:center;gap:2px}
+.tc-class-feature-tools span{line-height:12px;white-space:nowrap}
+.tc-class-feature-tools button{width:100%;min-width:0;min-height:44px;height:44px;padding:2px 4px}
+.tc-class-growth.tc-class-path{padding:2px 2px 1px}
+.tc-class-milestones{gap:2px}
+.tc-class-milestone{gap:1px;min-height:0}
+.tc-class-level{font-size:9px;line-height:10px;padding:0 3px}
+.tc-class-milestone-icon{width:clamp(34px,9.5vw,40px);height:clamp(34px,9.5vw,40px)}
+.tc-class-node-kind{min-width:33px;font-size:8px;line-height:10px;padding:0 3px}
+/* Completed milestones already display a checkmark and locked milestones are
+   visually dimmed. Removing the duplicate badges frees the level-label row. */
+.tc-class-node-state{display:none}
+.tc-class-choice-art{flex-basis:34%}
+.tc-class-choice-card small{-webkit-line-clamp:2}
+.tc-class-footer{grid-template-rows:44px 12px;gap:2px}
+.tc-class-confirm{height:44px;min-height:44px}
+.tc-class-footer p{line-height:12px;white-space:nowrap}
+.tc-class-status{line-height:12px}
+
+@media(max-width:420px){
+ .tc-class-page{grid-template-rows:44px 44px minmax(64px,.7fr) minmax(132px,1.55fr) minmax(0,2.75fr) 59px 12px;gap:2px}
+ .tc-class-featured{grid-template-columns:51px minmax(0,1fr) 94px;column-gap:4px;padding:2px 4px}
+ .tc-class-crest{width:49px}
+ .tc-class-featured h2{font-size:18px}
+ .tc-class-feature-tools{gap:2px}
+ .tc-class-feature-tools button{font-size:10px}
+ .tc-class-tab{font-size:12px}
+}
+@media(max-height:650px){
+ .tc-class-page{grid-template-rows:44px 44px minmax(59px,.6fr) minmax(114px,1.45fr) minmax(0,2.9fr) 44px 0;gap:2px}
+ .tc-class-featured{grid-template-columns:44px minmax(0,1fr) 92px}
+ .tc-class-crest{width:42px}
+ .tc-class-feature-tools span{font-size:8px}
+ .tc-class-feature-tools button{min-height:44px;height:44px}
+ .tc-class-milestone-icon{width:clamp(29px,8vw,36px);height:clamp(29px,8vw,36px)}
+ .tc-class-footer{grid-template-rows:44px}
+ .tc-class-footer p,.tc-class-status{display:none}
+ .tc-class-choice-art{flex-basis:30%}
+}
+@media(max-height:530px){
+ .tc-class-page{grid-template-rows:44px 44px minmax(48px,.45fr) minmax(90px,1.2fr) minmax(0,3fr) 44px 0;gap:1px}
+ .tc-class-featured{grid-template-columns:minmax(0,1fr) 92px;grid-template-rows:1fr}
+ .tc-class-featured h2{grid-column:1;grid-row:1;align-self:center}
+ .tc-class-featured p,.tc-class-crest,.tc-class-feature-tools span{display:none}
+ .tc-class-feature-tools{grid-column:2;grid-row:1}
+ .tc-class-milestone-icon{width:27px;height:27px}
+ .tc-class-choice-art{flex-basis:26%}
+}
