@@ -419,3 +419,34 @@
 @media(max-height:530px){
  .tc-class-page{grid-template-rows:34px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
 }
+
+
+/* restore rune artwork proportions: 2026-11-13 */
+/* Restore the original 38% art strip even on short phones. Compact the name
+   and explanatory caption below it rather than squeezing the three rune images.
+   Full skill details remain in the separate detail bar below the cards. */
+.tc-class-choice-card{padding:2px 2px 3px;gap:0}
+.tc-class-choice-art{flex:0 0 38%;min-height:0}
+.tc-class-choice-card strong{
+ padding:1px 0;flex:0 0 auto;
+ font:700 12px/1.15 "Noto Serif KR",Georgia,serif;
+}
+.tc-class-choice-description{flex:0 1 auto;max-height:23px;min-height:0}
+.tc-class-choice-card small{
+ font-size:9px;line-height:1.15;
+ display:-webkit-box;-webkit-line-clamp:2;
+ -webkit-box-orient:vertical;overflow:hidden;
+}
+.tc-class-choice-card em{margin-top:1px;font-size:8px}
+@media(max-height:650px){
+ .tc-class-choice-art{flex:0 0 38%}
+ .tc-class-choice-card strong{font-size:11px;line-height:1.1;padding:1px 0}
+ .tc-class-choice-card small{font-size:8px;line-height:1.12;-webkit-line-clamp:2}
+ .tc-class-choice-description{max-height:19px}
+}
+@media(max-height:530px){
+ .tc-class-choice-art{flex:0 0 38%}
+ .tc-class-choice-card strong{font-size:10px;line-height:1.1;padding:1px 0}
+ .tc-class-choice-card small{font-size:8px;line-height:1.1;-webkit-line-clamp:2}
+ .tc-class-choice-description{max-height:18px}
+}
