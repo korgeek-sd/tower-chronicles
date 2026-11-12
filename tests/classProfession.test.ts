@@ -202,16 +202,20 @@ test('compact profession heading gives lower skill panels space without shrinkin
 });
 
 
-test('profession top buttons are visually compact with 44px extended touch regions and space given back to skills',()=>{
+test('profession top title and navigation row are removed and growth grid takes its height',()=>{
+ const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
- const fix=css.split('/* compact class navigation 2026-11-13 */')[1];
- assert.ok(fix,'new navigation compact layout rules must exist');
- assert.match(fix,/\.tc-class-page\{[^}]*grid-template-rows:34px 6px 34px 48px/,'navigation rows must shrink from 44px to 34px');
- assert.match(fix,/\.tc-class-header\{grid-row:1/);
- assert.match(fix,/\.tc-class-tabs\{grid-row:3/,'spacer row must separate navigation hit regions');
- assert.match(fix,/\.tc-class-featured\{grid-row:4/);
- assert.match(fix,/\.tc-class-back,\.tc-class-home\{[^}]*height:34px/);
- assert.match(fix,/\.tc-class-tab\{[^}]*height:34px/);
- assert.match(fix,/\.tc-class-back::before,\.tc-class-home::before,\.tc-class-tab::before\{[^}]*inset:-5px 0/,'visually smaller buttons must keep a 44px hit region');
- assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-page\{[^}]*grid-template-rows:34px 8px 34px/,'short screens must keep enough spacing for 44px extended tap regions');
+ const final=css.split('/* profession header removed: 2026-11-13 */')[1];
+ assert.ok(final,'new headerless layout rules are required');
+ assert.doesNotMatch(html,/tc-class-header|tc-class-brand|tc-class-back|tc-class-home/,'no duplicate title or navigation in class page');
+ assert.doesNotMatch(html,/<h1>직업<\/h1>|<small>탑의 기록<\/small>/);
+ assert.match(html,/<nav class="tc-class-tabs"/,'three profession tabs remain as first row');
+ assert.equal((html.match(/class="tc-class-tab tc-feel-press/g)??[]).length,3);
+ assert.match(html,/전사 스킬트리/);
+ assert.match(final,/\.tc-class-page\{[^}]*grid-template-rows:34px 48px minmax\(130px,1\.2fr\) minmax\(0,3\.8fr\) 46px 0/);
+ assert.match(final,/\.tc-class-tabs\{grid-row:1/);
+ assert.match(final,/\.tc-class-featured\{grid-row:2/);
+ assert.match(final,/\.tc-class-growth\.tc-class-path\{grid-row:3/);
+ assert.match(final,/\.tc-class-choices\{grid-row:4/);
+ assert.match(final,/@media\(max-height:530px\)\{[^}]*\.tc-class-page\{[^}]*grid-template-rows:34px 44px minmax\(100px,1\.2fr\)/);
 });
