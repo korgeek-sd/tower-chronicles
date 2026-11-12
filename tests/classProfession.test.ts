@@ -170,3 +170,16 @@ test('three approved gold violet and crimson runes replace the skill choice artw
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
  assert.match(css,/\.tc-class-choice-art\{[^}]*background-repeat:no-repeat/);
 });
+
+
+test('profession mobile layout reserves separate nonoverlapping rows for header, tabs, actions and footer',()=>{
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const fix=css.split('/* class-screen overlap prevention: 2026-11-12 */')[1];
+ assert.ok(fix,'mobile overlap prevention overrides are required');
+ assert.match(fix,/\.tc-class-page\{[^}]*grid-template-rows:\s*44px 44px minmax\(64px/,'header and class tabs must each have full touch-target height');
+ assert.match(fix,/\.tc-class-back,\.tc-class-home\{[^}]*height:44px/,'navigation buttons must remain inside the header row');
+ assert.match(fix,/\.tc-class-tab\{[^}]*height:100%;min-height:0/,'class tabs must stay in their allocated row');
+ assert.match(fix,/\.tc-class-feature-tools button\{[^}]*min-height:44px;height:44px/,'battle placement action must fit inside the featured row');
+ assert.match(fix,/\.tc-class-footer\{[^}]*grid-template-rows:44px 12px/,'confirmation button and finality notice must have separate rows');
+ assert.match(fix,/\.tc-class-node-state\{display:none/,'state labels must not cover level labels in the tight 5-column skill grid');
+});
