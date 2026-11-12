@@ -154,8 +154,8 @@ export function ClassProfessionScreen({userId,lease,onHome}:Props){
    </div>
    <h2>{job.name+' 스킬트리'}</h2>
    <p>10레벨마다 3가지 중 1개를 선택해 성장합니다.</p>
+   <span className="tc-class-feature-progress">{chosenCount}/10 습득 · {level===null?'레벨 조회 중':'Lv.'+level}</span>
    <div className="tc-class-feature-tools">
-    <span>{chosenCount}/10 습득 · {level===null?'레벨 조회 중':'Lv.'+level}</span>
     {!hasPersisted?<button type="button" className="tc-class-pickjob tc-feel-press" onClick={()=>setConfirmClass(true)} disabled={!ready}>이 직업으로 시작</button>
     :<button type="button" className="tc-class-battle-open tc-feel-press" onClick={()=>setBattleOpen(true)}>전투 배치 <Glyph name="sword"/></button>}
    </div>
