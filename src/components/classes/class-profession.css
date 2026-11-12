@@ -278,3 +278,79 @@
  .tc-class-milestone-icon{width:27px;height:27px}
  .tc-class-choice-art{flex-basis:26%}
 }
+
+
+/* class-screen compact distribution: 2026-11-13 */
+/* Top chrome keeps 44px hit areas. The compact summary holds progress at left
+   and a 44px battle action at right, giving their former stacked space to skills. */
+.tc-class-page{
+ grid-template-rows:44px 44px 48px minmax(130px,1.2fr) minmax(0,3.8fr) 46px 0;
+ gap:2px;
+}
+.tc-class-featured{
+ grid-template-columns:44px minmax(0,1fr) 100px;
+ grid-template-rows:18px 12px 11px;
+ align-content:center;align-items:center;
+ gap:0 5px;padding:1px 5px;
+}
+.tc-class-crest{grid-column:1;grid-row:1/4;width:42px;height:42px;min-height:0}
+.tc-class-featured h2{
+ grid-column:2;grid-row:1;align-self:center;
+ font-size:16px;line-height:18px;
+}
+.tc-class-featured p{
+ grid-column:2;grid-row:2;align-self:center;
+ font-size:8px;line-height:12px;
+}
+.tc-class-feature-progress{
+ grid-column:2;grid-row:3;
+ align-self:center;display:block;min-width:0;
+ font-size:9px;line-height:11px;color:#c9b59c;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tc-class-feature-tools{
+ grid-column:3;grid-row:1/4;
+ align-self:center;justify-self:stretch;
+ width:100%;height:44px;min-height:44px;
+ display:flex;align-items:stretch;justify-content:center;gap:0;
+}
+.tc-class-feature-tools button{
+ width:100%;min-width:0;min-height:44px;height:44px;
+ padding:2px 4px;font-size:10px;
+}
+.tc-class-growth.tc-class-path{padding:3px 2px 2px}
+.tc-class-footer{grid-template-rows:44px;gap:0;align-items:center}
+.tc-class-confirm{height:44px;min-height:44px}
+.tc-class-footer p,.tc-class-status{display:none}
+.tc-class-choice-art{flex-basis:34%}
+@media(max-width:420px){
+ .tc-class-page{grid-template-rows:44px 44px 48px minmax(130px,1.2fr) minmax(0,3.8fr) 46px 0;gap:2px}
+ .tc-class-featured{grid-template-columns:40px minmax(0,1fr) 94px;gap:0 4px;padding:1px 4px}
+ .tc-class-crest{width:38px;height:40px}
+ .tc-class-featured h2{font-size:15px;line-height:18px}
+ .tc-class-featured p{font-size:8px;line-height:12px}
+ .tc-class-feature-progress{font-size:8px}
+ .tc-class-feature-tools{height:44px;min-height:44px}
+ .tc-class-feature-tools button{min-height:44px;height:44px;font-size:10px}
+}
+@media(max-height:650px){
+ .tc-class-page{grid-template-rows:44px 44px 46px minmax(118px,1.2fr) minmax(0,3.8fr) 44px 0;gap:2px}
+ .tc-class-featured{grid-template-rows:18px 12px 11px}
+ .tc-class-featured h2{font-size:15px}
+ .tc-class-crest{width:38px;height:40px;display:grid}
+ .tc-class-feature-progress{display:block}
+ .tc-class-feature-tools{height:44px;min-height:44px}
+ .tc-class-feature-tools button{height:44px;min-height:44px}
+ .tc-class-choice-art{flex-basis:29%}
+ .tc-class-footer{grid-template-rows:44px}
+}
+@media(max-height:530px){
+ .tc-class-page{grid-template-rows:44px 44px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
+ .tc-class-featured{grid-template-columns:minmax(0,1fr) 94px;grid-template-rows:18px 11px 11px}
+ .tc-class-crest{display:none}
+ .tc-class-featured h2{grid-column:1;grid-row:1;font-size:14px}
+ .tc-class-featured p{grid-column:1;grid-row:2;display:block}
+ .tc-class-feature-progress{grid-column:1;grid-row:3;display:block}
+ .tc-class-feature-tools{grid-column:2;grid-row:1/4}
+ .tc-class-choice-art{flex-basis:25%}
+}
