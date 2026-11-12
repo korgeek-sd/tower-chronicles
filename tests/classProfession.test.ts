@@ -200,3 +200,18 @@ test('compact profession heading gives lower skill panels space without shrinkin
  assert.ok(buttons.includes('tc-class-feature-progress'));
  assert.ok(buttons.includes('tc-class-feature-tools'));
 });
+
+
+test('profession top buttons are visually compact with 44px extended touch regions and space given back to skills',()=>{
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const fix=css.split('/* compact class navigation 2026-11-13 */')[1];
+ assert.ok(fix,'new navigation compact layout rules must exist');
+ assert.match(fix,/\.tc-class-page\{[^}]*grid-template-rows:34px 6px 34px 48px/,'navigation rows must shrink from 44px to 34px');
+ assert.match(fix,/\.tc-class-header\{grid-row:1/);
+ assert.match(fix,/\.tc-class-tabs\{grid-row:3/,'spacer row must separate navigation hit regions');
+ assert.match(fix,/\.tc-class-featured\{grid-row:4/);
+ assert.match(fix,/\.tc-class-back,\.tc-class-home\{[^}]*height:34px/);
+ assert.match(fix,/\.tc-class-tab\{[^}]*height:34px/);
+ assert.match(fix,/\.tc-class-back::before,\.tc-class-home::before,\.tc-class-tab::before\{[^}]*inset:-5px 0/,'visually smaller buttons must keep a 44px hit region');
+ assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-page\{[^}]*grid-template-rows:34px 8px 34px/,'short screens must keep enough spacing for 44px extended tap regions');
+});
