@@ -392,6 +392,6 @@
  .tc-class-brand h1{font-size:18px;line-height:20px}
 }
 @media(max-height:530px){
- .tc-class-page{grid-template-rows:34px 6px 34px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
+ .tc-class-page{grid-template-rows:34px 8px 34px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
  .tc-class-tabs{height:34px}
 }
