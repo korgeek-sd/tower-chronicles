@@ -354,3 +354,44 @@
  .tc-class-feature-tools{grid-column:2;grid-row:1/4}
  .tc-class-choice-art{flex-basis:25%}
 }
+
+
+/* compact class navigation 2026-11-13 */
+/* The two 44px visual strips become 34px strips. A 6px spacer plus existing
+   2px grid gaps separates transparent touch extensions at their boundary. */
+.tc-class-page{
+ grid-template-rows:34px 6px 34px 48px minmax(130px,1.2fr) minmax(0,3.8fr) 46px 0;
+ gap:2px;
+}
+.tc-class-header{grid-row:1;grid-template-columns:44px minmax(0,1fr) 44px;min-height:0}
+.tc-class-tabs{grid-row:3;height:34px;min-height:0;align-items:stretch}
+.tc-class-featured{grid-row:4}
+.tc-class-growth.tc-class-path{grid-row:5}
+.tc-class-choices{grid-row:6}
+.tc-class-footer{grid-row:7}
+.tc-class-status{grid-row:8}
+.tc-class-back,.tc-class-home{
+ position:relative;width:44px;min-width:44px;height:34px;min-height:0;
+ font-size:23px;overflow:visible;
+}
+.tc-class-home .tc-glyph{font-size:19px}
+.tc-class-tab{position:relative;height:34px;min-height:0;font-size:13px;overflow:visible}
+.tc-class-back::before,.tc-class-home::before,.tc-class-tab::before{
+ content:"";position:absolute;inset:-5px 0;
+}
+.tc-class-brand small{font-size:8px;line-height:10px}
+.tc-class-brand h1{font-size:19px;line-height:21px}
+@media(max-width:420px){
+ .tc-class-page{grid-template-rows:34px 6px 34px 48px minmax(130px,1.2fr) minmax(0,3.8fr) 46px 0;gap:2px}
+ .tc-class-tab{height:34px;min-height:0;font-size:12px}
+}
+@media(max-height:650px){
+ .tc-class-page{grid-template-rows:34px 6px 34px 46px minmax(118px,1.2fr) minmax(0,3.8fr) 44px 0;gap:2px}
+ .tc-class-back,.tc-class-home{height:34px;min-height:0}
+ .tc-class-tab{height:34px;min-height:0}
+ .tc-class-brand h1{font-size:18px;line-height:20px}
+}
+@media(max-height:530px){
+ .tc-class-page{grid-template-rows:34px 6px 34px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
+ .tc-class-tabs{height:34px}
+}
