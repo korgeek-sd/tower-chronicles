@@ -395,3 +395,27 @@
  .tc-class-page{grid-template-rows:34px 8px 34px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
  .tc-class-tabs{height:34px}
 }
+
+
+/* profession header removed: 2026-11-13 */
+/* The title/navigation header has been deleted from JSX: the job tabs are now
+   the first track, and the freed row + spacer height belongs to the skill panels. */
+.tc-class-page{
+ grid-template-rows:34px 48px minmax(130px,1.2fr) minmax(0,3.8fr) 46px 0;
+ gap:2px;
+}
+.tc-class-tabs{grid-row:1;height:34px}
+.tc-class-featured{grid-row:2}
+.tc-class-growth.tc-class-path{grid-row:3}
+.tc-class-choices{grid-row:4}
+.tc-class-footer{grid-row:5}
+.tc-class-status{grid-row:6}
+@media(max-width:420px){
+ .tc-class-page{grid-template-rows:34px 48px minmax(130px,1.2fr) minmax(0,3.8fr) 46px 0;gap:2px}
+}
+@media(max-height:650px){
+ .tc-class-page{grid-template-rows:34px 46px minmax(118px,1.2fr) minmax(0,3.8fr) 44px 0;gap:2px}
+}
+@media(max-height:530px){
+ .tc-class-page{grid-template-rows:34px 44px minmax(100px,1.2fr) minmax(0,3.8fr) 44px 0;gap:1px}
+}
