@@ -3526,3 +3526,23 @@ html.tc-native-immersive .tc-app{
  padding-top:env(safe-area-inset-top,0px);
  background:#050707;
 }
+
+
+/* Claimable-action red dots: genuine pending rewards only. 2026-11-13 */
+.tc-action-alert-dot{
+ position:absolute;top:4px;right:7px;
+ width:10px;height:10px;min-width:10px;min-height:10px;
+ padding:0;border:2px solid #160d0c;border-radius:50%;
+ background:#e24337;box-shadow:0 0 0 1px #e7a78c77,0 0 6px #d92b2580;
+ pointer-events:none;z-index:3;
+}
+.tc-nav button{position:relative}
+.tc-nav button>.tc-action-alert-dot{top:3px;right:20%}
+.tc-camp-v2-quick button>.tc-village-nameplate>.tc-action-alert-dot.is-facility{
+ top:-6px;right:-8px;
+}
+.tc-novar-shop-tabs button{position:relative}
+.tc-novar-shop-tabs button>.tc-action-alert-dot{top:3px;right:6px}
+@media(prefers-reduced-motion:reduce){
+ .tc-action-alert-dot{animation:none}
+}
