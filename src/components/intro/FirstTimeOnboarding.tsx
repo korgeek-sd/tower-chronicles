@@ -55,18 +55,23 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
   return()=>{window.removeEventListener('tower:world-intro-finished',onFinished);if(frame)window.cancelAnimationFrame(frame);};
  },[userId]);
 
- function next(){
+ async function next(){
   if(!selected||busy||!classChecked)return;
-  setError('');setStep('name');
+  setBusy(true);setError('');
+  try{
+   // The explicit "선택 완료" action is the irrevocable server commit.
+   const committed=await lockPermanentClass(userId,selected);
+   adoptPermanentClass(userId,committed,localStorage);
+   setLockedClass(committed);setSelected(committed);setStep('name');
+  }catch(err){setError(err instanceof Error?err.message:'직업 확정에 실패했습니다. 다시 시도해 주세요.');}
+  finally{setBusy(false);}
  }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(busy||!selected||!classChecked||validation.error)return;
+  if(lockedClass!==selected){setError('직업을 먼저 서버에 확정해 주세요.');return;}
   setBusy(true);setError('');
   try{
-   const committed=await lockPermanentClass(userId,selected);
-   setLockedClass(committed);
-   adoptPermanentClass(userId,committed,localStorage);
    const profile=await onRegister(validation.nickname);
    if(profile.userId!==userId)throw new Error('로그인 계정이 변경됐습니다. 다시 확인해 주세요.');
    onReady(profile);
@@ -92,7 +97,7 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
    {step==='class'?<>
     <div className="tc-first__lead">
      <h2>새로운 길을 선택하십시오.</h2>
-     <p>당신이 걸어갈 전투의 길을 정하십시오.</p>
+     <p>선택 완료를 누르면 직업이 서버에 확정되며 변경할 수 없습니다.</p>
     </div>
     <div className="tc-first__class-grid" role="group" aria-label="시작 직업 선택">
      {IDS.map(id=>{
