@@ -87,13 +87,14 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
    const result=await claimFreeAttendance(lease,userId);
    onRecord?.(result.record);
    setAttendance(result.status);setDay(result.status.currentDay);
+   window.dispatchEvent(new Event('tc-action-alert-refresh'));
    setAttendanceNotice(result.alreadyClaimed
     ? '오늘 무료 보상은 이미 수령했습니다.'
     : '실버 3,000'+(result.reward.tickets>0?' · 소환권 '+result.reward.tickets+'장':'')+' 지급 완료');
   }catch(error){
    setAttendanceError(error instanceof Error?error.message:'무료 출석 보상을 수령하지 못했습니다.');
    // A lost response may follow a successful database commit: refresh the receipt state.
-   try{if(lease&&userId)setAttendance(await getFreeAttendanceStatus(lease,userId));}catch{}
+   try{if(lease&&userId)setAttendance(await getFreeAttendanceStatus(lease,userId));window.dispatchEvent(new Event('tc-action-alert-refresh'));}catch{}
   }finally{
    if(pending)onPending?.(false);
    claimingRef.current=false;setAttendanceBusy(false);
@@ -110,7 +111,7 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
   <div className="tc-novar-shop">
    <nav className="tc-novar-shop-tabs" aria-label="상점 카테고리">
     {NOVAR_SHOP_TABS.map(([id,label,icon])=><button type="button" key={id} className={tab===id?'is-active':''} aria-current={tab===id?'page':undefined} onClick={()=>setTab(id)}>
-     <HubIcon name={icon}/><span>{label}</span>
+     <HubIcon name={icon}/><span>{label}</span>{id==='attendance'&&attendance&&!attendance.todayClaimed&&<i className="tc-action-alert-dot" aria-hidden="true"/>}
     </button>)}
    </nav>
    <div className="tc-novar-shop-view">

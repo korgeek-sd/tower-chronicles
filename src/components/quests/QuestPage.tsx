@@ -15,7 +15,7 @@ export function QuestPage({userId,lease,onMove,onPrepare,onPending,onRecord}:{us
    callbacks.current.onPending(true);economyPending=true;
    if(key)localStorage.setItem(key,JSON.stringify(request));pending.current=request;
    const result=await claimQuest(lease,userId,request);if(!alive.current)return;
-   callbacks.current.onRecord(result.record);setBoard(result.board);setMessage(questRewardSummary(result.reward)+' 수령 완료');
+   callbacks.current.onRecord(result.record);setBoard(result.board);window.dispatchEvent(new Event('tc-action-alert-refresh'));setMessage(questRewardSummary(result.reward)+' 수령 완료');
    if(key)localStorage.removeItem(key);pending.current=null;
   }catch(e){if(alive.current){if(e instanceof QuestRejected){if(key)localStorage.removeItem(key);pending.current=null;}setError(e instanceof Error?e.message:'수령 결과를 다시 확인해 주세요.');}}
   finally{lock.current=false;if(economyPending)callbacks.current.onPending(false);if(alive.current)setBusy(false);}

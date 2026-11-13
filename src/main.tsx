@@ -13,6 +13,7 @@ import {WorldPage} from './components/world/WorldPage';
 import {isHuntingLeaseCurrent} from './online/huntingLease';
 import {HuntingPage} from './components/hunting/HuntingPage';
 import {MailDialog} from './components/MailDialog';
+import {useActionAlerts} from './online/useActionAlerts';
 import {NotificationDialog} from './components/NotificationDialog';
 import {getGameNotifications,type GameNotificationTarget} from './online/notifications';
 import {initializeNativePush,stopNativePushListeners,disableNativePush,isAndroidPushAvailable} from './online/nativePush';
@@ -143,6 +144,7 @@ function App(){
  const gameplayLeaseRef=useRef<GameplayLease|null>(null),gameSessionPhaseRef=useRef<GameSessionPhase>(initialGate),handoffBusy=useRef(false),takeoverTimer=useRef<number|null>(null);
  gameplayLeaseRef.current=gameplayLease;gameSessionPhaseRef.current=gameSessionPhase;
  const gameplayWritable=profileReady&&(!onlineSession||gameSessionPhase==='active');
+ const actionAlerts=useActionAlerts(onlineSession?.userId??null,gameSessionPhase==='active'?gameplayLease:null);
  useEffect(()=>{setMailOpen(false);setMailUnread(0);setNotificationsOpen(false);setNotificationsUnread(0);},[onlineSession?.userId]);
  useEffect(()=>{
   if(!onlineSession||gameSessionPhase!=='active')return;
@@ -490,7 +492,7 @@ function App(){
   <main className={page==='hunt'?'tc-main tc-hunt-main':page==='stats'?'tc-main tc-stat-main':page==='skills'?'tc-main tc-skill-tree-main':'tc-main'}>
    {storageError&&<div className="error" role="alert"><span>{storageError}</span>{onlineSession&&<span style={{display:'inline-flex',gap:'6px',marginLeft:'8px'}}><button onClick={()=>{const lease=gameplayLeaseRef.current;if(lease)void restoreServerRun(lease);}}>서버 상태 복구</button><button onClick={()=>setPage('home')}>거점 화면</button></span>}</div>}
    {immersive&&cloudSyncStatus==='error'&&<div className="error" role="alert">{cloudSyncMessage}</div>}
-   {(page==='home'||page==='settings')&&<HomeScreen nickname={playerNickname} game={game} onMove={move} onOpenJobs={openJobs} onOpenMail={()=>setMailOpen(true)} mailUnread={mailUnread} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null}/>}
+   {(page==='home'||page==='settings')&&<HomeScreen nickname={playerNickname} game={game} onMove={move} onOpenJobs={openJobs} onOpenMail={()=>setMailOpen(true)} mailUnread={mailUnread} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} actionAlerts={actionAlerts}/>}
    {(page==='world'||page==='craft'||page==='production')&&<WorldPage initialView={page==='craft'?'craft':page==='production'?'life':'map'} onHome={()=>setPage('home')} onInventory={intent=>{setInventoryShortcutCategory(intent==='equipment'?'equipment':intent==='vitality'?'potions':null);setPage('inventory');}} key={page+':'+(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)+':'+gameSessionPhase} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} now={now}/>}
    {page==='character'&&<CharacterGrowthPage key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)+':'+gameSessionPhase} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} nickname={playerNickname} onClose={()=>move('home')} onStats={()=>move('stats')} onEquipment={()=>move('inventory')} onSeals={()=>move('seal')} onCollection={()=>move('cosmetics')} onGrowthRecord={()=>move('growth')}/>}
    {page==='growth'&&<GrowthRecordPage key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)+':'+gameSessionPhase} userId={onlineSession?.userId??null} lease={gameSessionPhase==='active'?gameplayLease:null} nickname={playerNickname} onClose={()=>move('home')} onStats={()=>move('stats')} onProduction={()=>move('production')} onCraft={()=>move('craft')}/>}
@@ -565,7 +567,7 @@ function App(){
 
    {!immersive&&page!=='battle'&&visibleNotice&&<div className="tc-notice-backdrop" role="presentation" onClick={()=>setGame(state=>({...state,notice:''}))}><section className="tc-notice-dialog" role="dialog" aria-modal="true" aria-labelledby="tc-notice-title" onClick={event=>event.stopPropagation()}><button className="tc-notice-close" aria-label="알림 닫기" onClick={()=>setGame(state=>({...state,notice:''}))}>×</button><small>NOTICE</small><h2 id="tc-notice-title">알림</h2><p>{visibleNotice}</p><button className="tc-notice-confirm" onClick={()=>setGame(state=>({...state,notice:''}))}>확인</button></section></div>}
   </main>
-  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,label])=><button key={p} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world','bank','character','growth','production','craft','stats'].includes(page))} onClick={()=>move(p)}><HubIcon name={p}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}</button>)}</nav>}
+  {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,label])=><button key={p} aria-label={label+((p==='shop'&&actionAlerts.attendance)||(p==='home'&&actionAlerts.quests)?' · 받을 보상 있음':'')} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world','bank','character','growth','production','craft','stats'].includes(page))} onClick={()=>move(p)}><HubIcon name={p}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}{((p==='shop'&&actionAlerts.attendance)||(p==='home'&&actionAlerts.quests))&&<i className="tc-action-alert-dot" aria-hidden="true"/>}</button>)}</nav>}
   <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'} inlineAtHome={page==='home'}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
