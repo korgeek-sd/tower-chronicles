@@ -151,26 +151,27 @@ test('normalized growth atlas contains ten centered source crops with no embedde
 });
 
 
-test('three approved gold violet and crimson runes replace the skill choice artwork for all professions',()=>{
- const atlas=readFileSync('public/assets/classes/skilltree-20261111/choice-runes-gold-violet-crimson-v1.webp');
- assert.ok(atlas.length>12000,'optimized art should be a real image, not a stub');
- assert.equal(atlas.toString('ascii',0,4),'RIFF');
- assert.equal(atlas.toString('ascii',8,12),'WEBP');
+test('three rune images remain undistorted and individually accessible for every profession',()=>{
+ const original=readFileSync('public/assets/classes/skilltree-20261111/choice-runes-gold-violet-crimson-v1.webp');
+ assert.ok(original.length>12000,'original artwork must remain available');
+ const names=['gold','violet','crimson'];
+ for(const [i,name] of names.entries()){
+  const image=readFileSync('public/assets/classes/skilltree-20261111/choice-rune-'+name+'-v1.svg','utf8');
+  assert.match(image,/viewBox="0 0 320 144"/,'each rune keeps its 320 by 144 source ratio');
+  assert.match(image,new RegExp('<image x="'+(-i*320)+'" y="0" width="960" height="144"'),'crop source atlas without scaling or stretching');
+  assert.match(image,/href="data:image\/webp;base64,UklG/,'asset embeds original WebP and works in APK without external requests');
+ }
  const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
- assert.match(component,/choice-runes-gold-violet-crimson-v1\.webp/);
- assert.match(component,/backgroundSize:'300% 100%'/);
- assert.match(component,/backgroundPosition:\(i\*50\)\+'% 50%'/);
- assert.doesNotMatch(component,/CHOICE_ART|warrior-choice-(?:slash|shield|drain)-v1\.webp/);
- const choiceArt=component.slice(component.indexOf('<span className="tc-class-choice-art"'),component.indexOf('<strong>{choice.name}</strong>'));
- assert.match(choiceArt,/RUNE_ART/);
- assert.doesNotMatch(choiceArt,/visibleId/,'skill choice artwork must not depend on profession');
+ for(const name of names)assert.ok(component.includes('choice-rune-'+name+'-v1.svg'),name+' sprite must be independently addressable');
+ assert.doesNotMatch(component,/backgroundSize:'300% 100%'|backgroundPosition:\(i\*50\)/,'no bitmap stretching');
+ assert.match(component,/<img src=\{assetUrl\(RUNE_ART\[i\]\)\} alt=""\/>/,'images must be rendered as contained images');
  const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
- assert.equal((html.match(/choice-runes-gold-violet-crimson-v1\.webp/g)??[]).length,3);
- for(const pos of ['0% 50%','50% 50%','100% 50%'])assert.ok(html.includes('background-position:'+pos),pos);
+ for(const name of names)assert.ok(html.includes('choice-rune-'+name+'-v1.svg'),name+' rendered');
+ assert.equal((html.match(/class="tc-class-choice-art"/g)??[]).length,3);
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
- assert.match(css,/\.tc-class-choice-art\{[^}]*background-repeat:no-repeat/);
+ assert.match(css,/\.tc-class-choice-art img\{[^}]*object-fit:contain/,'CSS must preserve the original aspect ratio');
+ assert.doesNotMatch(component,/<span className="tc-class-choice-art"[^>]*style=/,'do not transform rune atlases through inline background sizing');
 });
-
 
 test('profession mobile layout reserves separate nonoverlapping rows for header, tabs, actions and footer',()=>{
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
