@@ -51,3 +51,18 @@ test('claimable red indicators use compact square geometry, not circles',()=>{
  assert.match(block,/border-radius:0(?:;|\\s)/,'show sharp square corners');
  assert.doesNotMatch(block,/border-radius:50%/);
 });
+
+
+test('today free reward claim button shows the existing square marker until reward is claimed',()=>{
+ const component=readFileSync('src/components/mobile/NovarShopScreen.tsx','utf8');
+ const css=readFileSync('src/components/mobile/novar-shop.css','utf8');
+ const button=component.match(/<button type="button" className="tc-novar-attendance-claim"[\s\S]*?<\/button>/)?.[0];
+ assert.ok(button,'today free reward button should exist');
+ assert.match(button,/attendance&&!attendance\.todayClaimed&&!!userId&&!!lease&&!attendanceBusy/,'show the marker only if today is unclaimed and the action is available');
+ assert.match(button,/<i className="tc-action-alert-dot" aria-hidden="true"\/>/,'use the shared square red alert marker');
+ assert.match(button,/disabled=\{!userId\|\|!lease\|\|!attendance\|\|attendance\.todayClaimed\|\|attendanceBusy\}/,'claim availability must remain server-authoritative');
+ assert.match(css,/\.tc-novar-attendance-claim\{position:relative/,'badge must be positioned within the button itself');
+ assert.match(css,/\.tc-novar-attendance-claim>\.tc-action-alert-dot\{/,'badge must have button-relative corner placement');
+ const common=readFileSync('src/mobile-game.css','utf8');
+ assert.match(common,/\.tc-action-alert-dot\{[^}]*border-radius:0/,'the badge must be a square');
+});

@@ -260,3 +260,8 @@
  height:57px;
  flex:0 0 57px;
 }
+
+
+/* Keep the actionable reward square inside the "오늘 무료 받기" button. */
+.tc-novar-attendance-claim{position:relative}
+.tc-novar-attendance-claim>.tc-action-alert-dot{top:7px;right:7px}
