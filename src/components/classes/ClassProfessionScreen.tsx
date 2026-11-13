@@ -17,8 +17,12 @@ const IDS:ClassId[]=['warrior','mage','archer'];
 const ART_ROOT='assets/classes/skilltree-20261111/';
 const CREST=ART_ROOT+'warrior-lion-crest-v1.webp';
 const GROWTH_ICONS=ART_ROOT+'warrior-growth-icons-aligned-v2.svg';
-// One optimized 3-column rune atlas is shared by every profession and ability type.
-const RUNE_ART=ART_ROOT+'choice-runes-gold-violet-crimson-v1.webp';
+// Standalone undistorted rune crops (320×144) shared by all professions.
+const RUNE_ART=[
+ ART_ROOT+'choice-rune-gold-v1.svg',
+ ART_ROOT+'choice-rune-violet-v1.svg',
+ ART_ROOT+'choice-rune-crimson-v1.svg',
+] as const;
 const TYPE_NAME={active:'액티브',passive:'패시브',trait:'특성'} as const;
 const KEY=(id:string|null)=>'tower-class-progression-v1:'+(id??'guest');
 /** Display-only recommendation. Prefer a claimable, unchosen stage; otherwise show the next future stage. */
@@ -191,10 +195,9 @@ export function ClassProfessionScreen({userId,lease}:Props){
       onClick={()=>{if(learnedChoice===null)setPreviewChoice(i);}}
       disabled={learnedChoice!==null}>
       {selected&&<span className="tc-class-choice-mark">{learnedChoice===i?'습득 완료':'선택 중'} <span aria-hidden="true">✓</span></span>}
-      <span className="tc-class-choice-art" aria-hidden="true" style={{
-       backgroundImage:'url('+assetUrl(RUNE_ART)+')',
-       backgroundSize:'300% 100%',backgroundPosition:(i*50)+'% 50%',
-      }}/>
+      <span className="tc-class-choice-art" aria-hidden="true">
+       <img src={assetUrl(RUNE_ART[i])} alt=""/>
+      </span>
       <strong>{choice.name}</strong>
       <small className="tc-class-choice-description">{choice.description}</small>
       {choice.mp!==undefined&&<em>MP {choice.mp} · 대기 {choice.cooldown}턴</em>}
