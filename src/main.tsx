@@ -33,6 +33,8 @@ import {APP_VERSION,createRepository,SAVE_KEY} from './storage/repository';
 import {combatFixture,type CombatFixtureName} from './game/qa/combatFixtures';
 import {playerRecoveryDelay} from './components/battle/battleVfxTimeline';
 import {FirstTimeOnboarding} from './components/intro/FirstTimeOnboarding';
+import {loadPermanentClass,lockPermanentClass} from './online/permanentClass';
+import {adoptPermanentClass,readOnboardingClass} from './components/intro/firstTimeOnboardingState';
 import {loadPlayerProfile,registerPlayerNickname,type PlayerProfile} from './online/playerProfiles';
 import {loadPrefs} from './components/battle/prefs';
 import {registerGameTools} from './webmcp';
@@ -291,6 +293,21 @@ function App(){
   void loadPlayerProfile().then(profile=>{if(!cancelled)setProfileState({userId,status:profile?'ready':'missing',profile,error:''});}).catch(error=>{if(!cancelled)setProfileState({userId,status:'error',profile:null,error:error instanceof Error?error.message:'닉네임을 확인하지 못했습니다.'});});
   return()=>{cancelled=true;};
  },[onlineSession?.userId,profileRetry]);
+ // Migrate older accounts' local profession into the immutable server table
+ // once after a successful profile lookup. The server choice always wins.
+ useEffect(()=>{
+  if(!onlineSession||!profileReady)return;
+  let active=true;const userId=onlineSession.userId;
+  void (async()=>{
+   let committed=await loadPermanentClass(userId);
+   if(!committed){
+    const local=readOnboardingClass(userId,localStorage);
+    if(local)committed=await lockPermanentClass(userId,local);
+   }
+   if(active&&committed&&getStoredSession()?.userId===userId)adoptPermanentClass(userId,committed,localStorage);
+  })().catch(()=>{/* The profession screen surfaces any server error before a new choice. */});
+  return()=>{active=false;};
+ },[onlineSession?.userId,profileReady]);
  useEffect(()=>{
   if(!onlineSession){gameplayLeaseRef.current=null;setGameplayLease(null);setGameSessionPhase('guest');setGameSessionPlatform(null);setGameSessionHeartbeat(null);return;}
   if(!profileReady)return;
