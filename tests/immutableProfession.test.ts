@@ -63,7 +63,7 @@ test('server class overrides tampered local choice, preserving matching learned 
 });
 
 test('database grants one immutable server row per authenticated Google account',()=>{
- const sql=readFileSync('supabase/migrations/20261114011000_immutable_account_classes.sql','utf8');
+ const sql=readFileSync('supabase/migrations/20261113162905_immutable_account_classes.sql','utf8');
  assert.match(sql,/create table public\.game_initial_classes/i);
  assert.match(sql,/user_id uuid primary key references auth\.users\(id\)/i);
  assert.match(sql,/check \(class_id in \('warrior','mage','archer'\)\)/i);
