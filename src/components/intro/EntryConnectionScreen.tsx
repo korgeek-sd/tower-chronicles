@@ -6,6 +6,7 @@ const stages:[EntryStage,string][]=[['account','계정 확인'],['session','접�
 export function connectionErrorMessage(error:unknown){
  const text=error instanceof Error?error.message:String(error??'');
  if(/로그인|AUTH_|session.*expired/i.test(text))return '로그인 상태를 확인하지 못했습니다. 다시 시도하거나 로그아웃 후 로그인해 주세요.';
+ if(/SAVE_CONFLICT|다른 기기에서 더 최근의 클라우드 저장/i.test(text))return '게임 기록을 저장하는 중 충돌이 발생했습니다. 다시 시도하면 서버 기록을 확인하고 복구합니다.';
  if(/timeout|timed out|시간.*초과/i.test(text))return '서버 응답이 늦어 연결을 마치지 못했습니다. 잠시 후 다시 시도해 주세요.';
  return '서버에 연결하지 못했습니다. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.';
 }

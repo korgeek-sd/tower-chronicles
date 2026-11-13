@@ -41,6 +41,7 @@ import {initializeNativeOAuth} from './online/nativeAuth';
 import {Capacitor} from '@capacitor/core';
 import {onlineConfigured} from './online/config';
 import {reconcileCloudState,type CloudSyncStatus} from './online/cloudSync';
+import {entrySyncOwner,isEntryCloudSyncReady} from './online/entrySyncGate';
 import {stableStringify,loadCloudSave,rememberCloudRecord,CloudSessionLostError} from './online/cloudSave';
 import {acquireGameSession,forceTakeoverGameSession,heartbeatGameSession,inspectGameSession,releaseGameSession,requestGameSessionTakeover,subscribeGameSessionSignals,GAME_SESSION_HEARTBEAT_MS,GAME_SESSION_TAKEOVER_GRACE_MS,type GameplayLease,type GameSessionPhase,type GameSessionResult,type GameSessionSignal,GameSessionLostError} from './online/gameSession';
 import {applyOnlineBasicAttack,applyOnlineSkill,applyOnlineJobSkill,applyOnlinePotion,applyOnlineFlee,resolveOnlineRevival,reconcileOnlineCombatState,settleOnlineExpedition,restoreOnlineExpedition,reconcileOnlineExpeditionState,advanceOnlineExploration,resolveOnlineExplorationEvent,settleOnlineResourceStronghold,abandonOnlineResourceStronghold,selectOnlineJob,type OnlineCombatState} from './online/economy';
@@ -133,6 +134,7 @@ function App(){
  const huntingBusyOwner=useRef<string|null>(null);
  const serverEconomyBusy=useRef(false),settledReceiptKey=useRef(''),confirmedKillCount=useRef(0),onlineRunVersion=useRef(0),recordingAction=useRef(false),onlineCombatNonce=useRef(0),eventTimeoutHandled=useRef(''),saveRecoveryBusy=useRef(false);
  const [entryLoadStatus,setEntryLoadStatus]=useState<'loading'|'ready'|'error'>('loading');
+ const [entryReadyOwner,setEntryReadyOwner]=useState<string|null>(null);
  const [entryLoadError,setEntryLoadError]=useState('');
  const entryLoadOwner=useRef<string|null>(null),entryRestoreError=useRef('');
  const initialGate:GameSessionPhase=onlineSession?'acquiring':'guest';
@@ -276,12 +278,12 @@ function App(){
    setStorageError(message.includes('유효하지 않은 게임 상태')?'저장 데이터 검증에 실패했습니다.':'저장 공간을 사용할 수 없습니다.');
    return;
   }
-  if(!combatFixtureName&&onlineConfigured&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&!serverEconomyBusy.current&&!game.expedition){
+  if(!combatFixtureName&&onlineConfigured&&onlineSession&&gameSessionPhase==='active'&&gameplayLease&&isEntryCloudSyncReady(gameplayLease,entryReadyOwner)&&!serverEconomyBusy.current&&!game.expedition){
    if(cloudTimer.current!==null)window.clearTimeout(cloudTimer.current);
    cloudTimer.current=window.setTimeout(()=>{cloudTimer.current=null;void runCloudSync();},750);
   }
   return()=>{if(cloudTimer.current!==null){window.clearTimeout(cloudTimer.current);cloudTimer.current=null;}};
- },[game,onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
+ },[game,onlineSession?.userId,gameSessionPhase,gameplayLease?.generation,entryReadyOwner]);
  useEffect(()=>{
   if(!onlineSession){setProfileState({userId:'',status:'loading',profile:null,error:''});return;}
   let cancelled=false;const userId=onlineSession.userId;
@@ -315,14 +317,14 @@ function App(){
  },[gameSessionPhase,gameplayLease?.leaseId,gameplayLease?.generation]);
 
  useEffect(()=>{
-  if(combatFixtureName||!onlineConfigured||!onlineSession||gameSessionPhase!=='active'||!gameplayLease){if(!onlineSession){setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');}return;}
+  if(combatFixtureName||!onlineConfigured||!onlineSession||gameSessionPhase!=='active'||!gameplayLease||!isEntryCloudSyncReady(gameplayLease,entryReadyOwner)){if(!onlineSession){setCloudSyncStatus('local');setCloudRevision(null);setCloudSyncMessage('게스트 저장');}return;}
   void runCloudSync();
   const resume=()=>{if(!document.hidden)void runCloudSync();};
   const online=()=>void runCloudSync();
   document.addEventListener('visibilitychange',resume);
   window.addEventListener('online',online);
   return()=>{document.removeEventListener('visibilitychange',resume);window.removeEventListener('online',online);};
- },[onlineSession?.userId,gameSessionPhase,gameplayLease?.generation]);
+ },[onlineSession?.userId,gameSessionPhase,gameplayLease?.generation,entryReadyOwner]);
  useEffect(()=>{const settle=()=>{if(document.hidden)return;const tick=Date.now();setNow(tick);if(!gameplayWritable)return;const onlineAuthoritative=!!onlineSession&&gameSessionPhaseRef.current==='active'&&!!gameplayLeaseRef.current;if(onlineAuthoritative){const sh=stateRef.current.expedition?.events.stronghold;if(sh?.status==='ACTIVE'&&tick>=sh.captureEndsAt)void settleOnlineStrongholdNow();return;}setGame(state=>expireTimedEventChoice(settleStronghold(state,tick),tick));};const id=setInterval(settle,1000);document.addEventListener('visibilitychange',settle);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',settle);};},[]);
  useEffect(()=>{const p=game.expedition?.events.pendingEvent;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!p||p.state!=='CHOICE'||p.eventId!=='resource_stronghold'||typeof p.expiresAt!=='number'||now<p.expiresAt){if(!p||p.instanceId!==eventTimeoutHandled.current)eventTimeoutHandled.current='';return;}if(eventTimeoutHandled.current===p.instanceId)return;eventTimeoutHandled.current=p.instanceId;void commitOnlineEventChoice(p.instanceId,'skip');},[now,game.expedition?.events.pendingEvent?.instanceId,game.expedition?.events.pendingEvent?.state,onlineSession?.userId]);
  useEffect(()=>{if(!gameplayWritable||game.expedition?.phase!=='MONSTER_TURN'||game.expedition.pendingRevival)return;if(onlineSession&&gameSessionPhaseRef.current==='active')return;const id=window.setTimeout(()=>setGame(resolveMonsterTurn),Math.round(1000/Math.max(.5,loadPrefs().speed)));return()=>window.clearTimeout(id);},[gameplayWritable,game.expedition?.phase,game.expedition?.pendingRevival,onlineSession?.userId]);
@@ -343,7 +345,7 @@ function App(){
  async function commitOnlineEventChoice(instance:string,choice:string){const lease=gameplayLeaseRef.current,expedition=stateRef.current.expedition;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease||!expedition){commitEvent(s=>resolveEvent(s,instance,choice));return;}try{const eventId=expedition.events.pendingEvent?.eventId;if(eventId==='resource_stronghold'&&choice==='claim'){const pvp=await requestResourceStronghold(lease,expedition.tower,expedition.floor);setStrongholdPvp(pvp);setCloudSyncMessage(pvp.role==='OWNER'?'자원거점 점령을 서버에서 시작했습니다.':'자원거점 쟁탈 요청을 서버에 등록했습니다.');await restoreServerRun(lease);return;}const result=await resolveOnlineExplorationEvent(lease,onlineRunVersion.current,choice);onlineRunVersion.current=result.runVersion;if(result.playerHp===0&&!result.pendingRevival){await settleOnlineRun('dead');return;}await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 이벤트 처리에 실패했습니다.');}}
  async function settleOnlineStrongholdNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease)return;try{await settleOnlineResourceStronghold(lease,onlineRunVersion.current);await restoreServerRun(lease);}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'자원거점 정산에 실패했습니다.');}}
  async function abandonOnlineStrongholdNow(){const lease=gameplayLeaseRef.current;if(!onlineSession||gameSessionPhaseRef.current!=='active'||!lease){setGame(s=>abandonStrongholdAndReturn(s));return;}try{const sharedId=strongholdPvp?.stronghold?.strongholdId;if(sharedId)await abandonResourceStronghold(lease,sharedId);else {const result=await abandonOnlineResourceStronghold(lease,onlineRunVersion.current);onlineRunVersion.current=result.runVersion;}setStrongholdPvp(null);await settleOnlineRun('returned');}catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'자원거점 포기에 실패했습니다.');}}
- function activateGameplay(result:GameSessionResult){if(result.status!=='ACTIVE'||!result.lease)return;recordingAction.current=false;onlineCombatNonce.current=0;onlineRunVersion.current=0;confirmedKillCount.current=0;eventTimeoutHandled.current='';gameplayLeaseRef.current=result.lease;setGameplayLease(result.lease);setGameSessionPlatform(result.activePlatform);setGameSessionHeartbeat(result.heartbeatAt);setGameSessionPhase('active');setGameSessionMessage('이 기기에서 플레이 중입니다.');void loadEntryRecord(result.lease);}
+ function activateGameplay(result:GameSessionResult){if(result.status!=='ACTIVE'||!result.lease)return;recordingAction.current=false;onlineCombatNonce.current=0;onlineRunVersion.current=0;confirmedKillCount.current=0;eventTimeoutHandled.current='';gameplayLeaseRef.current=result.lease;setEntryReadyOwner(null);setGameplayLease(result.lease);setGameSessionPlatform(result.activePlatform);setGameSessionHeartbeat(result.heartbeatAt);setGameSessionPhase('active');setGameSessionMessage('이 기기에서 플레이 중입니다.');void loadEntryRecord(result.lease);}
  function applyGameSessionResult(result:GameSessionResult){setGameSessionPlatform(result.activePlatform);setGameSessionHeartbeat(result.heartbeatAt);if(result.status==='ACTIVE'){activateGameplay(result);return;}gameplayLeaseRef.current=null;setGameplayLease(null);setGameSessionPhase(result.status==='PENDING'?'taking-over':'locked');setGameSessionMessage(result.status==='PENDING'?'기존 기기에 마지막 저장을 요청했습니다.':'같은 Google 계정이 다른 기기에서 플레이 중입니다.');}
  async function retryGameSession(){setGameSessionPhase('acquiring');setGameSessionMessage('계정의 플레이 권한을 다시 확인하고 있습니다.');try{applyGameSessionResult(await acquireGameSession());}catch(error){setGameSessionPhase('error');setGameSessionMessage(error instanceof Error?error.message:'플레이 세션을 확인하지 못했습니다.');}}
  async function applyLatestCloud(){try{const remote=await loadCloudSave();if(remote){const nextState=mergeServerRecordState(remote.payload);createRepository(gameStorage).save(nextState);stateRef.current=nextState;flushSync(()=>setGame(nextState));setCloudRevision(remote.revision);setSaved('클라우드');return nextState;}}catch{}return null;}
@@ -378,6 +380,7 @@ function App(){
  async function runCloudSync(){
   const lease=gameplayLeaseRef.current;
   if(combatFixtureName||!onlineConfigured||!getStoredSession()||gameSessionPhaseRef.current!=='active'||!lease)return;
+  if(!isEntryCloudSyncReady(lease,entryReadyOwner))return;
   if(stateRef.current.expedition){await restoreServerRun(lease);return;}
   if(cloudBusy.current){cloudQueued.current=true;return;}
   cloudBusy.current=true;setCloudSyncStatus('syncing');
@@ -443,13 +446,13 @@ function App(){
   }catch(error){setCloudSyncStatus('error');setCloudSyncMessage(error instanceof Error?error.message:'서버 전투 처리에 실패했습니다.');}finally{recordingAction.current=false;}})();
  }
  async function loadEntryRecord(lease:GameplayLease){
-  const owner=lease.leaseId+':'+lease.generation;
+  const owner=entrySyncOwner(lease);
   if(entryLoadOwner.current===owner)return;
-  entryLoadOwner.current=owner;entryRestoreError.current='';setEntryLoadStatus('loading');setEntryLoadError('');
+  entryLoadOwner.current=owner;entryRestoreError.current='';setEntryReadyOwner(null);setEntryLoadStatus('loading');setEntryLoadError('');
   try{
    const restored=await restoreServerRun(lease);
    if(entryLoadOwner.current!==owner||!isHuntingLeaseCurrent(lease,gameplayLeaseRef.current)||getStoredSession()?.userId!==onlineSession?.userId)return;
-   setEntryLoadStatus(restored?'ready':'error');
+   setEntryReadyOwner(restored?owner:null);setEntryLoadStatus(restored?'ready':'error');
    if(!restored)setEntryLoadError(entryRestoreError.current||'기록을 불러오지 못했습니다. 다시 시도해 주세요.');
   }finally{if(entryLoadOwner.current===owner)entryLoadOwner.current=null;}
  }
