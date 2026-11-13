@@ -60,7 +60,9 @@ test('new onboarding uses approved archival job cards, parchment nickname form a
  assert.match(ui,/\['warrior','mage','archer'\]/);
  assert.match(ui,/assetUrl\(job\.art\)/);
  assert.match(ui,/onRegister\(validation\.nickname\)/);
- assert.match(ui,/saveOnboardingClass\(userId,selected,localStorage\)/);
+ assert.match(ui,/lockPermanentClass\(userId,selected\)/);
+ assert.match(ui,/adoptPermanentClass\(userId,committed,localStorage\)/);
+ assert.match(ui,/loadPermanentClass\(userId\)/);
  assert.match(ui,/onReady\(profile\)/);
  assert.match(ui,/hasOnboardingStorySeen\(/);
  assert.match(ui,/tower:replay-world-intro/);
