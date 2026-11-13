@@ -1,6 +1,7 @@
 import React,{useEffect,useState,type FormEvent} from 'react';
 import {CLASS_CATALOG,type ClassId} from '../../game/classes/progression';
 import {assetUrl} from '../../game/data/graphics';
+import {Glyph} from '../../ui/mobile';
 import {validateNickname,type PlayerProfile} from '../../online/playerProfiles';
 import {hasSeenWorldIntro} from './worldIntroState';
 import {hasOnboardingStorySeen,markOnboardingStorySeen,onboardingClassKey,readOnboardingClass,saveOnboardingClass} from './firstTimeOnboardingState';
@@ -90,7 +91,7 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
       const job=CLASS_CATALOG[id];
       const isSelected=selected===id;
       return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-pressed={isSelected} disabled={busy||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
-       <span className="tc-first__class-mark" aria-hidden="true">{id==='warrior'?'⚔':id==='mage'?'✦':'⌁'}</span>
+       <span className="tc-first__class-mark" aria-hidden="true"><Glyph name={id==='warrior'?'sword':id==='mage'?'staff':'bow'}/></span>
        <strong>{job.name}</strong>
        <small>{ROLES[id]}</small>
        <span className="tc-first__portrait"><img src={assetUrl(job.art)} alt="" loading="eager"/></span>
