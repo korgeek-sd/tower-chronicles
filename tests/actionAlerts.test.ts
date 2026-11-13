@@ -41,3 +41,13 @@ test('red-dot markers are only shown for real actions and refresh after successf
  assert.match(css,/\.tc-action-alert-dot\{/);
  assert.doesNotMatch(app,/actionAlerts\.quests\s*=\s*true/);
 });
+
+
+test('claimable red indicators use compact square geometry, not circles',()=>{
+ const css=readFileSync('src/mobile-game.css','utf8');
+ const block=css.match(/\.tc-action-alert-dot\{([^}]*)\}/)?.[1];
+ assert.ok(block,'shared action marker rule must exist');
+ assert.match(block,/width:10px;height:10px/);
+ assert.match(block,/border-radius:0(?:;|\\s)/,'show sharp square corners');
+ assert.doesNotMatch(block,/border-radius:50%/);
+});
