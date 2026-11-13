@@ -460,3 +460,34 @@
  display:block;width:100%;height:100%;object-fit:contain;
  object-position:center center;image-rendering:auto;
 }
+
+
+/* fill unused rune-card space: 2026-11-13 */
+/* The cards are tall on portrait phones. Use most of that height for a
+   proportionally covered rune close-up; crop only horizontal ornamentation,
+   never stretch the 320×144 artwork. Center the labels below the artwork. */
+.tc-class-choice-card{gap:0;justify-content:flex-start}
+.tc-class-choice-art{
+ flex:0 0 65%;min-height:0;
+ border-bottom:1px solid #936a4860;
+}
+.tc-class-choice-art img{
+ display:block;width:100%;height:100%;
+ object-fit:cover;object-position:center center;
+}
+.tc-class-choice-caption{
+ display:flex;flex:1 1 0;min-height:0;width:100%;
+ flex-direction:column;align-items:center;justify-content:center;
+ gap:3px;padding:5px 2px 3px;overflow:hidden;
+}
+.tc-class-choice-caption strong{flex:0 0 auto;padding:1px 0}
+.tc-class-choice-caption .tc-class-choice-description{flex:0 1 auto;max-height:32px}
+.tc-class-choice-caption em{flex:0 0 auto}
+@media(max-height:650px){
+ .tc-class-choice-art{flex:0 0 62%}
+ .tc-class-choice-caption{gap:1px;padding:3px 1px}
+}
+@media(max-height:530px){
+ .tc-class-choice-art{flex:0 0 58%}
+ .tc-class-choice-caption{gap:1px;padding:2px 1px}
+}

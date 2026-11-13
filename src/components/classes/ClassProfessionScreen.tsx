@@ -198,9 +198,11 @@ export function ClassProfessionScreen({userId,lease}:Props){
       <span className="tc-class-choice-art" aria-hidden="true">
        <img src={assetUrl(RUNE_ART[i])} alt=""/>
       </span>
-      <strong>{choice.name}</strong>
-      <small className="tc-class-choice-description">{choice.description}</small>
-      {choice.mp!==undefined&&<em>MP {choice.mp} · 대기 {choice.cooldown}턴</em>}
+      <span className="tc-class-choice-caption">
+       <strong>{choice.name}</strong>
+       <small className="tc-class-choice-description">{choice.description}</small>
+       {choice.mp!==undefined&&<em>MP {choice.mp} · 대기 {choice.cooldown}턴</em>}
+      </span>
      </button>;
     })}
    </div>

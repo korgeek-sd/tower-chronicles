@@ -235,3 +235,20 @@ test('choice rune artwork returns to original 38% height while card caption is c
  const screen=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
  assert.match(screen,/tc-class-choice-detail/,'the full ability description stays accessible below the cards');
 });
+
+
+test('rune choice cards use spare height for enlarged undistorted artwork and centered captions',()=>{
+ const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
+ const css=readFileSync('src/components/classes/class-profession.css','utf8');
+ const fix=css.split('/* fill unused rune-card space: 2026-11-13 */')[1];
+ assert.ok(fix,'rune card space distribution rules must exist');
+ assert.match(component,/<span className="tc-class-choice-caption">[\s\S]*?<strong>\{choice.name\}<\/strong>[\s\S]*?<small className="tc-class-choice-description">/,'skill name and description should be grouped into one centered caption');
+ assert.match(fix,/\.tc-class-choice-art\{[^}]*flex:0 0 65%/,'use more of each card for rune artwork');
+ assert.match(fix,/\.tc-class-choice-art img\{[^}]*object-fit:cover/,'cover area proportionally, cropping edges rather than stretching');
+ assert.match(fix,/\.tc-class-choice-caption\{[^}]*flex:1 1 0;[^}]*justify-content:center/,'center the remaining text vertically instead of leaving a blank lower half');
+ assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-choice-art\{flex:0 0 58%/,'short phones must leave room for labels');
+ const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
+ assert.equal((html.match(/class="tc-class-choice-caption"/g)??[]).length,3);
+ for(const name of ['choice-rune-gold-v1.svg','choice-rune-violet-v1.svg','choice-rune-crimson-v1.svg'])assert.ok(html.includes(name),name);
+ assert.doesNotMatch(component,/backgroundSize:'300% 100%'/);
+});
