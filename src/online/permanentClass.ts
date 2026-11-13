@@ -17,8 +17,7 @@ export function createPermanentClassApi(
  };
  const headers=(token:string)=>({apikey:config.publishableKey,Authorization:'Bearer '+token,'Content-Type':'application/json'});
  const url=config.url+'/rest/v1/game_initial_classes';
- return {
-  load:async(userId:string):Promise<ClassId|null>=>{
+ const load=async(userId:string):Promise<ClassId|null>=>{
    const current=await connected(userId);
    const response=await request(url+'?select=user_id,class_id&user_id=eq.'+encodeURIComponent(userId)+'&limit=1',{
     headers:headers(current.accessToken),signal:AbortSignal.timeout(10000)
@@ -30,7 +29,9 @@ export function createPermanentClassApi(
    const row=data[0] as Partial<ClassRow>;
    if(row.user_id!==userId||!isPermanentClass(row.class_id))throw Error('서버의 직업 기록이 올바르지 않습니다.');
    return row.class_id;
-  },
+  };
+ return {
+  load,
   lock:async(userId:string,id:ClassId):Promise<ClassId>=>{
    if(!isPermanentClass(id))throw Error('선택할 수 없는 직업입니다.');
    const current=await connected(userId);
@@ -42,7 +43,7 @@ export function createPermanentClassApi(
     let code='';
     try{const error=await response.json() as {code?:string};code=error?.code??'';}catch{}
     if(response.status===409||code==='23505'){
-     const existing=await this.load(userId);
+     const existing=await load(userId);
      if(existing===id)return id;
      throw Error('이미 확정된 직업은 변경할 수 없습니다.');
     }
