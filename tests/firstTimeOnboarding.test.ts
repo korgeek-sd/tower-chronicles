@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {FirstTimeOnboarding} from '../src/components/intro/FirstTimeOnboarding';
 import {CLASS_CATALOG} from '../src/game/classes/progression';
 import {onboardingClassKey,readOnboardingClass,saveOnboardingClass,storySeenKey,markOnboardingStorySeen,hasOnboardingStorySeen} from '../src/components/intro/firstTimeOnboardingState';
 
@@ -72,4 +75,19 @@ test('new onboarding uses approved archival job cards, parchment nickname form a
  assert.match(intro,/WORLD_INTRO_PAGES/);
  assert.match(intro,/tower:world-intro-finished/);
  assert.match(intro,/current\.body\.split\('\\n\\n'\)/);
+});
+
+
+test('first-time class screen renders the real three class assets and an accessible selection action',()=>{
+ const html=renderToStaticMarkup(React.createElement(FirstTimeOnboarding,{
+  userId:'new-user',
+  onRegister:async nickname=>({userId:'new-user',nickname}),
+  onReady:()=>{},onLogout:()=>{}
+ }));
+ for(const id of ['전사','마법사','궁수'])assert.ok(html.includes(id),id);
+ assert.equal((html.match(/class="tc-first__class-card tc-feel-press/g)??[]).length,3);
+ for(const path of ['contract_mercenary.webp','soulcaster.webp','hunter.webp'])assert.ok(html.includes(path),path);
+ assert.match(html,/aria-label="시작 직업 선택"/);
+ assert.match(html,/선택 완료/);
+ assert.match(html,/disabled=""/,'no class is implicitly chosen for a new player');
 });
