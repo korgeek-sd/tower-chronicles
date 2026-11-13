@@ -2,6 +2,7 @@ import React,{useEffect,useRef,useState,type ReactNode} from 'react';
 import {Studio1524Splash} from '../splash/Studio1524Splash';
 import {BackgroundMusic} from '../BackgroundMusic';
 import {hasSeenWorldIntro,markWorldIntroSeen,WORLD_INTRO_PAGES} from './worldIntroState';
+import {markOnboardingStorySeen} from './firstTimeOnboardingState';
 import './world-intro.css';
 import {getStoredSession} from '../../online/auth';
 import {StartScreen} from './StartScreen';
@@ -42,7 +43,7 @@ export function GameEntry({children,initialError=''}:{children:ReactNode;initial
   return()=>{document.body.style.overflow=oldOverflow;if(previousFocus.current?.isConnected)previousFocus.current.focus();};
  },[visible]);
  useEffect(()=>{if(visible){if(introFrame.current)introFrame.current.scrollTop=0;heading.current?.focus({preventScroll:true});}},[page,visible]);
- function finish(){try{if(!preview)markWorldIntroSeen(localStorage);}catch{/* Storage can be unavailable in private contexts. */}if(!preview)window.dispatchEvent(new Event('tower:world-intro-finished'));setOpen(false);}
+ function finish(){try{if(!preview)markWorldIntroSeen(localStorage);}catch{/* Storage can be unavailable in private contexts. */}if(!preview){const account=getStoredSession()?.userId;if(account)markOnboardingStorySeen(localStorage,account);window.dispatchEvent(new Event('tower:world-intro-finished'));}setOpen(false);}
  const current=WORLD_INTRO_PAGES[page];
  return <>
   {splashDone&&<BackgroundMusic/>}
