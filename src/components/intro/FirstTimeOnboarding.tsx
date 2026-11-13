@@ -3,7 +3,7 @@ import {CLASS_CATALOG,type ClassId} from '../../game/classes/progression';
 import {assetUrl} from '../../game/data/graphics';
 import {validateNickname,type PlayerProfile} from '../../online/playerProfiles';
 import {hasSeenWorldIntro} from './worldIntroState';
-import {hasOnboardingStorySeen,markOnboardingStorySeen,onboardingClassKey,readOnboardingClass,saveOnboardingClass,storySeenKey} from './firstTimeOnboardingState';
+import {hasOnboardingStorySeen,markOnboardingStorySeen,onboardingClassKey,readOnboardingClass,saveOnboardingClass} from './firstTimeOnboardingState';
 import './first-time-onboarding.css';
 
 type Props={
