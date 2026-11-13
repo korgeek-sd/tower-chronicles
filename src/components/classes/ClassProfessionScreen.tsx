@@ -17,11 +17,11 @@ const IDS:ClassId[]=['warrior','mage','archer'];
 const ART_ROOT='assets/classes/skilltree-20261111/';
 const CREST=ART_ROOT+'warrior-lion-crest-v1.webp';
 const GROWTH_ICONS=ART_ROOT+'warrior-growth-icons-aligned-v2.svg';
-// Standalone undistorted rune crops (320×144) shared by all professions.
+// Approved concept 1: three subdued, independent rune paintings.
 const RUNE_ART=[
- ART_ROOT+'choice-rune-gold-v1.svg',
- ART_ROOT+'choice-rune-violet-v1.svg',
- ART_ROOT+'choice-rune-crimson-v1.svg',
+ ART_ROOT+'choice-rune-gold-v2.webp',
+ ART_ROOT+'choice-rune-violet-v2.webp',
+ ART_ROOT+'choice-rune-crimson-v2.webp',
 ] as const;
 const TYPE_NAME={active:'액티브',passive:'패시브',trait:'특성'} as const;
 const KEY=(id:string|null)=>'tower-class-progression-v1:'+(id??'guest');
