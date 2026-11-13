@@ -450,3 +450,13 @@
  .tc-class-choice-card small{font-size:8px;line-height:1.1;-webkit-line-clamp:2}
  .tc-class-choice-description{max-height:18px}
 }
+
+
+/* separate rune artwork without distortion: 2026-11-13 */
+/* Each crop is a 320×144 self-contained image. Keep the art area unchanged;
+   fit the complete original crop instead of stretching it to fill a tall box. */
+.tc-class-choice-art{overflow:hidden;background-image:none;place-items:center}
+.tc-class-choice-art img{
+ display:block;width:100%;height:100%;object-fit:contain;
+ object-position:center center;image-rendering:auto;
+}
