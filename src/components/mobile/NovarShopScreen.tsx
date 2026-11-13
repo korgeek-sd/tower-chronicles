@@ -181,6 +181,7 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
      <div className="tc-novar-attendance-actions">
       <button type="button" className="tc-novar-attendance-claim" onClick={()=>void claimToday()} disabled={!userId||!lease||!attendance||attendance.todayClaimed||attendanceBusy}>
        {attendanceBusy?'수령 중...':attendance?.todayClaimed?'오늘 수령 완료':!userId||!lease?'로그인 후 수령':attendanceLoading?'불러오는 중...':'오늘 무료 받기'}
+       {attendance&&!attendance.todayClaimed&&!!userId&&!!lease&&!attendanceBusy&&<i className="tc-action-alert-dot" aria-hidden="true"/>}
       </button>
       <button type="button" className="tc-novar-attendance-buy" onClick={()=>previewPackage('attendance')}><span>유료 패스</span><strong>4,900원 ›</strong></button>
      </div>
