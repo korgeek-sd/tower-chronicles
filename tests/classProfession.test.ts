@@ -160,16 +160,20 @@ test('three rune images remain undistorted and individually accessible for every
   assert.match(image,/viewBox="0 0 320 144"/,'each rune keeps its 320 by 144 source ratio');
   assert.match(image,new RegExp('<image x="'+(-i*320)+'" y="0" width="960" height="144"'),'crop source atlas without scaling or stretching');
   assert.match(image,/href="data:image\/webp;base64,UklG/,'asset embeds original WebP and works in APK without external requests');
+  const updated=readFileSync('public/assets/classes/skilltree-20261111/choice-rune-'+name+'-v2.webp');
+  assert.ok(updated.length>1000,'optimized individual rune must be a real image');
+  assert.equal(updated.toString('ascii',0,4),'RIFF');
+  assert.equal(updated.toString('ascii',8,12),'WEBP');
  }
  const component=readFileSync('src/components/classes/ClassProfessionScreen.tsx','utf8');
- for(const name of names)assert.ok(component.includes('choice-rune-'+name+'-v1.svg'),name+' sprite must be independently addressable');
+ for(const name of names)assert.ok(component.includes('choice-rune-'+name+'-v2.webp'),name+' sprite must be independently addressable');
  assert.doesNotMatch(component,/backgroundSize:'300% 100%'|backgroundPosition:\(i\*50\)/,'no bitmap stretching');
  assert.match(component,/<img src=\{assetUrl\(RUNE_ART\[i\]\)\} alt=""\/>/,'images must be rendered as contained images');
  const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
- for(const name of names)assert.ok(html.includes('choice-rune-'+name+'-v1.svg'),name+' rendered');
+ for(const name of names)assert.ok(html.includes('choice-rune-'+name+'-v2.webp'),name+' rendered');
  assert.equal((html.match(/class="tc-class-choice-art"/g)??[]).length,3);
  const css=readFileSync('src/components/classes/class-profession.css','utf8');
- assert.match(css,/\.tc-class-choice-art img\{[^}]*object-fit:contain/,'CSS must preserve the original aspect ratio');
+ assert.match(css.split('/* approved rune artwork update: 2026-11-13 */')[1],/\.tc-class-choice-art img\{[^}]*object-fit:contain/,'final rune image display keeps the full square composition');
  assert.doesNotMatch(component,/<span className="tc-class-choice-art"[^>]*style=/,'do not transform rune atlases through inline background sizing');
 });
 
@@ -249,6 +253,6 @@ test('rune choice cards use spare height for enlarged undistorted artwork and ce
  assert.match(fix,/@media\(max-height:530px\)\{[^}]*\.tc-class-choice-art\{flex:0 0 58%/,'short phones must leave room for labels');
  const html=renderToStaticMarkup(React.createElement(ClassProfessionScreen,{userId:null,lease:null,onHome:()=>{}}));
  assert.equal((html.match(/class="tc-class-choice-caption"/g)??[]).length,3);
- for(const name of ['choice-rune-gold-v1.svg','choice-rune-violet-v1.svg','choice-rune-crimson-v1.svg'])assert.ok(html.includes(name),name);
+ for(const name of ['choice-rune-gold-v2.webp','choice-rune-violet-v2.webp','choice-rune-crimson-v2.webp'])assert.ok(html.includes(name),name);
  assert.doesNotMatch(component,/backgroundSize:'300% 100%'/);
 });
