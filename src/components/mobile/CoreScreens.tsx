@@ -33,7 +33,7 @@ import {huntingLevel,VITALITY_CAP,type HuntingState} from '../../game/hunting/mo
 
 export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
 
-export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=null}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null}){
+export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=null,actionAlerts}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null;actionAlerts?:{quests:boolean;attendance:boolean}}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
  const facilityToggle=useRef<HTMLButtonElement>(null);
  const [huntStatus,setHuntStatus]=useState<Pick<HuntingState,'vitality'|'currentHp'|'maxHp'|'currentMp'|'maxMp'|'experience'>|null>(null);
@@ -94,7 +94,7 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=nu
     <header className="tc-village-heading"><div><h2><HubIcon name="world"/>노바르 거점</h2><span>{game.expedition?'탑에서 원정이 진행 중입니다':'탑의 그늘 아래, 다시 모이는 거점'}</span></div><button type="button" className="tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/>마을 이동 <span aria-hidden="true">›</span></button></header>
     <div className="tc-village-scene"><div className="tc-village-map">
      <img className="tc-village-art" src={assetUrl('assets/backgrounds/hub/novar-moonlit-v3.webp')} alt="" decoding="async"/>
-     <nav className="tc-camp-v2-quick" aria-label="노바르 마을 시설 지도">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><span className="tc-village-nameplate"><HubIcon name={item.id}/><span>{item.name}</span></span></button>)}</nav>
+     <nav className="tc-camp-v2-quick" aria-label="노바르 마을 시설 지도">{mainFacilities.map(item=><button type="button" key={item.id} className="tc-feel-press" data-game-feel="press" data-facility={item.id} onClick={item.action}><span className="tc-village-nameplate"><HubIcon name={item.id}/><span>{item.name}</span>{item.id==='quests'&&actionAlerts?.quests&&<i className="tc-action-alert-dot is-facility" aria-hidden="true"/>}</span></button>)}</nav>
      <div className="tc-village-player" aria-hidden="true">{equippedArt?<img src={assetUrl(equippedArt)} alt=""/>:<Glyph name={weaponId}/>}</div>
      </div>
      {showAllFacilities&&<nav id="tc-camp-extra-facilities" className="tc-camp-v2-extra" aria-label="추가 시설" onKeyDown={e=>{if(e.key==='Escape'){setShowAllFacilities(false);facilityToggle.current?.focus();}}}>{extraFacilities.map(item=><button type="button" key={item.id} data-facility={item.id} onClick={item.action}><Glyph name={item.glyph}/>{item.name}</button>)}</nav>}
