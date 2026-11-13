@@ -59,7 +59,7 @@ test('new onboarding uses approved archival job cards, parchment nickname form a
  assert.match(ui,/onRegister\(validation\.nickname\)/);
  assert.match(ui,/saveOnboardingClass\(userId,selected,localStorage\)/);
  assert.match(ui,/onReady\(profile\)/);
- assert.match(ui,/storySeenKey\(/);
+ assert.match(ui,/hasOnboardingStorySeen\(/);
  assert.match(ui,/tower:replay-world-intro/);
  assert.match(ui,/tower:world-intro-finished/);
  assert.match(ui,/tc-first__class-card/);
