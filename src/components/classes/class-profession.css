@@ -491,3 +491,14 @@
  .tc-class-choice-art{flex:0 0 58%}
  .tc-class-choice-caption{gap:1px;padding:2px 1px}
 }
+
+
+/* approved rune artwork update: 2026-11-13 */
+/* Calm square v2 emblems are complete paintings; show all edges and do not
+   crop/zoom to imitate the previous wide rune atlas. */
+.tc-class-choice-art{background-color:#130f17}
+.tc-class-choice-art img{
+ display:block;width:100%;height:100%;
+ object-fit:contain;object-position:center center;
+ image-rendering:auto;
+}
