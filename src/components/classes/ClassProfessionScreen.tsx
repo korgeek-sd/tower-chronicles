@@ -1,6 +1,8 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {getHuntingState} from '../../online/hunting';
+import {loadPermanentClass,lockPermanentClass} from '../../online/permanentClass';
+import {adoptPermanentClass} from '../intro/firstTimeOnboardingState';
 import {huntingLevel} from '../../game/hunting/model';
 import {assetUrl} from '../../game/data/graphics';
 import {Glyph} from '../../ui/mobile';
@@ -58,11 +60,28 @@ export function ClassProfessionScreen({userId,lease}:Props){
  const [dirty,setDirty]=useState(false);
  const [notice,setNotice]=useState('');
  const [saveFailed,setSaveFailed]=useState(false);
+ const [savingClass,setSavingClass]=useState(false);
  useEffect(()=>{
-  const saved=readProgress(userId);
-  setProgress(saved);setPreview(saved.classId??'warrior');setReady(true);
+  let active=true;
+  const local=readProgress(userId);
+  setProgress(local);setPreview(local.classId??'warrior');setReady(!userId);
   setDirty(false);setNotice('');setConfirmClass(false);
   setConfirmGrowth(false);setBattleOpen(false);setPreviewChoice(null);
+  if(!userId)return()=>{active=false;};
+  void (async()=>{
+   // First trust any existing server record. Older accounts migrate their
+   // on-device class exactly once if no permanent server record exists.
+   let serverClass=await loadPermanentClass(userId);
+   if(!serverClass&&local.classId)serverClass=await lockPermanentClass(userId,local.classId);
+   const resolved=serverClass?adoptPermanentClass(userId,serverClass,localStorage):local;
+   if(!active)return;
+   setProgress(resolved);setPreview(resolved.classId??'warrior');
+   setReady(true);setSaveFailed(false);
+  })().catch(error=>{if(active){
+   setReady(false);setSaveFailed(true);
+   setNotice(error instanceof Error?error.message:'서버 직업 기록을 확인하지 못했습니다.');
+  }});
+  return()=>{active=false;};
  },[userId]);
  useEffect(()=>{
   let active=true;
@@ -92,17 +111,19 @@ export function ClassProfessionScreen({userId,lease}:Props){
  const isDetailPreview=selectedChoice===null;
  const unlocked=level!==null&&level>=stage.level;
  const canLearn=ready&&hasPersisted&&unlocked&&learnedChoice===null&&previewChoice!==null;
- function commitClass(){
-  if(!ready||hasPersisted)return;
-  const next=chooseInitialClass(progress,preview);
+ async function commitClass(){
+  if(!ready||hasPersisted||savingClass)return;
+  setSavingClass(true);
   try{
-   localStorage.setItem(KEY(userId),JSON.stringify(next));
+   if(userId)await lockPermanentClass(userId,preview);
+   const next=userId?adoptPermanentClass(userId,preview,localStorage):chooseInitialClass(progress,preview);
+   if(!userId)localStorage.setItem(KEY(userId),JSON.stringify(next));
    setProgress(next);setSaveFailed(false);
-   setNotice('직업이 확정되었습니다. 이후 직업은 변경할 수 없습니다.');
-  }catch{
-   setSaveFailed(true);setNotice('직업 저장에 실패했습니다. 저장 공간을 확인해 주세요.');
-  }
-  setConfirmClass(false);
+   setNotice('직업이 서버에 확정되었습니다. 이후 변경할 수 없습니다.');
+   setConfirmClass(false);
+  }catch(error){
+   setSaveFailed(true);setNotice(error instanceof Error?error.message:'직업을 서버에 저장하지 못했습니다.');
+  }finally{setSavingClass(false);}
  }
  function chooseGrowth(){
   if(!canLearn||previewChoice===null)return;
@@ -226,8 +247,8 @@ export function ClassProfessionScreen({userId,lease}:Props){
   <p className={'tc-class-status'+(saveFailed?' error':'')} role="status">{notice||'직업·성장은 이 기기에 저장되며 서버 전투에는 아직 연결되지 않습니다.'}</p>
   {confirmClass&&<div className="tc-class-modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="tc-class-choose-title" className="tc-class-modal">
    <h3 id="tc-class-choose-title">{job.name} 직업으로 시작하시겠습니까?</h3>
-   <p>직업 선택 후 다른 직업으로 변경할 수 없습니다. 이 선택은 현재 기기에 저장됩니다.</p>
-   <div className="tc-class-modal-actions"><button type="button" onClick={()=>setConfirmClass(false)}>취소</button><button className="primary" type="button" onClick={commitClass}>직업 확정</button></div>
+   <p>직업을 확정하면 Google 계정에 영구 저장되며 다른 기기에서도 변경할 수 없습니다.</p>
+   <div className="tc-class-modal-actions"><button type="button" onClick={()=>setConfirmClass(false)}>취소</button><button className="primary" type="button" onClick={()=>void commitClass()} disabled={savingClass||!ready}>{savingClass?'서버에 기록 중…':'직업 확정'}</button></div>
   </section></div>}
   {confirmGrowth&&<div className="tc-class-modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="tc-class-growth-title" className="tc-class-modal">
    <h3 id="tc-class-growth-title">Lv.{stage.level} · {previewChoice===null?'능력':stage.options[previewChoice].name}</h3>
