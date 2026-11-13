@@ -156,7 +156,7 @@ test('three rune images remain undistorted and individually accessible for every
  assert.ok(original.length>12000,'original artwork must remain available');
  const names=['gold','violet','crimson'];
  for(const [i,name] of names.entries()){
-  const image=readFileSync('public/assets/classes/skilltree-20261111/choice-rune-'+name+'-v2.webp','utf8');
+  const image=readFileSync('public/assets/classes/skilltree-20261111/choice-rune-'+name+'-v1.svg','utf8');
   assert.match(image,/viewBox="0 0 320 144"/,'each rune keeps its 320 by 144 source ratio');
   assert.match(image,new RegExp('<image x="'+(-i*320)+'" y="0" width="960" height="144"'),'crop source atlas without scaling or stretching');
   assert.match(image,/href="data:image\/webp;base64,UklG/,'asset embeds original WebP and works in APK without external requests');
