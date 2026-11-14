@@ -110,7 +110,6 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
       const isSelected=selected===id;
       return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-label={job.name+' · '+ROLES[id]} aria-pressed={isSelected} disabled={busy||!classChecked||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
        <span className="tc-first__portrait"><img src={assetUrl(ONBOARDING_CLASS_ART[id])} alt="" loading="eager"/></span>
-       <span className="tc-first__choice-check" aria-hidden="true">{isSelected?'◆':'◇'}</span>
       </button>;
      })}
     </div>
