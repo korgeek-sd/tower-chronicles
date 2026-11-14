@@ -60,9 +60,11 @@ test('new onboarding uses localized image-only archival cards, parchment nicknam
  assert.match(ui,/getOnboardingClassLabel\(id\)/);
  assert.match(ui,/\['warrior','mage','archer'\]/);
  assert.match(ui,/assetUrl\(ONBOARDING_CLASS_ART\[id\]\)/);
- assert.match(ui,/onRegister\(validation\.nickname\)/);
- assert.match(ui,/lockPermanentClass\(userId,selected\)/);
- assert.match(ui,/adoptPermanentClass\(userId,committed,localStorage\)/);
+ assert.match(ui,/onRegister\(validation\.nickname,finalClass\)/);
+ assert.doesNotMatch(ui,/lockPermanentClass\(/,'going to the name step must not lock the class');
+ assert.match(ui,/function next\(\)/);
+ assert.match(ui,/setError\(''\);setStep\('name'\)/);
+ assert.match(ui,/adoptPermanentClass\(userId,finalClass,localStorage\)/);
  assert.match(ui,/loadPermanentClass\(userId\)/);
  assert.match(ui,/onReady\(profile\)/);
  assert.match(ui,/hasOnboardingStorySeen\(/);
@@ -70,6 +72,8 @@ test('new onboarding uses localized image-only archival cards, parchment nicknam
  assert.match(ui,/tower:world-intro-finished/);
  assert.match(ui,/tc-first__class-card/);
  assert.match(ui,/tc-first__book/);
+ assert.match(ui,/직업 변경/);
+ assert.match(ui,/이름을 최종 등록하기 전까지 직업을 자유롭게 변경할 수 있습니다/);
  assert.match(ui,/로그아웃/);
  assert.match(css,/\.tc-first__book\{/);
  assert.match(css,/\.tc-first__class-card\.is-selected/);
@@ -92,7 +96,7 @@ test('first-time class screen renders the real three class assets and an accessi
  for(const path of ['warrior-art-v2.svg','mage-art-v2.svg','archer-art-v2.svg'])assert.ok(html.includes(path),path);
  assert.equal((html.match(/class="tc-first__class-title"/g)??[]).length,3,'the three labels must render as actual text');
  assert.match(html,/aria-label="시작 직업 선택"/);
- assert.match(html,/선택 완료/);
+ assert.match(html,/이름 정하기/);
  assert.match(html,/disabled=""/,'no class is implicitly chosen for a new player');
 });
 
