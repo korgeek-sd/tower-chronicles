@@ -79,8 +79,9 @@ test('database grants one immutable server row per authenticated Google account'
  assert.match(screen,/await lockPermanentClass\(userId,preview\)/);
  assert.match(screen,/await loadPermanentClass\(userId\)/);
  assert.match(screen,/adoptPermanentClass\(userId,serverClass,localStorage\)/);
- assert.match(signup,/await lockPermanentClass\(userId,selected\)/);
- assert.match(signup,/await onRegister\(validation\.nickname\)/);
- assert.ok(signup.indexOf('lockPermanentClass(userId,selected)')<signup.indexOf('onRegister(validation.nickname)'));
+ assert.doesNotMatch(signup,/lockPermanentClass\(/,'class selection remains provisional until nickname registration');
+ assert.match(signup,/onRegister\(validation\.nickname,finalClass\)/);
+ assert.match(signup,/setError\(''\);setStep\('name'\)/,'the next step does not persist the class');
+ assert.match(main,/onRegister=\{registerInitialCharacter\}/,'name and initial class must register atomically');
  assert.match(main,/loadPermanentClass\(userId\)/);
 });
