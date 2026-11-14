@@ -4,14 +4,14 @@ import {assetUrl} from '../../game/data/graphics';
 import {getOnboardingClassLabel} from './onboardingClassLabels';
 
 import {validateNickname,type PlayerProfile} from '../../online/playerProfiles';
-import {loadPermanentClass,lockPermanentClass} from '../../online/permanentClass';
+import {loadPermanentClass} from '../../online/permanentClass';
 import {hasSeenWorldIntro} from './worldIntroState';
 import {hasOnboardingStorySeen,markOnboardingStorySeen,readOnboardingClass,adoptPermanentClass} from './firstTimeOnboardingState';
 import './first-time-onboarding.css';
 
 type Props={
  userId:string;
- onRegister:(nickname:string)=>Promise<PlayerProfile>;
+ onRegister:(nickname:string,classId:ClassId)=>Promise<PlayerProfile>;
  onReady:(profile:PlayerProfile)=>void;
  onLogout:()=>void;
 };
@@ -26,7 +26,6 @@ const ONBOARDING_CLASS_ART:Record<ClassId,string>={
 };
 
 export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
- const [lockedClass,setLockedClass]=useState<ClassId|null>(null);
  const [selected,setSelected]=useState<ClassId|null>(()=>typeof localStorage==='undefined'?null:readOnboardingClass(userId,localStorage));
  const [classChecked,setClassChecked]=useState(false);
  const [step,setStep]=useState<'class'|'name'>('class');
@@ -35,13 +34,14 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
  const [error,setError]=useState('');
  const validation=validateNickname(value);
 
- // Never allow a class confirmation before the account's immutable server record is checked.
+ // Read any provisional class to preselect it, but never lock it before the
+ // nickname and class are registered together in the final step.
  useEffect(()=>{
   let active=true;setClassChecked(false);
   void loadPermanentClass(userId).then(saved=>{
    if(!active)return;
-   if(saved){setLockedClass(saved);setSelected(saved);adoptPermanentClass(userId,saved,localStorage);}
-   else{const local=readOnboardingClass(userId,localStorage);if(local){setLockedClass(local);setSelected(local);}}
+   if(saved)setSelected(saved);
+   else{const local=readOnboardingClass(userId,localStorage);if(local)setSelected(local);}
    setError('');setClassChecked(true);
   }).catch(err=>{if(active){setError(err instanceof Error?err.message:'서버 직업 기록을 확인하지 못했습니다.');setClassChecked(false);}});
   return()=>{active=false;};
@@ -61,29 +61,27 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
   return()=>{window.removeEventListener('tower:world-intro-finished',onFinished);if(frame)window.cancelAnimationFrame(frame);};
  },[userId]);
 
- async function next(){
+ function next(){
   if(!selected||busy||!classChecked)return;
-  setBusy(true);setError('');
-  try{
-   // The explicit "선택 완료" action is the irrevocable server commit.
-   const committed=await lockPermanentClass(userId,selected);
-   adoptPermanentClass(userId,committed,localStorage);
-   setLockedClass(committed);setSelected(committed);setStep('name');
-  }catch(err){setError(err instanceof Error?err.message:'직업 확정에 실패했습니다. 다시 시도해 주세요.');}
-  finally{setBusy(false);}
+  // Class choice is still provisional. Going back from the name step lets the
+  // player switch freely without touching the server record.
+  setError('');setStep('name');
  }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(busy||!selected||!classChecked||validation.error)return;
-  if(lockedClass!==selected){setError('직업을 먼저 서버에 확정해 주세요.');return;}
   setBusy(true);setError('');
   try{
-   const profile=await onRegister(validation.nickname);
+   // One atomic server transaction records the nickname and final profession.
+   // A failed nickname registration must not lock the selected class.
+   const finalClass=selected;
+   const profile=await onRegister(validation.nickname,finalClass);
    if(profile.userId!==userId)throw new Error('로그인 계정이 변경됐습니다. 다시 확인해 주세요.');
+   // A device-local cache failure must not invalidate a successful server
+   // registration or block entering the game.
+   try{adoptPermanentClass(userId,finalClass,localStorage);}catch{}
    onReady(profile);
   }catch(err){
-   // The initial profession is permanent once the server accepts it, even if
-   // nickname registration fails. Retrying cannot change the server choice.
    setError(err instanceof Error?err.message:'기록을 저장하지 못했습니다. 다시 시도해 주세요.');
   }finally{setBusy(false);}
  }
@@ -103,13 +101,13 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
    {step==='class'?<>
     <div className="tc-first__lead">
      <h2>새로운 길을 선택하십시오.</h2>
-     <p>선택 완료를 누르면 직업이 서버에 확정되며 변경할 수 없습니다.</p>
+     <p>이름을 최종 등록하기 전까지 직업을 자유롭게 변경할 수 있습니다.</p>
     </div>
     <div className="tc-first__class-grid" role="group" aria-label="시작 직업 선택">
      {IDS.map(id=>{
       const isSelected=selected===id;
       const label=getOnboardingClassLabel(id);
-      return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-label={label+' · '+ROLES[id]} aria-pressed={isSelected} disabled={busy||!classChecked||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
+      return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-label={label+' · '+ROLES[id]} aria-pressed={isSelected} disabled={busy||!classChecked} onClick={()=>{setSelected(id);setError('');}}>
        <span className="tc-first__portrait"><img src={assetUrl(ONBOARDING_CLASS_ART[id])} alt="" loading="eager"/></span>
        <span className="tc-first__class-title" aria-hidden="true">{label}</span>
       </button>;
@@ -119,10 +117,9 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
      <span className="tc-first__selection-icon" aria-hidden="true">✧</span>
      {selected?<div><strong>{getOnboardingClassLabel(selected)}</strong><p>{CLASS_CATALOG[selected].description}</p></div>:<div><strong>당신의 길은 아직 정해지지 않았습니다.</strong><p>위의 세 직업 중 하나를 선택하십시오.</p></div>}
     </div>
-    {lockedClass&&<p className="tc-first__notice">이 직업은 서버에 고정됩니다. 변경할 수 없습니다.</p>}
     {error&&<p className="tc-first__notice" role="alert">{error}</p>}
     <footer className="tc-first__actions">
-     <button type="button" className="tc-first__primary tc-feel-press" data-game-feel="press" disabled={!selected||busy||!classChecked} onClick={next}>선택 완료 <span aria-hidden="true">›</span></button>
+     <button type="button" className="tc-first__primary tc-feel-press" data-game-feel="press" disabled={!selected||busy||!classChecked} onClick={next}>이름 정하기 <span aria-hidden="true">›</span></button>
     </footer>
    </>:<>
     <div className="tc-first__lead">
@@ -143,11 +140,11 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
       <span className="tc-first__book-sigil" aria-hidden="true">✧</span>
       <div><small>선택한 직업</small><strong>{selected?getOnboardingClassLabel(selected):'—'}</strong><span>{selected?ROLES[selected]:'직업 미선택'}</span></div>
      </div>
-     <p className="tc-first__warning">확정하면 직업이 계정에 영구 저장되며 변경할 수 없습니다.</p>
+     <p className="tc-first__warning">이름과 직업은 최종 등록 후 변경할 수 없습니다.</p>
     </div>
     <p className="tc-first__form-error" id="tc-first-name-error" role="status">{error||(value?validation.error:'')||'\u00a0'}</p>
     <footer className="tc-first__actions is-name">
-     <button type="button" className="tc-first__secondary" onClick={()=>{setStep('class');setError('');}} disabled={busy}>이전</button>
+     <button type="button" className="tc-first__secondary" onClick={()=>{setStep('class');setError('');}} disabled={busy}>직업 변경</button>
      <button type="submit" form="tc-first-nickname" className="tc-first__primary tc-feel-press" data-game-feel="press" disabled={!selected||busy||!classChecked||!!validation.error}>{busy?'기록 중…':'이 이름을 기록한다'} <span aria-hidden="true">›</span></button>
     </footer>
    </>}
