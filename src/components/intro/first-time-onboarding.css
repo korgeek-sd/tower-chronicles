@@ -42,8 +42,6 @@
 .tc-first__portrait{display:block;flex:1 1 0;min-height:0;width:100%;overflow:hidden;position:relative;background:#100e18}
 .tc-first__portrait:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#17142000 40%,#140e18aa 100%)}
 .tc-first__portrait img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-.tc-first__choice-check{height:19px;line-height:19px;color:#997956;font:20px/19px Georgia,serif}
-.tc-first__class-card.is-selected .tc-first__choice-check{color:#f5cb7d}
 .tc-first__selection{border:1px solid #96704b;background:#1c151acc;display:flex;gap:12px;align-items:center;flex:none;min-height:75px;padding:9px 10px}
 .tc-first__selection-icon{font-size:31px;color:#cda05c;line-height:1}
 .tc-first__selection div{min-width:0}
@@ -133,24 +131,19 @@
  flex:1 1 0;min-height:0;height:100%;width:100%;
  overflow:hidden;background:#110f17;
 }
-.tc-first__portrait:after{display:none}
+.tc-first__portrait:after{
+ content:'';display:block;position:absolute;pointer-events:none;z-index:1;
+ /* Weapon glyphs are painted into the three original card images. Hide only
+    the icon area, leaving the titles, artwork and selected-card outline intact. */
+ top:2%;left:29%;width:48%;height:7%;
+ background:linear-gradient(180deg,#19141c 0%,#18131b 65%,#18131c 100%);
+}
 .tc-first__portrait img{
  display:block;width:100%;height:100%;
  object-fit:contain;object-position:center center;
  image-rendering:auto;
 }
-.tc-first__choice-check{
- position:absolute;right:5px;bottom:5px;z-index:2;
- display:grid;place-items:center;
- width:24px;height:24px;min-width:24px;
- border:1px solid #987351;background:#17111bd9;
- color:#ad8d63;font:19px/1 Georgia,serif;
-}
-.tc-first__class-card.is-selected .tc-first__choice-check{
- color:#ffdf95;border-color:#edc07d;background:#45232bf0;
-}
 @media(max-height:700px){
  .tc-first__class-card{padding:2px}
  .tc-first__class-card.is-selected{padding:1px}
- .tc-first__choice-check{right:3px;bottom:3px;width:22px;height:22px;min-width:22px}
 }
