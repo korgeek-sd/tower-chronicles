@@ -8,8 +8,8 @@ import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES} from '../src/game/life/i
 import {selectInventory,categoryNames} from '../src/game/inventoryView';
 import {InventoryItemArt,InventoryStackCount} from '../src/components/inventory/InventoryDetailSheet';
 
-test('current inventory offers equipment, skillbooks and life categories and keeps challenge tickets in other',()=>{
- assert.deepEqual(LIFE_INVENTORY_CATEGORIES.map(c=>categoryNames[c]),['전체','장비','스킬북','재료','포션','음식','기타']);
+test('current inventory groups consumables while preserving internal item categories',()=>{
+ assert.deepEqual(LIFE_INVENTORY_CATEGORIES.map(c=>categoryNames[c]),['전체','장비','소모품','재료']);
  const life:any={materials:{herb:20},products:{challenge_ticket:5,potion:1234,attack_food:2}};
  const items=unifiedInventoryView(initialState(),life);
  assert.equal(selectInventory(items,'other')[0]?.lifeProduct,'challenge_ticket');
@@ -40,7 +40,7 @@ test('inventory item slots show quantity and equipped status without a loadout p
  assert.doesNotMatch(html,/tc-storage-count/);
  assert.match(html,/aria-label="[^"]*1개[^"]*희귀[^"]*장착 중/);
  assert.doesNotMatch(html,/tc-storage-impact/);
- assert.match(html,/aria-label="기타"/);
+ assert.match(html,/aria-label="소모품"/);
 });
 
 test('metal inventory keeps every equipment grade readable with a separate equipped badge',()=>{

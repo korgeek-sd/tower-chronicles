@@ -1,12 +1,12 @@
-/* Scope and specificity keep the sprite skin stable after mobile-game.css. */
+/* Clean bronze inventory; scoped above legacy mobile-game.css rules. */
 .tc-iron-inventory.tc-unified-inventory{--slot-rarity:#aaa69b;--inventory-paper:#e6d6b8;--inventory-muted:#b39b77}
-.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{border:6px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/panel.webp') 24 fill stretch;background:none;padding:6px;gap:7px}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{border:0;border-image:none;background:linear-gradient(180deg,#17140f,#100e0b);box-shadow:none;padding:4px;gap:6px;grid-template-rows:48px 44px minmax(0,1fr) 44px}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head{border-bottom:1px solid #65563f;background:none;color:var(--inventory-paper)}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head em{color:var(--inventory-muted)}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button,
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button{border:4px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/button.webp') 24 fill stretch;background:none;color:var(--inventory-paper);border-radius:0;min-height:44px}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button.active,
-.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button[aria-selected=true]{border-image-source:url('../../../public/assets/ui/iron-bronze/button-active.webp');color:#f0cf96;box-shadow:none}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button[aria-pressed=true]{border-image-source:url('../../../public/assets/ui/iron-bronze/button-active.webp');color:#f0cf96;box-shadow:none}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button:disabled{border-image-source:url('../../../public/assets/ui/iron-bronze/button-disabled.webp');color:#918674;opacity:1}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid>.tc-storage-item{border:4px solid transparent;border-image:url('../../../public/assets/ui/iron-bronze/slot.webp') 24 fill stretch;background:none;border-radius:0;box-shadow:none;padding:3px;isolation:isolate}
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid>.grade-common{--slot-rarity:#aaa69b}
@@ -30,4 +30,32 @@
 .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-item:focus-visible{outline:2px solid #f5ddb4;outline-offset:1px}
 @media(prefers-reduced-motion:reduce){.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-item:active{transform:none}}
 
-@media(max-width:370px){.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{border-width:3px;padding:2px;gap:5px}}
+@media(max-width:370px){.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-board{border-width:0;padding:2px;gap:6px}}
+
+/* Four equal text tabs remain one row, including narrow mobile screens. */
+.tc-iron-inventory.tc-unified-inventory{grid-template-rows:52px minmax(0,1fr)}
+.tc-iron-inventory.tc-unified-inventory>.tc-screen-head{align-items:center;background:none;padding:0 4px 6px;gap:6px}
+.tc-iron-inventory.tc-unified-inventory>.tc-screen-head h1{margin:0;font-family:inherit;font-size:17px;white-space:nowrap}
+.tc-iron-inventory.tc-unified-inventory .tc-screen-meta{padding:0;gap:6px;font-size:9px}
+.tc-iron-inventory.tc-unified-inventory .tc-screen-meta .tc-action{border:1px solid #6b5336;border-image:none;background:#1c1711;border-radius:4px;min-height:44px;padding:4px 8px;font-size:11px;box-shadow:none}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-single-page{grid-template-rows:48px 44px minmax(0,1fr)}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head{gap:6px;padding:0 0 4px;border-bottom:0}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head b{font:inherit;font-size:12px;color:#e6d6b8}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head em{font-size:9px;line-height:1.4;margin-top:3px}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button{border:1px solid #6b5336;border-image:none;border-radius:4px;background:#1c1711;padding:4px 9px;font-size:11px;box-shadow:none}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button.active{border-color:#bb9457;background:#332719;color:#f0d5a2}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button:disabled{border-image:none;opacity:.48}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:44px;grid-auto-rows:44px;gap:0;height:44px;border-block:1px solid #53432f}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button{border:0;border-image:none;border-radius:0;background:none;box-shadow:none;padding:0 4px;min-width:44px;min-height:44px;height:44px;display:grid;place-items:center;color:#bdac8e}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button small{display:block;font:inherit;font-size:13px;line-height:1.2}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button[aria-pressed=true]{border-image:none;background:linear-gradient(0deg,#6a4d263d,transparent);box-shadow:inset 0 -2px #c9a264;color:#f0dbb3}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid.tc-storage-dense{gap:6px}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-grid>.tc-storage-item{border-width:2px;border-radius:4px;padding:2px}
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-item:focus-visible,
+.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-categories>button:focus-visible{outline:2px solid #f5ddb4;outline-offset:-2px}
+@media(max-width:370px){
+ .tc-iron-inventory.tc-unified-inventory>.tc-screen-head h1{font-size:15px}
+ .tc-iron-inventory.tc-unified-inventory .tc-screen-meta{gap:3px;font-size:8px}
+ .tc-iron-inventory.tc-unified-inventory .tc-screen-meta .tc-action{font-size:10px;padding-inline:6px}
+ .tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button{font-size:10px;padding-inline:6px}
+}

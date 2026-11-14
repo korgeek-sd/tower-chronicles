@@ -7,7 +7,7 @@ const detail=readFileSync(new URL('../src/components/inventory/InventoryDetailSh
 const css=readFileSync(new URL('../src/mobile-game.css',import.meta.url),'utf8');
 
 test('INVENTORY UI 0.1.81 01: storage fills inventory without the retired character and slot panel',()=>{
- assert.match(inventory,/NOVAR QUARTERMASTER \/ LOADOUT/);
+ assert.doesNotMatch(inventory,/NOVAR QUARTERMASTER \/ LOADOUT/);
  assert.match(inventory,/equippedCount/);
  assert.match(inventory,/tc-storage-only/);
  assert.match(inventory,/자동 장착/);

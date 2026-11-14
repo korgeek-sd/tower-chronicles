@@ -9,8 +9,8 @@ import {bookName} from './engine/loot';
 import {accessoryPassive,accessoryPassiveDescription,equipmentContribution} from './engine/equipmentStats';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,EQUIPMENT_GRADES,EQUIPMENT_SLOT_NAMES,equipmentItemName,equipmentItemStats} from './data/equipment';
 export const categories=['all','equipment','materials','potions','skillbooks','tickets','cosmetics','other'] as const;
-export type InventoryCategory=typeof categories[number]|'foods';
-export const categoryNames:Record<InventoryCategory,string>={all:'전체',equipment:'장비',materials:'재료',potions:'포션',skillbooks:'스킬북',tickets:'입장권',cosmetics:'외형',other:'기타',foods:'음식'};
+export type InventoryCategory=typeof categories[number]|'foods'|'consumables';
+export const categoryNames:Record<InventoryCategory,string>={all:'전체',consumables:'소모품',equipment:'장비',materials:'재료',potions:'포션',skillbooks:'스킬북',tickets:'입장권',cosmetics:'외형',other:'기타',foods:'음식'};
 export interface InventoryViewItem {equipmentKind?:EquipmentItem['kind'];lifeMaterial?:LifeMaterial;lifeProduct?:ProductId;key:string;category:InventoryCategory;name:string;quantity:number;iconId:string;tier?:number;grade?:EquipmentGrade;slot?:Slot;enhancement?:number;description:string;facts?:string[];equipped?:boolean;modern?:boolean;learned?:boolean;registered?:boolean;sourceId:string;order:number;stack:boolean}
 export type InventorySort='default'|'name'|'tier'|'quantity';
 export interface InventoryFilter {tier:number;status:boolean;grades?:readonly string[]}
@@ -57,7 +57,7 @@ export function inventoryView(s:GameState):InventoryViewItem[]{
 }
 export function selectInventory(items:InventoryViewItem[],category:InventoryCategory='all',query='',sort:InventorySort='default',filter:InventoryFilter={tier:0,status:false}){
  const name=(a:InventoryViewItem,b:InventoryViewItem)=>a.name.localeCompare(b.name,'ko')||a.key.localeCompare(b.key);
- return items.filter(i=>(category==='all'||i.category===category)&&i.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())&&(!filter.grades?.length||filter.grades.includes(i.grade??skillBookFor(i.sourceId)?.grade??''))&&(!filter.tier||i.tier===filter.tier)&&(!filter.status||(category==='equipment'?i.equipped:category==='skillbooks'?!i.learned:category==='cosmetics'?!i.registered:true))).sort((a,b)=>{
+ return items.filter(i=>(category==='all'||(category==='consumables'?['potions','foods','tickets','other'].includes(i.category):i.category===category))&&i.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())&&(!filter.grades?.length||filter.grades.includes(i.grade??skillBookFor(i.sourceId)?.grade??''))&&(!filter.tier||i.tier===filter.tier)&&(!filter.status||(category==='equipment'?i.equipped:category==='skillbooks'?!i.learned:category==='cosmetics'?!i.registered:true))).sort((a,b)=>{
  if(sort==='name')return name(a,b);if(sort==='tier')return (b.tier||0)-(a.tier||0)||name(a,b);if(sort==='quantity')return b.quantity-a.quantity||name(a,b);
  const categoryOrder:readonly InventoryCategory[]=[...categories,'foods'];const cat=categoryOrder.indexOf(a.category)-categoryOrder.indexOf(b.category);if(cat)return cat;
  if(a.category==='equipment')return Number(b.equipped)-Number(a.equipped)||(EQUIPMENT_GRADES.indexOf(b.grade??'common')-EQUIPMENT_GRADES.indexOf(a.grade??'common'))||(b.tier||0)-(a.tier||0)||(b.enhancement||0)-(a.enhancement||0)||name(a,b);

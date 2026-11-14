@@ -20,3 +20,13 @@ test('metal skin keeps equipment markers in separate corners after the global ca
   assert.equal(computed([...base,'tc-storage-grid','tc-storage-item','grade-'+grade],'--slot-rarity'),color);
  }
 });
+
+test('clean inventory reserves a single category row and six spaced item columns',()=>{
+ const base=['tc-iron-inventory','tc-unified-inventory','tc-inventory-v081'];
+ assert.equal(computed([...base,'tc-storage-categories'],'grid-template-columns'),'repeat(4,minmax(0,1fr))');
+ assert.equal(computed([...base,'tc-storage-categories'],'height'),'44px');
+ assert.equal(computed([...base,'tc-storage-board'],'grid-template-rows'),'48px 44px minmax(0,1fr) 44px');
+ assert.equal(computed([...base,'tc-storage-board','tc-storage-single-page'],'grid-template-rows'),'48px 44px minmax(0,1fr)');
+ assert.equal(computed([...base,'tc-storage-grid','tc-storage-dense'],'grid-template-columns'),'repeat(6,minmax(0,1fr))');
+ assert.equal(computed([...base,'tc-storage-grid','tc-storage-dense'],'gap'),'6px');
+});
