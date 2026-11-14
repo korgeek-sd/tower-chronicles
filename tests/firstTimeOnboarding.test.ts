@@ -5,6 +5,7 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {FirstTimeOnboarding} from '../src/components/intro/FirstTimeOnboarding';
 import {CLASS_CATALOG} from '../src/game/classes/progression';
+import {getOnboardingClassLabel} from '../src/components/intro/onboardingClassLabels';
 import {onboardingClassKey,readOnboardingClass,saveOnboardingClass,storySeenKey,markOnboardingStorySeen,hasOnboardingStorySeen} from '../src/components/intro/firstTimeOnboardingState';
 
 const makeStorage=()=>{
@@ -49,14 +50,14 @@ test('story completion marker is scoped to the new account, separate from existi
  assert.equal(data.get('tower-world-intro-v1'),undefined);
 });
 
-test('new onboarding uses approved archival job cards, parchment nickname form and existing story',()=>{
+test('new onboarding uses localized image-only archival cards, parchment nickname form and existing story',()=>{
  const ui=readFileSync('src/components/intro/FirstTimeOnboarding.tsx','utf8');
  const css=readFileSync('src/components/intro/first-time-onboarding.css','utf8');
  const app=readFileSync('src/main.tsx','utf8');
  const intro=readFileSync('src/components/intro/GameEntry.tsx','utf8');
  assert.match(app,/import \{FirstTimeOnboarding\}/);
  assert.match(app,/if\(onlineSession&&!profileReady\)return <FirstTimeOnboarding/);
- assert.match(ui,/CLASS_CATALOG\[id\]/);
+ assert.match(ui,/getOnboardingClassLabel\(id\)/);
  assert.match(ui,/\['warrior','mage','archer'\]/);
  assert.match(ui,/assetUrl\(ONBOARDING_CLASS_ART\[id\]\)/);
  assert.match(ui,/onRegister\(validation\.nickname\)/);
@@ -88,28 +89,37 @@ test('first-time class screen renders the real three class assets and an accessi
  }));
  for(const id of ['전사','마법사','궁수'])assert.ok(html.includes(id),id);
  assert.equal((html.match(/class="tc-first__class-card tc-feel-press/g)??[]).length,3);
- for(const path of ['warrior-card-v1.webp','mage-card-v1.webp','archer-card-v1.webp'])assert.ok(html.includes(path),path);
+ for(const path of ['warrior-art-v2.svg','mage-art-v2.svg','archer-art-v2.svg'])assert.ok(html.includes(path),path);
+ assert.equal((html.match(/class="tc-first__class-title"/g)??[]).length,3,'the three labels must render as actual text');
  assert.match(html,/aria-label="시작 직업 선택"/);
  assert.match(html,/선택 완료/);
  assert.match(html,/disabled=""/,'no class is implicitly chosen for a new player');
 });
 
 
-test('approved class-card art is bundled locally and not distorted by the onboarding screen',()=>{
+test('the three class backgrounds are text-free while titles remain localizable and accessible',()=>{
  const src=readFileSync('src/components/intro/FirstTimeOnboarding.tsx','utf8');
  const css=readFileSync('src/components/intro/first-time-onboarding.css','utf8');
  const overrides=css.split('/* approved onboarding class cards: 2026-11-14 */')[1];
- assert.ok(overrides,'scoped replacement art layout must exist');
+ assert.ok(overrides,'scoped image-only art layout must exist');
  for(const name of ['warrior','mage','archer']){
-  const file='public/assets/classes/onboarding/'+name+'-card-v1.webp';
-  const image=readFileSync(file);
-  assert.ok(image.length>10000,name+' should retain recognizable card details');
-  assert.equal(image.toString('ascii',0,4),'RIFF');
-  assert.equal(image.toString('ascii',8,12),'WEBP');
-  assert.ok(src.includes("'assets/classes/onboarding/"+name+"-card-v1.webp'"),name+' must use the approved art');
+  const original=readFileSync('public/assets/classes/onboarding/'+name+'-card-v1.webp');
+  assert.ok(original.length>10000,name+' must retain the original approved painting');
+  assert.equal(original.toString('ascii',0,4),'RIFF');
+  assert.equal(original.toString('ascii',8,12),'WEBP');
+  const svg=readFileSync('public/assets/classes/onboarding/'+name+'-art-v2.svg','utf8');
+  assert.match(svg,/<clipPath id="scene">/,'hide the embedded title/icon region');
+  assert.match(svg,/href="data:image\/webp;base64,/,'self-contained artwork should work when embedded as an image');
+  assert.doesNotMatch(svg,/<text(?:\s|>)/,'no visible SVG text baked into the art');
+  assert.ok(src.includes("'assets/classes/onboarding/"+name+"-art-v2.svg'"),name+' should use the image-only asset');
  }
- assert.match(src,/aria-label=\{job\.name\+' · '\+ROLES\[id\]\}/,'job remains discoverable to accessibility users');
- assert.doesNotMatch(src,/<strong>\{job\.name\}<\/strong>/,'do not duplicate title baked into card');
+ assert.equal(getOnboardingClassLabel('warrior'),'전사');
+ assert.equal(getOnboardingClassLabel('mage','en'),'Mage');
+ assert.equal(getOnboardingClassLabel('archer','en'),'Archer');
+ assert.match(src,/aria-label=\{label\+' · '\+ROLES\[id\]\}/,'class selection must remain accessible');
+ assert.match(src,/tc-first__class-title/,'real text should render on top of each class artwork');
+ assert.doesNotMatch(src,/tc-first__choice-check/,'no extra check badge at the bottom-right corner');
  assert.match(overrides,/\.tc-first__portrait img\{[^}]*object-fit:contain/,'preserve the complete vertical art without stretching');
+ assert.match(overrides,/\.tc-first__class-title\{/,'show translated class labels independently from images');
  assert.match(overrides,/\.tc-first__class-card\.is-selected\{/,'selected card should remain visibly distinct');
 });
