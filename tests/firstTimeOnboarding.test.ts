@@ -58,7 +58,7 @@ test('new onboarding uses approved archival job cards, parchment nickname form a
  assert.match(app,/if\(onlineSession&&!profileReady\)return <FirstTimeOnboarding/);
  assert.match(ui,/CLASS_CATALOG\[id\]/);
  assert.match(ui,/\['warrior','mage','archer'\]/);
- assert.match(ui,/assetUrl\(job\.art\)/);
+ assert.match(ui,/assetUrl\(ONBOARDING_CLASS_ART\[id\]\)/);
  assert.match(ui,/onRegister\(validation\.nickname\)/);
  assert.match(ui,/lockPermanentClass\(userId,selected\)/);
  assert.match(ui,/adoptPermanentClass\(userId,committed,localStorage\)/);
@@ -88,8 +88,28 @@ test('first-time class screen renders the real three class assets and an accessi
  }));
  for(const id of ['전사','마법사','궁수'])assert.ok(html.includes(id),id);
  assert.equal((html.match(/class="tc-first__class-card tc-feel-press/g)??[]).length,3);
- for(const path of ['contract_mercenary.webp','soulcaster.webp','hunter.webp'])assert.ok(html.includes(path),path);
+ for(const path of ['warrior-card-v1.webp','mage-card-v1.webp','archer-card-v1.webp'])assert.ok(html.includes(path),path);
  assert.match(html,/aria-label="시작 직업 선택"/);
  assert.match(html,/선택 완료/);
  assert.match(html,/disabled=""/,'no class is implicitly chosen for a new player');
+});
+
+
+test('approved class-card art is bundled locally and not distorted by the onboarding screen',()=>{
+ const src=readFileSync('src/components/intro/FirstTimeOnboarding.tsx','utf8');
+ const css=readFileSync('src/components/intro/first-time-onboarding.css','utf8');
+ const overrides=css.split('/* approved onboarding class cards: 2026-11-14 */')[1];
+ assert.ok(overrides,'scoped replacement art layout must exist');
+ for(const name of ['warrior','mage','archer']){
+  const file='public/assets/classes/onboarding/'+name+'-card-v1.webp';
+  const image=readFileSync(file);
+  assert.ok(image.length>10000,name+' should retain recognizable card details');
+  assert.equal(image.toString('ascii',0,4),'RIFF');
+  assert.equal(image.toString('ascii',8,12),'WEBP');
+  assert.ok(src.includes("'assets/classes/onboarding/"+name+"-card-v1.webp'"),name+' must use the approved art');
+ }
+ assert.match(src,/aria-label=\{job\.name\+' · '\+ROLES\[id\]\}/,'job remains discoverable to accessibility users');
+ assert.doesNotMatch(src,/<strong>\{job\.name\}<\/strong>/,'do not duplicate title baked into card');
+ assert.match(overrides,/\.tc-first__portrait img\{[^}]*object-fit:contain/,'preserve the complete vertical art without stretching');
+ assert.match(overrides,/\.tc-first__class-card\.is-selected\{/,'selected card should remain visibly distinct');
 });
