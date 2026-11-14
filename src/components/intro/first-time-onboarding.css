@@ -114,8 +114,9 @@
 
 
 /* approved onboarding class cards: 2026-11-14 */
-/* Full painted cards include their own job titles and frames. Keep the source
-   proportions intact; selection state stays on the button itself. */
+/* Only the background illustration is raster-backed; the profession title
+   is a localized, selectable DOM text layer. The original text/glyph area is
+   excluded from the self-contained image-only SVGs. */
 .tc-first__class-card{
  padding:3px;gap:0;
  align-items:stretch;
@@ -131,18 +132,20 @@
  flex:1 1 0;min-height:0;height:100%;width:100%;
  overflow:hidden;background:#110f17;
 }
-.tc-first__portrait:after{
- content:'';display:block;position:absolute;pointer-events:none;z-index:1;
- /* Weapon glyphs are painted into the three original card images. Hide only
-    the icon area, leaving the titles, artwork and selected-card outline intact. */
- top:2%;left:29%;width:48%;height:7%;
- background:linear-gradient(180deg,#19141c 0%,#18131b 65%,#18131c 100%);
-}
+.tc-first__portrait:after{display:none}
 .tc-first__portrait img{
  display:block;width:100%;height:100%;
  object-fit:contain;object-position:center center;
  image-rendering:auto;
 }
+.tc-first__class-title{
+ position:absolute;z-index:3;top:4%;left:4%;right:4%;height:14%;
+ display:flex;align-items:center;justify-content:center;
+ text-align:center;pointer-events:none;white-space:normal;word-break:keep-all;
+ color:#dfba8c;font:700 clamp(15px,4.5vw,22px)/1.15 'Noto Serif KR',serif;
+ letter-spacing:.02em;text-shadow:0 1px 3px #050307bb;
+}
+.tc-first__class-card.is-selected .tc-first__class-title{color:#ffdda5}
 @media(max-height:700px){
  .tc-first__class-card{padding:2px}
  .tc-first__class-card.is-selected{padding:1px}
