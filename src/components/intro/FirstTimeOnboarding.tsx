@@ -1,6 +1,7 @@
 import React,{useEffect,useState,type FormEvent} from 'react';
 import {CLASS_CATALOG,type ClassId} from '../../game/classes/progression';
 import {assetUrl} from '../../game/data/graphics';
+import {getOnboardingClassLabel} from './onboardingClassLabels';
 
 import {validateNickname,type PlayerProfile} from '../../online/playerProfiles';
 import {loadPermanentClass,lockPermanentClass} from '../../online/permanentClass';
@@ -19,9 +20,9 @@ const ROLES:Record<ClassId,string>={
  warrior:'근접 공격 · 생존',mage:'마법 · 광역 공격',archer:'원거리 · 치명타'
 };
 const ONBOARDING_CLASS_ART:Record<ClassId,string>={
- warrior:'assets/classes/onboarding/warrior-card-v1.webp',
- mage:'assets/classes/onboarding/mage-card-v1.webp',
- archer:'assets/classes/onboarding/archer-card-v1.webp'
+ warrior:'assets/classes/onboarding/warrior-art-v2.svg',
+ mage:'assets/classes/onboarding/mage-art-v2.svg',
+ archer:'assets/classes/onboarding/archer-art-v2.svg'
 };
 
 export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
@@ -106,16 +107,17 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
     </div>
     <div className="tc-first__class-grid" role="group" aria-label="시작 직업 선택">
      {IDS.map(id=>{
-      const job=CLASS_CATALOG[id];
       const isSelected=selected===id;
-      return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-label={job.name+' · '+ROLES[id]} aria-pressed={isSelected} disabled={busy||!classChecked||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
+      const label=getOnboardingClassLabel(id);
+      return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-label={label+' · '+ROLES[id]} aria-pressed={isSelected} disabled={busy||!classChecked||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
        <span className="tc-first__portrait"><img src={assetUrl(ONBOARDING_CLASS_ART[id])} alt="" loading="eager"/></span>
+       <span className="tc-first__class-title" aria-hidden="true">{label}</span>
       </button>;
      })}
     </div>
     <div className="tc-first__selection">
      <span className="tc-first__selection-icon" aria-hidden="true">✧</span>
-     {selected?<div><strong>{CLASS_CATALOG[selected].name}</strong><p>{CLASS_CATALOG[selected].description}</p></div>:<div><strong>당신의 길은 아직 정해지지 않았습니다.</strong><p>위의 세 직업 중 하나를 선택하십시오.</p></div>}
+     {selected?<div><strong>{getOnboardingClassLabel(selected)}</strong><p>{CLASS_CATALOG[selected].description}</p></div>:<div><strong>당신의 길은 아직 정해지지 않았습니다.</strong><p>위의 세 직업 중 하나를 선택하십시오.</p></div>}
     </div>
     {lockedClass&&<p className="tc-first__notice">이 직업은 서버에 고정됩니다. 변경할 수 없습니다.</p>}
     {error&&<p className="tc-first__notice" role="alert">{error}</p>}
@@ -139,7 +141,7 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
      <div className="tc-first__book-label">기록될 정보</div>
      <div className="tc-first__book-class">
       <span className="tc-first__book-sigil" aria-hidden="true">✧</span>
-      <div><small>선택한 직업</small><strong>{selected?CLASS_CATALOG[selected].name:'—'}</strong><span>{selected?ROLES[selected]:'직업 미선택'}</span></div>
+      <div><small>선택한 직업</small><strong>{selected?getOnboardingClassLabel(selected):'—'}</strong><span>{selected?ROLES[selected]:'직업 미선택'}</span></div>
      </div>
      <p className="tc-first__warning">확정하면 직업이 계정에 영구 저장되며 변경할 수 없습니다.</p>
     </div>
