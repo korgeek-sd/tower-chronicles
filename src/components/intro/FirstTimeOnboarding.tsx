@@ -1,7 +1,7 @@
 import React,{useEffect,useState,type FormEvent} from 'react';
 import {CLASS_CATALOG,type ClassId} from '../../game/classes/progression';
 import {assetUrl} from '../../game/data/graphics';
-import {Glyph} from '../../ui/mobile';
+
 import {validateNickname,type PlayerProfile} from '../../online/playerProfiles';
 import {loadPermanentClass,lockPermanentClass} from '../../online/permanentClass';
 import {hasSeenWorldIntro} from './worldIntroState';
@@ -17,6 +17,11 @@ type Props={
 const IDS:ClassId[]=['warrior','mage','archer'];
 const ROLES:Record<ClassId,string>={
  warrior:'근접 공격 · 생존',mage:'마법 · 광역 공격',archer:'원거리 · 치명타'
+};
+const ONBOARDING_CLASS_ART:Record<ClassId,string>={
+ warrior:'assets/classes/onboarding/warrior-card-v1.webp',
+ mage:'assets/classes/onboarding/mage-card-v1.webp',
+ archer:'assets/classes/onboarding/archer-card-v1.webp'
 };
 
 export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
@@ -103,11 +108,8 @@ export function FirstTimeOnboarding({userId,onRegister,onReady,onLogout}:Props){
      {IDS.map(id=>{
       const job=CLASS_CATALOG[id];
       const isSelected=selected===id;
-      return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-pressed={isSelected} disabled={busy||!classChecked||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
-       <span className="tc-first__class-mark" aria-hidden="true"><Glyph name={id==='warrior'?'sword':id==='mage'?'staff':'bow'}/></span>
-       <strong>{job.name}</strong>
-       <small>{ROLES[id]}</small>
-       <span className="tc-first__portrait"><img src={assetUrl(job.art)} alt="" loading="eager"/></span>
+      return <button key={id} type="button" className={'tc-first__class-card tc-feel-press'+(isSelected?' is-selected':'')} data-game-feel="press" aria-label={job.name+' · '+ROLES[id]} aria-pressed={isSelected} disabled={busy||!classChecked||(lockedClass!==null&&lockedClass!==id)} onClick={()=>{setSelected(id);setError('');}}>
+       <span className="tc-first__portrait"><img src={assetUrl(ONBOARDING_CLASS_ART[id])} alt="" loading="eager"/></span>
        <span className="tc-first__choice-check" aria-hidden="true">{isSelected?'◆':'◇'}</span>
       </button>;
      })}
