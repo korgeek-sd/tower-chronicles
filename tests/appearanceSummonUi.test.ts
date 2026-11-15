@@ -5,6 +5,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {readFileSync} from 'node:fs';
 import {AppearanceSummonScreen} from '../src/components/appearance/AppearanceSummonScreen';
 import {initialState} from '../src/game/engine/state';
+import {appearanceById} from '../src/game/data/cosmetics';
 
 test('weekly SSR showcase shows server-owned pickup and safe disabled actions for guests',()=>{
  const game=initialState(),before=JSON.stringify(game);
@@ -121,7 +122,7 @@ test('single summon result shows the official full sprite and repeat/equip actio
   onRepeat:()=>{},onClose:()=>{},onList:()=>{},onEquip:()=>{},
  }));
  assert.match(html,/tc-summon-single-stage/);
- assert.match(html,/valkyrie-a22cd8cc46a8\.webp/);
+ assert.ok(html.includes(appearanceById('valkyrie')!.imagePath!), 'summon result uses the current catalog artwork');
  assert.match(html,/1회 다시 소환/);
  assert.match(html,/300 G/);
  assert.match(html,/전용 조각 ×1/);
@@ -151,7 +152,7 @@ test('ten summon result is a 2-column ten-card grid with real character sprites 
  assert.match(html,/tc-summon-result-grid/);
  assert.equal((html.match(/class="tc-summon-draw-card /g)??[]).length,10);
  assert.match(html,/scout-[a-z0-9]+\.webp/);
- assert.match(html,/baal-d5dd22a83f6c\.webp/);
+ assert.ok(html.includes(appearanceById('baal')!.imagePath!), 'summon result uses the current catalog artwork');
  assert.match(html,/data-rarity="SSR"/);
  assert.match(html,/전용 조각 10개 획득/);
  // Each draw is guaranteed to give exactly one shard; avoid ten redundant labels.
@@ -171,7 +172,7 @@ test('repeat button is disabled when server balance cannot cover remaining summo
   canRepeat:false,busy:false,selectedAppearanceId:'default',expedition:false,
   onRepeat:()=>{},onClose:()=>{},onList:()=>{},onEquip:()=>{},
  }));
- assert.match(html,/nidhogg-b1f245699fec\.webp/);
+ assert.ok(html.includes(appearanceById('nidhogg')!.imagePath!), 'summon result uses the current catalog artwork');
  assert.match(html,/1회 다시 소환/);
  assert.match(html,/재화 부족/);
  assert.match(html,/disabled=""/);
