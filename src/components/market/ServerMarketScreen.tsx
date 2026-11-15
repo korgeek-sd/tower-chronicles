@@ -1,5 +1,8 @@
+import {MarketOrderSheet} from './MarketOrderSheet';
+import {MarketPriceChart,MarketRecentTrades} from './MarketPriceChart';
 import {pendingMarketOrder,retryOnlineMarketOrder,type PendingMarketOrder} from '../../online/marketOrderRequests';
 import './iron-market.css';
+import './market-order-sheet.css';
 import {EmptySearchResults} from '../filters/LucianFilters';
 import {marketGradeMatches} from './MarketGradeFilters';
 import {MarketFilterDialog,marketGradeSummary,sortMarketCatalog,type MarketSort} from './MarketFilterDialog';
@@ -29,7 +32,7 @@ type Trend={points:string;delta:number|null;last:number|null;low:number|null;hig
 const PAGE_SIZE=5;
 const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']] as const;
 const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['skillbooks','스킬북'],['other','기타']];
-const ranges:[RangeKey,string][]=[['1H','1H'],['24H','24H'],['1W','1W'],['1M','1M'],['ALL','ALL']];
+const ranges:[RangeKey,string][]=[['1H','1시간'],['24H','24시간'],['1W','1주'],['1M','1개월'],['ALL','전체']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
 function ProductArt({item}:{item:{category:string;skillBookGrade?:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.category==='skillbooks'?<SkillBookArt grade={item.skillBookGrade}/>:item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
@@ -211,17 +214,15 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
 
  if(pendingOrder)return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / RECOVERY" title="주문 결과 확인"><div style={{height:'100%',overflow:'auto'}}>{demoMode&&<button className="tc-action secondary" style={{minHeight:44}} onClick={()=>setDemoMode(false)}>실거래 모드로 전환</button>}{recovery}{error&&<p role="alert">{error}</p>}</div></Screen>;
 
+ let orderSheet:React.ReactNode=null;
  if(item&&tradeSide){
   const bestAsk=getBestAsk(view,item.id),bestBid=getBestBid(view,item.id);
   const current=selectedDemo?.last??trendByItem.get(item.id)?.last??bestAsk??bestBid;
   const maxOrderQty=Number.isSafeInteger(p)&&p>0?(side==='BUY'?Math.floor(snapshot.wallet.silver/p):item.available):0;
-  return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / ORDER" title={side==='BUY'?'매수 주문':'매도 주문'} meta={<button className="tc-action secondary slim" onClick={()=>setTradeSide(null)}>상세</button>}>
+  orderSheet=<MarketOrderSheet title={side==='BUY'?'매수 주문':'매도 주문'} name={item.name} art={<ProductArt item={item}/>} balance={side==='BUY'?'보유 '+snapshot.wallet.silver.toLocaleString()+' S':'판매 가능 '+item.available+'개'} onClose={()=>setTradeSide(null)}>
    <div className={'tc-market-v4-trade'+(tradePulse?' tc-market-trade-pulse':'')}>
-    <section className="tc-market-v4-tradehead">
-     <span className="tc-market-v2-icon"><ProductArt item={item}/></span>
-     <div><small>{categoryLabel(item.category)}</small><b>{item.name}</b><span>최근 체결 {money(current)}</span></div>
-     <strong>{side==='BUY'?snapshot.wallet.silver.toLocaleString()+' S':'보유 '+item.available+'개'}</strong>
-    </section>
+    <div className="tc-order-side-tabs"><button aria-pressed={side==='BUY'} disabled={busy} onClick={()=>openTrade('BUY')}>매수</button><button aria-pressed={side==='SELL'} disabled={busy} onClick={()=>openTrade('SELL')}>매도</button></div>
+    <div className="tc-order-quotes"><span>최저 판매 <b>{money(selectedDemo?.asks[0]?.price??bestAsk)}</b></span><span>최고 구매 <b>{money(selectedDemo?.bids[0]?.price??bestBid)}</b></span></div>
 
     <section className="tc-market-v2-book tc-market-v4-book">
      <header><span>실시간 주문장</span><small>{demoMode?'DEMO · 실제 주문 미반영':'가격 / 잔량'}</small></header>
@@ -242,7 +243,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
     </section>
     {error&&<div className="tc-floor-risk">{error}</div>}
    </div>
-  </Screen>;
+  </MarketOrderSheet>;
  }
 
  if(item){
@@ -258,7 +259,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
   const current=trend.last??fallback.last??displayAsk??displayBid;
   const overviewTrend=trend.count?trend:fallback;
   const estimated=current===null?null:current*item.available;
-  return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / DETAIL" title={item.name} meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):returnSkillId&&onReturnToSkill?onReturnToSkill(returnSkillId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':returnSkillId?'‹ 스킬트리':'시장'}</button>}>
+  return <Screen className="tc-iron-market-screen" eyebrow="SILVER SCALE / DETAIL" title="시세" meta={<button className="tc-action secondary slim tc-market-return" onClick={()=>returnInventoryKey&&onReturnToInventory?onReturnToInventory(returnInventoryKey):returnEnhancementId&&onReturnToEnhancement?onReturnToEnhancement(returnEnhancementId):returnSkillId&&onReturnToSkill?onReturnToSkill(returnSkillId):setSelected(null)}>{returnInventoryKey?'‹ 아이템':returnEnhancementId?'‹ 강화':returnSkillId?'‹ 스킬트리':'시장'}</button>}>
    <div className={'tc-market-v2-detail tc-market-v4-detail'+(tradePulse?' tc-market-trade-pulse':'')}>
     <section className="tc-market-v4-pricehead">
      <div className="tc-market-v4-identity">
@@ -269,21 +270,8 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
     </section>
 
     <section className="tc-market-v4-chart">
-     <div className="tc-market-v4-chartplot">
-      <svg viewBox="0 0 100 64" preserveAspectRatio="none" aria-label="최근 체결 가격 추이">
-       <line x1="0" y1="60" x2="100" y2="60"/>
-       {overviewTrend.points&&<polyline className={trendClass(overviewTrend.delta)} points={overviewTrend.points} fill="none" vectorEffect="non-scaling-stroke"/>}
-      </svg>
-      <span className="high">{money(overviewTrend.high)}</span>
-      <span className="low">{money(overviewTrend.low)}</span>
-     </div>
-     <div className="tc-market-v4-ranges">{ranges.map(([key,label])=><button key={key} className={range===key?'active':''} onClick={()=>setRange(key)}>{label}</button>)}</div>
-    </section>
-
-    <section className="tc-market-v4-holding">
-     <span className="tc-market-v2-mini"><ProductArt item={item}/></span>
-     <div><b>{item.name}</b><small>내 보유 {item.available}개</small></div>
-     <div className="value"><b>{money(estimated)}</b><small>평가액</small></div>
+     <MarketPriceChart samples={demoMode&&selectedDemo?selectedDemo.series.map(price=>({price})):scoped.slice(-32)} demo={demoMode}/>
+     <div className="tc-market-v4-ranges">{ranges.map(([key,label])=><button key={key} className={range===key?'active':''} aria-pressed={range===key} onClick={()=>setRange(key)}>{label}</button>)}</div>
     </section>
 
     <section className="tc-market-v4-transactions">
@@ -292,11 +280,15 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
      <div><span>최고 구매</span><b>{money(displayBid)}</b></div>
     </section>
 
+    <MarketRecentTrades trades={demoMode&&selectedDemo?selectedDemo.series.slice(-3).map(price=>({price})):scoped} demo={demoMode}/>
+    <section className="tc-market-v4-holding"><small>내 보유 {item.available}개</small><span>평가액 {money(estimated)}</span></section>
+
     <div className="tc-market-v4-ctas">
-     <button className="buy" onClick={()=>openTrade('BUY')}>BUY · 매수</button>
-     <button className="sell" onClick={()=>openTrade('SELL')}>SELL · 매도</button>
+     <button className="buy" onClick={()=>openTrade('BUY')}>매수</button>
+     <button className="sell" onClick={()=>openTrade('SELL')}>매도</button>
     </div>
    </div>
+   {orderSheet}
   </Screen>;
  }
 

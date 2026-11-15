@@ -1,0 +1,73 @@
+/* Concept 3: keep the price page mounted behind a native, focus-contained ticket. */
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen:has(.tc-market-v4-detail){grid-template-rows:44px minmax(0,1fr)}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen:has(.tc-market-v4-detail) .tc-screen-meta button{min-height:44px;border:1px solid #715638;border-image:none;border-radius:4px;padding:4px 12px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{grid-template-rows:76px minmax(100px,1fr) 44px 96px 24px 44px;gap:6px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail>section{border:0;border-image:none;border-radius:0;background:none;padding:0;box-shadow:none}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-identity{grid-template-columns:44px minmax(0,1fr);gap:8px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v2-icon{width:44px;height:44px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-pricehead{grid-template-rows:44px 28px;gap:4px;border-bottom:1px solid #54432f}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v3-current b{font-size:22px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-chart{display:grid;grid-template-rows:minmax(0,1fr) 44px;gap:4px;min-height:0}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ranges{height:44px;gap:3px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ranges button{border:1px solid #655035;border-image:none;border-radius:3px;background:#17140f;min-height:44px;height:44px;font-size:11px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ranges button.active{background:#40301e;border-color:#bd955e;color:#f0d9ad}
+.tc-market-price-chart{display:grid;grid-template-rows:20px minmax(0,1fr) 18px;min-height:0;padding:5px 6px;border:1px solid #55432e;border-radius:5px;background:#14120f}
+.tc-chart-caption,.tc-chart-times{display:flex;justify-content:space-between;gap:6px;font-size:9px;color:#b6a78e;white-space:nowrap}
+.tc-chart-caption small{font:inherit;color:#c8b28d}
+.tc-chart-canvas{display:grid;grid-template-columns:34px minmax(0,1fr);min-height:0;gap:4px}
+.tc-chart-axis{display:flex;flex-direction:column;justify-content:space-between;padding:4px 0;font-size:9px;color:#b9ac96;text-align:right}
+.tc-chart-canvas svg{width:100%;height:100%;min-height:0;overflow:visible}
+.tc-chart-canvas line{stroke:#5b503744;stroke-width:.3}
+.tc-chart-canvas polyline{stroke:#b5cfc1;stroke-width:1.5;stroke-linejoin:round}
+.tc-chart-canvas circle{fill:#d7eadf}
+.tc-chart-times{padding-left:38px;align-items:end;font-size:8px}
+.tc-chart-empty{grid-row:2/4;display:grid;place-items:center;font-size:12px;color:#b7a58b}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-transactions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-transactions>div{border:1px solid #54422e;border-radius:4px;background:#1b1712;padding:5px}
+.tc-market-recent-trades{display:grid;grid-template-rows:24px repeat(3,24px);min-height:0;overflow:hidden;font-size:11px}
+.tc-market-recent-trades header,.tc-market-recent-trades>div{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #493a2a;padding:0 5px}
+.tc-market-recent-trades header small{color:#b4a38a;font-size:9px}
+.tc-market-recent-trades time{color:#b4a38a;min-width:40px}
+.tc-market-recent-trades>div b{font-weight:500;font-variant-numeric:tabular-nums}
+.tc-market-recent-trades>div span{min-width:45px;text-align:right;color:#c5b599}
+.tc-market-recent-trades p{margin:5px;font-size:11px;color:#a99b85}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-holding{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#ad9d84;border-bottom:1px solid #493a2a}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ctas button{border:1px solid #718a9d;border-image:none;border-radius:4px;background:linear-gradient(#2d4354,#1c2d3a);font-size:14px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ctas button.sell{border-color:#9a6558;background:linear-gradient(#59352f,#38221e);color:#efc7bc}
+/* The sheet stays clear of the navigation; only its contents scroll on short screens/keyboards. */
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet{position:fixed;inset:auto 0 calc(76px + env(safe-area-inset-bottom));margin:0 auto;width:min(504px,calc(100vw - 16px));max-width:none;height:auto;max-height:calc(100dvh - 100px - env(safe-area-inset-bottom) - env(safe-area-inset-top));box-sizing:border-box;padding:10px;border:1px solid #a48150;border-radius:10px;background:linear-gradient(#262019,#14110e);color:#e6d6b8;box-shadow:0 -12px 40px #0008;overflow:hidden}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet[open]{display:flex;flex-direction:column;gap:5px}
+.tc-market-order-sheet::backdrop{background:#0006}
+.tc-order-sheet-header{display:grid;grid-template-columns:40px minmax(0,1fr) 44px;gap:8px;align-items:center;flex-shrink:0}
+.tc-order-sheet-art{width:40px;height:40px;display:grid;place-items:center;border:1px solid #80643e;border-radius:3px;overflow:hidden}
+.tc-order-sheet-art>*{width:100%;height:100%;object-fit:contain}
+.tc-order-sheet-header h2{margin:0;font:inherit;font-size:17px;color:#f0dabb}
+.tc-order-sheet-header small{display:block;font-size:10px;color:#bba98b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-order-sheet-header button{border:1px solid #725738;border-image:none;border-radius:4px;min-width:44px;min-height:44px;font-size:26px;background:#18140f}
+.tc-order-sheet-balance{text-align:right;font-size:10px;color:#bba98b;flex-shrink:0}
+.tc-order-sheet-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v4-trade{display:grid;height:auto;grid-template-rows:44px 32px 126px auto;gap:6px;overflow:visible}
+.tc-order-side-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-order-side-tabs button{border:1px solid #6f573d;border-image:none;border-radius:4px;background:#17130f;min-height:44px;font-size:13px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-order-side-tabs button[aria-pressed=true]{border-color:#91afc2;background:#2b4253;color:#ecf3f5}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-order-side-tabs button:last-child[aria-pressed=true]{border-color:#bc8a7d;background:#58352f;color:#f6ded5}
+.tc-order-quotes{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center;font-size:10px}
+.tc-order-quotes>span{display:flex;justify-content:space-between;gap:3px;border:1px solid #654a3d;border-radius:4px;padding:7px 5px;color:#c9b296}
+.tc-order-quotes b{font-weight:500;color:#ecdbc2;white-space:nowrap}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v4-book{border:0;border-image:none;background:none;padding:0;display:grid;grid-template-rows:18px minmax(0,1fr);gap:2px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-bookcols{gap:6px;overflow:hidden}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-bookcols>div{display:grid;grid-template-rows:18px;grid-auto-rows:44px;gap:2px;overflow-y:auto;align-content:start}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-bookcols button{border:0;border-image:none;border-radius:3px;min-height:44px;height:44px;background:#2a191766;padding:4px 7px;font-size:12px;box-sizing:border-box}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-bookcols .buy button{background:#182a3766}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v4-orderform{border:0;border-image:none;background:none;padding:0;grid-template-rows:48px 44px 28px 48px;gap:6px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-fields{gap:6px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-fields label{border:1px solid #775d40;border-radius:4px;background:#110f0c;padding:4px;grid-template-columns:26px minmax(0,1fr) 12px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-fields input{min-width:0;min-height:36px;font-size:16px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v3-presets button{border:1px solid #6f573d;border-image:none;border-radius:3px;background:#201a14;min-height:44px;height:44px;font-size:11px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-submit{border:1px solid #809fb5;border-image:none;border-radius:4px;background:linear-gradient(#304b60,#203242);min-height:48px;font-size:14px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet .tc-market-v2-submit.sell{border-color:#a06e5d;background:linear-gradient(#674238,#3b2520)}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-order-sheet button:disabled{opacity:.45;border-image:none}
+.tc-market-order-sheet :focus-visible{outline:2px solid #efc87f;outline-offset:-2px}
+@media(max-height:700px){.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{grid-template-rows:68px minmax(70px,1fr) 40px 72px 22px 44px;gap:4px}.tc-market-recent-trades{grid-template-rows:24px repeat(2,24px)}.tc-market-recent-trades>div:last-child{display:none}}
+@media(max-height:600px){.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{grid-template-rows:64px minmax(60px,1fr) 36px 24px 20px 44px;gap:3px}.tc-market-recent-trades>div{display:none}.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-pricehead{grid-template-rows:36px 24px}.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v2-icon{width:36px;height:36px}}
+@media(prefers-reduced-motion:reduce){.tc-market-order-sheet{scroll-behavior:auto}}

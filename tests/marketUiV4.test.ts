@@ -19,13 +19,13 @@ test('MARKET UI V4 01: market entry has a filter dialog and five compact categor
  }
 });
 
-test('MARKET UI V4 02: item detail is separated from the real buy and sell ticket',()=>{
+test('MARKET UI V4 02: item detail retains the chart behind a modal buy and sell ticket',()=>{
  const online=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  const local=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  for(const source of [online,local]){
   assert.match(source,/tradeSide/);
-  assert.match(source,/BUY · 매수/);
-  assert.match(source,/SELL · 매도/);
+  assert.match(source,/>매수</);
+  assert.match(source,/>매도</);
   assert.match(source,/if\(item[^\n]*tradeSide/);
   assert.match(source,/tc-market-v4-trade/);
   assert.match(source,/tc-market-v2-book tc-market-v4-book/);
@@ -38,11 +38,11 @@ test('MARKET UI V4 03: detail chart uses real trade time ranges and holding summ
  const online=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  const local=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  for(const source of [online,local]){
-  assert.match(source,/\['1H','1H'\]/);
-  assert.match(source,/\['24H','24H'\]/);
-  assert.match(source,/\['1W','1W'\]/);
-  assert.match(source,/\['1M','1M'\]/);
-  assert.match(source,/\['ALL','ALL'\]/);
+  assert.match(source,/\['1H','1시간'\]/);
+  assert.match(source,/\['24H','24시간'\]/);
+  assert.match(source,/\['1W','1주'\]/);
+  assert.match(source,/\['1M','1개월'\]/);
+  assert.match(source,/\['ALL','전체'\]/);
   assert.match(source,/rangeMs\(range\)/);
   assert.match(source,/tc-market-v4-holding/);
   assert.match(source,/평가액/);

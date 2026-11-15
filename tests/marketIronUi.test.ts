@@ -17,7 +17,8 @@ test('local and server market share the skin on list, detail and order views wit
  for(const name of ['MarketScreen','ServerMarketScreen']){
   const source=readFileSync(new URL('../src/components/market/'+name+'.tsx',import.meta.url),'utf8');
   const screens=source.match(/<Screen[^>]*eyebrow="SILVER SCALE[^\n]*/g)??[];
-  assert.ok(screens.length>=3);
+  assert.ok(screens.length>=2);
+  assert.match(source,/<MarketOrderSheet/);
   for(const screen of screens)assert.ok(screen.includes('className="tc-iron-market-screen"'));
   assert.match(source,/aria-label="주문 가격"/);assert.match(source,/aria-label="주문 수량"/);
  }
