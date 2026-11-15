@@ -71,3 +71,14 @@
 @media(max-height:700px){.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{grid-template-rows:68px minmax(70px,1fr) 40px 72px 22px 44px;gap:4px}.tc-market-recent-trades{grid-template-rows:24px repeat(2,24px)}.tc-market-recent-trades>div:last-child{display:none}}
 @media(max-height:600px){.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{grid-template-rows:64px minmax(60px,1fr) 36px 24px 20px 44px;gap:3px}.tc-market-recent-trades>div{display:none}.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-pricehead{grid-template-rows:36px 24px}.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v2-icon{width:36px;height:36px}}
 @media(prefers-reduced-motion:reduce){.tc-market-order-sheet{scroll-behavior:auto}}
+/* Keep child tracks within their allocated height at every viewport size. */
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{--market-identity-height:44px;grid-template-rows:calc(var(--market-identity-height) + 36px) minmax(104px,1fr) 44px 96px 24px 44px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v4-pricehead{grid-template-rows:var(--market-identity-height) 32px;gap:3px;box-sizing:border-box;padding:0;border-bottom:1px solid #54432f}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v3-current{min-height:0;align-items:center;line-height:1;overflow:hidden}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail .tc-market-v3-current b{line-height:1;font-size:22px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ranges{height:44px;min-height:0;padding:0;border:0;box-sizing:border-box;align-items:stretch}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-ranges button{height:44px;min-height:44px;max-height:44px;box-sizing:border-box;margin:0;padding:0;line-height:1}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-price-chart{box-sizing:border-box;overflow:hidden}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-transactions>div{min-height:0;box-sizing:border-box}
+@media(max-height:700px){.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{grid-template-rows:calc(var(--market-identity-height) + 36px) minmax(104px,1fr) 40px 72px 22px 44px}}
+@media(max-height:600px){.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-detail{--market-identity-height:36px;grid-template-rows:calc(var(--market-identity-height) + 36px) minmax(104px,1fr) 36px 24px 20px 44px}}
