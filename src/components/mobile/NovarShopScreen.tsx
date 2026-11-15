@@ -31,6 +31,14 @@ const goldChestStyle=(tier:number)=>({
  backgroundImage:`url(${assetUrl(GOLD_CHEST_TIERS_ART)})`,
  backgroundPosition:`${(tier-1)*20}% center`,
 });
+type ShopReward={id:string;label:string;quantity:string;image:string;description:string};
+const cashPackageContents=(p:(typeof NOVAR_PACKAGES)[number]):ShopReward[]=>{
+ const contents:ShopReward[]=[];
+ if(p.gold>0)contents.push({id:'gold',label:'골드',quantity:p.gold.toLocaleString('ko-KR')+' G',image:SHOP_GOLD_ART,description:'패키지 골드'});
+ if(p.tickets>0)contents.push({id:'ticket',label:'외형 소환권',quantity:p.tickets+'장',image:SHOP_TICKET_ART,description:'외형 소환'});
+ if(p.potions>0)contents.push({id:'potion',label:'활력회복 포션',quantity:p.potions+'개',image:SHOP_VITALITY_ART,description:p.id==='weekly'?'주간 보급':'활력 회복'});
+ return contents;
+};
 
 /** Cash purchases remain preview-only; free daily attendance is server-validated. */
 export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRecord}:{
@@ -102,6 +110,14 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
  };
  const selected=selectedSku?getGoldPackageBySku(selectedSku):null;
  const packageInfo=NOVAR_PACKAGES.find(p=>p.id===selectedPackage);
+ const modalContents:ShopReward[]=selected
+  ?[{id:'gold',label:'골드',quantity:selected.gold.toLocaleString('ko-KR')+' G',image:SHOP_GOLD_ART,description:'골드 충전'}]
+  :packageInfo?cashPackageContents(packageInfo)
+  :selectedPackage==='attendance'?[
+   {id:'gold',label:'골드',quantity:'600 G',image:SHOP_GOLD_ART,description:'30일 누적 추가 보상'},
+   {id:'ticket',label:'외형 소환권',quantity:'60장',image:SHOP_TICKET_ART,description:'30일 누적 추가 보상'},
+   {id:'potion',label:'활력회복 포션',quantity:'4개',image:SHOP_VITALITY_ART,description:'30일 누적 추가 보상'}
+  ]:[];
  const modal=!!selected||!!selectedPackage;
  const closeModal=()=>{setSelectedSku(null);setSelectedPackage(null);};
  const milestones=day%5===0;
@@ -197,8 +213,17 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
      <div><small>{selected?'GOLD REQUISITION':'NOVAR SUPPLY PACKAGE'}</small><h2>{selected?selected.gold.toLocaleString('ko-KR')+' Gold':selectedPackage==='attendance'?'30일 출석 패스':packageInfo?.title}</h2></div>
     </div>
     <div className="tc-shop-confirm-price"><span>결제 금액</span><b>{formatKrw(selected?selected.priceKrw:selectedPackage==='attendance'?4900:packageInfo?.price??0)}</b></div>
-    <p>{selected?'앱에서 Google Play 결제 연동 후 서버 검증을 거쳐 골드가 지급됩니다.':selectedPackage==='attendance'?'모든 이용자는 무료 출석 보상에 참여할 수 있습니다. 유료 패스 구매 시 30일간 추가 보상이 제공됩니다.':'구성품과 가격은 기획안입니다. 실제 구매 및 서버 지급 기능은 아직 제공되지 않습니다.'}</p>
-    <p>현재 결제와 출석 보상 수령 기능은 준비 중이며, 이 화면에서 재화나 아이템이 지급되지 않습니다.</p>
+    <div className="tc-novar-modal-contents" aria-label="구성품 정보">
+     <div className="tc-novar-modal-contents-head"><strong>구성품 정보</strong><span>총 {modalContents.length}종</span></div>
+     <div className="tc-novar-modal-contents-list">
+      {modalContents.map(item=><div className="tc-novar-modal-content-row" key={item.id}>
+       <img src={assetUrl(item.image)} alt=""/>
+       <span className="tc-novar-modal-content-name"><b>{item.label}</b><small>{item.description}</small></span>
+       <strong>{item.quantity}</strong>
+      </div>)}
+     </div>
+    </div>
+    <p className="tc-novar-modal-disclaimer">{selected?'Google Play 결제와 서버 검증이 완료된 뒤 지급됩니다.':selectedPackage==='attendance'?'무료 출석 보상은 별도이며, 위 구성품은 유료 패스의 30일 누적 추가 보상입니다.':'표시된 구성품과 가격은 기획안입니다.'} 현재 결제 기능은 준비 중이며 이 화면에서 아이템이나 재화가 지급되지 않습니다.</p>
     <div className="tc-modal-actions"><button type="button" className="tc-action secondary" onClick={closeModal}>닫기</button><button type="button" className="tc-action" disabled>결제 준비중</button></div>
    </section>
   </div>}
