@@ -1,3 +1,4 @@
+import './market-storage.css';
 import {CraftItemArt} from '../world/CraftItemArt';
 import {MARKET_LIFE_MATERIAL_IDS,marketLifeItemId} from '../../game/life/marketMaterials';
 import {MARKET_LIFE_PRODUCT_IDS,marketLifeProductItemId} from '../../game/life/marketProducts';
@@ -68,7 +69,7 @@ const makeTrend=(values:number[],height=24):Trend=>{
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
-export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void}){
+export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill,onOpenMail}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;lease:GameplayLease;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void;onOpenMail?:()=>void}){
  const feel=useGameFeel();
  const [snapshot,setSnapshot]=useState<OnlineMarketState|null>(null);
  const [tab,setTab]=useState<Tab>('market');
@@ -185,7 +186,7 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
   return result;
  },[trades]);
  const orderPages=Math.max(1,Math.ceil(open.length/PAGE_SIZE)),safeOrderPage=Math.min(page,orderPages-1),shownOrders=pageSlice(open,safeOrderPage);
- const storagePages=Math.max(1,Math.ceil(storage.length/PAGE_SIZE)),safeStoragePage=Math.min(page,storagePages-1),shownStorage=pageSlice(storage,safeStoragePage);
+ const storagePages=Math.max(1,Math.ceil(storage.length/4)),safeStoragePage=Math.min(page,storagePages-1),shownStorage=storage.slice(safeStoragePage*4,(safeStoragePage+1)*4);
  const storageSilver=storage.reduce((sum,entry)=>sum+(entry.side==='SELL'?entry.silver:0),0);
  const storageItems=storage.reduce((sum,entry)=>sum+(entry.side==='BUY'?entry.quantity:0),0);
 
@@ -332,21 +333,22 @@ export function ServerMarketScreen({game,setGame,lease,intent,onIntentConsumed,o
 
    {tab==='storage'&&<>
     <section className="tc-market-v4-portfolio">
-     <div className="title"><small>TRADE STORAGE</small><b>거래 정산 · 기존 미수령</b></div><p>새 거래는 즉시 지급·정산됩니다. 취소·만료된 판매 아이템은 우편함에서 수령하세요.</p>
-     <div className="total"><small>보유 Silver</small><b>{snapshot.wallet.silver.toLocaleString()} S</b></div>
-     <div><small>수령 대금</small><b>{money(storageSilver)}</b></div>
-     <div><small>수령 물품</small><b>{storageItems}개</b></div>
-     <button disabled={!storage.length||busy||!!game.expedition} onClick={()=>void act(()=>claimAllOnlineMarketStorage(lease))}>모두 수령</button>
+     <div className="title"><b>거래 정산 · 이전 미수령</b></div>
+     <div className="tc-storage-metric"><small>수령 대금</small><b>{money(storageSilver)}</b></div>
+     <div className="tc-storage-metric"><small>수령 물품</small><b>{storageItems}개</b></div>
     </section>
     <div className="tc-market-v2-storage tc-market-v4-storage">
-     {shownStorage.map(entry=><article key={entry.storageId}>
-      <span className="tc-market-v2-mini"><Glyph name={entry.side==='BUY'?'inventory':'market'}/></span>
-      <div><b>{entry.side==='BUY'?marketItemName(view,entry.itemId):'판매대금'}</b><small>{entry.side==='BUY'?'×'+entry.quantity:money(entry.silver)}</small></div>
+     {shownStorage.map(entry=>{const storedItem=catalog.find(item=>item.id===entry.itemId);return <article key={entry.storageId}>
+      <span className="tc-market-v2-mini">{entry.side==='BUY'&&storedItem?<ProductArt item={storedItem}/>:<Glyph name={entry.side==='BUY'?'inventory':'market'}/>}</span>
+      <div className="tc-storage-item-name"><b>{entry.side==='BUY'?marketItemName(view,entry.itemId):'판매 대금'}</b><small>기존 미수령</small></div>
+      <span className="tc-storage-amount">{entry.side==='BUY'?entry.quantity.toLocaleString()+'개':money(entry.silver)}</span>
       <button disabled={busy||!!game.expedition} onClick={()=>void act(()=>claimOnlineMarketStorage(lease,entry.storageId))}>수령</button>
-     </article>)}
-     {!shownStorage.length&&<div className="tc-market-v2-empty">수령할 체결 자산이 없습니다.</div>}
+     </article>;})}
+     {!shownStorage.length&&<div className="tc-market-v2-empty"><Glyph name="inventory"/><b>수령할 자산이 없습니다.</b><small>미수령 대금과 물품이 여기에 표시됩니다.</small></div>}
     </div>
     <Pager page={safeStoragePage} count={storagePages} onChange={setPage}/>
+    <div className="tc-market-storage-note"><p>새 거래는 즉시 지급됩니다. 취소·만료 물품은 우편함에서 수령하세요.</p>{onOpenMail&&<button onClick={onOpenMail}><Glyph name="mail"/> 우편함 바로가기</button>}</div>
+    <button className="tc-market-storage-claim" disabled={!storage.length||busy||!!game.expedition} onClick={()=>void act(()=>claimAllOnlineMarketStorage(lease))}>모두 수령</button>
    </>}
 
    {error&&<div className="tc-floor-risk">{error}</div>}

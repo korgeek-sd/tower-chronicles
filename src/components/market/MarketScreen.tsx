@@ -1,3 +1,4 @@
+import './market-storage.css';
 import {CraftItemArt} from '../world/CraftItemArt';
 import {MARKET_LIFE_MATERIAL_IDS,marketLifeItemId} from '../../game/life/marketMaterials';
 import {MARKET_LIFE_PRODUCT_IDS,marketLifeProductItemId} from '../../game/life/marketProducts';
@@ -66,12 +67,12 @@ const makeTrend=(values:number[],height=24):Trend=>{
 const trendClass=(delta:number|null)=>delta===null?'flat':delta>=0?'up':'down';
 const trendLabel=(delta:number|null)=>delta===null?'체결 대기':(delta>=0?'+':'')+delta.toFixed(1)+'%';
 
-export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void}){
- if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement} onReturnToSkill={onReturnToSkill}/>;
- return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement} onReturnToSkill={onReturnToSkill}/>;
+export function MarketScreen({game,setGame,onlineLease,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill,onOpenMail}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void;onOpenMail?:()=>void}){
+ if(onlineLease)return <ServerMarketScreen game={game} setGame={setGame} lease={onlineLease} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement} onReturnToSkill={onReturnToSkill} onOpenMail={onOpenMail}/>;
+ return <LocalMarketScreen game={game} setGame={setGame} intent={intent} onIntentConsumed={onIntentConsumed} onReturnToInventory={onReturnToInventory} onReturnToEnhancement={onReturnToEnhancement} onReturnToSkill={onReturnToSkill} onOpenMail={onOpenMail}/>;
 }
 
-function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void}){
+function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInventory,onReturnToEnhancement,onReturnToSkill,onOpenMail}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;intent?:MarketIntent|null;onIntentConsumed?:()=>void;onReturnToInventory?:(inventoryKey:string)=>void;onReturnToEnhancement?:(itemId:string)=>void;onReturnToSkill?:(skillId:string)=>void;onOpenMail?:()=>void}){
  const [tab,setTab]=useState<Tab>('market');
  const [category,setCategory]=useState<Category>('all');
  const [query,setQuery]=useState('');
@@ -114,7 +115,7 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
  const open=getMyOpenOrders(game);
  const orderPages=Math.max(1,Math.ceil(open.length/PAGE_SIZE)),safeOrderPage=Math.min(page,orderPages-1),shownOrders=pageSlice(open,safeOrderPage);
  const storage=getMarketStorage(game);
- const storagePages=Math.max(1,Math.ceil(storage.length/PAGE_SIZE)),safeStoragePage=Math.min(page,storagePages-1),shownStorage=pageSlice(storage,safeStoragePage);
+ const storagePages=Math.max(1,Math.ceil(storage.length/4)),safeStoragePage=Math.min(page,storagePages-1),shownStorage=storage.slice(safeStoragePage*4,(safeStoragePage+1)*4);
  const storageSilver=getMarketStorageSilver(game),storageItems=getMarketStorageItemCount(game);
 
  const choose=(id:string)=>{
@@ -257,21 +258,22 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
 
    {tab==='storage'&&<>
     <section className="tc-market-v4-portfolio">
-     <div className="title"><small>TRADE STORAGE</small><b>거래 정산</b></div>
-     <div className="total"><small>보유 Silver</small><b>{game.silver.toLocaleString()} S</b></div>
-     <div><small>수령 대금</small><b>{money(storageSilver)}</b></div>
-     <div><small>수령 물품</small><b>{storageItems}개</b></div>
-     <button disabled={!storage.length||!!game.expedition} onClick={()=>setGame(claimAllMarketStorage)}>모두 수령</button>
+     <div className="title"><b>거래 정산</b></div>
+     <div className="tc-storage-metric"><small>수령 대금</small><b>{money(storageSilver)}</b></div>
+     <div className="tc-storage-metric"><small>수령 물품</small><b>{storageItems}개</b></div>
     </section>
     <div className="tc-market-v2-storage tc-market-v4-storage">
-     {shownStorage.map(entry=><article key={entry.storageId}>
-      <span className="tc-market-v2-mini"><Glyph name={entry.side==='BUY'?'inventory':'market'}/></span>
-      <div><b>{entry.side==='BUY'?marketItemName(game,entry.itemId):'판매대금'}</b><small>{entry.side==='BUY'?'×'+entry.quantity:money(entry.silver)}</small></div>
+     {shownStorage.map(entry=>{const storedItem=catalog.find(item=>item.id===entry.itemId);return <article key={entry.storageId}>
+      <span className="tc-market-v2-mini">{entry.side==='BUY'&&storedItem?<ProductArt item={storedItem}/>:<Glyph name={entry.side==='BUY'?'inventory':'market'}/>}</span>
+      <div className="tc-storage-item-name"><b>{entry.side==='BUY'?marketItemName(game,entry.itemId):'판매 대금'}</b><small>거래 정산</small></div>
+      <span className="tc-storage-amount">{entry.side==='BUY'?entry.quantity.toLocaleString()+'개':money(entry.silver)}</span>
       <button disabled={!!game.expedition} onClick={()=>setGame(state=>claimMarketStorage(state,entry.storageId))}>수령</button>
-     </article>)}
-     {!shownStorage.length&&<div className="tc-market-v2-empty">수령할 체결 자산이 없습니다.</div>}
+     </article>;})}
+     {!shownStorage.length&&<div className="tc-market-v2-empty"><Glyph name="inventory"/><b>수령할 자산이 없습니다.</b><small>미수령 대금과 물품이 여기에 표시됩니다.</small></div>}
     </div>
     <Pager page={safeStoragePage} count={storagePages} onChange={setPage}/>
+    <div className="tc-market-storage-note"><p>거래로 받은 대금과 물품을 수령하세요.</p>{onOpenMail&&<button onClick={onOpenMail}><Glyph name="mail"/> 우편함 바로가기</button>}</div>
+    <button className="tc-market-storage-claim" disabled={!storage.length||!!game.expedition} onClick={()=>setGame(claimAllMarketStorage)}>모두 수령</button>
    </>}
   </div>
  </Screen>;
