@@ -46,3 +46,30 @@
 .tc-screen.tc-iron-market-screen:has(.tc-market-ledger) button:focus-visible{outline:2px solid #e6c089;outline-offset:-2px}
 @media(max-width:360px){.tc-ledger-price{font-size:11px}.tc-ledger-item{gap:5px}.tc-ledger-name b{font-size:11px}.tc-ledger-art{width:34px;height:34px;flex-basis:34px}.tc-screen.tc-iron-market-screen .tc-ledger-columns button{font-size:10px}}
 @media(max-height:700px){.tc-screen.tc-iron-market-screen:has(.tc-market-ledger){grid-template-rows:44px minmax(0,1fr)}.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head h1{font-size:21px}.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4.tab-market{gap:3px}}
+
+/* Compact controls requested for six or more visible items on phone browser viewports. */
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger){grid-template-rows:36px minmax(0,1fr)}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head h1{font-size:19px;letter-spacing:1px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4.tab-market{grid-template-rows:30px 28px 32px minmax(0,1fr);gap:3px}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-segments{height:30px;min-height:30px}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-segments button{height:30px;min-height:30px;font-size:13px;padding:1px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats{height:28px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats button{height:28px;min-height:28px;font-size:12px;padding:1px}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats button+button:before{top:7px;bottom:7px}
+.tc-market-catalog-search{min-height:32px;grid-template-columns:minmax(0,1fr) 70px;gap:6px}
+.tc-market-catalog-search label>span{font-size:22px}
+.tc-screen.tc-iron-market-screen .tc-market-catalog-search input{height:30px;min-height:30px;padding:3px 6px;font-size:16px;box-sizing:border-box}
+.tc-screen.tc-iron-market-screen .tc-market-catalog-search button{height:32px;min-height:32px;font-size:12px;padding:2px}
+.tc-screen.tc-iron-market-screen .tc-market-catalog-search label button{height:30px;min-height:30px;font-size:20px}
+.tc-market-ledger{grid-template-rows:30px minmax(0,1fr) 36px}
+.tc-screen.tc-iron-market-screen .tc-ledger-columns button{min-height:30px;height:30px;font-size:11px}
+.tc-screen.tc-iron-market-screen .tc-ledger-row{min-height:44px;padding:2px 4px;box-sizing:border-box}
+.tc-ledger-art{width:32px;height:32px;flex-basis:32px}
+.tc-ledger-item{gap:6px}
+.tc-ledger-name{gap:2px}
+.tc-ledger-name b{font-size:11px;line-height:1.15}
+.tc-ledger-name small{font-size:9px}
+.tc-ledger-price{font-size:11px}
+.tc-ledger-footer nav{font-size:11px}
+.tc-screen.tc-iron-market-screen .tc-ledger-footer nav button{min-height:32px;height:32px;min-width:40px;font-size:21px}
+.tc-screen.tc-iron-market-screen .tc-ledger-mode{min-height:32px;height:32px;font-size:9px}

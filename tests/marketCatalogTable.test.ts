@@ -19,5 +19,7 @@ test('quote sorting keeps unavailable prices last in either direction and does n
  assert.deepEqual(rows.map(r=>r.id),['a','b','c']);
 });
 test('short and tall layouts reserve readable rows and cap at seven',()=>{
- assert.equal(catalogPageSize(280),5);assert.equal(catalogPageSize(392),7);assert.equal(catalogPageSize(180),3);assert.equal(catalogPageSize(900),7);
+ assert.equal(catalogPageSize(280),6);assert.equal(catalogPageSize(392),7);assert.equal(catalogPageSize(180),4);assert.equal(catalogPageSize(900),7);
 });
+
+test('compact phone list fits six items into 264 pixels',()=>{assert.equal(catalogPageSize(264),6);assert.equal(catalogPageSize(308),7);});

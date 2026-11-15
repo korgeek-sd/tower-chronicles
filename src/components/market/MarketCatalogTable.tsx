@@ -4,10 +4,10 @@ export function sortCatalogQuotes(rows:CatalogQuote[],field:'ask'|'bid'|null,des
  if(!field)return rows;
  return [...rows].sort((a,b)=>{const x=a[field],y=b[field];if(x===null)return y===null?0:1;if(y===null)return -1;return descending?y-x:x-y;});
 }
-export function catalogPageSize(height:number){return Math.max(1,Math.min(7,Math.floor(height/56)));}
+export function catalogPageSize(height:number){return Math.max(1,Math.min(7,Math.floor(height/44)));}
 export function MarketCatalogTable({rows,resetKey,onChoose,empty,status}:{rows:CatalogQuote[];resetKey:string;onChoose:(id:string)=>void;empty:React.ReactNode;status:React.ReactNode}){
  const body=useRef<HTMLDivElement>(null);
- const [size,setSize]=useState(5),[page,setPage]=useState(0),[field,setField]=useState<'ask'|'bid'|null>(null),[descending,setDescending]=useState(false);
+ const [size,setSize]=useState(6),[page,setPage]=useState(0),[field,setField]=useState<'ask'|'bid'|null>(null),[descending,setDescending]=useState(false);
  useLayoutEffect(()=>{const el=body.current;if(!el)return;const resize=()=>setSize(catalogPageSize(el.clientHeight));resize();const observer=new ResizeObserver(resize);observer.observe(el);return()=>observer.disconnect();},[]);
  useLayoutEffect(()=>setPage(0),[resetKey,field,descending,size]);
  const sorted=useMemo(()=>sortCatalogQuotes(rows,field,descending),[rows,field,descending]);
