@@ -26,7 +26,7 @@ test('cosmetic archive contains only illustrated standalone appearances',()=>{
 });
 test('default adventurer artwork is a valid existing WebP asset',()=>{
  const starter=appearanceById(DEFAULT_APPEARANCE_ID);
- assert.equal(starter?.imagePath,'assets/characters/appearances/default-d749c30acd33.webp');
+ assert.match(starter?.imagePath??'',/^assets\/characters\/appearances\/default-[a-f0-9]{12}\.webp$/);
  const file=new URL('../public/'+starter!.imagePath,import.meta.url);
  assert.equal(existsSync(file),true);
  const bytes=readFileSync(file);
