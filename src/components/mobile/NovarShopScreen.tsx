@@ -11,7 +11,6 @@ import type {CloudSaveRecord} from '../../online/cloudSave';
 
 type NovarShopTab='recommend'|'gold'|'package'|'attendance';
 type NovarPackageId='starter'|'weekly'|'returning'|'attendance';
-type CashPackageId=Exclude<NovarPackageId,'attendance'>;
 const NOVAR_PACKAGES=[
  {id:'starter',title:'신규 모험가 패키지',price:2900,condition:'계정당 1회',gold:1000,tickets:5,potions:2},
  {id:'weekly',title:'주간 원정 지원',price:1900,condition:'주 1회',gold:0,tickets:0,potions:5},
@@ -25,15 +24,6 @@ const SHOP_TICKET_ART='assets/ui/shop/appearance_summon_ticket_pixel.webp';
 const SHOP_VITALITY_ART='assets/ui/shop/vitality_potion_pixel.webp';
 const SHOP_SILVER_ART='assets/ui/shop/silver_pixel_supply_chest.webp';
 const GOLD_CHEST_TIERS_ART='assets/ui/shop/gold_chest_tiers.png';
-type NovarCashPackage=(typeof NOVAR_PACKAGES)[number];
-const packageArtwork=(id:CashPackageId)=>id==='weekly'?SHOP_VITALITY_ART:id==='returning'?SHOP_GOLD_ART:SHOP_TICKET_ART;
-const getPackageRewards=(p:NovarCashPackage)=>{
- const rewards:{key:string;name:string;quantity:string;asset:string}[]=[];
- if(p.gold>0)rewards.push({key:'gold',name:'골드',quantity:p.gold.toLocaleString('ko-KR')+' G',asset:SHOP_GOLD_ART});
- if(p.tickets>0)rewards.push({key:'tickets',name:'외형 소환권',quantity:p.tickets+'장',asset:SHOP_TICKET_ART});
- if(p.potions>0)rewards.push({key:'potions',name:'활력회복 포션',quantity:p.potions+'개',asset:SHOP_VITALITY_ART});
- return rewards;
-};
 const GOLD_CHEST_TIER_NAMES=[
  '낡은 보급상자','철제 보급상자','은빛 보물상자','황금 보물상자','고대의 보물상자','왕의 보물상자'
 ] as const;
@@ -51,7 +41,6 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
  const [tab,setTab]=useState<NovarShopTab>('recommend');
  const [selectedSku,setSelectedSku]=useState<string|null>(null);
  const [selectedPackage,setSelectedPackage]=useState<NovarPackageId|null>(null);
- const [featuredPackage,setFeaturedPackage]=useState<CashPackageId>('starter');
  const [day,setDay]=useState(1);
  const [attendance,setAttendance]=useState<FreeAttendanceStatus|null>(null);
  const [attendanceLoading,setAttendanceLoading]=useState(false);
@@ -113,7 +102,6 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
  };
  const selected=selectedSku?getGoldPackageBySku(selectedSku):null;
  const packageInfo=NOVAR_PACKAGES.find(p=>p.id===selectedPackage);
- const featuredInfo=NOVAR_PACKAGES.find(p=>p.id===featuredPackage)!;
  const modal=!!selected||!!selectedPackage;
  const closeModal=()=>{setSelectedSku(null);setSelectedPackage(null);};
  const milestones=day%5===0;
@@ -128,28 +116,15 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
    </nav>
    <div className="tc-novar-shop-view">
     {tab==='recommend'&&<section className="tc-novar-recommend" aria-label="추천 상품">
-     <div className="tc-novar-package-showcase" aria-live="polite">
-      <div className="tc-novar-showcase-hero">
-       <img src={assetUrl(packageArtwork(featuredPackage))} alt=""/>
-       <div className="tc-novar-showcase-copy"><small>NOVAR SUPPLY PACKAGE</small><strong>{featuredInfo.title}</strong><span>{featuredInfo.condition} · 특별 보급</span></div>
-       <b>{formatKrw(featuredInfo.price)}</b>
-      </div>
-      <div className="tc-novar-showcase-rewards">
-       <div className="tc-novar-showcase-label"><strong>구성품 ({getPackageRewards(featuredInfo).length}종)</strong><span>구매 시 지급 예정</span></div>
-       <div className="tc-novar-showcase-items">
-        {getPackageRewards(featuredInfo).map(item=><div className="tc-novar-showcase-item" key={item.key}>
-         <img src={assetUrl(item.asset)} alt=""/><span>{item.name}</span><b>{item.quantity}</b>
-        </div>)}
-       </div>
-      </div>
-      <div className="tc-novar-showcase-actions"><span>표시된 구성품과 가격은 기획안입니다.</span><button type="button" disabled>결제 준비중</button></div>
-     </div>
-     <div className="tc-novar-recommend-products" aria-label="패키지 선택">
-      {NOVAR_PACKAGES.map(p=><button type="button" className={'tc-novar-recommend-product'+(featuredPackage===p.id?' is-selected':'')} key={p.id} aria-pressed={featuredPackage===p.id} onClick={()=>setFeaturedPackage(p.id)}>
-       <img src={assetUrl(packageArtwork(p.id))} alt=""/>
-       <span className="tc-novar-rec-name">{p.title}</span><b>{formatKrw(p.price)}</b>
-       <span className="tc-novar-preview-label">구성품 미리보기</span>
-       <span className="tc-novar-preview-rewards">{getPackageRewards(p).map(item=><span key={item.key} title={item.name}><img src={assetUrl(item.asset)} alt={item.name}/><small>{item.quantity}</small></span>)}</span>
+     <button type="button" className="tc-novar-feature" onClick={()=>setTab('attendance')}>
+      <span className="tc-novar-feature-copy"><small>30 DAYS · NOVAR REWARDS</small><strong>30일 출석 보상</strong><span>무료 실버 · 외형 소환권</span><em>무료 보상 확인  ›</em></span>
+      <span className="tc-novar-feature-art"><img src={assetUrl(SHOP_GOLD_ART)} alt=""/><img src={assetUrl(SHOP_TICKET_ART)} alt=""/></span>
+     </button>
+     <div className="tc-novar-recommend-label"><b>모험가를 위한 특별 보급</b><span>현금 패키지</span></div>
+     <div className="tc-novar-recommend-products">
+      {NOVAR_PACKAGES.map((p,i)=><button type="button" className="tc-novar-recommend-product" key={p.id} onClick={()=>previewPackage(p.id)}>
+       <img src={assetUrl(i===1?SHOP_VITALITY_ART:i===2?SHOP_GOLD_ART:SHOP_TICKET_ART)} alt=""/>
+       <span>{p.title}</span><b>{formatKrw(p.price)}</b>
       </button>)}
      </div>
      <button type="button" className="tc-novar-gold-promo" onClick={()=>setTab('gold')}>
@@ -176,7 +151,9 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
         <strong>{p.title}</strong>
         <small>{p.condition}</small>
         <div className="tc-novar-package-rewards">
-         {getPackageRewards(p).map(item=><span key={item.key}><img src={assetUrl(item.asset)} alt=""/><small>{item.name}</small> {item.quantity}</span>)}
+         {p.gold>0&&<span><img src={assetUrl(SHOP_GOLD_ART)} alt=""/> {p.gold.toLocaleString()}G</span>}
+         {p.tickets>0&&<span><img src={assetUrl(SHOP_TICKET_ART)} alt=""/> ×{p.tickets}</span>}
+         <span><img src={assetUrl(SHOP_VITALITY_ART)} alt=""/> ×{p.potions}</span>
         </div>
        </div>
        <button type="button" className="tc-novar-buy" onClick={()=>previewPackage(p.id)}>{formatKrw(p.price)}</button>
@@ -220,10 +197,6 @@ export function ShopScreen({game,userId=null,lease=null,onPrepare,onPending,onRe
      <div><small>{selected?'GOLD REQUISITION':'NOVAR SUPPLY PACKAGE'}</small><h2>{selected?selected.gold.toLocaleString('ko-KR')+' Gold':selectedPackage==='attendance'?'30일 출석 패스':packageInfo?.title}</h2></div>
     </div>
     <div className="tc-shop-confirm-price"><span>결제 금액</span><b>{formatKrw(selected?selected.priceKrw:selectedPackage==='attendance'?4900:packageInfo?.price??0)}</b></div>
-    {packageInfo&&<div className="tc-novar-modal-rewards">
-     <strong>구성품 ({getPackageRewards(packageInfo).length}종)</strong>
-     <div>{getPackageRewards(packageInfo).map(item=><span key={item.key}><img src={assetUrl(item.asset)} alt=""/><b>{item.name}</b><small>{item.quantity}</small></span>)}</div>
-    </div>}
     <p>{selected?'앱에서 Google Play 결제 연동 후 서버 검증을 거쳐 골드가 지급됩니다.':selectedPackage==='attendance'?'모든 이용자는 무료 출석 보상에 참여할 수 있습니다. 유료 패스 구매 시 30일간 추가 보상이 제공됩니다.':'구성품과 가격은 기획안입니다. 실제 구매 및 서버 지급 기능은 아직 제공되지 않습니다.'}</p>
     <p>현재 결제와 출석 보상 수령 기능은 준비 중이며, 이 화면에서 재화나 아이템이 지급되지 않습니다.</p>
     <div className="tc-modal-actions"><button type="button" className="tc-action secondary" onClick={closeModal}>닫기</button><button type="button" className="tc-action" disabled>결제 준비중</button></div>
