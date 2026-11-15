@@ -101,7 +101,8 @@ test('FREE ATTENDANCE: Supabase RPC uses the active lease, server-calculated rew
 });
 
 test('GOLD SHOP UI 06: every price tier has a distinct approved pixel chest asset',()=>{
- const art='assets/ui/shop/gold_chest_tiers.png';
+ const art='assets/ui/shop/gold_strongbox_tiers_v5.png';
+ assert.ok(screen.includes(art));
  assert.match(screen,/GOLD_CHEST_TIERS_ART/);
  assert.match(screen,/GOLD_CHEST_TIER_NAMES/);
  assert.match(screen,/GOLD_SHOP_PACKAGES\.map\(\(item,index\)=>/);
