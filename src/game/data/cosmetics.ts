@@ -225,7 +225,7 @@ export const APPEARANCES:AppearanceData[]=[
 ,
 {id:"nameless_sinner",name:"이름없는 죄인",rarity:"SR",imagePath:"assets/characters/appearances/nameless_sinner-d1e1ca138f17.webp",description:"자신이 저지르지 않은 죄까지 모두 짊어지고 처형되었으나 죽음 이후에도 죄를 고백하라는 명령을 받는 자.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"blacksmith",name:"대장장이",rarity:"B",imagePath:"assets/characters/appearances/blacksmith-bbbc6ce0235c.webp",description:"수많은 영웅의 무기를 만들었지만 자신이 벼린 검으로 왕이 살해된 뒤 모든 기록에서 이름이 지워진 장인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"blacksmith",name:"대장장이",rarity:"B",imagePath:"assets/characters/appearances/blacksmith-70862dec08c1.webp",description:"수많은 영웅의 무기를 만들었지만 자신이 벼린 검으로 왕이 살해된 뒤 모든 기록에서 이름이 지워진 장인.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"bourgeoisie",name:"부르주아지",rarity:"SR",imagePath:"assets/characters/appearances/bourgeoisie-55ec362a480e.webp",description:"왕국의 전쟁과 평화를 모두 돈으로 사들였지만 정작 자신의 죽음을 막을 대가는 끝내 마련하지 못한 자본가.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
