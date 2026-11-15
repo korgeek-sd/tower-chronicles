@@ -116,3 +116,22 @@ test('GOLD SHOP UI 06: every price tier has a distinct approved pixel chest asse
  const tierCss=readFileSync(new URL('../src/components/mobile/novar-shop.css',import.meta.url),'utf8');
  assert.match(tierCss,/background-size:600% 100%/);
 });
+
+
+test('PACKAGE DETAILS: modal shows catalog-backed reward names and quantities without enabling purchases',()=>{
+ const style=readFileSync(new URL('../src/components/mobile/novar-shop.css',import.meta.url),'utf8');
+ assert.match(screen,/cashPackageContents\(packageInfo\)/);
+ assert.match(screen,/p\.gold\.toLocaleString\('ko-KR'\)\+' G'/);
+ assert.match(screen,/p\.tickets\+'장'/);
+ assert.match(screen,/p\.potions\+'개'/);
+ assert.match(screen,/총 \{modalContents\.length\}종/);
+ assert.match(screen,/tc-novar-modal-contents-list/);
+ assert.match(screen,/item\.quantity/);
+ assert.match(screen,/활력회복 포션/);
+ assert.match(screen,/setSelectedPackage\(id\)/);
+ assert.match(screen,/type="button" className="tc-action" disabled>결제 준비중/);
+ assert.doesNotMatch(screen,/setGame\(/);
+ assert.match(style,/\.tc-novar-modal-content-row\{/);
+ assert.match(style,/max-height:min\(82dvh,680px\)/);
+ assert.match(style,/overflow-y:auto/);
+});
