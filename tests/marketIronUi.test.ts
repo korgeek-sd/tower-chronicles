@@ -7,7 +7,7 @@ import {initialState} from '../src/game/engine/state';
 import {MarketScreen} from '../src/components/market/MarketScreen';
 test('local market uses the scoped metal skin while exposing filters through a compact dialog entry',()=>{
  const html=renderToStaticMarkup(React.createElement(MarketScreen,{game:initialState(),setGame:()=>{}}));
- assert.match(html,/tc-iron-market-screen/);assert.match(html,/aria-label="필터" aria-haspopup="dialog" aria-expanded="false"/);assert.doesNotMatch(html,/<input|tc-market-grade-filters/);assert.match(html,/스킬북/);assert.match(html,/tc-market-v4-card/);
+ assert.match(html,/tc-iron-market-screen/);assert.match(html,/aria-label="필터" aria-haspopup="dialog" aria-expanded="false"/);assert.match(html,/aria-label="아이템 검색"/);assert.doesNotMatch(html,/tc-market-grade-filters/);assert.match(html,/소모품/);assert.match(html,/tc-ledger-row/);
 });
 test('order book rows retain readable heights and scroll within their columns on short screens',()=>{
  const css=readFileSync(new URL('../src/components/market/iron-market.css',import.meta.url),'utf8');

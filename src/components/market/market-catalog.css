@@ -1,0 +1,48 @@
+/* Searchable exchange ledger: scoped to the market landing screen only. */
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger){grid-template-rows:58px minmax(0,1fr);background:radial-gradient(ellipse at 90% 0,#51402b30,transparent 50%),linear-gradient(115deg,#211c17,#141210);padding:0 8px 5px}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head{display:flex;justify-content:center;align-items:center;border:0;padding:0;background:none;min-height:0}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head h1{font-size:24px;letter-spacing:2px;color:#ead5ae;text-shadow:0 2px 4px #000}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head h1:before{content:'⚖';font-family:serif;margin-right:12px;color:#bda079}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head small,.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-meta{display:none}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4.tab-market{grid-template-rows:44px 44px 44px minmax(0,1fr);gap:6px;height:100%;min-height:0;overflow:hidden}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-segments{display:grid;grid-template-columns:repeat(3,1fr);height:44px;min-height:44px;gap:0;border:1px solid #92795c;border-radius:5px 5px 0 0;overflow:hidden}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-segments button{border:0;border-right:1px solid #736047;border-image:none;background:linear-gradient(#25201b,#1a1713);height:44px;min-height:44px;max-height:none;font-size:16px;color:#d8c8ac;padding:3px;box-shadow:none}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-segments button.active,.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-segments button[aria-selected=true]{background:linear-gradient(#61322e,#321b19);color:#fff1d7;box-shadow:inset 0 -2px #c9aa7b}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:44px;gap:0;border-bottom:1px solid #65513a}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats button{height:44px;min-height:44px;max-height:none;border:0;border-image:none;border-radius:0;background:none;box-shadow:none;font-size:15px;padding:4px;color:#c5b89e;position:relative}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats button+button:before{content:'';position:absolute;left:0;top:12px;bottom:12px;border-left:1px solid #665540}
+.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4-cats button.active{color:#fff0cf;background:linear-gradient(transparent,#8c6f3725);box-shadow:inset 0 -2px #dfbe88}
+.tc-market-catalog-search{display:grid;grid-template-columns:minmax(0,1fr) 82px;gap:8px;min-height:44px}
+.tc-market-catalog-search label{display:flex;align-items:center;border:1px solid #73685c;border-radius:5px;min-width:0;padding-left:9px;background:#171411}
+.tc-market-catalog-search label>span{font-family:serif;font-size:27px;color:#b9a488}
+.tc-screen.tc-iron-market-screen .tc-market-catalog-search input{width:100%;min-width:0;border:0;background:transparent;box-shadow:none;padding:8px;font-size:16px;color:#eadcc5;min-height:42px}
+.tc-screen.tc-iron-market-screen .tc-market-catalog-search button{border:1px solid #8c765c;border-image:none;background:linear-gradient(#393027,#211b16);border-radius:5px;height:44px;min-height:44px;font-size:14px;padding:4px;box-shadow:none}
+.tc-screen.tc-iron-market-screen .tc-market-catalog-search label button{border:0;background:none;min-width:44px;font-size:22px}
+.tc-market-ledger{height:100%;min-height:0;display:grid;grid-template-rows:44px minmax(0,1fr) 52px;overflow:hidden}
+.tc-ledger-columns,.tc-ledger-row{display:grid;grid-template-columns:minmax(0,1fr) 25% 25%;align-items:center;gap:4px}
+.tc-ledger-columns{border-top:1px solid #85705a;border-bottom:1px solid #85705a;color:#cfbfa3;font-size:12px;padding:0 5px}
+.tc-screen.tc-iron-market-screen .tc-ledger-columns button{background:none;border:0;border-image:none;box-shadow:none;min-height:44px;font-size:12px;padding:0;text-align:right;color:#cfbfa3;white-space:nowrap}
+.tc-ledger-columns small{font-size:12px;color:#aa9270}
+.tc-ledger-rows{display:grid;min-height:0;overflow:hidden;position:relative}
+.tc-screen.tc-iron-market-screen .tc-ledger-row{border:0;border-bottom:1px solid #6d5c4866;border-image:none;border-radius:0;background:none;box-shadow:none;min-height:44px;padding:4px 5px;text-align:left;width:100%;min-width:0;color:#e8d8bd}
+.tc-screen.tc-iron-market-screen .tc-ledger-row:hover,.tc-screen.tc-iron-market-screen .tc-ledger-row:focus-visible{background:linear-gradient(90deg,#59432180,#6b4f2940);box-shadow:inset 0 1px #ab865b,inset 0 -1px #ab865b}
+.tc-ledger-item{display:flex;gap:8px;align-items:center;min-width:0}
+.tc-ledger-art{display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;border:1px solid #8f795e;border-radius:3px;overflow:hidden;background:#14120f}
+.tc-ledger-art>*{width:100%;height:100%;object-fit:contain}
+.tc-ledger-name{min-width:0;display:grid;gap:4px}
+.tc-ledger-name b{font-size:13px;line-height:1.2;font-weight:400;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#eee0c7}
+.tc-ledger-name small{font-size:10px;color:#b6a78e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-ledger-price{font-size:13px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.tc-ledger-footer{display:flex;gap:5px;justify-content:space-between;align-items:center;border-top:1px solid #76604555;min-width:0}
+.tc-ledger-footer>div{display:grid;gap:2px;min-width:0}
+.tc-ledger-footer>div>span{font-size:9px;color:#bda98a;white-space:nowrap}
+.tc-ledger-footer small{font-size:9px;color:#988974}
+.tc-ledger-footer nav{display:flex;gap:5px;align-items:center;white-space:nowrap;font-size:12px}
+.tc-screen.tc-iron-market-screen .tc-ledger-footer nav button{border:1px solid #8d7658;border-image:none;border-radius:4px;background:#201b16;box-shadow:none;min-width:44px;min-height:44px;font-size:24px;padding:2px}
+.tc-screen.tc-iron-market-screen .tc-ledger-mode{border:0;border-image:none;background:none;box-shadow:none;min-height:44px;font-size:10px;padding:0 4px;color:#c5a879}
+.tc-ledger-footer>div:has(.tc-ledger-mode){display:flex;align-items:center}
+.tc-ledger-footer>div:has(.tc-ledger-mode)>span{display:none}
+.tc-ledger-empty{grid-row:1/-1;align-self:center}
+.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) button:focus-visible{outline:2px solid #e6c089;outline-offset:-2px}
+@media(max-width:360px){.tc-ledger-price{font-size:11px}.tc-ledger-item{gap:5px}.tc-ledger-name b{font-size:11px}.tc-ledger-art{width:34px;height:34px;flex-basis:34px}.tc-screen.tc-iron-market-screen .tc-ledger-columns button{font-size:10px}}
+@media(max-height:700px){.tc-screen.tc-iron-market-screen:has(.tc-market-ledger){grid-template-rows:44px minmax(0,1fr)}.tc-screen.tc-iron-market-screen:has(.tc-market-ledger) .tc-screen-head h1{font-size:21px}.tc-screen.tc-iron-market-screen.tc-iron-market-screen .tc-market-v4.tab-market{gap:3px}}

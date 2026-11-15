@@ -29,13 +29,11 @@ test('owned books retain stable trade id and available amount across inventory a
  const listed=placeOrder(game,{itemId:book.itemId,side:'SELL',limitPrice:100,quantity:2});
  assert.equal(listed.skillBooks[book.skillId],2);
 });
-test('server and local screens filter skillbooks separately from miscellaneous goods',()=>{
+test('legacy skillbook data remains available to detail intents but not current market tabs',()=>{
  for(const path of ['src/components/market/MarketScreen.tsx','src/components/market/ServerMarketScreen.tsx']){
   const s=source(path);
-  assert.ok(s.includes("['skillbooks','스킬북']"));
-  assert.ok(s.includes("['tickets','other'].includes(entryCategory)"));
-  assert.ok(!s.includes("['skillbooks','tickets','other'].includes(entryCategory)"));
-  assert.ok(s.includes('entry.skillBookGrade'));
+  assert.ok(!s.includes("['skillbooks','스킬북']"));
+  assert.ok(s.includes("filter==='all'&&entryCategory!=='skillbooks'"));
+  assert.ok(s.includes("intent.skillId?'skillbooks':'all'"));
  }
- assert.ok(source('src/mobile-game.css').includes('.tc-market-v4-cats{grid-template-columns:repeat(5,minmax(0,1fr))}'));
 });

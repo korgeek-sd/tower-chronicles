@@ -5,8 +5,8 @@ import {readFileSync} from 'node:fs';
 const server=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
 const service=readFileSync(new URL('../src/game/market/marketService.ts',import.meta.url),'utf8');
 
-test('V2 MARKET UNIFIED 01: all categories render through one shared card list',()=>{
- assert.match(server,/tc-market-v2-row tc-market-v3-card tc-market-v4-card/);
+test('V2 MARKET UNIFIED 01: all categories render through one shared quote table',()=>{
+ assert.match(server,/<MarketCatalogTable/);
  assert.doesNotMatch(server,/EquipmentMarketPanel/);
 });
 

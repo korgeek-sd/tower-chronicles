@@ -1,3 +1,8 @@
+import {CraftItemArt} from '../world/CraftItemArt';
+import {MARKET_LIFE_MATERIAL_IDS,marketLifeItemId} from '../../game/life/marketMaterials';
+import {MARKET_LIFE_PRODUCT_IDS,marketLifeProductItemId} from '../../game/life/marketProducts';
+import {MarketCatalogTable} from './MarketCatalogTable';
+import './market-catalog.css';
 import {MarketOrderSheet} from './MarketOrderSheet';
 import {MarketPriceChart,MarketRecentTrades} from './MarketPriceChart';
 import './iron-market.css';
@@ -22,19 +27,19 @@ import {ServerMarketScreen} from './ServerMarketScreen';
 import type {MarketIntent} from './marketNavigation';
 
 type Tab='market'|'orders'|'storage';
-type Category='all'|'equipment'|'materials'|'skillbooks'|'other';
+type Category='all'|'equipment'|'consumables'|'materials'|'skillbooks'|'other';
 type Side='BUY'|'SELL';
 type RangeKey='1H'|'24H'|'1W'|'1M'|'ALL';
 type Trend={points:string;delta:number|null;last:number|null;low:number|null;high:number|null;count:number};
 const PAGE_SIZE=5;
 const tabs=[['market','시장'],['orders','내 주문'],['storage','보관함']] as const;
-const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['materials','재료'],['skillbooks','스킬북'],['other','기타']];
+const categoryTabs:[Category,string][]=[['all','전체'],['equipment','장비'],['consumables','소모품'],['materials','재료']];
 const ranges:[RangeKey,string][]=[['1H','1시간'],['24H','24시간'],['1W','1주'],['1M','1개월'],['ALL','전체']];
 const money=(n:number|null)=>n===null?'—':Math.round(n).toLocaleString()+' S';
-function ProductArt({item}:{item:{category:string;skillBookGrade?:string;gear?:{kind:string;grade?:EquipmentGrade}}}){return item.category==='skillbooks'?<SkillBookArt grade={item.skillBookGrade}/>:item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
+function ProductArt({item}:{item:{id?:string;category:string;skillBookGrade?:string;gear?:{kind:string;grade?:EquipmentGrade}}}){const material=MARKET_LIFE_MATERIAL_IDS.find(id=>marketLifeItemId(id)===item.id);const product=MARKET_LIFE_PRODUCT_IDS.find(id=>marketLifeProductItemId(id)===item.id);if(material||product)return <CraftItemArt id={(material??product)!}/>;return item.category==='skillbooks'?<SkillBookArt grade={item.skillBookGrade}/>:item.gear&&item.gear.kind in EQUIPMENT_DEFINITIONS?<EquipmentArt kind={item.gear.kind as EquipmentKind} grade={item.gear.grade}/>:<Glyph name={categoryGlyph(item.category)}/>;}
 const categoryGlyph=(c:string)=>c==='equipment'?'equipment':c==='materials'?'materials':c==='skillbooks'?'skillbooks':c==='tickets'?'tickets':'other';
 const categoryLabel=(c:string)=>c==='equipment'?'장비':c==='materials'?'재료':c==='skillbooks'?'스킬북':c==='tickets'?'입장권':'기타';
-const categoryMatch=(entryCategory:string,filter:Category)=>filter==='all'||entryCategory===filter||(filter==='other'&&['tickets','other'].includes(entryCategory));
+const categoryMatch=(entryCategory:string,filter:Category)=>(filter==='all'&&entryCategory!=='skillbooks')||entryCategory===filter||((filter==='consumables'||filter==='other')&&['tickets','other','foods','potions'].includes(entryCategory));
 const levels=(orders:MarketOrder[],desc=false)=>aggregateOrderBookByPrice(orders).sort((a,b)=>desc?b.price-a.price:a.price-b.price).slice(0,4);
 const pageSlice=<T,>(rows:T[],page:number)=>rows.slice(page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE);
 const rangeMs=(range:RangeKey)=>range==='1H'?60*60*1000:range==='24H'?24*60*60*1000:range==='1W'?7*24*60*60*1000:range==='1M'?30*24*60*60*1000:null;
@@ -224,26 +229,13 @@ function LocalMarketScreen({game,setGame,intent,onIntentConsumed,onReturnToInven
    <Segments items={tabs} value={tab} onChange={next=>{setTab(next);setSelected(null);setTradeSide(null);setPage(0);}} label="거래소 메뉴"/>
 
    {tab==='market'&&<>
-    <div className="tc-market-filter-toolbar"><span role="status">{marketGradeSummary(category,gradeFilter)} · {filtered.length}종{query.trim()?' · 검색 중':''}</span><small>LOCAL</small><button ref={filterButton} aria-label="필터" aria-haspopup="dialog" aria-expanded={filtersOpen} className={query.trim()||gradeFilter.length||sort!=='default'?'active':''} onClick={()=>setFiltersOpen(true)}><Glyph name="filter"/> 필터</button></div>
-    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} onClick={()=>{setCategory(key);setGradeFilter([]);setPage(0);}}>{label}</button>)}</div>
-    <div className="tc-market-v2-list tc-market-v3-list tc-market-v4-list">
-     {shown.map(entry=>{
-      const ask=getBestAsk(game,entry.id),bid=getBestBid(game,entry.id),trend=trendByItem.get(entry.id)??makeTrend([]);
-      return <button className="tc-market-v2-row tc-market-v3-card tc-market-v4-card" key={entry.id} onClick={()=>choose(entry.id)}>
-       <span className="tc-market-v2-mini"><ProductArt item={entry}/></span>
-       <span className="name"><b>{entry.name}</b><small>{entry.skillBookGrade&&entry.skillBookGrade+' · '}{categoryLabel(entry.category)} · 보유 {entry.available}</small></span>
-       <span className={'tc-market-v3-spark '+trendClass(trend.delta)}>{trend.points?<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points={trend.points} fill="none" vectorEffect="non-scaling-stroke"/></svg>:<i/>}</span>
-       <span className="tc-market-v3-rowprice"><b>{money(ask??bid)}</b><small className={trendClass(trend.delta)}>{trendLabel(trend.delta)}</small></span>
-       <i>›</i>
-      </button>;
-     })}
-     {!shown.length&&<EmptySearchResults title="검색 조건에 맞는 품목이 없습니다." actions={[
+    <div className="tc-market-v2-cats tc-market-v3-cats tc-market-v4-cats">{categoryTabs.map(([key,label])=><button key={key} className={category===key?'active':''} aria-pressed={category===key} onClick={()=>{setCategory(key);setGradeFilter([]);setPage(0);}}>{label}</button>)}</div>
+    <div className="tc-market-catalog-search"><label><span aria-hidden="true">⌕</span><input type="search" aria-label="아이템 검색" placeholder="아이템 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0);}}/>{query&&<button aria-label="검색어 지우기" onClick={()=>setQuery('')}>×</button>}</label><button ref={filterButton} aria-label="필터" aria-haspopup="dialog" aria-expanded={filtersOpen} className={gradeFilter.length||sort!=='default'?'active':''} onClick={()=>setFiltersOpen(true)}><Glyph name="filter"/> 필터</button></div>
+    <MarketCatalogTable rows={filtered.map(entry=>{const ask=getBestAsk(game,entry.id),bid=getBestBid(game,entry.id); return {id:entry.id,name:entry.name,description:(entry.category==='equipment'?'장비':entry.category==='materials'?'재료':'소모품')+' · 보유 '+entry.available,art:<ProductArt item={entry}/>,ask,bid};})} resetKey={category+'|'+query+'|'+gradeFilter.join(',')+'|'+sort} onChoose={choose} status={<span>LOCAL · 로컬 거래소</span>} empty={<EmptySearchResults title="검색 조건에 맞는 품목이 없습니다." actions={[
  ...(gradeFilter.length?[{label:'등급 필터',count:catalog.filter(entry=>categoryMatch(entry.category,category)&&(!normalizedQuery||entry.name.toLowerCase().includes(normalizedQuery))).length,run:()=>{setGradeFilter([]);setPage(0);}}]:[]),
  ...(normalizedQuery?[{label:'검색어',count:catalog.filter(entry=>categoryMatch(entry.category,category)&&marketGradeMatches(entry,gradeFilter)).length,run:()=>{setQuery('');setPage(0);}}]:[]),
  ...((gradeFilter.length&&normalizedQuery)?[{label:'모든 검색 조건',count:catalog.filter(entry=>categoryMatch(entry.category,category)).length,run:()=>{setQuery('');setGradeFilter([]);setPage(0);}}]:[])
- ]}/> }
-    </div>
-    <Pager page={safeMarketPage} count={marketPages} onChange={setPage}/>
+ ]}/>}/>
    </>}
 
    {tab==='orders'&&<>

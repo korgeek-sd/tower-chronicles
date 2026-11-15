@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('MARKET UI V4 01: market entry has a filter dialog and five compact categories',()=>{
+test('MARKET UI V4 01: market entry has a filter dialog and four compact categories',()=>{
  const online=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  const local=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  for(const source of [online,local]){
@@ -14,8 +14,8 @@ test('MARKET UI V4 01: market entry has a filter dialog and five compact categor
   assert.match(source,/\['equipment','장비'\]/);
   assert.match(source,/\['materials','재료'\]/);
   assert.match(source,/스킬북/);
-  assert.match(source,/\['other','기타'\]/);
-  assert.match(source,/tc-market-v4-card/);
+  assert.match(source,/\['consumables','소모품'\]/);
+  assert.match(source,/<MarketCatalogTable/);
  }
 });
 

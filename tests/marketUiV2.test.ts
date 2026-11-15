@@ -23,7 +23,7 @@ test('MARKET UI V2 02: local fallback mirrors the online information architectur
  assert.match(source,/구매 최고|최고 구매/);
  assert.match(source,/최근 체결/);
  assert.match(source,/tc-market-v2-detail/);
- assert.match(source,/Pager page=\{safeMarketPage\}/);
+ assert.match(source,/<MarketCatalogTable/);
 });
 
 test('MARKET UI V2 03: order and storage views expose progress and settlement summaries',()=>{

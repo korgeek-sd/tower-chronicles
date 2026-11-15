@@ -27,7 +27,7 @@ test('MARKET DEMO 03: online market defaults to demo and ticks every 900ms',()=>
  const source=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  assert.match(source,/useState\(true\)/);
  assert.match(source,/setInterval\(\(\)=>setDemoTick\(tick=>tick\+1\),900\)/);
- assert.match(source,/DEMO ON/);
+ assert.match(source,/DEMO · 예시 시세/);
  assert.match(source,/DEMO · 실제 주문 미반영/);
  assert.match(source,/DEMO 시연 중 · 실제 주문 비활성/);
 });

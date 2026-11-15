@@ -2,14 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-test('MARKET UI V3 01: market list uses real trade sparklines and price-first cards',()=>{
+test('MARKET UI V3 01: market list uses paired quotes and retains price charts in detail',()=>{
  const online=readFileSync(new URL('../src/components/market/ServerMarketScreen.tsx',import.meta.url),'utf8');
  const local=readFileSync(new URL('../src/components/market/MarketScreen.tsx',import.meta.url),'utf8');
  for(const source of [online,local]){
   assert.match(source,/sparkPoints/);
-  assert.match(source,/tc-market-v3-spark/);
-  assert.match(source,/<polyline/);
-  assert.match(source,/tc-market-v3-rowprice/);
+  assert.match(source,/<MarketCatalogTable/);
+  assert.match(source,/<MarketPriceChart/);
   assert.match(source,/최근 체결가/);
  }
 });
