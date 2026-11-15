@@ -8,8 +8,8 @@ const online=readFileSync(new URL('../src/online/market.ts',import.meta.url),'ut
 test('V2 MARKET UI 01: equipment uses the exact same live order-book detail UI',()=>{
  assert.match(server,/tc-market-v2-book tc-market-v4-book/);
  assert.match(server,/실시간 주문장/);
- assert.match(server,/BUY · 매수/);
- assert.match(server,/SELL · 매도/);
+ assert.match(server,/openTrade\('BUY'\).*?>매수</);
+ assert.match(server,/openTrade\('SELL'\).*?>매도</);
  assert.doesNotMatch(server,/즉시 구매|정가 판매 · 72시간|등록 수수료|판매 수수료 5%/);
 });
 
