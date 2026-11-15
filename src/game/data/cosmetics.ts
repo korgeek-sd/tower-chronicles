@@ -219,7 +219,7 @@ export const APPEARANCES:AppearanceData[]=[
 ,
  {id:"advanced_mage",name:"고급 마법사",rarity:"A",imagePath:"assets/characters/appearances/advanced_mage-fa1aafe579fe.webp",description:"수백 년간 전해지던 마법의 진리를 증명했지만 마지막 연구에서 세상의 법칙이 누군가에 의해 고쳐지고 있다는 사실을 발견한 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.A},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
- {id:"archmage",name:"대마법사",rarity:"SR",imagePath:"assets/characters/appearances/archmage-098128fade40.webp",description:"세상의 모든 마법을 이해한 끝에 자신이 사용하는 주문조차 누군가 미리 기록해 두었다는 사실을 발견한 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
+ {id:"archmage",name:"대마법사",rarity:"SR",imagePath:"assets/characters/appearances/archmage-abccbd30c158.webp",description:"세상의 모든 마법을 이해한 끝에 자신이 사용하는 주문조차 누군가 미리 기록해 두었다는 사실을 발견한 마법사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.SR},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
  {id:"alchemist",name:"연금술사",rarity:"B",imagePath:"assets/characters/appearances/alchemist-c694c0994604.webp",description:"죽음을 되돌리는 영약을 완성했지만 그 대가로 자신의 남은 수명을 모두 잃어버린 연금술사.",proposedBonus:{stat:'attack',percent:APPEARANCE_PROPOSED_PERCENT.B},sourceLabel:'외형 뽑기 · 준비중',tradeable:false,artStatus:'ready'}
 ,
