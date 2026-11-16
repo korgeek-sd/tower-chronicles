@@ -29,7 +29,7 @@ test('UI REBUILD 02: mobile UI excludes legacy imagery except the approved villa
   // The guild headquarters uses a dedicated six-building pixel-art courtyard,
   // while all other rebuilt screens must still avoid legacy decorative imagery.
   const source=path==='src/components/mobile/CoreScreens.tsx'
-   ?read(path).replace('assets/backgrounds/hub/novar-moonlit-v3.webp','')
+   ?read(path).replace('assets/backgrounds/hub/novar-concept-one.webp','')
    :path==='src/components/association/AssociationScreen.tsx'
     ?read(path)
       .replace('assets/backgrounds/association/guild-courtyard-v3.webp','')

@@ -55,7 +55,7 @@ test('HOME FACILITY 04: base camp removes retired enhancement shortcut',()=>{
 test('HOME APPEARANCE SUMMON: visible main facility opens the summon screen',()=>{
  const source=readFileSync(new URL('../src/components/mobile/CoreScreens.tsx',import.meta.url),'utf8');
  const main=source.slice(source.indexOf('const mainFacilities='),source.indexOf('const extraFacilities='));
- assert.match(main,/id:'appearance-summon',glyph:'jobs',name:'외형 소환',action:\(\)=>onOpenJobs\('register'\)/);
+ assert.match(main,/id:'appearance-summon',glyph:'jobs',name:'외형 소환',description:'새로운 외형 획득',action:\(\)=>onOpenJobs\('register'\)/);
  const extra=source.slice(source.indexOf('const extraFacilities='),source.indexOf('return <Screen title="노바르 거점"'));
  assert.match(extra,/id:'stats',glyph:'skill',name:'스탯 분배',action:\(\)=>onMove\('stats'\)/);
 });

@@ -10,10 +10,10 @@ test('village hub renders six interactive building facilities, equipped characte
  const game=initialState(),before=JSON.stringify(game);
  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game,nickname:'마을 방문자',onMove:()=>{},onOpenJobs:()=>{},mailUnread:9}));
  assert.match(html,/tc-village-camp-screen/);
- assert.match(html,/aria-label="노바르 마을 시설 지도"/);
+ assert.match(html,/aria-label="노바르 주요 시설"/);
  for(const id of ['craft','skills','appearance-summon','gold-exchange','occupation','quests'])
   assert.equal((html.match(new RegExp('data-facility="'+id+'"','g'))??[]).length,1,id);
- assert.match(html,/novar-moonlit-v3.webp/);
+ assert.match(html,/novar-concept-one.webp/);
  assert.match(html,/class="tc-village-player"/);
  assert.match(html,/의뢰 게시판/);
  assert.match(html,/출정하기/);
@@ -29,15 +29,15 @@ test('expanded home chat returns keyboard focus to the remounted expansion butto
 });
 
 test('village scene is shipped as a bounded WebP asset',()=>{
- const image=readFileSync('public/assets/backgrounds/hub/novar-moonlit-v3.webp');
+ const image=readFileSync('public/assets/backgrounds/hub/novar-concept-one.webp');
  assert.equal(image.toString('ascii',8,12),'WEBP');
- assert.ok(statSync('public/assets/backgrounds/hub/novar-moonlit-v3.webp').size<800_000);
+ assert.ok(statSync('public/assets/backgrounds/hub/novar-concept-one.webp').size<800_000);
 });
 
 test('quiet village uses small nameplates over touch-sized controls and an uncropped square map',()=>{
  const html=renderToStaticMarkup(React.createElement(HomeScreen,{game:initialState(),onMove:()=>{},onOpenJobs:()=>{}}));
- assert.match(html,/novar-moonlit-v3.webp/);
- assert.equal((html.match(/class="tc-village-nameplate"/g)??[]).length,6);
+ assert.match(html,/novar-concept-one.webp/);
+ assert.equal((html.match(/class="tc-novar-card-copy"/g)??[]).length,6);
  const css=readFileSync('src/components/mobile/village-camp.css','utf8');
  assert.match(css,/aspect-ratio:1/);
  assert.match(css,/\.tc-village-nameplate/);

@@ -1,0 +1,78 @@
+/* Approved concept 1: midnight courtyard, six live facility cards and a closed utility sheet. */
+.tc-novar-concept-one.tc-screen{height:100%;min-height:0}
+.tc-novar-concept-one .tc-camp-v2{position:relative;display:grid;grid-template-rows:66px 44px minmax(0,1fr) 44px 44px;gap:5px;padding:5px 7px 7px;height:100%;min-height:0;overflow:hidden;background:linear-gradient(145deg,#101c31,#050a13 65%,#111c30)}
+.tc-novar-concept-one .tc-camp-v2-dossier{display:grid;grid-template-columns:50px minmax(0,1fr) minmax(100px,.9fr);align-items:center;gap:9px;padding:5px 9px;border:1px solid #c5a064;border-radius:6px;background:linear-gradient(110deg,#080d18,#142036 60%,#080d18);box-shadow:inset 0 0 0 2px #02050a,inset 0 0 0 3px #6a5437;min-width:0}
+.tc-novar-concept-one .tc-camp-v2-portrait{height:52px;width:50px;border-radius:3px;min-height:44px}
+.tc-novar-concept-one .tc-camp-v2-bio{min-width:0;width:100%;gap:4px;padding:0;overflow:hidden}
+.tc-novar-concept-one .tc-camp-v2-bio>strong{font-family:inherit;font-size:19px;line-height:1.1}
+.tc-novar-concept-one .tc-camp-v2-bio>span{font-size:10px;color:#cfb77e}
+.tc-novar-concept-one .tc-camp-v2-profile-link{display:none}
+.tc-novar-vitality{display:grid;gap:8px;min-width:0;border-left:1px solid #a1804c;padding-left:12px}
+.tc-novar-vitality>span{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#d7e8a7;font-size:13px}
+.tc-novar-vitality b{font-weight:400;color:#c4e783;white-space:nowrap}
+.tc-novar-vitality strong{color:#e2e9cf;font-weight:400;overflow:hidden;text-overflow:ellipsis}
+.tc-novar-vitality-track{height:7px;background:#263825;border-radius:9px;box-shadow:inset 0 1px 2px #000}
+.tc-novar-vitality-track i{display:block;max-width:100%;height:100%;border-radius:9px;background:linear-gradient(#d0ff8e,#5bd92c 50%,#3f9f21);box-shadow:0 0 5px #7dcc3840}
+.tc-novar-concept-one .tc-market-hub-ticker{min-height:44px;border:1px solid #b99559;border-radius:5px;background:linear-gradient(#191c22,#070d17);font-size:10px;gap:4px;padding:0 7px;box-shadow:inset 0 0 0 2px #080b11}
+.tc-novar-concept-one .tc-market-hub-ticker strong{font-size:12px}
+.tc-novar-concept-one .tc-village{display:grid;grid-template-rows:minmax(0,1fr) clamp(162px,23vh,210px) 48px;gap:6px;min-height:0;background:none}
+.tc-novar-concept-one .tc-village-scene{min-height:0;border-radius:4px;overflow:hidden;background:#0c172b}
+.tc-novar-concept-one .tc-village-map{position:absolute;inset:0;width:100%;height:100%;transform:none;aspect-ratio:auto}
+.tc-novar-concept-one .tc-village-art{object-fit:cover;object-position:50% 55%;opacity:1}
+.tc-novar-concept-one .tc-village-heading{position:absolute;inset:0 0 auto;height:36px;z-index:2;padding:0 9px;border:0;background:linear-gradient(90deg,#06101dd9,transparent);pointer-events:none}
+.tc-novar-concept-one .tc-village-heading h2{font-family:inherit;font-size:18px;font-weight:400;letter-spacing:.05em}
+.tc-novar-concept-one .tc-village-player{display:grid;left:44%;top:auto;bottom:4%;width:12%;height:35%;filter:drop-shadow(0 4px 2px #000b)}
+.tc-novar-concept-one .tc-camp-v2-quick{position:static;inset:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(44px,1fr));gap:6px;min-height:0;pointer-events:auto}
+.tc-novar-concept-one .tc-camp-v2-quick button{position:relative;inset:auto!important;transform:none;display:flex;align-items:center;justify-content:flex-start;gap:8px;width:100%;height:100%;max-width:none;min-width:0;min-height:44px;padding:6px 9px;border:1px solid #d0ac6d;border-radius:8px;overflow:hidden;isolation:isolate;background:linear-gradient(90deg,#0b0f18f5 20%,#0c1320e6 53%,#0c162566),url('../../../public/assets/backgrounds/hub/novar-concept-one.webp') center/cover;box-shadow:inset 0 0 0 2px #070a10,inset 0 0 0 3px #7b603b,0 2px 3px #0008;color:#f2e5c4;text-align:left}
+.tc-novar-concept-one .tc-camp-v2-quick button:before{content:'';display:block;position:absolute;inset:3px;border-top:1px solid #e4c58d77;border-bottom:1px solid #e4c58d55;border-radius:5px;pointer-events:none}
+.tc-novar-concept-one .tc-camp-v2-quick button[data-facility=craft]{background-position:0 70%}
+.tc-novar-concept-one .tc-camp-v2-quick button[data-facility=skills]{background-position:15% 25%}
+.tc-novar-concept-one .tc-camp-v2-quick button[data-facility=appearance-summon]{background-color:#211735;background-blend-mode:normal,luminosity}
+.tc-novar-concept-one .tc-camp-v2-quick button[data-facility=gold-exchange]{background-position:100% 70%}
+.tc-novar-concept-one .tc-camp-v2-quick button[data-facility=occupation]{background-position:65% 10%}
+.tc-novar-concept-one .tc-camp-v2-quick button>.tc-hub-icon{width:36px;height:36px;filter:drop-shadow(0 2px 2px #000)}
+.tc-novar-card-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tc-novar-card-copy strong{font-family:inherit;font-weight:400;font-size:clamp(14px,4vw,20px);line-height:1.15;white-space:nowrap;letter-spacing:0;text-shadow:0 2px 2px #000}
+.tc-novar-card-copy small{font-size:clamp(8px,2.3vw,11px);line-height:1.25;color:#d1c6af;white-space:nowrap}
+.tc-novar-concept-one .tc-camp-v2-primary{display:grid;grid-template-columns:1fr 1.9fr 1fr;align-items:stretch;gap:7px;padding:0;background:none;min-height:44px}
+.tc-novar-concept-one .tc-camp-v2-primary button{display:flex;align-items:center;justify-content:center;gap:4px;padding:4px;min-width:0;min-height:44px;border:1px solid #b8965c;border-radius:5px;background:linear-gradient(#182035,#070e1c);box-shadow:inset 0 0 0 2px #080b12,inset 0 0 0 3px #6a5537;font-size:11px;color:#ecd9b0;white-space:nowrap}
+.tc-novar-concept-one .tc-camp-v2-primary .tc-camp-v2-hunt{padding:3px;gap:5px;border:1px solid #ffe1a3;border-radius:9px;background:linear-gradient(115deg,#391322,#701f32 50%,#32101e);box-shadow:inset 0 0 0 2px #2b0c16,inset 0 0 0 3px #c39550,0 0 7px #e9b65765}
+.tc-novar-concept-one .tc-camp-v2-hunt b{font-family:inherit;font-size:clamp(19px,5.3vw,26px);font-weight:400;letter-spacing:.03em;color:#ffedbd}
+.tc-novar-concept-one .tc-camp-v2-hunt .tc-hub-icon{width:27px;height:27px}
+.tc-novar-concept-one .tc-camp-v2-hunt:before,.tc-novar-concept-one .tc-camp-v2-hunt:after{display:none}
+.tc-novar-concept-one .tc-camp-v2-chat-dock{margin:0;height:44px;min-height:44px;border:1px solid #9b8057;border-radius:5px;background:#070d19;overflow:hidden}
+.tc-novar-concept-one .tc-novar-utilities{display:flex;align-items:center;gap:10px;min-width:0;min-height:44px;padding:0 12px;border:1px solid #c3a06a;border-radius:6px;box-shadow:inset 0 0 0 2px #080c14,inset 0 0 0 3px #5e4c35;background:linear-gradient(#182238,#080e1b);color:#ecdbad;text-align:left}
+.tc-novar-utilities strong{font-size:13px;font-weight:400;white-space:nowrap}
+.tc-novar-utilities>span{font-size:10px;color:#b4ac9d;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-novar-utilities>b{margin-left:auto;font-size:22px}
+.tc-novar-sheet-backdrop{position:absolute;inset:0;z-index:20;display:flex;align-items:end;padding:10px;background:#020711b8}
+.tc-novar-sheet{width:100%;max-height:100%;overflow:auto;padding:12px;border:1px solid #c8a56b;border-radius:10px;background:linear-gradient(#19253b,#080e1c);box-shadow:0 -10px 40px #000b,inset 0 0 0 3px #080e18;color:#eddab0}
+.tc-novar-sheet>header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.tc-novar-sheet h2{margin:0;font-size:18px;font-weight:400}
+.tc-novar-sheet>header button{width:44px;height:44px;font-size:25px;border:1px solid #927748;background:#0b1323;color:#eddab0}
+.tc-novar-sheet nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.tc-novar-sheet nav button{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:48px;padding:7px;border:1px solid #7d6847;border-radius:4px;background:#0b1425;color:#eddbb8;font-size:13px}
+.tc-novar-concept-one button:focus-visible{outline:2px solid #ffe7aa;outline-offset:-3px}
+.tc-novar-concept-one .tc-camp-v2-quick button:hover{border-color:#ffe3a7;filter:brightness(1.12)}
+@media(max-width:380px){
+ .tc-novar-concept-one .tc-camp-v2{padding-inline:5px;gap:4px}
+ .tc-novar-concept-one .tc-camp-v2-dossier{grid-template-columns:44px minmax(0,1fr) 95px;gap:6px;padding-inline:6px}
+ .tc-novar-concept-one .tc-camp-v2-portrait{width:44px;height:50px}
+ .tc-novar-concept-one .tc-camp-v2-bio>strong{font-size:17px}
+ .tc-novar-concept-one .tc-camp-v2-bio>span{font-size:9px}
+ .tc-novar-concept-one .tc-market-hub-ticker{padding-inline:4px;font-size:9px}
+ .tc-novar-concept-one .tc-market-hub-ticker strong{font-size:10px}
+ .tc-novar-concept-one .tc-camp-v2-quick button{gap:5px;padding-inline:7px}
+ .tc-novar-concept-one .tc-camp-v2-quick button>.tc-hub-icon{width:29px;height:29px}
+ .tc-novar-concept-one .tc-camp-v2-primary{gap:5px}
+ .tc-novar-concept-one .tc-camp-v2-primary button{font-size:10px}
+}
+@media(max-height:700px){
+ .tc-novar-concept-one .tc-camp-v2{grid-template-rows:60px 44px minmax(0,1fr) 44px 44px;gap:4px;padding-block:4px}
+ .tc-novar-concept-one .tc-village{grid-template-rows:minmax(0,1fr) 148px 44px;gap:5px}
+ .tc-novar-concept-one .tc-camp-v2-quick{gap:5px}
+ .tc-novar-card-copy{gap:2px}
+ .tc-novar-concept-one .tc-village-heading{height:28px}
+ .tc-novar-concept-one .tc-village-heading h2{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){.tc-novar-concept-one *{animation:none!important;transition:none!important}}

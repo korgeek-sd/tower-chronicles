@@ -9,9 +9,8 @@ const home=core.slice(core.indexOf('export function HomeScreen'),core.indexOf('e
 test('NOVAR HUB V2: profile and always-on chat use real character and hunting values',()=>{
  assert.match(home,/tc-camp-v2-dossier/);
  assert.match(home,/jobById\(game.currentJobId\)/);
- assert.match(home,/stats\(game,equipped\)/);
  assert.match(home,/getHuntingState\(lease\)/);
- assert.match(home,/huntStatus\?\.maxMp/);
+ assert.doesNotMatch(home,/<b>HP<\/b>|<b>MP<\/b>/);
  assert.match(home,/huntStatus\?\.vitality/);
  assert.match(home,/tc-camp-chat-dock/);
 });

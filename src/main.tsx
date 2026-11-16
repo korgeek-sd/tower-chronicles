@@ -84,6 +84,7 @@ import './game-fonts.css';
 import './components/mobile/moonlit-camp.css';
 import './components/mobile/game-topbar.css';
 import './components/market/market-trends.css';
+import './components/mobile/novar-concept-one.css';
 import {GameFeelProvider} from './gameFeel/react/GameFeelProvider';
 import {GameEntry} from './components/intro/GameEntry';
 
