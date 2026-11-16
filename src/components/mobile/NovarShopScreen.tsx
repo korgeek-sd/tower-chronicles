@@ -23,9 +23,9 @@ const SHOP_GOLD_ART='assets/ui/shop/gold_pixel_supply_chest.webp';
 const SHOP_TICKET_ART='assets/ui/shop/appearance_summon_ticket_pixel.webp';
 const SHOP_VITALITY_ART='assets/ui/shop/vitality_potion_pixel.webp';
 const SHOP_SILVER_ART='assets/ui/shop/silver_pixel_supply_chest.webp';
-const GOLD_CHEST_TIERS_ART='assets/ui/shop/gold_strongbox_tiers_v5.png';
+const GOLD_CHEST_TIERS_ART='assets/ui/shop/gold_fantasy_chests_v1.png';
 const GOLD_CHEST_TIER_NAMES=[
- '목제 금고함','철제 금고함','은빛 금고함','황금 금고함','흑철 금고함','왕실 금고함'
+ '해골 잠금함','철창 금고','가시 갑주함','고목 뿌리함','조개 보물함','미믹 상자'
 ] as const;
 const goldChestStyle=(tier:number)=>({
  backgroundImage:`url(${assetUrl(GOLD_CHEST_TIERS_ART)})`,
