@@ -15,3 +15,12 @@ test('concept one retains all facility routes and only shows vitality on the hub
  assert.match(home,/e.key==='Escape'/);
  assert.match(home,/facilityToggle.current\?\.focus\(\)/);
 });
+
+test('hub has one utility entry and plain facility card backgrounds',()=>{
+ assert.doesNotMatch(home,/tc-novar-all|전체 시설/);
+ assert.match(home,/ref=\{facilityToggle\}[^\n]*tc-novar-utilities/);
+ const css=readFileSync(new URL('../src/components/mobile/novar-concept-one.css',import.meta.url),'utf8');
+ assert.doesNotMatch(css,/url\(/);
+ assert.match(css,/grid-template-columns:1\.9fr 1fr/);
+ assert.match(home,/assets\/backgrounds\/hub\/novar-concept-one.webp/);
+});
