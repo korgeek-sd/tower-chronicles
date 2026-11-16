@@ -31,7 +31,7 @@ import {getHuntingState} from '../../online/hunting';
 import type {GameplayLease} from '../../online/gameSession';
 import {huntingLevel,VITALITY_CAP,type HuntingState} from '../../game/hunting/model';
 
-export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank';
+export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank'|'market-trends';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=null,actionAlerts}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null;actionAlerts?:{quests:boolean;attendance:boolean}}){
  const [showAllFacilities,setShowAllFacilities]=useState(false);
@@ -89,6 +89,9 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=nu
     </button>
     <button type="button" className="tc-camp-v2-profile-link" aria-label="성장 현황 열기" title="성장 현황" onClick={()=>onMove('character')}><span>성장<br/>현황</span></button>
    </section>
+   <button type="button" className="tc-market-hub-ticker" onClick={()=>onMove('market-trends')} aria-label="시장 동향 화면 열기, 시범 화면">
+    <strong><Glyph name="market"/>시장 동향</strong><span className="is-boom">↑ 물약 생산 ×2</span><span className="is-slump">↓ 장비 드롭 −30%</span><small>시범</small><b aria-hidden="true">›</b>
+   </button>
    <section className="tc-village" aria-label="거점 시설">
     <button ref={facilityToggle} type="button" className="tc-village-all" aria-expanded={showAllFacilities} aria-controls="tc-camp-extra-facilities" onClick={()=>setShowAllFacilities(v=>!v)}>{showAllFacilities?'시설 닫기':'전체 시설'} <span aria-hidden="true">{showAllFacilities?'×':'+'}</span></button>
     <header className="tc-village-heading"><div><h2><HubIcon name="world"/>노바르 거점</h2><span>{game.expedition?'탑에서 원정이 진행 중입니다':'탑의 그늘 아래, 다시 모이는 거점'}</span></div><button type="button" className="tc-feel-press" data-game-feel="press" onClick={()=>onMove('world')}><Glyph name="towers"/>마을 이동 <span aria-hidden="true">›</span></button></header>
