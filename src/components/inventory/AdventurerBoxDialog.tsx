@@ -1,7 +1,8 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useCallback,useEffect,useRef,useState} from 'react';
 import type {EquipmentItem} from '../../game/types';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,equipmentItemName} from '../../game/data/equipment';
 import {assetUrl} from '../../game/data/graphics';
+import {playGameEffect} from '../../audio/gameEffects';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import {EquipmentArt} from './EquipmentArt';
 import {boxReveal,boxStatRows} from './boxPresentation';
@@ -16,35 +17,46 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
  const root=useRef<HTMLDialogElement>(null),close=useRef(p.onClose);close.current=p.onClose;
  const [details,setDetails]=useState(false),[revealed,setRevealed]=useState(false),[selected,setSelected]=useState(0);
  const feel=useGameFeel();
+ const [phase,setPhase]=useState<'rattle'|'charge'|'hold'|'burst'>('rattle');
+ const timers=useRef<number[]>([]);
+ const clearRevealTimers=useCallback(()=>{timers.current.forEach(window.clearTimeout);timers.current=[];},[]);
+ const skip=()=>{clearRevealTimers();setRevealed(true);};
  const reveal=p.rewards?boxReveal(p.rewards):null;
  const opening=p.busy||!!p.rewards&&!revealed;
  const result=!!p.rewards&&revealed;
  const item=p.rewards?.[Math.min(selected,p.rewards.length-1)];
  useEffect(()=>{
   const previous=document.activeElement as HTMLElement,dialog=root.current!;
+  const fallback=document.querySelector<HTMLButtonElement>('button[aria-label="필터"]');
   dialog.showModal();dialog.querySelector<HTMLButtonElement>('button')?.focus();
-  return()=>{dialog.close();if(previous?.isConnected)previous.focus({preventScroll:true});};
+  return()=>{dialog.close();if(previous?.isConnected)previous.focus({preventScroll:true});else fallback?.focus({preventScroll:true});};
  },[]);
  useEffect(()=>{
-  setSelected(0);setRevealed(false);setDetails(false);
+  clearRevealTimers();setSelected(0);setRevealed(false);setDetails(false);setPhase('rattle');
   if(!p.rewards)return;
   const feedback=boxReveal(p.rewards,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   if(!feedback)return;
-  feel.play('ui.confirm');
-  const timer=window.setTimeout(()=>setRevealed(true),feedback.duration);
-  return()=>window.clearTimeout(timer);
- },[p.rewards,feel]);
- useEffect(()=>{if(result)root.current?.querySelector<HTMLButtonElement>('[data-result-confirm]')?.focus({preventScroll:true});},[result]);
- const dismiss=()=>{if(p.busy)return;if(opening){setRevealed(true);return;}close.current();};
+  if(!feedback.duration){setRevealed(true);return;}
+  const sound=(name:Parameters<typeof playGameEffect>[0])=>{try{playGameEffect(name);}catch{}};
+  const after=(delay:number,callback:()=>void)=>{timers.current.push(window.setTimeout(callback,delay));};
+  sound('seal.cast');
+  after(feedback.chargeAt,()=>{setPhase('charge');sound('hunt.start');});
+  after(feedback.holdAt,()=>setPhase('hold'));
+  after(feedback.burstAt,()=>{setPhase('burst');sound(feedback.grade==='legendary'?'seal.step-3':feedback.grade==='heroic'||feedback.grade==='rare'?'loot.rare':'loot.common');});
+  after(feedback.duration,()=>setRevealed(true));
+  return clearRevealTimers;
+ },[p.rewards,clearRevealTimers]);
+ useEffect(()=>{if(result){clearRevealTimers();feel.play('ui.confirm');root.current?.querySelector<HTMLButtonElement>('[data-result-confirm]')?.focus({preventScroll:true});}},[result,feel,clearRevealTimers]);
+ const dismiss=()=>{if(p.busy)return;if(opening){skip();return;}close.current();};
  return <dialog ref={root} className={'tc-box-dialog'+(opening?' is-opening':'')+(result?' is-result':'')} style={{'--box-tone':reveal?({common:'#d5c7a9',uncommon:'#82b86b',rare:'#60bfff',heroic:'#bc7ce0',legendary:'#ffcc66'}[reveal.grade]):'#c1ab7e'} as React.CSSProperties} aria-labelledby="tc-box-title" aria-modal="true" onCancel={e=>{e.preventDefault();dismiss();}} onKeyDown={e=>{
   if(e.key!=='Tab')return;const nodes=Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));const first=nodes[0],last=nodes[nodes.length-1];
   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
  }}>
   <header><h2 id="tc-box-title">{opening?'모험가 장비 상자 개봉':result?'장비 획득':'모험가 장비 상자'}</h2>{!opening&&<button className="tc-box-close" aria-label="상자 창 닫기" onClick={dismiss}>×</button>}</header>
-  {opening?<div className={'tc-box-stage'+(reveal?' has-receipt':'')} style={{backgroundImage:`linear-gradient(#08080877,#080808aa),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
-   <button className="tc-box-skip" disabled={!p.rewards} onClick={()=>setRevealed(true)}>{p.rewards?'건너뛰기 »':'결과 확인 중…'}</button>
-   <div className="tc-box-altar"><span className="tc-box-rays"/><img src={chest} alt="개봉 중인 모험가 장비 상자"/><i className="tc-box-seam"/></div>
-   <p role="status">{p.rewards?'장비가 모습을 드러냅니다': '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
+  {opening?<div className={'tc-box-stage phase-'+phase+(reveal?' has-receipt':'')+(reveal?.grade==='legendary'?' is-legendary':'')} style={{backgroundImage:`linear-gradient(#08080877,#080808aa),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
+   <button className="tc-box-skip" disabled={!p.rewards} onClick={skip}>{p.rewards?'건너뛰기 »':'결과 확인 중…'}</button>
+   <div className="tc-box-altar"><span className="tc-box-rays"/><span className="tc-box-shockwave"/><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><img className="tc-box-lid" src={chest} alt=""/><img className="tc-box-base" src={chest} alt=""/></div><i className="tc-box-seam"/><div className="tc-box-sparks" aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--spark-angle':`${i*30}deg`,'--spark-distance':`${85+(i%3)*20}px`} as React.CSSProperties}/>)}</div></div>
+   <p role="status">{p.rewards?(phase==='burst'?'장비가 모습을 드러냅니다':phase==='hold'?'…':'상자가 반응하고 있습니다'): '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
   </div>:result&&item?<>
    {p.rewards!.length>1&&<div className="tc-box-rewards" aria-label="획득 장비 목록">{p.rewards!.map((reward,index)=><button key={reward.id} aria-label={equipmentItemName(reward)} aria-pressed={selected===index} className={'grade-'+reward.grade} onClick={()=>setSelected(index)}><EquipmentArt kind={reward.kind} grade={reward.grade}/><small>{EQUIPMENT_GRADE_NAMES[reward.grade]}</small></button>)}</div>}
    <div className={'tc-box-prize grade-'+item.grade}>
