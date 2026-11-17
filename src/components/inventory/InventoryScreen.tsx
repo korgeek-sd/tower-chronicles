@@ -1,3 +1,5 @@
+import {AdventurerBoxDialog} from './AdventurerBoxDialog';
+import type {EquipmentItem} from '../../game/types';
 import {inventoryGridLayout} from './inventoryGridLayout';
 import {SkillSetupEditor} from '../hunting/SkillSetupEditor';
 import {skillBookFor} from '../../game/skills/books';
@@ -44,10 +46,11 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  const life=useInventoryLife(userId,onlineLease??null);
  const [category,setCategory]=useState<InventoryCategory>(()=>inventoryTabFor(initialCategory)),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const [boxCount,setBoxCount]=useState(1);
+ const [boxRewards,setBoxRewards]=useState<EquipmentItem[]|null>(null);
  useEffect(()=>setBoxCount(1),[selected]);
  const boxes=useAdventurerBox(userId,onlineLease??null,(result)=>{
   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:'모험가 장비 상자 개봉 완료 · '+result.rewards.map(equipmentItemName).join(' / ')}));
-  life.applySnapshot(result.state);setSelected(null);void life.refresh();
+  life.applySnapshot(result.state);setBoxRewards(result.rewards);setSelected(null);void life.refresh();
  });
  const close=useCallback(()=>setSelected(null),[]);
  const items=unifiedInventoryView(game,life.state),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/pageSize)),safe=Math.min(page,pages-1),shown=visible.slice(safe*pageSize,safe*pageSize+pageSize),item=items.find(i=>i.key===selected);
@@ -105,6 +108,14 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
   </div>
   {skillSetupOpen&&<SkillSetupEditor game={game} lease={onlineLease??null} userId={userId} onClose={()=>setSkillSetupOpen(false)}/>}
   {toolsOpen&&<InventoryFilterDialog category={category} query={query} sort={sort} filter={filter} returnFocus={filterButton} onQuery={value=>{setQuery(value);setPage(0);}} onSort={value=>{setSort(value);setPage(0);}} onFilter={value=>{setFilter(value);setSelected(null);setPage(0);}} onReset={()=>{setQuery('');setSort('default');setFilter({tier:0,status:false});setPage(0);}} onClose={()=>setToolsOpen(false)}/>}
-  {item&&<InventoryDetailSheet item={item} boxCount={item.lifeProduct==='adventurer_box'?Math.min(boxCount,item.quantity,10):undefined} onBoxCount={setBoxCount} status={item.lifeProduct==='adventurer_box'?boxes.error||(boxes.pending?'이전 상자 개봉 결과를 다시 확인해 주세요.':undefined):(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={item.lifeProduct==='adventurer_box'&&boxes.pending?boxes.retry:(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||boxes.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
+  {(item?.lifeProduct==='adventurer_box'||boxRewards)&&<AdventurerBoxDialog
+   quantity={life.state?.products?.adventurer_box??0} count={Math.min(boxCount,item?.quantity??10,10)} onCount={setBoxCount}
+   busy={boxes.busy} pending={!!boxes.pending} error={boxes.error} rewards={boxRewards}
+   disabled={boxes.busy||!!boxes.pending||life.disabled||!!game.expedition||!onlineLease}
+   onOpen={()=>boxes.open(Math.min(boxCount,item?.quantity??0,10))}
+   onRepeat={()=>{setBoxRewards(null);setSelected('life:product:adventurer_box');setBoxCount(1);boxes.open(1);}}
+   onRetry={boxes.retry} onClose={()=>{setBoxRewards(null);setSelected(null);}}
+   marketAction={marketAction} marketDisabled={marketDisabled}/>}
+  {item?.lifeProduct!=='adventurer_box'&&item&&<InventoryDetailSheet item={item} status={(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||boxes.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
 }
