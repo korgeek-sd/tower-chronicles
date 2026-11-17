@@ -20,3 +20,8 @@ test('reading mail does not deliver rewards; zero authoritative tickets replaces
  assert.equal(applyMailRewards(game,{mails:[]}),game);
  assert.equal(applyMailRewards(game,{mails:[],summonTickets:0}).cosmetics.summonTickets,0);
 });
+
+test('coupon mail labels an adventurer box reward in Korean',()=>{
+ const text=mailBody({title:'쿠폰 보상',category:'reward',body:'보상',details:{} as any,attachment:{itemId:'coupon_reward',quantity:1,gear:null,reward:{items:[{id:'product:life:adventurer_box',quantity:10}]}}});
+ assert.match(text,/모험가 상자 × 10/);assert.doesNotMatch(text,/product:life:adventurer_box/);
+});

@@ -28,7 +28,10 @@ export function MailDialog({userId,lease,game,setGame,onClose,onUnread}:Props){
  if(!userId||!lease||guard.current||!active.current)return;guard.current=true;setBusy(true);setError('');
  try{const result=await manageGameMail(userId,lease,kind,id);
  // Confirmed rewards must reach app state even if the dialog was closed meanwhile.
- if(userId===getStoredSession()?.userId&&(result.economy||result.summonTickets!=null))setGame(s=>applyMailRewards(s,result));
+ if(userId===getStoredSession()?.userId&&(result.economy||result.summonTickets!=null)){
+  setGame(s=>applyMailRewards(s,result));
+  if(kind==='claim'||kind==='claim_all')window.dispatchEvent(new Event('tc-life-inventory-refresh'));
+ }
  if(valid()){accept(result.mails);if(kind==='delete')setSelected(null);}
  }catch(e){if(valid())setError(e instanceof Error?e.message:'우편 처리에 실패했습니다.');}finally{guard.current=false;if(active.current)setBusy(false);}
  }

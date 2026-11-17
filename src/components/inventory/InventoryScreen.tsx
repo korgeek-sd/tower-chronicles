@@ -47,7 +47,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  useEffect(()=>setBoxCount(1),[selected]);
  const boxes=useAdventurerBox(userId,onlineLease??null,(result)=>{
   setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:'모험가 상자 개봉 완료 · '+result.rewards.map(equipmentItemName).join(' / ')}));
-  setSelected(null);void life.refresh();
+  life.applySnapshot(result.state);setSelected(null);void life.refresh();
  });
  const close=useCallback(()=>setSelected(null),[]);
  const items=unifiedInventoryView(game,life.state),visible=selectInventory(items,category,query,sort,filter),pages=Math.max(1,Math.ceil(visible.length/pageSize)),safe=Math.min(page,pages-1),shown=visible.slice(safe*pageSize,safe*pageSize+pageSize),item=items.find(i=>i.key===selected);
