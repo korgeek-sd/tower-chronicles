@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {gsap} from 'gsap';
+import type {Texture} from 'pixi.js';
 import {assetUrl} from '../../game/data/graphics';
 import type {EquipmentItem} from '../../game/types';
 import type {boxReveal} from './boxPresentation';
@@ -30,8 +31,8 @@ export function PixiBoxStage({feedback,reward}:{feedback:Reveal;reward:Equipment
    let timeline:gsap.core.Timeline|undefined;
    cleanup=()=>{timeline?.kill();app.stop();app.destroy(true,{children:true});};
    const [texture,prizeTex]=await Promise.all([
-    P.Assets.load<P.Texture>(chestURL),
-    P.Assets.load<P.Texture>(assetUrl('assets/ui/equipment/'+reward.kind+'.png'))
+    P.Assets.load<Texture>(chestURL),
+    P.Assets.load<Texture>(assetUrl('assets/ui/equipment/'+reward.kind+'.png'))
    ]);
    if(disposed)return;
    texture.source.scaleMode='nearest';prizeTex.source.scaleMode='nearest';
