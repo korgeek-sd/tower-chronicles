@@ -1,0 +1,3422 @@
+[
+  {
+    "schema": "private",
+    "name": "accept_client_economy_consumption",
+    "args": "p_user uuid, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "59bcdbc4ebc35149551080b2d4113a42"
+  },
+  {
+    "schema": "private",
+    "name": "advance_resource_stronghold_slot",
+    "args": "p_tower text, p_floor integer, p_now timestamp with time zone",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8d8f566141c05fb7063b019198ed0b84"
+  },
+  {
+    "schema": "private",
+    "name": "apply_job_registration_record",
+    "args": "p_user uuid, p_job_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "dbcba41503665a545b9a93da2a5f32bc"
+  },
+  {
+    "schema": "private",
+    "name": "apply_server_effect",
+    "args": "p_effects jsonb, p_id text, p_turn bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3a91feb01f57a4ca6adeb3de2e74514c"
+  },
+  {
+    "schema": "private",
+    "name": "assert_operations_admin",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "245519e510dd13471c50abe57f5c6e1a"
+  },
+  {
+    "schema": "private",
+    "name": "assert_trade_review_key",
+    "args": "p_key text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4b0b02e6a495c8c0e7760f13f9c88ca9"
+  },
+  {
+    "schema": "private",
+    "name": "association_activity",
+    "args": "p_association_id uuid, p_actor uuid, p_event_type text, p_text text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5967af4ffd078b19d49abfe370a1bd7e"
+  },
+  {
+    "schema": "private",
+    "name": "association_level_from_exp",
+    "args": "p_exp bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "cd294ebc649820c389c37011312c8655"
+  },
+  {
+    "schema": "private",
+    "name": "association_occupation_locked",
+    "args": "p_association_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b3dce3ac26d06c789038c7cecdf72296"
+  },
+  {
+    "schema": "private",
+    "name": "association_period_start",
+    "args": "p_period text, p_at timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "ba86e9571308aaa5efadbea559ae5af9"
+  },
+  {
+    "schema": "private",
+    "name": "association_progression_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c1f9b0721832634a073a47bf10bd0382"
+  },
+  {
+    "schema": "private",
+    "name": "association_seal_bonus_json",
+    "args": "p_level integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4e74d416022d45039bd9ca42c57c5108"
+  },
+  {
+    "schema": "private",
+    "name": "association_seal_draw_step",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b2d0796e57595b299910538a4ddbb47b"
+  },
+  {
+    "schema": "private",
+    "name": "association_seal_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e3a6b4063f30eb1a16008ac31ea7086a"
+  },
+  {
+    "schema": "private",
+    "name": "association_shop_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "518f5cf7db5bc1cf8705e1cd7e36efe6"
+  },
+  {
+    "schema": "private",
+    "name": "association_warehouse_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8811c0703e1ca3387ca34fab420ec45b"
+  },
+  {
+    "schema": "private",
+    "name": "bind_online_expedition_association",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "11359eaac11d1902e93b53828210406a"
+  },
+  {
+    "schema": "private",
+    "name": "broadcast_association_change",
+    "args": "p_association_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "128f27c64f1bec2373f4bb2a76d0ff92"
+  },
+  {
+    "schema": "private",
+    "name": "broadcast_game_session_signal",
+    "args": "",
+    "security_definer": true,
+    "anon": true,
+    "authenticated": true,
+    "definition_md5": "77def28a13bed5b89b26f06f58df9350"
+  },
+  {
+    "schema": "private",
+    "name": "challenge_asset_to_product",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e22e9b2bbd906e8671bdb66a79d9d627"
+  },
+  {
+    "schema": "private",
+    "name": "challenge_product_to_asset",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "28172d89de194c0daacdce817af6d47b"
+  },
+  {
+    "schema": "private",
+    "name": "choose_hunting_monster",
+    "args": "p_map text, p_previous text, p_draw double precision",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "fa0a011fabf52448fd6882e939ab03e6"
+  },
+  {
+    "schema": "private",
+    "name": "client_asset_quantity",
+    "args": "p_payload jsonb, p_item_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "27a52818110ec930239d15faf8d91af8"
+  },
+  {
+    "schema": "private",
+    "name": "close_market_order",
+    "args": "p_id uuid, p_reason text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8100a2f752620ca40ccbb3d6fd0b1c33"
+  },
+  {
+    "schema": "private",
+    "name": "cloud_record_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "6bbbf499dd5e29c60ceb83e29887fa68"
+  },
+  {
+    "schema": "private",
+    "name": "collect_system_monitor_snapshot",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1a5fea51c9204ca1edaadd4904894272"
+  },
+  {
+    "schema": "private",
+    "name": "combat_accessory_passive",
+    "args": "p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "beb19e53a03c29f20b3258f6c5d955f2"
+  },
+  {
+    "schema": "private",
+    "name": "combat_damage",
+    "args": "p_attack numeric, p_defense numeric, p_multiplier numeric, p_critical numeric, p_received numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "33091c663a0a4836c831389b86c75410"
+  },
+  {
+    "schema": "private",
+    "name": "combat_effective_attack",
+    "args": "p_combat private.online_combat_states",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3975716979a77100f53fa735a488f56f"
+  },
+  {
+    "schema": "private",
+    "name": "combat_equipment_stats",
+    "args": "p_user uuid, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "cbb4d507780a6d998f95f7b8f1db82c9"
+  },
+  {
+    "schema": "private",
+    "name": "combat_skill_power",
+    "args": "p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4dcd9e509c96c922ee65579b02f0ed03"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_absorb",
+    "args": "effects jsonb, shield numeric, incoming numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a585daf49db9a330964fca1ab5bfe0ac"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_apply_effect",
+    "args": "effects jsonb, id text, turn_no bigint, max_hp numeric, source text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b8225d7aa8213cd6fb41a93d2232ae44"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_catalog",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8d6861939d8ecfef6139bf0510d02429"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_catalog_pre_a_rank",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "fbe3a7be9a7d8877e65501e2fc04f079"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_condition",
+    "args": "c private.online_combat_states, q jsonb, actor text, spent integer, action text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c9be42cad4b0cea3329df751a60365dc"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_consume_event",
+    "args": "c private.online_combat_states, q jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2b42c2f97c2a6b99f028da4980ace0af"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_damage",
+    "args": "a numeric, d numeric, m numeric, crit numeric, received numeric, penetration numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "d03a137a0fe65838c3b44ef7fee8d630"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_definition",
+    "args": "id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c7104d13762c9dfb186bbc08f28b4b1b"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_effect",
+    "args": "c private.online_combat_states, actor text, id text, source text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "60035654f0819d3153c54f43147e1c49"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_eligible",
+    "args": "c private.online_combat_states, skill jsonb, phase jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a6ed69cc7b242d88f14f7e076173dc89"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_event",
+    "args": "c private.online_combat_states, event jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "04d4ce20af6a41dae9717c35620f5188"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_has",
+    "args": "effects jsonb, tag text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "7c1215c9f790387b6cda1264384fbbb1"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_heal",
+    "args": "c private.online_combat_states, actor text, amount numeric, can_crit boolean, nonce bigint, salt integer, source text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "285929f2e6781894ccb27e93a5ba0d21"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_hit",
+    "args": "c private.online_combat_states, actor text, mult numeric, nonce bigint, idx integer, hits integer, reactive boolean, penetration numeric, critical_mode text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c6c0a55b98100882d88c4d4b41e24491"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_initialize",
+    "args": "c private.online_combat_states, fresh boolean",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8d72bb326ee1ea264e142cc6fd2c0128"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_job_skill",
+    "args": "c private.online_combat_states, id text, nonce bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "0dc07f73473c03941d7d99487989436d"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_modifier",
+    "args": "effects jsonb, stat text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c71b5cceef08b03edb48cede813a8e2c"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_monster_decision",
+    "args": "c private.online_combat_states, nonce bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "087de9a9ca9019780b499c4fcda8c013"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_payload",
+    "args": "c private.online_combat_states, r private.online_expeditions",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2998e047ada0d450c1034338b3ebecc4"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_periodic",
+    "args": "c private.online_combat_states, actor text, nonce bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "485e28adabc47ca2a5ffffaaf9f05773"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_phase",
+    "args": "c private.online_combat_states",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "0974ec1b94d6ed6e8251220c88d40680"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_player_start",
+    "args": "c private.online_combat_states",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "87960955f5d2b9799b5a5b4e03db2e39"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_remove",
+    "args": "effects jsonb, category text, amount integer, tags jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "968264c9beee84ee3ee7039b0e529239"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_require_action",
+    "args": "c private.online_combat_states, r private.online_expeditions, nonce bigint, action text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "860b88e71050ee92602d3958e0ab3183"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_reset_potion_allowance",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "69a5f04eb461bfb54f7077e46c16f263"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_round",
+    "args": "c private.online_combat_states, nonce bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "eac91f1d5ccc29d2c365ee22b12933c5"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_shield",
+    "args": "effects jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "18b605845fc94ae920d0dab6f13ef931"
+  },
+  {
+    "schema": "private",
+    "name": "combat_v2_tick",
+    "args": "effects jsonb, turn_no bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b78d7d8a77f26e265ee027559fbe950b"
+  },
+  {
+    "schema": "private",
+    "name": "coupon_json",
+    "args": "c private.game_coupons",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "40ad8cedde19625dfb050a58a40b4b4d"
+  },
+  {
+    "schema": "private",
+    "name": "create_player_friend_invite_code",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "cb7be452f64973eac38d608a7ad457dc"
+  },
+  {
+    "schema": "private",
+    "name": "credit_returned_enhancement_stones",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "d062337e15b6895bae99db3c971a9f98"
+  },
+  {
+    "schema": "private",
+    "name": "deliver_coupon_reward",
+    "args": "u uuid, r jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "9274ef93ed4bab19a3222c0ec2b1020f"
+  },
+  {
+    "schema": "private",
+    "name": "deliver_market_asset",
+    "args": "p_user uuid, p_item text, p_qty bigint, p_gear jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3a1a69f6a8267203ba718a7be95129e5"
+  },
+  {
+    "schema": "private",
+    "name": "donate_to_association",
+    "args": "p_association_id uuid, p_currency_type text, p_amount bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a9b61887883fc45f8c22d0060adb1c87"
+  },
+  {
+    "schema": "private",
+    "name": "effect_definition",
+    "args": "p_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "df5367e51203b69976d20bd6efce24d7"
+  },
+  {
+    "schema": "private",
+    "name": "effect_modifier",
+    "args": "p_effects jsonb, p_stat text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4daaf8f78b86440c2d46f39020707749"
+  },
+  {
+    "schema": "private",
+    "name": "effect_periodic_delta",
+    "args": "p_effects jsonb, p_max_hp bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b0d8d5ffd60dc20346a775ade1fb5ad3"
+  },
+  {
+    "schema": "private",
+    "name": "effect_periodic_delta",
+    "args": "p_effects jsonb, p_max_hp bigint, p_turn bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a1e36875a95820975b4b6079c61930f0"
+  },
+  {
+    "schema": "private",
+    "name": "effect_tick",
+    "args": "p_effects jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f1a5ee8467be2a98b3d416b2d58b6cc9"
+  },
+  {
+    "schema": "private",
+    "name": "effect_tick",
+    "args": "p_effects jsonb, p_turn bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "402ed1dbbbcc94dbf4c560f6c3d5eee1"
+  },
+  {
+    "schema": "private",
+    "name": "enforce_v2_combat_crit",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "21962d04822d63cf901d851c2f907137"
+  },
+  {
+    "schema": "private",
+    "name": "ensure_friend_invite_code",
+    "args": "p_user_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e9e978dad4ce7c076385538e738e2e70"
+  },
+  {
+    "schema": "private",
+    "name": "ensure_quests",
+    "args": "u uuid, p_period text, p_day date",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2f84b80409b47cea6a554315b9830be0"
+  },
+  {
+    "schema": "private",
+    "name": "ensure_run_consumables",
+    "args": "p_user uuid, p_run private.online_expeditions",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f5f31125bb0bceac7e13943a9ea6bf25"
+  },
+  {
+    "schema": "private",
+    "name": "equipment_listing_mail",
+    "args": "p_id uuid, p_reason text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "bcccc26fabb9bf636527b7b60a867dd6"
+  },
+  {
+    "schema": "private",
+    "name": "equipment_market_key",
+    "args": "p_gear jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4c733e6e1f0f18eb490eba59b861f797"
+  },
+  {
+    "schema": "private",
+    "name": "equipment_market_registration_fee",
+    "args": "p_price bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8e3fe04558266b2fc166a39c8ad1b908"
+  },
+  {
+    "schema": "private",
+    "name": "equipment_v23_payload",
+    "args": "p_user uuid, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "703cc36778837390c592bc015953bd1c"
+  },
+  {
+    "schema": "private",
+    "name": "expedition_ticket_drop",
+    "args": "p_seed bigint, p_kill bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a68044fe8d15df36b189e48bad150f40"
+  },
+  {
+    "schema": "private",
+    "name": "expire_equipment_market_listings",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "541c6f03029c6953adaaf18ac10262d6"
+  },
+  {
+    "schema": "private",
+    "name": "finish_resource_stronghold_contest",
+    "args": "p_contest_id uuid, p_winner uuid, p_now timestamp with time zone",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "bb41a47ad6998110e8d5743042b26d14"
+  },
+  {
+    "schema": "private",
+    "name": "finish_server_player_action",
+    "args": "p_user uuid, p_run private.online_expeditions, p_combat private.online_combat_states, p_nonce bigint, p_damage bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "692129dd60e73c6ef6966b0240e9ae47"
+  },
+  {
+    "schema": "private",
+    "name": "fixed_equipment_stats",
+    "args": "p_kind text, p_grade text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1cf33e859ca36a62a6af81ac58900cd9"
+  },
+  {
+    "schema": "private",
+    "name": "gold_exchange_seller_fee_bps",
+    "args": "p_user uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a040ef892eb1b824d077da15827f41a9"
+  },
+  {
+    "schema": "private",
+    "name": "gold_exchange_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "edd0a0446d6f6e42c5f18a67f3f82e93"
+  },
+  {
+    "schema": "private",
+    "name": "grant_server_job",
+    "args": "p_user uuid, p_job_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "454c9600722e38334f741a0c13b8b0d8"
+  },
+  {
+    "schema": "private",
+    "name": "grant_vitality_potions",
+    "args": "p_user_id uuid, p_quantity integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "355f64d6bdc74bf4b603c1757ad3a89b"
+  },
+  {
+    "schema": "private",
+    "name": "guild_auction_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a86333d951f584e5bd318e7987db3d7c"
+  },
+  {
+    "schema": "private",
+    "name": "guild_boss_combat",
+    "args": "p_user uuid, p_boss private.guild_boss_encounters, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5f27cc52b8b01db93b2974e014633495"
+  },
+  {
+    "schema": "private",
+    "name": "guild_boss_cycle_start",
+    "args": "p_kind text, p_at timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "0ee5d78132f9bb2c070666efe0452e8a"
+  },
+  {
+    "schema": "private",
+    "name": "guild_boss_ensure",
+    "args": "p_association uuid, p_kind text, p_at timestamp with time zone",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f5e3127c8529106f617206ec4aa929a1"
+  },
+  {
+    "schema": "private",
+    "name": "guild_boss_generate_loot",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "904798dbf4432ef111a245b1b4eb2c75"
+  },
+  {
+    "schema": "private",
+    "name": "guild_boss_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f4dc3d234d20178cef9fb43f7f844cad"
+  },
+  {
+    "schema": "private",
+    "name": "guild_materials_state",
+    "args": "u uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5c7d201cc1db6dad7af6b8521d153f71"
+  },
+  {
+    "schema": "private",
+    "name": "guild_ranking_state_json",
+    "args": "p_user uuid, p_mode text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "aa506606bdaa05cd11973a29ff7c70f6"
+  },
+  {
+    "schema": "private",
+    "name": "guild_territory_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b03c5ed5d2f559f725b8825e7555cc88"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_conditions_match",
+    "args": "conditions jsonb, context jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "828c24fadc81ca6acfb773d658979e89"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_damage",
+    "args": "attack numeric, defense numeric, multiplier numeric, penetration numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8feab3f88bfe560feab62e2e2f0eb19a"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_equipment_drop",
+    "args": "p_map text, p_roll integer, p_kind_index integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5f853dc1683a8e698f4a187b2bdab76d"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_level",
+    "args": "p_experience bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3d61083e5a7b5da2920e766258ea79ad"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_monster_action",
+    "args": "p_monster jsonb, p_turn integer, p_player_defense numeric, p_guard boolean, p_monster_hp numeric, p_effects jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1307917a1bfd348b7d4d9afa6f989ab9"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_monster_attack",
+    "args": "p_monster_id text, p_turn integer, p_attack numeric, p_defense numeric, p_guard boolean, p_monster_hp numeric, p_monster_max_hp numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "face4491e43824e5d83c43ed43031393"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_monster_catalog",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "27669b02b0d9fb5baf8f34e143807087"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_monster_skill_info",
+    "args": "p_monster_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "66585a8aeb5a0e43df79828a84864e70"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_skill_set_bank",
+    "args": "skills text[], setup jsonb, sets jsonb, active integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "76e814eba99b1588d37a4068548936a1"
+  },
+  {
+    "schema": "private",
+    "name": "hunting_skill_spec",
+    "args": "p_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "93e63b5ac701d92bbb194e910a8dced5"
+  },
+  {
+    "schema": "private",
+    "name": "job_recommendation_period_start",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5dd2b4810bf744ba68d3b47d9df035ed"
+  },
+  {
+    "schema": "private",
+    "name": "job_record_exchange_cost",
+    "args": "p_rarity text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1247f68db6fd0f522c169b5c98cdecb2"
+  },
+  {
+    "schema": "private",
+    "name": "job_record_exchange_limit",
+    "args": "p_rarity text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "70a91da370222929d80328ce78de5845"
+  },
+  {
+    "schema": "private",
+    "name": "job_record_exchange_period_start",
+    "args": "p_rarity text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "7b36853b5c0a97bac353ce1f24b25f63"
+  },
+  {
+    "schema": "private",
+    "name": "job_registration_draw_rarity",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "37592ac7fa37554f5e634db3c55f0a53"
+  },
+  {
+    "schema": "private",
+    "name": "job_registration_pick_job",
+    "args": "p_user uuid, p_rarity text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "9dfaee67c86aca8afaf7495a94082541"
+  },
+  {
+    "schema": "private",
+    "name": "job_registration_residual_value",
+    "args": "p_rarity text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "897635076ca6a2992bb35e5fe2a0a1c4"
+  },
+  {
+    "schema": "private",
+    "name": "job_registration_secure_unit",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3a389c8d248d7190cff4dbfd3fa0d4c7"
+  },
+  {
+    "schema": "private",
+    "name": "job_registration_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "95ba2aca163b61e1d93629c61d0fbe32"
+  },
+  {
+    "schema": "private",
+    "name": "maintain_game_mail",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "9131dd45a1b2507f7b3a16cf09fae8a4"
+  },
+  {
+    "schema": "private",
+    "name": "market_life_material_id",
+    "args": "p_item text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "79c62b9922a5640eef94a0dabfeeef53"
+  },
+  {
+    "schema": "private",
+    "name": "market_order_mail",
+    "args": "p_id uuid, p_reason text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "abec0fb215b522ca2ca231754a25c7a4"
+  },
+  {
+    "schema": "private",
+    "name": "market_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4e236363f885744045523e9aecec4293"
+  },
+  {
+    "schema": "private",
+    "name": "my_chat_association",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8dfa5f77f4cca661adf1e298376945df"
+  },
+  {
+    "schema": "private",
+    "name": "occupation_finalize",
+    "args": "p_now timestamp with time zone",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3261893b39e36549717246388a867d4b"
+  },
+  {
+    "schema": "private",
+    "name": "occupation_identity",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "12f41e254022dd1084bdd0394d2bbbd7"
+  },
+  {
+    "schema": "private",
+    "name": "occupation_stats",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "23c031e613557d14a488329ba7adef97"
+  },
+  {
+    "schema": "private",
+    "name": "occupation_window",
+    "args": "p_now timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "66fa5210924c3678405d402ba00b3fc5"
+  },
+  {
+    "schema": "private",
+    "name": "online_association_result",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "6eeefc28eaa748c5ea8e8b510da610d2"
+  },
+  {
+    "schema": "private",
+    "name": "online_association_state_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "d520842e07ebcf02f988ecb9e4f72c8c"
+  },
+  {
+    "schema": "private",
+    "name": "operations_capture_trade_fee",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c7e4f70ed2ed9ebc211f7d5fb798b4c4"
+  },
+  {
+    "schema": "private",
+    "name": "operations_capture_wallet",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a9b962ac2088e376ca7b0a9a4b54788b"
+  },
+  {
+    "schema": "private",
+    "name": "operations_wallet_source",
+    "args": "p_context text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e0d1aea645567c5fcfc1442f47c34eb0"
+  },
+  {
+    "schema": "private",
+    "name": "persist_client_payload_with_server_economy",
+    "args": "p_user uuid, p_payload jsonb, p_app_version text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a48c9bc9d1df5ee1eabdfcc3daad04a0"
+  },
+  {
+    "schema": "private",
+    "name": "persist_market_economy_to_save",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "82c3080f6b1692888f626024ede04813"
+  },
+  {
+    "schema": "private",
+    "name": "persist_run_bag_to_save",
+    "args": "p_user uuid, p_run private.online_expeditions",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f3296bf5403a0c1efd28daeaf4bdc957"
+  },
+  {
+    "schema": "private",
+    "name": "persist_server_association_to_save",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c5d6ba91bc0133cd8b46cd9da8ff8e12"
+  },
+  {
+    "schema": "private",
+    "name": "premium_active",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "40ecf7231f268430e0d5b258f6fee66c"
+  },
+  {
+    "schema": "private",
+    "name": "premium_fee_bps",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c11246258ebed327113542f9a4a74458"
+  },
+  {
+    "schema": "private",
+    "name": "premium_snapshot",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4871b262627b71f601c33c6a84f1eda9"
+  },
+  {
+    "schema": "private",
+    "name": "prepare_chat_message",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e01b75523632e1fc30da127cd10b8a56"
+  },
+  {
+    "schema": "private",
+    "name": "process_server_bank_due",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1658d18401eb6facf432f03d710130b7"
+  },
+  {
+    "schema": "private",
+    "name": "quest_counts",
+    "args": "u uuid, p_period text, p_day date",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f3a8682b900e872844b5e1263c9eefb1"
+  },
+  {
+    "schema": "private",
+    "name": "quest_period",
+    "args": "p_period text, p_at timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3deb1ba1adc70f918bae5b3b25db23d2"
+  },
+  {
+    "schema": "private",
+    "name": "quest_snapshot",
+    "args": "u uuid, p_at timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "9d6edd193ead5c2adb38ecf25c88884f"
+  },
+  {
+    "schema": "private",
+    "name": "quest_ticket_payload",
+    "args": "u uuid, p jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "529338939823aa633d42568f8885e734"
+  },
+  {
+    "schema": "private",
+    "name": "refresh_hunting_state",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c4eea3fc2a26f2d5222319e0e95cca1c"
+  },
+  {
+    "schema": "private",
+    "name": "refresh_village_life",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e6b1da75949526c5af343a3976194594"
+  },
+  {
+    "schema": "private",
+    "name": "refresh_village_war_actor_event",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3589908be5d72a5dc0ab04c7b4ca7ffb"
+  },
+  {
+    "schema": "private",
+    "name": "require_active_game_session",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "794a7a5eb16428d3e0bba82ea7851732"
+  },
+  {
+    "schema": "private",
+    "name": "require_server_combat_job",
+    "args": "p_payload jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5d3f2579ba1246a9b9ad1bbdcdf68e41"
+  },
+  {
+    "schema": "private",
+    "name": "resolve_server_monster_turn",
+    "args": "p_combat private.online_combat_states",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f75baca174069a849676ee54f53449c7"
+  },
+  {
+    "schema": "private",
+    "name": "resolve_server_monster_turn_v2",
+    "args": "p_combat private.online_combat_states, p_nonce bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4dcb5ced0198f2121545ce865126ee8e"
+  },
+  {
+    "schema": "private",
+    "name": "resource_stronghold_json",
+    "args": "p_row private.resource_strongholds",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "7e94ba6dc61ce7aded3df2c6ea6fa26c"
+  },
+  {
+    "schema": "private",
+    "name": "resource_stronghold_turn_deadline",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "ef1c7a3471a87c8353724962c2b5bceb"
+  },
+  {
+    "schema": "private",
+    "name": "run_premium_daily",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "0a548e1eb10c0f4b68911c21e3185735"
+  },
+  {
+    "schema": "private",
+    "name": "server_after_player_damage",
+    "args": "p_combat private.online_combat_states, p_actual bigint, p_nonce bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "18752e7cbc2d5e5bb5c91099a4bbeb22"
+  },
+  {
+    "schema": "private",
+    "name": "server_apply_monster_hit",
+    "args": "p_combat private.online_combat_states, p_multiplier numeric, p_nonce bigint, p_hit_index integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "247551de04dfd5f48324837deed65941"
+  },
+  {
+    "schema": "private",
+    "name": "server_apply_player_hit",
+    "args": "p_combat private.online_combat_states, p_raw bigint, p_nonce bigint, p_hit_index integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "228b3cc9667b4c0347d9f0b63b72780a"
+  },
+  {
+    "schema": "private",
+    "name": "server_association_member",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3e18a6f71e8d18fe637191f88cde4709"
+  },
+  {
+    "schema": "private",
+    "name": "server_association_payload",
+    "args": "p_user uuid, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "156e70cb0d70c47d31e800ef682a413a"
+  },
+  {
+    "schema": "private",
+    "name": "server_association_projection",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "90e66f19efb66c1487f9da077b0da99f"
+  },
+  {
+    "schema": "private",
+    "name": "server_association_revenue_rate",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "6b2e756b2e85d4b37ce1c59c424ffacc"
+  },
+  {
+    "schema": "private",
+    "name": "server_authoritative_payload",
+    "args": "p_user uuid, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2d3a66b99bce835b9ffa38eee00e6c90"
+  },
+  {
+    "schema": "private",
+    "name": "server_bank_state",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "e10d61b572420c9b9f227d5d4118068b"
+  },
+  {
+    "schema": "private",
+    "name": "server_bootstrap_payload",
+    "args": "p_payload jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "59ceef3f25ec42e3b73bca3d0fb93f07"
+  },
+  {
+    "schema": "private",
+    "name": "server_boss_id",
+    "args": "p_tower text, p_floor integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "95ead510f4c50263badf58bf545159e9"
+  },
+  {
+    "schema": "private",
+    "name": "server_boss_profile",
+    "args": "p_tower text, p_floor integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "cdb29a934b348f666f2775c47a31a0a1"
+  },
+  {
+    "schema": "private",
+    "name": "server_consumables_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "9760d083ff94d66eabd4131b3916880e"
+  },
+  {
+    "schema": "private",
+    "name": "server_current_job",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "0cb53b49aeb5abd5a0e57c6d7f13c1e2"
+  },
+  {
+    "schema": "private",
+    "name": "server_economy_payload",
+    "args": "p_user uuid, p_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "259ceb633fc906f7b6798a29269a8372"
+  },
+  {
+    "schema": "private",
+    "name": "server_enhancement_stone_drop",
+    "args": "p_run private.online_expeditions, p_kill bigint, p_monster_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "95b16541f3656350adf6b54c44cb5fa8"
+  },
+  {
+    "schema": "private",
+    "name": "server_equipment_snapshot",
+    "args": "p_user uuid, p_equipped jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "6bf21f1c0b0425858bdc00c49c2a9ff2"
+  },
+  {
+    "schema": "private",
+    "name": "server_event_id",
+    "args": "p_tower text, p_floor integer, p_hp bigint, p_max_hp bigint, p_ticket numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c01b153d0b00b5e30c81f3872dccca6f"
+  },
+  {
+    "schema": "private",
+    "name": "server_event_id",
+    "args": "p_tower text, p_floor integer, p_hp bigint, p_max_hp bigint, p_ticket numeric, p_recent text[], p_stronghold jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8ccaf1b546d821d5b1885509820e368c"
+  },
+  {
+    "schema": "private",
+    "name": "server_event_id",
+    "args": "p_tower text, p_floor integer, p_hp numeric, p_max_hp bigint, p_ticket numeric, p_recent text[], p_stronghold jsonb",
+    "security_definer": false,
+    "anon": true,
+    "authenticated": true,
+    "definition_md5": "2dd586c4c225faf3c0ed8a5eda7afc4a"
+  },
+  {
+    "schema": "private",
+    "name": "server_event_outcome",
+    "args": "p_event text, p_choice text, p_ticket numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "cac6c885549a2d1c983dffde33781816"
+  },
+  {
+    "schema": "private",
+    "name": "server_initial_monster_effects",
+    "args": "p_monster_id text, p_turn bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5c4e4ab660bbd659d065d6d67dec095f"
+  },
+  {
+    "schema": "private",
+    "name": "server_iron_equipment_drop",
+    "args": "p_run private.online_expeditions, p_kill bigint, p_monster_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "faab86ca66f12163a249b6a5ce8ca4a6"
+  },
+  {
+    "schema": "private",
+    "name": "server_job_damage_multiplier",
+    "args": "p_combat private.online_combat_states, p_action text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "bcdf7954f9da880ec924f87a94a71f6e"
+  },
+  {
+    "schema": "private",
+    "name": "server_job_id",
+    "args": "p_payload jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "935a60a8be40062fece2db8ec9a2ba63"
+  },
+  {
+    "schema": "private",
+    "name": "server_job_received_multiplier",
+    "args": "p_combat private.online_combat_states",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1f3f0618ddd4e047196e07f4d815ebb8"
+  },
+  {
+    "schema": "private",
+    "name": "server_kill_loot",
+    "args": "p_run private.online_expeditions, p_kill bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "39021f53a1cbcef0f01ca02f46280275"
+  },
+  {
+    "schema": "private",
+    "name": "server_monster_attack",
+    "args": "p_floor integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "243016b343a2a5fc7a21a7ccf83951c3"
+  },
+  {
+    "schema": "private",
+    "name": "server_monster_decision",
+    "args": "p_combat private.online_combat_states",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "68241df874bb2ea67fb280c601d2a7da"
+  },
+  {
+    "schema": "private",
+    "name": "server_monster_decision_v2",
+    "args": "p_combat private.online_combat_states",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "7ef99692593a5a1e811604dde08ed186"
+  },
+  {
+    "schema": "private",
+    "name": "server_monster_defense",
+    "args": "p_floor integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "acdd87cb841a3eaad44cee8158b968c2"
+  },
+  {
+    "schema": "private",
+    "name": "server_monster_hp",
+    "args": "p_floor integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4426049e10c58f7773afe6c4a0419afe"
+  },
+  {
+    "schema": "private",
+    "name": "server_monster_profile",
+    "args": "p_tower text, p_floor integer, p_seed bigint, p_encounter bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "88513bc943f34e7cb77d51be35eb1e40"
+  },
+  {
+    "schema": "private",
+    "name": "server_normal_event_id",
+    "args": "p_tower text, p_floor integer, p_hp bigint, p_max_hp bigint, p_recent text[], p_roll numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "57b636879f28c7b14bc0330e3491eb39"
+  },
+  {
+    "schema": "private",
+    "name": "server_owned_jobs_json",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "cabbd40387970977828f3299adac8d8a"
+  },
+  {
+    "schema": "private",
+    "name": "server_pending_event",
+    "args": "p_run private.online_expeditions, p_event_id text, p_boss_id text, p_selection numeric, p_outcome numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "70f4fdced39c47317de358d6795314bf"
+  },
+  {
+    "schema": "private",
+    "name": "server_reactive_multiplier",
+    "args": "p_reaction text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "45aa8191d860f1eecb290336a1981476"
+  },
+  {
+    "schema": "private",
+    "name": "server_roll",
+    "args": "p_seed bigint, p_encounter bigint, p_nonce bigint, p_hit integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a13b26d37f330c601638c9235f6dbfee"
+  },
+  {
+    "schema": "private",
+    "name": "server_run_enhancement_stones",
+    "args": "p_run private.online_expeditions",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "1a7b45efd54719150f95c6023f27c67f"
+  },
+  {
+    "schema": "private",
+    "name": "server_start_encounter",
+    "args": "p_user uuid, p_run private.online_expeditions, p_profile jsonb, p_prior private.online_combat_states",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c68b3ea03b9a7bed6c8bde6cc7e5968f"
+  },
+  {
+    "schema": "private",
+    "name": "settle_online_association_side_effects",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "accddd38e980ed475c21a7dc77d9c392"
+  },
+  {
+    "schema": "private",
+    "name": "settle_premium_rewards",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "bcca9555d2b11c7b74c06ed139be587b"
+  },
+  {
+    "schema": "private",
+    "name": "settle_server_bank_loan",
+    "args": "p_loan uuid, p_now timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "89dd6018d2f3c77fcb4016530c541cf9"
+  },
+  {
+    "schema": "private",
+    "name": "settle_village_war",
+    "args": "eid uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b141e461877479a1e569a53ec1a1459a"
+  },
+  {
+    "schema": "private",
+    "name": "settle_village_wars",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "7746fcc04c6279e59d3141375cae7c72"
+  },
+  {
+    "schema": "private",
+    "name": "skill_book_snapshot",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f0c78ba9c5f9ae319003054c3523e0c7"
+  },
+  {
+    "schema": "private",
+    "name": "skill_progress_payload",
+    "args": "u uuid, p jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3c2a68afcd818b46dcf59a8c636741f0"
+  },
+  {
+    "schema": "private",
+    "name": "stable_json_string",
+    "args": "p_value jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f23c1e161a3fd2d7ab133c96e8c17508"
+  },
+  {
+    "schema": "private",
+    "name": "stronghold_reward",
+    "args": "p_tower text, p_floor integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "24cffd6ed20f72ef5d0271c5b841726c"
+  },
+  {
+    "schema": "private",
+    "name": "sync_market_economy_after_save",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "21af1915b463d2ebd1572b21e03beada"
+  },
+  {
+    "schema": "private",
+    "name": "sync_market_economy_from_latest_save",
+    "args": "p_user uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "dcdaf65b6376b5a2efe611b4ab46ca22"
+  },
+  {
+    "schema": "private",
+    "name": "sync_server_shield",
+    "args": "p_combat private.online_combat_states, p_actor text, p_effect_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "31e38b031b2fd8088a003d037b5aba15"
+  },
+  {
+    "schema": "private",
+    "name": "v2_equipment_multiplier",
+    "args": "p_item jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8ada93debba9cfcec600f36053705dc0"
+  },
+  {
+    "schema": "private",
+    "name": "validate_coupon_reward",
+    "args": "r jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "215183842a555103f5a12180d08ad521"
+  },
+  {
+    "schema": "private",
+    "name": "validate_hunting_skill_set",
+    "args": "u uuid, p_set jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4c03cbf56fdfd1f222c820f5d8c3fcc3"
+  },
+  {
+    "schema": "private",
+    "name": "village_life_snapshot",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2bdaa1ab4cfbdc004f6c1e5130658762"
+  },
+  {
+    "schema": "private",
+    "name": "village_life_user",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3410909f8cda84cff75f5632805a9e44"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_clock",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2bca9e7539d40dbe828a285d41166299"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_combat",
+    "args": "attacker jsonb, defender jsonb, def_hp numeric, def_mp numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f3334b1b093cdadb3b16e286bb0cf335"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_cutoff",
+    "args": "eid uuid, stamp timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b1ca76a2945dca7047e637b5d48f8bbc"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_damage",
+    "args": "f jsonb, amount numeric, turn_no integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "24ca1d9aca426e1af914eb62c75f5a02"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_event",
+    "args": "town text",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "2f7480a5d222244ff31da17959ecc0ec"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_fighter",
+    "args": "s jsonb, hp numeric, mp numeric",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5d407f00b28d3abb14b07cd4b231f903"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_guard_snapshot",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "ec58b7dceaea8293e0e064c3cbbc7d9d"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_mutate",
+    "args": "u uuid, request_id uuid, town text, front integer, epoch bigint, action text, expected_event uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f9e3e8ba30780a5b48874ccb9356ee54"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_mutate_stage_one",
+    "args": "u uuid, request_id uuid, town text, front integer, epoch bigint, action text, expected_event uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "5c56ba7a2bb97d8ab349f6ef69591968"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_prepare",
+    "args": "s jsonb",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "6162188211375f4f0b1f1d3d959114b6"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_random",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "4386614610bd593f0fc0091eed009738"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_refresh_snapshot",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "23bceb847d1eb38c4e44e3a23c67c9d7"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_scores",
+    "args": "eid uuid, stamp timestamp with time zone",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "b8809c19960dbdf5f62f482a8210852d"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_snapshot",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "8033f3a367f02be4e996a63db6b5c9ed"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_snapshot_stage_one",
+    "args": "u uuid",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "43c45c581e9f36df6b28489131163138"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_step",
+    "args": "a jsonb, b jsonb, turn_no integer",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "c98cd7293e016bfe15be55f1836a7c7f"
+  },
+  {
+    "schema": "private",
+    "name": "village_war_track_ownership",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "d678991f7790ab37caa1d43a3abca37b"
+  },
+  {
+    "schema": "public",
+    "name": "abandon_online_resource_stronghold",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_expected_version bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "dab4a0588abdd14f1edc7beca2f074cf"
+  },
+  {
+    "schema": "public",
+    "name": "abandon_resource_stronghold",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_stronghold_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "1092443e4c73d6ee3b82853f47b4a19b"
+  },
+  {
+    "schema": "public",
+    "name": "acquire_game_session",
+    "args": "p_device_id text, p_client_instance_id text, p_platform text, p_app_version text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b61e39f3e2ff45a913e1759f30f50268"
+  },
+  {
+    "schema": "public",
+    "name": "advance_online_exploration",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_expected_version bigint",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "e938960f6f4b177ceebe2140d1285a12"
+  },
+  {
+    "schema": "public",
+    "name": "advance_resource_stronghold_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_floor integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "5ada2cb3802c82686032167cbbe893d7"
+  },
+  {
+    "schema": "public",
+    "name": "allocate_hunting_stats",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_allocation jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "9c5822bde3b9a7786bdbb590a6d13309"
+  },
+  {
+    "schema": "public",
+    "name": "apply_friend_invite_code",
+    "args": "p_code text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "95545a6c6cab290e11246b76410394d8"
+  },
+  {
+    "schema": "public",
+    "name": "apply_occupation_duel_action",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_duel_id uuid, p_action_nonce bigint, p_action text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "0e2b827d35807e6645f4bfe868e1f77a"
+  },
+  {
+    "schema": "public",
+    "name": "apply_online_basic_attack",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_action_nonce bigint, p_attack numeric",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "c3f9ce5586caaaa4e98f91ccdf76ff4c"
+  },
+  {
+    "schema": "public",
+    "name": "apply_online_flee",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_action_nonce bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "be26c5ea721991ee4a353b2fb431c955"
+  },
+  {
+    "schema": "public",
+    "name": "apply_online_job_skill",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_action_nonce bigint, p_skill_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "9212041c4b5a925fa085a33e7e9e6276"
+  },
+  {
+    "schema": "public",
+    "name": "apply_online_potion",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_action_nonce bigint, p_potion text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "db92281fb86c2e53e24ba15fc87ede81"
+  },
+  {
+    "schema": "public",
+    "name": "apply_resource_stronghold_contest_action",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_contest_id uuid, p_action_nonce bigint, p_action text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "1dcdc1b3a522cc90cb040b6a4fb92b2b"
+  },
+  {
+    "schema": "public",
+    "name": "attack_guild_boss",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_kind text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "d0df6dbec66d5ade7fac6ca2faaade0b"
+  },
+  {
+    "schema": "public",
+    "name": "attack_village_war_front",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_front_id integer, p_expected_epoch bigint, p_expected_event_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "d58bb9dcf3d1c37de97120c11bd82d8d"
+  },
+  {
+    "schema": "public",
+    "name": "begin_online_combat_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_monster_id text, p_player_hp bigint, p_player_max_hp bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "a1c139cd217311613bb55a4c4476e57e"
+  },
+  {
+    "schema": "public",
+    "name": "begin_online_combat_state_v2",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b34ccaf6717b4b3389a5399d190f06f7"
+  },
+  {
+    "schema": "public",
+    "name": "bid_guild_auction",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_listing_id uuid, p_bid bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "fb644fce5d1e5cf08105f28b2763da40"
+  },
+  {
+    "schema": "public",
+    "name": "buy_online_association_shop_item",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_item_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "9e972b77f741b2d6ef22ed679d9339ab"
+  },
+  {
+    "schema": "public",
+    "name": "buy_online_equipment_listing",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_listing_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "0d3b75b03dc11285ada98b909457eeaa"
+  },
+  {
+    "schema": "public",
+    "name": "buy_premium_account",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6166a4119b1eca324551d638904bd5e5"
+  },
+  {
+    "schema": "public",
+    "name": "cancel_online_equipment_listing",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_listing_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "59c66cc69727d2bd847ce7d60f476a21"
+  },
+  {
+    "schema": "public",
+    "name": "cancel_online_gold_exchange_order",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_order_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "2a989c0ca01136fbb90a2b3642dadfa3"
+  },
+  {
+    "schema": "public",
+    "name": "cancel_online_market_order",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_order_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6854007e4338b511d72afcb99380a037"
+  },
+  {
+    "schema": "public",
+    "name": "claim_all_online_market_storage",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b98b521b7ca32ad1221dfe987747fb14"
+  },
+  {
+    "schema": "public",
+    "name": "claim_empty_village_war_front",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_front_id integer, p_expected_epoch bigint, p_expected_event_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "bd2db4dddd741ab2a950010a95f4b032"
+  },
+  {
+    "schema": "public",
+    "name": "claim_guild_auction_item",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_listing_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "3b3965fe208c22ee06e27dc6be8a3927"
+  },
+  {
+    "schema": "public",
+    "name": "claim_guild_boss_reward",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_encounter_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "1eb457f5a118ddce4a5eab8e1685ddb5"
+  },
+  {
+    "schema": "public",
+    "name": "claim_online_market_storage",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_storage_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "7efe3d8bc4353989c25de97f3b27d45b"
+  },
+  {
+    "schema": "public",
+    "name": "claim_online_resource_stronghold",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_expected_version bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "5503044e1df70c3c3577110a5dd2e0c8"
+  },
+  {
+    "schema": "public",
+    "name": "claim_quest",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_period text, p_day date, p_quest_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b0c2c5725a43d21873a1c5e5ae542ab3"
+  },
+  {
+    "schema": "public",
+    "name": "continue_online_expedition",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_expected_version bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "a49b0562e12f33582bd8f236d1d9b2f3"
+  },
+  {
+    "schema": "public",
+    "name": "create_game_coupon",
+    "args": "p_code text, p_name text, p_reward jsonb, p_starts_at timestamp with time zone, p_expires_at timestamp with time zone, p_max_uses integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "817a3586d71c089292a1943d2f0b6dd5"
+  },
+  {
+    "schema": "public",
+    "name": "create_online_association_v2",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_name text, p_description text, p_join_policy text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "900f09b56e73ff3619a427ca2786025a"
+  },
+  {
+    "schema": "public",
+    "name": "declare_village_war",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "648d4f6c6638af49f1c0b14b67cee014"
+  },
+  {
+    "schema": "public",
+    "name": "deposit_association_warehouse",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_currency text, p_amount bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "29bed731da9c170bc5ea2a87356a7107"
+  },
+  {
+    "schema": "public",
+    "name": "disband_online_association",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "d075aabb008cdeaa4e050340d2246ed8"
+  },
+  {
+    "schema": "public",
+    "name": "dismantle_online_equipment",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_item_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "5d30d08708e0ce44df5bf60e8a036ae2"
+  },
+  {
+    "schema": "public",
+    "name": "donate_occupation_tickets",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_floor integer, p_quantity bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "adf8ed6f4fb9e32b24710f7a470ea8e3"
+  },
+  {
+    "schema": "public",
+    "name": "donate_to_association",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_currency text, p_amount bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "fe62a766e7f338f15c991e485533eb6d"
+  },
+  {
+    "schema": "public",
+    "name": "enhance_catalog_skill",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_skill_id text, p_expected_level integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "37e16a41fbf32e92f7b6afaf157b5737"
+  },
+  {
+    "schema": "public",
+    "name": "enhance_online_equipment",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_item_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "09097e3b19e9c5b62f006fe1297bf7e8"
+  },
+  {
+    "schema": "public",
+    "name": "exchange_job_residual_recommendation",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8755d3bac38e63b3bb0c39f8be4f25fd"
+  },
+  {
+    "schema": "public",
+    "name": "exchange_job_residual_record",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_job_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "416aad373eb237480b4a4b2a69c7bb51"
+  },
+  {
+    "schema": "public",
+    "name": "force_takeover_game_session",
+    "args": "p_device_id text, p_client_instance_id text, p_platform text, p_app_version text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "670907c2c6e1fb955a7f6ae0d6b5f8ff"
+  },
+  {
+    "schema": "public",
+    "name": "gather_village",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_resource text, p_count integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6ff813bb7ecdf1859df337e243765f1c"
+  },
+  {
+    "schema": "public",
+    "name": "get_association_progression",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "ff094c9d92423b1bb94c29e18be78552"
+  },
+  {
+    "schema": "public",
+    "name": "get_association_seal_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "83653a21074b55f36432cbb585a20f3a"
+  },
+  {
+    "schema": "public",
+    "name": "get_association_warehouse",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "540ecc6e3a858740efc00a5d800ba4a6"
+  },
+  {
+    "schema": "public",
+    "name": "get_association_warehouse_history",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_before_id bigint, p_withdrawals_only boolean",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "af05fec12791b610537b42c35fded598"
+  },
+  {
+    "schema": "public",
+    "name": "get_chat_association",
+    "args": "",
+    "security_definer": false,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "d2e5c38de4e7db1683844ea7859ed9b7"
+  },
+  {
+    "schema": "public",
+    "name": "get_collection_equipment_registrations",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6924b24147250df63fc91d25c849d3ee"
+  },
+  {
+    "schema": "public",
+    "name": "get_friend_invite_state",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "754122fdddd1b958050c73c6eaa443ca"
+  },
+  {
+    "schema": "public",
+    "name": "get_game_mail",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "02ff0f76802e1077ccb5ff50f5015847"
+  },
+  {
+    "schema": "public",
+    "name": "get_guild_auction_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6f0d27478c240ba3646f97d0cd318f5d"
+  },
+  {
+    "schema": "public",
+    "name": "get_guild_boss_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "645afab5cc20ef938706d70d5ad1fb35"
+  },
+  {
+    "schema": "public",
+    "name": "get_guild_materials",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "17ebcda34008160e07c0d42ebf5a1ea0"
+  },
+  {
+    "schema": "public",
+    "name": "get_guild_rankings",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_mode text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "51d9697f38148077a304ae06621fe562"
+  },
+  {
+    "schema": "public",
+    "name": "get_guild_territory_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "a0eba2f2d83d73aad5ec0690a896a9d4"
+  },
+  {
+    "schema": "public",
+    "name": "get_hunting_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "d42148af62d8363e740b7be46b91bb33"
+  },
+  {
+    "schema": "public",
+    "name": "get_job_registration_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "fa2208b77d21991ea8d292671814f808"
+  },
+  {
+    "schema": "public",
+    "name": "get_occupation_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "a1f05ecc912057ded9ffc5fdfeee882d"
+  },
+  {
+    "schema": "public",
+    "name": "get_online_association_shop",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "65e71c73b214758e065c6f64224c03f2"
+  },
+  {
+    "schema": "public",
+    "name": "get_online_association_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "64dfdfad4b955e53afb88d08569d6b3e"
+  },
+  {
+    "schema": "public",
+    "name": "get_online_gold_exchange_state",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "ff6863a6170da1ff6cd4546cabd6104d"
+  },
+  {
+    "schema": "public",
+    "name": "get_online_market_state",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "819adec1e57e493b285a6de324225e22"
+  },
+  {
+    "schema": "public",
+    "name": "get_premium_account",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "869184f78f662aab98b095803bfc594b"
+  },
+  {
+    "schema": "public",
+    "name": "get_premium_status",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8778210f223c044b905a830a2818dcf2"
+  },
+  {
+    "schema": "public",
+    "name": "get_quests",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8ffbaa0eec41f04dd50ad26a58df2823"
+  },
+  {
+    "schema": "public",
+    "name": "get_resource_stronghold_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_floor integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "c40ab4ea798f1b553c10cacaa01b8751"
+  },
+  {
+    "schema": "public",
+    "name": "get_server_bank",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "174f95f05cdb994942473c7d8ada9bd9"
+  },
+  {
+    "schema": "public",
+    "name": "get_skill_book_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "da0c6e4d2f50e59b4c79223b2f1d370f"
+  },
+  {
+    "schema": "public",
+    "name": "get_system_monitoring",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "54c1e7faa9f3b67b34c8ce6ecb65a049"
+  },
+  {
+    "schema": "public",
+    "name": "get_village_life",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "919bab7b729001daf56c099852324062"
+  },
+  {
+    "schema": "public",
+    "name": "get_village_war_declarations",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "bf1912f230da267551cfffa26e786c21"
+  },
+  {
+    "schema": "public",
+    "name": "get_village_war_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_town_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "37d5bac9af54d7359fb5001205b2a530"
+  },
+  {
+    "schema": "public",
+    "name": "get_village_war_state_stage_one",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_town_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f30f969e49a71074e81b7cd7ea62d04f"
+  },
+  {
+    "schema": "public",
+    "name": "heartbeat_game_session",
+    "args": "p_lease_id uuid, p_generation bigint, p_device_id text, p_client_instance_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "cfb1ae46aaca48ce978048acdc22a597"
+  },
+  {
+    "schema": "public",
+    "name": "hunt_once",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_map_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "048b4d7498c636ada8b2fbfb2205308e"
+  },
+  {
+    "schema": "public",
+    "name": "inspect_game_session",
+    "args": "p_device_id text, p_client_instance_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "c38a96c41a9b4833b2ab44c2960037b2"
+  },
+  {
+    "schema": "public",
+    "name": "is_coupon_admin",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "17cc1c5687129c699268f09f9c91a929"
+  },
+  {
+    "schema": "public",
+    "name": "join_occupation_front",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_front text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "5846baa49692c4ce7b3a8d44e2119543"
+  },
+  {
+    "schema": "public",
+    "name": "join_online_association",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_association_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "83e82f0b90abd30c5fe07eedc97b3179"
+  },
+  {
+    "schema": "public",
+    "name": "kick_online_association_member",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_member_user_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "5a398ee09422f29bd0ddf8b23ac976e3"
+  },
+  {
+    "schema": "public",
+    "name": "learn_catalog_skill",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_skill_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "bde588e4c80312d88102c43cf584b398"
+  },
+  {
+    "schema": "public",
+    "name": "leave_online_association",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "4af9f04e5ed03f5a351fceef90e36f08"
+  },
+  {
+    "schema": "public",
+    "name": "list_game_coupons",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "1a0b21647993eb1da1ff5e598504e46e"
+  },
+  {
+    "schema": "public",
+    "name": "list_online_equipment",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_item_id text, p_list_price bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "3fe29a7357829f45d5c998f4b72ce78b"
+  },
+  {
+    "schema": "public",
+    "name": "manage_game_mail",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_action text, p_mail_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "27954e6e7842a8ec606317dfab8151b7"
+  },
+  {
+    "schema": "public",
+    "name": "ops_audit",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6c2796c1e1af4e90a1586452d6a87037"
+  },
+  {
+    "schema": "public",
+    "name": "ops_coupon_analytics",
+    "args": "p_days integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "63dda205cdbbf7d579ab544d94643162"
+  },
+  {
+    "schema": "public",
+    "name": "ops_create_coupon",
+    "args": "p_code text, p_name text, p_reward jsonb, p_starts_at timestamp with time zone, p_expires_at timestamp with time zone, p_max_uses integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "fd2f9d2d72390964e20f745e23ff6daa"
+  },
+  {
+    "schema": "public",
+    "name": "ops_economy_flows",
+    "args": "p_days integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "57ac2192a5dbe50746f9a5d9ebfb2adb"
+  },
+  {
+    "schema": "public",
+    "name": "ops_grant_history",
+    "args": "p_days integer, p_status text, p_search text, p_offset integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "d80829f985b0903a7c531fac9bbea028"
+  },
+  {
+    "schema": "public",
+    "name": "ops_grant_reward",
+    "args": "p_user_id uuid, p_reward jsonb, p_reason text, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8befad65f0cc0dce73bf0d6cb41f8148"
+  },
+  {
+    "schema": "public",
+    "name": "ops_item_prices",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "a219749516cd912b291de740dd79b946"
+  },
+  {
+    "schema": "public",
+    "name": "ops_market_orders",
+    "args": "p_market text, p_state text, p_side text, p_search text, p_offset integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "1f4d3688181944d45e09036e18206d3d"
+  },
+  {
+    "schema": "public",
+    "name": "ops_overview",
+    "args": "",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "136f63fbc123bd5682f19720c796832c"
+  },
+  {
+    "schema": "public",
+    "name": "ops_player_detail",
+    "args": "p_user_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6299f444a14e7c17fe5c2232929ea448"
+  },
+  {
+    "schema": "public",
+    "name": "ops_player_flows",
+    "args": "p_user_id uuid, p_days integer, p_currency text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b3261394164d91857069ecee0804cc2a"
+  },
+  {
+    "schema": "public",
+    "name": "ops_players",
+    "args": "p_search text, p_offset integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "10f061b5fb5136c8af93a51ce8334458"
+  },
+  {
+    "schema": "public",
+    "name": "ops_save_trade_review",
+    "args": "p_key text, p_status text, p_note text, p_revision integer, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "0ffb76567b9e80d37584f3e77b0c25fd"
+  },
+  {
+    "schema": "public",
+    "name": "ops_set_coupon_enabled",
+    "args": "p_coupon_id uuid, p_enabled boolean",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "490f6e8e2bf4552e054cb5b18965c4e6"
+  },
+  {
+    "schema": "public",
+    "name": "ops_trade_review",
+    "args": "p_days integer, p_ratio integer, p_pair_count integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "12a8dabf591e5c2a50ec664e4a5e44cb"
+  },
+  {
+    "schema": "public",
+    "name": "ops_trade_review_case",
+    "args": "p_key text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "53876f6b14ce64745925296f9b310f69"
+  },
+  {
+    "schema": "public",
+    "name": "place_occupation_bid",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_amount bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "7a231692135f6ff746aa78a5140ecd34"
+  },
+  {
+    "schema": "public",
+    "name": "place_online_gold_exchange_order",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_side text, p_price_silver_per_gold bigint, p_gold_quantity bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "79d270e8ddc24ba0c198a3685f2c018a"
+  },
+  {
+    "schema": "public",
+    "name": "place_online_market_order",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_item_id text, p_side text, p_limit_price bigint, p_quantity bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "0290268728e7312560ab971560746d98"
+  },
+  {
+    "schema": "public",
+    "name": "place_online_market_order_v2",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_item_id text, p_side text, p_limit_price bigint, p_quantity bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "414f6166e4858d5e14e3078e59a0ea0f"
+  },
+  {
+    "schema": "public",
+    "name": "place_village_war_defender",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_front_id integer, p_expected_epoch bigint, p_expected_event_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "f3c732284f1c980911587186370bc287"
+  },
+  {
+    "schema": "public",
+    "name": "recover_guild_auction_item",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_listing_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "38557e3d6075e4e3a70fb8a5ee447c85"
+  },
+  {
+    "schema": "public",
+    "name": "recover_guild_material_auction",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_listing_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b037dc4a150d1d8822ba0a2adc873052"
+  },
+  {
+    "schema": "public",
+    "name": "redeem_game_coupon",
+    "args": "p_code text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "bbaee4db45836c6b88b010620d7ab3e1"
+  },
+  {
+    "schema": "public",
+    "name": "register_collection_equipment",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_set_id text, p_item_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "65d84b00a7aa6a8300084481ec1b6efa"
+  },
+  {
+    "schema": "public",
+    "name": "register_guild_auction_item",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_item_id text, p_starting_bid bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8a79c9054e5d7373e8cc7743c5944d70"
+  },
+  {
+    "schema": "public",
+    "name": "register_guild_material_auction",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_material text, p_quantity bigint, p_starting_bid bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "8cc94df0528a8ccc2c3abbe0fb69cad2"
+  },
+  {
+    "schema": "public",
+    "name": "register_online_job",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_paid_rolls integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "9923f9a337030893cd8d9327d826f2ff"
+  },
+  {
+    "schema": "public",
+    "name": "register_online_job_with_tickets",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_rolls integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "7c9df1924bd4974ca2c689a66ddcf3f3"
+  },
+  {
+    "schema": "public",
+    "name": "release_game_session",
+    "args": "p_lease_id uuid, p_generation bigint, p_device_id text, p_client_instance_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "361eabe02c4a0b4fe22d52b42fa13160"
+  },
+  {
+    "schema": "public",
+    "name": "relist_guild_boss_auction_item",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_listing_id uuid, p_starting_bid bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "31219b82000f594db97247b068544c7d"
+  },
+  {
+    "schema": "public",
+    "name": "remove_village_war_defender",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_front_id integer, p_expected_epoch bigint, p_expected_event_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "7c177d4d2e4fef4e3c93bd5381722eeb"
+  },
+  {
+    "schema": "public",
+    "name": "request_game_session_takeover",
+    "args": "p_device_id text, p_client_instance_id text, p_platform text, p_app_version text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "2c33db65d3249a5ae7de887a87619838"
+  },
+  {
+    "schema": "public",
+    "name": "request_resource_stronghold",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_floor integer, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "a27c461e45e8a7ad29a73112c3e2b0d2"
+  },
+  {
+    "schema": "public",
+    "name": "reset_association_seal",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "40b0c10214e3dbcf1d075d02e2088d1c"
+  },
+  {
+    "schema": "public",
+    "name": "reset_hunting_stats",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "7878aea5b01fe8ddc42f3009572545ee"
+  },
+  {
+    "schema": "public",
+    "name": "resolve_online_exploration_event",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_expected_version bigint, p_choice text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "518bf28698fd408b33db0c665bcfab70"
+  },
+  {
+    "schema": "public",
+    "name": "resolve_online_revival",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_use boolean",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "afb63fe10152038e28a4e1e2d0d308d0"
+  },
+  {
+    "schema": "public",
+    "name": "respond_resource_stronghold_contest",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_contest_id uuid, p_response text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "4e94e827233090d8ad494df67e023bf8"
+  },
+  {
+    "schema": "public",
+    "name": "restore_online_expedition",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "748147f289a7c2b85f60ba77b39eae5e"
+  },
+  {
+    "schema": "public",
+    "name": "review_online_association_application",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_application_id uuid, p_accept boolean",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "c2e3d1614f82bd1c2671dd4079007b9b"
+  },
+  {
+    "schema": "public",
+    "name": "roll_association_seal",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "fa7f2b1309745723221543ddb2758c49"
+  },
+  {
+    "schema": "public",
+    "name": "save_game_state",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_base_revision bigint, p_save_schema integer, p_app_version text, p_payload jsonb, p_payload_hash text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "9ca6a14d200cfad3e539b972e685691c"
+  },
+  {
+    "schema": "public",
+    "name": "save_hunting_preset",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_skills text[]",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "eaf5505af6df9e616b6cdcc498298a3a"
+  },
+  {
+    "schema": "public",
+    "name": "save_hunting_setup",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_skills text[], p_setup jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6f089790eefa164003d103139d798532"
+  },
+  {
+    "schema": "public",
+    "name": "save_hunting_skill_sets",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_sets jsonb, p_active integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "daa290cf1228ed883b3481d6ee445399"
+  },
+  {
+    "schema": "public",
+    "name": "select_online_job",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_job_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "b891516760246953243d886afaed30fe"
+  },
+  {
+    "schema": "public",
+    "name": "send_game_notice",
+    "args": "p_event_key text, p_title text, p_body text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": false,
+    "definition_md5": "f3312940f2895acf8f72d1976860503b"
+  },
+  {
+    "schema": "public",
+    "name": "server_bank_action",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_action text, p_params jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "e6b43e23b0286ada9d27f6b0513a49b0"
+  },
+  {
+    "schema": "public",
+    "name": "set_game_coupon_enabled",
+    "args": "p_coupon_id uuid, p_enabled boolean",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "391632aa0dec8ec8de50609d0cf5fed4"
+  },
+  {
+    "schema": "public",
+    "name": "set_guild_village_tax",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_town_id text, p_tax_rate integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "42947c49298e086f8eb9454e16503662"
+  },
+  {
+    "schema": "public",
+    "name": "set_job_registration_pickups",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_sr_job_id text, p_ssr_job_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "f2eaad6211e5e0095d1083a6e8017776"
+  },
+  {
+    "schema": "public",
+    "name": "set_websocket_presence",
+    "args": "p_client_instance_id text, p_socket_kind text, p_platform text, p_connected boolean",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "53e2e1b4eafebb93fb3dd9c5afe9b32b"
+  },
+  {
+    "schema": "public",
+    "name": "settle_online_expedition_v2",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_outcome text, p_client_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6150011233e6b4fb56f1d8199a945d76"
+  },
+  {
+    "schema": "public",
+    "name": "settle_online_resource_stronghold",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_expected_version bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "17a8f965cebe02dcad8df123a051942e"
+  },
+  {
+    "schema": "public",
+    "name": "spend_online_association_fee",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "a5e6e322653bfd0ab3a5fc19f370fa6e"
+  },
+  {
+    "schema": "public",
+    "name": "start_online_expedition",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_tower text, p_floor integer, p_client_payload jsonb",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "43b877b0536ed2a5a2c17edfbb51fbcf"
+  },
+  {
+    "schema": "public",
+    "name": "transfer_association_treasury",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_direction text, p_currency text, p_amount bigint, p_note text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "c7e48a4db0c1c60531cef35c4037788a"
+  },
+  {
+    "schema": "public",
+    "name": "transfer_guild_material",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_direction text, p_material text, p_amount bigint",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "ca6ca7b5809c86584902ecda6c0b5e00"
+  },
+  {
+    "schema": "public",
+    "name": "transfer_online_association_leadership",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_member_user_id uuid",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "7401a54b46abde20be557dd91abfd955"
+  },
+  {
+    "schema": "public",
+    "name": "travel_village",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_town_id text",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "f218b5830ed16ee31a33405d0214c110"
+  },
+  {
+    "schema": "public",
+    "name": "update_online_association",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_description text, p_notice text, p_join_policy text, p_revenue_share_rate integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "e3c51ab3b5690db4e3055231cec2f3cb"
+  },
+  {
+    "schema": "public",
+    "name": "use_vitality_potion",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_action text, p_item text, p_count integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "35755a49a18894db77c23b5d703f1dcf"
+  },
+  {
+    "schema": "public",
+    "name": "village_life_action",
+    "args": "p_lease_id uuid, p_generation bigint, p_client_instance_id text, p_device_id text, p_request_id uuid, p_town_id text, p_action text, p_item text, p_count integer",
+    "security_definer": true,
+    "anon": false,
+    "authenticated": true,
+    "definition_md5": "6c217aaffb6ff14534f5c5d9391aa3d1"
+  }
+]

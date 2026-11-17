@@ -1,0 +1,22 @@
+[
+  {
+    "nspname": "realtime",
+    "anon_usage": true,
+    "client_usage": true
+  },
+  {
+    "nspname": "private",
+    "anon_usage": false,
+    "client_usage": true
+  },
+  {
+    "nspname": "storage",
+    "anon_usage": true,
+    "client_usage": true
+  },
+  {
+    "nspname": "public",
+    "anon_usage": true,
+    "client_usage": true
+  }
+]
