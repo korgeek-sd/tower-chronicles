@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {EFFECT_SOUND_PROFILES,cuesForFeedback,DEFAULT_EFFECT_SOUND_SETTINGS,readEffectSoundSettings,saveEffectSoundSettings} from '../src/audio/gameEffects.ts';
-test('phase one and association seal synthesize distinct cues without downloaded assets',()=>{
+test('phase one, association seal and chest opening synthesize distinct cues without downloaded assets',()=>{
  const names=Object.keys(EFFECT_SOUND_PROFILES);
- assert.deepEqual(names,['ui.click','ui.confirm','ui.error','hunt.start','hunt.victory','hunt.defeat','loot.common','loot.rare','player.level-up','seal.cast','seal.step-1','seal.step-2','seal.step-3','seal.reset']);
+ assert.deepEqual(names,['box.land','box.charge','box.unlock','box.hinge','ui.click','ui.confirm','ui.error','hunt.start','hunt.victory','hunt.defeat','loot.common','loot.rare','player.level-up','seal.cast','seal.step-1','seal.step-2','seal.step-3','seal.reset']);
  for(const cue of Object.values(EFFECT_SOUND_PROFILES))assert.ok(cue.length>0&&cue.every(x=>x.duration>0&&x.gain>0));
  assert.ok(EFFECT_SOUND_PROFILES['loot.rare'].length>EFFECT_SOUND_PROFILES['loot.common'].length);
 });

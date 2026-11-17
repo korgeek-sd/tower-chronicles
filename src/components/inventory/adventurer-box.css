@@ -103,7 +103,6 @@
 /* Eight real pixel-art frames, including the open interior and the hinge rebound.
    The same atlas drives the CSS fallback, so no device reverts to the old cut-out lid. */
 .tc-box-frame-art{position:absolute;left:50%;top:50%;width:100%;aspect-ratio:112/128;transform:translate(-50%,-62.5%);background-image:url('../../../public/assets/ui/shop/adventurer_box_opening_v2.png');background-size:800% 100%;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated}
-.phase-hold .tc-box-frame-art{background-position:14.285714% 0}
 .phase-burst .tc-box-frame-art{animation:tc-box-atlas-open .59s steps(7,end) both}
 @keyframes tc-box-atlas-open{0%{background-position:0 0}100%{background-position:100% 0}}
 .has-receipt.phase-rattle .tc-box-chest{animation:tc-box-drop-v2 .78s both}

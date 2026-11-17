@@ -90,7 +90,7 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
     root.scale.set(1+(holding?.035:0)+(opened?Math.sin(hit*Math.PI)*(rank+1)*.011:0));
     box.position.set(0,state.drop+hover+state.weight*5);box.rotation=shake*.004;
     box.scale.set(1+state.weight*.035,1-state.weight*.055);
-    chestSprite.texture=frames[opened?boxOpeningFrame((seconds-burst)*1000):holding?1:0];
+    chestSprite.texture=frames[opened?boxOpeningFrame((seconds-burst)*1000):0];
     seamLight.alpha=opened?Math.max(0,1-o)*.7:charged?p*(holding?.75:.35):0;
     innerLight.clear();
     if(opened&&o>.13){
