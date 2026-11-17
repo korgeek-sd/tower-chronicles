@@ -4,7 +4,7 @@ import {assetUrl} from '../../game/data/graphics';
 import type {EquipmentItem} from '../../game/types';
 import {boxOpeningFrame,BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,type boxReveal} from './boxPresentation';
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
-const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v2.png');
+const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v3.png');
 const colors={common:0xd5c7a9,uncommon:0x82b86b,rare:0x60bfff,heroic:0xbc7ce0,legendary:0xffcc66};
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -60,7 +60,7 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
    const box=new P.Container();root.addChild(box);
    // The 8 authored frames share a fixed body baseline. No split-image rotation.
    const chestSprite=new P.Sprite(frames[0]);chestSprite.anchor.set(.5,.625);chestSprite.scale.set(2.15);
-   const seamLight=new P.Graphics().moveTo(-93,-14).lineTo(37,14).lineTo(91,-17).stroke({width:2,color:0xffe9b2});seamLight.alpha=0;
+   const seamLight=new P.Graphics().moveTo(-92,0).lineTo(47,17).lineTo(92,-19).stroke({width:2,color:0xffe9b2});seamLight.alpha=0;
    const innerLight=new P.Graphics();box.addChild(chestSprite,seamLight,innerLight);
    const prize=new P.Sprite(prizeTex);prize.anchor.set(.5);prize.width=prize.height=112;prize.alpha=0;root.addChild(prize);
    const particles=new P.Graphics();root.addChild(particles);
@@ -95,7 +95,7 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
     innerLight.clear();
     if(opened&&o>.13){
      const light=Math.min(1,o*2)*(1-show*.72);
-     innerLight.poly([-78,-10,36,15,78,-14,18,-35]).fill({color:tone,alpha:.28*light});
+     innerLight.poly([-80,-4,47,14,86,-19,-40,-48]).fill({color:tone,alpha:.28*light});
      innerLight.poly([-53,-7,20,7,72,-120,-67,-120]).fill({color:tone,alpha:.09*light});
      innerLight.poly([-13,-4,10,3,28,-96,-28,-96]).fill({color:0xffefd0,alpha:.18*light});
     }

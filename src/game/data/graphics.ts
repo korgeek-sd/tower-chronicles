@@ -50,6 +50,7 @@ export const graphicFor=(tower:Tower,monster:Pick<Monster,'name'>)=>MONSTER_GRAP
 export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower][1];
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
 const ASSET_REVISIONS:Readonly<Record<string,string>>={
+ 'assets/ui/shop/adventurer_equipment_box.png':'5e0dd9b07eab',
  'assets/player/default.png':'player-20261019',
  'assets/characters/jobs/corsair.webp':'corsair-3dd3b413',
  'assets/characters/jobs/duelist.webp':'e4991963',

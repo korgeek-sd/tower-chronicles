@@ -47,7 +47,7 @@ test('GPU box renderer preserves strict production CSP and surfaces fallback sta
 });
 
 test('opening atlas includes eight equally sized frames and a held final pose',()=>{
- const png=readFileSync('public/assets/ui/shop/adventurer_box_opening_v2.png');
+ const png=readFileSync('public/assets/ui/shop/adventurer_box_opening_v3.png');
  assert.equal(png.readUInt32BE(16),BOX_FRAME_WIDTH*BOX_FRAME_COUNT);
  assert.equal(png.readUInt32BE(20),BOX_FRAME_HEIGHT);
  assert.equal(boxOpeningFrame(-1),0);
@@ -55,6 +55,15 @@ test('opening atlas includes eight equally sized frames and a held final pose',(
  const fx=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
  const style=readFileSync('src/components/inventory/adventurer-box.css','utf8');
  assert.match(fx,/chestSprite\.texture=frames/);
- assert.match(style,/adventurer_box_opening_v2\.png/);
+ assert.match(style,/adventurer_box_opening_v3\.png/);
  assert.doesNotMatch(fx,/lid\.rotation/);
+});
+
+test('chest visuals use the clean transparent icon; opening uses Pixi instead of legacy CSS effects',()=>{
+ const icon=readFileSync('public/assets/ui/shop/adventurer_equipment_box.png');
+ assert.equal(icon.readUInt32BE(16),96);assert.equal(icon.readUInt32BE(20),96);
+ const css=readFileSync('src/components/inventory/adventurer-box.css','utf8');
+ const dialog=readFileSync('src/components/inventory/AdventurerBoxDialog.tsx','utf8');
+ assert.doesNotMatch(css,/@keyframes|animation\s*:/);
+ assert.doesNotMatch(css+dialog,/tc-box-(rays|sparks|seam|shockwave|lid)/);
 });
