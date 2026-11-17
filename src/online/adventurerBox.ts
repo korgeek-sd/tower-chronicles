@@ -17,7 +17,7 @@ const errors:Record<string,string>={
  BOX_COUNT_INVALID:'상자는 1~10개까지 개봉할 수 있습니다.',
  BOX_REQUEST_CONFLICT:'이전 개봉 요청과 수량이 다릅니다.',
  BOX_EXPEDITION_BLOCKED:'안전 귀환 후 상자를 개봉할 수 있습니다.',
- BOX_INSUFFICIENT:'보유한 모험가 상자가 부족합니다.'
+ BOX_INSUFFICIENT:'보유한 모험가 장비 상자가 부족합니다.'
 };
 export async function openAdventurerBoxes(lease:GameplayLease,userId:string,request:AdventurerBoxRequest):Promise<AdventurerBoxResult>{
  if(!supabaseConfig)throw Error('온라인 서버 설정이 필요합니다.');

@@ -10,10 +10,10 @@ test('adventurer box stacks in inventory and is visible in market, even with zer
  const s=initialState();
  const life:any={materials:{},products:{adventurer_box:4}};
  const item=unifiedInventoryView(s,life).find(i=>i.lifeProduct==='adventurer_box');
- assert.equal(item?.quantity,4);assert.equal(item?.category,'other');assert.equal(item?.stack,true);
+ assert.equal(item?.name,'모험가 장비 상자');assert.equal(item?.quantity,4);assert.equal(item?.category,'other');assert.equal(item?.stack,true);
  assert.equal(marketItemIdForInventory(s,item!),'product:life:adventurer_box');
  const entry=currentMarketCatalog(s,{},{}).find(i=>i.id==='product:life:adventurer_box');
- assert.equal(entry?.available,0);assert.equal(entry?.name,'모험가 상자');
+ assert.equal(entry?.available,0);assert.equal(entry?.name,'모험가 장비 상자');
  assert.equal(currentMarketCatalog(s,{}, {adventurer_box:4}).find(i=>i.id===entry?.id)?.available,4);
 });
 test('opening validates quantity and has authenticated idempotent server receipts',()=>{

@@ -8,12 +8,12 @@ import {ShopRewardArt} from '../src/components/association/ShopRewardArt';
 for(const [itemId,filename] of [
  ['silver_box_daily','silver_pixel_supply_chest.webp'],
  ['gold_box_weekly','gold_pixel_supply_chest.webp'],
- ['rare_equipment_weekly','rare_pixel_supply_chest.webp'],
+ ['rare_equipment_weekly','adventurer_equipment_box.png'],
 ] as const){
  test(itemId+' uses the selected transparent pixel chest image',()=>{
   const bytes=readFileSync(new URL('../public/assets/ui/shop/'+filename,import.meta.url));
-  assert.equal(bytes.subarray(0,4).toString('ascii'),'RIFF');
-  assert.equal(bytes.subarray(8,12).toString('ascii'),'WEBP');
+  if(filename.endsWith('.png'))assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  else{assert.equal(bytes.subarray(0,4).toString('ascii'),'RIFF');assert.equal(bytes.subarray(8,12).toString('ascii'),'WEBP');}
   for(const large of [false,true]){
    const html=renderToStaticMarkup(React.createElement(ShopRewardArt,{itemId,large}));
    assert.ok(html.includes('assets/ui/shop/'+filename));

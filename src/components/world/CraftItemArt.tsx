@@ -6,6 +6,6 @@ const FOOD_ART_VERSIONS:Partial<Record<CraftArtId,string>>={attack_food:'6ff383b
 /** Approved pixel-art inventory assets, sharing a silver frame without tier badges. */
 export function CraftItemArt({id}:{id:CraftArtId}){
  const version=FOOD_ART_VERSIONS[id];
- if(id==='adventurer_box')return <img className="tc-craft-art" data-craft-art={id} src={assetUrl('assets/ui/shop/rare_pixel_supply_chest.webp')} alt="" aria-hidden="true" draggable={false} width={64} height={64}/>;
+ if(id==='adventurer_box')return <img className="tc-craft-art" data-craft-art={id} src={assetUrl('assets/ui/shop/adventurer_equipment_box.png')} alt="" aria-hidden="true" draggable={false} width={64} height={64}/>;
  return <img className="tc-craft-art" data-craft-art={id} src={assetUrl(`assets/ui/crafting/${id}.png${version?`?v=${version}`:''}`)} alt="" aria-hidden="true" draggable={false} width={64} height={64}/>;
 }

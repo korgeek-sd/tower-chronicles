@@ -22,10 +22,10 @@ export function ShopRewardArt({itemId,large=false}:{itemId:string;large?:boolean
   <img src={assetUrl("assets/ui/shop/appearance_summon_ticket_pixel.webp")} alt="" decoding="async"/>
  </span>;
  if(box&&(gold||silver||rare))return <span className={'tc-shop-art tc-shop-art-chest tc-shop-art-chest-image tc-shop-art-pixel'+(large?' is-large':'')+(gold?' is-gold':silver?' is-silver':' is-rare')}>
-  <img src={assetUrl(gold?'assets/ui/shop/gold_pixel_supply_chest.webp':silver?'assets/ui/shop/silver_pixel_supply_chest.webp':'assets/ui/shop/rare_pixel_supply_chest.webp')} alt="" decoding="async"/>
+  <img src={assetUrl(gold?'assets/ui/shop/gold_pixel_supply_chest.webp':silver?'assets/ui/shop/silver_pixel_supply_chest.webp':'assets/ui/shop/adventurer_equipment_box.png')} alt="" decoding="async"/>
  </span>;
  if(box)return <span className={'tc-shop-art tc-shop-art-chest'+(large?' is-large':'')+(gold?' is-gold':silver?' is-silver':rare?' is-rare':'')}>
-  <svg viewBox="0 0 128 112" role="img" aria-label={gold?'골드 보급 상자':silver?'실버 상자':'모험가 상자'} focusable="false">
+  <svg viewBox="0 0 128 112" role="img" aria-label={gold?'골드 보급 상자':silver?'실버 상자':'모험가 장비 상자'} focusable="false">
    <defs>
     <linearGradient id={face} x1="0" y1="0" x2="1" y2="1"><stop stopColor={highlight}/><stop offset=".4" stopColor={mid}/><stop offset="1" stopColor={dark}/></linearGradient>
     <linearGradient id={metal} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#fff2c9"/><stop offset=".4" stopColor={accent}/><stop offset="1" stopColor="#88603b"/></linearGradient>

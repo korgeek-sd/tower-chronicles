@@ -16,7 +16,7 @@ export interface MailContent {title:string;category:'trade'|'reward'|'notice';bo
 export interface GameMail extends MailContent {mailId:string;read:boolean;claimed:boolean;createdAt:number;expiresAt:number}
 export interface MailState {mails:GameMail[];summonTickets?:number|null;economy?:OnlineMarketState|null}
 export function mailBody(mail:MailContent):string{
- if(mail.attachment?.reward){const r=mail.attachment.reward;return [mail.body,'',...(r.silver?[`${r.silver.toLocaleString()} 실버`]:[]),...(r.gold?[`${r.gold.toLocaleString()} 골드`]:[]),...(r.appearanceTickets?[`외형 소환권 × ${r.appearanceTickets.toLocaleString()}장`]:[]),...(r.items??[]).map(i=>`${mailRewardItemName(i.id)} × ${i.quantity.toLocaleString()}`)].join('\n');}
+ if(mail.attachment?.reward){const r=mail.attachment.reward;return [mail.body.replaceAll('모험가 상자','모험가 장비 상자'),'',...(r.silver?[`${r.silver.toLocaleString()} 실버`]:[]),...(r.gold?[`${r.gold.toLocaleString()} 골드`]:[]),...(r.appearanceTickets?[`외형 소환권 × ${r.appearanceTickets.toLocaleString()}장`]:[]),...(r.items??[]).map(i=>`${mailRewardItemName(i.id)} × ${i.quantity.toLocaleString()}`)].join('\n');}
  if(mail.details?.kind==='gold_exchange_cancel')return mail.body;
  if(mail.category!=='trade')return mail.body;
  const d=mail.details,buy=mail.title.startsWith('구매'),complete=mail.title.endsWith('완료'),expired=mail.title.endsWith('만료');
