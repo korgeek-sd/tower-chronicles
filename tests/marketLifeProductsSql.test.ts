@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {marketLifeProductItemId,MARKET_LIFE_PRODUCT_IDS} from '../src/game/life/marketProducts.ts';
 const sql=readFileSync('supabase/migrations/20261027200000_life_consumable_market.sql','utf8');
-test('only four crafted consumables are allowed in life product exchange',()=>{
- assert.deepEqual([...MARKET_LIFE_PRODUCT_IDS],['potion','attack_food','defense_food','experience_food']);
+test('four crafted consumables and adventurer boxes are allowed in life product exchange',()=>{
+ assert.deepEqual([...MARKET_LIFE_PRODUCT_IDS],['potion','attack_food','defense_food','experience_food','adventurer_box']);
  assert.equal(marketLifeProductItemId('potion'),'product:life:potion');
+ assert.equal(marketLifeProductItemId('adventurer_box'),'product:life:adventurer_box');
  assert.doesNotMatch(sql,/'product:life:vitality_potion'/);
  assert.match(sql,/private\.market_life_product_id\(p_item_id\)/);
  assert.match(sql,/MARKET_PRODUCT_INVALID/);

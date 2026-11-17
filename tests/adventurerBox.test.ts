@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {initialState} from '../src/game/engine/state';
+import {unifiedInventoryView} from '../src/game/life/inventory';
+import {currentMarketCatalog,marketItemIdForInventory} from '../src/game/market/marketService';
+import {validAdventurerBoxRequest} from '../src/online/adventurerBox';
+const sql=readFileSync('supabase/migrations/20261117040321_adventurer_box_server_inventory_market.sql','utf8');
+test('adventurer box stacks in inventory and is visible in market, even with zero stock',()=>{
+ const s=initialState();
+ const life:any={materials:{},products:{adventurer_box:4}};
+ const item=unifiedInventoryView(s,life).find(i=>i.lifeProduct==='adventurer_box');
+ assert.equal(item?.quantity,4);assert.equal(item?.category,'other');assert.equal(item?.stack,true);
+ assert.equal(marketItemIdForInventory(s,item!),'product:life:adventurer_box');
+ const entry=currentMarketCatalog(s,{},{}).find(i=>i.id==='product:life:adventurer_box');
+ assert.equal(entry?.available,0);assert.equal(entry?.name,'모험가 상자');
+ assert.equal(currentMarketCatalog(s,{}, {adventurer_box:4}).find(i=>i.id===entry?.id)?.available,4);
+});
+test('opening validates quantity and has authenticated idempotent server receipts',()=>{
+ const id='00000000-0000-4000-8000-000000000001';
+ assert.equal(validAdventurerBoxRequest({id,quantity:1}),true);
+ assert.equal(validAdventurerBoxRequest({id,quantity:10}),true);
+ assert.equal(validAdventurerBoxRequest({id,quantity:11}),false);
+ assert.match(sql,/primary key\(user_id,request_id\)/);
+ assert.match(sql,/private\.require_active_game_session/);
+ assert.match(sql,/p_quantity not between 1 and 10/);
+ assert.match(sql,/products->>'adventurer_box'\)::bigint,0\)>=p_quantity/);
+ assert.match(sql,/private\.job_registration_secure_unit\(\)\*1000/);
+ assert.match(sql,/revoke all on function public\.open_adventurer_boxes.*from public,anon/);
+});

@@ -141,9 +141,9 @@ export function currentMarketCatalog(s:GameState,lifeMaterials:Partial<Record<Ma
  for(const id of MARKET_LIFE_MATERIAL_IDS)current.push({id:marketLifeItemId(id),name:MARKET_LIFE_MATERIAL_NAMES[id],
   available:Math.max(0,Number(lifeMaterials[id]??0)),category:'materials',
   description:id==='stone'?'장비 분해로 획득하는 도전권 제작 재료입니다.':'마을 채집으로 획득하는 생활·음식 제작 재료입니다.'});
- for(const id of MARKET_LIFE_PRODUCT_IDS)current.push({id:marketLifeProductItemId(id),name:PRODUCT_NAMES[id],
+ for(const id of MARKET_LIFE_PRODUCT_IDS)current.push({id:marketLifeProductItemId(id),name:marketLifeProductName(id),
   available:Math.max(0,Number(lifeProducts[id]??0)),category:'other',
-  description:CRAFT_RECIPES.find(recipe=>recipe.id===id)?.description??'거래 가능한 제작 소모품입니다.'});
+  description:id==='adventurer_box'?'개봉 시 무작위 장비 1개 · 거래 가능':CRAFT_RECIPES.find(recipe=>recipe.id===id)?.description??'거래 가능한 제작 소모품입니다.'});
  return current;
 }
 function available(s:GameState,itemId:string){return marketItems(s).find(i=>i.id===itemId)?.available||0;}

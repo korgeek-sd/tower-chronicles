@@ -7,7 +7,7 @@ import {isActiveTownId,type WorldTown} from '../components/world/worldMap';
 export type LifeResource='herb'|'farm';
 export type LifeMaterial='herb'|'pepper'|'potato'|'wheat'|'stone';
 export interface LifeTown extends WorldTown{herbCapacity:number;farmCapacity:number;herbRemaining:number;farmRemaining:number}
-export interface VillageLifeState{location:string;vitality:number;recoveredAt?:number;materials:Record<Exclude<LifeMaterial,'stone'>,number>&{stone?:number};products?:Record<ProductId,number>;craftMastery?:number;lifeMasteries?:Partial<Record<LifeMasteryTrack,number>>;craftCarry?:Partial<Record<ProductId,number>>;foodTurns?:Record<FoodId,number>;wellReadyAt?:number;health?:{hp:number|null;maxHp:number|null}|null;towns:LifeTown[];serverNow:number;nextResetAt:number}
+export interface VillageLifeState{location:string;vitality:number;recoveredAt?:number;materials:Record<Exclude<LifeMaterial,'stone'>,number>&{stone?:number};products?:(Record<ProductId,number>&{adventurer_box?:number});craftMastery?:number;lifeMasteries?:Partial<Record<LifeMasteryTrack,number>>;craftCarry?:Partial<Record<ProductId,number>>;foodTurns?:Record<FoodId,number>;wellReadyAt?:number;health?:{hp:number|null;maxHp:number|null}|null;towns:LifeTown[];serverNow:number;nextResetAt:number}
 export interface CraftQueueJob{id:string;item:ProductId;count:number;quantity:number;startsAt:number;endsAt:number;durationSeconds:number;status:'waiting'|'crafting'|'complete'}
 export interface CraftQueueSnapshot{jobs:CraftQueueJob[];serverNow:number}
 export interface CraftQueueActionResponse{state:VillageLifeState;queue:CraftQueueJob[];result:{item:ProductId;quantity?:number;count:number;cancelled?:boolean};replayed:boolean}

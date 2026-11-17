@@ -11,7 +11,7 @@ import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,EQUIPMENT_GRADES,EQUIPMENT_S
 export const categories=['all','equipment','materials','potions','skillbooks','tickets','cosmetics','other'] as const;
 export type InventoryCategory=typeof categories[number]|'foods'|'consumables';
 export const categoryNames:Record<InventoryCategory,string>={all:'전체',consumables:'소모품',equipment:'장비',materials:'재료',potions:'포션',skillbooks:'스킬북',tickets:'입장권',cosmetics:'외형',other:'기타',foods:'음식'};
-export interface InventoryViewItem {equipmentKind?:EquipmentItem['kind'];lifeMaterial?:LifeMaterial;lifeProduct?:ProductId;key:string;category:InventoryCategory;name:string;quantity:number;iconId:string;tier?:number;grade?:EquipmentGrade;slot?:Slot;enhancement?:number;description:string;facts?:string[];equipped?:boolean;modern?:boolean;learned?:boolean;registered?:boolean;sourceId:string;order:number;stack:boolean}
+export interface InventoryViewItem {equipmentKind?:EquipmentItem['kind'];lifeMaterial?:LifeMaterial;lifeProduct?:ProductId|'adventurer_box';key:string;category:InventoryCategory;name:string;quantity:number;iconId:string;tier?:number;grade?:EquipmentGrade;slot?:Slot;enhancement?:number;description:string;facts?:string[];equipped?:boolean;modern?:boolean;learned?:boolean;registered?:boolean;sourceId:string;order:number;stack:boolean}
 export type InventorySort='default'|'name'|'tier'|'quantity';
 export interface InventoryFilter {tier:number;status:boolean;grades?:readonly string[]}
 const factNumber=(value:number,digits=1)=>Number(value.toFixed(digits)).toString();

@@ -25,7 +25,7 @@ export function InventoryStackCount({item}:{item:InventoryViewItem}){
  return item.stack&&(item.quantity>1||item.category==='skillbooks')?<small className="tc-storage-count">{item.quantity.toLocaleString('en-US')}</small>:null;
 }
 
-export function InventoryDetailSheet({item,comparison,onClose,action,disabled,label,enhancementAction,marketAction,marketDisabled,marketLabel,dangerAction,dangerDisabled,dangerLabel,status,retryAction,retryDisabled}:{item:InventoryViewItem;comparison?:EquipmentStatComparison|null;onClose:()=>void;action?:()=>void;disabled?:boolean;label?:string;enhancementAction?:()=>void;marketAction?:()=>void;marketDisabled?:boolean;marketLabel?:string;dangerAction?:()=>void|Promise<void>;dangerDisabled?:boolean;dangerLabel?:string;status?:string;retryAction?:()=>void;retryDisabled?:boolean}){
+export function InventoryDetailSheet({item,comparison,onClose,action,disabled,label,enhancementAction,marketAction,marketDisabled,marketLabel,dangerAction,dangerDisabled,dangerLabel,status,retryAction,retryDisabled,boxCount,onBoxCount}:{item:InventoryViewItem;comparison?:EquipmentStatComparison|null;onClose:()=>void;action?:()=>void;disabled?:boolean;label?:string;enhancementAction?:()=>void;marketAction?:()=>void;marketDisabled?:boolean;marketLabel?:string;dangerAction?:()=>void|Promise<void>;dangerDisabled?:boolean;dangerLabel?:string;status?:string;retryAction?:()=>void;retryDisabled?:boolean;boxCount?:number;onBoxCount?:(count:number)=>void}){
  const root=useRef<HTMLDialogElement>(null),equipment=item.category==='equipment';
  const [confirmDanger,setConfirmDanger]=useState(false);
  const [expanded,setExpanded]=useState(false);
@@ -47,6 +47,12 @@ export function InventoryDetailSheet({item,comparison,onClose,action,disabled,la
    {book&&<div className="tc-item-book-brief"><b className={item.learned?'learned':'unlearned'}>{item.learned?'습득':'미습득'}</b><span>{book.type==='active'?'액티브':'패시브'} · {book.grade} 등급</span><small>{item.learned?'남은 스킬북으로 강화할 수 있습니다.':'스킬트리에서 1권을 사용해 습득합니다.'}</small></div>}
    {!equipment&&!food&&!book&&<p className="tc-item-brief-description">{item.description}</p>}
    {<section hidden={!expanded} id="inventory-detail-more" className="tc-item-expanded-info" aria-label="아이템 전체 정보"><p>{item.description}</p><div className="tc-item-facts">{item.facts?.map(fact=>{const [factLabel,...value]=fact.split(' ');return <div key={fact}><span>{factLabel}</span><b>{value.join(' ')||'—'}</b></div>;})}</div></section>}
+   {boxCount!==undefined&&onBoxCount&&<div className="tc-box-quantity" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'8px 0'}}>
+    <button type="button" className="tc-action secondary slim" aria-label="개봉 수량 감소" disabled={boxCount<=1||disabled} onClick={()=>onBoxCount(Math.max(1,boxCount-1))}>−</button>
+    <b aria-live="polite">{boxCount} / {Math.min(item.quantity,10)}개</b>
+    <button type="button" className="tc-action secondary slim" aria-label="개봉 수량 증가" disabled={boxCount>=Math.min(item.quantity,10)||disabled} onClick={()=>onBoxCount(Math.min(item.quantity,10,boxCount+1))}>+</button>
+    <button type="button" className="tc-action secondary slim" disabled={disabled||boxCount===Math.min(item.quantity,10)} onClick={()=>onBoxCount(Math.min(item.quantity,10))}>최대</button>
+   </div>}
    {status&&<p className="tc-item-request-status" role="status">{status}</p>}
   </div>
   <button className="tc-item-sheet-expand" aria-expanded={expanded} aria-controls="inventory-detail-more" onClick={()=>setExpanded(value=>!value)}>{expanded?'접기':'자세히 보기'} <span aria-hidden="true">{expanded?'⌄':'⌃'}</span></button>
