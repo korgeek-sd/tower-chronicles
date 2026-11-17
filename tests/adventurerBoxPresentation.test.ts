@@ -9,7 +9,7 @@ test('opening does not predict a grade before a receipt arrives',()=>{
 test('batch reveal uses the highest actual reward without mutating receipt order',()=>{
  const rewards=[item('rare'),item('legendary'),item('common')];
  assert.equal(boxReveal(rewards)?.grade,'legendary');
- assert.equal(boxReveal(rewards)!.duration,3500);
+ assert.equal(boxReveal(rewards)!.duration,5000);
  assert.deepEqual(rewards.map(i=>i.grade),['rare','legendary','common']);
  assert.equal(boxReveal(rewards,true)?.duration,0);
 });
@@ -22,11 +22,11 @@ test('result stats come from real equipment and exclude fictional level requirem
 
 test('opening has a substantial wind-up, a suspense hold, and a separate reveal beat',()=>{
  const common=boxReveal([item('common')])!,legendary=boxReveal([item('legendary')])!;
- assert.equal(common.duration,2500);
+ assert.equal(common.duration,2600);
  assert.ok(legendary.duration>common.duration);
  for(const grade of ['common','uncommon','rare','heroic','legendary'] as const){
   const reveal=boxReveal([item(grade)])!;
-  assert.ok(reveal.chargeAt>=700);
+  assert.ok(reveal.chargeAt>=650);
   assert.ok(reveal.holdAt>reveal.chargeAt);
   assert.ok(reveal.burstAt-reveal.holdAt>=350);
   assert.ok(reveal.duration-reveal.burstAt>=450);

@@ -3,8 +3,8 @@ import type {EquipmentItem} from '../../game/types';
 export function boxReveal(rewards:readonly EquipmentItem[],reducedMotion=false){
  if(!rewards.length)return null;
  const rank=rewards.reduce((highest,item)=>Math.max(highest,EQUIPMENT_GRADES.indexOf(item.grade)),0);
- const duration=reducedMotion?0:[2500,2600,2900,3200,3500][rank];
- return {grade:EQUIPMENT_GRADES[rank],duration,chargeAt:750,holdAt:duration-1000,burstAt:duration-550};
+ const duration=reducedMotion?0:[2600,2900,3400,4100,5000][rank];
+ return {grade:EQUIPMENT_GRADES[rank],duration,chargeAt:650,holdAt:duration-(rank>=3?1600:1250),burstAt:duration-(rank>=3?1000:850)};
 }
 export function boxStatRows(item:EquipmentItem){
  const stats=equipmentItemStats(item);

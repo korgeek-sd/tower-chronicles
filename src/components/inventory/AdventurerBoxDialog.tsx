@@ -6,6 +6,7 @@ import {playGameEffect} from '../../audio/gameEffects';
 import {useGameFeel} from '../../gameFeel/react/useGameFeel';
 import {EquipmentArt} from './EquipmentArt';
 import {boxReveal,boxStatRows} from './boxPresentation';
+import {PixiBoxStage,preloadBoxEffects} from './PixiBoxStage';
 import './adventurer-box.css';
 const chest=assetUrl('assets/ui/shop/adventurer_equipment_box.png');
 export interface AdventurerBoxDialogProps {
@@ -22,17 +23,19 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
  const clearRevealTimers=useCallback(()=>{timers.current.forEach(window.clearTimeout);timers.current=[];},[]);
  const skip=()=>{clearRevealTimers();setRevealed(true);};
  const reveal=p.rewards?boxReveal(p.rewards):null;
+ const topReward=p.rewards?.find(reward=>reward.grade===reveal?.grade);
  const opening=p.busy||!!p.rewards&&!revealed;
  const result=!!p.rewards&&revealed;
  const item=p.rewards?.[Math.min(selected,p.rewards.length-1)];
  useEffect(()=>{
+  preloadBoxEffects();
   const previous=document.activeElement as HTMLElement,dialog=root.current!;
   const fallback=document.querySelector<HTMLButtonElement>('button[aria-label="필터"]');
   dialog.showModal();dialog.querySelector<HTMLButtonElement>('button')?.focus();
   return()=>{dialog.close();if(previous?.isConnected)previous.focus({preventScroll:true});else fallback?.focus({preventScroll:true});};
  },[]);
  useEffect(()=>{
-  clearRevealTimers();setSelected(0);setRevealed(false);setDetails(false);setPhase('rattle');
+  clearRevealTimers();setSelected(p.rewards?Math.max(0,p.rewards.findIndex(reward=>reward.grade===boxReveal(p.rewards!)?.grade)):0);setRevealed(false);setDetails(false);setPhase('rattle');
   if(!p.rewards)return;
   const feedback=boxReveal(p.rewards,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   if(!feedback)return;
@@ -55,8 +58,8 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
   <header><h2 id="tc-box-title">{opening?'모험가 장비 상자 개봉':result?'장비 획득':'모험가 장비 상자'}</h2>{!opening&&<button className="tc-box-close" aria-label="상자 창 닫기" onClick={dismiss}>×</button>}</header>
   {opening?<div className={'tc-box-stage phase-'+phase+(reveal?' has-receipt':'')+(reveal?.grade==='legendary'?' is-legendary':'')} style={{backgroundImage:`linear-gradient(#08080877,#080808aa),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
    <button className="tc-box-skip" disabled={!p.rewards} onClick={skip}>{p.rewards?'건너뛰기 »':'결과 확인 중…'}</button>
-   <div className="tc-box-altar"><span className="tc-box-rays"/><span className="tc-box-shockwave"/><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><img className="tc-box-lid" src={chest} alt=""/><img className="tc-box-base" src={chest} alt=""/></div><i className="tc-box-seam"/><div className="tc-box-sparks" aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--spark-angle':`${i*30}deg`,'--spark-distance':`${85+(i%3)*20}px`} as React.CSSProperties}/>)}</div></div>
-   <p role="status">{p.rewards?(phase==='burst'?'장비가 모습을 드러냅니다':phase==='hold'?'…':'상자가 반응하고 있습니다'): '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
+   <div className="tc-box-altar"><span className="tc-box-rays"/><span className="tc-box-shockwave"/><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><img className="tc-box-lid" src={chest} alt=""/><img className="tc-box-base" src={chest} alt=""/></div><i className="tc-box-seam"/><div className="tc-box-sparks" aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--spark-angle':`${i*30}deg`,'--spark-distance':`${85+(i%3)*20}px`} as React.CSSProperties}/>)}</div>{reveal&&topReward&&<PixiBoxStage key={topReward.id} feedback={reveal} reward={topReward}/>}</div>
+   <p role="status">{p.rewards?(phase==='burst'?EQUIPMENT_GRADE_NAMES[reveal!.grade]+' 장비 획득':phase==='hold'?'…':'상자가 반응하고 있습니다'): '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
   </div>:result&&item?<>
    {p.rewards!.length>1&&<div className="tc-box-rewards" aria-label="획득 장비 목록">{p.rewards!.map((reward,index)=><button key={reward.id} aria-label={equipmentItemName(reward)} aria-pressed={selected===index} className={'grade-'+reward.grade} onClick={()=>setSelected(index)}><EquipmentArt kind={reward.kind} grade={reward.grade}/><small>{EQUIPMENT_GRADE_NAMES[reward.grade]}</small></button>)}</div>}
    <div className={'tc-box-prize grade-'+item.grade}>
