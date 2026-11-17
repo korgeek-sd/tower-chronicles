@@ -44,10 +44,11 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
   if(!feedback.duration){setRevealed(true);return;}
   const sound=(name:Parameters<typeof playGameEffect>[0])=>{try{playGameEffect(name);}catch{}};
   const after=(delay:number,callback:()=>void)=>{timers.current.push(window.setTimeout(callback,delay));};
-  sound('seal.cast');
-  after(feedback.chargeAt,()=>{setPhase('charge');sound('hunt.start');});
-  after(feedback.holdAt,()=>setPhase('hold'));
-  after(feedback.burstAt,()=>{setPhase('burst');sound(feedback.grade==='legendary'?'seal.step-3':feedback.grade==='heroic'||feedback.grade==='rare'?'loot.rare':'loot.common');});
+  after(380,()=>sound('box.land'));
+  after(feedback.chargeAt,()=>{setPhase('charge');sound('box.charge');});
+  after(feedback.holdAt,()=>{setPhase('hold');sound('box.unlock');});
+  after(feedback.burstAt,()=>{setPhase('burst');sound('box.hinge');});
+  after(feedback.burstAt+400,()=>sound(feedback.grade==='legendary'?'seal.step-3':feedback.grade==='heroic'||feedback.grade==='rare'?'loot.rare':'loot.common'));
   after(feedback.duration,()=>setRevealed(true));
   return clearRevealTimers;
  },[p.rewards,clearRevealTimers]);
@@ -60,8 +61,8 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
   <header><h2 id="tc-box-title">{opening?'모험가 장비 상자 개봉':result?'장비 획득':'모험가 장비 상자'}</h2>{!opening&&<button className="tc-box-close" aria-label="상자 창 닫기" onClick={dismiss}>×</button>}</header>
   {opening?<div className={'tc-box-stage phase-'+phase+(reveal?' has-receipt':'')+(reveal?.grade==='legendary'?' is-legendary':'')} style={{backgroundImage:`linear-gradient(#08080877,#080808aa),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
    <button className="tc-box-skip" disabled={!p.rewards} onClick={skip}>{p.rewards?'건너뛰기 »':'결과 확인 중…'}</button>
-   <div className="tc-box-altar" data-box-renderer={renderer}><span className="tc-box-rays"/><span className="tc-box-shockwave"/><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><img className="tc-box-lid" src={chest} alt=""/><img className="tc-box-base" src={chest} alt=""/></div><i className="tc-box-seam"/><div className="tc-box-sparks" aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--spark-angle':`${i*30}deg`,'--spark-distance':`${85+(i%3)*20}px`} as React.CSSProperties}/>)}</div>{reveal&&topReward&&<PixiBoxStage key={topReward.id} feedback={reveal} reward={topReward} onStatus={setRenderer}/>}</div>
-   {p.rewards&&<small className="tc-box-renderer" aria-label="그래픽 연출 상태">{renderer==='gpu'?'PixiJS · GPU':renderer==='fallback'?'기본 연출 · 호환 모드':'그래픽 준비 중'}</small>}
+   <div className="tc-box-altar" data-box-renderer={renderer}><span className="tc-box-rays"/><span className="tc-box-shockwave"/><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><div className="tc-box-frame-art" aria-hidden="true"/></div><i className="tc-box-seam"/><div className="tc-box-sparks" aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--spark-angle':`${i*30}deg`,'--spark-distance':`${85+(i%3)*20}px`} as React.CSSProperties}/>)}</div>{reveal&&topReward&&<PixiBoxStage key={topReward.id} feedback={reveal} reward={topReward} onStatus={setRenderer}/>}</div>
+   {p.rewards&&<small className="tc-box-renderer" aria-label="그래픽 연출 상태">{renderer==='gpu'?'PixiJS · GPU':renderer==='fallback'?'스프라이트 · 호환 모드':'그래픽 준비 중'}</small>}
    <p role="status">{p.rewards?(phase==='burst'?EQUIPMENT_GRADE_NAMES[reveal!.grade]+' 장비 획득':phase==='hold'?'…':'상자가 반응하고 있습니다'): '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
   </div>:result&&item?<>
    {p.rewards!.length>1&&<div className="tc-box-rewards" aria-label="획득 장비 목록">{p.rewards!.map((reward,index)=><button key={reward.id} aria-label={equipmentItemName(reward)} aria-pressed={selected===index} className={'grade-'+reward.grade} onClick={()=>setSelected(index)}><EquipmentArt kind={reward.kind} grade={reward.grade}/><small>{EQUIPMENT_GRADE_NAMES[reward.grade]}</small></button>)}</div>}

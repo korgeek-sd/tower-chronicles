@@ -99,3 +99,22 @@
 .tc-box-dialog .tc-box-skip{z-index:6}
 
 .tc-box-renderer{position:absolute;left:12px;top:14px;z-index:6;color:#b9a78a;font-size:10px;line-height:1.6;pointer-events:none}
+
+/* Eight real pixel-art frames, including the open interior and the hinge rebound.
+   The same atlas drives the CSS fallback, so no device reverts to the old cut-out lid. */
+.tc-box-frame-art{position:absolute;left:50%;top:50%;width:100%;aspect-ratio:112/128;transform:translate(-50%,-62.5%);background-image:url('../../../public/assets/ui/shop/adventurer_box_opening_v2.png');background-size:800% 100%;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated}
+.phase-hold .tc-box-frame-art{background-position:14.285714% 0}
+.phase-burst .tc-box-frame-art{animation:tc-box-atlas-open .59s steps(7,end) both}
+@keyframes tc-box-atlas-open{0%{background-position:0 0}100%{background-position:100% 0}}
+.has-receipt.phase-rattle .tc-box-chest{animation:tc-box-drop-v2 .78s both}
+.phase-charge .tc-box-chest{animation:tc-box-weighted-pressure .9s ease-in-out infinite}
+.phase-hold .tc-box-chest{transform:translateY(-2px) scale(1.01)}
+.phase-burst .tc-box-chest{animation:tc-box-weighted-kick .6s ease-out both}
+@keyframes tc-box-drop-v2{0%{transform:translateY(-65%) scale(1)}48%{transform:translateY(0) scale(1)}58%{transform:translateY(3px) scale(1.035,.945)}74%{transform:translateY(-3px) scale(.99,1.015)}100%{transform:translateY(0) scale(1)}}
+@keyframes tc-box-weighted-pressure{0%,40%,100%{transform:rotate(0)}52%{transform:rotate(-1.6deg) translateY(-1px)}64%{transform:rotate(1.4deg)}78%{transform:rotate(0.3deg)}}
+@keyframes tc-box-weighted-kick{0%{transform:translateY(0)}22%{transform:translateY(3px) scale(1.025,.98)}56%{transform:translateY(-1px) scale(.995,1.01)}100%{transform:translateY(0) scale(1)}}
+.tc-box-dialog.is-result .tc-box-prize-art{animation:tc-box-prize-arrive .3s ease-out both}
+.tc-box-dialog.is-result .tc-box-prize h3,.tc-box-dialog.is-result .tc-box-prize dl{animation:tc-box-result-fade .28s .07s ease-out both}
+@keyframes tc-box-prize-arrive{from{opacity:.65;transform:translateY(5px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes tc-box-result-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.phase-burst .tc-box-frame-art{background-position:100% 0}}

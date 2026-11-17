@@ -7,7 +7,7 @@ import type {GameFeelEvent,GameFeelPayloadMap} from '../gameFeel/types';
 
 export const EFFECT_SOUND_KEY='tower-general-effects-v1';
 export const EFFECT_SOUND_EVENT='tower:general-sound-settings';
-export type GameEffectName='ui.click'|'ui.confirm'|'ui.error'|'hunt.start'|'hunt.victory'|'hunt.defeat'|'loot.common'|'loot.rare'|'player.level-up'|'seal.cast'|'seal.step-1'|'seal.step-2'|'seal.step-3'|'seal.reset';
+export type GameEffectName='ui.click'|'ui.confirm'|'ui.error'|'hunt.start'|'hunt.victory'|'hunt.defeat'|'loot.common'|'loot.rare'|'player.level-up'|'seal.cast'|'seal.step-1'|'seal.step-2'|'seal.step-3'|'seal.reset'|'box.land'|'box.charge'|'box.unlock'|'box.hinge';
 export type GameEffectSettings={enabled:boolean;volume:number};
 export const DEFAULT_EFFECT_SOUND_SETTINGS:GameEffectSettings={enabled:true,volume:.58};
 const clamp=(value:number)=>Number.isFinite(value)?Math.min(1,Math.max(0,value)):0;
@@ -29,6 +29,10 @@ export type SoundInstruction={delay:number;duration:number;startHz:number;endHz:
 const note=(delay:number,duration:number,startHz:number,endHz:number,gain:number,wave:SoundInstruction['wave']='sine'):SoundInstruction=>({delay,duration,startHz,endHz,gain,wave});
 const grain=(delay:number,duration:number,filterHz:number,gain:number):SoundInstruction=>({delay,duration,startHz:0,endHz:0,gain,wave:'sine',noise:true,filterHz});
 export const EFFECT_SOUND_PROFILES:Readonly<Record<GameEffectName,readonly SoundInstruction[]>>={
+ 'box.land':[grain(0,.095,520,.09),note(0,.22,125,55,.11,'triangle'),grain(.025,.12,1100,.035)],
+ 'box.charge':[note(0,.45,95,120,.027,'sine'),grain(.12,.45,850,.02)],
+ 'box.unlock':[grain(0,.045,3200,.055),note(.015,.09,1250,850,.036,'triangle'),grain(.07,.045,1950,.038)],
+ 'box.hinge':[grain(0,.19,780,.065),note(0,.16,240,155,.048,'triangle'),grain(.11,.11,1600,.035),note(.14,.13,128,80,.055,'sine')],
  'ui.click':[note(0,.075,540,385,.078,'triangle'),grain(.005,.042,1950,.024)],
  'ui.confirm':[note(0,.15,660,660,.065),note(.095,.22,880,877,.064)],
  'ui.error':[note(0,.22,200,112,.097,'sawtooth'),note(.09,.19,126,79,.049,'triangle')],

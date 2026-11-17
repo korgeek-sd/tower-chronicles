@@ -2,9 +2,9 @@ import React,{useEffect,useRef} from 'react';
 import {gsap} from 'gsap';
 import {assetUrl} from '../../game/data/graphics';
 import type {EquipmentItem} from '../../game/types';
-import type {boxReveal} from './boxPresentation';
+import {boxOpeningFrame,BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,type boxReveal} from './boxPresentation';
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
-const chestURL=assetUrl('assets/ui/shop/adventurer_equipment_box.png');
+const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v2.png');
 const colors={common:0xd5c7a9,uncommon:0x82b86b,rare:0x60bfff,heroic:0xbc7ce0,legendary:0xffcc66};
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -48,6 +48,7 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
    cleanup=()=>{timeline?.kill();app.stop();app.destroy(true,{children:true});};
    // DOM image sources avoid Pixi's worker/blob-based asset loader under the strict CSP.
    const texture=P.Texture.from(chestImage),prizeTex=P.Texture.from(prizeImage);
+   const frames=Array.from({length:BOX_FRAME_COUNT},(_,i)=>new P.Texture({source:texture.source,frame:new P.Rectangle(i*BOX_FRAME_WIDTH,0,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT)}));
    texture.source.scaleMode='nearest';prizeTex.source.scaleMode='nearest';
    const rank=ranks.indexOf(feedback.grade),tone=colors[feedback.grade],gold=0xe9c17b;
    const root=new P.Container();root.position.set(180,187);app.stage.addChild(root);
@@ -57,44 +58,48 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
    runes.ellipse(0,88,99,22).stroke({color:gold,width:1,alpha:.4});
    for(let i=0;i<18;i++){const a=i*TAU/18,x=Math.cos(a)*108,y=88+Math.sin(a)*26;runes.rect(x-2,y-2,4,4).fill({color:gold,alpha:.65});}
    const box=new P.Container();root.addChild(box);
-   // Split the current 96px sprite along its isometric lid seam. Each part has its own transform.
-   const scale=2.15,half=48*scale;
-   const base=new P.Container(),lid=new P.Container();
-   const bodySprite=new P.Sprite(texture),lidSprite=new P.Sprite(texture);
-   for(const s of [bodySprite,lidSprite]){s.anchor.set(.5);s.scale.set(scale);}
-   const seam=[-half,-12, 0,13, half,-16];
-   const topMask=new P.Graphics().poly([-half,-half,half,-half,half,-16,0,13,-half,-12]).fill(0xffffff);
-   const bottomMask=new P.Graphics().poly([-half,-12,0,13,half,-16,half,half,-half,half]).fill(0xffffff);
-   base.addChild(bodySprite,bottomMask);bodySprite.mask=bottomMask;
-   lid.addChild(lidSprite,topMask);lidSprite.mask=topMask;
-   const inner=new P.Graphics().poly([-87,-12,0,12,87,-16,1,-57]).fill(0x22160f).stroke({width:3,color:gold,alpha:.8});inner.alpha=0;
-   const seamLight=new P.Graphics().moveTo(seam[0],seam[1]).lineTo(seam[2],seam[3]).lineTo(seam[4],seam[5]).stroke({width:3,color:0xffe9b2});seamLight.alpha=0;
-   box.addChild(base,inner,lid,seamLight);
+   // The 8 authored frames share a fixed body baseline. No split-image rotation.
+   const chestSprite=new P.Sprite(frames[0]);chestSprite.anchor.set(.5,.625);chestSprite.scale.set(2.15);
+   const seamLight=new P.Graphics().moveTo(-93,-14).lineTo(37,14).lineTo(91,-17).stroke({width:2,color:0xffe9b2});seamLight.alpha=0;
+   const innerLight=new P.Graphics();box.addChild(chestSprite,seamLight,innerLight);
    const prize=new P.Sprite(prizeTex);prize.anchor.set(.5);prize.width=prize.height=112;prize.alpha=0;root.addChild(prize);
    const particles=new P.Graphics();root.addChild(particles);
    const flash=new P.Graphics().rect(0,0,360,360).fill(tone);flash.alpha=0;app.stage.addChild(flash);
    // Fixed particle seeds are cosmetic and never influence the receipt.
    const points=Array.from({length:36+rank*12},(_,i)=>({a:i*2.39996323,d:55+(i*37%91),size:2+i%4,s:(i*19%17)/17}));
-   const state={drop:-135,pressure:0,suspense:0,open:0,impact:0,show:0};
+   const state={drop:-136,weight:0,pressure:0,suspense:0,open:0,impact:0,show:0};
    const charge=feedback.chargeAt/1000,hold=feedback.holdAt/1000,burst=feedback.burstAt/1000,finish=feedback.duration/1000;
    timeline=gsap.timeline({paused:true});
-   timeline.to(state,{drop:0,duration:.38,ease:'bounce.out'},0)
+   timeline.to(state,{drop:0,duration:.38,ease:'power3.in'},0)
+    .to(state,{weight:1,duration:.075,ease:'power2.out'},.38)
+    .to(state,{weight:-.3,duration:.12,ease:'power2.out'},.455)
+    .to(state,{weight:0,duration:.22,ease:'power2.inOut'},.575)
     .to(state,{pressure:1,duration:Math.max(.2,hold-charge),ease:'power2.in'},charge)
     .to(state,{suspense:1,duration:Math.max(.1,burst-hold),ease:'power1.inOut'},hold)
-    .to(state,{open:1,duration:.45,ease:'power3.out'},burst)
-    .to(state,{impact:1,duration:Math.min(.8,finish-burst),ease:'none'},burst)
-    .to(state,{show:1,duration:Math.max(.2,finish-burst-.16),ease:'power3.out'},burst+.16);
+    .to(state,{open:1,duration:.59,ease:'power2.inOut'},burst)
+    .to(state,{impact:1,duration:Math.min(1.0,finish-burst-.1),ease:'none'},burst+.17)
+    .to(state,{show:1,duration:Math.max(.3,finish-burst-.72),ease:'power2.out'},burst+.40);
    const draw=()=>{
     const seconds=Math.min(finish,Math.max(0,(performance.now()-started)/1000));timeline!.time(seconds,false);
     const landed=seconds>=.38,charged=seconds>=charge,holding=seconds>=hold&&seconds<burst,opened=seconds>=burst;
     const p=state.pressure,hit=state.impact,o=state.open,show=state.show;
-    const hover=rank>=3&&charged?Math.sin(seconds*4)*5-14*p:0;
-    const shake=holding?0:opened?Math.sin(hit*30)*(1-hit)*4:charged?Math.sin(seconds*53)*p*(2+rank):landed?Math.sin(seconds*26)*Math.max(0,1-seconds)*3:0;
+    const hover=rank>=3&&charged&&!opened?Math.sin(seconds*3)*2-9*p:0;
+    const pulse=Math.max(0,Math.sin(seconds*7));
+    const shake=holding?0:opened?Math.sin(hit*24)*(1-hit)*2:charged?Math.sin(seconds*33)*pulse*p*(1.5+rank*.6):0;
     root.position.set(180+shake,187+(opened?Math.sin(hit*24)*(1-hit)*4:0));
     root.scale.set(1+(holding?.035:0)+(opened?Math.sin(hit*Math.PI)*(rank+1)*.011:0));
-    box.position.set(0,state.drop+hover);box.rotation=shake*.007;
-    lid.position.set(-12*o,-40*o);lid.rotation=-.32*o;inner.alpha=o;seamLight.alpha=opened?(1-hit)*.75:charged?p*(holding?.35:1):0;
-    box.alpha=1-show*.35;
+    box.position.set(0,state.drop+hover+state.weight*5);box.rotation=shake*.004;
+    box.scale.set(1+state.weight*.035,1-state.weight*.055);
+    chestSprite.texture=frames[opened?boxOpeningFrame((seconds-burst)*1000):holding?1:0];
+    seamLight.alpha=opened?Math.max(0,1-o)*.7:charged?p*(holding?.75:.35):0;
+    innerLight.clear();
+    if(opened&&o>.13){
+     const light=Math.min(1,o*2)*(1-show*.72);
+     innerLight.poly([-78,-10,36,15,78,-14,18,-35]).fill({color:tone,alpha:.28*light});
+     innerLight.poly([-53,-7,20,7,72,-120,-67,-120]).fill({color:tone,alpha:.09*light});
+     innerLight.poly([-13,-4,10,3,28,-96,-28,-96]).fill({color:0xffefd0,alpha:.18*light});
+    }
+    box.alpha=1-show*.15;
     halo.clear();dust.clear();waves.clear();particles.clear();cracks.clear();
     const strength=opened?Math.max(.18,1-hit):charged?p*(holding?.16:.55):.08;
     for(let j=6;j>=1;j--)halo.circle(0,-8,j*23).fill({color:opened?tone:gold,alpha:strength*.025*(7-j)});
@@ -110,7 +115,7 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
      for(const point of points){const rad=20+point.d*ease(hit)*(rank>=3?1.35:1),x=Math.cos(point.a)*rad,y=Math.sin(point.a)*rad-8+hit*hit*40;particles.rect(x,y,point.size,point.size).fill({color:point.s>.65?gold:tone,alpha:(1-hit)*.95});}
      flash.alpha=Math.max(0,1-hit*5)*(rank>=3?.30:.12);
     }else flash.alpha=0;
-    prize.alpha=show;prize.position.set(0,-10-78*show);prize.scale.set((112/prizeTex.width)*(.6+.4*show));
+    prize.alpha=Math.min(1,show*1.8);prize.position.set(0,-10-94*show);prize.scale.set((112/prizeTex.width)*(.45+.55*show));
    };
    target.appendChild(app.canvas);draw();app.render();
    app.ticker.add(()=>{try{draw();}catch(error){fail(error);}});app.start();onStatus('gpu');

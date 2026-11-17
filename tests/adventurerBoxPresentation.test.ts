@@ -1,7 +1,7 @@
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {boxReveal,boxStatRows} from '../src/components/inventory/boxPresentation';
+import {boxReveal,boxStatRows,boxOpeningFrame,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,BOX_FRAME_COUNT} from '../src/components/inventory/boxPresentation';
 import type {EquipmentItem} from '../src/game/types';
 const item=(grade:EquipmentItem['grade']):EquipmentItem=>({id:grade,kind:'association_supply_iron_sword',grade,enhancement:0});
 test('opening does not predict a grade before a receipt arrives',()=>{
@@ -10,7 +10,7 @@ test('opening does not predict a grade before a receipt arrives',()=>{
 test('batch reveal uses the highest actual reward without mutating receipt order',()=>{
  const rewards=[item('rare'),item('legendary'),item('common')];
  assert.equal(boxReveal(rewards)?.grade,'legendary');
- assert.equal(boxReveal(rewards)!.duration,5000);
+ assert.equal(boxReveal(rewards)!.duration,5200);
  assert.deepEqual(rewards.map(i=>i.grade),['rare','legendary','common']);
  assert.equal(boxReveal(rewards,true)?.duration,0);
 });
@@ -23,7 +23,7 @@ test('result stats come from real equipment and exclude fictional level requirem
 
 test('opening has a substantial wind-up, a suspense hold, and a separate reveal beat',()=>{
  const common=boxReveal([item('common')])!,legendary=boxReveal([item('legendary')])!;
- assert.equal(common.duration,2600);
+ assert.equal(common.duration,3100);
  assert.ok(legendary.duration>common.duration);
  for(const grade of ['common','uncommon','rare','heroic','legendary'] as const){
   const reveal=boxReveal([item(grade)])!;
@@ -44,4 +44,17 @@ test('GPU box renderer preserves strict production CSP and surfaces fallback sta
  assert.match(fx,/onStatus\('fallback'\)/);
  assert.match(ui,/data-box-renderer=\{renderer\}/);
  assert.match(ui,/PixiJS · GPU/);
+});
+
+test('opening atlas includes eight equally sized frames and a held final pose',()=>{
+ const png=readFileSync('public/assets/ui/shop/adventurer_box_opening_v2.png');
+ assert.equal(png.readUInt32BE(16),BOX_FRAME_WIDTH*BOX_FRAME_COUNT);
+ assert.equal(png.readUInt32BE(20),BOX_FRAME_HEIGHT);
+ assert.equal(boxOpeningFrame(-1),0);
+ assert.deepEqual([0,90,180,245,315,395,490,590,900].map(boxOpeningFrame),[0,1,2,3,4,5,6,7,7]);
+ const fx=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
+ const style=readFileSync('src/components/inventory/adventurer-box.css','utf8');
+ assert.match(fx,/chestSprite\.texture=frames/);
+ assert.match(style,/adventurer_box_opening_v2\.png/);
+ assert.doesNotMatch(fx,/lid\.rotation/);
 });
