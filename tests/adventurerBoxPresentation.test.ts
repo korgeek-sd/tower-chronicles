@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {boxReveal,boxStatRows} from '../src/components/inventory/boxPresentation';
 import type {EquipmentItem} from '../src/game/types';
@@ -31,4 +32,16 @@ test('opening has a substantial wind-up, a suspense hold, and a separate reveal 
   assert.ok(reveal.burstAt-reveal.holdAt>=350);
   assert.ok(reveal.duration-reveal.burstAt>=450);
  }
+});
+
+test('GPU box renderer preserves strict production CSP and surfaces fallback status',()=>{
+ const fx=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
+ const ui=readFileSync('src/components/inventory/AdventurerBoxDialog.tsx','utf8');
+ assert.match(fx,/await import\('pixi\.js\/unsafe-eval'\)/);
+ assert.match(fx,/Texture\.from\(chestImage\)/);
+ assert.doesNotMatch(fx,/Assets\.load/);
+ assert.match(fx,/onStatus\('gpu'\)/);
+ assert.match(fx,/onStatus\('fallback'\)/);
+ assert.match(ui,/data-box-renderer=\{renderer\}/);
+ assert.match(ui,/PixiJS · GPU/);
 });

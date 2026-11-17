@@ -1,6 +1,5 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useEffect,useRef} from 'react';
 import {gsap} from 'gsap';
-import type {Texture} from 'pixi.js';
 import {assetUrl} from '../../game/data/graphics';
 import type {EquipmentItem} from '../../game/types';
 import type {boxReveal} from './boxPresentation';
@@ -9,32 +8,46 @@ const chestURL=assetUrl('assets/ui/shop/adventurer_equipment_box.png');
 const colors={common:0xd5c7a9,uncommon:0x82b86b,rare:0x60bfff,heroic:0xbc7ce0,legendary:0xffcc66};
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
-const loadEngine=()=>engine??=(import('pixi.js').catch(error=>{engine=undefined;throw error;}));
-export function preloadBoxEffects(){void loadEngine().catch(()=>{});}
+// The production CSP deliberately disallows dynamic code evaluation and blob workers.
+const loadEngine=()=>engine??=(import('pixi.js').then(async P=>{
+ await import('pixi.js/unsafe-eval'); // Installs CSP-safe uniform and shader synchronization, not an unsafe-eval permission.
+ return P;
+}).catch(error=>{engine=undefined;throw error;}));
+const images=new Map<string,Promise<HTMLImageElement>>();
+function loadImage(url:string){
+ const absolute=new URL(url,document.baseURI).href;
+ let promise=images.get(absolute);
+ if(!promise){
+  promise=new Promise<HTMLImageElement>((resolve,reject)=>{
+   const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Could not load box art: '+absolute));image.src=absolute;
+  }).catch(error=>{images.delete(absolute);throw error;});
+  images.set(absolute,promise);
+ }
+ return promise;
+}
+export function preloadBoxEffects(){void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});}
+export type BoxRendererStatus='loading'|'gpu'|'fallback';
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 const ease=(v:number)=>1-Math.pow(1-clamp(v),3);
 const TAU=Math.PI*2;
 /** Local visualisation only. Receipt is authoritative; no random equipment is generated here. */
-export function PixiBoxStage({feedback,reward}:{feedback:Reveal;reward:EquipmentItem}){
+export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:EquipmentItem;onStatus:(status:BoxRendererStatus)=>void}){
  const host=useRef<HTMLDivElement>(null);
- const [ready,setReady]=useState(false);
  useEffect(()=>{
   if(!host.current||!feedback.duration)return;
-  const target=host.current;
+  const target=host.current;onStatus('loading');
   let disposed=false,cleanup:(()=>void)|undefined;
   const started=performance.now();
+  const fail=(error:unknown)=>{if(disposed)return;try{cleanup?.();}catch{}cleanup=undefined;console.warn('[Box FX] GPU renderer unavailable',error);onStatus('fallback');};
   void (async()=>{
-   const P=await loadEngine();if(disposed)return;
+   const [P,chestImage,prizeImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(assetUrl('assets/ui/equipment/'+reward.kind+'.png'))]);if(disposed)return;
    const app=new P.Application();
    await app.init({width:360,height:360,backgroundAlpha:0,antialias:false,resolution:1,preference:'webgl',autoStart:false});
    if(disposed){app.destroy(true,{children:true});return;}
    let timeline:gsap.core.Timeline|undefined;
    cleanup=()=>{timeline?.kill();app.stop();app.destroy(true,{children:true});};
-   const [texture,prizeTex]=await Promise.all([
-    P.Assets.load<Texture>(chestURL),
-    P.Assets.load<Texture>(assetUrl('assets/ui/equipment/'+reward.kind+'.png'))
-   ]);
-   if(disposed)return;
+   // DOM image sources avoid Pixi's worker/blob-based asset loader under the strict CSP.
+   const texture=P.Texture.from(chestImage),prizeTex=P.Texture.from(prizeImage);
    texture.source.scaleMode='nearest';prizeTex.source.scaleMode='nearest';
    const rank=ranks.indexOf(feedback.grade),tone=colors[feedback.grade],gold=0xe9c17b;
    const root=new P.Container();root.position.set(180,187);app.stage.addChild(root);
@@ -99,9 +112,10 @@ export function PixiBoxStage({feedback,reward}:{feedback:Reveal;reward:Equipment
     }else flash.alpha=0;
     prize.alpha=show;prize.position.set(0,-10-78*show);prize.scale.set((112/prizeTex.width)*(.6+.4*show));
    };
-   target.appendChild(app.canvas);draw();app.ticker.add(draw);app.start();setReady(true);
-  })().catch(()=>{cleanup?.();cleanup=undefined;/* CSS fallback remains visible if WebGL or assets fail. */});
+   target.appendChild(app.canvas);draw();app.render();
+   app.ticker.add(()=>{try{draw();}catch(error){fail(error);}});app.start();onStatus('gpu');
+  })().catch(fail);
   return()=>{disposed=true;cleanup?.();};
- },[feedback.grade,feedback.duration,feedback.chargeAt,feedback.holdAt,feedback.burstAt,reward.kind]);
- return <div ref={host} className={'tc-box-pixi'+(ready?' is-ready':'')} aria-hidden="true"/>;
+ },[feedback.grade,feedback.duration,feedback.chargeAt,feedback.holdAt,feedback.burstAt,reward.kind,onStatus]);
+ return <div ref={host} className="tc-box-pixi" aria-hidden="true"/>;
 }
