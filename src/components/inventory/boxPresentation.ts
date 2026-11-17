@@ -4,7 +4,7 @@ export function boxReveal(rewards:readonly EquipmentItem[],reducedMotion=false){
  if(!rewards.length)return null;
  const rank=rewards.reduce((highest,item)=>Math.max(highest,EQUIPMENT_GRADES.indexOf(item.grade)),0);
  const duration=reducedMotion?0:[3100,3400,3800,4500,5200][rank];
- return {grade:EQUIPMENT_GRADES[rank],duration,chargeAt:650,holdAt:duration-(rank>=3?1950:1680),burstAt:duration-(rank>=3?1350:1280)};
+ return {grade:EQUIPMENT_GRADES[rank],duration,chargeAt:650,holdAt:duration-(rank>=3?2150:1880),burstAt:duration-(rank>=3?1550:1480)};
 }
 export function boxStatRows(item:EquipmentItem){
  const stats=equipmentItemStats(item);
@@ -18,10 +18,10 @@ export function boxStatRows(item:EquipmentItem){
 
 export const BOX_FRAME_WIDTH=112;
 export const BOX_FRAME_HEIGHT=128;
-export const BOX_FRAME_COUNT=8;
+export const BOX_FRAME_COUNT=12;
 /** Authored opening frames: slower latch release, accelerating hinge, brief overshoot, settle. */
 export function boxOpeningFrame(elapsedMs:number){
- const beats=[0,90,180,245,315,395,490,590];
+ const beats=[0,80,145,205,260,305,350,395,450,525,615,760];
  let frame=0;
  for(let i=1;i<beats.length;i++)if(elapsedMs>=beats[i])frame=i;
  return frame;

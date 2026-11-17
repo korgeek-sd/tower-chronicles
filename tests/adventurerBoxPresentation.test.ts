@@ -1,5 +1,6 @@
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
+import {inflateSync} from 'node:zlib';
 import assert from 'node:assert/strict';
 import {boxReveal,boxStatRows,boxOpeningFrame,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,BOX_FRAME_COUNT} from '../src/components/inventory/boxPresentation';
 import type {EquipmentItem} from '../src/game/types';
@@ -46,16 +47,23 @@ test('GPU box renderer preserves strict production CSP and surfaces fallback sta
  assert.match(ui,/PixiJS · GPU/);
 });
 
-test('opening atlas includes eight equally sized frames and a held final pose',()=>{
- const png=readFileSync('public/assets/ui/shop/adventurer_box_opening_v3.png');
+test('opening atlas includes twelve distinct frames and a held final pose',()=>{
+ const png=readFileSync('public/assets/ui/shop/adventurer_box_opening_v4.png');
  assert.equal(png.readUInt32BE(16),BOX_FRAME_WIDTH*BOX_FRAME_COUNT);
  assert.equal(png.readUInt32BE(20),BOX_FRAME_HEIGHT);
  assert.equal(boxOpeningFrame(-1),0);
- assert.deepEqual([0,90,180,245,315,395,490,590,900].map(boxOpeningFrame),[0,1,2,3,4,5,6,7,7]);
+ assert.deepEqual([0,80,145,205,260,305,350,395,450,525,615,760,950].map(boxOpeningFrame),[0,1,2,3,4,5,6,7,8,9,10,11,11]);
+ assert.equal(BOX_FRAME_COUNT,12);
+ // Atlas is indexed PNG with unfiltered rows, emitted with lossless pixel colours.
+ const data:Buffer[]=[];for(let at=8;at<png.length;){const size=png.readUInt32BE(at);if(png.toString('ascii',at+4,at+8)==='IDAT')data.push(png.subarray(at+8,at+8+size));at+=12+size;}
+ const scan=inflateSync(Buffer.concat(data)),width=BOX_FRAME_WIDTH*BOX_FRAME_COUNT;
+ assert.equal(scan.length,(width+1)*BOX_FRAME_HEIGHT);
+ const frames=Array.from({length:BOX_FRAME_COUNT},(_,frame)=>Buffer.concat(Array.from({length:BOX_FRAME_HEIGHT},(_,row)=>{const offset=row*(width+1);assert.equal(scan[offset],0);return scan.subarray(offset+1+frame*BOX_FRAME_WIDTH,offset+1+(frame+1)*BOX_FRAME_WIDTH);})));
+ assert.equal(new Set(frames.map(frame=>frame.toString('base64'))).size,12);
  const fx=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
  const style=readFileSync('src/components/inventory/adventurer-box.css','utf8');
  assert.match(fx,/chestSprite\.texture=frames/);
- assert.match(style,/adventurer_box_opening_v3\.png/);
+ assert.match(style,/adventurer_box_opening_v4\.png/);
  assert.doesNotMatch(fx,/lid\.rotation/);
 });
 

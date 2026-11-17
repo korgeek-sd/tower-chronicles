@@ -57,5 +57,5 @@
 .tc-box-dialog.is-opening header,.tc-box-stage>p{z-index:5}
 .tc-box-dialog .tc-box-skip{z-index:6}
 .tc-box-renderer{position:absolute;left:12px;top:14px;z-index:6;color:#b9a78a;font-size:10px;line-height:1.6;pointer-events:none}
-.tc-box-frame-art{position:absolute;left:50%;top:50%;width:100%;aspect-ratio:112/128;transform:translate(-50%,-62.5%);background-image:url('../../../public/assets/ui/shop/adventurer_box_opening_v3.png');background-size:800% 100%;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated}
+.tc-box-frame-art{position:absolute;left:50%;top:50%;width:100%;aspect-ratio:112/128;transform:translate(-50%,-62.5%);background-image:url('../../../public/assets/ui/shop/adventurer_box_opening_v4.png');background-size:1200% 100%;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated}
 .phase-burst .tc-box-frame-art{background-position:100% 0}

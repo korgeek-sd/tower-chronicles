@@ -48,7 +48,7 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
   after(feedback.chargeAt,()=>{setPhase('charge');sound('box.charge');});
   after(feedback.holdAt,()=>{setPhase('hold');sound('box.unlock');});
   after(feedback.burstAt,()=>{setPhase('burst');sound('box.hinge');});
-  after(feedback.burstAt+400,()=>sound(feedback.grade==='legendary'?'seal.step-3':feedback.grade==='heroic'||feedback.grade==='rare'?'loot.rare':'loot.common'));
+  after(feedback.burstAt+780,()=>sound(feedback.grade==='legendary'?'seal.step-3':feedback.grade==='heroic'||feedback.grade==='rare'?'loot.rare':'loot.common'));
   after(feedback.duration,()=>setRevealed(true));
   return clearRevealTimers;
  },[p.rewards,clearRevealTimers]);
