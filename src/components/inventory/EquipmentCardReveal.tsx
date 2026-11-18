@@ -2,10 +2,12 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {EquipmentItem} from '../../game/types';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,equipmentItemName} from '../../game/data/equipment';
 import {playGameEffect} from '../../audio/gameEffects';
+import {assetUrl} from '../../game/data/graphics';
 import {EquipmentArt} from './EquipmentArt';
 import {boxStatRows} from './boxPresentation';
 import {cardRows,cardSize,remainingCards} from './equipmentCardLayout';
-export function CardSeal(){return <svg viewBox="0 0 100 144" fill="none" aria-hidden="true"><path d="M50 12 86 72 50 132 14 72Z" stroke="currentColor" opacity=".25"/><path d="M26 110h48l-5-12V67H57V42H54V23h-8v19h-3v25H31v31Zm14-7V83h20v20M43 55h14M35 75h30" stroke="currentColor" strokeWidth="3"/><path d="M9 10h13M9 10v13M91 10H78M91 10v13M9 134h13M9 134v-13M91 134H78M91 134v-13" stroke="currentColor"/></svg>;}
+const cardBack=assetUrl('assets/ui/cards/card-back-bronze-seal-v1.webp');
+export function CardSeal(){return <img className="tc-card-back-art" src={cardBack} alt="" aria-hidden="true" draggable={false} width={420} height={600}/>;}
 export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];onClose:()=>void}){
  const area=useRef<HTMLDivElement>(null),buttons=useRef<(HTMLButtonElement|null)[]>([]);
  const openedRef=useRef(new Set<number>()),timers=useRef<number[]>([]),batchRef=useRef(false);

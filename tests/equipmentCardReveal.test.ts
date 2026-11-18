@@ -31,3 +31,9 @@ test('real component renders one button per receipt and hides names until reveal
   assert.ok(html.includes('모두 공개'));
  }
 });
+
+test('card backs use the approved bronze seal artwork for every reward',()=>{
+ const rewards:EquipmentItem[]=[{id:'back',kind:'association_supply_iron_sword',grade:'legendary',enhancement:0}];
+ const html=renderToStaticMarkup(React.createElement(EquipmentCardReveal,{rewards,onClose:()=>{}}));
+ assert.match(html,/card-back-bronze-seal-v1.webp/);
+});
