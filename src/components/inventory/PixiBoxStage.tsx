@@ -1,5 +1,5 @@
 import React,{useEffect,useRef} from 'react';
-import {lightningArtPose} from './boxLightningArt';
+import {lightningArtPose,boxLightningTime} from './boxLightningArt';
 import {gsap} from 'gsap';
 import type {Application} from 'pixi.js';
 import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose} from './boxPixelVfx';
@@ -8,7 +8,7 @@ import {assetUrl} from '../../game/data/graphics';
 import {BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,boxOpeningFrame,type boxReveal} from './boxPresentation';
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
 const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v4.png');
-const lightningURL=assetUrl('assets/ui/shop/box_lightning_pixelfx_v3.png');
+const lightningURL=assetUrl('assets/ui/shop/box_lightning_pixelfx_v4.png');
 const particleURL=assetUrl('assets/ui/shop/box_pixel_particles_16.png');
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -141,7 +141,7 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
     }
     box.alpha=1;
     // Stretch only the charge to the grade's existing timing; discharge stays at authored 24fps.
-    const effectAge=seconds<charge?-1:seconds<burst+.16?Math.min(.76,(seconds-charge)/Math.max(.01,hold-charge)*.76):.8+seconds-burst-.16;
+    const effectAge=boxLightningTime(seconds,charge,hold,burst);
     const artPose=lightningArtPose(effectAge);
     discharge.visible=!!artPose;
     if(artPose){discharge.texture=lightningFrames[artPose.frame];discharge.alpha=artPose.alpha;}
