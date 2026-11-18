@@ -1,5 +1,5 @@
 import React,{useEffect,useRef} from 'react';
-import {lightningArtPose,CHARGE_TRACES} from './boxLightningArt';
+import {lightningArtPose} from './boxLightningArt';
 import {gsap} from 'gsap';
 import type {Application} from 'pixi.js';
 import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose} from './boxPixelVfx';
@@ -8,7 +8,7 @@ import {assetUrl} from '../../game/data/graphics';
 import {BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,boxOpeningFrame,type boxReveal} from './boxPresentation';
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
 const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v4.png');
-const lightningURL=assetUrl('assets/ui/shop/box_lightning_authored_v2.png');
+const lightningURL=assetUrl('assets/ui/shop/box_lightning_pixelfx_v3.png');
 const particleURL=assetUrl('assets/ui/shop/box_pixel_particles_16.png');
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -73,7 +73,6 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
    const box=new P.Container();root.addChild(box);
    // Stable body, two independent textured lid meshes, and the original
    // closed icon. Both meshes use the same atlas and update only vertices.
-   const rearLightning=new P.Graphics();box.addChild(rearLightning);
    const rig=new P.Container();rig.position.set(-56*2.15,-80*2.15);rig.scale.set(2.15);box.addChild(rig);
    function mesh(source:readonly number[],indices:readonly number[],frame:number){
     const positions=new Float32Array(source),uvs=new Float32Array(source.length);
@@ -89,15 +88,10 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
    const openingFrames=canvasFallback?Array.from({length:BOX_FRAME_COUNT},(_,i)=>new P.Texture({source:texture.source,frame:new P.Rectangle(i*BOX_FRAME_WIDTH,0,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT)})):[];
    if(canvasFallback)rig.addChild(closed);else rig.addChild(body.view,outside.view,inside.view,closed);
    // Golden stepped lightning surrounds the chest; a few approved square fragments remain.
-   const frontLightning=new P.Graphics();box.addChild(frontLightning);
    const lightningAtlas=P.Texture.from(lightningImage);lightningAtlas.source.scaleMode='nearest';
-   const cell=lightningImage.width/2;
-   // Crop only the transparent cell seam; keep all authored lightning pixels.
-   const lightningFrames=Array.from({length:4},(_,i)=>new P.Texture({source:lightningAtlas.source,frame:new P.Rectangle(i%2*cell+3,Math.floor(i/2)*cell+3,cell-6,cell-6)}));
-   const discharge=new P.Sprite(lightningFrames[0]);discharge.anchor.set(.5,.85);discharge.position.set(-8,-12);discharge.alpha=0;box.addChild(discharge);
-   const mouthLight=new P.Graphics().poly([-78,-16,-38,-34,68,-8,30,12,-48,2]).fill({color:0xffbf35,alpha:.72})
-    .poly([-62,-13,-36,-26,54,-6,28,5,-38,-2]).fill({color:0xfff3b0,alpha:1});
-   mouthLight.alpha=0;box.addChild(mouthLight);
+   const cell=192;
+   const lightningFrames=Array.from({length:49},(_,i)=>new P.Texture({source:lightningAtlas.source,frame:new P.Rectangle(i%7*cell,Math.floor(i/7)*cell,cell,cell)}));
+   const discharge=new P.Sprite(lightningFrames[0]);discharge.anchor.set(.5,140/192);discharge.position.set(-8,-12);discharge.scale.set(2);discharge.alpha=0;box.addChild(discharge);
    const latchLight=new P.Graphics().rect(-18,14,12,22).fill({color:0xffdb66,alpha:.9}).rect(-14,18,4,12).fill({color:0xffffdc});
    latchLight.alpha=0;box.addChild(latchLight);
    const particles=new P.Container();box.addChild(particles);
@@ -122,25 +116,6 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
     .to(state,{angle:96,duration:.44,ease:'power2.out'},burst+.16)
     .to(state,{angle:88,duration:.16,ease:'power2.inOut'},burst+.60)
     .to(state,{impact:1,duration:Math.min(1.0,finish-burst-.28),ease:'none'},burst+.28);
-   let lightningFrame=-1;
-   function drawLightning(seconds:number){
-    const frame=Math.floor(seconds*12);
-    if(frame===lightningFrame)return;lightningFrame=frame;
-    rearLightning.clear();frontLightning.clear();
-    if(seconds<charge||seconds>=hold)return;
-    const progress=clamp((seconds-charge)/(hold-charge));
-    CHARGE_TRACES.forEach((trace,i)=>{
-     if(i>=4&&progress<.55)return;
-     const graphics=i>=4?rearLightning:frontLightning;
-     const pulse=.65+.35*Math.sin(frame*1.8+i);
-     for(const [width,color,alpha] of [[10,0xd18019,.16],[5,0xffbb36,.8],[2,0xfff5bd,1]]){
-      graphics.moveTo(trace[0],trace[1]);
-      for(let j=2;j<trace.length;j+=2)graphics.lineTo(trace[j],trace[j+1]);
-      graphics.stroke({width,color,alpha:alpha*pulse*(.35+.65*progress),join:'miter',cap:'square'});
-     }
-    });
-   }
-
    const draw=()=>{
     const seconds=Math.min(finish,Math.max(0,previewTime??(performance.now()-started)/1000));timeline!.time(seconds,false);
     const charged=seconds>=charge,holding=seconds>=hold&&seconds<burst,opened=seconds>=burst;
@@ -165,11 +140,11 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
      inside.geometry.getBuffer('aPosition').update();
     }
     box.alpha=1;
-    drawLightning(seconds);
-    const artPose=lightningArtPose(seconds-burst);
+    // Stretch only the charge to the grade's existing timing; discharge stays at authored 24fps.
+    const effectAge=seconds<charge?-1:seconds<burst+.16?Math.min(.76,(seconds-charge)/Math.max(.01,hold-charge)*.76):.8+seconds-burst-.16;
+    const artPose=lightningArtPose(effectAge);
     discharge.visible=!!artPose;
-    if(artPose){discharge.texture=lightningFrames[artPose.frame];discharge.alpha=artPose.alpha;discharge.width=300*artPose.scale;discharge.height=220*artPose.scale;}
-    mouthLight.alpha=opened?clamp((seconds-burst)/.2)*(.25+.75*clamp(1-(seconds-burst-.4)/.9)):0;
+    if(artPose){discharge.texture=lightningFrames[artPose.frame];discharge.alpha=artPose.alpha;}
     latchLight.alpha=opened?0:charged?(holding?.9:.2+.6*p):0;
     inside.view.tint=opened?0xffe1a0:0xffffff;
     motes.forEach((m,i)=>{
