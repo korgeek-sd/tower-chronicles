@@ -29,6 +29,6 @@ test('GPU stage prewarms its renderer, reuses particles, and starts after initia
  assert.match(fx,/getBuffer\('aPosition'\)\.update\(\)/);
  assert.match(fx,/started=performance\.now\(\);draw\(\)/);
  assert.doesNotMatch(fx,/particles\.clear\(/);
- assert.match(dialog,/renderer==='loading'\|\|startedReceipt/);
- assert.match(dialog,/disposePreloadedBoxEffects/);
+ assert.match(dialog,/EquipmentCardReveal/);
+ assert.doesNotMatch(dialog,/preloadBoxEffects/);
 });

@@ -34,5 +34,5 @@ test('the opening stage draws lightning and approved fragments without floating 
  assert.ok(source.includes('boxMotePose(m,seconds,charge,burst,p)'));
  for(const token of ['prizeTex','prize.alpha','reward.kind','plumeURL','boxPlumePose','flash.alpha','waveViews','halo.tint','cracks.alpha'])assert.ok(!source.includes(token),token);
  const dialog=readFileSync('src/components/inventory/AdventurerBoxDialog.tsx','utf8');
- assert.ok(dialog.includes('EquipmentArt'));assert.ok(dialog.includes('feedback={reveal} onStatus='));
+ assert.ok(dialog.includes('EquipmentCardReveal'));assert.ok(!dialog.includes('feedback={reveal} onStatus='));
 });

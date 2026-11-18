@@ -43,8 +43,8 @@ test('GPU box renderer preserves strict production CSP and surfaces fallback sta
  assert.doesNotMatch(fx,/Assets\.load/);
  assert.ok(fx.includes("onStatus(canvasFallback?'canvas':'gpu')"));
  assert.match(fx,/onStatus\('fallback'\)/);
- assert.match(ui,/data-box-renderer=\{renderer\}/);
- assert.match(ui,/PixiJS · Mesh/);
+ assert.match(ui,/EquipmentCardReveal/);
+ assert.doesNotMatch(ui,/PixiJS · Mesh/);
 });
 
 test('opening atlas includes twelve distinct frames and a held final pose',()=>{

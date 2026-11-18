@@ -1,137 +1,37 @@
-import React,{useCallback,useEffect,useRef,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import type {EquipmentItem} from '../../game/types';
-import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES,equipmentItemName} from '../../game/data/equipment';
+import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
 import {assetUrl} from '../../game/data/graphics';
-import {playGameEffect} from '../../audio/gameEffects';
-import {useGameFeel} from '../../gameFeel/react/useGameFeel';
-import {EquipmentArt} from './EquipmentArt';
-import {boxReveal,boxStatRows} from './boxPresentation';
-import {PixiBoxStage,preloadBoxEffects,disposePreloadedBoxEffects,type BoxRendererStatus} from './PixiBoxStage';
+import {EquipmentCardReveal} from './EquipmentCardReveal';
 import './adventurer-box.css';
 import './equipment-card-reveal.css';
-/** UI-only experiment. Set false to restore the previous Pixi chest animation. */
-const USE_EQUIPMENT_CARD_REVEAL=true;
-function CardSeal(){
- return <svg viewBox="0 0 100 144" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="1.25">
-  <path d="M50 5 90 72 50 139 10 72Z" opacity=".65"/><path d="M50 14 81 72 50 130 19 72Z" opacity=".35"/>
-  <path d="M50 36 72 72 50 108 28 72Z" opacity=".6"/><path d="M35 87H65M39 87V62L45 62V47H55V62H61V87M45 87V73H55V87M45 54H55M39 69H61" strokeWidth="2"/>
-  <path d="M50 23V31M50 113V121M26 72H20M80 72H74" strokeWidth="2"/>
-  <path d="M15 16H25M15 16V26M85 16H75M85 16V26M15 128H25M15 128V118M85 128H75M85 128V118" opacity=".8"/>
- </svg>;
-}
-function EquipmentCardStage({rewards,onFinish}:{rewards:EquipmentItem[]|null;onFinish:()=>void}){
- const [opened,setOpened]=useState<Set<number>>(()=>new Set());
- const [batch,setBatch]=useState(false);
- const total=rewards?.length??0;
- const all=total>0&&opened.size===total;
- const columns=total<=1?1:total<=4?total:5;
- const sound=(grade:EquipmentItem['grade'])=>{try{playGameEffect(grade==='legendary'?'seal.step-3':grade==='heroic'||grade==='rare'?'loot.rare':'loot.common');}catch{}};
- const turn=(index:number)=>{
-  if(!rewards||opened.has(index))return;
-  setOpened(old=>new Set([...old,index]));sound(rewards[index].grade);
- };
- const openAll=()=>{
-  if(!rewards||all)return;
-  const remaining=rewards.filter((_,index)=>!opened.has(index));
-  const best=boxReveal(remaining);
-  setBatch(true);setOpened(new Set(rewards.map((_,index)=>index)));if(best)sound(best.grade);
- };
- return <div className="tc-card-stage" style={{backgroundImage:`linear-gradient(#07070a9c,#07070ad9),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
-  <button className="tc-box-skip" disabled={!total} onClick={onFinish}>{total?'건너뛰기 »':'결과 확인 중…'}</button>
-  {!total?<><div className="tc-card-placeholder"><CardSeal/></div><p className="tc-card-readout" role="status">장비 기록을 확인하고 있습니다.</p></>:<>
-   <p className="tc-card-readout" role="status">{all?'모든 장비 기록을 공개했습니다.':`카드를 눌러 장비를 공개하세요 · ${opened.size}/${total}`}</p>
-   <div className={'tc-card-grid'+(total===1?' is-single':'')+(total>=5?' is-dense':'')} style={{'--card-cols':columns} as React.CSSProperties}>
-    {rewards!.map((reward,index)=>{
-     const visible=opened.has(index);
-     return <button key={reward.id} type="button" className={'tc-card-tile'+(visible?' is-revealed grade-'+reward.grade:'')} aria-label={visible?equipmentItemName(reward):`장비 카드 ${index+1} 공개`} aria-disabled={visible} onClick={()=>turn(index)}>
-      <span className="tc-card-turn" style={batch?{transitionDelay:`${index*45}ms`}:undefined} aria-hidden="true">
-       <span className="tc-card-face tc-card-back"><CardSeal/><small>봉인된 기록</small></span>
-       <span className="tc-card-face tc-card-front"><span className="tc-card-rank">{EQUIPMENT_GRADE_NAMES[reward.grade]}</span><span className="tc-card-art"><EquipmentArt kind={reward.kind} grade={reward.grade}/></span><span className="tc-card-name">{EQUIPMENT_DEFINITIONS[reward.kind].name}</span></span>
-      </span>
-     </button>;
-    })}
-   </div>
-   <div className="tc-card-actions"><button className="primary" onClick={all?onFinish:openAll}>{all?'획득 결과 확인':'전체 공개'}</button></div>
-  </>}
- </div>;
-}
-
 const chest=assetUrl('assets/ui/shop/adventurer_equipment_box.png');
 export interface AdventurerBoxDialogProps {
  quantity:number;count:number;onCount:(count:number)=>void;busy:boolean;pending:boolean;error:string;
  disabled:boolean;rewards:EquipmentItem[]|null;onOpen:()=>void;onRepeat:()=>void;onRetry:()=>void;onClose:()=>void;
  marketAction?:()=>void;marketDisabled?:boolean;
 }
+
 export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
  const root=useRef<HTMLDialogElement>(null),close=useRef(p.onClose);close.current=p.onClose;
- const [details,setDetails]=useState(false),[revealed,setRevealed]=useState(false),[selected,setSelected]=useState(0);
- const feel=useGameFeel();
- const [renderReport,setRenderReport]=useState<{id:string;status:BoxRendererStatus}|null>(null);
- const startedReceipt=useRef<EquipmentItem[]|null>(null);
- const [phase,setPhase]=useState<'rattle'|'charge'|'hold'|'burst'>('rattle');
- const timers=useRef<number[]>([]);
- const clearRevealTimers=useCallback(()=>{timers.current.forEach(window.clearTimeout);timers.current=[];},[]);
- const skip=()=>{clearRevealTimers();setRevealed(true);};
- const reveal=p.rewards?boxReveal(p.rewards):null;
- const topReward=p.rewards?.find(reward=>reward.grade===reveal?.grade);
- const receiptKey=topReward?.id??'';
- const renderer=renderReport?.id===receiptKey?renderReport.status:'loading';
- const reportRenderer=useCallback((status:BoxRendererStatus)=>{setRenderReport({id:receiptKey,status});},[receiptKey]);
- const opening=p.busy||!!p.rewards&&!revealed;
- const result=!!p.rewards&&revealed;
- const item=p.rewards?.[Math.min(selected,p.rewards.length-1)];
+ const [details,setDetails]=useState(false);
+ const result=!!p.rewards?.length;
  useEffect(()=>{
-  if(!USE_EQUIPMENT_CARD_REVEAL)preloadBoxEffects();
   const previous=document.activeElement as HTMLElement,dialog=root.current!;
   const fallback=document.querySelector<HTMLButtonElement>('button[aria-label="필터"]');
   dialog.showModal();dialog.querySelector<HTMLButtonElement>('button')?.focus();
-  return()=>{if(!USE_EQUIPMENT_CARD_REVEAL)disposePreloadedBoxEffects();dialog.close();if(previous?.isConnected)previous.focus({preventScroll:true});else fallback?.focus({preventScroll:true});};
+  return()=>{dialog.close();if(previous?.isConnected)previous.focus({preventScroll:true});else fallback?.focus({preventScroll:true});};
  },[]);
- useEffect(()=>{
-  clearRevealTimers();setSelected(p.rewards?Math.max(0,p.rewards.findIndex(reward=>reward.grade===boxReveal(p.rewards!)?.grade)):0);setRevealed(false);setDetails(false);setPhase('rattle');
-  startedReceipt.current=null;
-  if(!p.rewards){setRenderReport(null);return clearRevealTimers;}
-  if(!USE_EQUIPMENT_CARD_REVEAL&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){setRevealed(true);return clearRevealTimers;}
-  return clearRevealTimers;
- },[p.rewards,clearRevealTimers]);
- useEffect(()=>{
-  if(USE_EQUIPMENT_CARD_REVEAL||!p.rewards||renderer==='loading'||startedReceipt.current===p.rewards||revealed)return;
-  startedReceipt.current=p.rewards;
-  const feedback=boxReveal(p.rewards,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  if(!feedback)return;
-  if(!feedback.duration){setRevealed(true);return;}
-  const sound=(name:Parameters<typeof playGameEffect>[0])=>{try{playGameEffect(name);}catch{}};
-  const after=(delay:number,callback:()=>void)=>{timers.current.push(window.setTimeout(callback,delay));};
-  after(380,()=>sound('box.land'));
-  after(feedback.chargeAt,()=>{setPhase('charge');sound('box.charge');});
-  after(feedback.holdAt,()=>{setPhase('hold');sound('box.unlock');});
-  after(feedback.burstAt,()=>{setPhase('burst');sound('box.hinge');});
-  after(feedback.burstAt+780,()=>sound(feedback.grade==='legendary'?'seal.step-3':feedback.grade==='heroic'||feedback.grade==='rare'?'loot.rare':'loot.common'));
-  after(feedback.duration,()=>setRevealed(true));
- },[p.rewards,renderer,revealed]);
- useEffect(()=>{if(result){clearRevealTimers();if(!USE_EQUIPMENT_CARD_REVEAL&&p.quantity>0)preloadBoxEffects();feel.play('ui.confirm');root.current?.querySelector<HTMLButtonElement>('[data-result-confirm]')?.focus({preventScroll:true});}},[result,feel,clearRevealTimers]);
- const dismiss=()=>{if(p.busy)return;if(opening){skip();return;}close.current();};
- return <dialog ref={root} className={'tc-box-dialog'+(opening?' is-opening':'')+(result?' is-result':'')} style={{'--box-tone':reveal?({common:'#d5c7a9',uncommon:'#82b86b',rare:'#60bfff',heroic:'#bc7ce0',legendary:'#ffcc66'}[reveal.grade]):'#c1ab7e'} as React.CSSProperties} aria-labelledby="tc-box-title" aria-modal="true" onCancel={e=>{e.preventDefault();dismiss();}} onKeyDown={e=>{
-  if(e.key!=='Tab')return;const nodes=Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));const first=nodes[0],last=nodes[nodes.length-1];
+ const dismiss=()=>{if(!p.busy)close.current();};
+ return <dialog ref={root} className={'tc-box-dialog'+(result?' is-card-result':'')} aria-labelledby="tc-box-title" aria-modal="true" onCancel={e=>{e.preventDefault();dismiss();}} onKeyDown={e=>{
+  if(e.key!=='Tab')return;
+  const detail=e.currentTarget.querySelector('.tc-card-detail');
+  const nodes=Array.from((detail??e.currentTarget).querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
+  const first=nodes[0],last=nodes[nodes.length-1];
   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
  }}>
-  <header><h2 id="tc-box-title">{opening?'모험가 장비 상자 개봉':result?'장비 획득':'모험가 장비 상자'}</h2>{!opening&&<button className="tc-box-close" aria-label="상자 창 닫기" onClick={dismiss}>×</button>}</header>
-  {opening?(USE_EQUIPMENT_CARD_REVEAL?<EquipmentCardStage key={p.rewards?.map(reward=>reward.id).join(':')??'pending'} rewards={p.rewards} onFinish={skip}/>:<div className={'tc-box-stage phase-'+phase+(reveal?' has-receipt':'')+(reveal?.grade==='legendary'?' is-legendary':'')} style={{backgroundImage:`linear-gradient(#08080877,#080808aa),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
-   <button className="tc-box-skip" disabled={!p.rewards} onClick={skip}>{p.rewards?'건너뛰기 »':'결과 확인 중…'}</button>
-   <div className="tc-box-altar" data-box-renderer={renderer}><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><div className="tc-box-frame-art" aria-hidden="true"/></div>{reveal&&topReward&&<PixiBoxStage key={topReward.id} feedback={reveal} onStatus={reportRenderer}/>}</div>
-   {p.rewards&&<small className="tc-box-renderer" aria-label="그래픽 연출 상태">{renderer==='gpu'?'PixiJS · Mesh':renderer==='canvas'?'PixiJS · 호환 모드':renderer==='fallback'?'정적 이미지 · 호환 모드':'그래픽 준비 중'}</small>}
-   <p role="status">{p.rewards?(phase==='burst'?EQUIPMENT_GRADE_NAMES[reveal!.grade]+' 장비 획득':phase==='hold'?'…':'상자가 반응하고 있습니다'): '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
-  </div>):result&&item?<>
-   {p.rewards!.length>1&&<div className="tc-box-rewards" aria-label="획득 장비 목록">{p.rewards!.map((reward,index)=><button key={reward.id} aria-label={equipmentItemName(reward)} aria-pressed={selected===index} className={'grade-'+reward.grade} onClick={()=>setSelected(index)}><EquipmentArt kind={reward.kind} grade={reward.grade}/><small>{EQUIPMENT_GRADE_NAMES[reward.grade]}</small></button>)}</div>}
-   <div className={'tc-box-prize grade-'+item.grade}>
-    <span className="tc-box-grade">{EQUIPMENT_GRADE_NAMES[item.grade]}</span>
-    <div className="tc-box-prize-art"><EquipmentArt kind={item.kind} grade={item.grade}/></div>
-    <h3>{EQUIPMENT_DEFINITIONS[item.kind].name}</h3>
-    <dl>{boxStatRows(item).map(row=><div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl>
-   </div>
-   <p className="tc-box-stock">{p.rewards!.length>1&&`${p.rewards!.length}개 획득 · `}남은 상자 <b>{p.quantity.toLocaleString()}개</b></p>
-   <footer><button data-result-confirm onClick={dismiss}>확인</button><button className="primary" disabled={p.disabled||p.quantity<1} onClick={p.onRepeat}>{p.quantity?'1개 더 개봉':'상자 소진'}</button></footer>
-  </>:<>
+ <header><h2 id="tc-box-title">{result?'장비 획득':'모험가 장비 상자'}</h2><button className="tc-box-close" aria-label="상자 창 닫기" disabled={p.busy} onClick={dismiss}>×</button></header>
+ {result?<EquipmentCardReveal key={p.rewards!.map(r=>r.id).join(':')} rewards={p.rewards!} onClose={dismiss}/>:p.busy?<p className="tc-card-pending" role="status">장비 획득 결과를 확인하고 있습니다…</p>:<>
    <div className="tc-box-use-art"><img src={chest} alt="모험가 장비 상자"/></div>
    <p className="tc-box-description">무작위 장비 1개 획득</p>
    <p className="tc-box-stock">보유 수량 <b>{p.quantity.toLocaleString()}개</b></p>
@@ -141,6 +41,6 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
    {(p.error||p.pending)&&<p role="status" className="tc-box-error">{p.error||'이전 개봉 요청의 결과를 확인해 주세요.'}</p>}
    {p.pending&&<button disabled={p.busy} onClick={p.onRetry}>이전 결과 다시 확인</button>}
    <footer><button onClick={dismiss}>취소</button><button className="primary" disabled={p.disabled||p.quantity<1} onClick={p.onOpen}>{p.count>1?`${p.count}개 사용하기`:'사용하기'}</button></footer>
-  </>}
+ </>}
  </dialog>;
 }
