@@ -1,61 +1,45 @@
-/** Cosmetic pixel VFX; no gameplay randomness. */
+/** Particle-only chest VFX. Deterministic trajectories never affect loot. */
 export const BOX_PARTICLE_CELL=8;
 export const BOX_PARTICLE_COUNT=16;
 export const BOX_PARTICLE_COLORS=[0xe1c6a0,0xa3d979,0x70bdff,0xba8afa,0xffd76b] as const;
-const counts=[[6,2,0],[8,2,0],[10,3,0],[12,3,0],[14,4,0]] as const;
-type Kind='light'|'debris'|'spark'|'leak'|'dust'|'ember';
+const counts=[[18,3,0,6],[22,4,0,8],[27,5,1,10],[32,6,1,12],[38,7,1,14]] as const;
+type Kind='light'|'debris'|'spark'|'leak'|'ember';
 export interface PixelMote {kind:Kind;tile:number;x:number;y:number;vx:number;vy:number;gravity:number;delay:number;life:number;size:number;tint:number;spin:number;}
 export interface MotePose {x:number;y:number;alpha:number;size:number;rotation:number;}
 const clamp=(n:number)=>Math.min(1,Math.max(0,n));
 export function makeBoxMotes(rank:number):PixelMote[]{
  const level=Math.min(4,Math.max(0,Math.floor(rank))),tone=BOX_PARTICLE_COLORS[level],result:PixelMote[]=[];
- let seed=991+level*137;
+ let seed=491+level*137;
  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+ const pick=(tiles:readonly number[])=>tiles[Math.floor(random()*tiles.length)];
  const add=(kind:Kind,n:number)=>{
   for(let i=0;i<n;i++){
-   const start=random();
-   const debris=kind==='debris'||kind==='dust';
-   const tile=debris?6+Math.floor(random()*6):kind==='spark'?12+Math.floor(random()*4):Math.floor(random()*6);
-   const tint=debris?0xffffff:random()<.23?0xfff3c0:tone;
-   const m:PixelMote={kind,tile,x:-8+(random()-.5)*20,y:-16+(random()-.5)*8,
-    vx:(random()-.5)*(debris?48:25),vy:-(debris?65+random()*40:135+random()*65),gravity:kind==='debris'?220:0,
-    delay:start*.26,life:kind==='debris'?.28+random()*.16:.38+random()*.22,
-    size:debris?1.1:.85+random()*.45,tint,spin:kind==='debris'?(random()<.5?-1:1)*2:0};
-   if(kind==='leak'){m.x=-8+(random()-.5)*25;m.vx=(random()-.5)*8;m.vy=-16-random()*22;m.gravity=0;m.life=.35+random()*.23;m.delay=start;m.size=.85;}
-   if(kind==='dust'){m.x=(random()-.5)*68;m.y=78;m.vx=(random()-.5)*16;m.vy=-8-random()*12;m.gravity=75;m.delay=start*.07;m.life=.18+random()*.13;m.size=.85;m.tint=0xa99577;m.spin=0;}
-   if(kind==='ember'){m.vx=(random()-.5)*14;m.vy=-55-random()*40;m.gravity=0;m.delay=.38+random()*.20;m.life=.34+random()*.23;m.size=.75;}
+   const m:PixelMote={kind,tile:pick([2,3,4,5,6,7]),x:-8+(random()-.5)*46,y:-12+(random()-.5)*9,
+    vx:(random()-.5)*70,vy:-(110+random()*85+level*6),gravity:0,
+    delay:i%3*.085+random()*.065,life:.36+random()*.20,
+    size:1.55+random()*.9,tint:random()<.24?0xfff3d4:tone,spin:0};
+   if(kind==='leak'){m.tile=pick([0,1,4]);m.x=-8+(random()-.5)*40;m.vx=(random()-.5)*10;m.vy=-18-random()*23;m.delay=random();m.life=.35+random()*.2;m.size=1.5;}
+   if(kind==='debris'){m.tile=pick([8,9,10,11]);m.vx=(random()-.5)*90;m.vy=-70-random()*55;m.gravity=230;m.life=.31+random()*.15;m.size=1.8;m.tint=tone;m.spin=(random()<.5?-1:1)*2;}
+   if(kind==='spark'){m.tile=pick([12,13]);m.vx=(random()-.5)*18;m.vy=-60-random()*20;m.delay=.27;m.life=.18;m.size=1.4;}
+   if(kind==='ember'){m.tile=pick([0,1,14,15]);m.vx=(random()-.5)*24;m.vy=-40-random()*37;m.delay=.42+random()*.20;m.life=.28+random()*.22;m.size=1.35;}
    result.push(m);
   }
  };
- add('dust',4);add('leak',3+level);
- add('light',counts[level][0]);add('debris',counts[level][1]);add('spark',counts[level][2]);add('ember',3+level);
+ add('leak',3+level);
+ add('light',counts[level][0]);add('debris',counts[level][1]);add('spark',counts[level][2]);add('ember',counts[level][3]);
  return result;
 }
 export function boxMotePose(m:PixelMote,seconds:number,charge:number,burst:number,pressure:number):MotePose|null{
  let t=0,alpha=1;
- if(m.kind==='dust'){t=seconds-.38-m.delay;}
- else if(m.kind==='leak'){
+ if(m.kind==='leak'){
   if(seconds<charge||seconds>=burst)return null;
   t=((seconds-charge+m.delay*m.life)%m.life+m.life)%m.life;
-  alpha=clamp(pressure)*Math.min(1,(burst-seconds)*8);
- }else{t=seconds-burst-.22-m.delay;}
+  alpha=clamp(pressure)*Math.min(1,(burst-seconds)*8)*.65;
+ }else{t=seconds-burst-.20-m.delay;}
  if(t<0||t>=m.life)return null;
- const f=t/m.life,fade=Math.min(1,f*9)*Math.pow(1-f,.8);
+ const f=t/m.life,fade=Math.min(1,f*12)*Math.pow(1-f,.65);
+ const drag=m.kind==='debris'?t:(1-Math.exp(-2.2*t))/2.2;
  const rotation=m.spin?Math.round(m.spin*t/(Math.PI/2))*(Math.PI/2):0;
- return {x:m.x+m.vx*t,y:m.y+m.vy*t+.5*m.gravity*t*t,alpha:alpha*fade,
-  size:m.size*(m.kind==='spark'?.6+.5*Math.sin(f*Math.PI):1),rotation};
-}
-
-/** Central plume is the primary effect, not an outward particle explosion. */
-export const PLUME_WIDTH=32;
-export const PLUME_HEIGHT=64;
-export const PLUME_FRAMES=16;
-export const PLUME_START=.20;
-export const PLUME_DURATION=.92;
-export function boxPlumePose(elapsed:number,rank:number){
- const t=elapsed-PLUME_START;
- if(t<0||t>=PLUME_DURATION)return null;
- const f=t/PLUME_DURATION,frame=Math.min(PLUME_FRAMES-1,Math.floor(f*PLUME_FRAMES));
- const tail=1-clamp((f-.67)/.33);
- return {frame,alpha:Math.min(1,t/.07)*tail,scaleX:1.65+rank*.12,scaleY:1.85+rank*.13};
+ return {x:Math.round(m.x+m.vx*drag),y:Math.round(m.y+m.vy*drag+.5*m.gravity*t*t),alpha:alpha*fade,
+  size:Math.max(1,Math.round(m.size*(1-.25*f))),rotation};
 }

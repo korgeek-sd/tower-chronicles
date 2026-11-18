@@ -70,7 +70,7 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
   <header><h2 id="tc-box-title">{opening?'모험가 장비 상자 개봉':result?'장비 획득':'모험가 장비 상자'}</h2>{!opening&&<button className="tc-box-close" aria-label="상자 창 닫기" onClick={dismiss}>×</button>}</header>
   {opening?<div className={'tc-box-stage phase-'+phase+(reveal?' has-receipt':'')+(reveal?.grade==='legendary'?' is-legendary':'')} style={{backgroundImage:`linear-gradient(#08080877,#080808aa),url(${assetUrl('assets/backgrounds/summon/summon-altar-v1.webp')})`}}>
    <button className="tc-box-skip" disabled={!p.rewards} onClick={skip}>{p.rewards?'건너뛰기 »':'결과 확인 중…'}</button>
-   <div className="tc-box-altar" data-box-renderer={renderer}><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><div className="tc-box-frame-art" aria-hidden="true"/></div>{reveal&&topReward&&<PixiBoxStage key={topReward.id} feedback={reveal} reward={topReward} onStatus={reportRenderer}/>}</div>
+   <div className="tc-box-altar" data-box-renderer={renderer}><div className="tc-box-chest" role="img" aria-label="개봉 중인 모험가 장비 상자"><div className="tc-box-frame-art" aria-hidden="true"/></div>{reveal&&topReward&&<PixiBoxStage key={topReward.id} feedback={reveal} onStatus={reportRenderer}/>}</div>
    {p.rewards&&<small className="tc-box-renderer" aria-label="그래픽 연출 상태">{renderer==='gpu'?'PixiJS · Mesh':renderer==='fallback'?'정적 이미지 · 호환 모드':'그래픽 준비 중'}</small>}
    <p role="status">{p.rewards?(phase==='burst'?EQUIPMENT_GRADE_NAMES[reveal!.grade]+' 장비 획득':phase==='hold'?'…':'상자가 반응하고 있습니다'): '서버에서 개봉 결과를 확인하고 있습니다.'}</p>
   </div>:result&&item?<>
