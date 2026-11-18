@@ -1,4 +1,5 @@
 import React,{useEffect,useRef} from 'react';
+import {boxLightning} from './boxLightning';
 import {gsap} from 'gsap';
 import type {Application} from 'pixi.js';
 import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose} from './boxPixelVfx';
@@ -71,6 +72,7 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
    const box=new P.Container();root.addChild(box);
    // Stable body, two independent textured lid meshes, and the original
    // closed icon. Both meshes use the same atlas and update only vertices.
+   const rearLightning=new P.Graphics();box.addChild(rearLightning);
    const rig=new P.Container();rig.position.set(-56*2.15,-80*2.15);rig.scale.set(2.15);box.addChild(rig);
    function mesh(source:readonly number[],indices:readonly number[],frame:number){
     const positions=new Float32Array(source),uvs=new Float32Array(source.length);
@@ -82,11 +84,12 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
    }
    const body=mesh(BOX_BODY,BOX_QUAD,BOX_FRAME_COUNT-1),outside=mesh(BOX_LID_OUTSIDE,BOX_LID_FAN,0),inside=mesh(BOX_LID_INSIDE,BOX_QUAD,BOX_FRAME_COUNT-1);
    const closed=new P.Sprite(closedTexture);rig.addChild(body.view,outside.view,inside.view,closed);
-   // Only the approved pixel particle artwork is emitted from the chest.
+   // Golden stepped lightning surrounds the chest; a few approved square fragments remain.
+   const frontLightning=new P.Graphics();box.addChild(frontLightning);
    const particles=new P.Container();box.addChild(particles);
    const atlas=P.Texture.from(particleImage);atlas.source.scaleMode='nearest';
    const tiles=Array.from({length:BOX_PARTICLE_COUNT},(_,i)=>new P.Texture({source:atlas.source,frame:new P.Rectangle(i%4*BOX_PARTICLE_CELL,Math.floor(i/4)*BOX_PARTICLE_CELL,BOX_PARTICLE_CELL,BOX_PARTICLE_CELL)}));
-   const motes=makeBoxMotes(rank);
+   const motes=makeBoxMotes(rank).filter(m=>m.kind==='debris').slice(0,8);
    const moteViews=motes.map(m=>{
     const view=new P.Sprite(tiles[m.tile]);view.anchor.set(.5);view.tint=m.tint;view.alpha=0;
     particles.addChild(view);
@@ -105,6 +108,27 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
     .to(state,{angle:96,duration:.44,ease:'power2.out'},burst+.16)
     .to(state,{angle:88,duration:.16,ease:'power2.inOut'},burst+.60)
     .to(state,{impact:1,duration:Math.min(1.0,finish-burst-.28),ease:'none'},burst+.28);
+   let lightningFrame=-1;
+   function drawLightning(seconds:number){
+    const frame=Math.floor(seconds*12);
+    if(frame===lightningFrame)return;lightningFrame=frame;
+    rearLightning.clear();frontLightning.clear();
+    for(const bolt of boxLightning(seconds,charge,hold,burst)){
+     const graphics=bolt.front?frontLightning:rearLightning;
+     // Square stamps preserve stepped pixel edges even on diagonal branches.
+     for(const [width,color,alpha] of [[bolt.width+6,0xc67419,.16],[bolt.width+2,0xffbd39,.8],[bolt.width,0xfff1bd,1]]){
+      for(let j=1;j<bolt.points.length;j++){
+       const a=bolt.points[j-1],b=bolt.points[j];
+       const steps=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/3));
+       for(let k=0;k<=steps;k++){
+        const x=Math.round((a[0]+(b[0]-a[0])*k/steps)/2)*2,y=Math.round((a[1]+(b[1]-a[1])*k/steps)/2)*2;
+        graphics.rect(x-width/2,y-width/2,width,width);
+       }
+      }
+      graphics.fill({color,alpha:alpha*bolt.alpha});
+     }
+    }
+   }
    const draw=()=>{
     const seconds=Math.min(finish,Math.max(0,(performance.now()-started)/1000));timeline!.time(seconds,false);
     const charged=seconds>=charge,holding=seconds>=hold&&seconds<burst,opened=seconds>=burst;
@@ -128,9 +152,11 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
      inside.geometry.getBuffer('aPosition').update();
     }
     box.alpha=1;
+    drawLightning(seconds);
     motes.forEach((m,i)=>{
      const view=moteViews[i],pose=boxMotePose(m,seconds,charge,burst,p);
      if(!pose){view.visible=false;return;}
+     if(seconds<burst+.6){view.visible=false;return;}
      view.visible=true;view.position.set(pose.x,pose.y);view.alpha=pose.alpha;
      view.scale.set(pose.size);view.rotation=pose.rotation;
     });

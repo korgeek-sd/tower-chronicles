@@ -27,12 +27,12 @@ test('burst motes launch upward in staggered waves, grow with grade, and expire'
  }
  assert.ok(used.has(14)&&used.has(15));
 });
-test('the opening stage draws only chest meshes and approved pooled particle sprites',()=>{
+test('the opening stage draws lightning and approved fragments without floating equipment',()=>{
  const source=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
  assert.ok(source.includes('box_pixel_particles_16.png'));
  assert.ok(source.includes('new P.Sprite(tiles[m.tile])'));
  assert.ok(source.includes('boxMotePose(m,seconds,charge,burst,p)'));
- for(const token of ['new P.Graphics','prizeTex','prize.alpha','reward.kind','plumeURL','boxPlumePose','flash.alpha','waveViews','halo.tint','cracks.alpha'])assert.ok(!source.includes(token),token);
+ for(const token of ['prizeTex','prize.alpha','reward.kind','plumeURL','boxPlumePose','flash.alpha','waveViews','halo.tint','cracks.alpha'])assert.ok(!source.includes(token),token);
  const dialog=readFileSync('src/components/inventory/AdventurerBoxDialog.tsx','utf8');
  assert.ok(dialog.includes('EquipmentArt'));assert.ok(dialog.includes('feedback={reveal} onStatus='));
 });
