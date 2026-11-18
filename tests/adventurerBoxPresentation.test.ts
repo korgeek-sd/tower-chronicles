@@ -44,7 +44,7 @@ test('GPU box renderer preserves strict production CSP and surfaces fallback sta
  assert.match(fx,/onStatus\('gpu'\)/);
  assert.match(fx,/onStatus\('fallback'\)/);
  assert.match(ui,/data-box-renderer=\{renderer\}/);
- assert.match(ui,/PixiJS · GPU/);
+ assert.match(ui,/PixiJS · Mesh/);
 });
 
 test('opening atlas includes twelve distinct frames and a held final pose',()=>{
@@ -62,7 +62,8 @@ test('opening atlas includes twelve distinct frames and a held final pose',()=>{
  assert.equal(new Set(frames.map(frame=>frame.toString('base64'))).size,12);
  const fx=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
  const style=readFileSync('src/components/inventory/adventurer-box.css','utf8');
- assert.match(fx,/chestSprite\.texture=frames/);
+ assert.match(fx,/new P\.MeshGeometry/);
+ assert.doesNotMatch(fx,/chestSprite\.texture=frames|boxOpeningFrame/);
  assert.match(style,/adventurer_box_opening_v4\.png/);
  assert.doesNotMatch(fx,/lid\.rotation/);
 });
@@ -75,3 +76,4 @@ test('chest visuals use the clean transparent icon; opening uses Pixi instead of
  assert.doesNotMatch(css,/@keyframes|animation\s*:/);
  assert.doesNotMatch(css+dialog,/tc-box-(rays|sparks|seam|shockwave|lid)/);
 });
+
