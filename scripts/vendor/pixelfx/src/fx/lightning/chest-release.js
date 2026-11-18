@@ -3,9 +3,19 @@
 import {fit,rng} from '../../core/index.js';
 import {zigzag,stroke,crackle} from './_lib.js';
 const GOLD=['#241329','#643028','#aa531d','#e59825','#ffc84b','#ffe992','#fff6cb','#ffffff'];
-export const meta={name:'Chest release',desc:'Current follows brass bindings. The seam ignites before two curled discharges break apart.',tags:['lightning','chest'],size:[192,192],origin:[96,140],duration:2,loop:false,fps:24,bg:'dark',options:{palette:GOLD,seed:31}};
+export const meta={name:'Chest release',desc:'Current follows brass bindings. The seam ignites before six curled discharges break apart.',tags:['lightning','chest'],size:[192,192],origin:[96,140],duration:2,loop:false,fps:24,bg:'dark',options:{palette:GOLD,seed:31}};
 // Coordinates measured against the existing 112x128 chest, at the runtime's 2x FX scale.
 const BINDINGS=[[[ -24,-30],[-33,-19],[-38,-4],[-38,8]],[[17,-22],[8,-10],[7,8],[7,14]],[[-41,5],[-10,14],[27,20],[48,8],[50,-1]]];
+// Two original channels x three distinct silhouettes, all rooted inside the mouth.
+export const LIGHTNING_CHANNELS=[
+ [[-14,2],[-43,-19],[-37,-40],[-61,-52],[-47,-58],[-22,-67]],
+ [[14,2],[47,-16],[57,-35],[34,-48],[46,-58],[28,-78]],
+ [[-9,0],[-27,-22],[-16,-38],[-31,-53],[-20,-69],[-36,-77]],
+ [[9,0],[25,-18],[16,-34],[31,-49],[13,-65],[21,-79]],
+ [[-3,-1],[-12,-19],[1,-33],[-11,-46],[-6,-59],[3,-73]],
+ [[3,-1],[13,-15],[6,-29],[20,-44],[7,-57],[12,-67]]
+];
+export const CHARGE_CHANNELS=BINDINGS.length*3;
 function seam(p,C,k){
  for(const [x,y] of [[-30,8],[-10,13],[10,17],[30,17]])p.glow(x,y,12,C[4],k*.2);
  p.polyline([[-40,5],[-10,14],[27,20],[48,8]],C[5],k);
@@ -16,10 +26,12 @@ export function draw(p,t,o){
  const C=fit(o.palette,8),f=Math.floor(t*24);
  if(t<.8){
   const power=Math.min(1,t/.16)*(.2+.8*t/.8);
-  BINDINGS.forEach((points,i)=>{
+  Array.from({length:CHARGE_CHANNELS},(_,i)=>{
+   const points=BINDINGS[Math.floor(i/3)];
    const r=rng(o.seed,10,i,Math.floor(f/2));
-   const n=Math.min(points.length-2,Math.floor((t*2+i*.31)%1*(points.length-1)));
-   const a=points[n],b=points[n+1];
+   const n=(i%3+Math.floor(t*3))%(points.length-1);
+   const offset=(i%3-1)*1.2;
+   const a=points[n].map((v,j)=>v+(j===0?offset:0)),b=points[n+1].map((v,j)=>v+(j===0?offset:0));
    crackle(p,zigzag(r,...a,...b,.07,.08),power,C,.12,.7);
   });
   seam(p,C,Math.max(0,(t-.45)/.35));
@@ -35,19 +47,19 @@ export function draw(p,t,o){
  }
  for(let i=0;i<4;i++)p.glow(-22+i*17,-1+i*2,17,C[5],mouth*.95);
  seam(p,C,fade*.6);
- // Energy rises in two bowed channels; the silhouette stays coherent across re-strikes.
+ // Energy rises in six bowed channels; the silhouette stays coherent across re-strikes.
  const a=age-.21;
  if(a>=0&&a<.46){
   const power=Math.min(1,(a+.025)/.07)*Math.min(1,(.46-a)/.15);
-  for(const side of [-1,1]){
-   const r=rng(o.seed,30,side,Math.floor(a*16));
-   const path=side<0?[[-14,2],[-43,-19],[-37,-40],[-61,-52],[-47,-58],[-22,-67]]:[[14,2],[47,-16],[57,-35],[34,-48],[46,-58],[28,-78]];
+  for(let channel=0;channel<LIGHTNING_CHANNELS.length;channel++){
+   const r=rng(o.seed,30,channel,Math.floor(a*16));
+   const path=LIGHTNING_CHANNELS[channel];
    const paths=[];
    for(let j=0;j<path.length-1;j++){
     const b=zigzag(r,...path[j],...path[j+1],.25,a<.15?0:.45);
     if(j===0)paths.push(...b.paths);else {paths[0].pts.push(...b.paths[0].pts.slice(1));paths.push(...b.paths.slice(1));}
    }
-   stroke(p,{paths},power,C,1.05,{light:.32,a:Math.min(1,power*2),upTo:Math.min(1,(a+.025)/.13),hero:a<.07});
+   stroke(p,{paths},power,C,.9,{light:.22,a:Math.min(1,power*2),upTo:Math.min(1,(a+.025)/.13),hero:a<.07});
   }
  }
  // A few substantial sparks escape and cool, rather than a cloud of confetti.

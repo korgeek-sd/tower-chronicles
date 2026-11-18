@@ -1,5 +1,5 @@
 import React,{useEffect,useRef} from 'react';
-import {lightningArtPose,boxLightningTime} from './boxLightningArt';
+import {lightningArtPose,boxLightningTime,BOX_LIGHTNING_STYLES,type BoxLightningGrade} from './boxLightningArt';
 import {gsap} from 'gsap';
 import type {Application} from 'pixi.js';
 import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose} from './boxPixelVfx';
@@ -8,7 +8,7 @@ import {assetUrl} from '../../game/data/graphics';
 import {BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,boxOpeningFrame,type boxReveal} from './boxPresentation';
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
 const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v4.png');
-const lightningURL=assetUrl('assets/ui/shop/box_lightning_pixelfx_v4.png');
+const lightningURL=(grade:BoxLightningGrade)=>assetUrl(`assets/ui/shop/box_lightning_v5_${grade}.png`);
 const particleURL=assetUrl('assets/ui/shop/box_pixel_particles_16.png');
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -41,7 +41,7 @@ async function createRenderer(){
 function takeRenderer(){const pending=warmRenderer??createRenderer();warmRenderer=undefined;return pending;}
 export function disposePreloadedBoxEffects(){const pending=warmRenderer;warmRenderer=undefined;void pending?.then(app=>app.destroy(true,{children:true}),()=>{});}
 export function preloadBoxEffects(){
- void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});void loadImage(lightningURL).catch(()=>{});void loadImage(particleURL).catch(()=>{});
+ void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});ranks.forEach(grade=>{void loadImage(lightningURL(grade)).catch(()=>{});});void loadImage(particleURL).catch(()=>{});
  if(!warmRenderer){const pending=createRenderer();warmRenderer=pending;void pending.catch(()=>{if(warmRenderer===pending)warmRenderer=undefined;});}
 }
 export type BoxRendererStatus='loading'|'gpu'|'canvas'|'fallback';
@@ -57,7 +57,7 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
   const fail=(error:unknown)=>{if(disposed||failed)return;failed=true;try{cleanup?.();}catch{}cleanup=undefined;console.warn('[Box FX] GPU renderer unavailable',error);onStatus('fallback');};
   const initDeadline=window.setTimeout(()=>fail(new Error('Renderer initialization timeout')),3000);
   void (async()=>{
-   const [P,chestImage,particleImage,lightningImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(particleURL),loadImage(lightningURL)]);if(disposed||failed)return;
+   const [P,chestImage,particleImage,lightningImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(particleURL),loadImage(lightningURL(feedback.grade))]);if(disposed||failed)return;
    const app=await takeRenderer();
    if(disposed||failed){app.destroy(true,{children:true});return;}
    let timeline:gsap.core.Timeline|undefined;
@@ -67,7 +67,7 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
    const texture=P.Texture.from(chestImage);
    const closedTexture=new P.Texture({source:texture.source,frame:new P.Rectangle(0,0,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT)});
    texture.source.scaleMode='nearest';
-   const rank=ranks.indexOf(feedback.grade);
+   const rank=ranks.indexOf(feedback.grade),style=BOX_LIGHTNING_STYLES[feedback.grade];
    const root=new P.Container();root.position.set(240,249);root.scale.set(4/3);app.stage.addChild(root);
    // No magic circle, radial halo, ground ring, or expanding shockwave.
    const box=new P.Container();root.addChild(box);
@@ -87,17 +87,17 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
    const canvasFallback=app.renderer.type===P.RendererType.CANVAS;
    const openingFrames=canvasFallback?Array.from({length:BOX_FRAME_COUNT},(_,i)=>new P.Texture({source:texture.source,frame:new P.Rectangle(i*BOX_FRAME_WIDTH,0,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT)})):[];
    if(canvasFallback)rig.addChild(closed);else rig.addChild(body.view,outside.view,inside.view,closed);
-   // Golden stepped lightning surrounds the chest; a few approved square fragments remain.
+   // Grade-colored stepped lightning surrounds the chest; a few approved square fragments remain.
    const lightningAtlas=P.Texture.from(lightningImage);lightningAtlas.source.scaleMode='nearest';
    const cell=192;
    const lightningFrames=Array.from({length:49},(_,i)=>new P.Texture({source:lightningAtlas.source,frame:new P.Rectangle(i%7*cell,Math.floor(i/7)*cell,cell,cell)}));
    const discharge=new P.Sprite(lightningFrames[0]);discharge.anchor.set(.5,140/192);discharge.position.set(-8,-12);discharge.scale.set(2);discharge.alpha=0;box.addChild(discharge);
-   const latchLight=new P.Graphics().rect(-18,14,12,22).fill({color:0xffdb66,alpha:.9}).rect(-14,18,4,12).fill({color:0xffffdc});
+   const latchLight=new P.Graphics().rect(-18,14,12,22).fill({color:style.spark,alpha:.9}).rect(-14,18,4,12).fill({color:0xffffff});
    latchLight.alpha=0;box.addChild(latchLight);
    const particles=new P.Container();box.addChild(particles);
    const atlas=P.Texture.from(particleImage);atlas.source.scaleMode='nearest';
    const tiles=Array.from({length:BOX_PARTICLE_COUNT},(_,i)=>new P.Texture({source:atlas.source,frame:new P.Rectangle(i%4*BOX_PARTICLE_CELL,Math.floor(i/4)*BOX_PARTICLE_CELL,BOX_PARTICLE_CELL,BOX_PARTICLE_CELL)}));
-   const motes=makeBoxMotes(rank).filter(m=>m.kind==='ember').slice(0,8).map(m=>({...m,tint:0xffd36a,size:2.5,life:.65,delay:.55+m.delay*.2}));
+   const motes=makeBoxMotes(rank).filter(m=>m.kind==='ember').slice(0,8).map(m=>({...m,tint:style.spark,size:2.5,life:.65,delay:.55+m.delay*.2}));
    const moteViews=motes.map(m=>{
     const view=new P.Sprite(tiles[m.tile]);view.anchor.set(.5);view.tint=m.tint;view.alpha=0;
     particles.addChild(view);
@@ -146,7 +146,7 @@ export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;on
     discharge.visible=!!artPose;
     if(artPose){discharge.texture=lightningFrames[artPose.frame];discharge.alpha=artPose.alpha;}
     latchLight.alpha=opened?0:charged?(holding?.9:.2+.6*p):0;
-    inside.view.tint=opened?0xffe1a0:0xffffff;
+    inside.view.tint=opened?style.inside:0xffffff;
     motes.forEach((m,i)=>{
      const view=moteViews[i],pose=boxMotePose(m,seconds,charge,burst,p);
      if(!pose){view.visible=false;return;}

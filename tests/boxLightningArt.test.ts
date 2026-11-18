@@ -19,3 +19,12 @@ test('charge follows grade timing but mouth glow precedes the branching release'
   assert.equal(lightningArtPose(boxLightningTime(burst+1.21,charge,hold,burst)),null);
  }
 });
+import {BOX_LIGHTNING_STYLES} from '../src/components/inventory/boxLightningArt';
+import {LIGHTNING_CHANNELS,CHARGE_CHANNELS} from '../scripts/vendor/pixelfx/src/fx/lightning/chest-release.js';
+test('three times the existing lightning channels with distinct five-grade palettes',()=>{
+ assert.equal(LIGHTNING_CHANNELS.length,6);
+ assert.equal(CHARGE_CHANNELS,9);
+ assert.deepEqual(Object.keys(BOX_LIGHTNING_STYLES),['common','uncommon','rare','heroic','legendary']);
+ assert.equal(new Set(Object.values(BOX_LIGHTNING_STYLES).map(s=>s.palette[4])).size,5);
+ for(const s of Object.values(BOX_LIGHTNING_STYLES))assert.equal(s.palette.at(-1),'#ffffff');
+});
