@@ -50,9 +50,9 @@
 .tc-box-chest{position:relative;width:95%;height:95%;z-index:1;display:grid;place-items:center}
 .tc-box-chest img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
 .tc-box-pixi{position:absolute;inset:-16%;z-index:4;pointer-events:none;visibility:hidden}
-.tc-box-altar[data-box-renderer=gpu]>.tc-box-pixi{visibility:visible}
+.tc-box-altar:is([data-box-renderer=gpu],[data-box-renderer=canvas])>.tc-box-pixi{visibility:visible}
 .tc-box-pixi canvas{display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
-.tc-box-altar[data-box-renderer=gpu]>.tc-box-chest{visibility:hidden}
+.tc-box-altar:is([data-box-renderer=gpu],[data-box-renderer=canvas])>.tc-box-chest{visibility:hidden}
 .tc-box-stage.phase-burst>p{color:var(--box-tone);font-size:clamp(15px,4vw,20px)}
 .tc-box-dialog.is-opening header,.tc-box-stage>p{z-index:5}
 .tc-box-dialog .tc-box-skip{z-index:6}

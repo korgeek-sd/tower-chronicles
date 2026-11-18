@@ -1,13 +1,14 @@
 import React,{useEffect,useRef} from 'react';
-import {boxLightning} from './boxLightning';
+import {lightningArtPose,CHARGE_TRACES} from './boxLightningArt';
 import {gsap} from 'gsap';
 import type {Application} from 'pixi.js';
 import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose} from './boxPixelVfx';
 import {BOX_BODY,BOX_LID_OUTSIDE,BOX_LID_INSIDE,BOX_LID_FAN,BOX_QUAD,fillLidVertices,lidSurfaceOpacity} from './boxHinge';
 import {assetUrl} from '../../game/data/graphics';
-import {BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,type boxReveal} from './boxPresentation';
+import {BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,boxOpeningFrame,type boxReveal} from './boxPresentation';
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
 const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v4.png');
+const lightningURL=assetUrl('assets/ui/shop/box_lightning_authored_v2.png');
 const particleURL=assetUrl('assets/ui/shop/box_pixel_particles_16.png');
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -40,13 +41,13 @@ async function createRenderer(){
 function takeRenderer(){const pending=warmRenderer??createRenderer();warmRenderer=undefined;return pending;}
 export function disposePreloadedBoxEffects(){const pending=warmRenderer;warmRenderer=undefined;void pending?.then(app=>app.destroy(true,{children:true}),()=>{});}
 export function preloadBoxEffects(){
- void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});void loadImage(particleURL).catch(()=>{});
+ void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});void loadImage(lightningURL).catch(()=>{});void loadImage(particleURL).catch(()=>{});
  if(!warmRenderer){const pending=createRenderer();warmRenderer=pending;void pending.catch(()=>{if(warmRenderer===pending)warmRenderer=undefined;});}
 }
-export type BoxRendererStatus='loading'|'gpu'|'fallback';
+export type BoxRendererStatus='loading'|'gpu'|'canvas'|'fallback';
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 /** Local visualisation only. Receipt is authoritative; no random equipment is generated here. */
-export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(status:BoxRendererStatus)=>void}){
+export function PixiBoxStage({feedback,onStatus,previewTime}:{feedback:Reveal;onStatus:(status:BoxRendererStatus)=>void;previewTime?:number}){
  const host=useRef<HTMLDivElement>(null);
  useEffect(()=>{
   if(!host.current||!feedback.duration)return;
@@ -56,7 +57,7 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
   const fail=(error:unknown)=>{if(disposed||failed)return;failed=true;try{cleanup?.();}catch{}cleanup=undefined;console.warn('[Box FX] GPU renderer unavailable',error);onStatus('fallback');};
   const initDeadline=window.setTimeout(()=>fail(new Error('Renderer initialization timeout')),3000);
   void (async()=>{
-   const [P,chestImage,particleImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(particleURL)]);if(disposed||failed)return;
+   const [P,chestImage,particleImage,lightningImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(particleURL),loadImage(lightningURL)]);if(disposed||failed)return;
    const app=await takeRenderer();
    if(disposed||failed){app.destroy(true,{children:true});return;}
    let timeline:gsap.core.Timeline|undefined;
@@ -83,13 +84,26 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
     return {geometry,view};
    }
    const body=mesh(BOX_BODY,BOX_QUAD,BOX_FRAME_COUNT-1),outside=mesh(BOX_LID_OUTSIDE,BOX_LID_FAN,0),inside=mesh(BOX_LID_INSIDE,BOX_QUAD,BOX_FRAME_COUNT-1);
-   const closed=new P.Sprite(closedTexture);rig.addChild(body.view,outside.view,inside.view,closed);
+   const closed=new P.Sprite(closedTexture);
+   const canvasFallback=app.renderer.type===P.RendererType.CANVAS;
+   const openingFrames=canvasFallback?Array.from({length:BOX_FRAME_COUNT},(_,i)=>new P.Texture({source:texture.source,frame:new P.Rectangle(i*BOX_FRAME_WIDTH,0,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT)})):[];
+   if(canvasFallback)rig.addChild(closed);else rig.addChild(body.view,outside.view,inside.view,closed);
    // Golden stepped lightning surrounds the chest; a few approved square fragments remain.
    const frontLightning=new P.Graphics();box.addChild(frontLightning);
+   const lightningAtlas=P.Texture.from(lightningImage);lightningAtlas.source.scaleMode='nearest';
+   const cell=lightningImage.width/2;
+   // Crop only the transparent cell seam; keep all authored lightning pixels.
+   const lightningFrames=Array.from({length:4},(_,i)=>new P.Texture({source:lightningAtlas.source,frame:new P.Rectangle(i%2*cell+3,Math.floor(i/2)*cell+3,cell-6,cell-6)}));
+   const discharge=new P.Sprite(lightningFrames[0]);discharge.anchor.set(.5,.85);discharge.position.set(-8,-12);discharge.alpha=0;box.addChild(discharge);
+   const mouthLight=new P.Graphics().poly([-78,-16,-38,-34,68,-8,30,12,-48,2]).fill({color:0xffbf35,alpha:.72})
+    .poly([-62,-13,-36,-26,54,-6,28,5,-38,-2]).fill({color:0xfff3b0,alpha:1});
+   mouthLight.alpha=0;box.addChild(mouthLight);
+   const latchLight=new P.Graphics().rect(-18,14,12,22).fill({color:0xffdb66,alpha:.9}).rect(-14,18,4,12).fill({color:0xffffdc});
+   latchLight.alpha=0;box.addChild(latchLight);
    const particles=new P.Container();box.addChild(particles);
    const atlas=P.Texture.from(particleImage);atlas.source.scaleMode='nearest';
    const tiles=Array.from({length:BOX_PARTICLE_COUNT},(_,i)=>new P.Texture({source:atlas.source,frame:new P.Rectangle(i%4*BOX_PARTICLE_CELL,Math.floor(i/4)*BOX_PARTICLE_CELL,BOX_PARTICLE_CELL,BOX_PARTICLE_CELL)}));
-   const motes=makeBoxMotes(rank).filter(m=>m.kind==='debris').slice(0,8);
+   const motes=makeBoxMotes(rank).filter(m=>m.kind==='ember').slice(0,8).map(m=>({...m,tint:0xffd36a,size:2.5,life:.65,delay:.55+m.delay*.2}));
    const moteViews=motes.map(m=>{
     const view=new P.Sprite(tiles[m.tile]);view.anchor.set(.5);view.tint=m.tint;view.alpha=0;
     particles.addChild(view);
@@ -113,24 +127,22 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
     const frame=Math.floor(seconds*12);
     if(frame===lightningFrame)return;lightningFrame=frame;
     rearLightning.clear();frontLightning.clear();
-    for(const bolt of boxLightning(seconds,charge,hold,burst)){
-     const graphics=bolt.front?frontLightning:rearLightning;
-     // Square stamps preserve stepped pixel edges even on diagonal branches.
-     for(const [width,color,alpha] of [[bolt.width+6,0xc67419,.16],[bolt.width+2,0xffbd39,.8],[bolt.width,0xfff1bd,1]]){
-      for(let j=1;j<bolt.points.length;j++){
-       const a=bolt.points[j-1],b=bolt.points[j];
-       const steps=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))/3));
-       for(let k=0;k<=steps;k++){
-        const x=Math.round((a[0]+(b[0]-a[0])*k/steps)/2)*2,y=Math.round((a[1]+(b[1]-a[1])*k/steps)/2)*2;
-        graphics.rect(x-width/2,y-width/2,width,width);
-       }
-      }
-      graphics.fill({color,alpha:alpha*bolt.alpha});
+    if(seconds<charge||seconds>=hold)return;
+    const progress=clamp((seconds-charge)/(hold-charge));
+    CHARGE_TRACES.forEach((trace,i)=>{
+     if(i>=4&&progress<.55)return;
+     const graphics=i>=4?rearLightning:frontLightning;
+     const pulse=.65+.35*Math.sin(frame*1.8+i);
+     for(const [width,color,alpha] of [[10,0xd18019,.16],[5,0xffbb36,.8],[2,0xfff5bd,1]]){
+      graphics.moveTo(trace[0],trace[1]);
+      for(let j=2;j<trace.length;j+=2)graphics.lineTo(trace[j],trace[j+1]);
+      graphics.stroke({width,color,alpha:alpha*pulse*(.35+.65*progress),join:'miter',cap:'square'});
      }
-    }
+    });
    }
+
    const draw=()=>{
-    const seconds=Math.min(finish,Math.max(0,(performance.now()-started)/1000));timeline!.time(seconds,false);
+    const seconds=Math.min(finish,Math.max(0,previewTime??(performance.now()-started)/1000));timeline!.time(seconds,false);
     const charged=seconds>=charge,holding=seconds>=hold&&seconds<burst,opened=seconds>=burst;
     const p=state.pressure,hit=state.impact,o=clamp(state.angle/88);
     const hover=rank>=3&&charged&&!opened?Math.sin(seconds*3)*2-9*p:0;
@@ -141,11 +153,12 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
     box.position.set(0,state.drop+hover+state.weight*5);box.rotation=shake*.004;
     box.scale.set(1+state.weight*.035,1-state.weight*.055);
     const opacity=lidSurfaceOpacity(state.angle);
-    closed.alpha=opacity.closed;
+    closed.alpha=canvasFallback?1:opacity.closed;
+    if(canvasFallback)closed.texture=openingFrames[boxOpeningFrame(Math.max(0,seconds-burst)*1000)];
     body.view.alpha=1-opacity.closed;
     outside.view.alpha=opacity.outside*(1-opacity.closed);
     inside.view.alpha=opacity.inside*(1-opacity.closed);
-    if(opened){
+    if(opened&&!canvasFallback){
      fillLidVertices(outside.geometry.positions,BOX_LID_OUTSIDE,state.angle,false);
      outside.geometry.getBuffer('aPosition').update();
      fillLidVertices(inside.geometry.positions,BOX_LID_INSIDE,state.angle,true);
@@ -153,18 +166,23 @@ export function PixiBoxStage({feedback,onStatus}:{feedback:Reveal;onStatus:(stat
     }
     box.alpha=1;
     drawLightning(seconds);
+    const artPose=lightningArtPose(seconds-burst);
+    discharge.visible=!!artPose;
+    if(artPose){discharge.texture=lightningFrames[artPose.frame];discharge.alpha=artPose.alpha;discharge.width=300*artPose.scale;discharge.height=220*artPose.scale;}
+    mouthLight.alpha=opened?clamp((seconds-burst)/.2)*(.25+.75*clamp(1-(seconds-burst-.4)/.9)):0;
+    latchLight.alpha=opened?0:charged?(holding?.9:.2+.6*p):0;
+    inside.view.tint=opened?0xffe1a0:0xffffff;
     motes.forEach((m,i)=>{
      const view=moteViews[i],pose=boxMotePose(m,seconds,charge,burst,p);
      if(!pose){view.visible=false;return;}
-     if(seconds<burst+.6){view.visible=false;return;}
      view.visible=true;view.position.set(pose.x,pose.y);view.alpha=pose.alpha;
      view.scale.set(pose.size);view.rotation=pose.rotation;
     });
    };
    target.appendChild(app.canvas);started=performance.now();draw();app.render();window.clearTimeout(initDeadline);
-   app.ticker.add(()=>{try{draw();}catch(error){fail(error);}});app.start();onStatus('gpu');
+   app.ticker.add(()=>{try{draw();}catch(error){fail(error);}});app.start();onStatus(canvasFallback?'canvas':'gpu');
   })().catch(error=>{window.clearTimeout(initDeadline);fail(error);});
   return()=>{disposed=true;window.clearTimeout(initDeadline);cleanup?.();};
- },[feedback.grade,feedback.duration,feedback.chargeAt,feedback.holdAt,feedback.burstAt,onStatus]);
+ },[feedback.grade,feedback.duration,feedback.chargeAt,feedback.holdAt,feedback.burstAt,onStatus,previewTime]);
  return <div ref={host} className="tc-box-pixi" aria-hidden="true"/>;
 }

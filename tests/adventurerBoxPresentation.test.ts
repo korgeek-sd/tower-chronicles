@@ -41,7 +41,7 @@ test('GPU box renderer preserves strict production CSP and surfaces fallback sta
  assert.match(fx,/await import\('pixi\.js\/unsafe-eval'\)/);
  assert.match(fx,/Texture\.from\(chestImage\)/);
  assert.doesNotMatch(fx,/Assets\.load/);
- assert.match(fx,/onStatus\('gpu'\)/);
+ assert.ok(fx.includes("onStatus(canvasFallback?'canvas':'gpu')"));
  assert.match(fx,/onStatus\('fallback'\)/);
  assert.match(ui,/data-box-renderer=\{renderer\}/);
  assert.match(ui,/PixiJS · Mesh/);
@@ -63,7 +63,9 @@ test('opening atlas includes twelve distinct frames and a held final pose',()=>{
  const fx=readFileSync('src/components/inventory/PixiBoxStage.tsx','utf8');
  const style=readFileSync('src/components/inventory/adventurer-box.css','utf8');
  assert.match(fx,/new P\.MeshGeometry/);
- assert.doesNotMatch(fx,/chestSprite\.texture=frames|boxOpeningFrame/);
+ assert.ok(fx.includes('if(canvasFallback)closed.texture=openingFrames[boxOpeningFrame'));
+ assert.ok(fx.includes('if(opened&&!canvasFallback)'));
+ assert.ok(fx.includes('if(canvasFallback)rig.addChild(closed);else rig.addChild(body.view,outside.view,inside.view,closed)'));
  assert.match(style,/adventurer_box_opening_v4\.png/);
  assert.doesNotMatch(fx,/lid\.rotation/);
 });
