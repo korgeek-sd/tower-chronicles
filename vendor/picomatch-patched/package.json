@@ -1,0 +1,19 @@
+{
+  "name": "@tower-chronicles/picomatch-patched",
+  "version": "4.0.7",
+  "description": "Locally maintained picomatch 4.0.7 with fail-closed single-branch repeated extglob mitigation for CVE-2026-112366",
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "license": "MIT",
+  "main": "index.js",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=12"
+  },
+  "files": [
+    "index.js",
+    "posix.js",
+    "lib",
+    "LICENSE",
+    "PATCH.md"
+  ]
+}

@@ -25,3 +25,7 @@ Read-only production checks found 0 banks and 0 loans, one active settlement cro
 ## Validation
 
 Run `npm test`, `npm run build`, `npm audit --audit-level=moderate`, and `bash scripts/security/scan-secrets.sh`. For offline output, run `node scripts/standalone.mjs` after the build and verify its CSP hashes. Check the deployed guest UI and console for blocked required resources after publishing. Changes to Supabase project origin must rebuild the CSP and the application together.
+
+## CVE-2026-112366 build-only dependency mitigation (2026-11-18)
+
+The original picomatch 4.0.7 triggered the mandatory audit. A checked-in MIT-source downstream patch blocks risky single-branch repeated wildcard extglobs before the recursion opt-out. The npm override points Vite and its glob helpers to that local package. See `vendor/picomatch-patched/PATCH.md` for provenance, compatibility limits and removal instructions. The existing complete lockfile audit is unchanged; verify the regression tests and full build before deploying.
