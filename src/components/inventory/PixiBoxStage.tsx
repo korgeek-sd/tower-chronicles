@@ -2,7 +2,7 @@ import React,{useEffect,useRef} from 'react';
 import {gsap} from 'gsap';
 import type {Application} from 'pixi.js';
 import {EQUIPMENT_DEFINITIONS} from '../../game/data/equipment';
-import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose} from './boxPixelVfx';
+import {BOX_PARTICLE_CELL,BOX_PARTICLE_COUNT,makeBoxMotes,boxMotePose,PLUME_WIDTH,PLUME_HEIGHT,PLUME_FRAMES,boxPlumePose} from './boxPixelVfx';
 import {BOX_BODY,BOX_LID_OUTSIDE,BOX_LID_INSIDE,BOX_LID_FAN,BOX_QUAD,fillLidVertices,lidSurfaceOpacity} from './boxHinge';
 import {assetUrl} from '../../game/data/graphics';
 import type {EquipmentItem} from '../../game/types';
@@ -10,6 +10,7 @@ import {BOX_FRAME_COUNT,BOX_FRAME_WIDTH,BOX_FRAME_HEIGHT,type boxReveal} from '.
 type Reveal=NonNullable<ReturnType<typeof boxReveal>>;
 const chestURL=assetUrl('assets/ui/shop/adventurer_box_opening_v4.png');
 const particleURL=assetUrl('assets/ui/shop/adventurer_box_pixel_vfx_v1.png');
+const plumeURL=assetUrl('assets/ui/shop/adventurer_box_mana_plume_v7.png');
 const colors={common:0xd5c7a9,uncommon:0x82b86b,rare:0x60bfff,heroic:0xbc7ce0,legendary:0xffcc66};
 const ranks=['common','uncommon','rare','heroic','legendary'] as const;
 let engine:Promise<typeof import('pixi.js')>|undefined;
@@ -42,7 +43,7 @@ async function createRenderer(){
 function takeRenderer(){const pending=warmRenderer??createRenderer();warmRenderer=undefined;return pending;}
 export function disposePreloadedBoxEffects(){const pending=warmRenderer;warmRenderer=undefined;void pending?.then(app=>app.destroy(true,{children:true}),()=>{});}
 export function preloadBoxEffects(){
- void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});void loadImage(particleURL).catch(()=>{});
+ void loadEngine().catch(()=>{});void loadImage(chestURL).catch(()=>{});void loadImage(particleURL).catch(()=>{});void loadImage(plumeURL).catch(()=>{});
  for(const kind of Object.keys(EQUIPMENT_DEFINITIONS))void loadImage(assetUrl('assets/ui/equipment/'+kind+'.png')).catch(()=>{});
  if(!warmRenderer){const pending=createRenderer();warmRenderer=pending;void pending.catch(()=>{if(warmRenderer===pending)warmRenderer=undefined;});}
 }
@@ -59,7 +60,7 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
   const fail=(error:unknown)=>{if(disposed||failed)return;failed=true;try{cleanup?.();}catch{}cleanup=undefined;console.warn('[Box FX] GPU renderer unavailable',error);onStatus('fallback');};
   const initDeadline=window.setTimeout(()=>fail(new Error('Renderer initialization timeout')),3000);
   void (async()=>{
-   const [P,chestImage,prizeImage,particleImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(assetUrl('assets/ui/equipment/'+reward.kind+'.png')),loadImage(particleURL)]);if(disposed||failed)return;
+   const [P,chestImage,prizeImage,particleImage,plumeImage]=await Promise.all([loadEngine(),loadImage(chestURL),loadImage(assetUrl('assets/ui/equipment/'+reward.kind+'.png')),loadImage(particleURL),loadImage(plumeURL)]);if(disposed||failed)return;
    const app=await takeRenderer();
    if(disposed||failed){app.destroy(true,{children:true});return;}
    let timeline:gsap.core.Timeline|undefined;
@@ -88,13 +89,19 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
    const body=mesh(BOX_BODY,BOX_QUAD,BOX_FRAME_COUNT-1),outside=mesh(BOX_LID_OUTSIDE,BOX_LID_FAN,0),inside=mesh(BOX_LID_INSIDE,BOX_QUAD,BOX_FRAME_COUNT-1);
    const closed=new P.Sprite(closedTexture);rig.addChild(body.view,outside.view,inside.view,closed);
    const innerLight=new P.Graphics()
-    .poly([-67,-6,-38,-19,41,3,77,-14,55,4,40,11,-67,-3]).fill({color:tone,alpha:.25})
-    .rect(-16,-8,22,4).fill({color:0xfff3c0,alpha:.7});
+    .poly([-30,-3,-15,-12,14,-9,32,0,15,8,-12,4]).fill({color:tone,alpha:.38})
+    .rect(-17,-5,18,3).fill({color:0xfff3c0,alpha:.65});
    innerLight.alpha=0;box.addChild(innerLight);
+   // A neutral 16-frame pixel plume is tinted once for the awarded grade.
+   // Its origin is the mouth of the chest and the reward renders above it.
+   const plumeAtlas=P.Texture.from(plumeImage);plumeAtlas.source.scaleMode='nearest';
+   const plumeFrames=Array.from({length:PLUME_FRAMES},(_,i)=>new P.Texture({source:plumeAtlas.source,frame:new P.Rectangle(i%4*PLUME_WIDTH,Math.floor(i/4)*PLUME_HEIGHT,PLUME_WIDTH,PLUME_HEIGHT)}));
+   const plume=new P.Sprite(plumeFrames[0]),core=new P.Sprite(plumeFrames[0]);
+   for(const sprite of [plume,core]){sprite.anchor.set(.5,62/64);sprite.position.set(-8,-13);sprite.alpha=0;box.addChild(sprite);}
+   plume.tint=tone;core.tint=0xfff3d4;
    const particles=new P.Container();root.addChild(particles);
    const prize=new P.Sprite(prizeTex);prize.anchor.set(.5);prize.width=prize.height=112;prize.alpha=0;root.addChild(prize);
    const frontSparkles=new P.Container();root.addChild(frontSparkles);
-   const flash=new P.Graphics().rect(0,0,480,480).fill(tone);flash.alpha=0;app.stage.addChild(flash);
    const atlas=P.Texture.from(particleImage);atlas.source.scaleMode='nearest';
    const tiles=Array.from({length:BOX_PARTICLE_COUNT},(_,i)=>new P.Texture({source:atlas.source,frame:new P.Rectangle(i%4*BOX_PARTICLE_CELL,Math.floor(i/4)*BOX_PARTICLE_CELL,BOX_PARTICLE_CELL,BOX_PARTICLE_CELL)}));
    const motes=makeBoxMotes(rank);
@@ -140,6 +147,12 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
      inside.geometry.getBuffer('aPosition').update();
     }
     innerLight.alpha=opened?Math.min(1,o*1.6)*(1-show*.8):charged?p*.18:0;
+    const surge=boxPlumePose(seconds-burst,rank);
+    if(surge){
+     plume.texture=core.texture=plumeFrames[surge.frame];
+     plume.scale.set(surge.scaleX,surge.scaleY);core.scale.set(surge.scaleX*.46,surge.scaleY*.94);
+     plume.alpha=surge.alpha;core.alpha=surge.alpha*.66;
+    }else{plume.alpha=core.alpha=0;}
     box.alpha=1;
     motes.forEach((m,i)=>{
      const view=moteViews[i],pose=boxMotePose(m,seconds,charge,burst,p);
@@ -147,8 +160,6 @@ export function PixiBoxStage({feedback,reward,onStatus}:{feedback:Reveal;reward:
      view.visible=true;view.position.set(pose.x,pose.y);view.alpha=pose.alpha;
      view.scale.set(pose.size);view.rotation=pose.rotation;
     });
-    const flashTime=seconds-burst-.22;
-    flash.alpha=flashTime>=0&&flashTime<.085?(1-flashTime/.085)*(rank>=3?.14:.055):0;
     prize.alpha=Math.min(1,show*1.8);prize.position.set(0,-10-94*show);prize.scale.set((112/prizeTex.width)*(.45+.55*show));
    };
    target.appendChild(app.canvas);started=performance.now();draw();app.render();window.clearTimeout(initDeadline);

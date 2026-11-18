@@ -2,7 +2,7 @@
 export const BOX_PARTICLE_CELL=8;
 export const BOX_PARTICLE_COUNT=16;
 export const BOX_PARTICLE_COLORS=[0xe1c6a0,0xa3d979,0x70bdff,0xba8afa,0xffd76b] as const;
-const counts=[[16,5,2],[20,6,3],[26,8,4],[32,9,5],[42,12,7]] as const;
+const counts=[[6,2,0],[8,2,0],[10,3,0],[12,3,0],[14,4,0]] as const;
 type Kind='light'|'debris'|'spark'|'leak'|'dust'|'ember';
 export interface PixelMote {kind:Kind;tile:number;x:number;y:number;vx:number;vy:number;gravity:number;delay:number;life:number;size:number;tint:number;spin:number;}
 export interface MotePose {x:number;y:number;alpha:number;size:number;rotation:number;}
@@ -13,23 +13,22 @@ export function makeBoxMotes(rank:number):PixelMote[]{
  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  const add=(kind:Kind,n:number)=>{
   for(let i=0;i<n;i++){
-   const start=random(),spread=random(),direction=(spread<.5?(random()-.5)*.58:spread<.9?(random()<.5?-1:1)*(.48+random()*.52):(random()<.5?-1:1)*(1.15+random()*.25));
-   const speed=kind==='debris'?80+random()*120:kind==='spark'?55+random()*95:115+random()*165;
-   const light=kind==='light'||kind==='ember'||kind==='leak',debris=kind==='debris'||kind==='dust';
+   const start=random();
+   const debris=kind==='debris'||kind==='dust';
    const tile=debris?6+Math.floor(random()*6):kind==='spark'?12+Math.floor(random()*4):Math.floor(random()*6);
-   const tint=debris?0xffffff:random()<.42?0xfff3c0:random()<.45?0xf4d77a:tone;
-   const m:PixelMote={kind,tile,x:-12+(random()-.5)*66,y:-20+(random()-.5)*13,
-    vx:Math.sin(direction)*speed,vy:-Math.cos(direction)*speed,gravity:kind==='debris'?360:70,
-    delay:start*.14,life:kind==='debris'?.48+random()*.29:kind==='spark'?.18+random()*.16:.29+random()*.26,
-    size:kind==='spark'?1.55:light?1.35+random()*.65:1.65,tint,spin:kind==='debris'?(random()<.5?-1:1)*4:0};
-   if(kind==='leak'){m.x=-8+(random()-.5)*95;m.vx=(random()-.5)*15;m.vy=-18-random()*32;m.gravity=0;m.life=.45+random()*.35;m.delay=start;m.size=1.3;}
-   if(kind==='dust'){m.x=(random()-.5)*120;m.y=78;m.vx=m.x*.65;m.vy=-12-random()*30;m.gravity=105;m.delay=start*.07;m.life=.3+random()*.22;m.size=1.1;m.tint=0xa99577;m.spin=0;}
-   if(kind==='ember'){m.vx*=.35;m.vy=-35-random()*55;m.gravity=8;m.delay=.38+random()*.28;m.life=.45+random()*.38;m.size=1.2;}
+   const tint=debris?0xffffff:random()<.23?0xfff3c0:tone;
+   const m:PixelMote={kind,tile,x:-8+(random()-.5)*20,y:-16+(random()-.5)*8,
+    vx:(random()-.5)*(debris?48:25),vy:-(debris?65+random()*40:135+random()*65),gravity:kind==='debris'?220:0,
+    delay:start*.26,life:kind==='debris'?.28+random()*.16:.38+random()*.22,
+    size:debris?1.1:.85+random()*.45,tint,spin:kind==='debris'?(random()<.5?-1:1)*2:0};
+   if(kind==='leak'){m.x=-8+(random()-.5)*25;m.vx=(random()-.5)*8;m.vy=-16-random()*22;m.gravity=0;m.life=.35+random()*.23;m.delay=start;m.size=.85;}
+   if(kind==='dust'){m.x=(random()-.5)*68;m.y=78;m.vx=(random()-.5)*16;m.vy=-8-random()*12;m.gravity=75;m.delay=start*.07;m.life=.18+random()*.13;m.size=.85;m.tint=0xa99577;m.spin=0;}
+   if(kind==='ember'){m.vx=(random()-.5)*14;m.vy=-55-random()*40;m.gravity=0;m.delay=.38+random()*.20;m.life=.34+random()*.23;m.size=.75;}
    result.push(m);
   }
  };
- add('dust',10);add('leak',6+level*2);
- add('light',counts[level][0]);add('debris',counts[level][1]);add('spark',counts[level][2]);add('ember',5+level*2);
+ add('dust',4);add('leak',3+level);
+ add('light',counts[level][0]);add('debris',counts[level][1]);add('spark',counts[level][2]);add('ember',3+level);
  return result;
 }
 export function boxMotePose(m:PixelMote,seconds:number,charge:number,burst:number,pressure:number):MotePose|null{
@@ -45,4 +44,18 @@ export function boxMotePose(m:PixelMote,seconds:number,charge:number,burst:numbe
  const rotation=m.spin?Math.round(m.spin*t/(Math.PI/2))*(Math.PI/2):0;
  return {x:m.x+m.vx*t,y:m.y+m.vy*t+.5*m.gravity*t*t,alpha:alpha*fade,
   size:m.size*(m.kind==='spark'?.6+.5*Math.sin(f*Math.PI):1),rotation};
+}
+
+/** Central plume is the primary effect, not an outward particle explosion. */
+export const PLUME_WIDTH=32;
+export const PLUME_HEIGHT=64;
+export const PLUME_FRAMES=16;
+export const PLUME_START=.20;
+export const PLUME_DURATION=.92;
+export function boxPlumePose(elapsed:number,rank:number){
+ const t=elapsed-PLUME_START;
+ if(t<0||t>=PLUME_DURATION)return null;
+ const f=t/PLUME_DURATION,frame=Math.min(PLUME_FRAMES-1,Math.floor(f*PLUME_FRAMES));
+ const tail=1-clamp((f-.67)/.33);
+ return {frame,alpha:Math.min(1,t/.07)*tail,scaleX:1.65+rank*.12,scaleY:1.85+rank*.13};
 }
