@@ -368,3 +368,10 @@
  .tc-forge-craft *,.tc-craft-hero *{animation:none!important;transition:none!important}
  .tc-forge-craft button:active{transform:none}
 }
+
+/* A spent material stack is a normal post-registration state, not an error. */
+.tc-forge-craft[data-craft-auto=true] .tc-craft-status{color:#b2bd98}
+.tc-forge-craft[data-craft-auto=true][data-craft-state=queue-full] .tc-craft-status,
+.tc-forge-craft[data-craft-auto=true][data-craft-state=location] .tc-craft-status{color:#e9c78c}
+.tc-forge-craft .tc-craft-material-amount{white-space:nowrap}
+.tc-forge-craft .tc-craft-material-amount span.insufficient{display:inline}

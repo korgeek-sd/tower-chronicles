@@ -27,3 +27,10 @@ export function validLifeAction(value:unknown):value is LifeActionRequest{
 export function craftLimit(s:VillageLifeState,id:ProductId){const r=CRAFT_RECIPES.find(x=>x.id===id),t=s.towns.find(x=>x.id===s.location);if(!r||!t||t.kind!=='city'&&t.kind!==r.kind)return 0;return Math.max(0,Math.min(100,s.vitality,Math.floor((s.materials[r.material]??0)/10)));}
 export function craftPreview(id:ProductId,count:number,mastery:number,carry:number){const base=CRAFT_RECIPES.find(x=>x.id===id)!.base;let quantity=0;for(let i=0;i<count;i++){carry+=base*lifeMasteryBonus(mastery);quantity+=base+Math.floor(carry/100);carry%=100;mastery=Math.min(LIFE_MASTERY_MAX_XP,mastery+1);}return {quantity,carry,mastery};}
 
+
+// A successful queue registration resets the draft to automatic mode (0).
+// Auto mode previews one craft only when it is currently affordable.
+export function craftSelectionCount(count:number,limit:number):number{
+ if(count===0)return limit>=1?1:0;
+ return Math.max(1,Math.min(100,Math.floor(count)||1));
+}

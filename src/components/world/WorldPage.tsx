@@ -1,4 +1,4 @@
-import {validLifeAction,PRODUCT_NAMES,type LifeActionRequest,type ProductId,type FoodId} from '../../game/life/crafting';
+import {validLifeAction,craftLimit,craftSelectionCount,PRODUCT_NAMES,type LifeActionRequest,type ProductId,type FoodId} from '../../game/life/crafting';
 import {craftingSupplyNeed,recommendedCraftSupplyTown} from '../../game/life/craftSupply';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
@@ -46,7 +46,7 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
   const raw=sessionStorage.getItem(draftKey);if(!raw)return;
   sessionStorage.removeItem(draftKey);
   const data=JSON.parse(raw);
-  if(typeof data.until==='number'&&Date.now()<=data.until&&typeof data.count==='number'&&Number.isInteger(data.count)&&data.count>=1&&data.count<=100&&['potion','attack_food','defense_food','experience_food','challenge_ticket'].includes(data.recipe)){
+  if(typeof data.until==='number'&&Date.now()<=data.until&&typeof data.count==='number'&&Number.isInteger(data.count)&&data.count>=0&&data.count<=100&&['potion','attack_food','defense_food','experience_food','challenge_ticket'].includes(data.recipe)){
    setRecipe(data.recipe);setCount(data.count);
   }
  }catch{}},[draftKey,initialView]);
@@ -83,11 +83,13 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
  finally{lock.current=false;if(alive.current)setBusy(false);}}
  async function action(kind:LifeActionRequest['action'],item:ProductId|'well',retry?:LifeActionRequest){
   if(lock.current||!lease||!state||pending&&!retry)return;
-  const r=retry??{id:crypto.randomUUID(),town:state.location,action:kind,item,count:kind==='craft'?count:1};
+  const selectedCount=kind==='craft'&&!retry?craftSelectionCount(count,craftLimit({...state,vitality:lifeVitalityAt(state,now+offset)},item as ProductId)):1;
+  if(!retry&&kind==='craft'&&(selectedCount<1||craftQueue.length>=3||selectedCount>craftLimit({...state,vitality:lifeVitalityAt(state,now+offset)},item as ProductId)))return;
+  const r=retry??{id:crypto.randomUUID(),town:state.location,action:kind,item,count:selectedCount};
   lock.current=true;setBusy(true);setError('');
   try{if(!retry){if(key)localStorage.setItem(key,JSON.stringify(r));setPending(r);}
    const response=await villageLifeAction(lease,r);if(!alive.current)return;accept(response.state);if(key)localStorage.removeItem(key);setPending(null);
-   if(r.action==='craft'){setCraftQueue(response.queue??[]);}
+   if(r.action==='craft'){setCraftQueue(response.queue??[]);setCount(0);}
    setMessage(r.action==='well'?'우물에서 HP를 완전히 회복했습니다.':r.action==='food'?`${PRODUCT_NAMES[r.item as FoodId]} 사용 · 지속 +30회`:'제작 대기열에 등록했습니다. 완료 후 직접 수령해 주세요.');
   }catch(e){if(alive.current){if(e instanceof VillageLifeRejected){if(key)localStorage.removeItem(key);setPending(null);}setError(e instanceof Error?e.message:'생활 결과를 다시 확인해 주세요.');}}
   finally{lock.current=false;if(alive.current)setBusy(false);}
@@ -115,6 +117,6 @@ export function WorldPage({userId,lease,now,onInventory,onHome,initialView='map'
  return <div className="tc-world-page">
   <VillageLifeNotice error={error} pending={!!pending} busy={busy} canRetry={!!lease} onRetry={retryPending}/>
   {warPending&&view==='map'&&<div className="tc-life-error" role="alert"><span>이전 선전포고 결과를 확인해야 합니다.</span><button disabled={warBusy||!lease} onClick={()=>void declareWar(warPending.townId,warPending)}>선전포고 결과 재확인</button></div>}
-  {view==='craft'?<section className={'tc-life tc-craft-page'+((error||pending&&!busy)?' tc-craft-notice':'')} aria-label="아이템 제작"><header className="tc-life-header tc-craft-hero"><div className="tc-craft-hero-mark" aria-hidden="true">⚒</div><div className="tc-craft-hero-copy"><h1>제작 공방</h1><p>수집한 재료로 다양한 아이템을 제작할 수 있습니다.</p></div><div className="tc-life-navigation"><button className="tc-action secondary" disabled={busy} onClick={()=>void refresh()} aria-label="재고 새로고침">↻</button><button className="tc-action secondary" onClick={()=>onInventory?.()}>가방</button><button className="tc-action secondary" onClick={onHome}>거점</button></div></header><CraftScreen state={liveState} confirmedResult={craftResult} queue={craftQueue} now={now+offset} onClaim={id=>void craftQueueAction('claim',id)} onCancel={id=>void craftQueueAction('cancel',id)} busy={disabled} count={count} recipe={recipe} onRecipe={setRecipe} onCount={setCount} onCraft={id=>void action('craft',id)} onFindMaterials={(item,n)=>void findCraftMaterials(item,n)} onOpenInventory={()=>openCraftInventory('vitality')} onTravel={id=>void travel(id)} onMap={()=>{setMessage('');setView('map');}}/></section>:view==='map'?<WorldMapScreen currentId={state.location} towns={state.towns} busy={disabled||warBusy} vitality={liveState.vitality} war={war} warError={warError} warBusy={warBusy} warPending={!!warPending} onDeclareWar={id=>void declareWar(id)} onTravel={id=>void travel(id)} onLife={()=>{setMessage('');setView(supplyGoal?'life':initialView==='craft'?'craft':'life');}}/>:<LifeScreen state={liveState} busy={disabled} count={gatherCount} now={now+offset} message={message} target={supplyGoal} onReturnCraft={supplyGoal?returnToCraft:undefined} onCount={setGatherCount} onGather={r=>void gather(r)} onBack={()=>setView('map')} onRefresh={()=>void refresh()} onInventory={onInventory} onWell={()=>void action('well','well')}/>}
+  {view==='craft'?<section className={'tc-life tc-craft-page'+((error||pending&&!busy)?' tc-craft-notice':'')} aria-label="아이템 제작"><header className="tc-life-header tc-craft-hero"><div className="tc-craft-hero-mark" aria-hidden="true">⚒</div><div className="tc-craft-hero-copy"><h1>제작 공방</h1><p>수집한 재료로 다양한 아이템을 제작할 수 있습니다.</p></div><div className="tc-life-navigation"><button className="tc-action secondary" disabled={busy} onClick={()=>void refresh()} aria-label="재고 새로고침">↻</button><button className="tc-action secondary" onClick={()=>onInventory?.()}>가방</button><button className="tc-action secondary" onClick={onHome}>거점</button></div></header><CraftScreen state={liveState} confirmedResult={craftResult} queue={craftQueue} now={now+offset} onClaim={id=>void craftQueueAction('claim',id)} onCancel={id=>void craftQueueAction('cancel',id)} busy={disabled} count={count} recipe={recipe} onRecipe={id=>{if(id!==recipe){setRecipe(id);setCount(1);}}} onCount={setCount} onCraft={id=>void action('craft',id)} onFindMaterials={(item,n)=>void findCraftMaterials(item,n)} onOpenInventory={()=>openCraftInventory('vitality')} onTravel={id=>void travel(id)} onMap={()=>{setMessage('');setView('map');}}/></section>:view==='map'?<WorldMapScreen currentId={state.location} towns={state.towns} busy={disabled||warBusy} vitality={liveState.vitality} war={war} warError={warError} warBusy={warBusy} warPending={!!warPending} onDeclareWar={id=>void declareWar(id)} onTravel={id=>void travel(id)} onLife={()=>{setMessage('');setView(supplyGoal?'life':initialView==='craft'?'craft':'life');}}/>:<LifeScreen state={liveState} busy={disabled} count={gatherCount} now={now+offset} message={message} target={supplyGoal} onReturnCraft={supplyGoal?returnToCraft:undefined} onCount={setGatherCount} onGather={r=>void gather(r)} onBack={()=>setView('map')} onRefresh={()=>void refresh()} onInventory={onInventory} onWell={()=>void action('well','well')}/>}
  </div>;
 }

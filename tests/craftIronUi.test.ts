@@ -30,3 +30,23 @@ test('quantity and crafting controls stay together inside the new forge workspac
  assert.doesNotMatch(html.slice(0,html.indexOf('<footer')),/aria-label="제작 횟수"/);
  assert.match(html,/data-craft-art="herb"/);assert.match(html,/보유 7개/);
 });
+
+test('post-registration automatic mode clears the previous batch and shows a neutral one-craft supply target',()=>{
+ const exhausted={...state,materials:{herb:0}};
+ const html=renderToStaticMarkup(React.createElement(CraftScreen,{state:exhausted,busy:false,count:0,recipe:'potion',queue:[{id:'queued',item:'potion',count:10,quantity:10000,startsAt:0,endsAt:100000,durationSeconds:1800,status:'crafting'}],onRecipe:()=>{},onCount:()=>{},onCraft:()=>{},onFindMaterials:()=>{}}));
+ assert.match(html,/data-craft-auto="true"/);
+ assert.match(html,/>0회<\/output>/);
+ assert.match(html,/필요 재료 \(1회 기준\)/);
+ assert.match(html,/재료 수집하기/);
+ assert.match(html,/제작 대기열 등록 완료/);
+ assert.doesNotMatch(html,/재료 부족|부족 100|insufficient/);
+ assert.match(html,/활력 0/);
+ assert.match(html,/00:00/);
+ assert.match(html,/tc-craft-material-amount"><span class="">0<\/span> <i>\/<\/i> 10/);
+});
+test('automatic quantity returns to one when enough resources are available; explicit requests remain editable',()=>{
+ const html=renderToStaticMarkup(React.createElement(CraftScreen,{state,busy:false,count:0,recipe:'potion',onRecipe:()=>{},onCount:()=>{},onCraft:()=>{}}));
+ assert.match(html,/>1회<\/output>/);
+ assert.match(html,/제작하기 1회/);
+ assert.match(render(),/>10회<\/output>/);
+});
