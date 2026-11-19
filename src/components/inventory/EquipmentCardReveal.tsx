@@ -9,10 +9,15 @@ import {cardTimeline,runCardTimeline} from '../../gameFeel/cardSequence';
 import {assetUrl} from '../../game/data/graphics';
 import {EquipmentArt} from './EquipmentArt';
 import {boxStatRows} from './boxPresentation';
-import {cardRows,cardSize,remainingCards} from './equipmentCardLayout';
+import {cardRows,cardSize,remainingCards,cardNameLines} from './equipmentCardLayout';
 const cardBack=assetUrl('assets/ui/cards/card-back-bronze-seal-v1.webp');
 const chestArt=assetUrl('assets/ui/shop/adventurer_equipment_box.png');
 export function CardSeal(){return <img className="tc-card-back-art" src={cardBack} alt="" aria-hidden="true" draggable={false} width={420} height={600}/>;}
+function CardName({name}:{name:string}){
+ const lines=cardNameLines(name);
+ const style={'--name-length':Math.max(1,Array.from(name).length),'--name-longest':Math.max(1,...lines.map(line=>Array.from(line).length))} as React.CSSProperties;
+ return <span className="tc-card-name" style={style}><span className="tc-card-name-full">{name}</span><span className="tc-card-name-compact">{lines.map((line,i)=><span className="tc-card-name-line" key={i}>{line}</span>)}</span></span>;
+}
 function CardLight({revealed}:{revealed:boolean}){return <span className={'tc-card-reveal-light '+(revealed?'is-impact':'is-flipping')} aria-hidden="true"><span className="tc-card-halo"/><span className="tc-card-flash"/></span>;}
 
 interface EquipmentCardRevealProps{
@@ -75,7 +80,7 @@ export function EquipmentCardReveal({rewards,onClose,onInventory=onClose,quantit
      '--travel-scale':Math.min(220,(area.current?.clientHeight??size/.7)*.7*.9)/size,
     } as React.CSSProperties:undefined;
     return <button ref={el=>{buttons.current[index]=el;}} key={reward.id} style={travelStyle} type="button" className={'tc-card-tile'+(flying?(returning?' is-flying is-returning':' is-flying'):'')+(visible?' is-revealed':'')+(visible?' grade-'+reward.grade:'')+(ready?' is-settled':'')+(visible&&!ready?' is-flipping':'')+(charging.has(index)?' is-charging grade-'+reward.grade:'')} aria-label={ready?`${equipmentItemName(reward)} 상세 보기`:`장비 카드 ${index+1} ${visible?'공개 중':'공개'}`} aria-disabled={batch} onClick={()=>{if(batchRef.current)return;if(ready)setSelected(index);else reveal(index);}}>
-     <span className="tc-card-turn" aria-hidden="true"><span className="tc-card-face tc-card-back"><CardSeal/><span className="tc-bronze-reflection" style={{maskImage:`url(${cardBack})`}}/></span><span className={'tc-card-face tc-card-front grade-'+reward.grade}><span className="tc-card-rank">{EQUIPMENT_GRADE_NAMES[reward.grade]}</span><span className="tc-card-art"><EquipmentArt kind={reward.kind} grade={reward.grade}/></span><span className="tc-card-name">{EQUIPMENT_DEFINITIONS[reward.kind].name}</span></span></span>
+     <span className="tc-card-turn" aria-hidden="true"><span className="tc-card-face tc-card-back"><CardSeal/><span className="tc-bronze-reflection" style={{maskImage:`url(${cardBack})`}}/></span><span className={'tc-card-face tc-card-front grade-'+reward.grade}><span className="tc-card-rank">{EQUIPMENT_GRADE_NAMES[reward.grade]}</span><span className="tc-card-art"><EquipmentArt kind={reward.kind} grade={reward.grade}/></span><CardName name={EQUIPMENT_DEFINITIONS[reward.kind].name}/></span></span>
      {visible&&<CardLight key={ready?'impact':'flip'} revealed={ready}/>}
     </button>;
    })}</div>;})}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {cardRows,cardSize,remainingCards} from '../src/components/inventory/equipmentCardLayout';
+import {cardRows,cardSize,remainingCards,cardNameLines} from '../src/components/inventory/equipmentCardLayout';
 test('one through ten rewards fit centered rows with consistent card size',()=>{
  const expected=[[1],[2],[3],[2,2],[3,2],[3,3],[3,3,1],[3,3,2],[3,3,3],[3,4,3]];
  for(let n=1;n<=10;n++){
@@ -62,4 +62,17 @@ test('repeat-result buttons consume one or ten boxes and display current stock',
  assert.doesNotMatch(low,/class="tc-card-repeat-one" disabled=""/);
  const unopened=renderToStaticMarkup(React.createElement(EquipmentCardReveal,{rewards,onClose:()=>{},onRepeat:()=>{},quantity:128}));
  assert.match(unopened,/모두 공개/);assert.doesNotMatch(unopened,/10회 연속 뽑기/);
+});
+
+import {EQUIPMENT_DEFINITIONS} from '../src/game/data/equipment';
+test('compact card labels preserve every Korean equipment name across two balanced lines',()=>{
+ for(const entry of Object.values(EQUIPMENT_DEFINITIONS)){
+  const lines=cardNameLines(entry.name);
+  assert.equal(lines.join(' '),entry.name);
+  assert.ok(lines.length<=2);
+  assert.ok(lines.every(line=>Array.from(line).length<=7),entry.name);
+ }
+ assert.deepEqual(cardNameLines('외곽 경비대 장궁'),['외곽','경비대 장궁']);
+ assert.deepEqual(cardNameLines('귀환자의 부적 목걸이'),['귀환자의','부적 목걸이']);
+ assert.deepEqual(cardNameLines('검'),['검']);
 });
