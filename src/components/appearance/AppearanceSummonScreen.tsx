@@ -16,6 +16,16 @@ import {playSummonRequest,unlockSsrSound} from './ssrSound';
 import {AppearanceCardReveal} from './AppearanceCardReveal';
 export {AppearanceSummonResultView} from './AppearanceSummonResultView';
 
+type PendingSummon = {id:string;rolls:1|10};
+function readPendingSummon(key:string):PendingSummon|null {
+ const raw=localStorage.getItem(key);
+ if(!raw)return null;
+ const request=JSON.parse(raw) as PendingSummon;
+ if(!request||typeof request.id!=='string'||!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(request.id)||(request.rolls!==1&&request.rolls!==10)){
+  throw Error('이전 소환 요청 정보를 확인할 수 없습니다.');
+ }
+ return request;
+}
 export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lease=null,onPrepare,onPending,onRecord,onEquip}:{game:GameState;onList:()=>void;onCollection?:()=>void;userId?:string|null;lease?:GameplayLease|null;onPrepare?:()=>Promise<void>;onPending?:(busy:boolean)=>void;onRecord?:(record:CloudSaveRecord)=>void;onEquip?:(id:string)=>void}){
  const [panel,setPanel]=useState<'history'|'rates'|'results'|null>(null);
  const [busy,setBusy]=useState(false),[status,setStatus]=useState(''),[draws,setDraws]=useState<AppearanceSummonDraw[]>([]);
@@ -24,7 +34,16 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
  const [replayed,setReplayed]=useState(false),[skipReveal,setSkipReveal]=useState(false);
  const submitLock=useRef(false);
  const [resultError,setResultError]=useState('');
- const pendingRequest=useRef<{id:string;rolls:1|10}|null>(null);
+ const pendingRequest=useRef<PendingSummon|null>(null);
+ const pendingKey=userId?'tower-appearance-summon-pending:'+userId:null;
+ useEffect(()=>{
+  pendingRequest.current=null;
+  try{
+   const saved=pendingKey?readPendingSummon(pendingKey):null;
+   pendingRequest.current=saved;
+   setStatus(saved?saved.rolls+'회 소환 버튼으로 이전 결과를 확인해 주세요.':'');
+  }catch{setStatus('이전 소환 요청 정보를 읽을 수 없습니다.');}
+ },[pendingKey]);
  const modal=useRef<HTMLElement>(null);
  const [weeklyPickup,setWeeklyPickup]=useState<WeeklyAppearancePickup|null>(null);
  const [pickupError,setPickupError]=useState(false);
@@ -57,13 +76,20 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
  ].filter(Boolean).join(' + ');
  const resultPayment=(tickets:number,gold:number)=>paymentLabel({ticketsUsed:tickets,goldSpent:gold});
  async function summon(rolls:1|10){
-  if(!userId||!lease||busy||submitLock.current)return;
+  if(!userId||!lease||!pendingKey||busy||submitLock.current)return;
+  try{pendingRequest.current=readPendingSummon(pendingKey);}catch{setStatus('이전 소환 요청 정보를 읽을 수 없습니다.');return;}
   if(pendingRequest.current&&pendingRequest.current.rolls!==rolls)return;
   const payment=appearanceSummonPayment(rolls,ownedTickets);
   if(!pendingRequest.current&&game.market.gold<payment.goldSpent){setStatus('소환에 필요한 골드가 부족합니다.');return;}
   unlockSsrSound();
   playSummonRequest(rolls);
   const request=pendingRequest.current?.rolls===rolls?pendingRequest.current:{id:crypto.randomUUID(),rolls};
+  try{localStorage.setItem(pendingKey,JSON.stringify(request));}
+  catch{setStatus('소환 요청을 기기에 저장할 수 없습니다.');return;}
+  function clearRequest(){
+   if(pendingKey&&readPendingSummon(pendingKey)?.id===request.id)localStorage.removeItem(pendingKey);
+   if(pendingRequest.current?.id===request.id)pendingRequest.current=null;
+  }
   pendingRequest.current=request;submitLock.current=true;
   setResultError('');setBusy(true);setStatus('서버에서 외형을 소환하고 있습니다.');
   let prepared=false;
@@ -72,10 +98,10 @@ export function AppearanceSummonScreen({game,onList,onCollection,userId=null,lea
    onPending?.(true);prepared=true;
    const response=await summonAppearances(lease,userId,request.id,rolls);
    onRecord?.(response.record);
-   pendingRequest.current=null;
+   clearRequest();
    setReplayed(response.replayed);setDraws(response.draws);setResultVersion(n=>n+1);setPanel('results');
    setStatus((response.replayed?'이전 소환 결과를 복원했습니다. ':'외형 조각 소환 완료. ')+resultPayment(response.ticketsSpent,response.goldSpent)+' 사용');
-  }catch(error){if(error instanceof AppearanceSummonRejected)pendingRequest.current=null;const message=error instanceof Error?error.message:'소환 결과를 확인하지 못했습니다. 동일한 버튼으로 재시도해 주세요.';setStatus(message);setResultError(message);}
+  }catch(error){if(error instanceof AppearanceSummonRejected){try{clearRequest();}catch{setStatus('이전 소환 요청 정보를 읽을 수 없습니다.');return;}}const message=error instanceof Error?error.message:'소환 결과를 확인하지 못했습니다. 동일한 버튼으로 재시도해 주세요.';setStatus(message);setResultError(message);}
   finally{submitLock.current=false;setBusy(false);if(prepared)onPending?.(false);}
  }
  async function showHistory(){
