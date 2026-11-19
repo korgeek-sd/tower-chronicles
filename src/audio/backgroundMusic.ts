@@ -20,6 +20,11 @@ export function saveMusicPreferences(value:MusicPreferences):boolean{
 const notes=decodeTowerTheme();
 const freq=(pitch:number)=>440*Math.pow(2,(pitch-69)/12);
 let context:AudioContext|null=null,master:GainNode|null=null,scheduler:number|null=null;
+let duckFactor=1;
+export function setCardMusicDucking(duck:boolean){
+ duckFactor=duck?.25:1;
+ if(active&&context&&master){const prefs=readMusicPreferences();master.gain.setTargetAtTime(prefs.enabled?prefs.volume*.66*duckFactor:0,context.currentTime,.12);}
+}
 let anchor=0,noteIndex=0,loop=0,active=false;
 let noiseBuffer:AudioBuffer|null=null;
 function voice(ctx:AudioContext,when:number,length:number,pitch:number,velocity:number,instrument:number,destination:AudioNode){
@@ -94,7 +99,7 @@ function start(){
    master=context.createGain();master.gain.value=0;master.connect(context.destination);
   }
   active=true;noteIndex=0;loop=0;anchor=context.currentTime+.08;
-  master!.gain.setTargetAtTime(readMusicPreferences().volume*.66,context.currentTime,.08);
+  master!.gain.setTargetAtTime(readMusicPreferences().volume*.66*duckFactor,context.currentTime,.08);
   scheduler=window.setInterval(schedule,180);
   schedule();
   // Keep the context queued even when mobile autoplay is suspended.
@@ -105,7 +110,7 @@ export function mountBackgroundMusic():()=>void{
  if(typeof window==='undefined'||typeof document==='undefined')return()=>{};
  const unlock=()=>{if(context&&context.state==='suspended')void context.resume().catch(()=>{});start();};
  const visibility=()=>{if(document.hidden)stop();else start();};
- const settings=()=>{const prefs=readMusicPreferences();if(!prefs.enabled){stop();return;}if(active&&master&&context)master.gain.setTargetAtTime(prefs.volume*.66,context.currentTime,.06);else start();};
+ const settings=()=>{const prefs=readMusicPreferences();if(!prefs.enabled){stop();return;}if(active&&master&&context)master.gain.setTargetAtTime(prefs.volume*.66*duckFactor,context.currentTime,.06);else start();};
  document.addEventListener('pointerdown',unlock,{capture:true});
  document.addEventListener('keydown',unlock,{capture:true});
  document.addEventListener('visibilitychange',visibility);

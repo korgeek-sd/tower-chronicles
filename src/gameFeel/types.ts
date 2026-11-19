@@ -1,6 +1,7 @@
 export type GameFeelIntensity='subtle'|'normal'|'strong'|'exceptional';
 export type EnhancementFeelOutcome='SUCCESS'|'FAIL_KEEP'|'FAIL_DOWNGRADE'|'FAIL_DESTROY';
 export type GameFeelEvent=
+ |'card.deal'|'card.charge'|'card.flip'|'card.result'
  |'hunt.start'|'hunt.result'
  |'ui.press'|'ui.confirm'|'ui.error'
  |'seal.roll.start'|'seal.roll.result'|'seal.reset'
@@ -8,6 +9,7 @@ export type GameFeelEvent=
  |'combat.basic-hit'|'combat.critical-hit'|'combat.player-damaged'|'combat.guard'|'combat.heal'|'combat.death'
  |'market.order-placed'|'market.order-cancelled'|'market.trade-partial'|'market.trade-filled';
 export type GameFeelPayloadMap={
+ 'card.deal':undefined;'card.charge':undefined;'card.flip':undefined;'card.result':{grade:string};
  'hunt.start':undefined;'hunt.result':{outcome:'victory'|'defeat';grade?:string;leveledUp?:boolean};
  'ui.press':undefined;'ui.confirm':undefined;'ui.error':undefined;
  'seal.roll.start':undefined;'seal.roll.result':{step:1|2|3};'seal.reset':undefined;

@@ -7,7 +7,7 @@ import type {GameFeelEvent,GameFeelPayloadMap} from '../gameFeel/types';
 
 export const EFFECT_SOUND_KEY='tower-general-effects-v1';
 export const EFFECT_SOUND_EVENT='tower:general-sound-settings';
-export type GameEffectName='ui.click'|'ui.confirm'|'ui.error'|'hunt.start'|'hunt.victory'|'hunt.defeat'|'loot.common'|'loot.rare'|'player.level-up'|'seal.cast'|'seal.step-1'|'seal.step-2'|'seal.step-3'|'seal.reset'|'box.land'|'box.charge'|'box.unlock'|'box.hinge';
+export type GameEffectName='ui.click'|'ui.confirm'|'ui.error'|'hunt.start'|'hunt.victory'|'hunt.defeat'|'loot.common'|'loot.rare'|'player.level-up'|'seal.cast'|'seal.step-1'|'seal.step-2'|'seal.step-3'|'seal.reset'|'box.land'|'box.charge'|'box.unlock'|'box.hinge'|'card.charge'|'card.flip'|'card.common'|'card.uncommon'|'card.rare'|'card.heroic'|'card.legendary';
 export type GameEffectSettings={enabled:boolean;volume:number};
 export const DEFAULT_EFFECT_SOUND_SETTINGS:GameEffectSettings={enabled:true,volume:.58};
 const clamp=(value:number)=>Number.isFinite(value)?Math.min(1,Math.max(0,value)):0;
@@ -29,6 +29,13 @@ export type SoundInstruction={delay:number;duration:number;startHz:number;endHz:
 const note=(delay:number,duration:number,startHz:number,endHz:number,gain:number,wave:SoundInstruction['wave']='sine'):SoundInstruction=>({delay,duration,startHz,endHz,gain,wave});
 const grain=(delay:number,duration:number,filterHz:number,gain:number):SoundInstruction=>({delay,duration,startHz:0,endHz:0,gain,wave:'sine',noise:true,filterHz});
 export const EFFECT_SOUND_PROFILES:Readonly<Record<GameEffectName,readonly SoundInstruction[]>>={
+ 'card.charge':[note(0,.38,110,580,.045,'triangle'),grain(.05,.32,1700,.025)],
+ 'card.flip':[grain(0,.12,2400,.055),note(0,.11,780,240,.025,'triangle')],
+ 'card.common':[grain(0,.055,2400,.04),note(0,.13,920,700,.045,'triangle')],
+ 'card.uncommon':[grain(0,.05,2300,.035),note(0,.22,660,658,.05),note(.06,.24,990,985,.03)],
+ 'card.rare':[grain(0,.07,3400,.07),grain(.08,.05,2100,.04),note(0,.28,125,60,.06,'triangle'),note(.07,.4,880,870,.055)],
+ 'card.heroic':[grain(0,.15,2800,.07),note(0,.4,110,45,.085,'triangle'),note(.05,.58,440,435,.06),note(.12,.58,880,870,.04)],
+ 'card.legendary':[grain(0,.23,2100,.075),note(0,.48,95,38,.10,'triangle'),note(.04,.76,220,218,.055),note(.08,.82,440,438,.055),note(.12,.82,659,655,.045),note(.16,.8,880,872,.035)],
  'box.land':[grain(0,.095,520,.09),note(0,.22,125,55,.11,'triangle'),grain(.025,.12,1100,.035)],
  'box.charge':[note(0,.45,95,120,.027,'sine'),grain(.12,.45,850,.02)],
  'box.unlock':[grain(0,.045,3200,.055),note(.015,.09,1250,850,.036,'triangle'),grain(.07,.045,1950,.038)],
@@ -54,6 +61,10 @@ export const EFFECT_SOUND_PROFILES:Readonly<Record<GameEffectName,readonly Sound
 };
 export type Cue={name:GameEffectName;delay:number};
 export function cuesForFeedback(event:GameFeelEvent,payload?:GameFeelPayloadMap[GameFeelEvent]):Cue[]{
+ if(event==='card.deal')return [{name:'box.land',delay:0}];
+ if(event==='card.charge')return [{name:'card.charge',delay:0}];
+ if(event==='card.flip')return [{name:'card.flip',delay:0}];
+ if(event==='card.result'){const grade=(payload as {grade:string}).grade;return [{name:('card.'+(['common','uncommon','rare','heroic','legendary'].includes(grade)?grade:'common')) as GameEffectName,delay:0}];}
  if(event==='ui.press')return [{name:'ui.click',delay:0}];
  if(event==='ui.confirm')return [{name:'ui.confirm',delay:0}];
  if(event==='ui.error')return [{name:'ui.error',delay:0}];
@@ -78,7 +89,8 @@ export function cuesForFeedback(event:GameFeelEvent,payload?:GameFeelPayloadMap[
 }
 
 let ctx:AudioContext|null=null,master:GainNode|null=null,limiter:DynamicsCompressorNode|null=null,noiseBuffer:AudioBuffer|null=null;
-const voices=new Set<{stop:()=>void}>();
+const voices=new Set<{stop:()=>void;scope?:string}>();
+export function stopEffectScope(scope:string){for(const voice of [...voices])if(voice.scope===scope)voice.stop();}
 const lastPlayed=new Map<GameEffectName,number>();
 function applyEffectVolume(){
  if(!ctx||!master)return;
@@ -110,7 +122,7 @@ function getNoise(context:AudioContext):AudioBuffer{
  for(let i=0;i<data.length;i++){seed=(Math.imul(seed,1664525)+1013904223)|0;data[i]=(seed>>>0)/2147483648-1;}
  noiseBuffer=buffer;return buffer;
 }
-export function playGameEffect(name:GameEffectName,delay=0):void{
+export function playGameEffect(name:GameEffectName,delay=0,scope?:string):void{
  const pref=readEffectSoundSettings();
  if(!pref.enabled||pref.volume<=0||typeof document==='undefined'||document.hidden)return;
  unlockGameEffectAudio();
@@ -124,7 +136,7 @@ export function playGameEffect(name:GameEffectName,delay=0):void{
   const gain=ctx.createGain();gain.gain.value=1;gain.connect(master);
   const sources:AudioScheduledSourceNode[]=[],nodes:AudioNode[]=[gain];
   let remaining=0,disposed=false;
-  const voice={stop:()=>{
+  const voice={scope,stop:()=>{
    if(disposed)return;
    disposed=true;
    sources.forEach(source=>{source.onended=null;try{source.stop();}catch{}});
@@ -155,7 +167,7 @@ export function playGameEffect(name:GameEffectName,delay=0):void{
  }catch{/* skip blocked Web Audio silently */ }
 }
 export function playGameFeedback(event:GameFeelEvent,payload?:GameFeelPayloadMap[GameFeelEvent]):void{
- cuesForFeedback(event,payload).forEach(cue=>playGameEffect(cue.name,cue.delay));
+ cuesForFeedback(event,payload).forEach(cue=>playGameEffect(cue.name,cue.delay,event.startsWith('card.')?'equipment-cards':undefined));
 }
 /** One global listener handles ordinary buttons without requiring every screen to opt in. */
 export function mountInterfaceSounds():()=>void{
@@ -168,7 +180,7 @@ export function mountInterfaceSounds():()=>void{
   const button=target.closest('button,[role="button"],select');
   if(!(button instanceof HTMLElement)||button.matches(':disabled,[aria-disabled="true"]'))return;
   // Dedicated summon/hunt cues run through their own confirmed interactions.
-  if(button.closest('.tc-ssr-reveal,.tc-appearance-summon-screen')||button.matches('.tc-hunt-enter,.tc-hunt-next,.tc-seal-roll,.tc-seal-reset,.tc-seal-audio-preview'))return;
+  if(button.closest('.tc-ssr-reveal,.tc-appearance-summon-screen,.tc-card-stage')||button.matches('.tc-hunt-enter,.tc-hunt-next,.tc-seal-roll,.tc-seal-reset,.tc-seal-audio-preview'))return;
   playGameEffect('ui.click');
  };
  document.addEventListener('pointerdown',unlock,{capture:true,passive:true});
