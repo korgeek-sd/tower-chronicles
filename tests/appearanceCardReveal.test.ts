@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {AppearanceCardReveal,APPEARANCE_CARD_GRADES} from '../src/components/appearance/AppearanceCardReveal';
+import {initialState} from '../src/game/engine/state';
+import type {AppearanceSummonDraw} from '../src/online/appearanceSummon';
+import {readFileSync} from 'node:fs';
+const game=initialState();game.cosmetics.summonTickets=2;game.market.gold=3000;
+const draws:AppearanceSummonDraw[]=Array.from({length:10},(_,i)=>({id:i===9?'nameless_king':'scout',rarity:i===9?'SSR':'C',duplicate:i>0}));
+const props={draws,game,available:true,onRepeat:()=>{},onClose:()=>{},onList:()=>{}};
+test('appearance cards use equipment grade timeline and layout, preserving duplicate server results',()=>{
+ assert.deepEqual(Object.values(APPEARANCE_CARD_GRADES),['common','uncommon','rare','heroic','legendary']);
+ const html=renderToStaticMarkup(React.createElement(AppearanceCardReveal,props));
+ assert.equal((html.match(/class="tc-card-row"/g)??[]).length,3);
+ assert.equal((html.match(/class="tc-card-tile/g)??[]).length,10);
+ assert.match(html,/모두 공개/);assert.doesNotMatch(html,/0 \/ 10 공개|tc-seal-scene/);
+ assert.match(html,/조각 ×1/);
+});
+test('revealed results expose both repeat costs without charging locally',()=>{
+ const before=JSON.stringify(game);
+ const html=renderToStaticMarkup(React.createElement(AppearanceCardReveal,{...props,skipReveal:true}));
+ assert.match(html,/한 번 더 소환/);assert.match(html,/10회 연속 소환/);assert.match(html,/소환권 2장 \+ 2,160 G/);
+ assert.match(html,/외형 목록/);assert.equal(JSON.stringify(game),before);
+ const single=renderToStaticMarkup(React.createElement(AppearanceCardReveal,{...props,draws:draws.slice(9),skipReveal:true}));
+ assert.equal((single.match(/class="tc-card-tile/g)??[]).length,1);
+ assert.match(single,/10회 연속 소환/);
+ const source=readFileSync('src/components/appearance/AppearanceSummonScreen.tsx','utf8');assert.match(source,/<AppearanceCardReveal key=/);
+ assert.match(source,/summonAppearances\(lease,userId,request.id,rolls\)/);
+});
