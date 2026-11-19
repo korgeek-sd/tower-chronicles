@@ -93,3 +93,31 @@
 .tc-card-front .tc-card-name{position:absolute;z-index:2;left:15%;top:81%;width:70%;height:9%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;text-align:center;color:#f3e7cb;font-size:clamp(6px,6.3cqw,15px);font-weight:600;line-height:1.12;letter-spacing:-.02em;word-break:keep-all;overflow-wrap:anywhere;overflow:hidden;text-shadow:1px 1px #090b08}
 .tc-card-tile.is-settled .tc-card-front{box-shadow:0 0 9px color-mix(in srgb,var(--card-tone) 16%,transparent),0 4px 12px #0009}
 @media(prefers-reduced-motion:reduce){.tc-card-front:after{display:block!important;animation:none!important}}
+
+/* Equipment result: reusable single / ten-box actions without leaving the receipt. */
+.tc-box-dialog.is-card-result header{border-bottom:1px solid #6b512f;min-height:48px;padding:0 42px 4px}
+.tc-box-dialog.is-card-result h2{color:#f5d99c;text-shadow:0 2px #392910,0 0 12px #d3a44833;letter-spacing:.09em}
+.tc-box-dialog.is-card-result h2::before,.tc-box-dialog.is-card-result h2::after{content:"◆";font-size:.42em;vertical-align:middle;color:#b18b4d;margin:0 .75em}
+.tc-box-dialog.is-card-result .tc-box-close{border:1px solid #9e7946;background:#15110d;color:#eacb86;font-size:24px;min-height:36px;min-width:36px;right:0;top:2px;padding:0}
+.tc-card-repeat-footer{flex:0 0 auto;display:grid;gap:9px;padding:4px 0 0;min-width:0}
+.tc-card-stock-row{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.tc-card-stock-count{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;min-height:40px;padding:4px 6px;border:1px solid #7e633c;background:linear-gradient(100deg,#0f1014,#231a25,#101014);color:#d9c9a9;font-size:clamp(11px,3.2vw,14px);white-space:nowrap}
+.tc-card-stock-count b{color:#f4c95d;font-weight:700}
+.tc-card-stock-count img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}
+.tc-box-dialog .tc-card-inventory{flex:0 0 auto;min-height:40px;padding:4px 8px;color:#eedab1;font-size:clamp(10px,3vw,13px);border-color:#c4a06c;background:linear-gradient(#3a3229,#151411);box-shadow:inset 0 0 0 2px #15120f}
+.tc-card-repeat-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0}
+.tc-box-dialog .tc-card-repeat-actions button{min-width:0;min-height:66px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:2px solid var(--repeat-rim);border-radius:4px;outline:1px solid var(--repeat-outline);outline-offset:1px;color:var(--repeat-text);background:var(--repeat-bg);box-shadow:inset 0 0 0 2px var(--repeat-inner),inset 0 0 18px var(--repeat-glow),0 0 8px var(--repeat-glow);text-shadow:0 1px 2px #000b}
+.tc-card-repeat-one,.tc-card-reveal-all{--repeat-rim:#f1ce82;--repeat-outline:#735127;--repeat-text:#fff0c9;--repeat-bg:linear-gradient(155deg,#9a651e,#51330d 53%,#795220);--repeat-inner:#39270e;--repeat-glow:#efb53b50}
+.tc-card-repeat-ten{--repeat-rim:#df9aff;--repeat-outline:#754d9c;--repeat-text:#f7dfff;--repeat-bg:linear-gradient(155deg,#73369c,#33144f 52%,#5b2886);--repeat-inner:#2b123f;--repeat-glow:#bc56ff55}
+.tc-card-repeat-label{white-space:nowrap;font-weight:700;font-size:clamp(11px,3.8vw,18px);line-height:1.18}
+.tc-card-repeat-cost{display:flex;align-items:center;justify-content:center;gap:4px;min-width:58px;background:#09060a99;padding:0 8px;border-radius:3px;font-size:12px;line-height:1.1}
+.tc-card-repeat-cost img{width:23px;height:23px;object-fit:contain;image-rendering:pixelated}
+.tc-box-dialog .tc-card-reveal-all{grid-column:1/-1;font-size:17px}
+.tc-box-dialog .tc-card-repeat-actions button:disabled{opacity:.42;box-shadow:inset 0 0 0 2px var(--repeat-inner);filter:saturate(.5)}
+.tc-card-repeat-settings{display:flex;justify-content:center;align-items:center;border-top:1px solid #4a3928;padding-top:6px;color:#c9b99c;font-size:12px;min-height:28px}
+.tc-card-repeat-settings label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.tc-card-repeat-settings input{accent-color:#bc924a;width:17px;height:17px;margin:0}
+.tc-card-repeat-status,.tc-card-repeat-error p{font-size:11px;line-height:1.35;color:#ddbd88;margin:0;text-align:center}
+.tc-card-repeat-error{display:flex;align-items:center;justify-content:center;gap:5px}
+.tc-box-dialog .tc-card-repeat-error button{min-height:32px;font-size:11px;padding:3px 6px}
+@media(max-height:620px){.tc-box-dialog.is-card-result header{min-height:38px}.tc-card-repeat-footer{gap:5px;padding-top:0}.tc-card-stock-count,.tc-box-dialog .tc-card-inventory{min-height:32px}.tc-card-stock-count img{width:22px;height:22px}.tc-box-dialog .tc-card-repeat-actions button{min-height:53px;padding:3px 2px}.tc-card-repeat-cost img{width:18px;height:18px}.tc-card-repeat-settings{min-height:21px;padding-top:3px}}

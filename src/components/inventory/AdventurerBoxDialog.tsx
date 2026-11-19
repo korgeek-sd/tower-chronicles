@@ -8,13 +8,13 @@ import './equipment-card-reveal.css';
 const chest=assetUrl('assets/ui/shop/adventurer_equipment_box.png');
 export interface AdventurerBoxDialogProps {
  quantity:number;count:number;onCount:(count:number)=>void;busy:boolean;pending:boolean;error:string;
- disabled:boolean;rewards:EquipmentItem[]|null;onOpen:()=>void;onRepeat:()=>void;onRetry:()=>void;onClose:()=>void;
+ disabled:boolean;rewards:EquipmentItem[]|null;onOpen:()=>void;onRepeat:(quantity:1|10)=>void;onRetry:()=>void;onClose:()=>void;onInventory?:()=>void;
  marketAction?:()=>void;marketDisabled?:boolean;
 }
 
 export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
  const root=useRef<HTMLDialogElement>(null),close=useRef(p.onClose);close.current=p.onClose;
- const [details,setDetails]=useState(false);
+ const [details,setDetails]=useState(false),[skipReveal,setSkipReveal]=useState(false);
  const result=!!p.rewards?.length;
  useEffect(()=>{
   const previous=document.activeElement as HTMLElement,dialog=root.current!;
@@ -31,7 +31,7 @@ export function AdventurerBoxDialog(p:AdventurerBoxDialogProps){
   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
  }}>
  <header><h2 id="tc-box-title">{result?'장비 획득':'모험가 장비 상자'}</h2><button className="tc-box-close" aria-label="상자 창 닫기" disabled={p.busy} onClick={dismiss}>×</button></header>
- {result?<EquipmentCardReveal key={p.rewards!.map(r=>r.id).join(':')} rewards={p.rewards!} onClose={dismiss}/>:p.busy?<p className="tc-card-pending" role="status">장비 획득 결과를 확인하고 있습니다…</p>:<>
+ {result?<EquipmentCardReveal key={p.rewards!.map(r=>r.id).join(':')} rewards={p.rewards!} onClose={dismiss} onInventory={p.onInventory??dismiss} quantity={p.quantity} onRepeat={p.onRepeat} busy={p.busy} pending={p.pending} error={p.error} disabled={p.disabled} onRetry={p.onRetry} skipReveal={skipReveal} onSkipRevealChange={setSkipReveal}/>:p.busy?<p className="tc-card-pending" role="status">장비 획득 결과를 확인하고 있습니다…</p>:<>
    <div className="tc-box-use-art"><img src={chest} alt="모험가 장비 상자"/></div>
    <p className="tc-box-description">무작위 장비 1개 획득</p>
    <p className="tc-box-stock">보유 수량 <b>{p.quantity.toLocaleString()}개</b></p>

@@ -113,7 +113,8 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
    busy={boxes.busy} pending={!!boxes.pending} error={boxes.error} rewards={boxRewards}
    disabled={boxes.busy||!!boxes.pending||life.disabled||!!game.expedition||!onlineLease}
    onOpen={()=>boxes.open(Math.min(boxCount,item?.quantity??0,10))}
-   onRepeat={()=>{setBoxRewards(null);setSelected('life:product:adventurer_box');setBoxCount(1);boxes.open(1);}}
+   onRepeat={quantity=>{const stock=life.state?.products?.adventurer_box??0;if(boxes.busy||boxes.pending||life.disabled||game.expedition||!onlineLease||stock<quantity||![1,10].includes(quantity))return;boxes.open(quantity);}}
+    onInventory={()=>{setBoxRewards(null);setSelected(null);setCategory('equipment');setQuery('');setFilter({tier:0,status:false});setPage(0);}}
    onRetry={boxes.retry} onClose={()=>{setBoxRewards(null);setSelected(null);}}
    marketAction={marketAction} marketDisabled={marketDisabled}/>}
   {item?.lifeProduct!=='adventurer_box'&&item&&<InventoryDetailSheet item={item} status={(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||boxes.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}

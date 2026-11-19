@@ -51,3 +51,15 @@ test('reveal uses light layers and starts the legendary spotlight before the fli
  assert.match(css,/tc-card-halo/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+
+test('repeat-result buttons consume one or ten boxes and display current stock',()=>{
+ const rewards:EquipmentItem[]=[{id:'repeat',kind:'association_supply_iron_sword',grade:'legendary',enhancement:0}];
+ const html=renderToStaticMarkup(React.createElement(EquipmentCardReveal,{rewards,onClose:()=>{},onRepeat:()=>{},quantity:128,skipReveal:true}));
+ assert.match(html,/한 번 더 뽑기/);assert.match(html,/10회 연속 뽑기/);
+ assert.match(html,/128개/);assert.match(html,/is-revealed/);assert.match(html,/다음 카드 연출 건너뛰기/);
+ const low=renderToStaticMarkup(React.createElement(EquipmentCardReveal,{rewards,onClose:()=>{},onRepeat:()=>{},quantity:1,skipReveal:true}));
+ assert.match(low,/class="tc-card-repeat-ten" disabled=""/);
+ assert.doesNotMatch(low,/class="tc-card-repeat-one" disabled=""/);
+ const unopened=renderToStaticMarkup(React.createElement(EquipmentCardReveal,{rewards,onClose:()=>{},onRepeat:()=>{},quantity:128}));
+ assert.match(unopened,/모두 공개/);assert.doesNotMatch(unopened,/10회 연속 뽑기/);
+});
