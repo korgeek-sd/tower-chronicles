@@ -11,6 +11,7 @@ import {getFreshSession} from './auth';
 import {getDeviceId,rememberCloudRecord,type CloudSaveRecord} from './cloudSave';
 import {supabaseConfig} from './config';
 import type {GameplayLease} from './gameSession';
+import type {VillageLifeState} from './villageLife';
 
 export function applyServerEconomyRecord(local:GameState,record:CloudSaveRecord):GameState{
  const next=structuredClone(local),server=record.payload;
@@ -284,6 +285,13 @@ export async function dismantleOnlineEquipment(lease:GameplayLease,itemId:string
  const result=await rpc<{itemId:string;stones:number;splitStones?:number;record:CloudSaveRecord}>('dismantle_online_equipment',{
   ...leaseArgs(lease),p_item_id:itemId,
  });
+ await remember(result.record);
+ return result;
+}
+
+export async function dismantleOnlineEquipmentBatch(lease:GameplayLease,requestId:string,itemIds:string[]){
+ const result=await rpc<{count:number;splitStones:number;record:CloudSaveRecord;state:VillageLifeState;replayed:boolean}>('dismantle_online_equipment_batch',{...leaseArgs(lease),p_request_id:requestId,p_item_ids:itemIds});
+ if(result.count!==itemIds.length||!result.record?.payload||!result.state)throw Error('분해 결과를 다시 확인해 주세요.');
  await remember(result.record);
  return result;
 }

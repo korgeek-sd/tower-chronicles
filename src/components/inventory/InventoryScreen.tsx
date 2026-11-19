@@ -1,3 +1,4 @@
+import {BulkDismantleDialog} from './BulkDismantleDialog';
 import {AdventurerBoxDialog} from './AdventurerBoxDialog';
 import type {EquipmentItem} from '../../game/types';
 import {inventoryGridLayout} from './inventoryGridLayout';
@@ -20,7 +21,7 @@ import {SKILLS} from '../../game/data/config';
 import {Glyph,Pager,Screen} from '../../ui/mobile';
 import {InventoryDetailSheet,InventoryItemArt,InventoryStackCount} from './InventoryDetailSheet';
 import type {GameplayLease} from '../../online/gameSession';
-import {applyServerEconomyRecord,dismantleOnlineEquipment} from '../../online/economy';
+import {applyServerEconomyRecord,dismantleOnlineEquipment,dismantleOnlineEquipmentBatch} from '../../online/economy';
 import {marketItemIdForInventory} from '../../game/market/marketService';
 import type {MarketIntent} from '../market/marketNavigation';
 
@@ -35,9 +36,9 @@ const PAGE_SIZE=36;
 
 
 export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancement,onMarket,onSkills,initialSelected,onInitialSelectedConsumed,initialCategory='all',onReturnCraft}:{game:GameState;setGame:React.Dispatch<React.SetStateAction<GameState>>;onlineLease?:GameplayLease|null;userId?:string|null;onEnhancement:(itemId?:string,inventoryKey?:string)=>void;onMarket?:(intent:MarketIntent)=>void;onSkills?:()=>void;initialSelected?:string|null;onInitialSelectedConsumed?:()=>void;initialCategory?:InventoryCategory;onReturnCraft?:()=>void}){
- const [skillSetupOpen,setSkillSetupOpen]=useState(false);
+ const [skillSetupOpen,setSkillSetupOpen]=useState(false),[bulkOpen,setBulkOpen]=useState(false);
  const gridRef=useRef<HTMLDivElement>(null);
- const filterButton=useRef<HTMLButtonElement>(null);
+ const filterButton=useRef<HTMLButtonElement>(null),bulkButton=useRef<HTMLButtonElement>(null);
  const [pageSize,setPageSize]=useState(PAGE_SIZE);
  const [gridRows,setGridRows]=useState(6);
  const [slotSize,setSlotSize]=useState(52);
@@ -76,6 +77,17 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  const marketAction=marketItemId&&onMarket&&item?()=>onMarket({itemId:marketItemId,inventoryKey:item.key,sourceName:item.name}):undefined;
  const dismantleYield=selectedEquipment?equipmentDismantleYield(selectedEquipment):0;
  const starterProtected=item?.sourceId===V2_STARTER_EQUIPMENT_ID;
+ const bulkDisabled=busy||life.disabled||boxes.busy||!!boxes.pending||!!game.expedition||!onlineLease;
+ const bulkDismantle=async(requestId:string,ids:string[])=>{
+  if(!onlineLease||bulkDisabled)throw Error('서버 연결 및 원정 상태를 확인해 주세요.');
+  setBusy(true);
+  try{
+   const result=await dismantleOnlineEquipmentBatch(onlineLease,requestId,ids);
+   setGame(s=>applyServerEconomyRecord(s,result.record));
+   life.applySnapshot(result.state);setSelected(null);setPage(0);void life.refresh();
+   return {count:result.count,stones:result.splitStones};
+  }finally{setBusy(false);}
+ };
  const dismantleDisabled=busy||life.busy||!!game.expedition||!!item?.equipped||starterProtected;
  const dismantleLabel=starterProtected?'보급 장비 분해 불가':`분해 · 분해석 +${dismantleYield}`;
  const dismantleSelected=async()=>{
@@ -95,7 +107,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  return <Screen title="장비 · 보관함" meta={<>{onReturnCraft?<button className="tc-action secondary slim" style={{minHeight:44}} onClick={onReturnCraft}>제작 복귀</button>:<button className="tc-action secondary slim" style={{minHeight:44}} onClick={()=>setSkillSetupOpen(true)}>스킬 구성</button>}<span>장착 {equippedCount}/7 · {items.length}종</span></>} className="tc-inventory-screen tc-unified-inventory tc-iron-inventory">
   <div className="tc-ref-inventory tc-inventory-v081 tc-storage-only">
    <section className={'tc-storage-board'+(pages===1?' tc-storage-single-page':'')}>
-    <div className="tc-storage-head"><div><b>인벤토리</b><em role="status">{boxes.pending?'상자 개봉 확인 필요':life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${inventoryGradeSummary(category,filter.grades??[])} · ${visible.length}종`}</em></div>{boxes.pending&&<button disabled={boxes.busy||!onlineLease} onClick={boxes.retry}>상자 결과 확인</button>}{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className="tc-auto-equip" title="무기 종류 유지 · 상위 등급 장착" disabled={!!game.expedition||busy||bestEquipmentIds(game).length===0} onClick={()=>setGame(autoEquip)}>자동 장착</button><button ref={filterButton} className={toolsOpen||query||filter.grades?.length||filter.tier||filter.status?'active':''} onClick={()=>setToolsOpen(true)} aria-label="필터" aria-haspopup="dialog" aria-expanded={toolsOpen}><Glyph name="filter"/> 필터</button></div>
+    <div className="tc-storage-head"><div><b>인벤토리</b><em role="status">{boxes.pending?'상자 개봉 확인 필요':life.error||life.pending?'아이템 상태 확인 필요':life.busy?'수량 확인 중…':life.message||`${categoryNames[category]} · ${inventoryGradeSummary(category,filter.grades??[])} · ${visible.length}종`}</em></div>{boxes.pending&&<button disabled={boxes.busy||!onlineLease} onClick={boxes.retry}>상자 결과 확인</button>}{(life.error||life.pending)&&<button disabled={life.busy||!onlineLease} onClick={life.retry}>다시 확인</button>}<button className="tc-auto-equip" title="무기 종류 유지 · 상위 등급 장착" disabled={!!game.expedition||busy||bestEquipmentIds(game).length===0} onClick={()=>setGame(autoEquip)}>자동 장착</button>{(category==='equipment'||category==='all')&&<button ref={bulkButton} className="tc-bulk-trigger" aria-haspopup="dialog" disabled={bulkDisabled} onClick={()=>{setSelected(null);setBulkOpen(true);}}>일괄 분해</button>}<button ref={filterButton} className={toolsOpen||query||filter.grades?.length||filter.tier||filter.status?'active':''} onClick={()=>setToolsOpen(true)} aria-label="필터" aria-haspopup="dialog" aria-expanded={toolsOpen}><Glyph name="filter"/> 필터</button></div>
     <div className="tc-storage-categories" aria-label="아이템 종류">{categorySet.map(c=><button key={c} aria-pressed={category===c} aria-label={categoryNames[c]} onClick={()=>{setCategory(c);setSelected(null);setFilter({tier:0,status:false});setPage(0);}}><small>{categoryNames[c]}</small></button>)}</div>
     <div ref={gridRef} className="tc-storage-grid tc-storage-dense" style={{gridTemplateRows:`repeat(${gridRows},${slotSize}px)`}}>{!shown.length&&<EmptySearchResults title={query.trim()||filter.grades?.length||filter.tier||filter.status?'검색 조건에 맞는 아이템이 없습니다.':'보관된 아이템이 없습니다.'} actions={[
  ...(filter.grades?.length?[{label:'등급 필터',count:selectInventory(items,category,query,sort,{...filter,grades:[]}).length,run:()=>{setFilter({...filter,grades:[]});setPage(0);}}]:[]),
@@ -106,6 +118,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
    </section>
   </div>
   {skillSetupOpen&&<SkillSetupEditor game={game} lease={onlineLease??null} userId={userId} onClose={()=>setSkillSetupOpen(false)}/>}
+  {bulkOpen&&<BulkDismantleDialog game={game} disabled={bulkDisabled} returnFocus={bulkButton} onClose={()=>setBulkOpen(false)} onDismantle={bulkDismantle}/>}
   {toolsOpen&&<InventoryFilterDialog category={category} query={query} sort={sort} filter={filter} returnFocus={filterButton} onQuery={value=>{setQuery(value);setPage(0);}} onSort={value=>{setSort(value);setPage(0);}} onFilter={value=>{setFilter(value);setSelected(null);setPage(0);}} onReset={()=>{setQuery('');setSort('default');setFilter({tier:0,status:false});setPage(0);}} onClose={()=>setToolsOpen(false)}/>}
   {(item?.lifeProduct==='adventurer_box'||boxRewards)&&<AdventurerBoxDialog
    quantity={life.state?.products?.adventurer_box??0} count={Math.min(boxCount,item?.quantity??10,10)} onCount={setBoxCount}

@@ -28,3 +28,10 @@ export function dismantleEquipment(state:GameState,itemId:string):GameState {
  s.notice=`${equipmentItemName(item)} 분해 완료 · 분해석 ${stones}개 획득`;
  return s;
 }
+
+/** Select across the full bag, excluding equipped and starter equipment. */
+export function bulkDismantleCandidates(state:GameState,grades:readonly EquipmentGrade[]):EquipmentItem[]{
+ if(state.expedition)return [];
+ const equipped=new Set(Object.values(state.equipped));
+ return (state.equipmentItems??[]).filter(item=>item.id!==V2_STARTER_EQUIPMENT_ID&&!equipped.has(item.id)&&grades.includes(item.grade)&&equipmentDismantleYield(item)>0);
+}
