@@ -103,23 +103,29 @@
 .tc-bulk-done{font-size:17px;color:#f1cd80}
 @media(max-width:360px){.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button{padding-inline:4px;font-size:10px}.tc-bulk-panel{gap:9px}.tc-bulk-grades button{font-size:11px}}
 
-/* Concept 03 — square heraldic rarity badges with faceted gems and a central selection seal. */
-.tc-bulk-grades{gap:5px;padding:4px 0 2px;align-items:center}
-.tc-bulk-grades>button{--badge-tone:#c0bab0;--badge-light:#f4f0e6;--badge-shade:#4c4945;--badge-field:#38332c;position:relative;display:block;isolation:isolate;aspect-ratio:1;min-height:0;width:100%;padding:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;color:var(--badge-tone);overflow:visible;container-type:inline-size;touch-action:manipulation}
-.tc-bulk-grades>.grade-uncommon{--badge-tone:#8bce45;--badge-light:#d5ff8c;--badge-shade:#21440f;--badge-field:#254516}
-.tc-bulk-grades>.grade-rare{--badge-tone:#63baff;--badge-light:#c3ecff;--badge-shade:#123760;--badge-field:#173b60}
-.tc-bulk-grades>.grade-heroic{--badge-tone:#ca89f5;--badge-light:#f5c9ff;--badge-shade:#432260;--badge-field:#38204f}
-.tc-bulk-grades>.grade-legendary{--badge-tone:#f1b844;--badge-light:#fff1a1;--badge-shade:#65310b;--badge-field:#513315}
-.tc-bulk-badge-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block;filter:brightness(.87) drop-shadow(0 2px 1px #000a);transition:filter .16s ease;overflow:visible}
-.tc-bulk-grades>button[aria-pressed=true] .tc-bulk-badge-art{filter:brightness(1.19) drop-shadow(0 0 4px var(--badge-tone)) drop-shadow(0 2px 1px #000)}
-.tc-bulk-grades .tc-bulk-selected-emblem{filter:drop-shadow(0 0 3px var(--badge-light))}
-.tc-bulk-grades .tc-bulk-badge-name,.tc-bulk-grades .tc-bulk-badge-count{position:absolute;left:8%;right:8%;display:block;text-align:center;line-height:1.05;white-space:nowrap;text-shadow:0 1px 2px #000;font-weight:600;pointer-events:none}
-.tc-bulk-grades .tc-bulk-badge-name{top:43%;font-size:clamp(10px,21cqw,16px);color:var(--badge-tone)}
-.tc-bulk-grades .tc-bulk-badge-count{top:70%;font-size:clamp(9px,17cqw,13px);color:#f2dfb7}
+
+/* Concept 03 medallions: the approved generated emblems composited into the real concept's metal ring.
+ * Sprite order: common, uncommon, rare, heroic, legendary. All labels and counts remain live. */
+.tc-bulk-grades{gap:5px;padding:5px 0 7px;align-items:start}
+.tc-bulk-grades>button{--badge-tone:#c8c4bb;--badge-light:#f5efe4;--medal-x:0%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;position:relative;min-height:0;min-width:0;width:100%;padding:0 1px;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;color:var(--badge-tone);overflow:visible;touch-action:manipulation}
+.tc-bulk-grades>.grade-uncommon{--medal-x:25%;--badge-tone:#95d45c;--badge-light:#d9ff9f}
+.tc-bulk-grades>.grade-rare{--medal-x:50%;--badge-tone:#69baff;--badge-light:#c5eaff}
+.tc-bulk-grades>.grade-heroic{--medal-x:75%;--badge-tone:#c68aef;--badge-light:#f3c8ff}
+.tc-bulk-grades>.grade-legendary{--medal-x:100%;--badge-tone:#f3c35d;--badge-light:#fff0b4}
+.tc-bulk-medallion{position:relative;display:block;width:100%;aspect-ratio:1;isolation:isolate}
+.tc-bulk-medallion-art{position:absolute;inset:0;display:block;background-image:url('../../../public/assets/ui/inventory/rarity-medallions-v1.webp');background-size:500% 100%;background-position:var(--medal-x) 50%;background-repeat:no-repeat;filter:brightness(.86) drop-shadow(0 2px 2px #0009);transition:filter .16s ease}
+.tc-bulk-grades>button[aria-pressed=true] .tc-bulk-medallion-art{filter:brightness(1.24) drop-shadow(0 0 3px var(--badge-light)) drop-shadow(0 0 5px var(--badge-tone))}
+.tc-bulk-medallion-check{position:absolute;top:-2%;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:32%;aspect-ratio:1;border:1.5px solid #f5db9c;border-radius:50%;background:#171410;color:#ffedc8;font-family:Arial,sans-serif;font-weight:700;font-size:clamp(10px,3.6vw,15px);line-height:1;box-shadow:0 0 5px var(--badge-tone),inset 0 0 0 1px #554328}
+.tc-bulk-grades .tc-bulk-badge-name{display:block;font-size:clamp(11px,3.4vw,15px);line-height:1.15;font-weight:600;white-space:nowrap;text-shadow:0 1px 2px #000;color:var(--badge-tone)}
 .tc-bulk-grades>button[aria-pressed=true] .tc-bulk-badge-name{color:var(--badge-light)}
+.tc-bulk-grades .tc-bulk-badge-count{display:grid;place-items:center;width:89%;min-height:20px;line-height:1.2;padding:2px 0;border:1px solid #82633f;clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);background:#17120e;color:#f0e1bf;font-size:clamp(10px,3vw,13px);font-weight:500;white-space:nowrap}
 .tc-bulk-grades>button:focus-visible{outline:1px solid var(--badge-light);outline-offset:2px}
-.tc-bulk-grades>button:active:not(:disabled){transform:scale(.96)}
-.tc-bulk-grades>button:disabled{opacity:.64}
-.tc-bulk-note{padding:5px 0 0;border-top:1px solid #5e462c}
-@media(max-width:360px){.tc-bulk-grades{gap:3px}}
-@media(prefers-reduced-motion:reduce){.tc-bulk-badge-art{transition:none}.tc-bulk-grades>button:active:not(:disabled){transform:none}}
+.tc-bulk-grades>button:active:not(:disabled) .tc-bulk-medallion{transform:scale(.96)}
+.tc-bulk-grades>button:disabled{opacity:.65}
+.tc-bulk-note{padding:7px 0 0;border-top:1px solid #5e462c}
+.tc-bulk-dialog{border-color:#b08a54;box-shadow:0 12px 60px #000e,inset 0 0 0 2px #282016,inset 0 0 28px #0008;background:radial-gradient(ellipse at 50% 0,#36211c66,transparent 47%),linear-gradient(150deg,#211a15,#100e0d 65%)}
+.tc-bulk-panel header{padding-bottom:12px}
+.tc-bulk-summary{border-color:#98754c;background:linear-gradient(135deg,#2a1c13,#15110d);box-shadow:inset 0 0 0 2px #19130e}
+.tc-bulk-panel .tc-bulk-commit{background:linear-gradient(155deg,#84392b,#461716 65%,#64291b);box-shadow:inset 0 0 0 2px #4d2319,0 0 8px #a964252e}
+@media(max-width:360px){.tc-bulk-grades{gap:3px}.tc-bulk-grades>button{gap:4px}}
+@media(prefers-reduced-motion:reduce){.tc-bulk-medallion-art{transition:none}.tc-bulk-grades>button:active:not(:disabled) .tc-bulk-medallion{transform:none}}
