@@ -12,9 +12,7 @@ import {boxStatRows} from './boxPresentation';
 import {cardRows,cardSize,remainingCards} from './equipmentCardLayout';
 const cardBack=assetUrl('assets/ui/cards/card-back-bronze-seal-v1.webp');
 export function CardSeal(){return <img className="tc-card-back-art" src={cardBack} alt="" aria-hidden="true" draggable={false} width={420} height={600}/>;}
-const electricAtlas=assetUrl('assets/vfx/card-electric-atlas-v2.webp');
-const electricBurst=assetUrl('assets/vfx/card-electric-burst-v2.webp');
-function CardLightning({burst=false}:{burst?:boolean}){return <span className={'tc-card-vfx'+(burst?' is-burst':'')} aria-hidden="true"><span className="tc-card-vfx-texture" style={{backgroundImage:`url(${burst?electricBurst:electricAtlas})`}}/></span>;}
+function CardLight({revealed}:{revealed:boolean}){return <span className={'tc-card-reveal-light '+(revealed?'is-impact':'is-flipping')} aria-hidden="true"><span className="tc-card-halo"/><span className="tc-card-flash"/></span>;}
 
 export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];onClose:()=>void}){
  const feel=useGameFeel();
@@ -34,13 +32,12 @@ export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];o
    const {index,phase}=event,legend=rewards[index].grade==='legendary';
    if(phase==='charge'){
     setCharging(old=>new Set([...old,index]));
-    if(!reduce){feel.play('card.charge');if(legend)setCardMusicDucking(true);}
+    if(!reduce){feel.play('card.charge');if(legend){setSpotlight(index);setCardMusicDucking(true);}}
    }else if(phase==='flip'){
     setCharging(old=>{const next=new Set(old);next.delete(index);return next;});
     setOpened(old=>new Set([...old,index]));if(!reduce)feel.play('card.flip');
    }else if(phase==='impact'){
     setSettled(old=>new Set([...old,index]));feel.play('card.result',{grade:rewards[index].grade});
-    if(legend&&!reduce)setSpotlight(index);
    }else if(legend){setSpotlight(null);setCardMusicDucking(false);}
   },()=>{batchRef.current=false;setBatch(false);setCharging(new Set());setSpotlight(null);setCardMusicDucking(false);},(fn,ms)=>window.setTimeout(fn,ms),id=>window.clearTimeout(id));
  };
@@ -60,13 +57,20 @@ export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];o
   <div ref={area} inert={selected!==null||spotlight!==null} className="tc-card-area"><div className="tc-card-rows" style={{'--card-width':`${size}px`} as React.CSSProperties}>
    {rows.map((length,row)=>{const start=offset;offset+=length;return <div className="tc-card-row" key={row}>{rewards.slice(start,start+length).map((reward,j)=>{
     const index=start+j,visible=opened.has(index),ready=settled.has(index);
-    return <button ref={el=>{buttons.current[index]=el;}} key={reward.id} type="button" className={'tc-card-tile'+(visible?' is-revealed':'')+(ready?' is-settled grade-'+reward.grade:'')+(charging.has(index)?' is-charging grade-'+reward.grade:'')} aria-label={ready?`${equipmentItemName(reward)} 상세 보기`:`장비 카드 ${index+1} ${visible?'공개 중':'공개'}`} aria-disabled={batch} onClick={()=>{if(batchRef.current)return;if(ready)setSelected(index);else reveal(index);}}>
+    return <button ref={el=>{buttons.current[index]=el;}} key={reward.id} type="button" className={'tc-card-tile'+(visible?' is-revealed':'')+(visible?' grade-'+reward.grade:'')+(ready?' is-settled':'')+(visible&&!ready?' is-flipping':'')+(charging.has(index)?' is-charging grade-'+reward.grade:'')} aria-label={ready?`${equipmentItemName(reward)} 상세 보기`:`장비 카드 ${index+1} ${visible?'공개 중':'공개'}`} aria-disabled={batch} onClick={()=>{if(batchRef.current)return;if(ready)setSelected(index);else reveal(index);}}>
      <span className="tc-card-turn" aria-hidden="true"><span className="tc-card-face tc-card-back"><CardSeal/></span><span className={'tc-card-face tc-card-front grade-'+reward.grade}><span className="tc-card-rank">{EQUIPMENT_GRADE_NAMES[reward.grade]}</span><span className="tc-card-art"><EquipmentArt kind={reward.kind} grade={reward.grade}/></span><span className="tc-card-name">{EQUIPMENT_DEFINITIONS[reward.kind].name}</span></span></span>
-     {(charging.has(index)||ready)&&['rare','heroic','legendary'].includes(reward.grade)&&<CardLightning key={ready?'impact':'charge'}/>}
+     {visible&&<CardLight key={ready?'impact':'flip'} revealed={ready}/>}
     </button>;
    })}</div>;})}
   </div></div>
-  {spotlight!==null&&<div className="tc-card-spotlight" role="status" aria-label={'전설 '+equipmentItemName(rewards[spotlight])}><div className="tc-card-shockwave"/><div className="tc-card-legend-card"><CardLightning burst/><span className="tc-card-legend-rank">전설</span><EquipmentArt kind={rewards[spotlight].kind} grade="legendary"/><span className="tc-card-legend-name">{EQUIPMENT_DEFINITIONS[rewards[spotlight].kind].name}</span></div><div className="tc-card-sparks" aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--a':`${i*30}deg`,'--d':`${80+(i%3)*24}px`} as React.CSSProperties}/>)}</div></div>}
+  {spotlight!==null&&<div className={'tc-card-spotlight'+(opened.has(spotlight)?' is-revealed':' is-charging')+(settled.has(spotlight)?' is-settled':'')} role="status" aria-label={settled.has(spotlight)?'전설 '+equipmentItemName(rewards[spotlight]):'전설 카드 공개 중'}>
+   <div className="tc-card-legend-card">
+    <span className="tc-card-turn"><span className="tc-card-face tc-card-back"><CardSeal/></span><span className="tc-card-face tc-card-front grade-legendary"><span className="tc-card-legend-rank">전설</span><EquipmentArt kind={rewards[spotlight].kind} grade="legendary"/><span className="tc-card-legend-name">{EQUIPMENT_DEFINITIONS[rewards[spotlight].kind].name}</span></span></span>
+    {opened.has(spotlight)&&<CardLight key={settled.has(spotlight)?'impact':'flip'} revealed={settled.has(spotlight)}/>}
+   </div>
+   {settled.has(spotlight)&&<div className="tc-card-sparks" aria-hidden="true">{Array.from({length:8},(_,i)=><i key={i} style={{'--a':`${i*45}deg`,'--d':`${70+(i%3)*20}px`} as React.CSSProperties}/>)}</div>}
+  </div>}
+
   <p className="tc-card-progress" role="status" aria-live="polite">{settled.size} / {total} 공개</p>
   <div className="tc-card-actions" inert={selected!==null}><button className="primary" onClick={batch?skip:all?onClose:revealAll}>{batch?'연출 건너뛰기':all?'확인':'모두 공개'}</button></div>
   {selected!==null&&<div className="tc-card-detail-cover"><section className="tc-card-detail" role="region" aria-label="획득 장비 상세"><h3>{EQUIPMENT_DEFINITIONS[rewards[selected].kind].name}</h3><p>{EQUIPMENT_GRADE_NAMES[rewards[selected].grade]}</p><EquipmentArt kind={rewards[selected].kind} grade={rewards[selected].grade}/><dl>{boxStatRows(rewards[selected]).map(row=><div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl><button autoFocus onClick={dismissDetails}>카드로 돌아가기</button></section></div>}

@@ -38,11 +38,16 @@ test('card backs use the approved bronze seal artwork for every reward',()=>{
  assert.match(html,/card-back-bronze-seal-v1.webp/);
 });
 
-import {readFileSync,existsSync} from 'node:fs';
-test('card electricity uses generated frame atlas and a separate reveal burst',()=>{
+import {readFileSync} from 'node:fs';
+test('reveal uses light layers and starts the legendary spotlight before the flip',()=>{
  const src=readFileSync('src/components/inventory/EquipmentCardReveal.tsx','utf8');
- assert.match(src,/card-electric-atlas-v2.webp/);
- assert.match(src,/card-electric-burst-v2.webp/);
- assert.ok(!src.includes('strokeLinejoin="miter"'));
- for(const name of ['card-electric-atlas-v2.webp','card-electric-burst-v2.webp'])assert.ok(existsSync('public/assets/vfx/'+name));
+ const css=readFileSync('src/components/inventory/equipment-card-reveal.css','utf8');
+ assert.ok(!src.includes('CardLightning'));
+ assert.ok(!src.includes('card-electric-'));
+ assert.match(src,/tc-card-reveal-light/);
+ const charge=src.slice(src.indexOf("if(phase==='charge')"),src.indexOf("else if(phase==='flip')"));
+ assert.match(charge,/setSpotlight\(index\)/);
+ assert.match(css,/tc-light-sweep/);
+ assert.match(css,/tc-card-halo/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
 });
