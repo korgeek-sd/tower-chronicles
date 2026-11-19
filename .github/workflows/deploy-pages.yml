@@ -57,11 +57,13 @@ jobs:
         run: |
           set -euo pipefail
           # Verify the shipped, minified JS and CSS rather than only source code.
-          grep -R -q -F --include='*.js' 'tc-summon-result-grid' dist/assets
-          grep -R -q -F --include='*.js' '10회 다시 소환' dist/assets
-          grep -R -q -F --include='*.css' 'tc-summon-result-footer' dist/assets
-          grep -q -F 'summon-results-cards-v2' dist/index.html
-          echo 'Verified: portrait summon result cards and fixed repeat button bundled for Pages.'
+          grep -R -q -F --include='*.js' 'tc-appearance-card-stage' dist/assets
+          grep -R -q -F --include='*.js' '한 번 더 소환' dist/assets
+          grep -R -q -F --include='*.js' '10회 연속 소환' dist/assets
+          grep -R -q -F --include='*.js' '카드를 눌러 외형을 확인하세요' dist/assets
+          grep -R -q -F --include='*.css' 'tc-appearance-card-modal' dist/assets
+          grep -q -F 'summon-results-cards-v2-no-scroll-v3-reveal-v4' dist/index.html
+          echo 'Verified: appearance card reveal and both repeat actions bundled for Pages.'
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
