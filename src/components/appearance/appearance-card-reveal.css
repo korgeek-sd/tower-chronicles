@@ -18,6 +18,4 @@
 .tc-appearance-card-detail>img{width:min(160px,60%);height:clamp(90px,22dvh,200px);object-fit:contain}
 .tc-appearance-card-detail button+button{margin-top:6px}
 .tc-appearance-card-detail p{overflow-wrap:anywhere}
-.tc-appearance-card-stage .tc-card-tile.is-flipping:is(.grade-heroic,.grade-legendary) .tc-card-reveal-light::before{content:'';position:absolute;inset:-10%;background:var(--fx);clip-path:polygon(50% 0,45% 34%,60% 37%,35% 62%,54% 62%,43% 100%,70% 55%,52% 54%,66% 28%,51% 28%);filter:drop-shadow(0 0 4px var(--fx));animation:tc-appearance-crack .35s ease-out both}
-@keyframes tc-appearance-crack{0%,100%{opacity:0}30%,55%{opacity:1}}
 @media(max-height:620px){.tc-screen.tc-iron-summon-screen .tc-summon-modal.tc-appearance-card-modal{padding:8px}.tc-appearance-card-stage{gap:5px}}
