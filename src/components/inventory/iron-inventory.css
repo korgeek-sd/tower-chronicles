@@ -102,3 +102,24 @@
 .tc-bulk-warning{font-size:12px;color:#ffc2a3;line-height:1.4}
 .tc-bulk-done{font-size:17px;color:#f1cd80}
 @media(max-width:360px){.tc-iron-inventory.tc-unified-inventory .tc-inventory-v081 .tc-storage-head>button{padding-inline:4px;font-size:10px}.tc-bulk-panel{gap:9px}.tc-bulk-grades button{font-size:11px}}
+
+/* Concept 03 — square heraldic rarity badges with faceted gems and a central selection seal. */
+.tc-bulk-grades{gap:5px;padding:4px 0 2px;align-items:center}
+.tc-bulk-grades>button{--badge-tone:#c0bab0;--badge-light:#f4f0e6;--badge-shade:#4c4945;--badge-field:#38332c;position:relative;display:block;isolation:isolate;aspect-ratio:1;min-height:0;width:100%;padding:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;color:var(--badge-tone);overflow:visible;container-type:inline-size;touch-action:manipulation}
+.tc-bulk-grades>.grade-uncommon{--badge-tone:#8bce45;--badge-light:#d5ff8c;--badge-shade:#21440f;--badge-field:#254516}
+.tc-bulk-grades>.grade-rare{--badge-tone:#63baff;--badge-light:#c3ecff;--badge-shade:#123760;--badge-field:#173b60}
+.tc-bulk-grades>.grade-heroic{--badge-tone:#ca89f5;--badge-light:#f5c9ff;--badge-shade:#432260;--badge-field:#38204f}
+.tc-bulk-grades>.grade-legendary{--badge-tone:#f1b844;--badge-light:#fff1a1;--badge-shade:#65310b;--badge-field:#513315}
+.tc-bulk-badge-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block;filter:brightness(.87) drop-shadow(0 2px 1px #000a);transition:filter .16s ease;overflow:visible}
+.tc-bulk-grades>button[aria-pressed=true] .tc-bulk-badge-art{filter:brightness(1.19) drop-shadow(0 0 4px var(--badge-tone)) drop-shadow(0 2px 1px #000)}
+.tc-bulk-grades .tc-bulk-selected-emblem{filter:drop-shadow(0 0 3px var(--badge-light))}
+.tc-bulk-grades .tc-bulk-badge-name,.tc-bulk-grades .tc-bulk-badge-count{position:absolute;left:8%;right:8%;display:block;text-align:center;line-height:1.05;white-space:nowrap;text-shadow:0 1px 2px #000;font-weight:600;pointer-events:none}
+.tc-bulk-grades .tc-bulk-badge-name{top:43%;font-size:clamp(10px,21cqw,16px);color:var(--badge-tone)}
+.tc-bulk-grades .tc-bulk-badge-count{top:70%;font-size:clamp(9px,17cqw,13px);color:#f2dfb7}
+.tc-bulk-grades>button[aria-pressed=true] .tc-bulk-badge-name{color:var(--badge-light)}
+.tc-bulk-grades>button:focus-visible{outline:1px solid var(--badge-light);outline-offset:2px}
+.tc-bulk-grades>button:active:not(:disabled){transform:scale(.96)}
+.tc-bulk-grades>button:disabled{opacity:.64}
+.tc-bulk-note{padding:5px 0 0;border-top:1px solid #5e462c}
+@media(max-width:360px){.tc-bulk-grades{gap:3px}}
+@media(prefers-reduced-motion:reduce){.tc-bulk-badge-art{transition:none}.tc-bulk-grades>button:active:not(:disabled){transform:none}}
