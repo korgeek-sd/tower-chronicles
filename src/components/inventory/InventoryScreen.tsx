@@ -8,7 +8,6 @@ import {unifiedInventoryView,LIFE_INVENTORY_CATEGORIES,inventoryTabFor} from '..
 import type {FoodId} from '../../game/life/crafting';
 import {useInventoryLife} from './useInventoryLife';
 import {useAdventurerBox} from './useAdventurerBox';
-import {equipmentItemName} from '../../game/data/equipment';
 import React,{useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import {selectInventory,categoryNames,type InventoryCategory,type InventorySort,type InventoryFilter} from '../../game/inventoryView';
@@ -49,7 +48,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  const [boxRewards,setBoxRewards]=useState<EquipmentItem[]|null>(null);
  useEffect(()=>setBoxCount(1),[selected]);
  const boxes=useAdventurerBox(userId,onlineLease??null,(result)=>{
-  setGame(s=>({...applyServerEconomyRecord(s,result.record),notice:'모험가 장비 상자 개봉 완료 · '+result.rewards.map(equipmentItemName).join(' / ')}));
+  setGame(s=>applyServerEconomyRecord(s,result.record));
   life.applySnapshot(result.state);setBoxRewards(result.rewards);setSelected(null);void life.refresh();
  });
  const close=useCallback(()=>setSelected(null),[]);
