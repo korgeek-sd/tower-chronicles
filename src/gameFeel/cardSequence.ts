@@ -1,5 +1,5 @@
 /** Presentation timeline for already-confirmed rewards. Never rolls or mutates rewards. */
-export type CardPhase='charge'|'flip'|'impact'|'finish';
+export type CardPhase='charge'|'flip'|'impact'|'return'|'finish';
 export type CardMoment={at:number;index:number;phase:CardPhase};
 const ranks:Record<string,number>={common:0,uncommon:1,rare:2,heroic:3,legendary:4};
 export function cardTimeline(grades:readonly string[],indices:readonly number[],reduced:boolean):CardMoment[]{
@@ -8,10 +8,11 @@ export function cardTimeline(grades:readonly string[],indices:readonly number[],
  for(const index of order){
   const grade=grades[index],special=grade==='legendary'||grade==='heroic';
   if(special)cursor=Math.max(cursor,priorEnd);
-  const charge=grade==='legendary'?700:grade==='heroic'?450:grade==='rare'?260:140;
+  const charge=grade==='legendary'?(legendCount===0?700:480):grade==='heroic'?450:grade==='rare'?260:140;
   const hold=grade==='legendary'?(legendCount++===0?800:400):grade==='heroic'?300:100;
-  const impact=cursor+charge+350,end=impact+hold;
+  const impact=cursor+charge+350,end=impact+hold+(grade==='legendary'?300:0);
   events.push({at:cursor,index,phase:'charge'},{at:cursor+charge,index,phase:'flip'},{at:impact,index,phase:'impact'},{at:end,index,phase:'finish'});
+  if(grade==='legendary')events.push({at:impact+hold,index,phase:'return'});
   priorEnd=Math.max(priorEnd,end);cursor=special?end+80:cursor+190;
  }
  return events.map(e=>({...e,at:reduced?0:e.at})).sort((a,b)=>a.at-b.at);

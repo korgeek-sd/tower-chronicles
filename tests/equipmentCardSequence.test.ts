@@ -29,5 +29,5 @@ test('normal playback emits every phase once and completes after the final finis
  const pending:{fn:()=>void;ms:number}[]=[],seen:string[]=[];
  runCardTimeline(cardTimeline(['common','legendary'],[0,1],false),e=>seen.push(e.index+':'+e.phase),()=>seen.push('done'),(fn,ms)=>{pending.push({fn,ms});return pending.length;},()=>{});
  pending.sort((a,b)=>a.ms-b.ms).forEach(p=>p.fn());
- assert.deepEqual(seen,['0:charge','0:flip','0:impact','0:finish','1:charge','1:flip','1:impact','1:finish','done']);
+ assert.deepEqual(seen,['0:charge','0:flip','0:impact','0:finish','1:charge','1:flip','1:impact','1:return','1:finish','done']);
 });

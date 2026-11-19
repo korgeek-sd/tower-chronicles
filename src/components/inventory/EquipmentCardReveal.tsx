@@ -18,6 +18,7 @@ export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];o
  const feel=useGameFeel();
  const sequence=useRef<(()=>void)|null>(null);
  const [charging,setCharging]=useState<Set<number>>(new Set()),[spotlight,setSpotlight]=useState<number|null>(null),[reduced,setReduced]=useState(false);
+ const [returning,setReturning]=useState(false);
  const area=useRef<HTMLDivElement>(null),buttons=useRef<(HTMLButtonElement|null)[]>([]);
  const openedRef=useRef(new Set<number>()),timers=useRef<number[]>([]),batchRef=useRef(false);
  const [opened,setOpened]=useState<Set<number>>(new Set()),[settled,setSettled]=useState<Set<number>>(new Set()),[batch,setBatch]=useState(false),[selected,setSelected]=useState<number|null>(null),[size,setSize]=useState(70);
@@ -32,12 +33,13 @@ export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];o
    const {index,phase}=event,legend=rewards[index].grade==='legendary';
    if(phase==='charge'){
     setCharging(old=>new Set([...old,index]));
-    if(!reduce){feel.play('card.charge');if(legend){setSpotlight(index);setCardMusicDucking(true);}}
+    if(!reduce){feel.play('card.charge');if(legend){setReturning(false);setSpotlight(index);setCardMusicDucking(true);}}
    }else if(phase==='flip'){
     setCharging(old=>{const next=new Set(old);next.delete(index);return next;});
     setOpened(old=>new Set([...old,index]));if(!reduce)feel.play('card.flip');
    }else if(phase==='impact'){
     setSettled(old=>new Set([...old,index]));feel.play('card.result',{grade:rewards[index].grade});
+   }else if(phase==='return'){setReturning(true);
    }else if(legend){setSpotlight(null);setCardMusicDucking(false);}
   },()=>{batchRef.current=false;setBatch(false);setCharging(new Set());setSpotlight(null);setCardMusicDucking(false);},(fn,ms)=>window.setTimeout(fn,ms),id=>window.clearTimeout(id));
  };
@@ -55,22 +57,20 @@ export function EquipmentCardReveal({rewards,onClose}:{rewards:EquipmentItem[];o
  return <section className={'tc-card-stage'+(batch?' is-playing':'')+(reduced?' is-reduced':'')} onKeyDown={e=>{if(e.key==='Escape'&&selected!==null){e.preventDefault();e.stopPropagation();dismissDetails();}}}>
   <p className="tc-card-instruction">{all?'공개한 카드를 눌러 상세 정보를 확인하세요':'카드를 눌러 장비를 확인하세요'}</p>
   <div ref={area} inert={selected!==null||spotlight!==null} className="tc-card-area"><div className="tc-card-rows" style={{'--card-width':`${size}px`} as React.CSSProperties}>
-   {rows.map((length,row)=>{const start=offset;offset+=length;return <div className="tc-card-row" key={row}>{rewards.slice(start,start+length).map((reward,j)=>{
+   {rows.map((length,row)=>{const start=offset;offset+=length;return <div className={'tc-card-row'+(spotlight!==null&&spotlight>=start&&spotlight<offset?' has-flying-card':'')} key={row}>{rewards.slice(start,start+length).map((reward,j)=>{
     const index=start+j,visible=opened.has(index),ready=settled.has(index);
-    return <button ref={el=>{buttons.current[index]=el;}} key={reward.id} type="button" className={'tc-card-tile'+(visible?' is-revealed':'')+(visible?' grade-'+reward.grade:'')+(ready?' is-settled':'')+(visible&&!ready?' is-flipping':'')+(charging.has(index)?' is-charging grade-'+reward.grade:'')} aria-label={ready?`${equipmentItemName(reward)} 상세 보기`:`장비 카드 ${index+1} ${visible?'공개 중':'공개'}`} aria-disabled={batch} onClick={()=>{if(batchRef.current)return;if(ready)setSelected(index);else reveal(index);}}>
-     <span className="tc-card-turn" aria-hidden="true"><span className="tc-card-face tc-card-back"><CardSeal/></span><span className={'tc-card-face tc-card-front grade-'+reward.grade}><span className="tc-card-rank">{EQUIPMENT_GRADE_NAMES[reward.grade]}</span><span className="tc-card-art"><EquipmentArt kind={reward.kind} grade={reward.grade}/></span><span className="tc-card-name">{EQUIPMENT_DEFINITIONS[reward.kind].name}</span></span></span>
+    const flying=spotlight===index;
+    const travelStyle=flying?{
+     '--travel-x':((length-1)/2-j)*(size+8)+'px',
+     '--travel-y':((rows.length-1)/2-row)*(size/.7+8)+'px',
+     '--travel-scale':Math.min(220,(area.current?.clientHeight??size/.7)*.7*.9)/size,
+    } as React.CSSProperties:undefined;
+    return <button ref={el=>{buttons.current[index]=el;}} key={reward.id} style={travelStyle} type="button" className={'tc-card-tile'+(flying?(returning?' is-flying is-returning':' is-flying'):'')+(visible?' is-revealed':'')+(visible?' grade-'+reward.grade:'')+(ready?' is-settled':'')+(visible&&!ready?' is-flipping':'')+(charging.has(index)?' is-charging grade-'+reward.grade:'')} aria-label={ready?`${equipmentItemName(reward)} 상세 보기`:`장비 카드 ${index+1} ${visible?'공개 중':'공개'}`} aria-disabled={batch} onClick={()=>{if(batchRef.current)return;if(ready)setSelected(index);else reveal(index);}}>
+     <span className="tc-card-turn" aria-hidden="true"><span className="tc-card-face tc-card-back"><CardSeal/><span className="tc-bronze-reflection" style={{maskImage:`url(${cardBack})`}}/></span><span className={'tc-card-face tc-card-front grade-'+reward.grade}><span className="tc-card-rank">{EQUIPMENT_GRADE_NAMES[reward.grade]}</span><span className="tc-card-art"><EquipmentArt kind={reward.kind} grade={reward.grade}/></span><span className="tc-card-name">{EQUIPMENT_DEFINITIONS[reward.kind].name}</span></span></span>
      {visible&&<CardLight key={ready?'impact':'flip'} revealed={ready}/>}
     </button>;
    })}</div>;})}
   </div></div>
-  {spotlight!==null&&<div className={'tc-card-spotlight'+(opened.has(spotlight)?' is-revealed':' is-charging')+(settled.has(spotlight)?' is-settled':'')} role="status" aria-label={settled.has(spotlight)?'전설 '+equipmentItemName(rewards[spotlight]):'전설 카드 공개 중'}>
-   <div className="tc-card-legend-card">
-    <span className="tc-card-turn"><span className="tc-card-face tc-card-back"><CardSeal/></span><span className="tc-card-face tc-card-front grade-legendary"><span className="tc-card-legend-rank">전설</span><EquipmentArt kind={rewards[spotlight].kind} grade="legendary"/><span className="tc-card-legend-name">{EQUIPMENT_DEFINITIONS[rewards[spotlight].kind].name}</span></span></span>
-    {opened.has(spotlight)&&<CardLight key={settled.has(spotlight)?'impact':'flip'} revealed={settled.has(spotlight)}/>}
-   </div>
-   {settled.has(spotlight)&&<div className="tc-card-sparks" aria-hidden="true">{Array.from({length:8},(_,i)=><i key={i} style={{'--a':`${i*45}deg`,'--d':`${70+(i%3)*20}px`} as React.CSSProperties}/>)}</div>}
-  </div>}
-
   <p className="tc-card-progress" role="status" aria-live="polite">{settled.size} / {total} 공개</p>
   <div className="tc-card-actions" inert={selected!==null}><button className="primary" onClick={batch?skip:all?onClose:revealAll}>{batch?'연출 건너뛰기':all?'확인':'모두 공개'}</button></div>
   {selected!==null&&<div className="tc-card-detail-cover"><section className="tc-card-detail" role="region" aria-label="획득 장비 상세"><h3>{EQUIPMENT_DEFINITIONS[rewards[selected].kind].name}</h3><p>{EQUIPMENT_GRADE_NAMES[rewards[selected].grade]}</p><EquipmentArt kind={rewards[selected].kind} grade={rewards[selected].grade}/><dl>{boxStatRows(rewards[selected]).map(row=><div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl><button autoFocus onClick={dismissDetails}>카드로 돌아가기</button></section></div>}

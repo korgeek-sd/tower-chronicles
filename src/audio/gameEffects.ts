@@ -30,12 +30,12 @@ const note=(delay:number,duration:number,startHz:number,endHz:number,gain:number
 const grain=(delay:number,duration:number,filterHz:number,gain:number):SoundInstruction=>({delay,duration,startHz:0,endHz:0,gain,wave:'sine',noise:true,filterHz});
 export const EFFECT_SOUND_PROFILES:Readonly<Record<GameEffectName,readonly SoundInstruction[]>>={
  'card.charge':[note(0,.38,110,580,.045,'triangle'),grain(.05,.32,1700,.025)],
- 'card.flip':[grain(0,.12,2400,.055),note(0,.11,780,240,.025,'triangle')],
+ 'card.flip':[grain(.14,.065,2600,.027),note(.16,.12,1480,1120,.032,'sine')],
  'card.common':[grain(0,.055,2400,.04),note(0,.13,920,700,.045,'triangle')],
  'card.uncommon':[grain(0,.05,2300,.035),note(0,.22,660,658,.05),note(.06,.24,990,985,.03)],
  'card.rare':[grain(0,.07,3400,.07),grain(.08,.05,2100,.04),note(0,.28,125,60,.06,'triangle'),note(.07,.4,880,870,.055)],
  'card.heroic':[grain(0,.15,2800,.07),note(0,.4,110,45,.085,'triangle'),note(.05,.58,440,435,.06),note(.12,.58,880,870,.04)],
- 'card.legendary':[grain(0,.23,2100,.075),note(0,.48,95,38,.10,'triangle'),note(.04,.76,220,218,.055),note(.08,.82,440,438,.055),note(.12,.82,659,655,.045),note(.16,.8,880,872,.035)],
+ 'card.legendary':[note(0,.60,110,109,.085,'sine'),note(.04,.76,220,218,.055),note(.08,.82,440,438,.055),note(.12,.82,659,655,.045),note(.16,.8,880,872,.035)],
  'box.land':[grain(0,.095,520,.09),note(0,.22,125,55,.11,'triangle'),grain(.025,.12,1100,.035)],
  'box.charge':[note(0,.45,95,120,.027,'sine'),grain(.12,.45,850,.02)],
  'box.unlock':[grain(0,.045,3200,.055),note(.015,.09,1250,850,.036,'triangle'),grain(.07,.045,1950,.038)],
