@@ -22,7 +22,7 @@ export class AppearanceSummonRejected extends Error{}
 async function rpc<T>(name:string,lease:GameplayLease,userId:string,extra:Record<string,unknown>={}):Promise<T>{
  if(!supabaseConfig)throw Error('온라인 접속 설정이 필요합니다.');
  const session=await getFreshSession();
- if(!session||session.userId!==userId)throw new AppearanceSummonRejected('접속 계정을 다시 확인해 주세요.');
+ if(!session||session.userId!==userId)throw new Error('접속 계정을 다시 확인해 주세요.');
  const response=await fetch(supabaseConfig.url+'/rest/v1/rpc/'+name,{
   method:'POST',
   headers:{apikey:supabaseConfig.publishableKey,Authorization:'Bearer '+session.accessToken,'Content-Type':'application/json'},
@@ -30,10 +30,13 @@ async function rpc<T>(name:string,lease:GameplayLease,userId:string,extra:Record
  });
  const responseText=await response.text();
  if(!response.ok){
-  for(const [code,message] of Object.entries(errors))if(responseText.includes(code))throw new AppearanceSummonRejected(message);
+  for(const [code,message] of Object.entries(errors))if(responseText.includes(code)){
+   if(code==='GAME_SESSION_LOST'||code==='CLOUD_SAVE_REQUIRED')throw new Error(message);
+   throw new AppearanceSummonRejected(message);
+  }
   throw Error('소환 서버 응답을 확인하지 못했습니다. 동일한 요청으로 다시 시도해 주세요.');
  }
- if((await getFreshSession())?.userId!==userId)throw new AppearanceSummonRejected('접속 계정이 변경되었습니다.');
+ if((await getFreshSession())?.userId!==userId)throw new Error('접속 계정이 변경되었습니다.');
  return JSON.parse(responseText) as T;
 }
 export function summonAppearances(lease:GameplayLease,userId:string,requestId:string,rolls:1|10){
