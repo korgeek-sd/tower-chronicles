@@ -34,15 +34,15 @@ test('EQUIPMENT FOUNDATION 01: canonical equipment domain exposes nine kinds, fi
 
 test('EQUIPMENT FOUNDATION 02: nine equipment identities have exact Korean names and slot mapping',()=>{
   const expected=[
-    ['association_supply_iron_sword','협회 보급 철검','weapon'],
-    ['outer_guard_longbow','외곽 경비대 장궁','weapon'],
-    ['archive_standard_arcane_staff','기록원 제식 마도봉','weapon'],
-    ['expedition_iron_helmet','원정대 철제 투구','helmet'],
+    ['association_supply_iron_sword','협회 철검','weapon'],
+    ['outer_guard_longbow','경비대 장궁','weapon'],
+    ['archive_standard_arcane_staff','기록원 마도봉','weapon'],
+    ['expedition_iron_helmet','원정대 투구','helmet'],
     ['return_corps_plate_armor','귀환대 판금갑','armor'],
-    ['mining_detail_reinforced_gloves','채굴반 강화 장갑','gloves'],
-    ['survey_corps_dust_boots','탐사대 방진 장화','boots'],
-    ['association_registration_tag','귀환자의 부적 목걸이','necklace'],
-    ['expedition_merit_ring','추적자의 인장 반지','ring'],
+    ['mining_detail_reinforced_gloves','채굴반 장갑','gloves'],
+    ['survey_corps_dust_boots','탐사대 장화','boots'],
+    ['association_registration_tag','귀환의 목걸이','necklace'],
+    ['expedition_merit_ring','추적의 반지','ring'],
   ] as const;
   assert.deepEqual(expected.map(([kind])=>equipmentDefinition(kind).name),expected.map(([,name])=>name));
   assert.deepEqual(expected.map(([kind])=>equipmentDefinition(kind).slot),expected.map(([, ,slot])=>slot));

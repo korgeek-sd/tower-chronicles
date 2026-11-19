@@ -57,7 +57,7 @@ export interface EquipmentDefinition {
 export const EQUIPMENT_DEFINITIONS={
   association_supply_iron_sword:{
     kind:'association_supply_iron_sword',
-    name:'협회 보급 철검',
+    name:'협회 철검',
     slot:'weapon',
     weaponFamily:'sword',
     baseStats:{attack:10,defense:4},
@@ -65,7 +65,7 @@ export const EQUIPMENT_DEFINITIONS={
   },
   outer_guard_longbow:{
     kind:'outer_guard_longbow',
-    name:'외곽 경비대 장궁',
+    name:'경비대 장궁',
     slot:'weapon',
     weaponFamily:'bow',
     baseStats:{attack:12,critChance:.02},
@@ -73,7 +73,7 @@ export const EQUIPMENT_DEFINITIONS={
   },
   archive_standard_arcane_staff:{
     kind:'archive_standard_arcane_staff',
-    name:'기록원 제식 마도봉',
+    name:'기록원 마도봉',
     slot:'weapon',
     weaponFamily:'staff',
     baseStats:{attack:10,armorPenetration:.05},
@@ -81,7 +81,7 @@ export const EQUIPMENT_DEFINITIONS={
   },
   expedition_iron_helmet:{
     kind:'expedition_iron_helmet',
-    name:'원정대 철제 투구',
+    name:'원정대 투구',
     slot:'helmet',
     baseStats:{hp:20,defense:5},
     description:'일반 원정대에서 널리 쓰이는 실전형 철제 투구.',
@@ -95,28 +95,28 @@ export const EQUIPMENT_DEFINITIONS={
   },
   mining_detail_reinforced_gloves:{
     kind:'mining_detail_reinforced_gloves',
-    name:'채굴반 강화 장갑',
+    name:'채굴반 장갑',
     slot:'gloves',
     baseStats:{attack:3,critChance:.01},
     description:'채굴과 잔해 작업, 근접 전투를 함께 버티도록 보강한 장갑.',
   },
   survey_corps_dust_boots:{
     kind:'survey_corps_dust_boots',
-    name:'탐사대 방진 장화',
+    name:'탐사대 장화',
     slot:'boots',
     baseStats:{hp:15,defense:3},
     description:'먼지와 잔해가 많은 탑 내부 탐사를 위한 장화.',
   },
   association_registration_tag:{
     kind:'association_registration_tag',
-    name:'귀환자의 부적 목걸이',
+    name:'귀환의 목걸이',
     slot:'necklace',
     baseStats:{hp:25,critDamage:.05},
     description:'탐사자의 협회 등록 정보를 나타내는 목걸이형 인식패.',
   },
   expedition_merit_ring:{
     kind:'expedition_merit_ring',
-    name:'추적자의 인장 반지',
+    name:'추적의 반지',
     slot:'ring',
     baseStats:{attack:4,armorPenetration:.02},
     description:'원정 실적을 인정받은 탐사자에게 수여되는 공적 반지.',

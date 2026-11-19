@@ -6,8 +6,8 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {GameScrollSelect} from '../src/ui/GameScrollSelect';
 
 const options=[
- {value:'g1',label:'일반 탐사대원 방진 장화',grade:'common' as const,gradeLabel:'일반',detail:'방어 +3'},
- {value:'g2',label:'영웅 기록원 제식 마도봉',grade:'heroic' as const,gradeLabel:'영웅',detail:'공격 +17'},
+ {value:'g1',label:'일반 탐사대 장화',grade:'common' as const,gradeLabel:'일반',detail:'방어 +3'},
+ {value:'g2',label:'영웅 기록원 마도봉',grade:'heroic' as const,gradeLabel:'영웅',detail:'공격 +17'},
 ];
 const preview=(value='',disabled=false)=>renderToStaticMarkup(
  React.createElement(GameScrollSelect,{options,value,onChange:()=>{},disabled,ariaLabel:'경매 등록 장비',placeholder:'장비를 선택하세요'})
@@ -22,12 +22,12 @@ test('equipment selector is rendered as a custom in-game button instead of Andro
 });
 test('picker preserves controlled selection and disabled submission state',()=>{
  const picked=preview('g2');
- assert.match(picked,/영웅 기록원 제식 마도봉/);
+ assert.match(picked,/영웅 기록원 마도봉/);
  assert.match(picked,/aria-expanded="false"/);
  const disabled=preview('g1',true);
  assert.match(disabled,/is-disabled/);
  assert.match(disabled,/disabled=""/);
- assert.match(disabled,/일반 탐사대원 방진 장화/);
+ assert.match(disabled,/일반 탐사대 장화/);
 });
 test('picker source contains bounded touch-scroll list, clear search and Escape/outside close behavior',()=>{
  const code=readFileSync(new URL('../src/ui/GameScrollSelect.tsx',import.meta.url),'utf8');

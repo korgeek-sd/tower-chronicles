@@ -16,14 +16,14 @@ test('V2 INVENTORY 01: modern equipment appears with Korean name, grade, slot, e
  const view=inventoryView(s);
  const sword=view.find(x=>x.sourceId==='drop-sword');
  assert.ok(sword);
- assert.equal(sword.name,'희귀 협회 보급 철검');
+ assert.equal(sword.name,'희귀 협회 철검');
  assert.equal(sword.grade,'rare');
  assert.equal(sword.slot,'weapon');
  assert.equal(sword.enhancement,undefined);
  assert.equal(sword.modern,true);
  assert.ok(sword.facts?.some(x=>x.startsWith('공격 +')));
  const helmet=view.find(x=>x.sourceId==='drop-helmet');
- assert.equal(helmet?.name,'일반 원정대 철제 투구');
+ assert.equal(helmet?.name,'일반 원정대 투구');
  assert.equal(helmet?.slot,'helmet');
 });
 

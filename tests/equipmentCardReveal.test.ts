@@ -70,9 +70,11 @@ test('compact card labels preserve every Korean equipment name across two balanc
   const lines=cardNameLines(entry.name);
   assert.equal(lines.join(' '),entry.name);
   assert.ok(lines.length<=2);
+  assert.ok(Array.from(entry.name.replace(/\s/g,'')).length<=6,entry.name);
+  assert.ok(entry.name.split(' ').length<=2,entry.name);
   assert.ok(lines.every(line=>Array.from(line).length<=7),entry.name);
  }
- assert.deepEqual(cardNameLines('외곽 경비대 장궁'),['외곽','경비대 장궁']);
- assert.deepEqual(cardNameLines('귀환자의 부적 목걸이'),['귀환자의','부적 목걸이']);
+ assert.deepEqual(cardNameLines('경비대 장궁'),['경비대','장궁']);
+ assert.deepEqual(cardNameLines('귀환의 목걸이'),['귀환의','목걸이']);
  assert.deepEqual(cardNameLines('검'),['검']);
 });
