@@ -31,7 +31,6 @@ export function BulkDismantleDialog({game,disabled,returnFocus,onClose,onDismant
     <div className="tc-bulk-grades" aria-label="분해 등급">
      {EQUIPMENT_GRADES.map(grade=><button type="button" key={grade} className={'grade-'+grade} aria-pressed={grades.includes(grade)} disabled={working||!!request} onClick={()=>toggle(grade)}><span className="tc-bulk-check" aria-hidden="true">{grades.includes(grade)?'✓':''}</span><span>{EQUIPMENT_GRADE_NAMES[grade]}</span><small>{bulkDismantleCandidates(game,[grade]).length.toLocaleString()}</small></button>)}
     </div>
-    <div className="tc-bulk-protect"><span>✓ 장착 중 제외</span><span>✓ 기본 보급 장비 제외</span></div>
     <p className="tc-bulk-note">현재 페이지가 아닌 전체 보유 장비에 적용됩니다.</p>
     <div className="tc-bulk-summary"><span>선택 장비 <b>{count.toLocaleString()}개</b></span><span>예상 분해석 <b>{stones.toLocaleString()}개</b></span></div>
     {confirm&&!request&&<p role="alert" className="tc-bulk-warning">영웅·전설 장비도 분해됩니다. 복구할 수 없습니다. 다시 확인해 주세요.</p>}
