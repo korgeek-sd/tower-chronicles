@@ -6,7 +6,6 @@
 .tc-screen.tc-iron-summon-screen .tc-appearance-card-modal .tc-box-close{position:absolute;right:0;top:0;border:1px solid #9e7946;border-image:none;background:#15110d;color:#eacb86;min-width:36px;min-height:36px}
 .tc-screen.tc-iron-summon-screen .tc-appearance-card-modal .tc-card-tile{padding:0;border:0;border-image:none;background:none;box-shadow:none}
 .tc-appearance-card-stage .tc-card-back-art{filter:hue-rotate(28deg) saturate(.55)}
-.tc-appearance-card-stage .tc-card-back::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:calc(var(--card-width)*.35);color:#e1d6ae;text-shadow:0 0 8px #c2a9ef;pointer-events:none}
 .tc-appearance-card-stage .tc-card-front .tc-card-art{top:21%;left:12%;width:76%;height:53%}
 .tc-appearance-card-stage .tc-card-front .tc-card-name{top:79.5%;height:8%;font-size:min(15px,8.8cqw,calc(72cqw / var(--name-length,7)))}
 .tc-appearance-shard-caption{position:absolute;top:85%;left:8%;right:8%;z-index:2;font-size:clamp(6px,7cqw,12px);line-height:1;text-align:center;color:var(--card-tone);text-shadow:0 1px #000}
