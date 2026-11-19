@@ -67,3 +67,17 @@
 @keyframes tc-card-wave{from{opacity:1;transform:scale(.5)}to{opacity:0;transform:scale(1.7)}}
 @keyframes tc-card-spark{from{opacity:1;transform:rotate(var(--a)) translateX(50px)}to{opacity:0;transform:rotate(var(--a)) translateX(var(--d))}}
 @media(prefers-reduced-motion:reduce){.tc-card-stage *{animation:none!important;transition:none!important}.tc-card-lightning,.tc-card-sparks,.tc-card-shockwave{display:none}}
+
+/* Generated alpha sprites: four registered frames, white cores keep grade-tinted glow. */
+.tc-card-vfx{position:absolute;left:-50%;top:-20%;width:200%;height:140%;z-index:3;pointer-events:none;filter:hue-rotate(25deg);animation:tc-electric-life .72s ease-out both}
+.tc-card-vfx-texture{display:block;width:100%;height:100%;background-size:200% 200%;background-repeat:no-repeat;image-rendering:pixelated;animation:tc-electric-frames .32s steps(1,end) 3 both}
+.grade-heroic>.tc-card-vfx{filter:hue-rotate(105deg)}
+.grade-legendary>.tc-card-vfx,.tc-card-legend-card>.tc-card-vfx{filter:hue-rotate(225deg) saturate(1.35)}
+.tc-card-vfx.is-burst{z-index:-1;left:-65%;top:-35%;width:230%;height:170%;animation:tc-electric-burst .8s ease-out both}
+.tc-card-vfx.is-burst .tc-card-vfx-texture{background-size:100% 100%;animation:none}
+.tc-card-legend-card{isolation:isolate}
+.tc-card-stage.is-reduced .tc-card-vfx{display:none}
+@keyframes tc-electric-frames{0%,100%{background-position:0% 0%}25%{background-position:100% 0%}50%{background-position:0% 100%}75%{background-position:100% 100%}}
+@keyframes tc-electric-life{0%{opacity:0}12%,65%{opacity:1}100%{opacity:0}}
+@keyframes tc-electric-burst{0%{opacity:0;transform:scale(.8)}15%{opacity:1;transform:scale(1)}65%{opacity:.9}100%{opacity:0;transform:scale(1.1)}}
+@media(prefers-reduced-motion:reduce){.tc-card-vfx{display:none}}

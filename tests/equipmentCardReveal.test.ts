@@ -37,3 +37,12 @@ test('card backs use the approved bronze seal artwork for every reward',()=>{
  const html=renderToStaticMarkup(React.createElement(EquipmentCardReveal,{rewards,onClose:()=>{}}));
  assert.match(html,/card-back-bronze-seal-v1.webp/);
 });
+
+import {readFileSync,existsSync} from 'node:fs';
+test('card electricity uses generated frame atlas and a separate reveal burst',()=>{
+ const src=readFileSync('src/components/inventory/EquipmentCardReveal.tsx','utf8');
+ assert.match(src,/card-electric-atlas-v2.webp/);
+ assert.match(src,/card-electric-burst-v2.webp/);
+ assert.ok(!src.includes('strokeLinejoin="miter"'));
+ for(const name of ['card-electric-atlas-v2.webp','card-electric-burst-v2.webp'])assert.ok(existsSync('public/assets/vfx/'+name));
+});
