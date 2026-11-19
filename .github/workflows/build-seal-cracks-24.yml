@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout current approved game assets
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: true
       - name: Setup Python
