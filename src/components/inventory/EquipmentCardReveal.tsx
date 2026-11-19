@@ -85,7 +85,6 @@ export function EquipmentCardReveal({rewards,onClose,onInventory=onClose,quantit
     </button>;
    })}</div>;})}
   </div></div>
-  <p className="tc-card-progress" role="status" aria-live="polite">{settled.size} / {total} 공개</p>
   {onRepeat?<div className="tc-card-repeat-footer" inert={selected!==null}>
    <div className="tc-card-stock-row"><div className="tc-card-stock-count"><img src={chestArt} alt="" aria-hidden="true"/><span>보유 상자 <b>{quantity.toLocaleString()}개</b></span></div><button type="button" className="tc-card-inventory" disabled={busy||batch} onClick={onInventory}>인벤토리 ›</button></div>
    <div className="tc-card-repeat-actions">
