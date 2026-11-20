@@ -16,9 +16,9 @@ const war:VillageWarState={
 test('five fronts are visible and selectable on one village war screen',()=>{
  const html=renderToStaticMarkup(React.createElement(VillageWarBattleScreen,{game:initialState(),nickname:'테스트',initialWar:war,initialPreview:true}));
  assert.equal((html.match(/data-front-id=/g)??[]).length,5);
- assert.match(html,/노바르 점령전/);assert.match(html,/제3전선/);assert.match(html,/귀환수호자/);
- assert.match(html,/74%/);assert.match(html,/VS/);
- assert.match(html,/즉시 전투/);assert.match(html,/최근 기록/);
+ assert.match(html,/노바르/);assert.match(html,/제3전선/);assert.match(html,/귀환수호자/);
+ assert.match(html,/74%/);assert.match(html,/탈진 패배 확률 30%/);
+ assert.match(html,/즉시 전투/);assert.match(html,/최근 전투 기록/);
 });
 test('server mode never invents a garrison, HP or enables a PvP attack without a combat endpoint',()=>{
  const html=renderToStaticMarkup(React.createElement(VillageWarBattleScreen,{game:initialState(),nickname:'테스트',initialWar:war,initialPreview:false}));
@@ -40,10 +40,8 @@ test('viewport keeps selection, fighters, action and compact records in an uncli
 
 test('war battle preview uses expanded visible log with at least five recent events',()=>{
  const html=renderToStaticMarkup(React.createElement(VillageWarBattleScreen,{game:initialState(),nickname:'테스트',initialWar:war,initialPreview:true}));
- const rows=html.match(/<li>/g)??[];
- assert.ok(rows.length>=5,'preview should show five or more recent battles');
- assert.match(html,/제1전선 공격/);
- assert.match(html,/제5전선 점령/);
+ assert.equal((html.match(/class="is-(?:capture|defense)"/g)??[]).length,5);
+ assert.match(html,/제1전선/);assert.match(html,/제5전선/);assert.match(html,/점령 성공/);
 });
 
 test('occupation selection contains five playable settlements, not retired locations',async()=>{
@@ -56,3 +54,5 @@ test('occupation selection contains five playable settlements, not retired locat
  assert.equal(WORLD_TOWNS.length,5);
  for(const name of ['해오름','풍요뜰','밀바람','안개골','은잎골','초록샘'])assert.doesNotMatch(html,new RegExp(name));
 });
+
+test('live and preview use shared 3+2 siege layout and scroll safely',()=>{const css=readFileSync(new URL('../src/components/occupation/village-war-stage-one.css',import.meta.url),'utf8');assert.match(css,/\.tc-siege-v4 \.tc-village-lanes\{grid-template-columns:repeat\(6/);assert.match(css,/\.tc-siege-v4 \.tc-village-lane:nth-child\(n\+4\)\{grid-column:span 3/);assert.match(css,/overflow-y:auto;overflow-x:hidden/);});
