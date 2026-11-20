@@ -14,6 +14,7 @@ export const validAdventurerBoxRequest=(value:unknown):value is AdventurerBoxReq
 };
 export class BoxRejected extends Error{}
 const errors:Record<string,string>={
+ BOX_RATE_LIMITED:'상자 개봉 요청이 많습니다. 최대 1분 후 다시 시도해 주세요.',
  BOX_COUNT_INVALID:'상자는 1~10개까지 개봉할 수 있습니다.',
  BOX_REQUEST_CONFLICT:'이전 개봉 요청과 수량이 다릅니다.',
  BOX_EXPEDITION_BLOCKED:'안전 귀환 후 상자를 개봉할 수 있습니다.',
