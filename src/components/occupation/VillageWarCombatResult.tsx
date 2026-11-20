@@ -25,7 +25,7 @@ export function VillageWarCombatResult({battle,onClose,attackerArt}:{battle:Comb
   <header className="tc-village-result-header">
    <small>5전선 공성전 · 자동전투 {battle.turns.length}턴</small>
    <h2>{capture?'전선 점령 성공':'수비자 방어 성공'}</h2>
-   <p>{capture?'수비자를 쓰러뜨리고 전선을 확보했습니다.':'수비자가 전선을 지켜냈습니다.'}</p>
+   <p>{battle.fatigueDefeat?'수비자가 탈진하여 전선을 확보했습니다.':capture?'수비자를 쓰러뜨리고 전선을 확보했습니다.':'수비자가 전선을 지켜냈습니다.'}</p>
   </header>
   <div className="tc-village-result-arena">
    <Fighter name={battle.attackerName} kind="attacker" hp={battle.attackerHp} maxHp={battle.attackerMaxHp} mp={battle.attackerMp} maxMp={battle.attackerMaxMp} art={attackerArt}/>
@@ -34,6 +34,7 @@ export function VillageWarCombatResult({battle,onClose,attackerArt}:{battle:Comb
   </div>
   <p className="tc-village-result-outcome" role="status">
    {capture?'새 수비자 HP·MP 전회복 · 해당 전선 점령':'수비자 남은 HP·MP 유지 · 다음 공격에 반영'}
+   {battle.fatigueDefeat?' · 피로도에 따른 탈진 패배':''}
    {battle.defenderReward?' · 수비자 도전권 +1':''}
   </p>
   <div className="tc-village-result-log-head"><b>전투 진행 기록</b><span>총 {battle.turns.length}턴</span></div>
