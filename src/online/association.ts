@@ -63,6 +63,8 @@ export interface OnlineAssociationOwnApplication {
 export interface OnlineAssociationState {
  userId:string;
  qualified:boolean;
+ rejoinAt?:string|null;
+ serverNow?:number;
  current:OnlineAssociationCurrent|null;
  directory:OnlineAssociationDirectoryEntry[];
  myApplications:OnlineAssociationOwnApplication[];
@@ -86,6 +88,8 @@ const leaseArgs=(lease:GameplayLease)=>({
 const messageFor=(raw:string)=>{
  const known:Record<string,string>={
   GAME_SESSION_LOST:'다른 기기에서 플레이가 시작되어 원정단 권한이 종료되었습니다.',
+  ASSOCIATION_REJOIN_COOLDOWN:'원정단 탈퇴 후 72시간이 지나야 가입하거나 창설할 수 있습니다.',
+  ASSOCIATION_MEMBERSHIP_BUSY:'원정단 가입 상태를 처리 중입니다. 잠시 후 다시 시도해 주세요.',
   ASSOCIATION_ALREADY_JOINED:'이미 원정단에 소속되어 있습니다.',
   ASSOCIATION_NOT_CERTIFIED:'원정단 창설은 10층 보스 처치 후 안전 귀환 기록이 필요합니다.',
   ASSOCIATION_NAME_INVALID:'사용할 수 없는 원정단명입니다.',
