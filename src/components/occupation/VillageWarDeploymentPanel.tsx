@@ -90,7 +90,7 @@ export function VillageWarDeploymentPanel({state,userId,busy,pending,error,onPla
     <div className={'tc-village-shield '+(isDefender?(isOurs?'ally':'foe'):'neutral')} aria-hidden="true">◇</div>
    </div>
    <div className="tc-village-selected-vitals">
-    {isDefender?<><Vital name="HP" current={selected.hp} max={selected.maxHp}/><Vital name="MP" current={selected.mp} max={selected.maxMp}/></>:
+    {isDefender?<><Vital name="HP" current={selected.hp} max={selected.maxHp}/><Vital name="MP" current={selected.mp} max={selected.maxMp}/><div className="tc-village-vital"><span>피로도</span><progress aria-label="연속 수비 피로도" max={20} value={Math.min(20,selected.defenseWins??0)}/><b>{selected.defenseWins??0}/20</b></div>{(selected.defenseWins??0)>=20&&<small role="status">다음 수비부터 정상 승리 시에도 30% 확률로 탈진</small>}</>:
      <p>비어 있는 전선입니다. 전쟁 중 도전권 1장으로 즉시 점령할 수 있습니다.</p>}
    </div>
    <div className="tc-village-selected-action">
