@@ -152,6 +152,8 @@ function OnlineAssociationScreen({
 
  const current=state.current;
  if(!current){
+  const rejoinAt=state.rejoinAt?Date.parse(state.rejoinAt):0;
+  const rejoinLocked=rejoinAt>(state.serverNow??Date.now());
   const pending=new Set(state.myApplications.map(item=>item.associationId));
  const directory=state.directory.filter(e=>(!available||(e.joinPolicy!=='CLOSED'&&e.memberCount<e.memberLimit))&&e.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   const directoryPages=Math.max(1,Math.ceil(directory.length/3)),safeDirectory=Math.min(page,directoryPages-1);
@@ -160,6 +162,7 @@ function OnlineAssociationScreen({
    <div className="tc-assoc tc-assoc-online tc-assoc-registry">
     <div className="tc-hq-toolbar"><label>원정단 검색<input value={search} onChange={e=>{setSearch(e.target.value);setPage(0);}} placeholder="원정단명 검색"/></label><button onClick={()=>{setCreating(x=>!x);setDiscoveryRankings(false);}}>{creating?'목록으로':'원정단 창설'}</button></div>
      <button type="button" className="tc-gr-discover" onClick={()=>{setDiscoveryRankings(x=>!x);setCreating(false);}}>{discoveryRankings?'모집 게시판으로':'원정단 랭킹 보기'}</button>
+    {rejoinLocked&&<div className="tc-hq-waiting" role="status">재가입 가능: {new Date(rejoinAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국시간) · 탈퇴 후 72시간 제한 · 시간이 지나면 화면을 다시 열어 주세요.</div>}
     {state.myApplications.length>0&&<div className="tc-hq-waiting">신청 대기 · {state.myApplications.map(x=>x.associationName).join(', ')}</div>}
     {!creating&&<label className="tc-hq-filter"><input type="checkbox" checked={available} onChange={e=>setAvailable(e.target.checked)}/>가입 가능한 원정단만</label>}
     {creating&&<div className="tc-floor-risk tc-assoc-qualification">등록금 {ASSOCIATION_CREATION_FEE_SILVER.toLocaleString()} S</div>}
@@ -170,7 +173,7 @@ function OnlineAssociationScreen({
       <label>소개<textarea value={description} maxLength={120} onChange={e=>setDescription(e.target.value)} placeholder="원정단 소개"/></label>
       <label>가입 방식<GameSelect value={policy} onChange={e=>setPolicy(e.target.value as AssociationPolicy)}><option value="APPROVAL">승인 가입</option><option value="OPEN">자유 가입</option></GameSelect></label>
      </div>
-     <button className="tc-action" disabled={game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL'}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
+     <button className="tc-action" disabled={rejoinLocked||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL'}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
     </section>}
     {!creating&&discoveryRankings&&<GuildRankingPanel lease={lease}/>}
      {!creating&&!discoveryRankings&&<section className="tc-panel tc-assoc-recruitment">
@@ -180,7 +183,7 @@ function OnlineAssociationScreen({
        const waiting=pending.has(entry.associationId),full=entry.memberCount>=entry.memberLimit;
        return <article key={entry.associationId} className={selected===entry.associationId?'selected':''}>
         <div><button className="tc-hq-directory-name" onClick={()=>setSelected(selected===entry.associationId?null:entry.associationId)} aria-expanded={selected===entry.associationId}>{entry.name}</button><small>{entry.recordNumber} · {entry.memberCount}/{entry.memberLimit}명 · {entry.joinPolicy==='OPEN'?'자유 가입':entry.joinPolicy==='APPROVAL'?'승인 가입':'모집 중지'}</small>{selected===entry.associationId&&<p>{entry.description||'등록된 소개가 없습니다.'}<br/>안전 귀환 수익 분담 {entry.revenueShareRatePercent??0}%</p>}</div>
-        <button hidden={selected!==entry.associationId} disabled={busy||waiting||full||entry.joinPolicy==='CLOSED'} onClick={()=>void act(()=>joinOnlineAssociation(lease,entry.associationId),entry.joinPolicy==='OPEN'?'원정단에 가입했습니다.':'가입 신청을 보냈습니다.')}>{waiting?'신청 대기':full?'정원 마감':entry.joinPolicy==='OPEN'?'즉시 가입':'가입 신청'}</button>
+        <button hidden={selected!==entry.associationId} disabled={rejoinLocked||busy||waiting||full||entry.joinPolicy==='CLOSED'} onClick={()=>void act(()=>joinOnlineAssociation(lease,entry.associationId),entry.joinPolicy==='OPEN'?'원정단에 가입했습니다.':'가입 신청을 보냈습니다.')}>{waiting?'신청 대기':full?'정원 마감':entry.joinPolicy==='OPEN'?'즉시 가입':'가입 신청'}</button>
        </article>;
       })}
       {!directory.length&&<div className="tc-market-v2-empty">조건에 맞는 원정단이 없습니다.<br/>검색 조건을 바꾸거나 새 원정단을 창설하세요.</div>}
