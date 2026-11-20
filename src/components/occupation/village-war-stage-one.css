@@ -179,3 +179,66 @@
 .tc-village-cooldown-track{position:absolute;bottom:0;left:0;width:100%;height:5px;background:#191713;border-top:1px solid #68563c;overflow:hidden}
 .tc-village-cooldown-track i{display:block;height:100%;background:#c79c55;transition:width .25s linear}
 @media(prefers-reduced-motion:reduce){.tc-village-cooldown-track i{transition:none}}
+
+/* Siege v4 — mobile 3+2 battlefield, existing game art, scroll-safe. */
+.tc-village-stage-shell{grid-template-rows:38px minmax(0,1fr);min-width:0}
+.tc-village-stage-v3.tc-siege-v4{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;gap:7px;padding:6px;background:#101217;border:1px solid #67563d;color:#e5d5b8;scrollbar-width:thin}
+.tc-siege-v4>*{flex-shrink:0;min-width:0}
+.tc-siege-v4 .tc-siege-hero{position:relative;min-height:108px;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:9px 4px;background-size:cover;background-position:center 48%;border:1px solid #8c7450;box-shadow:inset 0 0 20px #07090c99;text-align:center}
+.tc-siege-hero-kicker{font-size:8px;letter-spacing:.25em;color:#e4c18b;text-shadow:0 1px 4px #000}
+.tc-siege-v4 .tc-siege-hero h2{font-size:27px;letter-spacing:.12em;color:#f5e7cc;text-shadow:0 2px 4px #000,0 0 8px #000;line-height:1.05}
+.tc-siege-v4 .tc-siege-hero small{color:#e0c99e;font-size:10px}
+.tc-siege-town{display:flex;align-items:center;justify-content:center;gap:10px;min-width:55%;padding:3px 14px;border:1px solid #a78b52;background:linear-gradient(90deg,#14151b,#30271e,#14151b);color:#efce89;font-size:18px;font-weight:700}
+.tc-siege-town span{font-size:10px;color:#c1a373}
+.tc-siege-v4 .tc-siege-help{position:absolute;right:7px;top:7px;min-width:32px;min-height:32px;border-radius:50%;padding:0;background:#111318d9;font-size:16px}
+.tc-siege-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #746143;background:#1c1d22}
+.tc-siege-summary>div{display:grid;gap:2px;text-align:center;padding:5px 2px;min-width:0}
+.tc-siege-summary>div+div{border-left:1px solid #544a38}
+.tc-siege-summary small{font-size:9px;color:#b8aa91}.tc-siege-summary strong{font-size:14px;color:#f0d49a;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tc-siege-front-label{display:flex;justify-content:space-between;align-items:center;padding:0 2px;font-size:11px;color:#d9c5a1}.tc-siege-front-label span{font-size:10px;color:#a9c491}
+.tc-siege-v4 .tc-village-lanes{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.tc-siege-v4 .tc-village-lane{grid-column:span 2;display:grid;grid-template-rows:auto minmax(30px,auto) auto auto auto;justify-items:stretch;align-items:center;gap:3px;padding:5px 4px;min-height:107px;border:1px solid #534c42;border-radius:3px;background:linear-gradient(165deg,#20242c,#12151a 74%);box-shadow:inset 0 0 0 1px #101218}
+.tc-siege-v4 .tc-village-lane:nth-child(n+4){grid-column:span 3}
+.tc-siege-v4 .tc-village-lane.is-ours{border-color:#6788a5}.tc-siege-v4 .tc-village-lane.is-enemy{border-color:#765b54}
+.tc-siege-v4 .tc-village-lane.is-selected{border:1px solid #eed18d;background:linear-gradient(165deg,#383023,#1b1c21 75%);box-shadow:inset 0 0 0 1px #ad8753,0 0 6px #cda25b55}
+.tc-siege-v4 .tc-village-lane.is-exhausted:not(.is-selected){border-color:#af6255}
+.tc-siege-card-head{display:flex;align-items:center;justify-content:space-between;gap:2px;min-width:0;border-bottom:1px solid #514737;padding:0 1px 3px}
+.tc-siege-v4 .tc-siege-card-head b{font-size:11px;line-height:1.3;white-space:nowrap}
+.tc-siege-tag{font-size:8px;line-height:1.2;color:#bbad98;text-align:right;white-space:nowrap}
+.tc-siege-v4 .is-ours .tc-siege-tag{color:#a1c5e2}.tc-siege-v4 .is-exhausted .tc-siege-tag{color:#f19a83}
+.tc-siege-card-owner{display:flex;align-items:center;gap:4px;min-width:0;text-align:left}
+.tc-siege-banner{width:29px;height:36px;flex:none;filter:drop-shadow(0 2px 2px #000)}
+.tc-siege-card-owner>span{display:grid;gap:2px;min-width:0;flex:1}.tc-siege-card-owner strong,.tc-siege-card-owner small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;font-size:10px}
+.tc-siege-card-owner small{color:#d1c6b3;font-size:9px}
+.tc-siege-mini-vital{display:grid;grid-template-columns:15px minmax(0,1fr) 25px;align-items:center;gap:3px;color:#c2baac}
+.tc-siege-mini-vital small,.tc-siege-mini-vital em{font-size:9px;font-style:normal;line-height:1.1}.tc-siege-mini-vital em{text-align:right;font-variant-numeric:tabular-nums}
+.tc-siege-track{height:5px;border:1px solid #574e40;background:#080b10;overflow:hidden}.tc-siege-track i{display:block;height:100%;background:#b05e56}
+.tc-siege-mini-vital.mp .tc-siege-track i{background:#608ab8}
+.tc-siege-fatigue{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:3px;color:#caba9f;font-size:9px;min-width:0;white-space:nowrap}.tc-siege-fatigue b{font-size:9px!important;font-variant-numeric:tabular-nums;line-height:1.2}
+.tc-siege-fatigue-track{display:flex;gap:1px;min-width:0;height:6px}.tc-siege-fatigue-track i{flex:1;min-width:0;background:#46464a;transform:skew(-9deg)}.tc-siege-fatigue-track i.filled{background:#c6a15b}.tc-siege-fatigue.exhausted{color:#f28b76}.tc-siege-fatigue.exhausted i.filled{background:#d36d55}
+.tc-siege-v4 .tc-village-selected-front{display:grid;grid-template-rows:auto auto auto;gap:6px;padding:8px;background:linear-gradient(140deg,#27242a,#14161b 65%);border:1px solid #9c8050;box-shadow:inset 0 0 0 2px #121418}
+.tc-siege-detail-title{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #65543d;padding-bottom:4px}
+.tc-siege-detail-title h3{font-size:17px;margin:0;color:#f0d49e}.tc-siege-detail-title span{font-size:10px;color:#b9ab95}
+.tc-siege-detail-body{display:grid;grid-template-columns:65px minmax(0,1fr);gap:8px;min-width:0}
+.tc-siege-detail-art{display:grid;place-items:center;min-height:83px;background-size:cover;background-position:center;border:1px solid #5b5143}
+.tc-siege-detail-art .tc-siege-banner{width:48px;height:62px}.tc-siege-detail-art img{max-width:100%;max-height:92px;object-fit:contain;image-rendering:auto}
+.tc-siege-detail-info{display:grid;align-content:start;gap:4px;min-width:0}.tc-siege-detail-info>small{font-size:9px;color:#ad9d84}.tc-siege-detail-info h3{margin:0;font-size:16px;overflow-wrap:anywhere}.tc-siege-detail-info p{font-size:11px;margin:0;color:#d1c4b0;overflow-wrap:anywhere}
+.tc-siege-v4 .tc-village-vital{grid-template-columns:19px minmax(0,1fr) minmax(48px,auto);gap:4px}.tc-siege-v4 .tc-village-vital b{font-size:9px}
+.tc-siege-detail-info .tc-siege-fatigue{font-size:10px}.tc-siege-detail-info .tc-siege-fatigue-track{height:9px}
+.tc-siege-warning{margin:0;padding:4px 5px;text-align:center;color:#f5aa91;border:1px solid #944f40;background:#482721;font-size:10px;line-height:1.35}
+.tc-siege-v4 .tc-village-primary{min-height:46px;background:linear-gradient(#6e302c,#421a1b);border:1px solid #c49562;box-shadow:inset 0 0 0 2px #46231e;color:#fae6c4;font-size:18px}
+.tc-siege-v4 .tc-village-primary.is-claim:not(:disabled){background:linear-gradient(#565d37,#333b25)}
+.tc-siege-v4 .tc-village-primary:disabled{background:#272a30;border-color:#655f57;color:#9d9b97;box-shadow:none}
+.tc-siege-v4 .tc-village-primary small{font-size:9px;line-height:1.3}
+.tc-siege-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;align-items:start}
+.tc-siege-bottom>div{min-width:0;border:1px solid #66563e;padding:5px;background:linear-gradient(#22242a,#15171c)}
+.tc-siege-v4 .tc-village-war-score-head,.tc-siege-v4 .tc-village-war-feed-head{gap:2px;min-height:24px;border-bottom:1px solid #5c503e;padding-bottom:3px;font-size:10px;flex-wrap:wrap}
+.tc-siege-v4 .tc-village-war-score-head button,.tc-siege-v4 .tc-village-war-feed-head button{min-height:26px;font-size:9px;padding:1px 3px}
+.tc-siege-v4 .tc-village-leaderboard{display:grid;grid-template-columns:minmax(0,1fr);gap:2px}
+.tc-siege-v4 .tc-village-rank{grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto;gap:3px;align-items:center;padding:4px 2px;background:#1a1b20;border:0;border-bottom:1px solid #423c34}
+.tc-siege-v4 .tc-village-rank small{font-size:8px}.tc-siege-v4 .tc-village-rank b{font-size:9px}.tc-siege-v4 .tc-village-rank strong{font-size:10px}.tc-siege-v4 .tc-village-rank em{font-size:8px}
+.tc-siege-v4 .tc-village-mini-records p{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1px 4px;line-height:1.35;padding:3px 0;border-bottom:1px solid #3d382f;font-size:9px}
+.tc-siege-v4 .tc-village-mini-records p span{grid-column:1/-1;white-space:normal;overflow-wrap:anywhere}.tc-siege-v4 .tc-village-mini-records p.is-capture span{color:#b7d19e}
+.tc-siege-v4 .tc-village-war-feed .tc-village-mini-records p:nth-child(n+2){display:grid}
+.tc-siege-rules p{margin:0;padding:6px;border-bottom:1px solid #5e4e36;font-size:12px;line-height:1.5}
+@media(max-width:350px){.tc-siege-v4 .tc-village-lane{padding:4px 2px;gap:2px}.tc-siege-tag{font-size:7px}.tc-siege-card-owner{gap:2px}.tc-siege-banner{width:24px}.tc-siege-mini-vital{grid-template-columns:13px minmax(0,1fr) 22px;gap:1px}.tc-siege-bottom{grid-template-columns:minmax(0,1fr)}.tc-siege-detail-body{grid-template-columns:49px minmax(0,1fr)}}
