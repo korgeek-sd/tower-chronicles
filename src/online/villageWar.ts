@@ -76,7 +76,7 @@ export function validWarDeclarationRequest(value:unknown):value is {id:string;to
  isActiveTownId(v.townId);
 }
 
-export interface VillageWarFront{frontId:number;defenderUserId:string|null;defenderName:string|null;associationId:string|null;associationName:string|null;defenderEpoch:number;revision:number;hp:number|null;maxHp:number|null;mp:number|null;maxMp:number|null;occupiedAt:string|null}
+export interface VillageWarFront{frontId:number;defenderUserId:string|null;defenderName:string|null;associationId:string|null;associationName:string|null;defenderEpoch:number;revision:number;hp:number|null;maxHp:number|null;mp:number|null;maxMp:number|null;occupiedAt:string|null;defenseWins?:number}
 export interface VillageWarStageOneState{stageTwo?:boolean;scores?:VillageWarScore[];settledAt?:string|null;winnerAssociationId?:string|null;recentBattles?:VillageWarBattleRecord[];enabled:boolean;serverNow:number;phase:'WAITING'|'DEPLOYMENT'|'BATTLE'|'ENDED';eventId?:string;cycleKey?:string;deploymentStartsAt?:string;battleStartsAt?:string;battleEndsAt?:string;ownerAssociationId?:string|null;myAssociationId?:string|null;myRole?:'LEADER'|'MEMBER'|null;tickets?:number;nextAttackAt?:string|null;myDefendingFront?:{eventId:string;frontId:number}|null;canAttack?:boolean;fronts:VillageWarFront[]}
 export type VillageWarStageAction='PLACE'|'REMOVE'|'CLAIM_EMPTY'|'ATTACK';
 export interface VillageWarStageRequest{id:string;eventId:string;userId:string;townId:string;frontId:number;expectedEpoch:number;action:VillageWarStageAction}
@@ -89,6 +89,6 @@ export const claimEmptyVillageWarFront=(lease:GameplayLease,r:VillageWarStageReq
 
 export interface VillageWarScore{associationId:string;associationName:string|null;points:number;fronts:number}
 export interface VillageWarCombatTurn{turn:number;lines:string[];attackerHp:number;attackerMp:number;defenderHp:number;defenderMp:number}
-export interface VillageWarCombatResult{outcome:'CAPTURE'|'DEFENDED';attackerName:string;defenderName:string;attackerHp:number;attackerMp:number;attackerMaxHp:number;attackerMaxMp:number;defenderHp:number;defenderMp:number;defenderMaxHp:number;defenderMaxMp:number;defenderReward:number;turns:VillageWarCombatTurn[]}
+export interface VillageWarCombatResult{outcome:'CAPTURE'|'DEFENDED';attackerName:string;defenderName:string;attackerHp:number;attackerMp:number;attackerMaxHp:number;attackerMaxMp:number;defenderHp:number;defenderMp:number;defenderMaxHp:number;defenderMaxMp:number;defenderReward:number;fatigueDefeat?:boolean;defenseWins?:number;turns:VillageWarCombatTurn[]}
 export interface VillageWarBattleRecord{battleId:string;frontId:number;createdAt:string;attackerName:string;defenderName:string;outcome:'CAPTURE'|'DEFENDED';defenderHp:number;defenderReward:number}
 export const attackVillageWarFront=(lease:GameplayLease,r:VillageWarStageRequest)=>stageMutation('attack_village_war_front',lease,r);
