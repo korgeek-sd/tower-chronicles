@@ -38,10 +38,15 @@ test('viewport keeps selection, fighters, action and compact records in an uncli
  assert.match(css,/\.tc-vwb-fighters\s*\{[^}]*grid-template-columns:repeat\(2/);
 });
 
-test('war battle preview uses expanded visible log with at least five recent events',()=>{
+test('war battle preview shows all five compact lanes with modal links for details',()=>{
  const html=renderToStaticMarkup(React.createElement(VillageWarBattleScreen,{game:initialState(),nickname:'테스트',initialWar:war,initialPreview:true}));
- assert.equal((html.match(/class="is-(?:capture|defense)"/g)??[]).length,5);
- assert.match(html,/제1전선/);assert.match(html,/제5전선/);assert.match(html,/점령 성공/);
+ assert.equal((html.match(/class="tc-village-lane /g)??[]).length,5);
+ assert.match(html,/제1전선/);assert.match(html,/제5전선/);
+ assert.match(html,/aria-label="원정단 점수 현황 전체 순위 보기"/);
+ assert.match(html,/aria-label="최근 전투 기록 전체 보기"/);
+ assert.match(html,/원정단 순위/);
+ assert.match(html,/전투 기록/);
+ assert.match(html,/귀환수호자/);
 });
 
 test('occupation selection contains five playable settlements, not retired locations',async()=>{
@@ -55,4 +60,17 @@ test('occupation selection contains five playable settlements, not retired locat
  for(const name of ['해오름','풍요뜰','밀바람','안개골','은잎골','초록샘'])assert.doesNotMatch(html,new RegExp(name));
 });
 
-test('live and preview use shared 3+2 siege layout and scroll safely',()=>{const css=readFileSync(new URL('../src/components/occupation/village-war-stage-one.css',import.meta.url),'utf8');assert.match(css,/\.tc-siege-v4 \.tc-village-lanes\{grid-template-columns:repeat\(6/);assert.match(css,/\.tc-siege-v4 \.tc-village-lane:nth-child\(n\+4\)\{grid-column:span 3/);assert.match(css,/overflow-y:auto;overflow-x:hidden/);});
+test('live and preview siege war is a no-scroll mobile dashboard with all five rows and pinned attack',()=>{
+ const css=readFileSync(new URL('../src/components/occupation/village-war-stage-one.css',import.meta.url),'utf8');
+ const source=readFileSync(new URL('../src/components/occupation/VillageWarDeploymentPanel.tsx',import.meta.url),'utf8');
+ assert.match(css,/\.tc-village-stage-v3\.tc-siege-v4\.tc-siege-v5\{[\s\S]*?overflow:hidden/);
+ assert.match(css,/\.tc-siege-v5 \.tc-village-lanes\{[\s\S]*?grid-template-rows:repeat\(5,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.tc-siege-v5 \.tc-village-lane:nth-child\(n\+4\)/);
+ assert.match(css,/\.tc-siege-v5 \.tc-village-selected-front\{[\s\S]*?grid-template-rows:17px minmax\(0,1fr\) 43px/);
+ assert.match(css,/\.tc-siege-v5 \.tc-siege-bottom\{[\s\S]*?grid-template-columns:repeat\(2/);
+ assert.match(source,/tc-siege-v4 tc-siege-v5/);
+ assert.match(source,/onClick=\{act\}/);
+ assert.match(source,/setOverlay\('scores'\)/);
+ assert.match(source,/setOverlay\('records'\)/);
+ assert.doesNotMatch(source,/className="tc-village-mini-records"/);
+});
