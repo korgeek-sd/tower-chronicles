@@ -52,7 +52,7 @@ test('quest board v3 keeps five weekly items on one fixed-height column and pres
  assert.match(html,/월요일 00시 초기화/);
 });
 
-test('generated quest image atlas displays distinct icons for five daily and two weekly-specific tasks',async()=>{
+test('quest emblems render as clipped real images with visible fallback, not a fragile CSS data URL',async()=>{
  const {readFileSync}=await import('node:fs');
  const css=readFileSync(new URL('../src/components/quests/quests.css',import.meta.url),'utf8');
  const hiRes=readFileSync(new URL('../public/assets/ui/quests/quest_emblems_hd.webp',import.meta.url));
@@ -60,20 +60,21 @@ test('generated quest image atlas displays distinct icons for five daily and two
  assert.equal(hiRes.toString('ascii',8,12),'WEBP');
  assert.ok(hiRes.byteLength>50_000);
  assert.equal(hiRes.readUIntLE(24,3)+1,1232,'seven 176px image cells');
- assert.equal(hiRes.readUIntLE(27,3)+1,176,'four-times display resolution');
- assert.match(css,/background-image:var\(--tc-quest-icon-atlas\)/);
- assert.match(css,/background-size:700% 100%/);
- const dailyIds=['hunt','craft','gather','market','donate'];
- const daily=dailyIds.map(id=>({...board.daily[0],id}));
+ assert.equal(hiRes.readUIntLE(27,3)+1,176,'high-resolution icon sheet');
+ assert.match(css,/\.tc-quest-icon-art img\{/);
+ assert.match(css,/width:700%/);
+ assert.match(css,/\.tc-quest-icon-fallback\{/);
+ assert.doesNotMatch(css,/background-image:var\(--tc-quest-icon-atlas\)/);
+ const daily=['hunt','craft','gather','market','donate'].map(id=>({...board.daily[0],id}));
  const d=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board:{...board,daily}}));
  assert.equal((d.match(/class="tc-quest-icon-art"/g)??[]).length,6);
- assert.match(d,/quest_emblems_hd\.webp/);
- assert.doesNotMatch(d,/data:image\/webp;base64/);
- for(const pct of ['0%','16.666666666666664%','33.33333333333333%','50%','66.66666666666666%'])assert.ok(d.includes('background-position:'+pct),pct);
- const weeklyIds=['hunt','craft','gather','daily','all'];
- const weekly=weeklyIds.map(id=>({...board.daily[0],id}));
+ assert.equal((d.match(/<img[^>]*quest_emblems_hd\.webp\?v=quest-emblems-hd-20261122/g)??[]).length,6);
+ for(const offset of ['left:0%','left:-100%','left:-200%','left:-300%','left:-400%','left:-600%'])assert.ok(d.includes(offset),offset);
+ assert.match(d,/class="tc-quest-icon-fallback"/);
+ assert.doesNotMatch(d,/--tc-quest-icon-atlas/);
+ const weekly=['hunt','craft','gather','daily','all'].map(id=>({...board.daily[0],id}));
  const w=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board:{...board,weekly},initialTab:'weekly'}));
  assert.equal((w.match(/class="tc-quest-icon-art"/g)??[]).length,6);
- assert.match(w,/background-position:83\.33333333333334% center/);
- assert.match(w,/background-position:100% center/);
+ assert.match(w,/left:-500%/);
+ assert.match(w,/left:-600%/);
 });
