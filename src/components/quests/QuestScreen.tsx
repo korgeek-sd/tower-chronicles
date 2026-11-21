@@ -86,7 +86,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
     })}
    </div>
    <div className="tc-quest-rewards">
-    <span className="tc-quest-reward-emblem"><Glyph name="inventory"/></span>
+    <span className="tc-quest-reward-emblem"><span className="tc-quest-icon-art" aria-hidden="true" style={{backgroundPosition:"100% center"}}/><span className="tc-quest-icon-fallback"><Glyph name="inventory"/></span></span>
     <div><strong>의뢰 보상</strong><small>의뢰 완료 시 랜덤 보상을 획득할 수 있습니다.</small></div>
     <b>수령 가능 {ready}건</b>
    </div>
