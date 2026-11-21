@@ -51,3 +51,24 @@ test('quest board v3 keeps five weekly items on one fixed-height column and pres
  assert.match(html,/약초 3개/);
  assert.match(html,/월요일 00시 초기화/);
 });
+
+test('generated quest image atlas displays distinct icons for five daily and two weekly-specific tasks',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const css=readFileSync(new URL('../src/components/quests/quests.css',import.meta.url),'utf8');
+ const {questIconAtlas}=await import('../src/components/quests/questIconAtlas');
+ assert.match(questIconAtlas,/^data:image\/webp;base64,UklG/);
+ assert.ok(questIconAtlas.length>1000);
+ assert.match(css,/background-image:var\(--tc-quest-icon-atlas\)/);
+ assert.match(css,/background-size:700% 100%/);
+ const dailyIds=['hunt','craft','gather','market','donate'];
+ const daily=dailyIds.map(id=>({...board.daily[0],id}));
+ const d=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board:{...board,daily}}));
+ assert.equal((d.match(/class="tc-quest-icon-art"/g)??[]).length,6);
+ for(const pct of ['0%','16.666666666666664%','33.33333333333333%','50%','66.66666666666666%'])assert.ok(d.includes('background-position:'+pct),pct);
+ const weeklyIds=['hunt','craft','gather','daily','all'];
+ const weekly=weeklyIds.map(id=>({...board.daily[0],id}));
+ const w=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board:{...board,weekly},initialTab:'weekly'}));
+ assert.equal((w.match(/class="tc-quest-icon-art"/g)??[]).length,6);
+ assert.match(w,/background-position:83\.33333333333334% center/);
+ assert.match(w,/background-position:100% center/);
+});
