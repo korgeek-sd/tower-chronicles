@@ -4,6 +4,7 @@ import type {AppPage} from '../mobile/CoreScreens';
 import type {QuestBoard,QuestEntry,QuestPeriod} from '../../online/quests';
 import {questRewardSummary} from '../../online/quests';
 import './quests.css';
+import {questIconAtlas} from './questIconAtlas';
 
 export const DAILY_QUESTS=[['사냥 승리 30회',30,'hunt','sword'],['제작 10회',10,'craft','craft'],['채집 30회',30,'world','materials'],['거래소 구입 3회',3,'market','market'],['원정단 기부 3회',3,'association','association']] as const;
 export const WEEKLY_QUESTS=[['사냥 승리 300회',300,'hunt','sword'],['제작 50회',50,'craft','craft'],['채집 150회',150,'world','materials'],['일일 의뢰 완료 10개',10,'quests','bestiary'],['주간 의뢰 4개 모두 완료',4,'quests','bestiary']] as const;
@@ -24,6 +25,7 @@ const descriptions:Record<QuestPeriod,Record<string,string>>={
   all:'다른 주간 의뢰 4개를 완료하세요.'
  }
 };
+const iconSlot:Record<string,number>={hunt:0,craft:1,gather:2,market:3,donate:4,daily:5,all:6};
 const asPercent=(progress:number,target:number)=>target>0?Math.max(0,Math.min(100,Math.round(progress/target*100))):0;
 
 export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',error='',onRetry,initialTab='daily'}:{onMove:(page:AppPage)=>void;board?:QuestBoard|null;onClaim?:(period:QuestPeriod,q:QuestEntry)=>void;busy?:boolean;message?:string;error?:string;onRetry?:()=>void;initialTab?:QuestPeriod}){
@@ -32,7 +34,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
  const finished=quests.filter(q=>q.completed||q.claimed).length;
  const ready=quests.filter(q=>q.completed&&!q.claimed).length;
  return <Screen eyebrow="NOVAR · QUEST BOARD" title="의뢰 게시판" className="tc-quest-screen tc-quest-screen-v3">
-  <div className="tc-quest-board">
+  <div className="tc-quest-board" style={{'--tc-quest-icon-atlas':`url("${questIconAtlas}")`} as React.CSSProperties}>
    <div className="tc-quest-scene" aria-hidden="true">
     <i className="tc-quest-lantern left"/><i className="tc-quest-lantern right"/>
     <div className="tc-quest-scene-crest"><Glyph name="jobs"/><span>모험가의 의뢰</span></div>
@@ -67,7 +69,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
       else onMove(page);
      }
      return <article key={q.id} className={'tc-quest-paper '+(q.claimed?'is-claimed':q.completed?'is-ready':'is-progress')}>
-      <span className="tc-quest-emblem"><Glyph name={glyph}/></span>
+      <span className="tc-quest-emblem"><span className="tc-quest-icon-art" aria-hidden="true" style={{backgroundPosition:`${((iconSlot[q.id]??0)/6)*100}% center`}}/><span className="tc-quest-icon-fallback"><Glyph name={glyph}/></span></span>
       <div className="tc-quest-info">
        <div className="tc-quest-name-row"><strong>{name}</strong><span className="tc-quest-state">{status}</span></div>
        <p className="tc-quest-description">{description}</p>
