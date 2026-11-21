@@ -1,6 +1,6 @@
 import React,{useState} from 'react';
 import {assetUrl} from '../../game/data/graphics';
-import type {VillageWarFront,VillageWarStageOneState,VillageWarStageRequest,VillageWarScore} from '../../online/villageWar';
+import type {VillageWarFront,VillageWarStageOneState,VillageWarStageRequest} from '../../online/villageWar';
 import './village-war-stage-one.css';
 
 type Props={
@@ -47,23 +47,17 @@ function FrontButton({front,selected,onSelect,myGuild,phase,canDeploy,userId,can
  return <button type="button" data-front-id={front.frontId} className={'tc-village-lane '+(selected?'is-selected ':'')+(occupied?(ours?'is-ours':'is-enemy'):'is-empty')+(occupied&&wins>=20?' is-exhausted':'')} aria-pressed={selected} aria-label={'제'+front.frontId+'전선 · '+(front.associationName??(phase==='BATTLE'?'빈 전선 점령':phase==='DEPLOYMENT'&&canDeploy?'내 캐릭터 배치':'중립'))} onClick={onSelect}>
   <span className="tc-siege-card-head"><b>제{front.frontId}전선</b><small className="tc-siege-tag">{status}</small></span>
   <span className="tc-siege-card-owner"><Banner color={color} empty={!occupied}/><span><strong style={{color}}>{front.associationName??(occupied?'점령 중':'미점령')}</strong><small>{occupied?(front.defenderUserId===userId?'내 캐릭터':front.defenderName??'수비자'):'수비자 없음'}</small></span></span>
-  <MiniVital label="HP" value={ratio(front.hp,front.maxHp)}/><MiniVital label="MP" value={ratio(front.mp,front.maxMp)}/>
+  <MiniVital label="HP" value={ratio(front.hp,front.maxHp)}/>
   <Fatigue wins={wins} empty={!occupied}/>
  </button>;
 }
-function Scores({scores,myGuild}:{scores:VillageWarScore[];myGuild:string|null|undefined}){
- return <div className="tc-village-leaderboard" aria-label="실시간 원정단 점수">
-  {scores.length? scores.slice(0,5).map((score,index)=><div className={'tc-village-rank '+(score.associationId===myGuild?'is-my-guild':'')} key={score.associationId}>
-   <small>{index+1}위 · {score.fronts}전선</small><b title={score.associationName??'원정단'}>{score.associationName??'원정단'}</b><strong>{Number(score.points).toFixed(2)}<em>점</em></strong>
-  </div>):<p className="tc-village-no-scores">전선 점령이 시작되면 길드별 점수가 표시됩니다.</p>}
- </div>;
-}
 export function VillageWarDeploymentPanel({townName='영지',townKind='city',ownArt,preview=false,state,userId,busy,pending,error,onPlace,onRemove,onClaim,onAttack,onRetry,onRefresh,now=state.serverNow}:Props){
- const [selection,setSelection]=useState(preview?3:1),[overlay,setOverlay]=useState<'scores'|'records'|'rules'|null>(null);
+ const [selection,setSelection]=useState(preview?3:1),[overlay,setOverlay]=useState<'scores'|'records'|'rules'|'notice'|null>(null);
  const phase=state.settledAt?'ENDED':state.battleStartsAt&&state.battleEndsAt&&state.deploymentStartsAt?
   (now<Date.parse(state.deploymentStartsAt)?'WAITING':now<Date.parse(state.battleStartsAt)?'DEPLOYMENT':now<Date.parse(state.battleEndsAt)?'BATTLE':'ENDED'):state.phase;
  const selected=state.fronts.find(front=>front.frontId===selection)??state.fronts[0];
  const scores=state.scores??[],records=state.recentBattles??[];
+ const lead=scores[0],recent=records[0];
  const owner=!!state.myAssociationId&&state.myAssociationId===state.ownerAssociationId;
  const locked=busy||!!pending;
  const cooldown=state.nextAttackAt?Math.max(0,Math.ceil((Date.parse(state.nextAttackAt)-now)/1000))||0:0;
@@ -91,10 +85,10 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
  const title=phase==='DEPLOYMENT'?'수비 배치':phase==='BATTLE'?'점령전 진행 중':settled?(state.winnerAssociationId?winner+' 승리':'전쟁 종료 · 소유권 유지'):'전쟁 준비';
  const landscape=townKind==='city'?'assets/backgrounds/hub/novar-moonlit-v3.webp':'assets/backgrounds/gathering/'+townKind+'.webp';
  const selectedColor=guildColor(selected?.associationId,state.myAssociationId);
- return <section className="tc-village-stage tc-village-stage-v3 tc-siege-v4" aria-label="5전선 공성전 실시간 전황">
-  <header className="tc-village-war-head tc-siege-hero" style={{backgroundImage:'linear-gradient(0deg,#101118f5 4%,#10111840 75%),url('+assetUrl(landscape)+')'}}>
-   <span className="tc-siege-hero-kicker">GUILD SIEGE</span><button type="button" className="tc-siege-help" onClick={()=>setOverlay('rules')} aria-label="점령전 규칙">?</button>
-   <h2>점령전</h2><div className="tc-siege-town"><span aria-hidden="true">◇</span>{townName}<span aria-hidden="true">◇</span></div><small>{title}{preview?' · 시연 데이터':''}</small>
+ return <section className="tc-village-stage tc-village-stage-v3 tc-siege-v4 tc-siege-v5" aria-label="5전선 공성전 실시간 전황">
+  <header className="tc-village-war-head tc-siege-hero" style={{backgroundImage:'linear-gradient(90deg,#11141be8,#11141b80),url('+assetUrl(landscape)+')'}}>
+   <div className="tc-siege-hero-title"><h2>점령전 · {townName}</h2><small>{title}{preview?' · 시연 데이터':''}</small></div>
+   <button type="button" className="tc-siege-help" onClick={()=>setOverlay('rules')} aria-label="점령전 규칙">?</button>
   </header>
   <div className="tc-siege-summary"><div><small>승리 조건</small><strong title="전선당 분당 1점 · 150점 선착순">150점 선취</strong></div><div><small>{phase==='DEPLOYMENT'?'전쟁 시작':phase==='BATTLE'?'남은 시간':settled?'종료':'배치 시작'}</small><strong>{settled?'종료':left(deadline,now)}</strong></div><div><small>도전권</small><strong>{(state.tickets??0).toLocaleString()}장</strong></div></div>
   <div className="tc-siege-front-label"><b>전선 현황</b><span>{status}</span></div>
@@ -102,7 +96,7 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
    {state.fronts.map(front=><FrontButton key={front.frontId} front={front} selected={selected?.frontId===front.frontId} onSelect={()=>setSelection(front.frontId)} myGuild={state.myAssociationId} phase={phase} canDeploy={owner} userId={userId} canAct={canAct}/>)}
   </nav>
   {selected?<section className="tc-village-selected-front" aria-label={'제'+selected.frontId+'전선 현황'}>
-   <div className="tc-siege-detail-title"><h3>제{selected.frontId}전선</h3><span>제{selected.frontId}전선 · {isDefender?(isOurs?'아군 수비':'적군 수비'):'미점령'}</span></div>
+   <div className="tc-siege-detail-title"><h3>제{selected.frontId}전선</h3>{isDefender&&(selected.defenseWins??0)>=20?<span className="tc-siege-warning" role="status">탈진 패배 확률 30%</span>:<span>제{selected.frontId}전선 · {isDefender?(isOurs?'아군 수비':'적군 수비'):'미점령'}</span>}</div>
    <div className="tc-siege-detail-body">
     <div className="tc-siege-detail-art" style={{backgroundImage:'linear-gradient(0deg,#10131af5,#10131a66),url('+assetUrl(landscape)+')'}}>
      {isDefender&&selected.defenderUserId===userId&&ownArt?<img src={ownArt} alt="내 캐릭터"/>:<Banner color={selectedColor} empty={!isDefender}/>}
@@ -112,7 +106,6 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
      {isDefender?<><Vital name="HP" current={selected.hp} max={selected.maxHp}/><Vital name="MP" current={selected.mp} max={selected.maxMp}/><Fatigue wins={selected.defenseWins??0} detail/></>:<p>비어 있는 전선입니다. 전쟁 중 도전권 1장으로 점령할 수 있습니다.</p>}
     </div>
    </div>
-   {isDefender&&(selected.defenseWins??0)>=20&&<p className="tc-siege-warning" role="status">정상 수비 승리 시에도 탈진 패배 확률 30%</p>}
    <div className="tc-village-selected-action">
     <button type="button" className={"tc-village-primary tc-feel-press"+(cooling?" is-cooling":"")+(!isDefender?" is-claim":"")} disabled={!actionAllowed} onClick={act}>
      <span className="tc-village-primary-label">{actionText}</span><small>{actionHint}</small>
@@ -120,22 +113,23 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
     </button>
    </div>
   </section>:<div className="tc-village-no-front">전선 정보를 확인하는 중입니다.</div>}
-  <div className="tc-siege-bottom">
-   <div className="tc-village-war-feed">
-    <div className="tc-village-war-feed-head"><b>최근 전투 기록</b><button type="button" onClick={()=>setOverlay('records')}>전체 보기</button></div>
-    {records.length?<div className="tc-village-mini-records">{records.slice(0,5).map(r=><p key={r.battleId} className={r.outcome==='CAPTURE'?'is-capture':'is-defense'}><time>{clock(r.createdAt)}</time><b>제{r.frontId}전선</b><span>{r.attackerName} → {r.defenderName} · {r.outcome==='CAPTURE'?'점령 성공':'수비 성공'}</span></p>)}</div>:<p className="tc-village-empty-records">아직 진행된 전투가 없습니다.</p>}
-   </div>
-   <div className="tc-siege-scores"><div className="tc-village-war-score-head"><b>원정단 점수 현황</b><button type="button" onClick={()=>setOverlay('scores')}>전체 순위</button></div><Scores scores={scores} myGuild={state.myAssociationId}/></div>
+  <div className="tc-siege-bottom" aria-label="전황 요약 및 상세 보기">
+   <button type="button" className="tc-siege-quick-link" onClick={()=>setOverlay('scores')} aria-label="원정단 점수 현황 전체 순위 보기">
+    <b>원정단 순위</b><span>{lead?(lead.associationName??'원정단')+' '+Number(lead.points).toFixed(2)+'점':'집계 대기'}</span>
+   </button>
+   <button type="button" className="tc-siege-quick-link" onClick={()=>setOverlay('records')} aria-label="최근 전투 기록 전체 보기">
+    <b>전투 기록</b><span>{recent?clock(recent.createdAt)+' '+recent.attackerName+' → '+recent.defenderName:'기록 없음'}</span>
+   </button>
   </div>
   <footer className="tc-village-war-footer">
    <span>도전권 <b>{state.tickets??0}</b>장 · {status}</span>
    <div>{pending&&<button type="button" disabled={busy} onClick={onRetry}>요청 재확인</button>}<button type="button" disabled={busy} onClick={onRefresh}>새로고침</button></div>
-   {(error||pending)&&<p role={error?'alert':'status'}>{error||'이전 요청의 결과를 확인해야 합니다. 새 공격은 실행하지 않습니다.'}</p>}
+   {(error||pending)&&<button type="button" className="tc-siege-notice" role={error?'alert':'status'} onClick={()=>setOverlay('notice')}>{error?'오류 안내 보기':'요청 상태 확인'}</button>}
   </footer>
   {overlay&&<div className="tc-village-dialog-backdrop" onClick={()=>setOverlay(null)}>
-   <section role="dialog" aria-modal="true" aria-label={overlay==='rules'?'점령전 규칙':overlay==='scores'?'전체 원정단 순위':'공성전 전체 전투 기록'} className="tc-village-dialog" onClick={event=>event.stopPropagation()}>
-    <header><div><small>GUILD SIEGE</small><h3>{overlay==='rules'?'점령전 규칙':overlay==='scores'?'전체 원정단 순위':'전투 기록'}</h3></div><button type="button" onClick={()=>setOverlay(null)}>닫기</button></header>
-    {overlay==='rules'?<div className="tc-village-dialog-list tc-siege-rules"><p>토요일 21:55–22:00 수비 배치, 22:00–23:00 점령전</p><p>전선당 분당 1점 · 150점 선취 시 승리. 시간 종료 시 서버 점수로 승패 결정.</p><p>공격 도전권 1장 · 공격 또는 수비 패배 후 30초 대기 · 모든 영지에서 한 전선만 수비 가능.</p><p>20회 정상 수비 이후 정상 승리도 30% 확률로 탈진 패배. 재점령 시 피로도 초기화.</p><p>최종 수비 성공 시 30% 확률로 도전권 1장 획득.</p></div>:overlay==='scores'?<div className="tc-village-dialog-list">{scores.length?scores.map((s,i)=><div className="tc-village-dialog-score" key={s.associationId}>
+   <section role="dialog" aria-modal="true" aria-label={overlay==='notice'?'요청 상태 안내':overlay==='rules'?'점령전 규칙':overlay==='scores'?'전체 원정단 순위':'공성전 전체 전투 기록'} className="tc-village-dialog" onClick={event=>event.stopPropagation()}>
+    <header><div><small>GUILD SIEGE</small><h3>{overlay==='notice'?'요청 상태 안내':overlay==='rules'?'점령전 규칙':overlay==='scores'?'전체 원정단 순위':'전투 기록'}</h3></div><button type="button" onClick={()=>setOverlay(null)}>닫기</button></header>
+    {overlay==='notice'?<div className="tc-village-dialog-list tc-siege-rules"><p role={error?'alert':'status'}>{error||'이전 요청의 결과를 확인해야 합니다. 새 공격은 실행하지 않습니다.'}</p></div>:overlay==='rules'?<div className="tc-village-dialog-list tc-siege-rules"><p>토요일 21:55–22:00 수비 배치, 22:00–23:00 점령전</p><p>전선당 분당 1점 · 150점 선취 시 승리. 시간 종료 시 서버 점수로 승패 결정.</p><p>공격 도전권 1장 · 공격 또는 수비 패배 후 30초 대기 · 모든 영지에서 한 전선만 수비 가능.</p><p>20회 정상 수비 이후 정상 승리도 30% 확률로 탈진 패배. 재점령 시 피로도 초기화.</p><p>최종 수비 성공 시 30% 확률로 도전권 1장 획득.</p></div>:overlay==='scores'?<div className="tc-village-dialog-list">{scores.length?scores.map((s,i)=><div className="tc-village-dialog-score" key={s.associationId}>
      <b>{i+1}위</b><span>{s.associationName??'원정단'}</span><small>{s.fronts}전선</small><strong>{Number(s.points).toFixed(2)}점</strong>
     </div>):<p>현재 집계된 길드 점수가 없습니다.</p>}</div>:
     <ol className="tc-village-dialog-list tc-village-dialog-records">{records.length?records.map(r=><li key={r.battleId}>
