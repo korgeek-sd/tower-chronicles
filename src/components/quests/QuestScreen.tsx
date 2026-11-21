@@ -42,7 +42,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
     <Segments items={[['daily','일일'],['weekly','주간']] as const} value={tab} onChange={setTab} label="의뢰 기간"/>
    </div>
    <div className="tc-quest-overview">
-    <span className="tc-quest-completion"><Glyph name="jobs"/> 완료 현황 <b>{finished} / {quests.length||5}</b></span>
+    <span className="tc-quest-completion"><Glyph name="jobs"/> 완료 현황 <b>{board?finished+' / '+quests.length:'— / —'}</b></span>
     <span className="tc-quest-reset"><Glyph name="revival"/> {tab==='daily'?'매일':'월요일'} 00시 초기화</span>
    </div>
    {(error||message||!board)&&<div className={'tc-quest-status'+(error?' is-error':'')} role={error?'alert':'status'}>
