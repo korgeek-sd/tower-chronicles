@@ -17,8 +17,37 @@ test('weekly places all five assignments on the same notice board',()=>{
  assert.match(html,/의뢰 게시판/);
  assert.equal((html.match(/class="tc-quest-paper /g)??[]).length,5);
 });
-test('notice board uses complete illustrated sheets and keeps a live emblem on every quest',()=>{
+test('quest board retains live emblems on each server-backed request',()=>{
  const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board}));
  assert.match(html,/tc-quest-wall is-daily/);
  assert.equal((html.match(/tc-quest-emblem/g)??[]).length,3);
+});
+
+test('quest board v3 shows a five-row dark fantasy list with real server progress and action states',()=>{
+ const quests=['hunt','craft','gather','market','donate'].map((id,index)=>({id,target:index===3||index===4?3:30,progress:index===0?20:index===1?30:index===3?3:0,completed:index===1||index===3,claimed:false,reward:null}));
+ const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},onClaim:()=>{},board:{...board,daily:quests}}));
+ assert.match(html,/tc-quest-screen-v3/);
+ assert.equal((html.match(/class="tc-quest-paper /g)??[]).length,5);
+ assert.match(html,/완료 현황/);
+ assert.match(html,/>2 \/ 5<\/b>/);
+ assert.match(html,/수령 가능 2건/);
+ assert.match(html,/20 \/ 30/);
+ assert.match(html,/66%|67%/);
+ assert.equal((html.match(/>보상받기<\/span><\/button>/g)??[]).length,2);
+ assert.equal((html.match(/>바로가기<\/span><\/button>/g)??[]).length,3);
+ assert.doesNotMatch(html,/임의의 보상 지급|확정 보상/);
+});
+test('quest board v3 keeps five weekly items on one fixed-height column and preserves claimed details',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const css=readFileSync(new URL('../src/components/quests/quests.css',import.meta.url),'utf8');
+ assert.match(css,/tc-quest-screen-v3/);
+ assert.match(css,/grid-template-rows:repeat\(5,minmax\(0,1fr\)\)/);
+ assert.match(css,/overflow:hidden/);
+ assert.doesNotMatch(css,/notice-daily\.webp|notice-weekly\.webp/);
+ const qs=['hunt','craft','gather','daily','all'].map((id,i)=>({...board.daily[0],id,completed:i===0,claimed:i===0,reward:i===0?[{item:'herb',name:'약초',quantity:3}]:null}));
+ const html=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board:{...board,weekly:qs},initialTab:'weekly'}));
+ assert.equal((html.match(/class="tc-quest-paper /g)??[]).length,5);
+ assert.match(html,/수령 완료/);
+ assert.match(html,/약초 3개/);
+ assert.match(html,/월요일 00시 초기화/);
 });
