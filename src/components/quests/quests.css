@@ -1,53 +1,146 @@
-.tc-quest-screen .tc-screen-head {border:0}
-.tc-quest-screen .tc-screen-body {padding-top:0}
-.tc-quest-board {height:100%;min-height:0;display:flex;flex-direction:column;gap:5px}
-.tc-quest-toolbar {display:flex;align-items:center;justify-content:space-between;color:#cfb58a}
-.tc-quest-toolbar .tc-segments {width:min(48%,200px)}
-.tc-quest-toolbar .tc-segments button {min-height:44px}
-.tc-quest-toolbar small,.tc-quest-status {font-size:12px}
-.tc-quest-status {display:flex;align-items:center;justify-content:space-between;color:#efdbb7}
-.tc-quest-status button {min-height:44px}
-/* The grid coordinates match the illustrated sheets and their wax seals. */
-.tc-quest-wall {
- position:relative;flex:1;min-height:0;container-type:size;
- display:grid;grid-template-columns:7% 41.5% 3% 41.5% 7%;
- grid-template-rows:12.8% 41% 3% 29.5% 13.7%;
- background:url('./art/notice-daily.webp') center / 100% 100% no-repeat;
+/* QUEST BOARD V3 — compact dark fantasy list layout. The app shell already owns currency/navigation. */
+.tc-quest-screen-v3{grid-template-rows:59px minmax(0,1fr);min-height:0;overflow:hidden;background:linear-gradient(180deg,#181a20,#0f121a 58%,#10131a)}
+.tc-quest-screen-v3 .tc-screen-head{position:relative;align-items:center;min-height:0;padding:5px 12px;border:1px solid #a27e49;border-bottom-width:2px;background:linear-gradient(90deg,#0e1119eb,#25202a,#11131adf),repeating-linear-gradient(0deg,#654321 0 2px,#211711 3px 7px);box-shadow:inset 0 0 0 2px #0c0e14,0 2px 9px #0008;overflow:hidden}
+.tc-quest-screen-v3 .tc-screen-head::before,.tc-quest-screen-v3 .tc-screen-head::after{content:"◆";position:absolute;top:50%;transform:translateY(-50%);color:#b98b4b;text-shadow:0 0 7px #ad774a;font-size:11px}
+.tc-quest-screen-v3 .tc-screen-head::before{left:6px}.tc-quest-screen-v3 .tc-screen-head::after{right:6px}
+.tc-quest-screen-v3 .tc-screen-head>div:first-child{flex:1;text-align:center;min-width:0}
+.tc-quest-screen-v3 .tc-screen-head small{font-size:8px;letter-spacing:.14em;color:#b99a6a}
+.tc-quest-screen-v3 .tc-screen-head h1{margin:3px 0 0;font:700 clamp(19px,5vw,25px)/1.2 "Noto Serif KR",Georgia,serif;letter-spacing:.05em;color:#f3d7a0;text-shadow:0 2px #120e09,0 0 8px #925321}
+.tc-quest-screen-v3 .tc-screen-body{padding:0;min-height:0;overflow:hidden}
+.tc-quest-screen-v3 .tc-quest-board{position:relative;box-sizing:border-box;display:grid;grid-template-rows:64px 41px 27px minmax(0,1fr) 54px;gap:5px;height:100%;min-height:0;padding:5px;background:radial-gradient(ellipse at 45% 8%,#34261988,transparent 42%),linear-gradient(180deg,#15151b,#0c1017 52%,#11121a);overflow:hidden}
+.tc-quest-screen-v3 .tc-quest-scene{position:relative;min-height:0;display:grid;place-items:center;align-content:center;gap:2px;padding:5px 33px;border:1px solid #6b4c30;background:radial-gradient(ellipse at 50% 0%,#7b4f274d,transparent 68%),repeating-linear-gradient(90deg,#181313 0 11px,#231a17 12px 14px,#151113 15px 29px);box-shadow:inset 0 -6px 8px #0008;overflow:hidden;text-align:center}
+.tc-quest-scene::before,.tc-quest-scene::after{position:absolute;content:"";top:0;bottom:0;width:9px;background:linear-gradient(90deg,#5e3b1f,#301c14,#211713);box-shadow:inset 1px 0 #bb8e54,inset -1px 0 #160c08}
+.tc-quest-scene::before{left:0}.tc-quest-scene::after{right:0}
+.tc-quest-scene-crest{display:flex;align-items:center;justify-content:center;gap:7px;color:#dfb873;font:700 13px/1.1 "Noto Serif KR",Georgia,serif;text-shadow:0 1px 3px #000}
+.tc-quest-scene-crest .tc-glyph{font-size:19px;color:#d2a55d}
+.tc-quest-scene>p{margin:0;max-width:100%;font-size:10px;line-height:1.25;color:#ddc6a0;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;text-shadow:0 1px 2px #000}
+.tc-quest-lantern{position:absolute;z-index:1;top:5px;width:15px;height:28px;background:linear-gradient(90deg,#2d231b 0 13%,#f2b45b 26%,#fff0a7 50%,#b97027 83%,#251b19 93%);clip-path:polygon(20% 0,80% 0,100% 18%,100% 78%,70% 100%,30% 100%,0 78%,0 18%);box-shadow:0 0 12px #ed9d54;filter:drop-shadow(0 0 7px #edab55)}
+.tc-quest-lantern::before{content:"";position:absolute;top:-4px;left:6px;height:6px;width:2px;background:#d29b52}
+.tc-quest-lantern.left{left:17px}.tc-quest-lantern.right{right:17px}
+.tc-quest-screen-v3 .tc-quest-toolbar{min-height:0;display:block}
+.tc-quest-screen-v3 .tc-quest-toolbar .tc-segments{box-sizing:border-box;width:100%;height:100%;border:0;background:none;gap:5px}
+.tc-quest-screen-v3 .tc-quest-toolbar .tc-segments button{min-height:0;height:100%;font:700 14px/1 "Noto Serif KR",Georgia,serif;border:1px solid #705638;border-radius:2px;background:linear-gradient(180deg,#24252b,#10131a);color:#c3a984;box-shadow:inset 0 0 0 1px #0b0e15;text-shadow:0 1px #080707}
+.tc-quest-screen-v3 .tc-quest-toolbar .tc-segments button::after{content:" 의뢰"}
+.tc-quest-screen-v3 .tc-quest-toolbar .tc-segments button[aria-selected=true]{border-color:#ddb16b;color:#f8daa4;background:linear-gradient(180deg,#71522e,#3d2a1d 52%,#2b241f);box-shadow:0 0 0 1px #a87c43,inset 0 1px #e1c288,0 0 8px #bf914a44}
+.tc-quest-screen-v3 .tc-quest-overview{min-height:0;display:flex;justify-content:space-between;align-items:center;gap:5px;padding:3px 7px;border:1px solid #5b4934;background:linear-gradient(90deg,#24222a,#151721);color:#cfbe9e;overflow:hidden}
+.tc-quest-completion,.tc-quest-reset{display:flex;align-items:center;gap:4px;min-width:0;font-size:11px;white-space:nowrap}
+.tc-quest-completion .tc-glyph,.tc-quest-reset .tc-glyph{font-size:13px;color:#dfb96d}
+.tc-quest-completion b{color:#efcc81;font-size:12px;font-variant-numeric:tabular-nums}
+.tc-quest-reset{font-size:10px;color:#d9bb8f}
+.tc-quest-screen-v3 .tc-quest-wall,.tc-quest-screen-v3 .tc-quest-wall.is-weekly{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));gap:4px;
+ align-content:stretch;min-height:0;height:100%;width:100%;overflow:hidden;background:none;container-type:normal;
 }
-.tc-quest-wall.is-weekly {
- grid-template-rows:8.95% 28.65% 1.45% 28.65% 2.1% 20.6% 9.6%;
- background-image:url('./art/notice-weekly.webp');
+.tc-quest-screen-v3 .tc-quest-paper,.tc-quest-screen-v3 .tc-quest-paper:nth-child(even),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+3),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+5),.tc-quest-screen-v3 .tc-quest-paper:last-child:nth-child(odd){
+ position:relative;box-sizing:border-box;display:grid;grid-column:auto;grid-row:auto;
+ grid-template-columns:43px minmax(0,1fr) 80px;grid-template-rows:minmax(0,1fr);
+ align-items:center;gap:6px;min-width:0;min-height:0;width:100%;height:100%;padding:5px 6px;
+ text-align:left;color:#ebd8b6;border:1px solid #806543;border-radius:4px;
+ background:linear-gradient(125deg,#292934,#181c26 56%,#13151b);box-shadow:inset 0 0 0 1px #12141b,0 1px 0 #0a0c10;overflow:hidden;
 }
-.tc-quest-paper {position:relative;grid-column:2;grid-row:2;min-width:0;min-height:0;text-align:center;color:#30200f}
-.tc-quest-paper:nth-child(even) {grid-column:4}
-.tc-quest-paper:nth-child(n+3) {grid-row:4}
-.tc-quest-paper:nth-child(n+5) {grid-row:6}
-.tc-quest-paper:last-child:nth-child(odd) {grid-column:2/5}
-.tc-quest-paper strong,.tc-quest-emblem,.tc-quest-progress,.tc-quest-foot small,.tc-quest-seal {
- position:absolute;transform:translate(-50%,-50%);left:50%;margin:0;
+.tc-quest-screen-v3 .tc-quest-paper::before{content:"";position:absolute;inset:3px;pointer-events:none;border-left:1px solid #4f4b45;border-right:1px solid #3c332e;opacity:.55}
+.tc-quest-screen-v3 .tc-quest-paper.is-ready{border-color:#b89150;background:linear-gradient(125deg,#392d24,#25242b 50%,#2a2019);box-shadow:inset 0 0 0 1px #8b6038,0 0 7px #b78b4c3d}
+.tc-quest-screen-v3 .tc-quest-paper.is-claimed{border-color:#5d6d53;background:linear-gradient(125deg,#1c2525,#191f24 55%,#14161a)}
+.tc-quest-screen-v3 .tc-quest-emblem{
+ position:static;left:auto;top:auto;transform:none;display:grid;place-items:center;justify-self:stretch;align-self:center;
+ box-sizing:border-box;width:42px;height:49px;min-width:0;min-height:0;margin:0;color:#f0ca83;
+ border:1px solid #9a7140;border-radius:2px;background:radial-gradient(ellipse at 50% 14%,#54362a,#1b1c24 72%);
+ box-shadow:inset 0 0 0 2px #151218,0 2px 0 #080809;clip-path:polygon(0 0,100% 0,100% 90%,50% 100%,0 90%);
 }
-.tc-quest-paper strong {width:94%;top:34%;font-size:clamp(12px,3.55cqw,19px);line-height:1.1;word-break:keep-all}
-.tc-quest-emblem {top:20%;font-size:clamp(16px,min(5.6cqw,5cqh),32px);color:#624121;line-height:1}
-.tc-quest-progress {top:55%;font-size:clamp(11px,3cqw,16px);width:76%}
-.tc-quest-track {height:clamp(4px,1.35cqh,10px);margin:2px auto 0;border:1px solid #64401d;border-radius:3px;background:#674828;box-shadow:0 0 0 1px #ebca91}
-.tc-quest-track i {display:block;height:100%;background:linear-gradient(#ffd46b,#dba034);border-radius:2px}
-.tc-quest-foot small {left:30%;top:77%;width:53%;font-size:clamp(10px,2.6cqw,14px);line-height:1.18;overflow-wrap:anywhere}
-.tc-quest-foot small::before {content:'◇';margin-right:2px}
-.tc-quest-paper .tc-quest-seal span {
- position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;left:74.5%;top:83%;width:38%;height:30%;padding:0;color:#ffe8b9;background:none;border:0;
- box-shadow:none;text-shadow:0 1px 2px #350c00;font:inherit;font-size:clamp(10px,2.75cqw,15px);line-height:1.1;
+.tc-quest-screen-v3 .tc-quest-emblem .tc-glyph{font-size:26px;filter:drop-shadow(0 2px 0 #0c0a08)}
+.tc-quest-screen-v3 .tc-quest-info{display:grid;align-content:center;gap:4px;min-height:0;min-width:0;overflow:hidden}
+.tc-quest-screen-v3 .tc-quest-name-row{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0}
+.tc-quest-screen-v3 .tc-quest-name-row strong{
+ position:static;transform:none;left:auto;top:auto;width:auto;min-width:0;margin:0;
+ font:700 13px/1.15 "Noto Serif KR","Pretendard",serif;color:#efddb9;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal
 }
-.tc-quest-paper:nth-child(even) .tc-quest-seal span {left:73%}
-.tc-quest-paper:focus-within {outline:2px solid #ffe593}
-.tc-quest-paper.is-claimed .tc-quest-seal {color:#ddd0bb}
-.tc-quest-paper:last-child:nth-child(odd) .tc-quest-emblem {left:21%;top:22%}
-.tc-quest-paper:last-child:nth-child(odd) strong {left:50%;top:22%;width:57%}
-.tc-quest-paper:last-child:nth-child(odd) .tc-quest-progress {left:36%;top:56%;width:51%}
-.tc-quest-paper:last-child:nth-child(odd) .tc-quest-foot small {left:32%;top:78%}
-.tc-quest-paper:last-child:nth-child(odd) .tc-quest-seal span {left:78%;top:72%;width:21%;height:40%}
-@container (max-height:420px) {
- .is-weekly .tc-quest-paper strong {font-size:clamp(10px,3cqw,14px)}
- .is-weekly .tc-quest-emblem {font-size:14px;top:17%}
- .is-weekly .tc-quest-progress,.is-weekly .tc-quest-foot small {font-size:10px}
+.tc-quest-screen-v3 .tc-quest-state{flex:none;max-width:67px;white-space:nowrap;border:1px solid #5584a0;background:#152a39;color:#a5dbf0;padding:2px 4px;border-radius:2px;font-size:8px;line-height:1}
+.tc-quest-screen-v3 .is-ready .tc-quest-state{border-color:#bc994b;background:#3a2915;color:#ffdc93}
+.tc-quest-screen-v3 .is-claimed .tc-quest-state{border-color:#648a5d;background:#213021;color:#b8e09c}
+.tc-quest-screen-v3 .tc-quest-description{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;font-size:10px;line-height:1.25;color:#bfb6aa}
+.tc-quest-screen-v3 .tc-quest-progress{
+ position:static;transform:none;left:auto;top:auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+ align-items:center;gap:5px;min-width:0;width:auto;margin:0;font-size:10px;line-height:1;color:#eee0bf
 }
-.tc-quest-paper button.tc-quest-seal {position:absolute;inset:0;transform:none;width:100%;height:100%;border:0;background:none;padding:0;box-shadow:none}
+.tc-quest-screen-v3 .tc-quest-progress span{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tc-quest-screen-v3 .tc-quest-progress em{font-style:normal;font-size:9px;min-width:28px;text-align:right;color:#c7c0af}
+.tc-quest-screen-v3 .tc-quest-track{min-width:0;width:100%;height:9px;border:1px solid #5a5346;border-radius:3px;background:#101318;margin:0;box-shadow:inset 0 1px 2px #000}
+.tc-quest-screen-v3 .tc-quest-track i{display:block;height:100%;background:linear-gradient(#81c5e9,#437baf);border-radius:1px}
+.tc-quest-screen-v3 .is-ready .tc-quest-track i{background:linear-gradient(#ffe192,#cda044)}
+.tc-quest-screen-v3 .is-claimed .tc-quest-track i{background:linear-gradient(#a2dd86,#558b4e)}
+.tc-quest-screen-v3 .tc-quest-foot{display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:6px;min-width:0;min-height:0}
+.tc-quest-screen-v3 .tc-quest-foot small{position:static;top:auto;left:auto;transform:none;display:block;width:auto;margin:0;font-size:9px;line-height:1.1;color:#baa985;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-quest-screen-v3 .tc-quest-foot small::before{content:none}
+.tc-quest-screen-v3 .tc-quest-paper button.tc-quest-seal{
+ position:static;inset:auto;transform:none;display:grid;place-items:center;box-sizing:border-box;
+ width:100%;height:36px;min-height:0;margin:0;padding:0;border:1px solid #9b7d51;border-radius:3px;
+ background:linear-gradient(180deg,#363237,#212128);box-shadow:inset 0 0 0 1px #141218;
+ color:#efd8ad;text-shadow:0 1px 2px #000;touch-action:manipulation;
+}
+.tc-quest-screen-v3 .tc-quest-paper button.tc-quest-seal span,.tc-quest-screen-v3 .tc-quest-paper:nth-child(even) .tc-quest-seal span,.tc-quest-screen-v3 .tc-quest-paper:last-child:nth-child(odd) .tc-quest-seal span{
+ position:static;left:auto;top:auto;transform:none;display:block;width:auto;height:auto;padding:0;
+ color:inherit;background:none;border:0;box-shadow:none;font:700 11px/1 "Noto Serif KR","Pretendard",serif;
+ white-space:nowrap
+}
+.tc-quest-screen-v3 .tc-quest-paper.is-ready button.tc-quest-seal{border-color:#c99b59;background:linear-gradient(180deg,#9c3f31,#592522);color:#ffe5ab;box-shadow:inset 0 1px #e9a871,0 0 7px #ba66374f}
+.tc-quest-screen-v3 .tc-quest-paper.is-claimed button.tc-quest-seal{border-color:#666460;background:linear-gradient(#373738,#272a2b);color:#b6b2aa;opacity:1;cursor:not-allowed}
+.tc-quest-screen-v3 .tc-quest-paper:focus-within{outline:2px solid #edd18e;outline-offset:-2px}
+.tc-quest-screen-v3 .tc-quest-rewards{box-sizing:border-box;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:6px;align-items:center;min-width:0;min-height:0;height:100%;padding:5px 8px;border:1px solid #987444;background:linear-gradient(150deg,#372b20,#1a1c22 67%,#262024);box-shadow:inset 0 0 0 1px #101117}
+.tc-quest-screen-v3 .tc-quest-reward-emblem{display:grid;place-items:center;width:35px;height:35px;border:1px solid #b58d50;background:radial-gradient(#a56a2b55,#201810 72%);color:#e1b66a}
+.tc-quest-screen-v3 .tc-quest-reward-emblem .tc-glyph{font-size:24px}
+.tc-quest-screen-v3 .tc-quest-rewards>div{min-width:0;display:grid;gap:3px;align-content:center}
+.tc-quest-screen-v3 .tc-quest-rewards strong{font:700 12px/1 "Noto Serif KR",serif;color:#e7c787}
+.tc-quest-screen-v3 .tc-quest-rewards small{font-size:9px;color:#b5a692;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-quest-screen-v3 .tc-quest-rewards>b{font-size:10px;color:#e9c77c;white-space:nowrap;border-left:1px solid #75613e;padding-left:6px;align-self:stretch;display:flex;align-items:center}
+.tc-quest-screen-v3 .tc-quest-status{position:absolute;z-index:3;bottom:9px;left:8px;right:8px;box-sizing:border-box;max-height:51px;min-height:43px;display:flex;align-items:center;justify-content:space-between;gap:7px;padding:4px 10px;border:1px solid #ac8e59;background:#28231bf5;box-shadow:0 2px 12px #000b;color:#ffe1ad;font-size:11px;line-height:1.25;overflow:auto}
+.tc-quest-screen-v3 .tc-quest-status.is-error{border-color:#b86b5e;background:#39221cf8;color:#ffd4c4}
+.tc-quest-screen-v3 .tc-quest-status button{min-height:34px;flex:none;padding:4px 7px;border:1px solid #b59461;background:#342920;color:#f2dab0;font-size:10px}
+@media(max-width:365px){
+ .tc-quest-screen-v3 .tc-quest-board{padding:3px;gap:3px}
+ .tc-quest-screen-v3 .tc-quest-paper,.tc-quest-screen-v3 .tc-quest-paper:nth-child(even),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+3),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+5),.tc-quest-screen-v3 .tc-quest-paper:last-child:nth-child(odd){grid-template-columns:35px minmax(0,1fr) 71px;gap:4px;padding:3px 4px}
+ .tc-quest-screen-v3 .tc-quest-emblem{width:34px;height:43px}
+ .tc-quest-screen-v3 .tc-quest-emblem .tc-glyph{font-size:21px}
+ .tc-quest-screen-v3 .tc-quest-name-row strong{font-size:11px}
+ .tc-quest-screen-v3 .tc-quest-state{font-size:7px;padding:2px}
+ .tc-quest-screen-v3 .tc-quest-description{font-size:9px}
+ .tc-quest-screen-v3 .tc-quest-progress{font-size:9px;gap:3px}
+ .tc-quest-screen-v3 .tc-quest-progress em{font-size:8px;min-width:24px}
+ .tc-quest-screen-v3 .tc-quest-foot small{font-size:8px}
+ .tc-quest-screen-v3 .tc-quest-paper button.tc-quest-seal{height:33px}
+ .tc-quest-screen-v3 .tc-quest-paper button.tc-quest-seal span{font-size:9px}
+}
+@media(max-height:740px){
+ .tc-quest-screen-v3{grid-template-rows:48px minmax(0,1fr)}
+ .tc-quest-screen-v3 .tc-screen-head h1{font-size:19px}
+ .tc-quest-screen-v3 .tc-quest-board{grid-template-rows:43px 36px 23px minmax(0,1fr) 43px;gap:3px;padding:3px}
+ .tc-quest-screen-v3 .tc-quest-scene{gap:1px;padding:1px 25px}
+ .tc-quest-screen-v3 .tc-quest-scene-crest{font-size:11px}.tc-quest-screen-v3 .tc-quest-scene-crest .tc-glyph{font-size:14px}
+ .tc-quest-screen-v3 .tc-quest-scene>p{font-size:8px}
+ .tc-quest-screen-v3 .tc-quest-lantern{height:20px;width:10px}
+ .tc-quest-screen-v3 .tc-quest-toolbar .tc-segments button{font-size:12px}
+ .tc-quest-screen-v3 .tc-quest-overview span{font-size:9px}
+ .tc-quest-screen-v3 .tc-quest-paper,.tc-quest-screen-v3 .tc-quest-paper:nth-child(even),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+3),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+5),.tc-quest-screen-v3 .tc-quest-paper:last-child:nth-child(odd){padding-block:3px}
+ .tc-quest-screen-v3 .tc-quest-emblem{height:39px}
+ .tc-quest-screen-v3 .tc-quest-info{gap:2px}
+ .tc-quest-screen-v3 .tc-quest-description{font-size:9px}
+ .tc-quest-screen-v3 .tc-quest-foot{gap:3px}
+ .tc-quest-screen-v3 .tc-quest-paper button.tc-quest-seal{height:31px}
+ .tc-quest-screen-v3 .tc-quest-reward-emblem{width:27px;height:27px}
+ .tc-quest-screen-v3 .tc-quest-rewards{grid-template-columns:30px minmax(0,1fr) auto;gap:4px;padding:3px 5px}
+ .tc-quest-screen-v3 .tc-quest-rewards small{font-size:8px}
+}
+@media(max-height:615px){
+ .tc-quest-screen-v3{grid-template-rows:42px minmax(0,1fr)}
+ .tc-quest-screen-v3 .tc-quest-board{grid-template-rows:30px 32px 21px minmax(0,1fr) 35px;gap:2px}
+ .tc-quest-screen-v3 .tc-quest-scene>p{display:none}
+ .tc-quest-screen-v3 .tc-quest-wall,.tc-quest-screen-v3 .tc-quest-wall.is-weekly{gap:2px}
+ .tc-quest-screen-v3 .tc-quest-description{display:none}
+ .tc-quest-screen-v3 .tc-quest-name-row strong{font-size:10px}
+ .tc-quest-screen-v3 .tc-quest-emblem{height:28px;width:30px}
+ .tc-quest-screen-v3 .tc-quest-emblem .tc-glyph{font-size:19px}
+ .tc-quest-screen-v3 .tc-quest-paper,.tc-quest-screen-v3 .tc-quest-paper:nth-child(even),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+3),.tc-quest-screen-v3 .tc-quest-paper:nth-child(n+5),.tc-quest-screen-v3 .tc-quest-paper:last-child:nth-child(odd){grid-template-columns:30px minmax(0,1fr) 67px;gap:3px}
+ .tc-quest-screen-v3 .tc-quest-paper button.tc-quest-seal{height:29px}
+ .tc-quest-screen-v3 .tc-quest-foot small{display:none}
+ .tc-quest-screen-v3 .tc-quest-rewards small{display:none}
+}
