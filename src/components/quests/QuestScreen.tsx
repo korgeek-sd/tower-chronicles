@@ -26,6 +26,15 @@ const descriptions:Record<QuestPeriod,Record<string,string>>={
  }
 };
 const iconSlot:Record<string,number>={hunt:0,craft:1,gather:2,market:3,donate:4,daily:5,all:6};
+const questEmblemsUrl=assetUrl('assets/ui/quests/quest_emblems_hd.webp');
+function QuestEmblemIcon({id,glyph}:{id:string;glyph:string}){
+ const [broken,setBroken]=useState(false);
+ const slot=iconSlot[id]??0;
+ return <span className="tc-quest-icon-art" aria-hidden="true">
+  <span className="tc-quest-icon-fallback"><Glyph name={glyph}/></span>
+  {!broken&&<img src={questEmblemsUrl} alt="" decoding="async" loading="eager" style={{left:'-'+slot*100+'%'}} onError={()=>setBroken(true)}/>}
+ </span>;
+}
 const asPercent=(progress:number,target:number)=>target>0?Math.max(0,Math.min(100,Math.round(progress/target*100))):0;
 
 export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',error='',onRetry,initialTab='daily'}:{onMove:(page:AppPage)=>void;board?:QuestBoard|null;onClaim?:(period:QuestPeriod,q:QuestEntry)=>void;busy?:boolean;message?:string;error?:string;onRetry?:()=>void;initialTab?:QuestPeriod}){
@@ -34,7 +43,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
  const finished=quests.filter(q=>q.completed||q.claimed).length;
  const ready=quests.filter(q=>q.completed&&!q.claimed).length;
  return <Screen eyebrow="NOVAR · QUEST BOARD" title="의뢰 게시판" className="tc-quest-screen tc-quest-screen-v3">
-  <div className="tc-quest-board" style={{'--tc-quest-icon-atlas':`url("${assetUrl('assets/ui/quests/quest_emblems_hd.webp')}")`} as React.CSSProperties}>
+  <div className="tc-quest-board">
    <div className="tc-quest-scene" aria-hidden="true">
     <i className="tc-quest-lantern left"/><i className="tc-quest-lantern right"/>
     <div className="tc-quest-scene-crest"><Glyph name="jobs"/><span>모험가의 의뢰</span></div>
@@ -69,7 +78,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
       else onMove(page);
      }
      return <article key={q.id} className={'tc-quest-paper '+(q.claimed?'is-claimed':q.completed?'is-ready':'is-progress')}>
-      <span className="tc-quest-emblem"><span className="tc-quest-icon-art" aria-hidden="true" style={{backgroundPosition:`${((iconSlot[q.id]??0)/6)*100}% center`}}/><span className="tc-quest-icon-fallback"><Glyph name={glyph}/></span></span>
+      <span className="tc-quest-emblem"><QuestEmblemIcon id={q.id} glyph={glyph}/></span>
       <div className="tc-quest-info">
        <div className="tc-quest-name-row"><strong>{name}</strong><span className="tc-quest-state">{status}</span></div>
        <p className="tc-quest-description">{description}</p>
@@ -86,7 +95,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
     })}
    </div>
    <div className="tc-quest-rewards">
-    <span className="tc-quest-reward-emblem"><span className="tc-quest-icon-art" aria-hidden="true" style={{backgroundPosition:"100% center"}}/><span className="tc-quest-icon-fallback"><Glyph name="inventory"/></span></span>
+    <span className="tc-quest-reward-emblem"><QuestEmblemIcon id="all" glyph="inventory"/></span>
     <div><strong>의뢰 보상</strong><small>의뢰 완료 시 랜덤 보상을 획득할 수 있습니다.</small></div>
     <b>수령 가능 {ready}건</b>
    </div>
