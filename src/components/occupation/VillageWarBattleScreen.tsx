@@ -5,7 +5,7 @@ import {VillageWarDeploymentPanel} from './VillageWarDeploymentPanel';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import type {GameState} from '../../game/types';
 import type {GameplayLease} from '../../online/gameSession';
-import {getVillageWarDeclarations,type VillageWarState,type VillageWarStageOneState} from '../../online/villageWar';
+import {getVillageWarDeclarations,type VillageWarState,type VillageWarStageOneState,type VillageWarCombatResult as VillageWarBattleOutcome} from '../../online/villageWar';
 import {getHuntingState} from '../../online/hunting';
 import {WORLD_TOWNS} from '../world/worldMap';
 import {stats} from '../../game/engine/state';
@@ -38,6 +38,7 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
  const [townId,setTownId]=useState('city'),[frontId,setFrontId]=useState(3);
  const stage=useVillageWarStageOne(lease??null,userId,townId);
  const [preview,setPreview]=useState(initialPreview),[previewResult,setPreviewResult]=useState(false),[recordsOpen,setRecordsOpen]=useState(false);
+ const [previewBattle,setPreviewBattle]=useState<VillageWarBattleOutcome|null>(null),[previewFrontId,setPreviewFrontId]=useState<number|null>(null);
  const [now,setNow]=useState(()=>Date.now()),[myHealth,setMyHealth]=useState<{hp:number|null;mp:number|null;maxHp:number|null;maxMp:number|null}|null>(null);
  const alive=useRef(true),pending=useRef(false);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
@@ -81,13 +82,25 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
  const deadline=phase==='BIDDING'?war?.bidClosesAt:war?.battleStartsAt;
  const battleRemains=phase==='BATTLE'?remaining(war?.battleStartsAt?new Date(Date.parse(war.battleStartsAt)+60*60000).toISOString():undefined,now):'60:00';
  function chooseFront(id:number){setFrontId(id);setPreviewResult(false);}
- if(stage.battle&&!preview)return <VillageWarCombatResult battle={stage.battle} onClose={stage.closeBattle} attackerArt={ownArt?assetUrl(ownArt):undefined}/>;
+ if(stage.battle&&!preview&&!stage.state?.enabled)return <VillageWarCombatResult battle={stage.battle} onClose={stage.closeBattle} frontId={stage.battleFrontId} attackerArt={ownArt?assetUrl(ownArt):undefined}/>;
  if(preview){
   const previewNow=Date.parse('2026-10-17T13:21:36Z');
   const previewState:VillageWarStageOneState={enabled:true,stageTwo:true,phase:'BATTLE',serverNow:previewNow,eventId:'preview',deploymentStartsAt:'2026-10-17T12:55:00Z',battleStartsAt:'2026-10-17T13:00:00Z',battleEndsAt:'2026-10-17T14:00:00Z',myAssociationId:'preview-ally',myRole:'MEMBER',canAttack:true,tickets:128,fronts:PREVIEW_FRONTS.map(f=>({frontId:f.id,defenderUserId:f.id===4?null:'preview-'+f.id,defenderName:f.id===4?null:f.guardian,associationId:f.id===4?null:f.mine?'preview-ally':'preview-guild-'+f.id,associationName:f.id===4?null:f.guild,defenderEpoch:0,revision:0,hp:f.id===4?null:previewResult&&f.id===3?62:f.hp,mp:f.id===4?null:65,maxHp:f.id===4?null:100,maxMp:f.id===4?null:100,occupiedAt:null,defenseWins:f.id===3?20:f.id===5?7:f.id===4?0:4})),scores:[{associationId:'preview-ally',associationName:'철의맹세',points:35.5,fronts:1},{associationId:'preview-guild-3',associationName:'새벽별',points:26.8,fronts:1},{associationId:'preview-guild-1',associationName:'붉은달',points:16.2,fronts:1}],recentBattles:PREVIEW_FRONTS.map((f,i)=>({battleId:'preview-'+i,frontId:f.id,createdAt:new Date(previewNow-i*60000).toISOString(),attackerName:f.guardian,defenderName:f.guardian,outcome:i%2===0?'CAPTURE':'DEFENDED',defenderHp:f.hp,defenderReward:0}))};
-  return <section className="tc-village-stage-shell" data-war-preview="true"><div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" value={townId} onChange={e=>{setTownId(e.target.value);setPreviewResult(false);}}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button type="button" onClick={()=>{setPreview(false);setPreviewResult(false);}}>실제 전황 보기</button></div><VillageWarDeploymentPanel key={'preview:'+townId} preview townName={town.name} townKind={town.kind} state={previewState} userId={null} busy={false} pending={null} error="시연 데이터 · 실제 서버에는 반영되지 않습니다." now={previewNow} onPlace={()=>{}} onRemove={()=>{}} onClaim={()=>{}} onAttack={()=>setPreviewResult(true)} onRetry={()=>{}} onRefresh={()=>setPreviewResult(false)}/></section>;
+  return <section className="tc-village-stage-shell tc-war-popup-host" data-war-preview="true">
+   <div className="tc-war-stage-backside" inert={!!previewBattle} aria-hidden={previewBattle?true:undefined}>
+    <div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" value={townId} onChange={e=>{setTownId(e.target.value);setPreviewBattle(null);setPreviewResult(false);}}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button type="button" onClick={()=>{setPreview(false);setPreviewBattle(null);setPreviewResult(false);}}>실제 전황 보기</button></div>
+    <VillageWarDeploymentPanel key={'preview:'+townId} preview townName={town.name} townKind={town.kind} state={previewState} userId={null} busy={false} pending={null} error="시연 데이터 · 실제 서버에는 반영되지 않습니다." now={previewNow} onPlace={()=>{}} onRemove={()=>{}} onClaim={()=>{}} onAttack={front=>{setPreviewFrontId(front.frontId);setPreviewBattle({outcome:'CAPTURE',attackerName:nickname??'내 캐릭터',defenderName:front.defenderName??'수비자',attackerHp:6820,attackerMaxHp:7500,attackerMp:1960,attackerMaxMp:2100,defenderHp:0,defenderMaxHp:6800,defenderMp:0,defenderMaxMp:9200,defenderReward:0,defenseWins:0,turns:[{turn:1,lines:['공격자 · 강타 적중, 수비자 320 피해']},{turn:2,lines:['수비자 반격, 공격자 180 피해']},{turn:3,lines:['공격자 · 속공 적중, 수비자 450 피해']},{turn:4,lines:['결정타, 수비자 쓰러짐']}]});}} onRetry={()=>{}} onRefresh={()=>setPreviewResult(false)}/>
+   </div>
+   {previewBattle&&<VillageWarCombatResult battle={previewBattle} onClose={()=>setPreviewBattle(null)} attackerArt={ownArt?assetUrl(ownArt):undefined} frontId={previewFrontId} preview/>}
+  </section>;
  }
- if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell"><div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button onClick={()=>setPreview(true)}>UI 시안 보기</button></div><VillageWarDeploymentPanel townName={town.name} townKind={town.kind} ownArt={ownArt?assetUrl(ownArt):undefined} key={townId+':'+stage.state.eventId} state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/></section>;
+ if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell tc-war-popup-host">
+   <div className="tc-war-stage-backside" inert={!!stage.battle} aria-hidden={stage.battle?true:undefined}>
+    <div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button type="button" onClick={()=>setPreview(true)}>UI 시안 보기</button></div>
+    <VillageWarDeploymentPanel townName={town.name} townKind={town.kind} ownArt={ownArt?assetUrl(ownArt):undefined} key={townId+':'+stage.state.eventId} state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/>
+   </div>
+   {stage.battle&&<VillageWarCombatResult battle={stage.battle} onClose={stage.closeBattle} frontId={stage.battleFrontId} attackerArt={ownArt?assetUrl(ownArt):undefined}/>}
+  </section>;
  return <section className="tc-vwb" aria-label="영지 점령전 전투" data-war-preview={preview}>
   <header className="tc-vwb-header">
    <div className="tc-vwb-title"><small>GUILD WAR · TERRITORY</small><h1>{town.name} 점령전</h1></div>
