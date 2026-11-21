@@ -32,7 +32,7 @@ function QuestEmblemIcon({id,glyph}:{id:string;glyph:string}){
  const slot=iconSlot[id]??0;
  return <span className="tc-quest-icon-art" aria-hidden="true">
   <span className="tc-quest-icon-fallback"><Glyph name={glyph}/></span>
-  {!broken&&<img src={questEmblemsUrl} alt="" decoding="async" loading="eager" style={{left:'-'+slot*100+'%'}} onError={()=>setBroken(true)}/>}
+  {!broken&&<img src={questEmblemsUrl} alt="" decoding="async" loading="eager" style={{left:(slot===0?'0%':'-'+(slot*100)+'%')}} onError={()=>setBroken(true)}/>}
  </span>;
 }
 const asPercent=(progress:number,target:number)=>target>0?Math.max(0,Math.min(100,Math.round(progress/target*100))):0;
