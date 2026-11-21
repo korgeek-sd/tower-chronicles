@@ -27,3 +27,41 @@ test('combat result displays authored skill names rather than internal IDs',asyn
  const html=renderToStaticMarkup(React.createElement(VillageWarCombatResult,{battle,onClose:()=>{}}));
  assert.doesNotMatch(html,/sword_strike_c/);assert.match(html,/보급검 베기/);assert.match(html,/수비자 도전권 \+1/);assert.match(html,/전선으로 돌아가기/);
 });
+
+test('mobile siege result is a modal over the battlefield with concise battle history and detailed records action',async()=>{
+ const {VillageWarCombatResult}=await import('../src/components/occupation/VillageWarCombatResult');
+ const sample:any={outcome:'CAPTURE',attackerName:'모험가',defenderName:'방패기사',
+  attackerHp:68,attackerMaxHp:100,attackerMp:25,attackerMaxMp:40,
+  defenderHp:0,defenderMaxHp:180,defenderMp:0,defenderMaxMp:100,
+  defenderReward:0,fatigueDefeat:false,turns:[{turn:1,lines:['모험가 · sword_strike_c 20 피해']}]};
+ const render=(data:any,extra:Record<string,unknown>={})=>renderToStaticMarkup(React.createElement(VillageWarCombatResult,{battle:data,onClose:()=>{},frontId:3,...extra}));
+ const win=render(sample,{preview:true});
+ assert.match(win,/role="dialog" aria-modal="true"/);
+ assert.match(win,/자동전투 결과/);
+ assert.match(win,/전선 점령 성공/);
+ assert.match(win,/제3전선/);
+ assert.match(win,/공격자 HP/);
+ assert.match(win,/수비자 MP/);
+ assert.match(win,/피로도 0\/20/);
+ assert.match(win,/상세 기록/);
+ assert.match(win,/전선으로 돌아가기/);
+ assert.match(win,/보급검 베기/);
+ assert.match(win,/UI 시연/);
+ const fatigue=render({...sample,fatigueDefeat:true,defenderHp:47});
+ assert.match(fatigue,/수비자가 탈진하여 전선을 확보했습니다/);
+ assert.match(fatigue,/피로도에 따른 탈진 패배/);
+ const defense=render({...sample,outcome:'DEFENDED',defenderHp:81,defenderReward:1});
+ assert.match(defense,/수비자 방어 성공/);
+ assert.match(defense,/수비자 남은 HP·MP 유지/);
+ assert.match(defense,/수비자 도전권 \+1/);
+});
+test('real battle renders result above the mounted field and leaves server request idempotency unchanged',async()=>{
+ const fs=await import('node:fs');
+ const screen=fs.readFileSync(new URL('../src/components/occupation/VillageWarBattleScreen.tsx',import.meta.url),'utf8');
+ const styles=fs.readFileSync(new URL('../src/components/occupation/village-war-result-modal.css',import.meta.url),'utf8');
+ assert.match(screen,/stage\.battle&&<VillageWarCombatResult/);
+ assert.match(screen,/frontId=\{stage\.battleFrontId\}/);
+ assert.match(screen,/inert=\{!!stage\.battle\}/);
+ assert.match(styles,/\.tc-war-result-backdrop\{position:fixed/);
+ assert.match(styles,/tc-war-result-log-panel/);
+});
