@@ -79,7 +79,7 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
  const ownsPlacement=!!selected&&owner&&phase==='DEPLOYMENT';
  const status=preview?'시연 모드':phase!=='BATTLE'?(phase==='DEPLOYMENT'?'수비 배치':'전쟁 대기'):state.myDefendingFront?'현재 수비 중':!state.canAttack?'선전포고 필요':cooldown>0?'공격 대기 '+cooldown+'초':(state.tickets??0)<1?'도전권 부족':'공격 가능';
  const actionText=cooling?`재공격까지 ${cooldown}초`:phase==='DEPLOYMENT'?(ownsPlacement?(isDefender?(state.myRole==='LEADER'?'배치 해제':'수비 배치 완료'):'내 캐릭터 배치'):'수비 배치 대기'):
-  phase==='BATTLE'?(isDefender&&isOurs?'아군 전선':state.myDefendingFront?'수비 중':!state.canAttack?'선전포고 필요':(state.tickets??0)<1?'도전권 부족':isDefender?(state.stageTwo?'공격':'자동 PvP 연결 전'):'빈 전선 점령'):
+  phase==='BATTLE'?(isDefender&&isOurs?'우리 길드 수비 중':state.myDefendingFront?'수비 중':!state.canAttack?'선전포고 필요':(state.tickets??0)<1?'도전권 부족':isDefender?(state.stageTwo?'공격':'자동 PvP 연결 전'):'빈 전선 점령'):
   settled?'종료된 전쟁':'전쟁 시작 대기';
  const actionAllowed=!!selected&&(phase==='DEPLOYMENT'?ownsPlacement&&(isDefender?state.myRole==='LEADER':!state.myDefendingFront)&&!locked:
   phase==='BATTLE'&&canAct&&(!isDefender||!!state.stageTwo&&!isOurs&&!!onAttack));
@@ -96,13 +96,13 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
    <span className="tc-siege-hero-kicker">GUILD SIEGE</span><button type="button" className="tc-siege-help" onClick={()=>setOverlay('rules')} aria-label="점령전 규칙">?</button>
    <h2>점령전</h2><div className="tc-siege-town"><span aria-hidden="true">◇</span>{townName}<span aria-hidden="true">◇</span></div><small>{title}{preview?' · 시연 데이터':''}</small>
   </header>
-  <div className="tc-siege-summary"><div><small>승리 조건</small><strong>150점 선취</strong></div><div><small>{phase==='DEPLOYMENT'?'전쟁 시작':phase==='BATTLE'?'남은 시간':settled?'종료':'배치 시작'}</small><strong>{settled?'종료':left(deadline,now)}</strong></div><div><small>도전권</small><strong>{(state.tickets??0).toLocaleString()}장</strong></div></div>
+  <div className="tc-siege-summary"><div><small>승리 조건</small><strong title="전선당 분당 1점 · 150점 선착순">150점 선취</strong></div><div><small>{phase==='DEPLOYMENT'?'전쟁 시작':phase==='BATTLE'?'남은 시간':settled?'종료':'배치 시작'}</small><strong>{settled?'종료':left(deadline,now)}</strong></div><div><small>도전권</small><strong>{(state.tickets??0).toLocaleString()}장</strong></div></div>
   <div className="tc-siege-front-label"><b>전선 현황</b><span>{status}</span></div>
   <nav className="tc-village-lanes" aria-label="공성전 5개 전선 선택">
    {state.fronts.map(front=><FrontButton key={front.frontId} front={front} selected={selected?.frontId===front.frontId} onSelect={()=>setSelection(front.frontId)} myGuild={state.myAssociationId} phase={phase} canDeploy={owner} userId={userId} canAct={canAct}/>)}
   </nav>
   {selected?<section className="tc-village-selected-front" aria-label={'제'+selected.frontId+'전선 현황'}>
-   <div className="tc-siege-detail-title"><h3>제{selected.frontId}전선</h3><span>{isDefender?(isOurs?'아군 수비':'적군 수비'):'미점령'}</span></div>
+   <div className="tc-siege-detail-title"><h3>제{selected.frontId}전선</h3><span>제{selected.frontId}전선 · {isDefender?(isOurs?'아군 수비':'적군 수비'):'미점령'}</span></div>
    <div className="tc-siege-detail-body">
     <div className="tc-siege-detail-art" style={{backgroundImage:'linear-gradient(0deg,#10131af5,#10131a66),url('+assetUrl(landscape)+')'}}>
      {isDefender&&selected.defenderUserId===userId&&ownArt?<img src={ownArt} alt="내 캐릭터"/>:<Banner color={selectedColor} empty={!isDefender}/>}
@@ -123,7 +123,7 @@ export function VillageWarDeploymentPanel({townName='영지',townKind='city',own
   <div className="tc-siege-bottom">
    <div className="tc-village-war-feed">
     <div className="tc-village-war-feed-head"><b>최근 전투 기록</b><button type="button" onClick={()=>setOverlay('records')}>전체 보기</button></div>
-    {records.length?<div className="tc-village-mini-records">{records.slice(0,5).map(r=><p key={r.battleId} className={r.outcome==='CAPTURE'?'is-capture':'is-defense'}><time>{clock(r.createdAt)}</time><b>제{r.frontId}전선</b><span>{r.outcome==='CAPTURE'?r.attackerName:r.defenderName} · {r.outcome==='CAPTURE'?'점령 성공':'수비 성공'}</span></p>)}</div>:<p className="tc-village-empty-records">아직 진행된 전투가 없습니다.</p>}
+    {records.length?<div className="tc-village-mini-records">{records.slice(0,5).map(r=><p key={r.battleId} className={r.outcome==='CAPTURE'?'is-capture':'is-defense'}><time>{clock(r.createdAt)}</time><b>제{r.frontId}전선</b><span>{r.attackerName} → {r.defenderName} · {r.outcome==='CAPTURE'?'점령 성공':'수비 성공'}</span></p>)}</div>:<p className="tc-village-empty-records">아직 진행된 전투가 없습니다.</p>}
    </div>
    <div className="tc-siege-scores"><div className="tc-village-war-score-head"><b>원정단 점수 현황</b><button type="button" onClick={()=>setOverlay('scores')}>전체 순위</button></div><Scores scores={scores} myGuild={state.myAssociationId}/></div>
   </div>
