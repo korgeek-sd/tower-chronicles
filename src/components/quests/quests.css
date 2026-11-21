@@ -152,12 +152,19 @@
 }
 .tc-quest-screen-v3 .tc-quest-emblem .tc-quest-icon-art,
 .tc-quest-screen-v3 .tc-quest-reward-emblem .tc-quest-icon-art{
- display:block;width:100%;height:100%;max-width:42px;max-height:42px;
- background-image:var(--tc-quest-icon-atlas);
- background-repeat:no-repeat;background-size:700% 100%;image-rendering:auto;
+ position:relative;display:grid;place-items:center;overflow:hidden;isolation:isolate;
+ width:100%;height:100%;max-width:42px;max-height:42px;
  filter:drop-shadow(0 2px 3px #000b);
 }
-.tc-quest-screen-v3 .tc-quest-icon-fallback{display:none}
+.tc-quest-screen-v3 .tc-quest-icon-art img{
+ position:absolute;z-index:1;top:0;display:block;width:700%;height:100%;
+ max-width:none;max-height:none;object-fit:fill;image-rendering:auto;
+}
+.tc-quest-screen-v3 .tc-quest-icon-fallback{
+ position:absolute;inset:0;z-index:0;display:grid;place-items:center;
+ color:#dfb979;background:radial-gradient(#443222,#1a1c27 75%);
+ font-size:23px;
+}
 .tc-quest-screen-v3 .tc-quest-reward-emblem{
  background:transparent;border:none;box-shadow:none;
 }
