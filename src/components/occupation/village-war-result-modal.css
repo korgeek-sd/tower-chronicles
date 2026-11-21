@@ -1,0 +1,74 @@
+/* Tap-friendly siege result dialog; matches the dark-gold pixel RPG and keeps the battlefield visible. */
+.tc-war-result-backdrop{position:fixed;inset:0;z-index:2600;display:grid;place-items:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));background:rgba(3,5,9,.84);backdrop-filter:blur(2px);color:#e9d8b8}
+.tc-war-result-dialog{box-sizing:border-box;position:relative;display:grid;grid-template-rows:auto auto auto auto minmax(0,1fr) auto;gap:6px;width:min(100%,440px);height:min(730px,calc(100dvh - 24px));min-height:0;max-height:100%;padding:9px;border:2px solid #ac8752;border-radius:8px;background:linear-gradient(158deg,#25212a 0%,#11151d 44%,#10131a 100%);box-shadow:0 0 0 2px #0b0c10,inset 0 0 0 1px #6b5335,0 16px 70px #000b;overflow:hidden}
+.tc-war-result-dialog::before,.tc-war-result-dialog::after{content:'◆';position:absolute;left:50%;transform:translateX(-50%);color:#e7c17e;line-height:1;text-shadow:0 0 6px #d99549;pointer-events:none}
+.tc-war-result-dialog::before{top:2px;font-size:13px}.tc-war-result-dialog::after{bottom:1px;font-size:10px}
+.tc-war-result-head{display:flex;justify-content:center;align-items:center;min-height:32px;position:relative;margin:0 22px;border:1px solid #af8752;background:linear-gradient(90deg,#16151a,#312719,#16151a)}
+.tc-war-result-head h2{margin:0!important;font-size:19px!important;line-height:1.2;color:#f1d5a4;text-align:center;letter-spacing:.04em}
+.tc-war-result-ornament{position:absolute;left:7px;color:#b99458;font-size:11px}
+.tc-war-result-dialog button{font:inherit;cursor:pointer;min-height:44px;border-radius:3px;color:#edd7b2}
+.tc-war-result-head .tc-war-result-close{position:absolute;right:-25px;top:0;width:32px;height:32px;min-height:32px;padding:0;background:#221e20;border:1px solid #a78053;color:#f2ddb7;font-size:25px;line-height:1}
+.tc-war-result-splash{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:105px;padding:7px 8px 6px;border:1px solid #6b4f39;background:linear-gradient(0deg,#130e13f5,#3b1b1bc2),url('../../../public/assets/backgrounds/hub/novar-moonlit-v3.webp') center 47%/cover;text-align:center;overflow:hidden}
+.tc-war-result-crest{font-size:27px;color:#f6d89c;line-height:1.1;text-shadow:0 0 10px #ce9059}
+.tc-war-result-splash h3{font-size:clamp(20px,6vw,27px);margin:0!important;color:#f4c57f;letter-spacing:.03em;text-shadow:0 2px 3px #12080b,0 0 10px #9f3517}
+.tc-war-result-dialog.is-defended .tc-war-result-splash h3{color:#c3d8ef;text-shadow:0 0 9px #406484}
+.tc-war-result-splash p{font-size:11px!important;line-height:1.3;margin:3px 0 0!important;color:#f0e4d3}
+.tc-war-result-splash small{font-size:10px;color:#c7b49b}.tc-war-result-sample{font-size:9px;color:#e3ad7f}
+.tc-war-result-fighters{display:grid;grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:3px;align-items:stretch;min-height:0}
+.tc-war-result-fighter{min-width:0;padding:5px 4px 6px;background:linear-gradient(150deg,#2c2428,#161b24);border:1px solid #8b6b4a;box-shadow:inset 0 0 0 1px #13131a}
+.tc-war-result-fighter.defender{border-color:#77685a;background:linear-gradient(150deg,#24252c,#171923)}
+.tc-war-result-fighter-title{display:flex;align-items:center;gap:5px;border-bottom:1px solid #67513c;padding-bottom:4px;font-size:11px;color:#edcd92}
+.tc-war-result-fighter-title span{color:#b98565}
+.tc-war-result-fighter-body{display:grid;grid-template-columns:42px minmax(0,1fr);gap:5px;align-items:center;min-width:0;margin-top:5px}
+.tc-war-result-portrait{display:grid;place-items:center;width:42px;height:53px;overflow:hidden;border:1px solid #795e44;background:radial-gradient(circle at 50% 20%,#4f4d4d,#13151d 75%)}
+.tc-war-result-portrait img{width:100%;height:100%;object-fit:contain;image-rendering:auto}
+.tc-war-result-fighter-data{min-width:0;display:grid;gap:4px}
+.tc-war-result-fighter-data>strong{font-size:11px;color:#f2e2bf;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-war-result-meter{display:grid;grid-template-columns:17px minmax(0,1fr);gap:2px;align-items:center;font-size:9px;color:#e3d1b6;min-width:0}
+.tc-war-result-meter progress{appearance:none;width:100%;height:7px;background:#0c0e12;border:1px solid #594f43;min-width:0}
+.tc-war-result-meter progress::-webkit-progress-bar{background:#0c0e12}
+.tc-war-result-meter progress.hp::-webkit-progress-value{background:#b96056}
+.tc-war-result-meter progress.mp::-webkit-progress-value{background:#608fb6}
+.tc-war-result-meter progress.hp::-moz-progress-bar{background:#b96056}
+.tc-war-result-meter progress.mp::-moz-progress-bar{background:#608fb6}
+.tc-war-result-meter small{grid-column:2;font-size:8px;color:#b9ab97;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tc-war-result-vs{display:grid;place-items:center;align-self:center;color:#f4cb8b;font-size:17px;text-shadow:0 0 10px #b55b3f}
+.tc-war-result-summary{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:1px;min-height:34px;padding:5px 6px;border:1px solid #b38c50;background:linear-gradient(#32271d,#1a1b1f);color:#efd9a8;text-align:center;font-size:11px;line-height:1.4}
+.tc-war-result-fatigue{color:#ef977d}
+.tc-war-result-records{display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;padding:6px 7px;background:#11151b;border:1px solid #70573f;overflow:hidden}
+.tc-war-result-log-head{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;color:#e6c691;border-bottom:1px solid #635039;padding-bottom:5px}
+.tc-war-result-log-head span{font-size:9px;color:#a89b85}
+.tc-war-result-log-preview{list-style:none;display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:0;min-height:0;margin:0;padding:2px 0;overflow:hidden;align-items:center}
+.tc-war-result-log-preview li{display:flex;align-items:center;gap:6px;min-width:0;padding:2px 1px;border-bottom:1px solid #3c3531;font-size:10px;line-height:1.35;color:#d8c7af}
+.tc-war-result-log-preview li b{flex:none;color:#e2b77b;font-size:10px}.tc-war-result-log-preview li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-war-result-actions{display:grid;grid-template-columns:minmax(0,2fr) minmax(85px,1fr);gap:6px;align-items:stretch;min-height:48px}
+.tc-war-result-dialog .tc-village-result-back{min-height:48px;padding:5px 3px;font-size:15px;font-weight:bold;border:1px solid #dbab66;background:linear-gradient(180deg,#933c31,#5e2626);color:#fce6c6;text-shadow:0 1px 2px #240e0d}
+.tc-war-result-dialog .tc-war-result-details{min-height:48px;padding:5px 2px;font-size:12px;border:1px solid #9d7c52;background:linear-gradient(#332b25,#1c1d24);color:#ebd8b8}
+.tc-war-result-log-overlay{position:absolute;inset:42px 8px 58px;z-index:1;display:grid;min-height:0;padding:3px;background:#101319;border:2px solid #bc9057;box-shadow:0 10px 38px #000c}
+.tc-war-result-log-panel{display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;padding:7px}
+.tc-war-result-log-panel .tc-village-combat-log{list-style:none;margin:0;padding:2px 0;overflow-y:auto;overscroll-behavior:contain;font-size:11px}
+.tc-war-result-log-panel .tc-village-combat-log li{display:grid;grid-template-columns:36px minmax(0,1fr);gap:5px;padding:7px 0;border-bottom:1px solid #40382c;color:#dbcab3}
+.tc-war-result-log-panel .tc-village-combat-log li b{color:#e6bf80}
+.tc-war-result-log-panel .tc-village-combat-log li span{display:block;line-height:1.5}
+.tc-war-result-log-head button{min-height:33px;padding:3px 12px;background:#30261d;border:1px solid #8e6c48;font-size:11px}
+.tc-war-result-dialog :focus-visible{outline:2px solid #f3cf8d;outline-offset:2px}
+@media(max-height:680px){
+ .tc-war-result-dialog{gap:4px;padding:6px;grid-template-rows:auto auto auto auto minmax(0,1fr) auto}
+ .tc-war-result-splash{min-height:82px;padding:3px 4px}
+ .tc-war-result-crest{font-size:18px}
+ .tc-war-result-fighter-body{grid-template-columns:33px minmax(0,1fr);gap:3px}
+ .tc-war-result-portrait{width:33px;height:42px}
+ .tc-war-result-summary{min-height:27px;padding:3px;font-size:10px}
+ .tc-war-result-log-preview li{font-size:9px}
+ .tc-war-result-actions{min-height:42px}
+ .tc-war-result-dialog .tc-village-result-back,.tc-war-result-dialog .tc-war-result-details{min-height:42px}
+}
+@media(max-width:350px){
+ .tc-war-result-dialog{padding:6px}
+ .tc-war-result-fighter-body{grid-template-columns:29px minmax(0,1fr)}
+ .tc-war-result-portrait{width:29px;height:41px}
+ .tc-war-result-fighter-data>strong{font-size:10px}
+ .tc-war-result-meter small{font-size:7px}
+ .tc-war-result-dialog .tc-village-result-back{font-size:13px}
+}
+@media(prefers-reduced-motion:no-preference){.tc-war-result-dialog{animation:tc-war-result-show .18s ease-out}@keyframes tc-war-result-show{from{opacity:0;transform:translateY(7px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}}
