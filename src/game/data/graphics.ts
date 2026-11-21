@@ -51,6 +51,7 @@ export const backgroundFor=(tower:Tower,_floor:number)=>TOWER_BACKGROUNDS[tower]
 // Relative URLs work in Vite subdirectories and alongside the offline HTML.
 const ASSET_REVISIONS:Readonly<Record<string,string>>={
  'assets/ui/shop/adventurer_equipment_box.png':'5e0dd9b07eab',
+ 'assets/ui/quests/quest_emblems_hd.webp':'quest-emblems-hd-20261122',
  'assets/player/default.png':'player-20261019',
  'assets/characters/jobs/corsair.webp':'corsair-3dd3b413',
  'assets/characters/jobs/duelist.webp':'e4991963',
