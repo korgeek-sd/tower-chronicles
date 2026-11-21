@@ -55,15 +55,20 @@ test('quest board v3 keeps five weekly items on one fixed-height column and pres
 test('generated quest image atlas displays distinct icons for five daily and two weekly-specific tasks',async()=>{
  const {readFileSync}=await import('node:fs');
  const css=readFileSync(new URL('../src/components/quests/quests.css',import.meta.url),'utf8');
- const {questIconAtlas}=await import('../src/components/quests/questIconAtlas');
- assert.match(questIconAtlas,/^data:image\/webp;base64,UklG/);
- assert.ok(questIconAtlas.length>1000);
+ const hiRes=readFileSync(new URL('../public/assets/ui/quests/quest_emblems_hd.webp',import.meta.url));
+ assert.equal(hiRes.toString('ascii',0,4),'RIFF');
+ assert.equal(hiRes.toString('ascii',8,12),'WEBP');
+ assert.ok(hiRes.byteLength>50_000);
+ assert.equal(hiRes.readUIntLE(24,3)+1,1232,'seven 176px image cells');
+ assert.equal(hiRes.readUIntLE(27,3)+1,176,'four-times display resolution');
  assert.match(css,/background-image:var\(--tc-quest-icon-atlas\)/);
  assert.match(css,/background-size:700% 100%/);
  const dailyIds=['hunt','craft','gather','market','donate'];
  const daily=dailyIds.map(id=>({...board.daily[0],id}));
  const d=renderToStaticMarkup(React.createElement(QuestScreen,{onMove:()=>{},board:{...board,daily}}));
  assert.equal((d.match(/class="tc-quest-icon-art"/g)??[]).length,6);
+ assert.match(d,/quest_emblems_hd\.webp/);
+ assert.doesNotMatch(d,/data:image\/webp;base64/);
  for(const pct of ['0%','16.666666666666664%','33.33333333333333%','50%','66.66666666666666%'])assert.ok(d.includes('background-position:'+pct),pct);
  const weeklyIds=['hunt','craft','gather','daily','all'];
  const weekly=weeklyIds.map(id=>({...board.daily[0],id}));

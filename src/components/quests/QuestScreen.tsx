@@ -4,7 +4,7 @@ import type {AppPage} from '../mobile/CoreScreens';
 import type {QuestBoard,QuestEntry,QuestPeriod} from '../../online/quests';
 import {questRewardSummary} from '../../online/quests';
 import './quests.css';
-import {questIconAtlas} from './questIconAtlas';
+import {assetUrl} from '../../game/data/graphics';
 
 export const DAILY_QUESTS=[['사냥 승리 30회',30,'hunt','sword'],['제작 10회',10,'craft','craft'],['채집 30회',30,'world','materials'],['거래소 구입 3회',3,'market','market'],['원정단 기부 3회',3,'association','association']] as const;
 export const WEEKLY_QUESTS=[['사냥 승리 300회',300,'hunt','sword'],['제작 50회',50,'craft','craft'],['채집 150회',150,'world','materials'],['일일 의뢰 완료 10개',10,'quests','bestiary'],['주간 의뢰 4개 모두 완료',4,'quests','bestiary']] as const;
@@ -34,7 +34,7 @@ export function QuestScreen({onMove,board=null,onClaim,busy=false,message='',err
  const finished=quests.filter(q=>q.completed||q.claimed).length;
  const ready=quests.filter(q=>q.completed&&!q.claimed).length;
  return <Screen eyebrow="NOVAR · QUEST BOARD" title="의뢰 게시판" className="tc-quest-screen tc-quest-screen-v3">
-  <div className="tc-quest-board" style={{'--tc-quest-icon-atlas':`url("${questIconAtlas}")`} as React.CSSProperties}>
+  <div className="tc-quest-board" style={{'--tc-quest-icon-atlas':`url("${assetUrl('assets/ui/quests/quest_emblems_hd.webp')}")`} as React.CSSProperties}>
    <div className="tc-quest-scene" aria-hidden="true">
     <i className="tc-quest-lantern left"/><i className="tc-quest-lantern right"/>
     <div className="tc-quest-scene-crest"><Glyph name="jobs"/><span>모험가의 의뢰</span></div>
