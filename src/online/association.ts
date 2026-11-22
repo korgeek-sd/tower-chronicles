@@ -136,6 +136,11 @@ export const createOnlineAssociation=(lease:GameplayLease,input:{name:string;des
   ...leaseArgs(lease),p_name:input.name,p_description:input.description,p_join_policy:input.joinPolicy,p_emblem:input.emblem,
  });
 
+export const loadOccupationGuildEmblems=(lease:GameplayLease,associationIds:string[])=>
+ rpc<Record<string,GuildEmblemData>>('get_occupation_guild_emblems',{
+  ...leaseArgs(lease),p_association_ids:associationIds.slice(0,25),
+ });
+
 export const joinOnlineAssociation=(lease:GameplayLease,associationId:string)=>
  rpc<OnlineAssociationMutationResult>('join_online_association',{
   ...leaseArgs(lease),p_association_id:associationId,
