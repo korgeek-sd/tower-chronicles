@@ -2,7 +2,9 @@ import {supabaseConfig,type SupabasePublicConfig} from './config';
 import {getFreshSession,type OnlineSession} from './auth';
 import {setWebsocketPresence} from './monitoring';
 import {getClientInstanceId,platformLabel} from './gameSession';
-export interface ChatMessage {id:string;userId:string;nickname:string;body:string;createdAt:string;clientId:string;associationId?:string|null}
+import type {GuildEmblemData} from '../components/association/GuildEmblem';
+export type ChatClassId='warrior'|'mage'|'archer';
+export interface ChatMessage {id:string;userId:string;nickname:string;body:string;createdAt:string;clientId:string;associationId?:string|null;senderGuildId?:string|null;senderGuildName?:string|null;senderGuildEmblem?:GuildEmblemData|null;senderClassId?:ChatClassId|null}
 export type ChatStatus='connecting'|'subscribed'|'error';
 export function validateChatBody(value:string){
  const body=value.normalize('NFC').trim();
@@ -13,7 +15,12 @@ export function parseChatMessage(value:unknown):ChatMessage|null{
  const r=value as Record<string,unknown>;
  if(['id','user_id','nickname','body','created_at','client_id'].some(k=>typeof r[k]!=='string'))return null;
  if(!Number.isFinite(Date.parse(r.created_at as string))||validateChatBody(r.body as string).error)return null;
- return {id:r.id as string,userId:r.user_id as string,nickname:r.nickname as string,body:r.body as string,createdAt:r.created_at as string,clientId:r.client_id as string,associationId:typeof r.association_id==='string'?r.association_id:null};
+ const job=r.sender_class_id==='warrior'||r.sender_class_id==='mage'||r.sender_class_id==='archer'?r.sender_class_id:null;
+ const guildId=typeof r.sender_guild_id==='string'?r.sender_guild_id:null;
+ const guildName=typeof r.sender_guild_name==='string'&&guildId?r.sender_guild_name.slice(0,20):null;
+ const crest=r.sender_guild_emblem&&typeof r.sender_guild_emblem==='object'&&!Array.isArray(r.sender_guild_emblem)&&guildId?r.sender_guild_emblem as GuildEmblemData:null;
+ return {id:r.id as string,userId:r.user_id as string,nickname:r.nickname as string,body:r.body as string,createdAt:r.created_at as string,clientId:r.client_id as string,associationId:typeof r.association_id==='string'?r.association_id:null,
+  senderGuildId:guildId,senderGuildName:guildName,senderGuildEmblem:crest,senderClassId:job};
 }
 export function mergeChatMessages(previous:ChatMessage[],incoming:ChatMessage[]){
  return [...new Map([...previous,...incoming].map(m=>[m.id,m])).values()].sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt)||a.id.localeCompare(b.id)).slice(-50);
