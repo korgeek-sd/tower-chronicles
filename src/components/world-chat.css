@@ -58,3 +58,33 @@
  .tc-chat-inline-form input,.tc-chat-inline-form button{height:27px;min-height:27px}
  .tc-chat-inline-messages article{padding:3px 0}
 }
+
+
+/* Authoritative guild and permanent class snapshot on messages. */
+.tc-chat-author{display:flex;flex:1;min-width:0;align-items:center;flex-wrap:wrap;gap:4px 6px}
+.tc-chat-sender-guild{display:inline-flex!important;align-items:center;gap:4px;flex:0 1 auto;min-width:0;max-width:min(47%,150px);height:24px;padding:1px 5px 1px 2px;border:1px solid #685739;background:#2b2823;color:#e2c38a!important;vertical-align:middle}
+.tc-chat-sender-guild .tc-guild-emblem{flex:none;width:19px;height:19px}
+.tc-chat-sender-guild>span{display:block!important;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;font-size:10px!important;color:#e2c38a!important}
+.tc-chat-author>b{min-width:0;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-chat-class-badge{display:inline-flex!important;align-items:center;justify-content:center;flex:none;min-width:0;border:1px solid currentColor;border-radius:2px;padding:2px 5px;font:600 10px/1.25 system-ui,sans-serif!important;white-space:nowrap!important}
+.tc-chat-class-badge.tc-chat-class-warrior{color:#db9b7f!important;background:#3c2826}
+.tc-chat-class-badge.tc-chat-class-mage{color:#9ebdf5!important;background:#222e48}
+.tc-chat-class-badge.tc-chat-class-archer{color:#95caaa!important;background:#203a30}
+.tc-chat-self{font-size:9px!important;color:#aec792!important}
+.tc-chat-log .tc-chat-msg-header{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.tc-chat-log .tc-chat-msg-header>time{flex:none;margin-left:auto;white-space:nowrap}
+.tc-chat-inline-messages article{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"sender time" "message message";gap:3px 6px;padding:6px 0}
+.tc-chat-inline-messages article .tc-chat-author{grid-area:sender}
+.tc-chat-inline-messages article>.tc-chat-message-text{grid-area:message;min-width:0;line-height:1.45}
+.tc-chat-inline-messages article>time{grid-area:time;align-self:center}
+.tc-chat-inline-messages article .tc-chat-sender-guild{max-width:min(49%,130px);height:20px;padding:0 4px 0 1px}
+.tc-chat-inline-messages article .tc-chat-sender-guild .tc-guild-emblem{height:17px;width:17px}
+.tc-chat-inline-messages article .tc-chat-sender-guild>span{font-size:9px!important}
+.tc-chat-inline-messages article .tc-chat-author>b{max-width:108px}
+.tc-chat-inline-messages article .tc-chat-class-badge{font-size:9px!important;padding:1px 4px}
+@media(max-width:360px){
+ .tc-chat-author{gap:3px 4px}
+ .tc-chat-sender-guild{max-width:44%}
+ .tc-chat-inline-messages article .tc-chat-sender-guild{max-width:43%}
+ .tc-chat-author>b{max-width:110px}
+}
