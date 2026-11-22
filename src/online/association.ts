@@ -177,6 +177,7 @@ export const disbandOnlineAssociation=(lease:GameplayLease)=>
  rpc<OnlineAssociationMutationResult>('disband_online_association',leaseArgs(lease));
 
 export function subscribeAssociationRealtime(onChange:()=>void):()=>void{
+ if(typeof window!=='undefined'&&window.location.pathname.endsWith('/guild-ui-lab.html'))return()=>{};
  const config=supabaseConfig;
  if(!config||typeof WebSocket==='undefined')return()=>{};
  let disposed=false,socket:WebSocket|null=null,heartbeat:number|null=null,reconnect:number|null=null,ref=0;
