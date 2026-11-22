@@ -47,7 +47,7 @@ test('result panel keeps both fighter card slots present across all five hunting
   for(const roll of [0,.4,.999]){
    const result=resolveHunt(initial,map.id,{hp:10000,attack:10000,defense:1000},['heavy'],0,()=>roll);
    const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game,hunting:result.state,now:0,busy:false,onHunt:()=>{},onSettings:()=>{},previewAppearance:false}));
-   const resultPage=html.match(/<section class="tc-hunt-result-page"[^>]*>[\s\S]*?<\/section>/)?.[0]??'';
+   const resultPage=html.match(/<section class="tc-hunt-result-page tc-hunt-result-v2"[^>]*>[\s\S]*?<\/section>/)?.[0]??'';
    assert.match(resultPage,/class="tc-hunt-fighter tc-hunt-panel player"/);
    assert.match(resultPage,/class="tc-hunt-fighter tc-hunt-panel enemy/);
    assert.equal((resultPage.match(/class="tc-hunt-art"/g)??[]).length,2,map.id);
