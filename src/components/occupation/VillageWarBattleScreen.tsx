@@ -1,6 +1,6 @@
 import {GameSelect} from '../../ui/GameSelect';
 import {VillageWarCombatResult} from './VillageWarCombatResult';
-import {loadOnlineAssociationState} from '../../online/association';
+import {loadOnlineAssociationState,loadOccupationGuildEmblems} from '../../online/association';
 import {DEFAULT_GUILD_EMBLEM,type GuildEmblemData} from '../association/GuildEmblem';
 import {useVillageWarStageOne} from './useVillageWarStageOne';
 import {VillageWarDeploymentPanel} from './VillageWarDeploymentPanel';
@@ -39,6 +39,14 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
  const [war,setWar]=useState<VillageWarState|null>(initialWar),[loading,setLoading]=useState(false),[error,setError]=useState('');
  const [townId,setTownId]=useState('city'),[frontId,setFrontId]=useState(3);
  const stage=useVillageWarStageOne(lease??null,userId,townId);
+ const [frontEmblems,setFrontEmblems]=useState<Record<string,GuildEmblemData>>({});
+ const frontAssociationKey=Array.from(new Set((stage.state?.fronts??[]).map(f=>f.associationId).filter((id):id is string=>!!id))).sort().join(',');
+ useEffect(()=>{
+  if(!lease||!frontAssociationKey){setFrontEmblems({});return;}
+  let active=true;
+  void loadOccupationGuildEmblems(lease,frontAssociationKey.split(',')).then(result=>{if(active)setFrontEmblems(result);}).catch(()=>{if(active)setFrontEmblems({});});
+  return()=>{active=false;};
+ },[lease?.leaseId,lease?.generation,frontAssociationKey]);
  const [preview,setPreview]=useState(initialPreview),[previewResult,setPreviewResult]=useState(false),[recordsOpen,setRecordsOpen]=useState(false);
  const [previewBattle,setPreviewBattle]=useState<VillageWarBattleOutcome|null>(null),[previewFrontId,setPreviewFrontId]=useState<number|null>(null);
  const [now,setNow]=useState(()=>Date.now()),[myHealth,setMyHealth]=useState<{hp:number|null;mp:number|null;maxHp:number|null;maxMp:number|null}|null>(null);
@@ -98,7 +106,7 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
   return <section className="tc-village-stage-shell tc-war-popup-host" data-war-preview="true">
    <div className="tc-war-stage-backside" inert={!!previewBattle} aria-hidden={previewBattle?true:undefined}>
     <div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" value={townId} onChange={e=>{setTownId(e.target.value);setPreviewBattle(null);setPreviewResult(false);}}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button type="button" onClick={()=>{setPreview(false);setPreviewBattle(null);setPreviewResult(false);}}>실제 전황 보기</button></div>
-    <VillageWarDeploymentPanel key={'preview:'+townId} preview townName={town.name} townKind={town.kind} state={previewState} userId={null} busy={false} pending={null} error="시연 데이터 · 실제 서버에는 반영되지 않습니다." now={previewNow} onPlace={()=>{}} onRemove={()=>{}} onClaim={()=>{}} onAttack={front=>{setPreviewFrontId(front.frontId);setPreviewBattle({outcome:'CAPTURE',attackerName:nickname??'내 캐릭터',defenderName:front.defenderName??'수비자',attackerHp:6820,attackerMaxHp:7500,attackerMp:1960,attackerMaxMp:2100,defenderHp:0,defenderMaxHp:6800,defenderMp:0,defenderMaxMp:9200,defenderReward:0,defenseWins:0,turns:[{turn:1,lines:['공격자 · 강타 적중, 수비자 320 피해'],attackerHp:7500,attackerMp:2050,defenderHp:6480,defenderMp:9180},{turn:2,lines:['수비자 반격, 공격자 180 피해'],attackerHp:7320,attackerMp:2050,defenderHp:6480,defenderMp:9150},{turn:3,lines:['공격자 · 속공 적중, 수비자 450 피해'],attackerHp:7320,attackerMp:1960,defenderHp:6030,defenderMp:9150},{turn:4,lines:['결정타, 수비자 쓰러짐'],attackerHp:6820,attackerMp:1960,defenderHp:0,defenderMp:0}]});}} onRetry={()=>{}} onRefresh={()=>setPreviewResult(false)}/>
+    <VillageWarDeploymentPanel key={'preview:'+townId} emblems={{'preview-ally':DEFAULT_GUILD_EMBLEM}} preview townName={town.name} townKind={town.kind} state={previewState} userId={null} busy={false} pending={null} error="시연 데이터 · 실제 서버에는 반영되지 않습니다." now={previewNow} onPlace={()=>{}} onRemove={()=>{}} onClaim={()=>{}} onAttack={front=>{setPreviewFrontId(front.frontId);setPreviewBattle({outcome:'CAPTURE',attackerName:nickname??'내 캐릭터',defenderName:front.defenderName??'수비자',attackerHp:6820,attackerMaxHp:7500,attackerMp:1960,attackerMaxMp:2100,defenderHp:0,defenderMaxHp:6800,defenderMp:0,defenderMaxMp:9200,defenderReward:0,defenseWins:0,turns:[{turn:1,lines:['공격자 · 강타 적중, 수비자 320 피해'],attackerHp:7500,attackerMp:2050,defenderHp:6480,defenderMp:9180},{turn:2,lines:['수비자 반격, 공격자 180 피해'],attackerHp:7320,attackerMp:2050,defenderHp:6480,defenderMp:9150},{turn:3,lines:['공격자 · 속공 적중, 수비자 450 피해'],attackerHp:7320,attackerMp:1960,defenderHp:6030,defenderMp:9150},{turn:4,lines:['결정타, 수비자 쓰러짐'],attackerHp:6820,attackerMp:1960,defenderHp:0,defenderMp:0}]});}} onRetry={()=>{}} onRefresh={()=>setPreviewResult(false)}/>
    </div>
    {previewBattle&&<VillageWarCombatResult battle={previewBattle} onClose={()=>setPreviewBattle(null)} attackerArt={ownArt?assetUrl(ownArt):undefined} frontId={previewFrontId} emblem={DEFAULT_GUILD_EMBLEM} preview/>}
   </section>;
@@ -106,7 +114,7 @@ export function VillageWarBattleScreen({userId=null,game,nickname,lease,onLegacy
  if(stage.state?.enabled&&!preview)return <section className="tc-village-stage-shell tc-war-popup-host">
    <div className="tc-war-stage-backside" inert={!!stage.battle} aria-hidden={stage.battle?true:undefined}>
     <div className="tc-village-stage-controls"><GameSelect aria-label="전쟁 마을 선택" disabled={stage.busy||!!stage.pending} value={townId} onChange={e=>setTownId(e.target.value)}>{WORLD_TOWNS.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</GameSelect><button type="button" onClick={()=>setPreview(true)}>UI 시안 보기</button></div>
-    <VillageWarDeploymentPanel townName={town.name} townKind={town.kind} ownArt={ownArt?assetUrl(ownArt):undefined} key={townId+':'+stage.state.eventId} state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/>
+    <VillageWarDeploymentPanel townName={town.name} townKind={town.kind} ownArt={ownArt?assetUrl(ownArt):undefined} key={townId+':'+stage.state.eventId} emblems={frontEmblems} state={stage.state} userId={userId} busy={stage.busy} pending={stage.pending} error={stage.error} now={stage.now} onPlace={stage.place} onRemove={stage.remove} onClaim={stage.claim} onAttack={stage.attack} onRetry={stage.retry} onRefresh={()=>void stage.refresh()}/>
    </div>
    {stage.battle&&<VillageWarCombatResult battle={stage.battle} onClose={stage.closeBattle} frontId={stage.battleFrontId} attackerArt={ownArt?assetUrl(ownArt):undefined} emblem={myEmblem}/>}
   </section>;
