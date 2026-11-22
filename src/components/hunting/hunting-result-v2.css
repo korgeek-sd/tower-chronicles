@@ -1,0 +1,266 @@
+/* Hunting combat result V2. No changes to automatic combat, hunt costs or server rewards.
+   This stylesheet is last in HuntingPage so it only replaces the result-view layout. */
+.tc-main.tc-hunt-main>.tc-hunt[data-view="result"]{gap:5px;overflow:hidden}
+.tc-hunt[data-view="result"]>.tc-hunt-heading{box-sizing:border-box;flex:0 0 39px;height:39px;min-height:0;padding:2px 5px;gap:6px;align-items:center}
+.tc-hunt[data-view="result"] .tc-hunt-heading h1{font-size:21px;color:#f0d5a9;letter-spacing:.025em}
+.tc-hunt[data-view="result"] .tc-hunt-heading>div:first-child{flex:1 1 auto;min-width:0;overflow:hidden}
+.tc-hunt[data-view="result"] .tc-hunt-heading .tc-hunt-level{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-heading button{
+ box-sizing:border-box;flex:0 0 auto;min-height:33px;height:33px;padding:4px 8px;
+ border:1px solid #a38050;border-radius:3px;
+ background:linear-gradient(180deg,#302b28,#171a20);
+ color:#f1ddb8;font-size:11px;box-shadow:inset 0 1px #78624a,inset 0 0 0 1px #0d1017;
+}
+.tc-hunt[data-view="result"]>.tc-hunt-vitality-strip{
+ box-sizing:border-box;flex:0 0 59px;min-height:0;max-height:59px;padding:5px 10px;gap:7px;
+ border:1px solid #a08151;border-radius:3px;background:linear-gradient(130deg,#262420,#16191e 58%,#241d17);
+ box-shadow:inset 0 0 0 1px #11151b;
+}
+.tc-hunt[data-view="result"]>.tc-hunt-vitality-strip>div:first-child strong{font-size:25px}
+.tc-hunt[data-view="result"]>.tc-hunt-vitality-strip .tc-hunt-vitality-clock strong{font-size:14px}
+.tc-hunt[data-view="result"]>.tc-hunt-vitality-strip small{font-size:10px}
+.tc-hunt[data-view="result"]>.tc-hunt-vitality-strip .tc-hunt-vitality-bar{height:5px}
+.tc-hunt[data-view="result"]>.tc-hunt-result-page.tc-hunt-result-v2{
+ box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr);
+ grid-template-rows:minmax(56px,.62fr) minmax(112px,1.23fr) minmax(171px,1.68fr) minmax(100px,1fr) minmax(56px,.65fr);
+ align-content:stretch;flex:1 1 0;min-height:0;height:100%;padding:0;gap:5px;overflow:hidden;
+}
+.tc-hunt[data-view="result"]>.tc-hunt-result-page.tc-hunt-result-v2[hidden]{display:none}
+.tc-hunt-result-v2>*,.tc-hunt-result-v2 .tc-hunt-result-fighters>*{min-width:0;min-height:0;overflow:hidden}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner{
+ box-sizing:border-box;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;
+ min-height:0;gap:1px;overflow:hidden;padding:4px 12px;
+ border:1px solid #887444;
+ background:linear-gradient(90deg,#11130fdc,#122013ab 48%,#15130fdb),url('../../../public/assets/backgrounds/hunting/world-map.webp') center 55%/cover no-repeat;
+ box-shadow:inset 0 0 0 1px #121314;
+}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner::before,.tc-hunt-result-v2 .tc-hunt-outcome-banner::after{
+ content:'❧';position:absolute;top:50%;transform:translateY(-50%);font-size:26px;color:#cba869;opacity:.82;
+}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner::before{left:12%}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner::after{right:12%;transform:translateY(-50%) scaleX(-1)}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner strong{
+ font:700 clamp(20px,5.3vw,30px)/1.2 "Noto Serif KR",serif;color:#c3e8a4;
+ text-shadow:0 2px 2px #050806,0 0 13px #678e50;
+}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner span{font-size:11px;color:#e5d5b4;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:76%}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner.is-defeat{background-image:linear-gradient(90deg,#160e0fe8,#371712be 50%,#160d0eda),url('../../../public/assets/backgrounds/hunting/world-map.webp');border-color:#9f5d4e}
+.tc-hunt-result-v2 .tc-hunt-outcome-banner.is-defeat strong{color:#f1ad9c;text-shadow:0 1px 8px #9b352e}
+.tc-hunt-result-v2 .tc-hunt-result-fighters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:stretch;gap:4px;min-height:0}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters>.tc-hunt-fighter,
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters>.tc-hunt-fighter.enemy{
+ box-sizing:border-box;grid-column:auto;grid-row:auto;display:grid;grid-template-columns:27% minmax(0,1fr);
+ flex:none;min-width:0;min-height:0;max-height:100%;height:100%;
+ border:1px solid #8c734d;border-radius:3px;
+ background:linear-gradient(145deg,#262626,#161a20 78%);box-shadow:inset 0 0 0 1px #0b0e14;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters>.tc-hunt-fighter.enemy{border-color:#85614e}
+.tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-art{
+ box-sizing:border-box;position:relative;display:grid;place-items:center;width:100%;height:100%;min-height:0;overflow:hidden;
+ background:linear-gradient(100deg,#1a1819,#3027226e);border-right:1px solid #655040;
+}
+.tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-fighter-info{
+ box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-content:center;
+ gap:4px;height:100%;min-height:0;padding:4px 6px;overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-fighter-info h2{
+ margin:0;font-size:12px;line-height:1.15;color:#f0dcbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ display:block!important;
+}
+.tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-monster-title{min-height:0;display:block}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-stats,
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-equipment{display:none}
+.tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-hp,
+.tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-mp{flex:0 0 auto;width:100%;min-width:0}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters :is(.tc-hunt-hp,.tc-hunt-mp)>div:first-child{
+ display:flex;align-items:center;justify-content:space-between;gap:3px;margin:0 0 2px;font-size:9px;line-height:1.15;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters :is(.tc-hunt-hp,.tc-hunt-mp) b{font-size:9px;white-space:nowrap}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters :is(.tc-hunt-hp,.tc-hunt-mp) [role="progressbar"]{
+ box-sizing:border-box;height:8px;padding:1px;border-radius:0;
+}
+.tc-hunt-result-v2 .tc-hunt-result-rewards{
+ box-sizing:border-box;display:grid;grid-template-rows:26px minmax(0,1fr) 29px 27px;
+ gap:5px;padding:5px 7px;min-height:0;border:1px solid #a07e4a;border-radius:3px;
+ background:linear-gradient(135deg,#262220,#15191e 70%);box-shadow:inset 0 0 0 1px #0d1015;
+}
+.tc-hunt-result-v2 .tc-hunt-reward-heading{display:flex;align-items:center;gap:6px;min-height:0;color:#e7c389;border-bottom:1px solid #665139;padding-bottom:3px}
+.tc-hunt-result-v2 .tc-hunt-reward-heading .tc-glyph{width:22px;height:22px;color:#e2bd7c}
+.tc-hunt-result-v2 .tc-hunt-reward-heading strong{font-size:15px;line-height:1.2}
+.tc-hunt-result-v2 .tc-hunt-reward-heading small{margin-left:auto;color:#ad9e87;font-size:10px}
+.tc-hunt-result-v2 .tc-hunt-reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-height:0}
+.tc-hunt-result-v2 .tc-hunt-reward-grid>div{
+ box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+ min-width:0;min-height:0;padding:3px 2px;border:1px solid #594b3b;border-radius:2px;
+ background:linear-gradient(#342f2c,#202025);
+}
+.tc-hunt-result-v2 .tc-hunt-reward-grid span{font-size:11px;color:#d6c1a0;white-space:nowrap}
+.tc-hunt-result-v2 .tc-hunt-reward-grid strong{
+ font-size:clamp(14px,4vw,20px);font-variant-numeric:tabular-nums;line-height:1.2;
+ color:#f1d289;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+}
+.tc-hunt-result-v2 .tc-hunt-reward-consumption{
+ box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:0;
+ gap:4px;align-items:stretch;
+}
+.tc-hunt-result-v2 .tc-hunt-reward-consumption>span{
+ display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;
+ padding:2px 4px;border:1px solid #514a3c;background:#1a1c20;color:#d6c7ae;
+ font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tc-hunt-result-v2 .tc-hunt-reward-consumption>span:first-child strong{color:#b6d7a1}
+.tc-hunt-result-v2 .tc-hunt-reward-consumption>span:nth-child(2) strong{color:#e2ba9e}
+.tc-hunt-result-v2 .tc-hunt-reward-consumption strong{font-size:10px;white-space:nowrap}
+.tc-hunt-result-v2 .tc-hunt-reward-equipment{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:5px;
+ min-height:0;min-width:0;border:1px solid #4a433d;background:#191c21;
+ color:#bcb2a2;font-size:10px;overflow:hidden;
+}
+.tc-hunt-result-v2 .tc-hunt-reward-equipment strong{font-size:11px;color:#e4c68e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-hunt-result-v2 .tc-hunt-reward-equipment small{font-size:9px;color:#d2b27b;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-stream{
+ box-sizing:border-box;display:grid;grid-template-rows:30px minmax(0,1fr);
+ gap:3px;min-height:0;overflow:hidden;padding:4px 7px;
+ border:1px solid #96774b;border-radius:3px;
+ background:linear-gradient(145deg,#252222,#11161c);
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-stream>.tc-hunt-stream-summary-head{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:5px;
+ min-width:0;min-height:0;padding:0 3px;border:0;border-bottom:1px solid #5c4b36;
+}
+.tc-hunt-result-v2 .tc-hunt-stream-summary-head>div{min-width:0;display:flex;align-items:center;gap:5px}
+.tc-hunt-result-v2 .tc-hunt-stream-summary-head strong{font-size:13px;color:#e9c994;white-space:nowrap}
+.tc-hunt-result-v2 .tc-hunt-stream-summary-head small{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-stream-open{
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:3px;
+ flex:0 0 auto;width:auto;height:29px;min-height:29px;padding:3px 6px;
+ border:1px solid #8d7047;border-radius:3px;background:linear-gradient(#34302c,#1c1e24);
+ color:#e5d0aa;font-size:11px;white-space:nowrap;
+}
+.tc-hunt-result-v2 .tc-hunt-stream-preview{
+ list-style:none;display:grid;grid-auto-rows:max-content;align-content:start;
+ gap:1px;margin:0;padding:1px 2px;min-height:0;overflow:hidden;
+}
+.tc-hunt-result-v2 .tc-hunt-stream-preview li{
+ display:flex;align-items:baseline;gap:6px;min-width:0;min-height:0;
+ padding:2px 0;color:#d7c9b2;font-size:11px;line-height:1.2;border-bottom:1px solid #353332;
+}
+.tc-hunt-result-v2 .tc-hunt-stream-preview li b{flex:0 0 26px;color:#e4b978;font-size:10px;white-space:nowrap}
+.tc-hunt-result-v2 .tc-hunt-stream-preview li span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-hunt-result-v2 .tc-hunt-stream-preview li[data-kind="heal"] span{color:#b4d6a5}
+.tc-hunt-result-v2 .tc-hunt-stream-preview li[data-kind="damage"] span{color:#e2b3a9}
+.tc-hunt-result-v2 .tc-hunt-stream-preview-empty{color:#a99c83}
+.tc-hunt-result-v2 .tc-hunt-repeat-dock{
+ box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:6px;
+ align-items:stretch;min-height:0;height:100%;padding:4px;border:1px solid #69553a;
+ border-radius:3px;background:linear-gradient(110deg,#17171e,#211a17 60%,#16191e);
+ overflow:hidden;
+}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-repeat-dock .tc-hunt-change-region{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:5px;
+ min-width:0;width:100%;height:100%;min-height:0;padding:3px;
+ border:1px solid #9a7850;border-radius:3px;background:linear-gradient(#33312e,#171a21);
+ color:#f0ddbe;font-size:12px;
+}
+.tc-hunt-result-v2 .tc-hunt-change-region>.tc-glyph{width:17px;height:17px;color:#d3ab6c}
+.tc-hunt-result-v2 .tc-hunt-change-region>strong{font-size:12px;white-space:nowrap}
+.tc-hunt-result-v2 .tc-hunt-change-region>small{display:none}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-repeat-dock>.tc-hunt-next{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:4px;
+ min-width:0;width:100%;height:100%;min-height:0;margin:0;padding:3px 5px;
+ border:1px solid #d7a365;border-radius:3px;background:linear-gradient(#8f502b,#4f2d20 64%,#35221e);
+ box-shadow:inset 0 1px #e7b475,0 0 8px #a8623469;color:#ffe6b7;
+}
+.tc-hunt-result-v2 .tc-hunt-repeat-dock>.tc-hunt-next>.tc-glyph{width:18px;height:18px}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-next strong{font-size:clamp(15px,4.8vw,20px);white-space:nowrap}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-next small{
+ margin:0 0 0 auto;padding:0 0 0 6px;font-size:10px;line-height:1;
+ color:#f0cd99;border-left:1px solid #a57b51;white-space:nowrap;
+}
+.tc-hunt-result-v2 .tc-hunt-repeat-dock>p{grid-column:1/-1;margin:0;color:#f3ad9d;font-size:10px}
+.tc-hunt-result-v2 .tc-hunt-empty{grid-row:1/-1}
+/* Modal is the only scrolling combat record. It retains the existing ten-hunt history. */
+.tc-hunt .tc-hunt-stream-dialog:not([open]){display:none}
+.tc-hunt .tc-hunt-stream-dialog[open]{
+ box-sizing:border-box;position:fixed;inset:0;margin:auto;
+ display:grid;grid-template-rows:47px minmax(0,1fr) 39px;gap:5px;
+ width:min(460px,calc(100vw - 18px));height:min(80dvh,680px);max-height:calc(100dvh - 28px);
+ padding:9px;border:2px solid #b28e59;border-radius:4px;
+ background:linear-gradient(#282322,#11161e);color:#ead6b6;
+ box-shadow:0 0 0 2px #12151a,inset 0 0 0 1px #6e5437,0 18px 60px #000c;
+}
+.tc-hunt .tc-hunt-stream-dialog::backdrop{background:#000d;backdrop-filter:blur(2px)}
+.tc-hunt .tc-hunt-stream-dialog>header{
+ display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0;
+ border-bottom:1px solid #745b41;padding:2px 4px;
+}
+.tc-hunt .tc-hunt-stream-dialog>header>div{display:grid;gap:2px;min-width:0}
+.tc-hunt .tc-hunt-stream-dialog>header strong{font-size:16px;color:#eed1a1}
+.tc-hunt .tc-hunt-stream-dialog>header small{font-size:10px;color:#bbaa91}
+.tc-hunt .tc-hunt-stream-dialog .tc-hunt-stream-close,
+.tc-hunt .tc-hunt-stream-dialog .tc-hunt-stream-latest{
+ position:static;min-height:33px;height:33px;width:auto;padding:4px 11px;
+ border:1px solid #97764b;border-radius:3px;background:linear-gradient(#36302c,#1e2025);
+ color:#ead6b7;font-size:12px;
+}
+.tc-hunt .tc-hunt-stream-dialog .tc-hunt-stream-latest{justify-self:end}
+.tc-hunt .tc-hunt-stream-dialog>.tc-hunt-stream-feed{
+ box-sizing:border-box;display:block;min-height:0;height:100%;padding:4px 9px 8px;
+ overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:thin;scrollbar-color:#987247 #1d1c20;
+ border:1px solid #493f35;background:#11161cc9;
+}
+.tc-hunt .tc-hunt-stream-dialog .tc-hunt-stream-battle p{font-size:11px;padding:4px 0}
+.tc-hunt .tc-hunt-stream-dialog .tc-hunt-stream-battle h3{font-size:12px}
+.tc-hunt .tc-hunt-stream-dialog .tc-hunt-stream-announcement{position:absolute;width:1px;height:1px;overflow:hidden}
+@media(max-width:380px){
+ .tc-hunt-result-v2 .tc-hunt-outcome-banner::before,.tc-hunt-result-v2 .tc-hunt-outcome-banner::after{font-size:17px}
+ .tc-hunt-result-v2 .tc-hunt-outcome-banner::before{left:5%}
+ .tc-hunt-result-v2 .tc-hunt-outcome-banner::after{right:5%}
+ .tc-hunt-result-v2 .tc-hunt-outcome-banner span{max-width:82%;font-size:10px}
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters>.tc-hunt-fighter,
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters>.tc-hunt-fighter.enemy{grid-template-columns:25% minmax(0,1fr)}
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-fighter-info{gap:3px;padding:3px 4px}
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-result-fighters .tc-hunt-fighter-info h2{font-size:11px}
+ .tc-hunt-result-v2 .tc-hunt-reward-consumption>span{font-size:9px;gap:2px}
+ .tc-hunt-result-v2 .tc-hunt-reward-consumption strong{font-size:9px}
+ .tc-hunt-result-v2 .tc-hunt-change-region>.tc-glyph{display:none}
+ .tc-hunt-result-v2 .tc-hunt-stream-preview li{font-size:10px}
+}
+@media(max-height:740px){
+ .tc-hunt[data-view="result"]>.tc-hunt-heading{flex-basis:33px;height:33px}
+ .tc-hunt[data-view="result"]>.tc-hunt-heading button{min-height:28px;height:28px;font-size:10px}
+ .tc-hunt[data-view="result"]>.tc-hunt-vitality-strip{flex-basis:48px;max-height:48px;padding:3px 7px}
+ .tc-hunt[data-view="result"]>.tc-hunt-vitality-strip>div:first-child strong{font-size:20px}
+ .tc-hunt[data-view="result"]>.tc-hunt-result-page.tc-hunt-result-v2{
+  grid-template-rows:minmax(45px,.65fr) minmax(93px,1.28fr) minmax(130px,1.65fr) minmax(81px,1.1fr) minmax(46px,.6fr);
+  gap:3px;
+ }
+ .tc-hunt-result-v2 .tc-hunt-result-rewards{grid-template-rows:20px minmax(0,1fr) 24px 23px;gap:3px;padding:3px 5px}
+ .tc-hunt-result-v2 .tc-hunt-reward-heading strong{font-size:12px}
+ .tc-hunt-result-v2 .tc-hunt-reward-grid span{font-size:10px}
+ .tc-hunt-result-v2 .tc-hunt-reward-grid strong{font-size:14px}
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-stream{grid-template-rows:25px minmax(0,1fr);gap:2px;padding:3px 5px}
+ .tc-hunt-result-v2 .tc-hunt-stream-preview li{padding:1px 0}
+ .tc-hunt-result-v2 .tc-hunt-repeat-dock{padding:3px}
+}
+@media(max-height:565px){
+ .tc-hunt[data-view="result"]>.tc-hunt-heading{flex-basis:29px;height:29px}
+ .tc-hunt[data-view="result"]>.tc-hunt-vitality-strip{flex-basis:39px;max-height:39px}
+ .tc-hunt[data-view="result"]>.tc-hunt-result-page.tc-hunt-result-v2{
+  grid-template-rows:minmax(38px,.55fr) minmax(76px,1.25fr) minmax(111px,1.75fr) minmax(68px,.95fr) minmax(39px,.6fr);gap:2px
+ }
+ .tc-hunt-result-v2 .tc-hunt-outcome-banner strong{font-size:17px}
+ .tc-hunt-result-v2 .tc-hunt-outcome-banner span{font-size:9px}
+ .tc-hunt-result-v2 .tc-hunt-result-rewards{grid-template-rows:17px minmax(0,1fr) 20px 20px;gap:2px;padding:2px}
+ .tc-hunt-result-v2 .tc-hunt-reward-heading strong{font-size:11px}
+ .tc-hunt-result-v2 .tc-hunt-reward-grid span{font-size:9px}
+ .tc-hunt-result-v2 .tc-hunt-reward-grid strong{font-size:12px}
+ .tc-hunt-result-v2 .tc-hunt-reward-consumption>span,.tc-hunt-result-v2 .tc-hunt-reward-consumption strong{font-size:8px}
+ .tc-hunt-result-v2 .tc-hunt-reward-equipment{font-size:9px}
+ .tc-hunt-result-v2 .tc-hunt-stream-preview li{font-size:9px}
+ .tc-hunt-result-v2 .tc-hunt-stream-summary-head strong{font-size:11px}
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-stream-open{height:24px;min-height:24px;font-size:10px}
+ .tc-hunt[data-view="result"] .tc-hunt-result-v2 .tc-hunt-stream{grid-template-rows:23px minmax(0,1fr)}
+}
