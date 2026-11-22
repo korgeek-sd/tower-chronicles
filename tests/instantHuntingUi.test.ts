@@ -20,16 +20,20 @@ test('online hunting shows recovered HP, remaining potion count and food turns w
 
 test('hunting map ascends from plains to ruins and home exposes matching shortcut',()=>{
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:initialHuntingState(0),now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
- for(const name of ['외곽 평야','어두운 숲','폐광','무너진 성채','심층 유적','추천 레벨','입장하기'])assert.ok(html.includes(name),name);
- assert.ok(html.indexOf('심층 유적')<html.indexOf('외곽 평야'));
- assert.match(html,/aria-pressed="true"/);
+ for(const name of ['외곽 평야','어두운 숲','폐광','무너진 성채','심층 유적','권장 레벨','즉시 사냥'])assert.ok(html.includes(name),name);
+ assert.ok(html.indexOf('외곽 평야')<html.indexOf('심층 유적'));
+ assert.match(html,/aria-expanded="true"/);
+ assert.match(html,/aria-expanded="false"/);
 });
 
 test('home has a hunting facility button using the bestiary facility treatment',()=>{const html=renderToStaticMarkup(React.createElement(HomeScreen,{game:initialState(),onMove:()=>{},onOpenJobs:()=>{}}));assert.match(html,/data-facility="hunt"/);assert.match(html,/data-facility="bestiary"/);});
 
-test('five illustrated hunting cards replace the world-map overlay',()=>{
+test('five illustrated hunting regions use a single expanded accordion card',()=>{
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:initialHuntingState(0),now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
- assert.equal((html.match(/class="tc-hunt-card /g)??[]).length,5);
+ assert.equal((html.match(/class="tc-hunt-accordion-card/g)??[]).length,5);
+ assert.equal((html.match(/class="tc-hunt-accordion-panel"/g)??[]).length,1);
+ assert.match(html,/class="tc-hunt-accordion-card is-open"/);
+ assert.match(html,/aria-controls="tc-hunt-region-plains"/);
  assert.doesNotMatch(html,/tc-hunt-world|tc-hunt-node/);
  assert.match(html,/background-position/);
 });
@@ -69,4 +73,20 @@ test('hunting victory shows earned gear and potions without basic material rewar
  assert.match(html,/HP 물약 0개 사용/);
  assert.match(html,/경험치/);
  assert.match(html,/실버/);
+});
+
+test('latest hunting-region UI presents real server-defined experience, silver and equipment probabilities',()=>{
+ const h=resolveHunt(initialHuntingState(0),'forest',{hp:400,attack:30,defense:10},['heavy'],0,()=>.5).state;
+ const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
+ assert.match(html,/어두운 숲/);
+ assert.match(html,/대표 몬스터 · 거꾸로 핀 꽃사슴/);
+ assert.match(html,/기본 경험치/);
+ assert.match(html,/250/);
+ assert.match(html,/1,600~2,000/);
+ assert.match(html,/승리 시 1\.65%/);
+ assert.match(html,/장비 드롭/);
+ assert.equal((html.match(/class="tc-hunt-accordion-card/g)??[]).length,5);
+ assert.equal((html.match(/class="tc-hunt-accordion-panel"/g)??[]).length,1);
+ assert.match(html,/aria-label="어두운 숲 사냥터 접기"/);
+ assert.match(html,/aria-label="외곽 평야 사냥터 펼치기"/);
 });
