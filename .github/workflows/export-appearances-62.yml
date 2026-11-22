@@ -1,0 +1,48 @@
+name: Export all 62 appearance images
+on:
+  push:
+    branches:
+      - assets/export-appearances-62-20261122
+    paths:
+      - .github/workflows/export-appearances-62.yml
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package source WebP appearances and verify count
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv, hashlib, re, shutil
+          source = Path('src/game/data/cosmetics.ts').read_text(encoding='utf-8')
+          paths = re.findall(r'imagePath\s*:\s*["\x27](assets/characters/appearances/[^"\x27]+\.webp)["\x27]', source)
+          assert len(paths) == len(set(paths)) == 62, f'Expected 62 unique WebP paths; got {len(paths)}'
+          output = Path('appearance-export')
+          output.mkdir(exist_ok=True)
+          rows = []
+          for path in paths:
+              original = Path('public') / path
+              assert original.is_file(), f'Missing source: {original}'
+              data = original.read_bytes()
+              assert data[:4] == b'RIFF' and data[8:12] == b'WEBP', f'Not WebP: {original}'
+              assert len(data) > 100, f'Empty WebP: {original}'
+              shutil.copyfile(original, output / original.name)
+              rows.append((original.name, path, len(data), hashlib.sha256(data).hexdigest()))
+          with (output / 'manifest.csv').open('w', encoding='utf-8-sig', newline='') as f:
+              writer = csv.writer(f)
+              writer.writerow(('file_name', 'source_path', 'size_bytes', 'sha256'))
+              writer.writerows(rows)
+          assert len(list(output.glob('*.webp'))) == 62
+          print(f'Packed {len(rows)} originals; {sum(r[2] for r in rows):,} bytes')
+          PY
+      - name: Upload verified appearance ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: tower-chronicles-appearances-62-webp
+          path: appearance-export/
+          if-no-files-found: error
+          retention-days: 7
