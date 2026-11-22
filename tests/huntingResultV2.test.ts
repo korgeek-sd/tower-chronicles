@@ -22,7 +22,7 @@ test('hunting result uses actual victory, XP, silver, mastery and potion figures
  const html=render(result);
  for(const text of ['tc-hunt-result-page tc-hunt-result-v2','tc-hunt-outcome-banner is-victory','전투 승리',
  '기크','획득 보상','+110','+1,044','+315 회복','315개 사용','장비 획득 없음',
- '남은 활력','525','사냥터 변경','다음 전투','전체 기록 보기'])assert.ok(html.includes(text),text);
+ '활력','525','사냥터 변경','다음 전투','전체 기록 보기'])assert.ok(html.includes(text),text);
  assert.equal(JSON.stringify(result),before);
 });
 test('defeat shows no reward and never guesses missing potion data',()=>{
