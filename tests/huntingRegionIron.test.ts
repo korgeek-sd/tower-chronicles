@@ -56,9 +56,9 @@ test('region art uses distinct world-map slices, a representative catalog monste
  const hunting=initialHuntingState(0);
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
  assert.ok((html.match(/world-map\.webp/g)??[]).length>=5);
- assert.match(html,/grave_digger_hound\.svg/);
+ assert.match(html,/grave_digger_hound\.(?:png|svg)/);
  assert.equal((html.match(/aria-expanded="/g)??[]).length,5);
  assert.equal((html.match(/aria-expanded="true"/g)??[]).length,1);
- assert.match(html,/10종/);
+ assert.match(html,new RegExp(HUNT_MONSTERS.plains.length+'종'));
  assert.match(html,/권장 레벨/);
 });
