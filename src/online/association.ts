@@ -1,3 +1,4 @@
+import type {GuildEmblemData} from '../components/association/GuildEmblem';
 import type {AssociationPolicy} from '../game/types';
 import type {CloudSaveRecord} from './cloudSave';
 import {getDeviceId} from './cloudSave';
@@ -24,6 +25,7 @@ export interface OnlineAssociationActivity {
  createdAt:string;
 }
 export interface OnlineAssociationCurrent {
+ emblem?:GuildEmblemData;
  associationId:string;
  recordNumber:string;
  name:string;
@@ -43,6 +45,7 @@ export interface OnlineAssociationCurrent {
  activity:OnlineAssociationActivity[];
 }
 export interface OnlineAssociationDirectoryEntry {
+ emblem?:GuildEmblemData;
  revenueShareRatePercent:number;
  associationId:string;
  recordNumber:string;
@@ -94,6 +97,7 @@ const messageFor=(raw:string)=>{
   ASSOCIATION_NOT_CERTIFIED:'원정단 창설은 10층 보스 처치 후 안전 귀환 기록이 필요합니다.',
   ASSOCIATION_NAME_INVALID:'사용할 수 없는 원정단명입니다.',
   ASSOCIATION_INPUT_INVALID:'원정단 설정값을 확인해 주세요.',
+  ASSOCIATION_EMBLEM_INVALID:'문장 설정값이 유효하지 않습니다.',
   ASSOCIATION_NAME_TAKEN:'이미 사용 중인 원정단명입니다.',
   ASSOCIATION_SILVER_SHORTAGE:'원정단 등록금 1,000 Silver가 부족합니다.',
   ASSOCIATION_NOT_FOUND:'원정단을 찾을 수 없습니다.',
@@ -125,11 +129,11 @@ async function rpc<T>(name:string,body:Record<string,unknown>):Promise<T>{
 }
 
 export const loadOnlineAssociationState=(lease:GameplayLease)=>
- rpc<OnlineAssociationState>('get_online_association_state',leaseArgs(lease));
+ rpc<OnlineAssociationState>('get_online_association_state_v2',leaseArgs(lease));
 
-export const createOnlineAssociation=(lease:GameplayLease,input:{name:string;description:string;joinPolicy:Exclude<AssociationPolicy,'CLOSED'>})=>
- rpc<OnlineAssociationMutationResult>('create_online_association_v2',{
-  ...leaseArgs(lease),p_name:input.name,p_description:input.description,p_join_policy:input.joinPolicy,
+export const createOnlineAssociation=(lease:GameplayLease,input:{name:string;description:string;joinPolicy:Exclude<AssociationPolicy,'CLOSED'>;emblem:GuildEmblemData})=>
+ rpc<OnlineAssociationMutationResult>('create_online_association_v3',{
+  ...leaseArgs(lease),p_name:input.name,p_description:input.description,p_join_policy:input.joinPolicy,p_emblem:input.emblem,
  });
 
 export const joinOnlineAssociation=(lease:GameplayLease,associationId:string)=>
