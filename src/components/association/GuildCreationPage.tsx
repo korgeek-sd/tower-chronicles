@@ -5,11 +5,10 @@ import {Screen} from '../../ui/mobile';
 import {GuildEmblem,GuildEmblemEditor,type GuildEmblemData} from './GuildEmblem';
 import './guildCreationPage.css';
 
-type CharterPolicy=Extract<AssociationPolicy,'APPROVAL'|'OPEN'>;
 type Props={
  name:string;setName:(name:string)=>void;
  description:string;setDescription:(description:string)=>void;
- policy:CharterPolicy;setPolicy:(policy:CharterPolicy)=>void;
+ policy:AssociationPolicy;setPolicy:(policy:AssociationPolicy)=>void;
  emblem:GuildEmblemData;setEmblem:(emblem:GuildEmblemData)=>void;
  silver:number;busy?:boolean;error?:string;blockedReason?:string;
  onBack:()=>void;onSubmit:()=>void;isLocal?:boolean;
