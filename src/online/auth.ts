@@ -169,6 +169,11 @@ export async function refreshOnlineSession(storage:Storage=localStorage):Promise
 }
 
 export async function getFreshSession(storage:Storage=localStorage):Promise<OnlineSession|null>{
+ // The standalone guild UI lab uses a dummy identity; fetch calls are intercepted there.
+ // Never store or use a production authentication session for the sandbox.
+ if(typeof window!=='undefined'&&window.location.pathname.endsWith('/guild-ui-lab.html'))
+  return {accessToken:'guild-ui-lab-dummy-token',refreshToken:'',expiresAt:Date.now()+86400000,
+   userId:'00000000-0000-4000-8000-000000000001',email:null};
  const current=getStoredSession(storage);
  if(!current)return null;
  if(current.expiresAt>Date.now()+60_000)return current;
