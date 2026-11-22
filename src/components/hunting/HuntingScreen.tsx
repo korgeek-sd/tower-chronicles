@@ -144,9 +144,9 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
      <div className="tc-hunt-result-rewards tc-hunt-panel" aria-label="이번 전투 획득 및 소비">
     <div className="tc-hunt-reward-heading"><Glyph name="inventory"/><strong>획득 보상</strong><small>이번 전투</small></div>
     <div className="tc-hunt-reward-grid">
-     <div><span>경험치</span><strong>{result.outcome==='victory'?'+'+result.exp.toLocaleString():'—'}</strong></div>
-     <div><span>실버</span><strong>{result.outcome==='victory'?'+'+result.silver.toLocaleString():'—'}</strong></div>
-     <div><span>숙련도</span><strong>{result.outcome==='victory'?'+'+result.mastery.toLocaleString():'—'}</strong></div>
+     <div><Glyph name="skills"/><span>경험치</span><strong>{result.outcome==='victory'?'+'+result.exp.toLocaleString():'—'}</strong></div>
+     <div><Glyph name="market"/><span>실버</span><strong>{result.outcome==='victory'?'+'+result.silver.toLocaleString():'—'}</strong></div>
+     <div><Glyph name="sword"/><span>숙련도</span><strong>{result.outcome==='victory'?'+'+result.mastery.toLocaleString():'—'}</strong></div>
     </div>
     <div className="tc-hunt-reward-consumption">
      <span>전투 후 HP <strong>{result.recoveredHp!==undefined?'+'+Math.max(0,result.recoveredHp-result.playerHp).toLocaleString()+' 회복':'기록 없음'}</strong></span>
