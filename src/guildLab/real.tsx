@@ -27,11 +27,10 @@ function RealGuildLab(){
  const[game,setGameInternal]=useState<GameState>(()=>gameSnapshot());
  const[role,setRole]=useState<Role>(()=>labRole());
  const[page,setPage]=useState<Page>('association');
- const[revision,setRevision]=useState(0);
  const[toast,setToast]=useState('');
  const[barVisible,setBarVisible]=useState(true);
  const[now,setNow]=useState(Date.now());
- useEffect(()=>{const un=listenLabChanges(()=>{setRole(labRole());setRevision(n=>n+1);});return un;},[]);
+ useEffect(()=>{const un=listenLabChanges(()=>{setRole(labRole());});return un;},[]);
  useEffect(()=>{const interval=setInterval(()=>setNow(Date.now()),15000);return()=>clearInterval(interval);},[]);
  useEffect(()=>{if(!toast)return;const id=setTimeout(()=>setToast(''),3500);return()=>clearTimeout(id);},[toast]);
  const setGame:React.Dispatch<React.SetStateAction<GameState>>=value=>setGameInternal(old=>{
@@ -64,7 +63,7 @@ function RealGuildLab(){
     onProfile={demoOnly} onShop={demoOnly} onPremium={demoOnly} onMail={demoOnly} onNotifications={demoOnly} onMenu={demoOnly}/>
    <div className="tc-statusbar"><span><i/>노바르 거점</span><span>원정단 UI 실험실 · 서버 비연결</span></div>
    <main className="tc-main">
-    <Fallback key={page+':'+revision+':'+role}>
+    <Fallback key={page+':'+role}>
      {page==='association'?<AssociationScreen key={role} game={game} setGame={setGame} onlineLease={LAB_LEASE}
       onOccupation={()=>setPage('occupation')} onServerRecord={onRecord}/>:
       <VillageWarBattleScreen userId={LAB_USER} game={game} nickname="기크" lease={LAB_LEASE} onLegacy={()=>setPage('association')}/>}
