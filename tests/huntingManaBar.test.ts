@@ -15,7 +15,7 @@ const css=readFileSync(new URL('../src/components/hunting/hunting.css',import.me
 
 test('player and enemy MP gauges appear directly under their respective HP bars',()=>{
  const html=screen();
- const combat=html.split('<section class="tc-hunt-result-page"')[1]??'';
+ const combat=html.split('<section class="tc-hunt-result-page tc-hunt-result-v2"')[1]??'';
  const player= combat.match(/<article class="tc-hunt-fighter tc-hunt-panel player"[\s\S]*?<\/article>/)?.[0]??'';
  const enemy= combat.match(/<article[^>]*data-monster-id="[^"]+"[\s\S]*?<\/article>/)?.[0]??'';
  for(const [section,label] of [[player,'탐사자'],[enemy,HUNT_MONSTERS.plains[0].name]]){
