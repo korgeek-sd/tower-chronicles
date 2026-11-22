@@ -123,7 +123,7 @@ export function HuntingScreen({game,hunting,now,busy,error,nickname,onHunt,onRet
    </nav>
    {error&&<div className="tc-hunt-error" role="alert">{error}{onRetry&&<button onClick={onRetry} disabled={huntingNow}>다시 확인</button>}</div>}
    <div className="tc-hunt-accordion-bottom">
-    <span>{huntingNow?'전투 결과를 확인하고 있습니다…':game.expedition?'원정 진행 중':!state?'사냥 상태 불러오는 중':state.vitality===0?'활력 회복 후 사냥 가능':'지역 선택 후 즉시 자동전투'}</span>
+    <span>{entryStatus}{state?.vitality===0?' · 활력이 부족합니다':''}{state?.potions!==undefined?' · 포션 '+state.potions.toLocaleString():''}{state?.foodTurns?' · '+((['attack_food','defense_food','experience_food'] as const).filter(id=>(state.foodTurns?.[id]??0)>0).map(id=>`${id==='attack_food'?'공격':id==='defense_food'?'방어':'경험치'} ${state.foodTurns?.[id]}회`).join(' · ')||'음식 효과 없음'):''}</span>
     {result&&<button type="button" className="tc-hunt-log-button" onClick={()=>setView('result')}>최근 사냥 결과 · {result.outcome==='victory'?'승리':'패배'}</button>}
    </div>
   </div>
