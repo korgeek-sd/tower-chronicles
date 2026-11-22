@@ -23,10 +23,20 @@
 .tc-hunt[data-view="result"]>.tc-hunt-result-page.tc-hunt-result-v2{
  box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr);
  grid-template-rows:minmax(56px,.62fr) minmax(112px,1.23fr) minmax(171px,1.68fr) minmax(100px,1fr) minmax(56px,.65fr);
+ grid-template-areas:"outcome" "fighters" "rewards" "history" "actions";
  align-content:stretch;flex:1 1 0;min-height:0;height:100%;padding:0;gap:5px;overflow:hidden;
 }
 .tc-hunt[data-view="result"]>.tc-hunt-result-page.tc-hunt-result-v2[hidden]{display:none}
 .tc-hunt-result-v2>*,.tc-hunt-result-v2 .tc-hunt-result-fighters>*{min-width:0;min-height:0;overflow:hidden}
+/* Pin every cell to its intended row. Legacy combat-stream.css still assigns
+   the old log to row 2 and next-battle dock to row 3; automatic placement had
+   moved the fighters and rewards below the controls and clipped the rewards. */
+.tc-hunt[data-view="result"] .tc-hunt-result-v2>.tc-hunt-outcome-banner{grid-area:outcome;grid-column:1;grid-row:1}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2>.tc-hunt-result-fighters{grid-area:fighters;grid-column:1;grid-row:2}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2>.tc-hunt-result-rewards{grid-area:rewards;grid-column:1;grid-row:3}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2>.tc-hunt-stream{grid-area:history;grid-column:1;grid-row:4}
+.tc-hunt[data-view="result"] .tc-hunt-result-v2>.tc-hunt-repeat-dock{grid-area:actions;grid-column:1;grid-row:5}
+
 .tc-hunt-result-v2 .tc-hunt-outcome-banner{
  box-sizing:border-box;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;
  min-height:0;gap:1px;overflow:hidden;padding:4px 12px;
