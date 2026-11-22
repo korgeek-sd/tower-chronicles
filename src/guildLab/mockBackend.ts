@@ -224,6 +224,19 @@ export function installGuildLabMock(){
   const parsed=new URL(url,window.location.href);
   if(supabaseConfig&&parsed.origin===supabaseConfig.url){
    try{
+    if(parsed.pathname==='/rest/v1/game_chat_messages'){
+      if((init?.method||'GET').toUpperCase()==='POST'){
+        const item=JSON.parse(String(init?.body||'{}')) as {body:string;client_id:string;association_id?:string};
+        const message={id:crypto.randomUUID(),user_id:LAB_USER,nickname:'기크',body:String(item.body||'').slice(0,200),created_at:now(),
+         client_id:item.client_id,association_id:item.association_id||null,sender_guild_id:guild.role==='NONE'?null:LAB_GUILD,
+         sender_guild_name:guild.role==='NONE'?null:guild.name,sender_guild_emblem:guild.role==='NONE'?null:guild.emblem,sender_class_id:'warrior'};
+        fakeChatMessages.push(message as typeof fakeChatMessages[number]);
+        return new Response(JSON.stringify([message]),{status:201,headers:{'Content-Type':'application/json'}});
+      }
+      const isWorld=parsed.searchParams.get('association_id')==='is.null';
+      const rows=fakeChatMessages.filter(m=>isWorld?m.association_id===null:m.association_id!==null);
+      return new Response(JSON.stringify([...rows].reverse()),{status:200,headers:{'Content-Type':'application/json'}});
+    }
     if(!parsed.pathname.startsWith('/rest/v1/rpc/'))return new Response(JSON.stringify({message:'LAB_BLOCKED_REAL_BACKEND'}),{status:403,headers:{'Content-Type':'application/json'}});
     const rpc=decodeURIComponent(parsed.pathname.split('/').pop()||'');
     let body:Record<string,any>={};try{body=init?.body?JSON.parse(String(init.body)):{};}catch{}
