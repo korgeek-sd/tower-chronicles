@@ -83,8 +83,10 @@ export function GuildEmblem({value,size=44,className='',label}:{value?:Partial<G
   {(raw.border==='ancient'||raw.border==='royal')&&[[64,10],[21,35],[107,35],[64,113]].map(([x,y],i)=><rect key={i} x={x-3} y={y-3} width="6" height="6" fill={raw.border==='ancient'?'#b4cdcf':'#f2d28d'}/>)}
  </svg>;
 }
-export function GuildEmblemEditor({value,onChange,disabled=false}:{value:GuildEmblemData;onChange:(next:GuildEmblemData)=>void;disabled?:boolean}){
- const [tab,setTab]=useState('shape');
+export function GuildEmblemEditor({value,onChange,disabled=false,layout='standard'}:{value:GuildEmblemData;onChange:(next:GuildEmblemData)=>void;disabled?:boolean;layout?:'standard'|'charter'}){
+ const [tab,setTab]=useState(layout==='charter'?'symbol':'shape');
+ const [page,setPage]=useState(0);
+ const [colorTarget,setColorTarget]=useState<'base'|'accent'>('base');
  const set=(field:keyof GuildEmblemData,item:string|number)=>onChange({...value,[field]:item});
  const options=tab==='shape'?shapes:tab==='symbol'?symbolOptions:tab==='pattern'?patterns:borders;
  const randomize=()=>{
@@ -93,6 +95,35 @@ export function GuildEmblemEditor({value,onChange,disabled=false}:{value:GuildEm
   onChange({...value,shape:choose(shapes)[0],symbol:choose(symbolOptions)[0],pattern:choose(patterns)[0],border:choose(borders)[0],
    base,accent:choose(GUILD_EMBLEM_COLORS.filter(color=>color!==base)),scale:100,offsetX:0,offsetY:0});
  };
+ if(layout==='charter'){
+  const showOptions=tab!=='colors'&&tab!=='adjust';
+  const displayed=options;
+  const pageSize=8,totalPages=Math.max(1,Math.ceil(displayed.length/pageSize));
+  const safePage=Math.min(page,totalPages-1);
+  const updateTab=(next:string)=>{setTab(next);setPage(0);};
+  return <section className="tc-guild-emblem-editor tc-guild-charter-editor" aria-label="원정단 문장 제작">
+   <div className="tc-guild-charter-editor-heading"><span>원정단 문장 제작</span><small>방패와 상징을 조합하여 고유한 문장을 만드세요.</small></div>
+   <div className="tc-guild-emblem-tabs" role="tablist" aria-label="문장 편집 항목">{tabs.map(([id,title])=><button key={id} type="button" role="tab" aria-selected={tab===id} className={tab===id?'active':''} onClick={()=>updateTab(id)}>{title}</button>)}</div>
+   <div className="tc-guild-charter-workspace">
+    <div className="tc-guild-charter-crest"><GuildEmblem value={value} size={148} label="원정단 문장 실시간 미리보기"/><small>문장 미리보기</small></div>
+    <div className="tc-guild-charter-picker" role="tabpanel" aria-label={tabs.find(([id])=>id===tab)?.[1]+' 선택'}>
+     {showOptions?<><div className="tc-guild-charter-picker-head"><b>{tabs.find(([id])=>id===tab)?.[1]} 선택</b><span>{displayed.length}종 · {safePage+1}/{totalPages}</span></div>
+      <div className="tc-guild-charter-tiles">{displayed.slice(safePage*pageSize,(safePage+1)*pageSize).map(([id,title])=><button key={id} type="button" disabled={disabled} aria-label={title+' 선택'} aria-pressed={value[tab as 'shape'|'symbol'|'pattern'|'border']===id} className={value[tab as 'shape'|'symbol'|'pattern'|'border']===id?'active':''} onClick={()=>set(tab as keyof GuildEmblemData,id)}><GuildEmblem value={{...value,[tab]:id}} size={46}/><span>{title}</span></button>)}</div>
+      <div className="tc-guild-charter-pager"><button type="button" disabled={safePage===0||disabled} onClick={()=>setPage(p=>Math.max(0,p-1))} aria-label="이전 문양">‹</button><span>{safePage+1} / {totalPages}</span><button type="button" disabled={safePage===totalPages-1||disabled} onClick={()=>setPage(p=>Math.min(totalPages-1,p+1))} aria-label="다음 문양">›</button></div></>:
+      <div className="tc-guild-charter-picker-tip"><GuildEmblem value={value} size={64}/><span>{tab==='colors'?'아래 색상에서 배경색과 상징색을 선택하세요.':'아래 슬라이더로 문양의 크기와 위치를 조절하세요.'}</span></div>}
+    </div>
+   </div>
+   <div className={'tc-guild-charter-palette'+(tab==='colors'?' is-focused':'')}>
+    <div className="tc-guild-charter-control-title"><b>색상 선택</b><div role="group" aria-label="변경할 색상"><button type="button" aria-pressed={colorTarget==='base'} className={colorTarget==='base'?'active':''} onClick={()=>{setColorTarget('base');setTab('colors');}}>배경색</button><button type="button" aria-pressed={colorTarget==='accent'} className={colorTarget==='accent'?'active':''} onClick={()=>{setColorTarget('accent');setTab('colors');}}>상징색</button></div></div>
+    <div className="tc-guild-charter-swatches">{GUILD_EMBLEM_COLORS.map(color=><button key={color} type="button" aria-label={(colorTarget==='base'?'배경색 ':'상징색 ')+color} aria-pressed={value[colorTarget]===color} disabled={disabled} className={value[colorTarget]===color?'active':''} style={{backgroundColor:color}} onClick={()=>set(colorTarget,color)}/>)}</div>
+   </div>
+   <div className={'tc-guild-charter-adjust'+(tab==='adjust'?' is-focused':'')}>
+    <div className="tc-guild-charter-control-title"><b>문양 조절</b><small>크기와 위치</small></div>
+    {([['scale','문양 크기',60,140,5],['offsetX','좌우 위치',-22,22,1],['offsetY','상하 위치',-22,22,1]] as const).map(([field,title,min,max,step])=><label key={field}><span>{title}</span><input type="range" min={min} max={max} step={step} value={value[field]} disabled={disabled} onChange={e=>set(field,Number(e.target.value))}/><output>{value[field]}{field==='scale'?'%':''}</output></label>)}
+   </div>
+   <div className="tc-guild-emblem-actions"><button type="button" disabled={disabled} onClick={()=>onChange({...DEFAULT_GUILD_EMBLEM})}>문장 초기화</button><button type="button" disabled={disabled} onClick={randomize}>랜덤 생성</button></div>
+  </section>;
+ }
  return <section className="tc-guild-emblem-editor" aria-label="원정단 문장 제작">
   <div className="tc-guild-emblem-preview"><GuildEmblem value={value} size={170} label="제작 중인 원정단 문장"/><small>원정단 문장 미리보기</small></div>
   <div className="tc-guild-emblem-tabs" role="tablist" aria-label="문장 편집 항목">{tabs.map(([id,text])=><button key={id} type="button" role="tab" aria-selected={tab===id} className={tab===id?'active':''} onClick={()=>setTab(id)}>{text}</button>)}</div>
