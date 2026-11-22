@@ -1,4 +1,5 @@
 import {GuildTask} from './GuildTask';
+import {GuildEmblem} from './GuildEmblem';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {getGuildRankings,type GuildRankingEntry,type GuildRankingMode,type GuildRankingState} from '../../online/guildRankings';
@@ -22,6 +23,7 @@ function Row({entry}:{entry:GuildRankingEntry}){
  return <article className={'tc-gr-entry'+(entry.mine?' mine':'')}>
   <GuildTask title={entry.name+' 상세'} trigger={<span className="tc-gr-summary">
    <RankNumber rank={entry.rank}/>
+   <GuildEmblem value={entry.emblem} size={34} label={entry.name+' 문장'}/>
    <span className="tc-gr-name"><b>{entry.name}{entry.mine?' · 우리 길드':''}</b><small>{entry.recordNumber} · Lv.{entry.level} · {entry.members}/{entry.memberLimit}명</small></span>
    <span className="tc-gr-metrics"><b>{entry.territories}<small> 영지</small></b><span>{entry.victories}승</span></span>
    <span className="tc-gr-arrow" aria-hidden="true">›</span>
