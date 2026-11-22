@@ -1,4 +1,5 @@
 import {GuildTask,GuildRecord} from './GuildTask';
+import {GuildEmblem,type GuildEmblemData} from './GuildEmblem';
 import {GameScrollSelect} from '../../ui/GameScrollSelect';
 import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
@@ -13,7 +14,7 @@ const kindLabel=(kind:GuildTerritoryTown['kind'])=>kind==='city'?'중앙 도시'
 const taxDetails=(items:GuildTerritoryTown['todayMaterials'])=>
  GUILD_MATERIAL_IDS.filter(id=>(items[id]??0)>0).map(id=>GUILD_MATERIAL_NAMES[id]+' '+number(items[id]??0)).join(' · ')||'징수 없음';
 
-export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;associationId:string}){
+export function GuildTerritoryPanel({lease,associationId,emblem}:{lease:GameplayLease;associationId:string;emblem?:GuildEmblemData}){
  const [state,setState]=useState<GuildTerritoryState|null>(null);
  const [selected,setSelected]=useState<string|null>(null);
  const [mineOnly,setMineOnly]=useState(false);
@@ -87,7 +88,7 @@ export function GuildTerritoryPanel({lease,associationId}:{lease:GameplayLease;a
     options={visible.map(t=>({value:t.townId,label:t.name,detail:kindLabel(t.kind)+' · '+t.ownerName+' · 세율 '+t.rate+'%'}))}/>}
    {visible.length===0&&<p className="tc-territory-empty">점령 중인 마을이 없습니다. 전체 목록에서 각 마을의 소유권을 확인할 수 있습니다.</p>}
    {town&&<GuildTask title="선택 영지 운영" feedback={error||notice}><section className="tc-territory-detail" aria-label={town.name+' 운영 정보'}>
-    <div className="tc-territory-section-title"><h3>{town.name}</h3><span>{kindLabel(town.kind)}</span></div>
+    <div className="tc-territory-section-title"><h3>{town.owned&&<GuildEmblem value={emblem} size={37} label="점령 원정단 문장"/>}{town.name}</h3><span>{kindLabel(town.kind)}</span></div>
     <div className="tc-territory-info">
      <div><small>현재 점령 길드</small><b>{town.ownerName}</b></div>
      <div><small>점령 확정</small><b>{fmtDate(town.occupiedAt)}</b></div>
