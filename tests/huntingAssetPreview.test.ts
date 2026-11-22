@@ -54,7 +54,7 @@ test('grave-digging hound battle uses the provided job reference beside the enem
  assert.equal(state.lastResult?.monster?.id,'grave_digger_hound');
  const game={...initialState(),currentJobId:'duelist'};
  const markup=renderToStaticMarkup(React.createElement(HuntingScreen,{game,hunting:state,now:0,busy:false,onHunt:()=>{},onSettings:()=>{},previewAppearance:false}));
- const resultSection=markup.match(/<section class="tc-hunt-result-page"[^>]*>.*?<article[^>]*data-monster-id=/)?.[0]??'';
+ const resultSection=markup.match(/<section class="tc-hunt-result-page tc-hunt-result-v2"[^>]*>.*?<article[^>]*data-monster-id=/)?.[0]??'';
  assert.match(resultSection,/assets\/characters\/preview\/grave_hound_job_reference.jpg/);
  assert.doesNotMatch(resultSection,/assets\/characters\/jobs\/duelist.webp/);
 });
