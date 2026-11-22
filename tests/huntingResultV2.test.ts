@@ -64,3 +64,32 @@ test('new result-only CSS provides viewport grid, fixed actions and modal histor
  assert.ok(screen.includes('disabled={huntingNow||!state||state.vitality<1||!!game.expedition}'));
  assert.ok(screen.includes('setExpanded(current=>current===m.id?null:m.id)'));
 });
+
+
+test('real five-row visual order overrides old combat-stream grid placements',()=>{
+ const css=readFileSync(new URL('../src/components/hunting/hunting-result-v2.css',import.meta.url),'utf8');
+ const legacy=readFileSync(new URL('../src/components/hunting/combat-stream.css',import.meta.url),'utf8');
+ const screen=readFileSync(new URL('../src/components/hunting/HuntingScreen.tsx',import.meta.url),'utf8');
+ const resultMarkup=screen.slice(screen.indexOf('  <section className="tc-hunt-result-page'));
+ const positions=[
+  ['tc-hunt-outcome-banner','outcome',1],
+  ['tc-hunt-result-fighters','fighters',2],
+  ['tc-hunt-result-rewards','rewards',3],
+  ['<HuntingCombatLog','history',4],
+  ['tc-hunt-repeat-dock','actions',5]
+ ] as const;
+ let prev=-1;
+ for(const [element,area,row] of positions){
+  const index=resultMarkup.indexOf(element);
+  assert.ok(index>prev,element+' must follow the preceding block in the HTML');
+  prev=index;
+  assert.ok(css.includes('grid-area:'+area+';grid-column:1;grid-row:'+row),element+' must be visually anchored to row '+row);
+ }
+ assert.match(css,/grid-template-areas:"outcome" "fighters" "rewards" "history" "actions"/);
+ assert.match(legacy,/\.tc-hunt-stream\{grid-column:1 \/ -1;grid-row:2/);
+ assert.match(legacy,/\.tc-hunt-repeat-dock\{grid-row:3/);
+ const hero=css.match(/\.tc-hunt\[data-view="result"\] \.tc-hunt-result-v2>\.tc-hunt-stream\{([^}]+)\}/)?.[1]??'';
+ const actions=css.match(/\.tc-hunt\[data-view="result"\] \.tc-hunt-result-v2>\.tc-hunt-repeat-dock\{([^}]+)\}/)?.[1]??'';
+ assert.match(hero,/grid-row:4/);
+ assert.match(actions,/grid-row:5/);
+});
