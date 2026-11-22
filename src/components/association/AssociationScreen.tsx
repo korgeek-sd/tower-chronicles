@@ -32,6 +32,7 @@ import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildTerritoryPanel} from './GuildTerritoryPanel';
 import {GuildRankingPanel} from './GuildRankingPanel';
 import {GuildEmblem,GuildEmblemEditor,DEFAULT_GUILD_EMBLEM,type GuildEmblemData} from './GuildEmblem';
+import {GuildCreationPage} from './GuildCreationPage';
 import {PagedSelectContext} from '../../ui/GameScrollSelect';
 import {GuildTask} from './GuildTask';
 import './guild-workspace.css';
@@ -159,6 +160,15 @@ function OnlineAssociationScreen({
   const pending=new Set(state.myApplications.map(item=>item.associationId));
  const directory=state.directory.filter(e=>(!available||(e.joinPolicy!=='CLOSED'&&e.memberCount<e.memberLimit))&&e.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   const directoryPages=Math.max(1,Math.ceil(directory.length/3)),safeDirectory=Math.min(page,directoryPages-1);
+  if(creating)return <GuildCreationPage
+   name={name} setName={setName} description={description} setDescription={setDescription}
+   policy={policy} setPolicy={setPolicy} emblem={emblem} setEmblem={setEmblem}
+   silver={game.silver} busy={busy} error={error}
+   blockedReason={rejoinLocked?'재가입 대기 기간에는 원정단을 창설할 수 없습니다.':''}
+   onBack={()=>{setCreating(false);setError('');}}
+   onSubmit={()=>void act(()=>createOnlineAssociation(lease,{
+    name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL',emblem
+   }),'원정단을 서버에 등록했습니다.')}/>;
   return <Screen className="tc-guild-directory-screen" eyebrow="NOVAR COMPANY REGISTRY / ONLINE" title="원정단 찾기" meta={<span>{game.silver.toLocaleString()} S</span>}>
    <PagedSelectContext.Provider value={true}>
    <div className="tc-assoc tc-assoc-online tc-assoc-registry">
@@ -167,17 +177,6 @@ function OnlineAssociationScreen({
     {rejoinLocked&&<div className="tc-hq-waiting" role="status">재가입 가능: {new Date(rejoinAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국시간) · 탈퇴 후 72시간 제한 · 시간이 지나면 화면을 다시 열어 주세요.</div>}
     {state.myApplications.length>0&&<div className="tc-hq-waiting">신청 대기 · {state.myApplications.map(x=>x.associationName).join(', ')}</div>}
     {!creating&&<label className="tc-hq-filter"><input type="checkbox" checked={available} onChange={e=>setAvailable(e.target.checked)}/>가입 가능한 원정단만</label>}
-    {creating&&<div className="tc-floor-risk tc-assoc-qualification">등록금 {ASSOCIATION_CREATION_FEE_SILVER.toLocaleString()} S</div>}
-    {creating&&<section className="tc-panel strong tc-assoc-charter">
-     <div className="tc-panel-title"><b>새 원정단 창설</b><small>ASSOCIATION CHARTER</small></div>
-     <div className="tc-form">
-      <label>원정단명<input value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="2~20자"/></label>
-      <label>소개<textarea value={description} maxLength={120} onChange={e=>setDescription(e.target.value)} placeholder="원정단 소개"/></label>
-      <label>가입 방식<GameSelect value={policy} onChange={e=>setPolicy(e.target.value as AssociationPolicy)}><option value="APPROVAL">승인 가입</option><option value="OPEN">자유 가입</option></GameSelect></label>
-     </div>
-     <div className="tc-guild-emblem-charter"><strong>원정단 문장 제작</strong><GuildEmblemEditor value={emblem} onChange={setEmblem} disabled={busy}/></div>
-     <button className="tc-action" disabled={rejoinLocked||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL',emblem}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
-    </section>}
     {!creating&&discoveryRankings&&<GuildRankingPanel lease={lease}/>}
      {!creating&&!discoveryRankings&&<section className="tc-panel tc-assoc-recruitment">
      <div className="tc-panel-title"><b>원정단 찾기 · 모집 게시판</b><small>{directory.length}개 원정단</small></div>
@@ -331,8 +330,11 @@ function LocalAssociationScreen({game,setGame}:{game:GameState;setGame:React.Dis
   const register=()=>setGame(s=>createAssociation(s,{name,description,joinPolicy:policy,emblem}));
  const current=game.association.associations.find(a=>a.associationId===game.association.currentId&&a.status==='ACTIVE');
  if(!current&&!creating)return <Screen title="원정단 찾기"><div className="tc-assoc tc-assoc-registry"><div className="tc-hq-toolbar"><label>원정단 검색<input placeholder="로그인 후 원정단명 검색" disabled/></label><button onClick={()=>setCreating(true)}>원정단 창설</button></div><section className="tc-panel tc-assoc-recruitment"><div className="tc-panel-title"><b>모집 게시판</b><small>온라인 전용</small></div><div className="tc-market-v2-empty">Google 로그인 후 닉네임을 정하면<br/>원정단을 찾고 가입할 수 있습니다.</div></section><div className="tc-hq-waiting">게스트의 원정단은 이 기기에만 저장됩니다.</div></div></Screen>;
- if(!current)return <Screen meta={<button className="tc-hq-member-select" onClick={()=>setCreating(false)}>목록으로</button>} eyebrow="NOVAR COMPANY REGISTRY / LOCAL" title="원정단 창설"><div className="tc-assoc"><div className="tc-floor-risk">등록금 {ASSOCIATION_CREATION_FEE_SILVER.toLocaleString()} S</div><section className="tc-panel strong"><div className="tc-form"><label>원정단명<input value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="2~20자"/></label><label>소개<textarea value={description} maxLength={120} onChange={e=>setDescription(e.target.value)} placeholder="원정단 소개"/></label><label>가입 방식<GameSelect value={policy} onChange={e=>setPolicy(e.target.value as AssociationPolicy)}><option value="APPROVAL">승인 가입</option><option value="OPEN">자유 가입</option></GameSelect></label></div><div className="tc-guild-emblem-charter"><strong>원정단 문장 제작</strong><GuildEmblemEditor value={emblem} onChange={setEmblem}/></div></section><div/><button className="tc-action" disabled={game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2} onClick={register}>원정단 등록</button></div></Screen>;
- const leader=current.leaderId===game.market.ownerId,visibleTabs:readonly (readonly [LocalTab,string])[]=leader?localTabs:localTabs.filter(([id])=>id!=='manage'),source=tab==='members'?current.members:tab==='activity'?current.activityLog:[],pages=Math.max(1,Math.ceil(source.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=source.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
+ if(!current)return <GuildCreationPage
+  name={name} setName={setName} description={description} setDescription={setDescription}
+  policy={policy} setPolicy={setPolicy} emblem={emblem} setEmblem={setEmblem}
+  silver={game.silver} isLocal onBack={()=>setCreating(false)} onSubmit={register}/>;
+  const leader=current.leaderId===game.market.ownerId,visibleTabs:readonly (readonly [LocalTab,string])[]=leader?localTabs:localTabs.filter(([id])=>id!=='manage'),source=tab==='members'?current.members:tab==='activity'?current.activityLog:[],pages=Math.max(1,Math.ceil(source.length/PAGE_SIZE)),safe=Math.min(page,pages-1),shown=source.slice(safe*PAGE_SIZE,safe*PAGE_SIZE+PAGE_SIZE);
  return <Screen eyebrow="NOVAR EXPEDITION COMPANY / LOCAL" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>}>
   <div className="tc-assoc">
    <Segments items={visibleTabs} value={tab} onChange={v=>{setTab(v);setPage(0);}} label="원정단 메뉴"/>
