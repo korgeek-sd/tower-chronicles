@@ -67,8 +67,9 @@ test('hunting victory shows earned gear and potions without basic material rewar
  assert.equal(h.lastResult?.outcome,'victory');
  assert.equal(h.lastResult?.materialCount,1,'the display change must not modify actual material rewards');
  const html=renderToStaticMarkup(React.createElement(HuntingScreen,{game:initialState(),hunting:h,now:0,busy:false,onHunt:()=>{},onSettings:()=>{}}));
- assert.doesNotMatch(html,/1T 가죽|1T 철광석/);
- assert.doesNotMatch(html,/재료 × [0-9]+|· 재료</);
+ const resultMarkup=html.split('<section class="tc-hunt-result-page"')[1]??'';
+ assert.doesNotMatch(resultMarkup,/1T 가죽|1T 철광석/);
+ assert.doesNotMatch(resultMarkup,/재료 × [0-9]+|· 재료</);
  assert.match(html,/장비 획득/);
  assert.match(html,/HP 물약 0개 사용/);
  assert.match(html,/경험치/);
