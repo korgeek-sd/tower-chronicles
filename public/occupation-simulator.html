@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101218">
+<title>탑의 기록 · 점령전 모의전</title>
+<style>
+:root{color-scheme:dark;--bg:#101217;--panel:#1b1e25;--line:#67583f;--gold:#dfbc7b;--text:#eddfc6;--muted:#b4a48c;--red:#cb7063;--green:#8ca77e}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#0a0c11;color:var(--text);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif}button,select{font:inherit;color:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.62}button:focus-visible,select:focus-visible{outline:2px solid #e6bf77;outline-offset:1px}button{transition:filter .12s}button:not(:disabled):active{filter:brightness(1.3)}
+.shell{height:100dvh;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:7px 5px}
+.topline{width:min(450px,100%);display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:#bca98b}.topline b{letter-spacing:.08em;color:#e9d4ae;font-size:12px}.demo-flag{color:#dbbd86;border:1px solid #6f5637;background:#322819;padding:3px 6px;font-size:9px}
+.toolbar{width:min(450px,100%);display:flex;gap:5px;align-items:center;height:31px}.toolbar select,.toolbar button{background:#1c2029;border:1px solid #65573f;border-radius:2px;height:29px;font-size:11px;padding:0 7px;min-width:0}.toolbar select:first-child{flex:1}.toolbar .compact{padding:0 6px}.toolbar button.primary{border-color:#b68e57;color:#f0d5a7}
+.frame{width:min(450px,100%);height:min(780px,calc(100dvh - 89px));min-height:385px;display:grid;grid-template-rows:47px 41px 18px minmax(0,5fr) minmax(0,3.85fr) 33px 24px;gap:4px;padding:5px;border:1px solid #6c593d;background:#11141a;box-shadow:0 0 0 2px #08090d,0 18px 45px #0009;overflow:hidden}
+.frame>*,.front-list>*,.detail>*{min-height:0;min-width:0}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 10px;border:1px solid #836b46;background:linear-gradient(90deg,#0d121beb,#17171cc0),url('./assets/backgrounds/hub/novar-moonlit-v3.webp') center 54%/cover}.hero h1{font-family:Georgia,"Malgun Gothic",serif;font-size:18px;line-height:1.2;margin:0;color:#f6dba9;letter-spacing:-.3px}.hero small{display:block;margin-top:3px;color:#cfbd9c;font-size:10px}.help{border-radius:50%;width:30px;height:30px;border:1px solid #92794c;background:#27231e;font-weight:800;color:#efd39e;flex:none}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid #594d3e;background:linear-gradient(#282a31,#191b21)}.stat small{font-size:9px;color:#ad9f8c}.stat strong{font-size:15px;color:#f5dcab;white-space:nowrap}.stat:nth-child(2) strong{color:#ebc988}
+.labelrow{display:flex;justify-content:space-between;align-items:center;padding:0 3px;font-size:10px}.labelrow span{font-size:9px;color:#b5a48a}
+.front-list{display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:3px;min-height:0;overflow:hidden}
+.front{display:grid;grid-template-columns:57px minmax(0,1fr) 97px 49px;align-items:center;gap:5px;padding:2px 6px;text-align:left;border:1px solid #4b4a48;background:linear-gradient(100deg,#25272c,#171920);border-radius:2px;min-width:0;min-height:0}.front.is-selected{border-color:#e1b56f;background:linear-gradient(110deg,#454032,#1f232b);box-shadow:inset 3px 0 #d3a65e}.front.ally{border-left:3px solid #8fb2d0}.front.enemy{border-left:3px solid #b66f65}.front.empty{border-left:3px solid #7d7972}.front.exhausted{background:linear-gradient(110deg,#432a2a,#202026)}.front-title{display:flex;flex-direction:column;gap:3px;min-width:0}.front-title b{font-size:11px;white-space:nowrap}.chip{font-size:8px;color:#d7baa0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.owner{display:flex;align-items:center;gap:6px;min-width:0}.flag{width:22px;height:29px;flex:none;clip-path:polygon(0 0,100% 0,100% 75%,50% 100%,0 75%);background:linear-gradient(125deg,#ffffff23,#0000),var(--flag);border:1px solid #ae9570;display:grid;place-items:center;font-size:13px;color:#dfc796;text-shadow:0 1px #0d0c0b}.owner .names{min-width:0;display:flex;flex-direction:column;gap:2px}.owner strong,.owner small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.owner strong{font-size:11px;color:var(--fcolor)}.owner small{font-size:9px;color:#c3b5a2}.hpmini{display:grid;grid-template-columns:16px minmax(0,1fr) 26px;align-items:center;gap:3px;font-size:9px;color:#c9bbab}.bar{display:block;background:#32383b;border:1px solid #4b4d51;height:7px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(#acb9a7,#658e75);width:var(--pct)}.bar.mp i{background:linear-gradient(#90b3dd,#48759c)}.hpmini b{font-size:9px;font-variant-numeric:tabular-nums;text-align:right}.fatigue{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9px;color:#bcae9a}.fatigue b{font-size:11px;color:#ebcfad}.fatigue.risk b{color:#ef9b87}
+.detail{border:1px solid #6d593c;background:linear-gradient(#25262c,#15171d);padding:5px 6px;display:grid;grid-template-rows:21px minmax(0,1fr) 47px;gap:4px;overflow:hidden}.dhead{display:flex;justify-content:space-between;gap:4px;align-items:center;border-bottom:1px solid #4e4539}.dhead strong{font-size:13px;color:#f1d6a8}.dhead span{font-size:10px;color:#b8a78e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dhead .danger{color:#ef9880}.dbody{display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;overflow:hidden}.portrait{height:100%;border:1px solid #564b3d;background:linear-gradient(#0d131c8a,#12151cdd),url('./assets/backgrounds/hub/novar-moonlit-v3.webp') center/cover;display:flex;justify-content:center;align-items:center}.portrait .crest{font-size:38px;color:var(--fcolor);filter:drop-shadow(0 2px #000);line-height:1}.dinfo{display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden}.dinfo .guildname{font-size:14px;color:var(--fcolor);font-weight:750}.dinfo .who{font-size:11px;color:#d3c6b5}.dinfo .who b{color:#f3dab8}.meter{display:grid;grid-template-columns:21px minmax(0,1fr) 76px;align-items:center;gap:4px;font-size:10px}.meter b{text-align:right;font-variant-numeric:tabular-nums;font-size:10px}.segments{display:flex;gap:2px;align-items:center}.segments i{display:block;width:100%;height:6px;background:#3c4040;border:1px solid #564b43}.segments i.filled{background:#cc956a}.dinfo .hint{font-size:10px;line-height:1.45;color:#c2b8a6}.attack{height:100%;width:100%;background:linear-gradient(#793831,#4e2424);border:1px solid #c29459;box-shadow:inset 0 0 0 2px #4e2826;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;color:#fae4bd}.attack strong{font-size:15px}.attack small{font-size:10px;color:#eed5ae}.attack.claim{background:linear-gradient(#58643b,#343d29)}.attack:disabled{background:#313238;border-color:#6d665f;box-shadow:none;color:#b4b2ac;opacity:1}.attack:disabled small{color:#9c9b9a}
+.shortcut{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.shortcut button{display:flex;align-items:center;justify-content:space-between;gap:5px;border:1px solid #625338;background:#26272c;padding:3px 7px;overflow:hidden;text-align:left}.shortcut b{color:#e9ca91;font-size:10px;white-space:nowrap}.shortcut span{color:#c9b8a3;font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:3px;color:#a99c88;font-size:9px}.foot button{border:1px solid #655337;background:#272930;height:20px;font-size:9px;padding:0 6px;color:#ddc49b}
+.overlay{position:fixed;inset:0;background:#040509dd;z-index:5;display:flex;align-items:center;justify-content:center;padding:16px}.dialog{width:min(425px,100%);max-height:min(85dvh,720px);overflow:auto;border:1px solid #bd9565;background:linear-gradient(#25272d,#12151d);box-shadow:0 15px 70px #000;border-radius:3px}.dialoghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-bottom:1px solid #69543b}.dialoghead small{display:block;color:#ac987c;font-size:10px;letter-spacing:.1em}.dialoghead h2{margin:3px 0 0;color:#f0d4a3;font-size:18px}.dialoghead button{border:1px solid #665944;background:#292a2b;padding:5px 11px;font-size:12px}.dialogbody{padding:13px;font-size:12px;line-height:1.6}.dialogbody p{margin:7px 0}.dialogbody .note{border:1px solid #715b3d;padding:8px;background:#302820;color:#e6ccaa}.rankline{display:grid;grid-template-columns:25px 1fr 55px 65px;gap:8px;padding:10px 4px;border-bottom:1px solid #4d443a;align-items:center}.rankline .me{color:#b6d8ea}.record{border-bottom:1px solid #403a35;padding:9px 2px}.record small{color:#ab977e}.record b{display:block;color:#e6c88f}.record span{color:#d3c3ae}.resultlead{text-align:center;padding:15px 6px;border:1px solid #6d573d;background:radial-gradient(ellipse at center,#50402b 0,#181a20 72%)}.resultlead .badgeicon{font-size:32px;color:#e6c082}.resultlead h3{margin:7px 0;font-size:21px;color:#f2d9a9}.resultlead p{margin:4px;font-size:12px}.dual{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.fighter{background:#1b1c21;border:1px solid #594d3c;padding:8px;min-width:0}.fighter small{display:block;color:#b6a78f}.fighter strong{display:block;font-size:13px;margin:5px 0;color:#ebd3ae;overflow-wrap:anywhere}.fighter em{display:block;font-style:normal;color:#d2b8a0}.dialogbody ol{padding-left:25px;margin:8px 0}.dialogbody li{padding:4px 0;border-bottom:1px solid #3f3a36}.dialogbody .actionrow{display:flex;gap:6px;margin-top:12px}.dialogbody .actionrow button{flex:1;padding:9px;border:1px solid #b28757;background:#53402d;color:#f1d6ac}.small-note{width:min(450px,100%);font-size:9px;text-align:center;color:#847b6e}
+@media(max-height:650px){.shell{gap:3px;padding:3px}.frame{height:calc(100dvh - 70px);grid-template-rows:36px 34px 15px minmax(0,5fr) minmax(0,3.85fr) 27px 20px;gap:2px;padding:3px}.hero h1{font-size:14px}.hero small{font-size:8px}.stat strong{font-size:12px}.stat small{font-size:8px}.detail{grid-template-rows:17px minmax(0,1fr) 40px;padding:3px;gap:2px}.dbody{grid-template-columns:44px minmax(0,1fr);gap:4px}.portrait .crest{font-size:25px}.dinfo{gap:2px}.dinfo .guildname{font-size:11px}.dinfo .who,.meter{font-size:9px}.attack strong{font-size:13px}.attack small{font-size:9px}.topline{font-size:9px}.toolbar,.toolbar select,.toolbar button{height:26px;font-size:10px}.toolbar{height:26px}}
+@media(max-width:365px){.front{grid-template-columns:51px minmax(0,1fr) 77px 39px;gap:2px;padding:2px}.owner{gap:3px}.flag{width:16px;height:23px}.front-title b,.owner strong{font-size:10px}.owner small{font-size:8px}.hpmini{grid-template-columns:12px minmax(0,1fr) 21px;gap:1px}.hpmini,.fatigue{font-size:8px}.fatigue b{font-size:9px}.toolbar select,.toolbar button{padding:0 3px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topline"><b>탑의 기록 <span style="color:#877a69">/ GUILD SIEGE</span></b><span class="demo-flag">모의전 · 실제 서버 미연결</span></div>
+  <div class="toolbar">
+    <select id="town" aria-label="전쟁 영지 선택">
+      <option value="노바르">노바르</option><option value="황금들">황금들</option><option value="달그늘">달그늘</option><option value="보리뜰">보리뜰</option><option value="이슬숲">이슬숲</option>
+    </select>
+    <select id="actor" aria-label="조작 캐릭터" title="조작 캐릭터 변경">
+      <option value="0">탐사자</option><option value="1">강철검</option><option value="2">새벽창</option>
+    </select>
+    <select id="speed" aria-label="모의전 진행 속도" title="시간 배속">
+      <option value="1">×1</option><option value="30" selected>×30</option><option value="120">×120</option>
+    </select>
+    <button id="pause" class="compact" type="button">일시정지</button>
+    <button id="reset" class="primary compact" type="button">초기화</button>
+  </div>
+  <main class="frame" id="game" aria-label="점령전 모의 UI"></main>
+  <div class="small-note">독립 시뮬레이터 · 승패·도전권·영지 소유권은 실제 게임에 반영되지 않습니다.</div>
+</div>
+<div id="modal"></div>
+<script>
+(function(){
+'use strict';
+var TEAMS={'철의맹세':'#97b5d1','새벽별':'#b69bd9','붉은달':'#ce7772','암흑단':'#a8a58c','중립':'#88837c'};
+var INITIAL=[
+ {id:1,guild:'붉은달',defender:'결투가',hp:100,mp:70,wins:4},
+ {id:2,guild:'철의맹세',defender:'등불지기',hp:86,mp:65,wins:10},
+ {id:3,guild:'새벽별',defender:'귀환수호자',hp:74,mp:65,wins:20},
+ {id:4,guild:null,defender:null,hp:null,mp:null,wins:0},
+ {id:5,guild:'암흑단',defender:'시체조율사',hp:43,mp:38,wins:7}
+];
+var state,lastStamp=Date.now();
+function fresh(town){
+return {town:town||'노바르',fronts:INITIAL.map(function(f){return Object.assign({},f)}),players:[{name:'탐사자',defending:null,cooldownUntil:0},{name:'강철검',defending:null,cooldownUntil:0},{name:'새벽창',defending:null,cooldownUntil:0}],player:0,selected:3,elapsed:1296,playing:true,speed:30,tickets:128,scores:{'철의맹세':35.5,'새벽별':26.8,'붉은달':16.2,'암흑단':10.9},log:[{t:1293,text:'철의맹세 · 제3전선 공격 실패',kind:'DEFENDED'},{t:1260,text:'새벽별 · 제3전선 수비 성공',kind:'DEFENDED'},{t:1170,text:'붉은달 · 제1전선 점령 성공',kind:'CAPTURE'}],winner:null,nextNpc:1550,results:0};
+}
+state=fresh('노바르');
+function esc(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function stamp(sec){sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+function pct(x){return Math.max(0,Math.min(100,Math.round(Number(x)||0)))}
+function round(v){return Math.round(v*100)/100}
+function player(){return state.players[state.player]}
+function color(g){return TEAMS[g||'중립']||'#b4a78a'}
+function log(text,kind){state.log.unshift({t:state.elapsed,text:text,kind:kind||''});state.log=state.log.slice(0,60)}
+function activeFront(){return state.fronts.find(function(f){return f.id===state.selected})}
+function addTime(seconds){
+if(state.winner||!state.playing)return;
+var delta=Math.min(seconds,3600-state.elapsed);
+if(delta<=0){endWar();return}
+var before=state.elapsed;state.elapsed+=delta;
+state.fronts.forEach(function(f){if(f.guild){state.scores[f.guild]=round((state.scores[f.guild]||0)+delta/60)}});
+if(state.elapsed>=state.nextNpc&&state.elapsed<3599){npcMove();state.nextNpc=state.elapsed+220}
+var reached=Object.keys(state.scores).find(function(k){return state.scores[k]>=150});
+if(reached){state.winner=reached;state.playing=false;log(reached+' · 150점 달성, 점령전 종료','END');showModal('end');return}
+if(state.elapsed>=3600){endWar()}
+}
+function endWar(){
+if(state.winner)return;
+var teamNames=Object.keys(state.scores).sort(function(a,b){var sd=state.scores[b]-state.scores[a];if(Math.abs(sd)>.00001)return sd;return state.fronts.filter(function(f){return f.guild===b}).length-state.fronts.filter(function(f){return f.guild===a}).length});
+var highest=teamNames[0],next=teamNames[1];
+state.winner=(Math.abs(state.scores[highest]-state.scores[next])<.00001&&state.fronts.filter(function(f){return f.guild===highest}).length===state.fronts.filter(function(f){return f.guild===next}).length)?'철의맹세':highest;
+state.playing=false;log(state.winner+' · 점령전 최종 종료','END');showModal('end');
+}
+function npcMove(){
+var enemies=['붉은달','새벽별','암흑단'];
+var candidates=state.fronts.filter(function(f){return f.guild!==null});
+if(!candidates.length)return;
+var f=candidates[Math.floor(Math.random()*candidates.length)],next=enemies[Math.floor(Math.random()*enemies.length)];
+if(next===f.guild)return;
+if(Math.random()<.52){f.hp=Math.max(6,pct(f.hp-12-Math.random()*20));f.mp=Math.max(0,pct(f.mp-10));f.wins=Math.min(25,f.wins+1);log(next+' · 제'+f.id+'전선 공격 실패','DEFENDED')}
+else{var previous=f.defender;f.guild=next;f.defender=['수호기사','흑마도사','장창병'][Math.floor(Math.random()*3)];f.hp=100;f.mp=100;f.wins=0;state.players.forEach(function(p){if(p.defending===f.id)p.defending=null});log(next+' · 제'+f.id+'전선 점령 성공 ('+previous+' 패배)','CAPTURE')}
+}
+function rank(){return Object.keys(state.scores).map(function(g){return {name:g,points:state.scores[g],fronts:state.fronts.filter(function(f){return f.guild===g}).length}}).sort(function(a,b){return b.points-a.points})}
+function actionState(f){
+var p=player(),cool=Math.max(0,Math.ceil(p.cooldownUntil-state.elapsed));
+if(state.winner)return {allowed:false,title:'점령전 종료',hint:'초기화 후 다시 시연할 수 있습니다'};
+if(p.defending!==null)return {allowed:false,title:'현재 수비 중',hint:'다른 캐릭터를 선택해 공격을 시험할 수 있습니다'};
+if(cool>0)return {allowed:false,title:'재공격까지 '+cool+'초',hint:'개인 대기 30초 · 시간 배속 적용'};
+if(state.tickets<1)return {allowed:false,title:'도전권 부족',hint:'도전권 1장이 필요합니다'};
+if(f.guild==='철의맹세')return {allowed:false,title:'아군 수비 중',hint:'같은 원정단 전선은 공격할 수 없습니다'};
+return {allowed:true,title:f.guild?'공격':'빈 전선 점령',hint:f.guild?'1대1 즉시 자동전투 · 도전권 1장':'전투 없이 점령 · 도전권 1장'};
+}
+function vital(label,value){return '<div class="meter"><span>'+label+'</span><span class="bar '+(label==='MP'?'mp':'')+'"><i style="--pct:'+pct(value)+'%"></i></span><b>'+pct(value)+' / 100</b></div>'}
+function mini(f){return '<span class="hpmini"><span>HP</span><span class="bar"><i style="--pct:'+pct(f.hp)+'%"></i></span><b>'+(f.hp===null?'—':pct(f.hp)+'%')+'</b></span>'}
+function frontHtml(f){
+var mine=f.guild==='철의맹세',risk=f.wins>=20&&!!f.guild,sel=f.id===state.selected;
+var tag=!f.guild?'빈 전선':risk?'탈진 위험':mine?'아군 수비':'공격 가능';
+return '<button type="button" class="front '+(mine?'ally':f.guild?'enemy':'empty')+(sel?' is-selected':'')+(risk?' exhausted':'')+'" data-front="'+f.id+'" aria-pressed="'+sel+'">'+
+'<span class="front-title"><b>제'+f.id+'전선</b><span class="chip">'+tag+'</span></span>'+
+'<span class="owner" style="--fcolor:'+color(f.guild)+'"><span class="flag" style="--flag:'+color(f.guild)+'">'+(f.guild?'✦':'×')+'</span><span class="names"><strong>'+esc(f.guild||'미점령')+'</strong><small>'+esc(f.defender||'수비자 없음')+'</small></span></span>'+
+mini(f)+'<span class="fatigue'+(risk?' risk':'')+'"><span>피로도</span><b>'+(f.guild?Math.min(20,f.wins)+'/20':'—')+'</b></span></button>'
+}
+function detailHtml(f){
+var as=actionState(f),risk=f.wins>=20&&!!f.guild,mine=f.guild==='철의맹세';
+var fatigue='<span class="segments">'+Array.from({length:10},function(_,i){return '<i class="'+(i<Math.ceil(f.wins/2)?'filled':'')+'"></i>'}).join('')+'</span>';
+return '<section class="detail"><div class="dhead"><strong>제'+f.id+'전선</strong><span class="'+(risk?'danger':'')+'">'+(risk?'탈진 패배 확률 30%':mine?'아군 수비':f.guild?'적군 수비':'미점령')+'</span></div>'+
+'<div class="dbody"><div class="portrait" style="--fcolor:'+color(f.guild)+'"><span class="crest">'+(f.guild?'♜':'◇')+'</span></div>'+
+'<div class="dinfo" style="--fcolor:'+color(f.guild)+'"><span class="guildname">'+esc(f.guild||'중립 전선')+'</span><span class="who">수비자 <b>'+esc(f.defender||'없음')+'</b></span>'+
+(f.guild?vital('HP',f.hp)+vital('MP',f.mp)+'<div class="meter"><span>피로</span>'+fatigue+'<b>'+Math.min(20,f.wins)+' / 20</b></div>':'<span class="hint">전투 없이 즉시 점령 가능 · 점령 순간부터 점수를 얻습니다.</span>')+'</div></div>'+
+'<button type="button" class="attack '+(!f.guild?'claim':'')+'" id="attack" '+(as.allowed?'':'disabled')+'><strong>'+as.title+'</strong><small>'+as.hint+'</small></button></section>';
+}
+function render(){
+var f=activeFront(),p=player(),r=rank(),remaining=3600-state.elapsed;
+var status=state.winner?'전쟁 종료':p.defending?'제'+p.defending+'전선 수비 중':state.playing?'공격 가능':'일시정지';
+document.getElementById('game').innerHTML=
+'<header class="hero"><div><h1>점령전 · '+esc(state.town)+'</h1><small>'+(state.winner?'최종 승리 · '+esc(state.winner):'점령전 진행 중 · 시연 데이터')+'</small></div><button type="button" class="help" data-modal="rules" aria-label="점령전 규칙">?</button></header>'+
+'<div class="summary"><div class="stat"><small>승리 조건</small><strong>150점 선취</strong></div><div class="stat"><small>남은 시간</small><strong>'+stamp(remaining)+'</strong></div><div class="stat"><small>도전권</small><strong>'+state.tickets+'장</strong></div></div>'+
+'<div class="labelrow"><b>전선 현황</b><span>'+status+'</span></div>'+
+'<nav class="front-list" aria-label="공성전 5개 전선">'+state.fronts.map(frontHtml).join('')+'</nav>'+
+detailHtml(f)+
+'<div class="shortcut"><button type="button" data-modal="scores"><b>원정단 순위</b><span>'+esc(r[0].name)+' '+r[0].points.toFixed(2)+'점</span></button><button type="button" data-modal="records"><b>전투 기록</b><span>'+state.log.length+'건 보기</span></button></div>'+
+'<footer class="foot"><span>'+esc(p.name)+' · '+(p.defending?'수비 중':'공격 대기')+' · 도전권 '+state.tickets+'장</span><button type="button" id="advance" title="모의전 시간 1분 진행">+1분 진행</button></footer>';
+document.getElementById('pause').textContent=state.playing?'일시정지':'재개';
+document.getElementById('speed').value=String(state.speed);
+document.getElementById('actor').value=String(state.player);
+document.getElementById('town').value=state.town;
+}
+function attack(){
+var f=activeFront(),as=actionState(f);if(!as.allowed)return;
+var p=player(),previous=f.defender||'빈 전선',wasEmpty=!f.guild;
+state.tickets--;p.cooldownUntil=state.elapsed+30;
+var turns=[],attHp=100,attMp=100,defHp=f.hp===null?0:f.hp,defMp=f.mp===null?0:f.mp,won=wasEmpty,fatigueDefeat=false,defenderReward=0;
+if(!wasEmpty){
+for(var turn=1;turn<=100;turn++){
+ var damage=Math.floor(9+Math.random()*14);defHp=Math.max(0,defHp-damage);attMp=Math.max(0,attMp-4);
+ var line='탐사자 공격 · '+damage+' 피해';
+ if(defHp<=0){turns.push({turn:turn,text:line+' · 수비자 쓰러짐'});won=true;break}
+ var rebound=Math.floor(7+Math.random()*13);attHp=Math.max(0,attHp-rebound);defMp=Math.max(0,defMp-3);
+ turns.push({turn:turn,text:line+' / '+previous+' 반격 · '+rebound+' 피해'});
+ if(attHp<=0)break;
+}
+if(!won&&f.wins>=20&&Math.random()<.3){won=true;fatigueDefeat=true;turns.push({turn:turns.length+1,text:'수비자 피로 누적 · 탈진 판정으로 전선 상실'})}
+}
+if(won){
+ f.guild='철의맹세';f.defender=p.name;f.hp=100;f.mp=100;f.wins=0;p.defending=f.id;
+ log(p.name+' · 제'+f.id+'전선 '+(wasEmpty?'빈 전선 점령':'점령 성공'),'CAPTURE')
+}else{
+ f.hp=pct(defHp);f.mp=pct(defMp);f.wins=Math.min(25,f.wins+1);
+ if(Math.random()<.3){defenderReward=1}
+ log(p.name+' · 제'+f.id+'전선 공격 실패'+(defenderReward?' · 수비자 도전권 +1':''),'DEFENDED')
+}
+state.results++;
+render();showModal('result',{f:f.id,won:won,wasEmpty:wasEmpty,previous:previous,turns:turns,attHp:attHp,attMp:attMp,defHp:won?0:defHp,defMp:defMp,fatigueDefeat:fatigueDefeat,defenderReward:defenderReward,name:p.name});
+}
+function closeModal(){document.getElementById('modal').innerHTML=''}
+function showModal(which,result){
+var header='',body='';
+if(which==='rules'){
+header='점령전 규칙';body='<p>토요일 21:55~22:00 수비 배치, 22:00~23:00 점령전 · 총 60분</p>'+
+'<p>영지당 5전선 · 전선당 수비자 1명 · 점령 전선 하나마다 분당 1점이 누적됩니다.</p>'+
+'<p>150점 선취 시 즉시 승리. 미달 시 최고점 길드 승리, 점수 동률이면 보유 전선 수로 판정합니다.</p>'+
+'<p>공격 1회당 도전권 1장 · 공격 및 패배 후 개인 30초 대기. 한 캐릭터는 한 전선만 수비하며 수비 중 공격할 수 없습니다.</p>'+
+'<p>공격자는 전투 시작 시 HP·MP 완전 회복, 수비자는 피해와 MP 소모가 유지됩니다. 점령이 바뀌면 수비 HP·MP·피로도 초기화.</p>'+
+'<p>정상 수비 20회 이후 탈진 패배 확률 30% · 수비 성공 시 도전권 1장 보상 확률 30%.</p>'+
+'<div class="note">시뮬레이터에서 캐릭터 선택으로 다른 공격자를 시험할 수 있습니다. 시간 ×120 배속과 +1분 진행 버튼을 사용하면 점수·쿨타임을 빠르게 확인할 수 있습니다.</div>';
+}else if(which==='scores'){
+header='원정단 점수 현황';body=rank().map(function(s,i){return '<div class="rankline"><b>'+(i+1)+'위</b><strong class="'+(s.name==='철의맹세'?'me':'')+'">'+esc(s.name)+'</strong><span>'+s.fronts+'전선</span><b>'+s.points.toFixed(2)+'점</b></div>'}).join('')+'<p class="note">점령 전선당 분당 1점. 실제 점수와 무관한 시연 수치입니다.</p>';
+}else if(which==='records'){
+header='전체 전투 기록';body=state.log.map(function(r){return '<div class="record"><small>모의 시작 후 '+stamp(r.t)+' · '+(r.kind==='CAPTURE'?'점령':'전투')+'</small><b>'+esc(r.text)+'</b></div>'}).join('');
+}else if(which==='end'){
+header='점령전 종료';body='<div class="resultlead"><div class="badgeicon">♛</div><h3>'+esc(state.winner)+' 승리</h3><p>점령전 종료 · '+stamp(state.elapsed)+' 경과</p></div>'+rank().map(function(s,i){return '<div class="rankline"><b>'+(i+1)+'위</b><strong>'+esc(s.name)+'</strong><span>'+s.fronts+'전선</span><b>'+s.points.toFixed(2)+'점</b></div>'}).join('')+'<div class="actionrow"><button data-close="true">전장으로 돌아가기</button><button data-action="reset">모의전 다시 시작</button></div>';
+}else if(which==='result'&&result){
+header='자동전투 결과';body='<div class="resultlead"><div class="badgeicon">'+(result.won?'♛':'♜')+'</div><h3>'+(result.won?'전선 점령 성공':'수비자 방어 성공')+'</h3><p>제'+result.f+'전선 · '+(result.wasEmpty?'빈 전선 점령':result.fatigueDefeat?'탈진으로 점령 성공':result.won?'수비자를 제압했습니다':'공격이 실패했습니다')+'</p><small>도전권 1장 차감 · 개인 공격 대기 30초</small></div>'+
+'<div class="dual"><div class="fighter"><small>공격자 · 철의맹세</small><strong>'+esc(result.name)+'</strong><em>HP '+pct(result.attHp)+'% · MP '+pct(result.attMp)+'%</em></div><div class="fighter"><small>수비자</small><strong>'+esc(result.previous)+'</strong><em>HP '+pct(result.defHp)+'% · MP '+pct(result.defMp)+'%</em></div></div>'+
+'<p class="note">'+(result.won?'새 수비자 HP·MP 완전 회복 · 피로도 0/20':'수비자 남은 HP·MP 유지 · 다음 공격에 반영')+(result.defenderReward?' · 수비자 도전권 +1':'')+'</p>'+
+'<b>전투 진행 기록 · '+result.turns.length+'턴</b><ol>'+((result.turns.length?result.turns:[{turn:0,text:'빈 전선 · 전투 없이 즉시 점령'}]).map(function(t){return '<li><b>'+(t.turn?t.turn+'턴':'점령')+'</b> '+esc(t.text)+'</li>'}).join(''))+'</ol>'+
+'<div class="actionrow"><button data-close="true">전선으로 돌아가기</button><button data-action="records">전체 기록</button></div>';
+}
+document.getElementById('modal').innerHTML='<div class="overlay" data-backdrop="true"><section class="dialog" role="dialog" aria-modal="true" aria-label="'+esc(header)+'"><div class="dialoghead"><div><small>GUILD SIEGE · DEMO</small><h2>'+esc(header)+'</h2></div><button type="button" data-close="true" aria-label="닫기">닫기</button></div><div class="dialogbody">'+body+'</div></section></div>';
+}
+document.addEventListener('click',function(e){
+var target=e.target;if(!(target instanceof Element))return;
+var f=target.closest('[data-front]');if(f){state.selected=Number(f.getAttribute('data-front'));render();return}
+if(target.closest('#attack')){attack();return}
+var modal=target.closest('[data-modal]');if(modal){showModal(modal.getAttribute('data-modal'));return}
+if(target.closest('#pause')){state.playing=!state.playing;lastStamp=Date.now();render();return}
+if(target.closest('#reset')||target.closest('[data-action="reset"]')){var town=state.town;state=fresh(town);lastStamp=Date.now();closeModal();render();return}
+if(target.closest('[data-action="records"]')){showModal('records');return}
+if(target.closest('#advance')){state.playing=true;addTime(60);render();return}
+if(target.closest('[data-close]')||target.matches('[data-backdrop]')){closeModal();return}
+});
+document.addEventListener('change',function(e){
+var t=e.target;if(!(t instanceof HTMLSelectElement))return;
+if(t.id==='speed'){state.speed=Number(t.value);render()}
+if(t.id==='actor'){state.player=Number(t.value);render()}
+if(t.id==='town'){state=fresh(t.value);lastStamp=Date.now();closeModal();render()}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
+setInterval(function(){var now=Date.now();var d=Math.min(1,(now-lastStamp)/1000);lastStamp=now;if(state.playing){addTime(d*state.speed);render()}},500);
+render();
+})();
+</script>
+</body>
+</html>
