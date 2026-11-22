@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateChatBody,mergeChatMessages,createChatApi,type ChatMessage} from '../src/online/chat.ts';
+import {validateChatBody,mergeChatMessages,createChatApi,parseChatMessage,type ChatMessage} from '../src/online/chat.ts';
 const session={accessToken:'token',refreshToken:'refresh',expiresAt:Date.now()+100000,userId:'mine',email:null};
 const row={id:'one',user_id:'mine',nickname:'탐험가',body:'안녕하세요',created_at:'2026-10-01T00:00:00Z',client_id:'request-one'};
 test('chat accepts Unicode and rejects empty, oversized and invisible/control text',()=>{
@@ -62,4 +62,18 @@ test('association channel filters history and transmits only its requested chann
  await api.load();assert.match(calls[0].url,/association_id=eq\./);
  assert.equal((await api.send('안녕하세요','request-one')).associationId,guild);
  assert.deepEqual(calls[1].body,{body:'안녕하세요',client_id:'request-one',association_id:guild});
+});
+
+test('chat parses server-snapshotted guild and permanent class while keeping legacy rows compatible',()=>{
+ const crest={shape:'shield',symbol:'sword',pattern:'solid',border:'gold',base:'#942f3c',accent:'#c19548',scale:100,offsetX:0,offsetY:0};
+ const message=parseChatMessage({...row,sender_guild_id:'12345678-1234-1234-1234-123456789012',
+  sender_guild_name:'검은 새벽',sender_guild_emblem:crest,sender_class_id:'archer'});
+ assert.equal(message?.senderGuildName,'검은 새벽');
+ assert.equal(message?.senderGuildEmblem?.symbol,'sword');
+ assert.equal(message?.senderClassId,'archer');
+ const old=parseChatMessage(row);
+ assert.equal(old?.senderGuildName,null);
+ assert.equal(old?.senderClassId,null);
+ assert.equal(parseChatMessage({...row,sender_class_id:'bogus'})?.senderClassId,null);
+ assert.equal(parseChatMessage({...row,sender_guild_name:'조작된 길드'})?.senderGuildName,null);
 });
