@@ -113,6 +113,7 @@ export function createChatSubscription(config:SupabasePublicConfig|null,getSessi
 }
 
 export function subscribeChatMessages(userId:string,onMessage:(message:ChatMessage)=>void,onStatus:(status:ChatStatus)=>void,associationId:string|null=null){
+ if(typeof window!=='undefined'&&window.location.pathname.endsWith('/guild-ui-lab.html')){onStatus('subscribed');return()=>{};}
  return createChatSubscription(supabaseConfig,getFreshSession,connected=>{void setWebsocketPresence('chat',getClientInstanceId(),platformLabel(),connected).catch(()=>{});},userId,onMessage,onStatus,associationId);
 }
 
