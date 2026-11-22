@@ -31,6 +31,7 @@ import {AssociationSupplyPanel} from './AssociationSupplyPanel';
 import {AssociationWarehousePanel} from './AssociationWarehousePanel';
 import {GuildTerritoryPanel} from './GuildTerritoryPanel';
 import {GuildRankingPanel} from './GuildRankingPanel';
+import {GuildEmblem,GuildEmblemEditor,DEFAULT_GUILD_EMBLEM,type GuildEmblemData} from './GuildEmblem';
 import {PagedSelectContext} from '../../ui/GameScrollSelect';
 import {GuildTask} from './GuildTask';
 import './guild-workspace.css';
@@ -83,6 +84,7 @@ function OnlineAssociationScreen({
  const [discoveryRankings,setDiscoveryRankings]=useState(false);
  const [page,setPage]=useState(0);
  const [name,setName]=useState('');
+ const [emblem,setEmblem]=useState<GuildEmblemData>({...DEFAULT_GUILD_EMBLEM});
  const [description,setDescription]=useState('');
  const [policy,setPolicy]=useState<AssociationPolicy>('APPROVAL');
  const [notice,setNotice]=useState('');
@@ -173,7 +175,8 @@ function OnlineAssociationScreen({
       <label>소개<textarea value={description} maxLength={120} onChange={e=>setDescription(e.target.value)} placeholder="원정단 소개"/></label>
       <label>가입 방식<GameSelect value={policy} onChange={e=>setPolicy(e.target.value as AssociationPolicy)}><option value="APPROVAL">승인 가입</option><option value="OPEN">자유 가입</option></GameSelect></label>
      </div>
-     <button className="tc-action" disabled={rejoinLocked||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL'}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
+     <div className="tc-guild-emblem-charter"><strong>원정단 문장 제작</strong><GuildEmblemEditor value={emblem} onChange={setEmblem} disabled={busy}/></div>
+     <button className="tc-action" disabled={rejoinLocked||game.silver<ASSOCIATION_CREATION_FEE_SILVER||name.trim().length<2||busy} onClick={()=>void act(()=>createOnlineAssociation(lease,{name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL',emblem}),'원정단을 서버에 등록했습니다.')}>{busy?'처리 중':'원정단 등록'}</button>
     </section>}
     {!creating&&discoveryRankings&&<GuildRankingPanel lease={lease}/>}
      {!creating&&!discoveryRankings&&<section className="tc-panel tc-assoc-recruitment">
@@ -182,7 +185,7 @@ function OnlineAssociationScreen({
       {directory.slice(safeDirectory*3,safeDirectory*3+3).map(entry=>{
        const waiting=pending.has(entry.associationId),full=entry.memberCount>=entry.memberLimit;
        return <article key={entry.associationId} className={selected===entry.associationId?'selected':''}>
-        <div><button className="tc-hq-directory-name" onClick={()=>setSelected(selected===entry.associationId?null:entry.associationId)} aria-expanded={selected===entry.associationId}>{entry.name}</button><small>{entry.recordNumber} · {entry.memberCount}/{entry.memberLimit}명 · {entry.joinPolicy==='OPEN'?'자유 가입':entry.joinPolicy==='APPROVAL'?'승인 가입':'모집 중지'}</small>{selected===entry.associationId&&<p>{entry.description||'등록된 소개가 없습니다.'}<br/>안전 귀환 수익 분담 {entry.revenueShareRatePercent??0}%</p>}</div>
+        <div><div className="tc-guild-emblem-name-row"><GuildEmblem value={entry.emblem} size={42}/><button className="tc-hq-directory-name" onClick={()=>setSelected(selected===entry.associationId?null:entry.associationId)} aria-expanded={selected===entry.associationId}>{entry.name}</button></div><small>{entry.recordNumber} · {entry.memberCount}/{entry.memberLimit}명 · {entry.joinPolicy==='OPEN'?'자유 가입':entry.joinPolicy==='APPROVAL'?'승인 가입':'모집 중지'}</small>{selected===entry.associationId&&<p>{entry.description||'등록된 소개가 없습니다.'}<br/>안전 귀환 수익 분담 {entry.revenueShareRatePercent??0}%</p>}</div>
         <button hidden={selected!==entry.associationId} disabled={rejoinLocked||busy||waiting||full||entry.joinPolicy==='CLOSED'} onClick={()=>void act(()=>joinOnlineAssociation(lease,entry.associationId),entry.joinPolicy==='OPEN'?'원정단에 가입했습니다.':'가입 신청을 보냈습니다.')}>{waiting?'신청 대기':full?'정원 마감':entry.joinPolicy==='OPEN'?'즉시 가입':'가입 신청'}</button>
        </article>;
       })}
@@ -216,7 +219,7 @@ function OnlineAssociationScreen({
  return <Screen className={tab==='boss'?'tc-assoc-raid-screen tc-company-screen':'tc-company-screen'} eyebrow="NOVAR EXPEDITION COMPANY" title={current.name} meta={<span>{leader?'원정단장':'원정단원'}</span>} hideHeader>
   <div className={"tc-assoc tc-assoc-online tc-assoc-hq tc-assoc-hq-v2"+(tab==='boss'?" tc-assoc-raid-view":"")+" tc-assoc-hq-v4"+(tab==='overview'?" tc-gatehouse":" tc-gate-detail")+(tab==='shop'?" tc-assoc-shop-immersive":"")+(tab==='auction'?" tc-auction-immersive":"")+(tab==='warehouse'?" tc-treasury-immersive":"")}>
    <header className="tc-gate-identity">
-    <div className="tc-gate-emblem" aria-hidden="true"/>
+    <div className="tc-gate-emblem"><GuildEmblem value={current.emblem} size={48} label={current.name+' 원정단 문장'}/></div>
     <button type="button" className="tc-gate-growth" onClick={()=>setGrowthOpen(true)} aria-label="원정단 성장 및 기부 열기">
      <b>{current.name} 원정단</b>
      <span className="tc-gate-level">
