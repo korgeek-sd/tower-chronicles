@@ -1,0 +1,18 @@
+/* The actual game owns every panel/layout/style in the lab; only the external test toolbar is custom. */
+html,body,#root{height:100%;overflow:hidden}
+.gl-real-shell{width:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;overflow:hidden;background:#080a0a;--lab-h:39px}
+.gl-real-controls{flex:0 0 var(--lab-h);width:min(100%,520px);height:var(--lab-h);display:flex;align-items:center;gap:5px;padding:3px 8px;background:#201a18;border:1px solid #9a7441;border-bottom-color:#60492d;color:#e4d5b7;z-index:8}
+.gl-real-demo-label{font-size:10px;white-space:nowrap;color:#ddbf83;font-weight:bold}
+.gl-real-role-buttons{flex:1;min-width:0;display:flex;align-items:center;gap:3px}
+.gl-real-role-buttons button{flex:1;min-width:0;height:29px;padding:3px 1px;color:#cabca2;background:#302b25;border:1px solid #6b5942;font-size:11px}
+.gl-real-role-buttons button.active{background:#6d4f32;border-color:#ddba77;color:#fff1cd}
+.gl-real-reset,.gl-real-toggle{flex:none;height:29px;border:1px solid #675443;background:#242427;color:#bfb09a;padding:3px 7px;font-size:10px}
+.gl-real-shell.is-tools-hidden{--lab-h:25px}
+.gl-real-shell.is-tools-hidden .gl-real-controls{justify-content:flex-end;padding:0 6px;border:0;background:#141818}
+.gl-real-shell.is-tools-hidden .gl-real-toggle{height:23px}
+.gl-real-game.tc-app{width:min(100%,520px);height:calc(100dvh - var(--lab-h));min-height:0;margin:0 auto;max-width:520px}
+.gl-real-back{position:fixed;z-index:25;right:max(8px,calc((100vw - 520px)/2 + 9px));bottom:calc(78px + env(safe-area-inset-bottom));font-size:11px;padding:8px 9px;background:#352d23;color:#e9d4a2;border:1px solid #b28b54;box-shadow:0 2px 12px #000b}
+.gl-real-toast{position:fixed;z-index:100;bottom:calc(120px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-width:170px;max-width:min(92vw,480px);padding:10px 14px;background:#332c24;color:#f1dfb9;border:1px solid #aa8856;text-align:center;font-size:11px;box-shadow:0 8px 20px #000b}
+.gl-crash{min-height:150px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:18px;border:1px solid #8f4c4c;color:#e1a5a2;font-size:12px;background:#271818}
+.gl-crash button{padding:10px;background:#42312d;border:1px solid #986b5d}
+@media(max-width:380px){.gl-real-demo-label{font-size:9px}.gl-real-controls{gap:3px;padding-inline:4px}.gl-real-reset,.gl-real-toggle{padding-inline:5px}.gl-real-role-buttons button{font-size:10px}}
