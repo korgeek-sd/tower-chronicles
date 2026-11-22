@@ -1,42 +1,29 @@
+import { emblemArt } from "./guild-emblem-assets.js";
 
 const shapes=[["shield","기사형","⬟"],["round","원형","◉"],["point","첨두형","♢"],["diamond","마름모","◆"],["banner","깃발형","⚑"],["wide","장식형","⬡"],["tower","탑형","♜"],["crest","왕실형","♛"]];
-const symbols=[["swords","쌍검","⚔"],["crown","왕관","♛"],["tower","탑","♜"],["star","별","✦"],["moon","달","☾"],["flame","불꽃","♨"],["skull","해골","☠"],["tree","나무","♣"],["wing","날개","❖"],["cross","십자","✚"],["sun","태양","☼"],["gem","보석","◆"]];
+const symbols=[["sword","검","⚔"],["shield","방패","◆"],["crown","왕관","♛"],["skull","해골","☠"],["sun","태양","☼"],["moon","초승달","☾"],["star","별","✦"],["px-flag","깃발","⚑"],["px-heart","심장","♥"],["px-key","열쇠","⚿"],["px-anchor","닻","⚓"],["px-tree","나무","♣"],["px-eye","눈","◉"],["px-target","표적","◎"],["px-cross","십자가","✚"],["px-castle","요새","♜"],["knight","기사","♞"],["helmet","기사투구","♟"],["castle","고성","♜"],["cat","고양이","♣"],["fawn","사슴","♞"],["swan","백조","❖"],["rabbit","토끼","♧"],["book","고서","▤"],["bishop","주교","♝"],["candelabra","촛대","✧"],["rook","석탑","♜"],["sugar-maple","단풍잎","♣"],["willow-tree","버드나무","♣"],["lauburu","고대문양","✣"]];
 const patterns=[["solid","단색","■"],["split","세로분할","◧"],["horizontal","가로분할","⬒"],["diagonal","대각선","◩"],["cross","십자","✚"],["chevron","V자","∨"],["quarters","사분할","▦"],["stripe","줄무늬","▥"],["triangle","삼각 문양","▼"],["band","중앙 띠","▬"],["double","이중 띠","☷"],["lattice","격자","▦"]];
 const borders=[["gold","황금","✦"],["iron","철제","▣"],["silver","은빛","◈"],["ancient","고대룬","✧"],["royal","왕실","♛"],["plain","기본","□"]];
 const colors=["#942f3c","#2f4f80","#386148","#624075","#c19548","#22272e","#b5b8b1","#996139","#1d6372","#9b5b69","#4d5435","#d7b878"];
 const groups=[["shape","방패","방패 형태를 선택하세요."],["symbol","상징","중앙 상징을 선택하세요."],["pattern","패턴","문장 배경 패턴을 선택하세요."],["border","테두리","테두리 장식을 선택하세요."],["colors","색상","배경과 문양의 색상을 선택하세요."],["adjust","조절","중앙 문양의 크기와 위치를 조절하세요."]];
-let state={shape:"shield",symbol:"swords",pattern:"solid",border:"gold",base:colors[0],accent:colors[4],scale:100,offsetX:0,offsetY:0},tab="shape";
+let state={shape:"shield",symbol:"sword",pattern:"solid",border:"gold",base:colors[0],accent:colors[4],scale:100,offsetX:0,offsetY:0},tab="shape";
 const $=id=>document.getElementById(id);
 
-const bitmapArt={
- swords:["................","...#........#...","..###......###..",".#####....#####.","...###....###...","....###..###....",".....######.....","......####......","......####......",".....######.....","....###..###....","...###....###...","..###......###..","...#........#...","................","................"],
- crown:["................","..#....##....#..","..##...##...##..","..###..##..###..","..####.##.####..","..############..","...##########...","...##########...","..############..","..############..","..############..","..############..","...##########...","................","................","................"],
- tower:["................","..##..####..##..","..##..####..##..","..############..","..############..","...##########...","...##########...","...####..####...","...####..####...","...####..####...","...####..####...","...###....###...","...###....###...","...############.","................","................"],
- star:[".......##.......",".......##.......","......####......","......####......",".##############.","..############..","...##########...","....########....","....########....","...##########...","...####..####...","..###......###..","..##........##..","................","................","................"],
- moon:[".....######.....","...########.....","..########......",".########.......",".########.......",".#######........",".#######........",".######.........",".######.........",".#######........",".########.......","..########......","...########.....",".....######.....","................","................"],
- flame:[".......##.......","......###.......",".....####.......",".....#####......","....#######.....","..#########.....",".###########....",".############...",".############...",".############...",".############...",".############...","..##########....","...########.....",".....####.......","................"],
- skull:["................","....########....","...##########...","..############..","..############..","..###..##..###..","..##....##...##.","..##....##...##.","..############..","...##########...","....########....",".....######.....",".....######.....",".....##.###.....","................","................"],
- tree:[".......##.......","......####......",".....######.....","....########....","...##########...","....########....","..############..",".##############.","...##########...","..############..",".....######.....","......####......","......####......","......####......","................","................"],
- wing:["................","#..............#","###............##","####..........###","#####........####","######......#####",".######....######","..######..######","...############.","....##########..",".....########...","......######....",".......####.....","................","................","................"],
- cross:["......####......","......####......","......####......","......####......","..############..","..############..","..############..","..############..","......####......","......####......","......####......","......####......","......####......","................","................","................"],
- sun:[".......##.......","..##...##...##..","...##..##..##...","....########....","...##########...","...##########...",".##############.",".##############.","...##########...","...##########...","....########....","...##..##..##...","..##...##...##..",".......##.......","................","................"],
- gem:[".......##.......","......####......",".....######.....","....########....","...##########...","..############..",".##############.","..############..","...##########...","....########....",".....######.....","......####......",".......##.......","................","................","................"]
-};
+const renderCache=new Map();
 function drawBitmapSymbol(ctx,key,color,shadow,scale=100,offsetX=0,offsetY=0){
- const bitmap=bitmapArt[key]||bitmapArt.swords;
- // Paint source pixels into a native 16x16 texture; never filter or average pixels.
- const source=document.createElement("canvas");source.width=16;source.height=16;
- const p=source.getContext("2d",{alpha:true});p.imageSmoothingEnabled=false;
- p.fillStyle=shadow;
- for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(bitmap[y]?.[x]==="#")p.fillRect(x,y,1,1);
- p.fillStyle=color;
- for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(bitmap[y]?.[x]==="#")p.fillRect(x,y,1,1);
- // Snap both size and origin to physical canvas pixels. Nearest-neighbor only.
- const size=Math.round(80*scale/100);
+ const art=emblemArt[key]||emblemArt.sword; if(!art)return;
+ const cacheKey=key+"|"+color;
+ let sprite=renderCache.get(cacheKey);
+ if(!sprite){
+  sprite=document.createElement("canvas");sprite.width=art.size;sprite.height=art.size;
+  const p=sprite.getContext("2d");p.imageSmoothingEnabled=false;p.fillStyle=color;
+  for(const d of art.paths)p.fill(new Path2D(d));
+  renderCache.set(cacheKey,sprite);
+ }
+ const size=Math.max(1,Math.round(80*scale/100));
  const left=Math.round(ctx.canvas.width/2-size/2+offsetX);
  const top=Math.round(ctx.canvas.height/2-size/2+offsetY);
- ctx.imageSmoothingEnabled=false;
- ctx.drawImage(source,left,top,size,size);
+ ctx.imageSmoothingEnabled=false;ctx.drawImage(sprite,left,top,size,size);
 }
 function randomChoice(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
@@ -51,4 +38,4 @@ if(state.border==="royal"||state.border==="ancient"){ctx.fillStyle=state.border=
 // Keep native 128x128 pixels untouched. CSS enlarges by exactly 2x.
 ctx.imageSmoothingEnabled=false;
 }
-$("guildName").addEventListener("input",render);const randomize=document.getElementById("randomize");randomize.onclick=()=>{state.shape=randomChoice(shapes)[0];state.symbol=randomChoice(symbols)[0];state.pattern=randomChoice(patterns)[0];state.border=randomChoice(borders)[0];state.base=randomChoice(colors);state.accent=randomChoice(colors.filter(x=>x!==state.base));state.scale=100;state.offsetX=0;state.offsetY=0;render()};$("reset").onclick=()=>{state={shape:"shield",symbol:"swords",pattern:"solid",border:"gold",base:colors[0],accent:colors[4],scale:100,offsetX:0,offsetY:0};$("guildName").value="검은 새벽";tab="shape";$("result").style.display="none";render()};$("create").onclick=()=>{let n=$("guildName").value.trim();if(!n){alert("원정단 이름을 입력하세요.");return}let r=$("result");r.style.display="block";r.innerHTML="<strong>원정단 문장 실험 결과</strong><div>"+n.replace(/[&<>"]/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[s]))+"</div><small>선택한 문장을 확인했습니다. 실제 원정단은 생성되지 않았습니다.</small><br><button id='save'>문장 PNG 저장</button>";$("save").onclick=()=>{const a=document.createElement("a");a.download="guild-crest.png";a.href=$("crest").toDataURL("image/png");a.click()};r.scrollIntoView({behavior:"smooth",block:"nearest"})};document.getElementById("backToGame").addEventListener("click",()=>{location.href="./"});document.getElementById("help").addEventListener("click",()=>alert("문장 제작 실험용 화면입니다. 실제 원정단이 생성되지 않습니다."));render();
+$("guildName").addEventListener("input",render);const randomize=document.getElementById("randomize");randomize.onclick=()=>{state.shape=randomChoice(shapes)[0];state.symbol=randomChoice(symbols)[0];state.pattern=randomChoice(patterns)[0];state.border=randomChoice(borders)[0];state.base=randomChoice(colors);state.accent=randomChoice(colors.filter(x=>x!==state.base));state.scale=100;state.offsetX=0;state.offsetY=0;render()};$("reset").onclick=()=>{state={shape:"shield",symbol:"sword",pattern:"solid",border:"gold",base:colors[0],accent:colors[4],scale:100,offsetX:0,offsetY:0};$("guildName").value="검은 새벽";tab="shape";$("result").style.display="none";render()};$("create").onclick=()=>{let n=$("guildName").value.trim();if(!n){alert("원정단 이름을 입력하세요.");return}let r=$("result");r.style.display="block";r.innerHTML="<strong>원정단 문장 실험 결과</strong><div>"+n.replace(/[&<>"]/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[s]))+"</div><small>선택한 문장을 확인했습니다. 실제 원정단은 생성되지 않았습니다.</small><br><button id='save'>문장 PNG 저장</button>";$("save").onclick=()=>{const a=document.createElement("a");a.download="guild-crest.png";a.href=$("crest").toDataURL("image/png");a.click()};r.scrollIntoView({behavior:"smooth",block:"nearest"})};document.getElementById("backToGame").addEventListener("click",()=>{location.href="./"});document.getElementById("help").addEventListener("click",()=>alert("문장 제작 실험용 화면입니다. 실제 원정단이 생성되지 않습니다."));render();
