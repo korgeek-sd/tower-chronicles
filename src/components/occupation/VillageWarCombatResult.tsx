@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {GuildEmblem,type GuildEmblemData} from '../association/GuildEmblem';
 import {SKILL_TREE_CATALOG} from '../../game/skills/catalog';
 import {assetUrl} from '../../game/data/graphics';
 import type {VillageWarCombatResult as CombatResult} from '../../online/villageWar';
@@ -23,7 +24,7 @@ function Fighter({name,kind,hp,maxHp,mp,maxMp,art}:{name:string;kind:'attacker'|
   </div>
  </article>;
 }
-export function VillageWarCombatResult({battle,onClose,attackerArt,frontId,preview=false}:{battle:CombatResult;onClose:()=>void;attackerArt?:string;frontId?:number|null;preview?:boolean}){
+export function VillageWarCombatResult({battle,onClose,attackerArt,frontId,preview=false,emblem=null}:{battle:CombatResult;onClose:()=>void;attackerArt?:string;frontId?:number|null;preview?:boolean;emblem?:GuildEmblemData|null}){
  const [allLogs,setAllLogs]=useState(false);
  const closeRef=useRef<HTMLButtonElement>(null);
  const previousFocus=useRef<HTMLElement|null>(null);
@@ -52,7 +53,7 @@ export function VillageWarCombatResult({battle,onClose,attackerArt,frontId,previ
     <button type="button" ref={closeRef} className="tc-war-result-close" onClick={onClose} aria-label="전투 결과 닫기">×</button>
    </div>
    <div className="tc-war-result-splash">
-    <div className="tc-war-result-crest" aria-hidden="true">♜</div>
+    <div className="tc-war-result-crest" aria-hidden="true">{emblem?<GuildEmblem value={emblem} size={66}/>:<span>♜</span>}</div>
     <h3>{capture?'전선 점령 성공':'수비자 방어 성공'}</h3>
     <p>{battle.fatigueDefeat?'수비자가 탈진하여 전선을 확보했습니다.':capture?'수비자를 쓰러뜨리고 전선을 확보했습니다.':'수비자가 전선을 지켜냈습니다.'}</p>
     {frontId!=null&&<small>제{frontId}전선 · 자동전투 {battle.turns.length}턴</small>}
