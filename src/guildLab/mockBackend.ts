@@ -167,6 +167,7 @@ const rankings=(mode:string)=>{
    associationId:d.associationId,name:d.name,recordNumber:d.recordNumber,
    emblem:d.emblem,level,exp:mine?guild.exp:level*900+(i*317)%850,
    members:d.memberCount,memberLimit:d.memberLimit,
+   combatPower:d.memberCount*320+(i*113)%700,topPower:440+(i*91)%560,
    territories,victories,captures:mine?3:Math.min(victories,(i*3)%10),
    defenses:mine?5:Math.min(victories,(i*5)%12),
    createdAt:d.createdAt,mine
@@ -176,7 +177,7 @@ const rankings=(mode:string)=>{
   mode==='TERRITORY'?b.territories-a.territories||b.level-a.level||b.victories-a.victories:
   mode==='WARS'?b.victories-a.victories||b.captures-a.captures||b.territories-a.territories:
   mode==='GROWTH'?b.level-a.level||b.exp-a.exp||b.members-a.members:
-  b.territories-a.territories||b.victories-a.victories||b.level-a.level||b.members-a.members);
+  b.combatPower-a.combatPower||b.topPower-a.topPower||b.members-a.members);
  const ranked=sorted.map((e,i)=>({...e,rank:i+1}));
  return{
   mode,totalGuilds:ranked.length,
