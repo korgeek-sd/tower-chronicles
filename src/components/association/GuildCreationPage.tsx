@@ -1,6 +1,7 @@
 import React from 'react';
 import type {AssociationPolicy} from '../../game/types';
 import {ASSOCIATION_CREATION_FEE_SILVER} from '../../game/association/service';
+import {associationNameError,ASSOCIATION_NAME_MAX} from '../../game/association/nameRules';
 import {Screen} from '../../ui/mobile';
 import {GuildEmblem,GuildEmblemEditor,type GuildEmblemData} from './GuildEmblem';
 import './guildCreationPage.css';
@@ -18,8 +19,8 @@ export function GuildCreationPage({
  name,setName,description,setDescription,policy,setPolicy,emblem,setEmblem,
  silver,busy=false,error='',blockedReason='',onBack,onSubmit,isLocal=false
 }:Props){
- const trimmed=name.trim();
- const canCreate=!busy&&!blockedReason&&trimmed.length>=2&&trimmed.length<=20&&silver>=ASSOCIATION_CREATION_FEE_SILVER;
+ const nameError=associationNameError(name);
+ const canCreate=!busy&&!blockedReason&&!nameError&&silver>=ASSOCIATION_CREATION_FEE_SILVER;
  const missingSilver=silver<ASSOCIATION_CREATION_FEE_SILVER;
  return <Screen className="tc-guild-create-screen" hideHeader title="원정단 창설">
   <div className="tc-guild-create-layout">
@@ -33,14 +34,17 @@ export function GuildCreationPage({
      <div className="tc-guild-create-banner"><GuildEmblem value={emblem} size={100} label="원정단 문장"/><span>창설 문장</span></div>
      <div className="tc-guild-create-summary-detail">
       <strong>원정단 정보 <small>미리보기</small></strong>
-      <dl><div><dt>원정단명</dt><dd>{trimmed||'아직 설정되지 않음'}</dd></div>
+      <dl><div><dt>원정단명</dt><dd>{name||'아직 설정되지 않음'}</dd></div>
        <div><dt>소개</dt><dd>{description.trim()||'원정단 소개를 입력해 주세요.'}</dd></div>
        <div><dt>가입 방식</dt><dd>{policy==='OPEN'?'자유 가입':'승인 가입'}</dd></div></dl>
      </div>
     </section>
     <section className="tc-guild-create-form" aria-label="원정단 정보 입력">
      <h2>원정단 정보</h2>
-     <label htmlFor="tc-charter-name"><span>원정단명 <em>필수</em></span><div className="tc-guild-create-input"><input id="tc-charter-name" value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="원정단 이름 (2~20자)" autoComplete="off"/><small>{name.length}/20</small></div></label>
+     <label htmlFor="tc-charter-name"><span>원정단명 <em>필수</em></span><div className="tc-guild-create-input"><input id="tc-charter-name" value={name} maxLength={ASSOCIATION_NAME_MAX} onChange={e=>setName(e.target.value)} placeholder="원정단 이름 (2~6자)" autoComplete="off" aria-invalid={!!name&&!!nameError} aria-describedby="tc-charter-name-help"/><small>{name.length}/{ASSOCIATION_NAME_MAX}</small></div></label>
+     <p id="tc-charter-name-help" className={'tc-guild-create-name-feedback'+(nameError&&name?' invalid':'')}>
+      {name?(nameError||'이름 형식 확인 완료 · 중복 여부는 창설할 때 검사합니다.'):'완성형 한글·영문·숫자 2~6자 · 공백·특수문자 사용 불가'}
+     </p>
      <label htmlFor="tc-charter-description"><span>소개</span><div className="tc-guild-create-input"><textarea id="tc-charter-description" value={description} maxLength={120} rows={3} onChange={e=>setDescription(e.target.value)} placeholder="원정단을 소개하는 문구를 입력해 주세요."/><small>{description.length}/120</small></div></label>
      <fieldset className="tc-guild-create-policy"><legend>가입 방식</legend><div>
       <button type="button" aria-pressed={policy==='OPEN'} className={policy==='OPEN'?'active':''} onClick={()=>setPolicy('OPEN')}><b>자유 가입</b><small>누구나 즉시 가입할 수 있습니다.</small></button>
