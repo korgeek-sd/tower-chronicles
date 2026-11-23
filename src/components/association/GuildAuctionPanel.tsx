@@ -178,7 +178,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
    </div>
     </details>
    </div>
-   <nav className="tc-ga-bottom-tabs tc-ga-top-tabs" aria-label="경매 현황">
+   <nav className="tc-ga-bottom-tabs tc-ga-top-tabs" aria-label="경매 현황 (종료 경매와 낙찰 내역 포함)">
     {([['active','진행 중','⚒',openRecords.length],['mine','내 입찰','☑',records.filter(l=>l.isMyTopBid||l.isMyListing).length],['history','종료 경매','▤',records.filter(l=>l.status!=='OPEN'||Date.parse(l.endsAt)<=clock).length]] as const).map(([id,label,glyph,count])=><button key={id} type="button" className={section===id?'active':''} aria-pressed={section===id} onClick={()=>setSection(id)}><span aria-hidden="true">{glyph}</span>{label} <small>{count}</small></button>)}
    </nav>
    <nav className="tc-ga-categories" aria-label="경매 물품 분류">
