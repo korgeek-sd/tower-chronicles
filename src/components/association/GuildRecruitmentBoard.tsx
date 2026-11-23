@@ -4,30 +4,21 @@ import type{GameplayLease} from '../../online/gameSession';
 import type{OnlineAssociationDirectoryEntry,OnlineAssociationOwnApplication} from '../../online/association';
 import{GuildEmblem}from'./GuildEmblem';
 import{GuildRankingPanel}from'./GuildRankingPanel';
+import{sortGuilds,type GuildDirectorySortMode}from'./guildDirectorySort';
 import'./guildRecruitment.css';
 
 type Filter='all'|'open'|'approval'|'rankings';
-type SortMode='recent'|'old'|'many'|'few'|'join'|'name';
+type SortMode=GuildDirectorySortMode;
 const sortOptions:{id:SortMode;label:string}[]=[
  {id:'recent',label:'최근 창설순'},
  {id:'old',label:'오래된 순'},
  {id:'many',label:'단원 많은 순'},
  {id:'few',label:'단원 적은 순'},
  {id:'join',label:'가입 가능 우선'},
- {id:'name',label:'이름 가나다순'}
+ {id:'name',label:'이름 가나다순'},
+ {id:'powerHigh',label:'전투력 높은 순'},
+ {id:'powerLow',label:'전투력 낮은 순'}
 ];
-const isJoinable=(e:OnlineAssociationDirectoryEntry)=>e.joinPolicy!=='CLOSED'&&e.memberCount<e.memberLimit;
-const sortGuilds=(a:OnlineAssociationDirectoryEntry,b:OnlineAssociationDirectoryEntry,mode:SortMode)=>{
- const recent=()=>Date.parse(b.createdAt)-Date.parse(a.createdAt)||a.name.localeCompare(b.name,'ko-KR');
- switch(mode){
-  case 'old':return Date.parse(a.createdAt)-Date.parse(b.createdAt)||a.name.localeCompare(b.name,'ko-KR');
-  case 'many':return b.memberCount-a.memberCount||recent();
-  case 'few':return a.memberCount-b.memberCount||recent();
-  case 'join':return Number(isJoinable(b))-Number(isJoinable(a))||recent();
-  case 'name':return a.name.localeCompare(b.name,'ko-KR')||recent();
-  default:return recent();
- }
-};
 const options:{id:Filter;label:string}[]=[
  {id:'all',label:'전체'},{id:'open',label:'즉시 가입'},
  {id:'approval',label:'승인 가입'},{id:'rankings',label:'랭킹'}
@@ -133,13 +124,13 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
      return <article key={e.associationId} className={'tc-grb-list-item'+(isExpanded?' expanded':'')}>
       <button type="button" className="tc-grb-list-card" aria-expanded={isExpanded} aria-controls={'tc-grb-details-'+e.associationId} onClick={()=>toggleListItem(e.associationId)} aria-label={e.name+' 상세 정보 '+(isExpanded?'접기':'보기')}>
        <span className="tc-grb-list-crest"><GuildEmblem value={e.emblem} size={43}/></span>
-       <span className="tc-grb-list-copy"><strong>{e.name}</strong><small>{e.description||'등록된 소개가 없습니다.'}</small><span className="tc-grb-list-meta">{e.memberCount}/{e.memberLimit}명 <em className={e.joinPolicy==='OPEN'?'open':''}>{status(e)}</em></span></span>
+       <span className="tc-grb-list-copy"><strong>{e.name}</strong><small>{e.description||'등록된 소개가 없습니다.'}</small><span className="tc-grb-list-meta">{e.memberCount}/{e.memberLimit}명 <em className={e.joinPolicy==='OPEN'?'open':''}>{status(e)}</em></span><span className="tc-grb-list-power">전투력 <b>{e.combatPower.toLocaleString('ko-KR')}</b></span></span>
        <span className="tc-grb-list-arrow" aria-hidden="true">{isExpanded?'⌃':'›'}</span>
       </button>
       {isExpanded&&<div className="tc-grb-list-details" id={'tc-grb-details-'+e.associationId}>
        <p className="tc-grb-list-detail-description">{e.description||'등록된 원정단 소개가 없습니다.'}</p>
        <div className="tc-grb-list-info-row"><span>원정단 기록</span><strong>No. {e.recordNumber}</strong></div>
-       <div className="tc-grb-list-info-row"><span>단원 수</span><strong>{e.memberCount} / {e.memberLimit}명</strong></div>
+       <div className="tc-grb-list-info-row"><span>단원 수</span><strong>{e.memberCount} / {e.memberLimit}명</strong></div><div className="tc-grb-list-info-row"><span>원정단 총 전투력</span><strong>{e.combatPower.toLocaleString('ko-KR')}</strong></div>
        <div className="tc-grb-member-track"><i style={{width:Math.min(100,e.memberLimit?e.memberCount/e.memberLimit*100:0)+'%'}}/></div>
        <div className="tc-grb-list-info-row"><span>안전 귀환 수익 분담</span><strong>{e.revenueShareRatePercent??0}%</strong></div>
        <div className="tc-grb-list-info-row"><span>창설일</span><strong>{compactDate(e.createdAt)}</strong></div>
