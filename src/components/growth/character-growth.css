@@ -82,3 +82,7 @@ dialog.tc-character-dialog{position:fixed;inset:0;margin:auto;width:min(460px,ca
 .tc-character-seal-art{object-fit:contain}.tc-character-seal-art[data-seal='guardian']{filter:hue-rotate(150deg) saturate(.6)}
 
 .tc-character-seals>div>span,.tc-character-weapon>div>span{line-height:1.15}.tc-character-seal-art{min-height:0}.tc-character-dialog>header{position:sticky;top:0;z-index:1}
+
+/* Combat Power fits within the final-stats header at narrow viewport sizes. */
+.tc-character-final .tc-character-combat-score{font:700 clamp(11px,3.1cqw,16px) Georgia,'Noto Serif KR',serif;color:#f2d393;white-space:nowrap;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;text-align:right;min-width:0}
+@container character-growth (max-width:350px){.tc-character-final .tc-character-combat-score{font-size:11px}}
