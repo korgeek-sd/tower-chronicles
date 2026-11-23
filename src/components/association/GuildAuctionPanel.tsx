@@ -146,7 +146,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
  const selectedBid=selected?(amounts[selected.listingId]||selected.nextBid):0;
  const validBid=!!selected&&Number.isSafeInteger(selectedBid)&&selectedBid>=selected.nextBid&&selectedBid<=1000000000&&selectedBid-(selected.isMyTopBid?selected.topBid:0)<=(state?.points??0);
  const status=(l:GuildAuctionListing)=>l.status==='OPEN'&&Date.parse(l.endsAt)>clock?left(l.endsAt,clock):l.status==='UNSOLD'?'유찰':l.status==='CLAIMED'?'수령 완료':l.status==='CANCELLED'?'경매 취소':l.status==='RETURNED'?'반환 완료':l.status==='SOLD'?'낙찰 종료':'경매 종료';
- return <section className="tc-guild-auction tc-ga-v2 tc-ga-v3" aria-label="원정단 경매장">
+ return <section className="tc-guild-auction tc-ga-v2 tc-ga-v3 tc-ga-v4" aria-label="원정단 경매장">
   <header className="tc-ga-heading">
    <div className="tc-ga-banner-art" aria-hidden="true"/>
    <div className="tc-ga-header-top">
@@ -154,7 +154,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
     <span className="tc-ga-game-title">탑의 기록</span>
     <div className="tc-ga-balance" title="입찰에 사용할 수 있는 공헌도"><small>사용 가능 공헌도</small><strong>{state?n(state.points):'—'} <em>P</em></strong></div>
    </div>
-   <div className="tc-ga-heading-title"><small>GUILD AUCTION HOUSE</small><h2>원정단 경매장</h2><p>원정단원이 함께 이용하는 전용 경매장입니다. <button type="button" aria-label="경매 이용 안내" onClick={()=>setGuideOpen(true)}>ⓘ</button></p></div>
+   <div className="tc-ga-heading-title"><small>GUILD AUCTION HOUSE</small><h2>원정단 경매장 <button type="button" aria-label="경매 이용 안내" onClick={()=>setGuideOpen(true)}>ⓘ</button></h2><p>원정단원이 함께 이용하는 전용 경매장입니다.</p></div>
   </header>
   {!state?<div className="tc-ga-loading" role="status">{error||'경매 정보를 불러오는 중입니다.'}</div>:<>
    <div className="tc-ga-intro"><span>경매는 공헌도(P)를 사용합니다.</span>
@@ -178,10 +178,26 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
    </div>
     </details>
    </div>
+   <nav className="tc-ga-bottom-tabs tc-ga-top-tabs" aria-label="경매 현황">
+    {([['active','진행 중','⚒',openRecords.length],['mine','내 입찰','☑',records.filter(l=>l.isMyTopBid||l.isMyListing).length],['history','종료 경매','▤',records.filter(l=>l.status!=='OPEN'||Date.parse(l.endsAt)<=clock).length]] as const).map(([id,label,glyph,count])=><button key={id} type="button" className={section===id?'active':''} aria-pressed={section===id} onClick={()=>setSection(id)}><span aria-hidden="true">{glyph}</span>{label} <small>{count}</small></button>)}
+   </nav>
    <nav className="tc-ga-categories" aria-label="경매 물품 분류">
     {([['all','전체','✦'],['gear','장비','⚔'],['material','재료','◆'],['consumable','소모품','♧'],['rare','희귀품','✥']] as const).map(([id,label,glyph])=><button key={id} type="button" className={category===id?'active':''} aria-pressed={category===id} onClick={()=>setCategory(id)}><span aria-hidden="true">{glyph}</span>{label}</button>)}
    </nav>
-   {featured&&<article className="tc-ga-feature" aria-label="주요 경매 물품">
+   <div className="tc-ga-toolbar">
+    <span className="tc-ga-list-count">{section==='active'?'진행 중':section==='mine'?'내 입찰':'종료 경매'} {subset.length}건</span>
+    <div className="tc-ga-sort" role="group" aria-label="경매 정렬">
+     <GameScrollSelect ariaLabel="경매 정렬" compact className="tc-ga-sort-game-select"
+      value={sort} onChange={value=>setSort(value as AuctionSort)}
+      options={[
+       {value:'ending',label:'남은 시간순'},
+       {value:'highest',label:'최고 입찰순'},
+       {value:'lowest',label:'낮은 가격순'}
+      ]}/>
+    </div>
+   </div>
+   <div className="tc-ga-list" role="list" aria-label="경매 물품 목록">
+   {featured&&<article role="listitem" className="tc-ga-feature" aria-label="주요 경매 물품">
     <div className="tc-ga-feature-ribbon"><span>★ 특급 경매 아이템</span><span>{lotSource(featured)}</span></div>
     <div className="tc-ga-feature-main">
      <AuctionArt lot={featured} featured/>
@@ -199,14 +215,7 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
      <button type="button" className="tc-ga-feature-bid" onClick={()=>showLot(featured.listingId)}><span aria-hidden="true">⚒</span> {featured.isMyListing?'상세보기':'입찰하기'}</button>
     </div>
    </article>}
-   {section==='active'&&!featured&&<div className="tc-ga-feature-empty">진행 중인 경매가 없습니다.<small>다른 분류를 선택하거나 새 경매 등록을 확인해 주세요.</small></div>}
-   <div className="tc-ga-toolbar">
-    <span className="tc-ga-list-count">{section==='active'?'진행 중':section==='mine'?'내 입찰':'낙찰 내역'} {subset.length}건</span>
-    <div className="tc-ga-sort" role="group" aria-label="경매 정렬">
-     {([['ending','남은 시간순','⌛'],['highest','최고 입찰순','▥'],['lowest','낮은 가격순','◉']] as const).map(([id,label,glyph])=><button type="button" key={id} aria-pressed={sort===id} className={sort===id?'active':''} onClick={()=>setSort(id)}><span aria-hidden="true">{glyph}</span>{label}{sort===id&&<span aria-hidden="true">⌄</span>}</button>)}
-    </div>
-   </div>
-   <div className="tc-ga-list" role="list" aria-label="경매 물품 목록">
+
     {listRows.map(l=><article role="listitem" key={l.listingId} className={'tc-ga-list-entry '+(l.status==='OPEN'?'open':'closed')}>
      <button className="tc-ga-row-main" type="button" onClick={()=>showLot(l.listingId)} aria-label={lotName(l)+' 경매 상세 보기'}>
       <AuctionArt lot={l}/>
@@ -216,11 +225,8 @@ export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onCha
      <div className="tc-ga-row-time"><small>◷ 남은 시간</small><strong>{status(l)}</strong><span>{l.topUserId?'● 입찰 진행':'입찰 전'}</span></div>
      <button className="tc-ga-row-bid" type="button" onClick={()=>showLot(l.listingId)}>{l.status==='OPEN'&&Date.parse(l.endsAt)>clock&&!l.isMyListing?'입찰하기':'상세보기'}</button>
     </article>)}
-    {!listRows.length&&<div className="tc-ga-empty">{featured?'다른 경매 물품이 없습니다.':'이 분류에 해당하는 경매 내역이 없습니다.'}</div>}
+    {!listRows.length&&!featured&&<div className="tc-ga-empty tc-ga-feature-empty">{section==='active'?'진행 중인 경매가 없습니다.':'이 분류에 해당하는 경매 내역이 없습니다.'}</div>}
    </div>
-   <nav className="tc-ga-bottom-tabs" aria-label="경매 현황">
-    {([['active','진행 중','⚒',openRecords.length],['mine','내 입찰','☑',records.filter(l=>l.isMyTopBid||l.isMyListing).length],['history','낙찰 내역','▤',records.filter(l=>l.status!=='OPEN'||Date.parse(l.endsAt)<=clock).length]] as const).map(([id,label,glyph,count])=><button key={id} type="button" className={section===id?'active':''} aria-pressed={section===id} onClick={()=>setSection(id)}><span aria-hidden="true">{glyph}</span>{label} <small>{count}</small></button>)}
-   </nav>
 
   </>}
   {notice&&<p role="status" className="tc-ga-notice">{notice}</p>}
