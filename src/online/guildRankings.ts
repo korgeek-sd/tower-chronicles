@@ -6,6 +6,7 @@ export type GuildRankingMode='OVERALL'|'TERRITORY'|'WARS'|'GROWTH';
 export interface GuildRankingEntry{
  rank:number;associationId:string;name:string;recordNumber:string;emblem?:GuildEmblemData;
  level:number;exp:number;members:number;memberLimit:number;
+ combatPower:number;topPower:number;
  territories:number;victories:number;captures:number;defenses:number;
  createdAt:string;mine:boolean;
 }
