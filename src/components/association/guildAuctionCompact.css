@@ -23,6 +23,13 @@
 .tc-auction-immersive .tc-ga-v4 .tc-ga-game-title{
  display:none!important;
 }
+/* The hidden game title must not cause the contribution box to auto-flow
+   into the middle column and overlap the absolutely positioned auction title. */
+.tc-auction-immersive .tc-ga-v4 .tc-ga-back{grid-column:1!important;grid-row:1!important;min-width:0!important}
+.tc-auction-immersive .tc-ga-v4 .tc-ga-balance{
+ grid-column:3!important;grid-row:1!important;justify-self:end!important;
+ width:100%!important;box-sizing:border-box!important;
+}
 .tc-auction-immersive .tc-ga-v4 .tc-ga-back:not(:disabled){
  display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
  gap:4px!important;white-space:nowrap!important;word-break:keep-all!important;
