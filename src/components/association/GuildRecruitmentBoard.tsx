@@ -79,7 +79,6 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    </div>
    {!matching.length&&<div className="tc-grb-empty"><strong>조건에 맞는 원정단이 없습니다.</strong><span>검색어나 가입 조건을 변경하거나 새 원정단을 창설하세요.</span></div>}
    {pages>1&&<Pager page={safePage} count={pages} onChange={next=>{setPage(next);setExpandedId(null);}}/>}
-   {matching.length>0&&<div className="tc-grb-footnote">표시된 정보는 현재 원정단 현황을 기준으로 합니다.</div>}
   </div>}
   {error&&<div className="tc-floor-risk" role="alert">{error}</div>}
  </div>;
