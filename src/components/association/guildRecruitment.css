@@ -97,3 +97,8 @@
  .tc-grb-list-card{padding:8px 6px;gap:6px}
  .tc-grb-tabs>button{font-size:9px}
 }
+
+/* Show aggregate power on every guild card without cutting off the existing fields. */
+.tc-grb-list-power{display:block;min-width:0;font-size:10px;color:#baaa8d;white-space:nowrap;line-height:1.25}
+.tc-grb-list-power b{font:700 12px Georgia,'Noto Serif KR',serif;color:#e9c88b;font-variant-numeric:tabular-nums;margin-left:4px}
+@media(max-width:365px){.tc-grb-list-power b{font-size:11px}}
