@@ -1,4 +1,5 @@
-import React,{useMemo,useRef,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
+import{createPortal}from'react-dom';
 import type{GameplayLease} from '../../online/gameSession';
 import type{OnlineAssociationDirectoryEntry,OnlineAssociationOwnApplication} from '../../online/association';
 import{GuildEmblem}from'./GuildEmblem';
@@ -42,7 +43,30 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
  const[filter,setFilter]=useState<Filter>('all');
  const[query,setQuery]=useState('');
  const[sortMode,setSortMode]=useState<SortMode>('recent');
+ const[sortOpen,setSortOpen]=useState(false);
+ const[sortPosition,setSortPosition]=useState({top:0,left:0,width:310});
+ const sortTriggerRef=useRef<HTMLButtonElement>(null);
+ const sortMenuRef=useRef<HTMLDivElement>(null);
  const listRef=useRef<HTMLDivElement>(null);
+ useEffect(()=>{
+  if(!sortOpen)return;
+  const positionMenu=()=>{
+   const anchor=sortTriggerRef.current;
+   if(!anchor)return;
+   const rect=anchor.getBoundingClientRect();
+   const width=Math.min(310,window.innerWidth-20);
+   const menuHeight=Math.min(348,window.innerHeight-20);
+   const below=rect.bottom+7+menuHeight<=window.innerHeight-8;
+   const top=below?rect.bottom+7:Math.max(8,rect.top-menuHeight-7);
+   const left=Math.max(10,Math.min(rect.right-width,window.innerWidth-width-10));
+   setSortPosition({top,left,width});
+  };
+  positionMenu();
+  sortMenuRef.current?.querySelector<HTMLButtonElement>('[aria-selected="true"]')?.focus();
+  window.addEventListener('resize',positionMenu);
+  window.addEventListener('scroll',positionMenu,true);
+  return()=>{window.removeEventListener('resize',positionMenu);window.removeEventListener('scroll',positionMenu,true);};
+ },[sortOpen]);
  const scrollListTop=()=>{if(listRef.current)listRef.current.scrollTop=0;};
  const[expandedId,setExpandedId]=useState<string|null>(null);
  const waiting=new Set(applications.map(x=>x.associationId));
@@ -52,8 +76,22 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    .filter(e=>filter==='open'?e.joinPolicy==='OPEN'&&e.memberCount<e.memberLimit:filter==='approval'?e.joinPolicy==='APPROVAL'&&e.memberCount<e.memberLimit:true)
    .sort((a,b)=>sortGuilds(a,b,sortMode));
  },[entries,filter,query,sortMode]);
- const changeFilter=(id:Filter)=>{setFilter(id);setExpandedId(null);scrollListTop();};
+ const changeFilter=(id:Filter)=>{setFilter(id);setSortOpen(false);setExpandedId(null);scrollListTop();};
  const changeSort=(next:SortMode)=>{setSortMode(next);setExpandedId(null);scrollListTop();};
+ const closeSort=()=>{setSortOpen(false);sortTriggerRef.current?.focus();};
+ const chooseSort=(next:SortMode)=>{changeSort(next);closeSort();};
+ const onSortMenuKeyDown=(event:React.KeyboardEvent<HTMLDivElement>)=>{
+  if(event.key==='Escape'){event.preventDefault();closeSort();return;}
+  if(event.key==='ArrowDown'||event.key==='ArrowUp'||event.key==='Home'||event.key==='End'){
+   event.preventDefault();
+   const choices=Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="option"]'));
+   if(!choices.length)return;
+   const current=choices.indexOf(document.activeElement as HTMLButtonElement);
+   const index=event.key==='Home'?0:event.key==='End'?choices.length-1:
+    (current+(event.key==='ArrowDown'?1:-1)+choices.length)%choices.length;
+   choices[index]?.focus();
+  }
+ };
  const toggleListItem=(id:string)=>setExpandedId(current=>current===id?null:id);
  const joinButton=(e:OnlineAssociationDirectoryEntry)=>{
   const applied=waiting.has(e.associationId);
@@ -79,12 +117,14 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
   {filter==='rankings'?<div className="tc-grb-ranking"><GuildRankingPanel lease={lease}/></div>:<div className="tc-grb-result">
    <div className="tc-grb-sort-row">
     <span className="tc-grb-sort-count">총 <strong>{matching.length.toLocaleString('ko-KR')}</strong>개</span>
-    <label className="tc-grb-sort-control">
-     <span className="tc-grb-sr-only">원정단 정렬 방식</span>
-     <select aria-label="원정단 정렬 방식" value={sortMode} onChange={e=>changeSort(e.target.value as SortMode)}>
-      {sortOptions.map(opt=><option key={opt.id} value={opt.id}>{opt.label}</option>)}
-     </select>
-    </label>
+    <div className="tc-grb-sort-control">
+     <button type="button" className="tc-grb-sort-trigger" ref={sortTriggerRef}
+      aria-label={'원정단 정렬: '+sortOptions.find(opt=>opt.id===sortMode)?.label}
+      aria-haspopup="listbox" aria-expanded={sortOpen} aria-controls="tc-grb-sort-listbox"
+      onClick={()=>setSortOpen(open=>!open)}>
+      <span>정렬: {sortOptions.find(opt=>opt.id===sortMode)?.label}</span><span aria-hidden="true" className="tc-grb-sort-chevron">⌄</span>
+     </button>
+    </div>
    </div>
    <div className="tc-grb-list-viewport" ref={listRef}>
     <div className="tc-grb-list">
@@ -112,5 +152,21 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    </div>
   </div>}
   {error&&<div className="tc-floor-risk" role="alert">{error}</div>}
+  {sortOpen&&typeof document!=='undefined'&&createPortal(
+   <div className="tc-grb-sort-overlay">
+    <div className="tc-grb-sort-dismiss" onClick={closeSort} aria-hidden="true"/>
+    <div id="tc-grb-sort-listbox" ref={sortMenuRef} role="listbox" aria-label="원정단 정렬 기준"
+     className="tc-grb-sort-menu" style={sortPosition} onKeyDown={onSortMenuKeyDown}>
+     <div className="tc-grb-sort-menu-title"><span aria-hidden="true">✦</span>정렬 기준<span aria-hidden="true">✦</span></div>
+     <div className="tc-grb-sort-menu-options">
+      {sortOptions.map(opt=><button key={opt.id} type="button" role="option"
+       aria-selected={sortMode===opt.id} className="tc-grb-sort-option"
+       onClick={()=>chooseSort(opt.id)}>
+       <span className="tc-grb-sort-option-name">{opt.label}</span>
+       <span className="tc-grb-sort-option-mark" aria-hidden="true">{sortMode===opt.id?'✓':''}</span>
+      </button>)}
+     </div>
+    </div>
+   </div>,document.body)}
  </div>;
 }
