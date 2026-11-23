@@ -54,6 +54,7 @@ export interface OnlineAssociationDirectoryEntry {
  joinPolicy:AssociationPolicy;
  memberCount:number;
  memberLimit:number;
+ combatPower:number;
  createdAt:string;
 }
 export interface OnlineAssociationOwnApplication {
