@@ -49,7 +49,7 @@ export function listenLabChanges(cb:()=>void){observer=cb;return()=>{if(observer
 type DemoDirectoryEntry={
  associationId:string;recordNumber:string;name:string;description:string;
  joinPolicy:'OPEN'|'APPROVAL'|'CLOSED';memberCount:number;memberLimit:number;
- revenueShareRatePercent:number;createdAt:string;emblem:GuildEmblemData;
+ revenueShareRatePercent:number;createdAt:string;emblem:GuildEmblemData;combatPower:number;
 };
 // Offline-only directory: 29 fixed examples + the current demo guild = 30 entries.
 // Production guilds and their database records are never created or changed.
@@ -81,6 +81,7 @@ const demoGuildSpecs=[
  {name:'회색 성채',description:'정기적인 영지전 참가자를 모집합니다.',joinPolicy:'APPROVAL',memberCount:28,revenueShareRatePercent:15,symbol:'castle',base:'#b5b8b1'},
  {name:'영원의 약속',description:'서로 도우며 꾸준히 성장합니다.',joinPolicy:'CLOSED',memberCount:20,revenueShareRatePercent:10,symbol:'lauburu',base:'#c19548'}
 ] as const;
+const demoPower=(count:number,index:number)=>count*320+(index*113)%700;
 const directory=():DemoDirectoryEntry[]=>[
  {associationId:'33333333-3333-4333-8333-333333333333',recordNumber:'00021',name:'철의 맹세',description:'함께 전진하는 원정단',joinPolicy:'APPROVAL',memberCount:20,memberLimit:30,revenueShareRatePercent:5,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#2f4f80',symbol:'crown'}},
  {associationId:'44444444-4444-4444-8444-444444444444',recordNumber:'00024',name:'푸른 기사단',description:'초보자 환영',joinPolicy:'OPEN',memberCount:12,memberLimit:30,revenueShareRatePercent:0,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#386148',symbol:'shield'}},
@@ -95,7 +96,7 @@ const directory=():DemoDirectoryEntry[]=>[
    pattern:['solid','split','chevron','diagonal','quarters','stripe'][i%6],
    border:['gold','iron','silver','ancient','royal'][i%5]}
  }))
-];
+].map((d,i)=>({...d,combatPower:demoPower(d.memberCount,i)}));
 const current=()=>guild.role==='NONE'?null:({
  associationId:LAB_GUILD,recordNumber:'00027',name:guild.name,description:guild.description,
  leaderUserId:uid(1),createdAt:created,notice:guild.notice,noticeUpdatedAt:created,
@@ -105,7 +106,7 @@ const current=()=>guild.role==='NONE'?null:({
 });
 const associationState=()=>({
  userId:LAB_USER,qualified:true,rejoinAt:null,serverNow:Date.now(),current:current(),
- directory:[...directory(),{associationId:LAB_GUILD,recordNumber:'00027',name:guild.name,description:guild.description,joinPolicy:guild.policy,memberCount:guild.members.length,memberLimit:30,createdAt:created,revenueShareRatePercent:guild.share,emblem:guild.emblem}],
+ directory:[...directory(),{associationId:LAB_GUILD,recordNumber:'00027',name:guild.name,description:guild.description,joinPolicy:guild.policy,memberCount:guild.members.length,memberLimit:30,combatPower:demoPower(guild.members.length,directory().length),createdAt:created,revenueShareRatePercent:guild.share,emblem:guild.emblem}],
  myApplications:[]
 });
 const record=()=>({revision:2,createdAt:created,updatedAt:now(),payload:gameSnapshot()});
@@ -167,7 +168,7 @@ const rankings=(mode:string)=>{
    associationId:d.associationId,name:d.name,recordNumber:d.recordNumber,
    emblem:d.emblem,level,exp:mine?guild.exp:level*900+(i*317)%850,
    members:d.memberCount,memberLimit:d.memberLimit,
-   combatPower:d.memberCount*320+(i*113)%700,topPower:440+(i*91)%560,
+   combatPower:d.combatPower,topPower:440+(i*91)%560,
    territories,victories,captures:mine?3:Math.min(victories,(i*3)%10),
    defenses:mine?5:Math.min(victories,(i*5)%12),
    createdAt:d.createdAt,mine
