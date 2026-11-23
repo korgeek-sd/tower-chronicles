@@ -46,10 +46,55 @@ export function labRole():Role{return guild.role;}
 export function updateLabRole(role:Role){guild.role=role;persist();observer?.();}
 export function resetLab(){guild=sampleGuild();game=Object.assign(initialState(),{silver:54963809,currentJobId:'contract_mercenary',market:{...initialState().market,gold:100}}) as GameState;persist();observer?.();}
 export function listenLabChanges(cb:()=>void){observer=cb;return()=>{if(observer===cb)observer=null;};}
-const directory=()=>[
+type DemoDirectoryEntry={
+ associationId:string;recordNumber:string;name:string;description:string;
+ joinPolicy:'OPEN'|'APPROVAL'|'CLOSED';memberCount:number;memberLimit:number;
+ revenueShareRatePercent:number;createdAt:string;emblem:GuildEmblemData;
+};
+// Offline-only directory: 29 fixed examples + the current demo guild = 30 entries.
+// Production guilds and their database records are never created or changed.
+const demoGuildSpecs=[
+ {name:'잿빛 파수꾼',description:'밤의 경계를 지키는 수호 원정단입니다.',joinPolicy:'APPROVAL',memberCount:17,revenueShareRatePercent:8,symbol:'knight',base:'#4d5435'},
+ {name:'서리의 서약',description:'매일 보스전에 참여하는 모험가를 환영합니다.',joinPolicy:'OPEN',memberCount:9,revenueShareRatePercent:0,symbol:'star',base:'#2f4f80'},
+ {name:'마지막 횃불',description:'작은 불씨를 모아 탑을 오르는 사람들.',joinPolicy:'OPEN',memberCount:22,revenueShareRatePercent:5,symbol:'candelabra',base:'#996139'},
+ {name:'흑철 기사단',description:'단단한 전열로 점령전을 준비합니다.',joinPolicy:'APPROVAL',memberCount:29,revenueShareRatePercent:10,symbol:'helmet',base:'#22272e'},
+ {name:'달의 감시자',description:'조용히 성장하는 마법사 중심 원정단.',joinPolicy:'APPROVAL',memberCount:14,revenueShareRatePercent:0,symbol:'moon',base:'#624075'},
+ {name:'새벽의 종',description:'매주 주간 보스를 함께 공략합니다.',joinPolicy:'OPEN',memberCount:6,revenueShareRatePercent:0,symbol:'bishop',base:'#9b5b69'},
+ {name:'고요한 방패',description:'서로 돕는 느긋한 모험을 지향합니다.',joinPolicy:'OPEN',memberCount:18,revenueShareRatePercent:3,symbol:'shield',base:'#386148'},
+ {name:'불멸의 성벽',description:'영지 수비에 뜻이 있는 분을 찾습니다.',joinPolicy:'APPROVAL',memberCount:30,revenueShareRatePercent:15,symbol:'castle',base:'#942f3c'},
+ {name:'은빛 나침반',description:'새로운 길을 찾는 탐험 원정단입니다.',joinPolicy:'OPEN',memberCount:12,revenueShareRatePercent:0,symbol:'px-target',base:'#b5b8b1'},
+ {name:'몰락한 왕관',description:'강한 장비를 추구하는 전투 원정단.',joinPolicy:'APPROVAL',memberCount:24,revenueShareRatePercent:12,symbol:'crown',base:'#c19548'},
+ {name:'겨울 장미',description:'처음 시작하는 모험가를 환영합니다.',joinPolicy:'OPEN',memberCount:5,revenueShareRatePercent:0,symbol:'px-heart',base:'#9b5b69'},
+ {name:'황혼의 망루',description:'저녁 시간대 함께 활동하는 원정단.',joinPolicy:'APPROVAL',memberCount:19,revenueShareRatePercent:6,symbol:'rook',base:'#996139'},
+ {name:'푸른 유성',description:'보스전과 사냥 정보를 공유합니다.',joinPolicy:'OPEN',memberCount:11,revenueShareRatePercent:0,symbol:'star',base:'#1d6372'},
+ {name:'칠흑의 날개',description:'점령전에 집중하는 전투 원정단입니다.',joinPolicy:'CLOSED',memberCount:27,revenueShareRatePercent:15,symbol:'swan',base:'#22272e'},
+ {name:'붉은 맹세',description:'협동과 규율을 중요하게 생각합니다.',joinPolicy:'APPROVAL',memberCount:23,revenueShareRatePercent:8,symbol:'px-cross',base:'#942f3c'},
+ {name:'안개 숲',description:'가볍게 활동할 동료를 찾습니다.',joinPolicy:'OPEN',memberCount:8,revenueShareRatePercent:0,symbol:'willow-tree',base:'#386148'},
+ {name:'검은 서고',description:'전략과 공략 연구를 함께합니다.',joinPolicy:'APPROVAL',memberCount:16,revenueShareRatePercent:3,symbol:'book',base:'#4d5435'},
+ {name:'성역의 불꽃',description:'함께 성장하며 보스에 도전합니다.',joinPolicy:'OPEN',memberCount:13,revenueShareRatePercent:0,symbol:'sun',base:'#c19548'},
+ {name:'무명의 기사',description:'누구나 자유롭게 이야기를 나눕니다.',joinPolicy:'APPROVAL',memberCount:21,revenueShareRatePercent:5,symbol:'knight',base:'#2f4f80'},
+ {name:'고대의 열쇠',description:'숨겨진 기록을 찾는 원정단입니다.',joinPolicy:'OPEN',memberCount:10,revenueShareRatePercent:0,symbol:'px-key',base:'#624075'},
+ {name:'북부의 방패',description:'견고한 방어로 영지를 지킵니다.',joinPolicy:'APPROVAL',memberCount:26,revenueShareRatePercent:10,symbol:'px-castle',base:'#1d6372'},
+ {name:'신월의 사냥꾼',description:'사냥과 장비 수집을 즐기는 모험가들.',joinPolicy:'CLOSED',memberCount:30,revenueShareRatePercent:10,symbol:'px-target',base:'#22272e'},
+ {name:'황금 뿔',description:'자유로운 분위기의 소규모 원정단.',joinPolicy:'OPEN',memberCount:4,revenueShareRatePercent:0,symbol:'fawn',base:'#996139'},
+ {name:'천개의 별',description:'늦은 밤에도 함께하는 모험가 모임.',joinPolicy:'APPROVAL',memberCount:15,revenueShareRatePercent:5,symbol:'star',base:'#624075'},
+ {name:'회색 성채',description:'정기적인 영지전 참가자를 모집합니다.',joinPolicy:'APPROVAL',memberCount:28,revenueShareRatePercent:15,symbol:'castle',base:'#b5b8b1'},
+ {name:'영원의 약속',description:'서로 도우며 꾸준히 성장합니다.',joinPolicy:'CLOSED',memberCount:20,revenueShareRatePercent:10,symbol:'lauburu',base:'#c19548'}
+] as const;
+const directory=():DemoDirectoryEntry[]=>[
  {associationId:'33333333-3333-4333-8333-333333333333',recordNumber:'00021',name:'철의 맹세',description:'함께 전진하는 원정단',joinPolicy:'APPROVAL',memberCount:20,memberLimit:30,revenueShareRatePercent:5,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#2f4f80',symbol:'crown'}},
  {associationId:'44444444-4444-4444-8444-444444444444',recordNumber:'00024',name:'푸른 기사단',description:'초보자 환영',joinPolicy:'OPEN',memberCount:12,memberLimit:30,revenueShareRatePercent:0,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#386148',symbol:'shield'}},
- {associationId:'55555555-5555-4555-8555-555555555555',recordNumber:'00025',name:'붉은 달',description:'보스전과 점령전을 함께합니다.',joinPolicy:'APPROVAL',memberCount:16,memberLimit:30,revenueShareRatePercent:10,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#624075',symbol:'moon'}}
+ {associationId:'55555555-5555-4555-8555-555555555555',recordNumber:'00025',name:'붉은 달',description:'보스전과 점령전을 함께합니다.',joinPolicy:'APPROVAL',memberCount:16,memberLimit:30,revenueShareRatePercent:10,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#624075',symbol:'moon'}},
+ ...demoGuildSpecs.map((g,i)=>({
+  associationId:uid(501+i),recordNumber:String(31+i).padStart(5,'0'),
+  name:g.name,description:g.description,joinPolicy:g.joinPolicy,
+  memberCount:g.memberCount,memberLimit:30,revenueShareRatePercent:g.revenueShareRatePercent,
+  createdAt:new Date(Date.UTC(2026,9,1+i,9)).toISOString(),
+  emblem:{...DEFAULT_GUILD_EMBLEM,base:g.base,symbol:g.symbol,
+   shape:['shield','point','round','crest','banner','wide','tower','diamond'][i%8],
+   pattern:['solid','split','chevron','diagonal','quarters','stripe'][i%6],
+   border:['gold','iron','silver','ancient','royal'][i%5]}
+ }))
 ];
 const current=()=>guild.role==='NONE'?null:({
  associationId:LAB_GUILD,recordNumber:'00027',name:guild.name,description:guild.description,
