@@ -1,7 +1,11 @@
 import type {CharacterGrowthSnapshot} from '../src/online/characterGrowth';
 import {huntingExperienceForLevel} from '../src/game/hunting/model';
+import {calculateCombatPower} from '../src/game/combatPower';
 export function characterGrowthFixture():CharacterGrowthSnapshot{return {
- experience:huntingExperienceForLevel(42)+90024,allocation:{hp:2,attack:4,defense:3,crit:2,mp:1},
+ experience:huntingExperienceForLevel(42)+90024,
+ combatPower:calculateCombatPower({hp:208,attack:43.20414,defense:9.1581885,critChance:.09,critDamage:1.5,armorPenetration:0}).power,
+ combatPowerSkillBonus:0,
+ allocation:{hp:2,attack:4,defense:3,crit:2,mp:1},
  baseStats:{hp:180,attack:8,defense:3,critChance:.05,critDamage:1.5,armorPenetration:0},
  stats:{hp:208,attack:43.20414,defense:9.1581885,critChance:.09,critDamage:1.5,armorPenetration:0,appearanceEffect:{id:'attack',value:2}},maxMp:110,
  currentJobId:null,selectedAppearanceId:'default',
