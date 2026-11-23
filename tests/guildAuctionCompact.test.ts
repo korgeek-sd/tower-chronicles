@@ -40,3 +40,9 @@ test('경매장 v4: 서버 입찰과 보상, 낙찰, 유찰, 경매 등록 동�
  assert.match(panel,/tc-ga-quick-menu/);
  assert.match(panel,/tc-ga-feature-bid/);
 });
+
+test('경매장 v4: 숨겨진 게임 제목 때문에 공헌도 박스가 중앙 제목과 겹치지 않음',()=>{
+ assert.match(styles,/\.tc-ga-v4 \.tc-ga-back\{grid-column:1!important;grid-row:1!important/);
+ assert.match(styles,/\.tc-ga-v4 \.tc-ga-balance\{\s*grid-column:3!important;grid-row:1!important;justify-self:end!important/);
+ assert.match(styles,/\.tc-ga-v4 \.tc-ga-heading-title\{[\s\S]*?left:69px!important;[\s\S]*?right:109px!important/);
+});
