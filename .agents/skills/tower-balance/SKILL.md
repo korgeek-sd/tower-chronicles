@@ -59,3 +59,10 @@ Direct runner: node --import ./tests/register.mjs scripts/balance/huntingBalance
 - Automated checks: 'tests/huntingBalanceTool.test.ts'
 - Scenario/metric reference: 'references/analysis-contract.md'
 - Method references: https://github.com/Yuki001/game-dev-skills/tree/main/skills/game-balance-analysis ; https://github.com/nitzangames/headless-game-balance ; https://github.com/NVlabs/Skill2Env
+
+## Combat Power v1 verification (2026-11)
+- Read `src/game/combatPower.ts` and the live Supabase functions `private.combat_power_from_stats`, `private.member_skill_bonus`, `private.member_combat_power`. The client pure formula is reference/test-only; the live server alone owns rankings.
+- CP = floor((ATK*10*(1+critChance*(critDamage-1))*(1+armorPenetration*.5) + HP*.5*(1+DEF/100))*(1+equippedSkillBonus)), capped at 1e9. The skill bonus uses learned equipped catalog skills and their server-owned enhancement levels, capped at 20%.
+- Never add separate points for gear grade, enhancement, level, unspent points, consumables, food or timed buffs when the final stats already account for them.
+- Compare level 1/20/40/60/80/100 builds, weapon families, and defense/crit extremes using the existing reproducible hunting-balance runner. Flag CP/build combat-performance inversions rather than adjusting real combat numbers silently.
+- Guild OVERALL ranking sums current members' server-calculated CP (including offline members); memberships and gear changes take effect on the next ranking query. Secondary rankings retain territory, war, and growth ordering.
