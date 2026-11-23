@@ -82,7 +82,7 @@ const demoGuildSpecs=[
  {name:'영원의 약속',description:'서로 도우며 꾸준히 성장합니다.',joinPolicy:'CLOSED',memberCount:20,revenueShareRatePercent:10,symbol:'lauburu',base:'#c19548'}
 ] as const;
 const demoPower=(count:number,index:number)=>count*320+(index*113)%700;
-const directory=():DemoDirectoryEntry[]=>[
+const directory=():DemoDirectoryEntry[]=>([
  {associationId:'33333333-3333-4333-8333-333333333333',recordNumber:'00021',name:'철의 맹세',description:'함께 전진하는 원정단',joinPolicy:'APPROVAL',memberCount:20,memberLimit:30,revenueShareRatePercent:5,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#2f4f80',symbol:'crown'}},
  {associationId:'44444444-4444-4444-8444-444444444444',recordNumber:'00024',name:'푸른 기사단',description:'초보자 환영',joinPolicy:'OPEN',memberCount:12,memberLimit:30,revenueShareRatePercent:0,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#386148',symbol:'shield'}},
  {associationId:'55555555-5555-4555-8555-555555555555',recordNumber:'00025',name:'붉은 달',description:'보스전과 점령전을 함께합니다.',joinPolicy:'APPROVAL',memberCount:16,memberLimit:30,revenueShareRatePercent:10,createdAt:created,emblem:{...DEFAULT_GUILD_EMBLEM,base:'#624075',symbol:'moon'}},
@@ -96,7 +96,7 @@ const directory=():DemoDirectoryEntry[]=>[
    pattern:['solid','split','chevron','diagonal','quarters','stripe'][i%6],
    border:['gold','iron','silver','ancient','royal'][i%5]}
  }))
-].map((d,i)=>({...d,combatPower:demoPower(d.memberCount,i)}));
+] as Omit<DemoDirectoryEntry,'combatPower'>[]).map((d,i)=>({...d,combatPower:demoPower(d.memberCount,i)}));
 const current=()=>guild.role==='NONE'?null:({
  associationId:LAB_GUILD,recordNumber:'00027',name:guild.name,description:guild.description,
  leaderUserId:uid(1),createdAt:created,notice:guild.notice,noticeUpdatedAt:created,
