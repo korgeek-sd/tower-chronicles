@@ -6,10 +6,10 @@ import {getGuildRankings,type GuildRankingEntry,type GuildRankingMode,type Guild
 import './guildRankings.css';
 
 const MODES:readonly (readonly [GuildRankingMode,string])[]=[
- ['OVERALL','종합'],['TERRITORY','영지'],['WARS','공성전'],['GROWTH','성장']
+ ['OVERALL','전투력'],['TERRITORY','영지'],['WARS','공성전'],['GROWTH','성장']
 ];
 const DESCRIPTIONS:Record<GuildRankingMode,string>={
- OVERALL:'점령 영지 → 공성전 승리 → 길드 레벨 → 단원 수',
+ OVERALL:'단원 전투력 총합 → 최고 단원 전투력 → 단원 수',
  TERRITORY:'점령 영지 → 길드 레벨 → 공성전 승리',
  WARS:'공성전 승리 → 점령 성공 → 현재 영지',
  GROWTH:'길드 레벨 → 누적 경험치 → 단원 수'
@@ -25,10 +25,10 @@ function Row({entry}:{entry:GuildRankingEntry}){
    <RankNumber rank={entry.rank}/>
    <GuildEmblem value={entry.emblem} size={34} label={entry.name+' 문장'}/>
    <span className="tc-gr-name"><b>{entry.name}{entry.mine?' · 우리 길드':''}</b><small>{entry.recordNumber} · Lv.{entry.level} · {entry.members}/{entry.memberLimit}명</small></span>
-   <span className="tc-gr-metrics"><b>{entry.territories}<small> 영지</small></b><span>{entry.victories}승</span></span>
+   <span className="tc-gr-metrics"><b>{int(entry.combatPower)}<small> CP</small></b><span>최고 {int(entry.topPower)}</span></span>
    <span className="tc-gr-arrow" aria-hidden="true">›</span>
   </span>}><div className="tc-gr-details">
-   <div><small>점령 영지</small><b>{entry.territories}곳</b></div>
+   <div><small>총 전투력</small><b>{int(entry.combatPower)}</b></div><div><small>최고 단원 전투력</small><b>{int(entry.topPower)}</b></div><div><small>점령 영지</small><b>{entry.territories}곳</b></div>
    <div><small>공성전 승리</small><b>{entry.victories}회</b></div>
    <div><small>점령 성공</small><b>{entry.captures}회</b></div>
    <div><small>방어 성공</small><b>{entry.defenses}회</b></div>
@@ -70,7 +70,7 @@ export function GuildRankingPanel({lease}:{lease:GameplayLease}){
  const mine=state?.entries.find(x=>x.mine);
  return <section className="tc-gr" aria-label="길드 랭킹">
   <header className="tc-gr-header">
-   <div><small>GUILD LEADERBOARD</small><h2>원정단 랭킹</h2><p>실제 점령·공성전·성장 기록 기준</p></div>
+   <div><small>GUILD LEADERBOARD</small><h2>원정단 랭킹</h2><p>소속 단원 전체의 상시 전투력 합산</p></div>
    <button type="button" className="tc-gr-reload" disabled={loading} onClick={()=>void load(mode)}>새로고침</button>
   </header>
   <nav className="tc-gr-modes" aria-label="랭킹 종류">
@@ -80,7 +80,7 @@ export function GuildRankingPanel({lease}:{lease:GameplayLease}){
   <div className="tc-gr-stats">
    <div><small>활성 길드</small><b>{int(state?.totalGuilds??0)}<span>개</span></b></div>
    <div><small>우리 길드 순위</small><b>{state?.myRank?int(state.myRank)+'위':'—'}</b></div>
-   <div><small>우리 길드 영지</small><b>{mine?mine.territories:'—'}</b></div>
+   <div><small>우리 원정단 총 전투력</small><b>{mine?int(mine.combatPower):'—'}</b></div>
   </div>
   <label className="tc-gr-search"><span>길드명 검색</span><input value={search} maxLength={40}
    placeholder="표시된 상위 100개 길드 검색" onChange={e=>{setSearch(e.target.value);setPage(0);}}/></label>
