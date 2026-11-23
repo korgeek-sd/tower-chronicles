@@ -166,7 +166,7 @@ function OnlineAssociationScreen({
    onSubmit={()=>void act(()=>createOnlineAssociation(lease,{
     name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL',emblem
    }),'원정단을 서버에 등록했습니다.')}/>;
-  return <Screen className="tc-guild-directory-screen" eyebrow="NOVAR COMPANY REGISTRY / ONLINE" title="원정단 찾기" meta={<span>{game.silver.toLocaleString()} S</span>}>
+  return <Screen className="tc-guild-directory-screen" title="원정단 찾기" hideHeader>
    <GuildRecruitmentBoard
     entries={state.directory} applications={state.myApplications}
     locked={rejoinLocked} rejoinAt={rejoinAt} busy={busy} error={error}
