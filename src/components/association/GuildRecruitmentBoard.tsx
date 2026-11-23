@@ -11,7 +11,6 @@ const options:{id:Filter;label:string}[]=[
  {id:'all',label:'전체'},{id:'open',label:'즉시 가입'},
  {id:'approval',label:'승인 가입'},{id:'rankings',label:'랭킹'}
 ];
-const fmt=(n:number)=>Math.max(0,n).toLocaleString('ko-KR');
 const status=(e:OnlineAssociationDirectoryEntry)=>e.memberCount>=e.memberLimit?'정원 마감':e.joinPolicy==='CLOSED'?'모집 중지':e.joinPolicy==='OPEN'?'자유 가입':'승인 가입';
 const compactDate=(iso:string)=>{const d=new Date(iso);return Number.isFinite(d.getTime())?d.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}):'—';};
 export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy,error,onCreate,onJoin,lease}:{
@@ -57,8 +56,6 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    {options.map(opt=><button type="button" role="tab" aria-selected={filter===opt.id} key={opt.id} onClick={()=>changeFilter(opt.id)}>{opt.label}</button>)}
   </div>
   {filter==='rankings'?<div className="tc-grb-ranking"><GuildRankingPanel lease={lease}/></div>:<div className="tc-grb-result">
-   <div className="tc-grb-heading"><span className="tc-grb-heading-decoration">✦</span><strong>{filter==='all'?'원정단 목록':filter==='open'?'즉시 가입 원정단':'승인 가입 원정단'}</strong><span className="tc-grb-heading-decoration">✦</span></div>
-   <div className="tc-grb-count"><span>원정단을 누르면 그 자리에서 상세 정보가 열립니다.</span><strong>{fmt(matching.length)}개</strong></div>
    <div className="tc-grb-list">
     {matching.slice(safePage*6,safePage*6+6).map(e=>{
      const isExpanded=expandedId===e.associationId;
