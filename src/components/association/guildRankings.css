@@ -54,3 +54,6 @@
 .tc-gr-discover{min-height:32px;border:1px solid #816443;background:#282118;color:#e7c590;font-size:11px}
 /* In the pre-membership recruitment view the ranking panel fills the available game pane. */
 .tc-assoc-registry>.tc-gr{flex:1;min-height:0}
+
+.tc-gr-metrics{min-width:75px}.tc-gr-metrics b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-gr-metrics>span{white-space:nowrap;color:#c1ae88}.tc-gr-stats b{font-size:clamp(11px,3vw,15px)}
+@media(max-width:360px){.tc-gr-metrics{min-width:65px}.tc-gr-metrics b{font-size:11px}}
