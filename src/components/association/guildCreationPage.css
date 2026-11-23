@@ -93,3 +93,6 @@
 .tc-guild-create-screen .tc-guild-emblem-actions button{min-height:37px;background:linear-gradient(#3a3033,#282329);color:#e9d5ad;border:1px solid #9e7952;font-size:12px}
 @media(min-width:520px){.tc-guild-charter-workspace{grid-template-columns:36% minmax(0,1fr)}.tc-guild-charter-crest{display:flex}.tc-guild-charter-tiles>button{min-height:68px}}
 @media(max-width:370px){.tc-guild-create-scroll{padding:7px 6px 18px;gap:9px}.tc-guild-create-summary{grid-template-columns:96px minmax(0,1fr);gap:6px;padding:6px}.tc-guild-create-summary .tc-guild-emblem{width:85px;height:85px}.tc-guild-create-header{grid-template-columns:50px minmax(0,1fr) 79px;gap:4px}.tc-guild-create-wallet{font-size:9px}.tc-guild-charter-swatches{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.tc-guild-charter-tiles>button{min-height:64px}.tc-guild-charter-adjust label{grid-template-columns:57px minmax(0,1fr) 39px;gap:5px}}
+
+.tc-guild-create-name-feedback{font-size:10px;line-height:1.5;color:#bfae90;margin:4px 0 2px;padding:0 2px}
+.tc-guild-create-name-feedback.invalid{color:#e2a09a}
