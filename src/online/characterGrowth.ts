@@ -8,6 +8,7 @@ import {getDeviceId} from './cloudSave';
 import {supabaseConfig} from './config';
 export interface CharacterGrowthSnapshot {
  experience:number;allocation:StatAllocation;baseStats:CombatStats;
+ combatPower:number;combatPowerSkillBonus:number;
  stats:CombatStats&{appearanceEffect?:{id?:string;value?:number}};
  maxMp:number;currentJobId:string|null;selectedAppearanceId:string;
  equipment:{slot:Slot;item:EquipmentItem;stats:EquipmentBaseStats}[];
