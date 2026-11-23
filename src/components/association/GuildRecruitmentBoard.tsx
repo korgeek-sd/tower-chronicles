@@ -118,7 +118,7 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    <div className="tc-grb-pager-shell">
     {pages>1?<Pager page={safePage} count={pages} onChange={changePage}/>:<div className="tc-grb-single-page">1 / 1</div>}
    </div>
-  </div>
+  </div>}
   {error&&<div className="tc-floor-risk" role="alert">{error}</div>}
  </div>;
 }
