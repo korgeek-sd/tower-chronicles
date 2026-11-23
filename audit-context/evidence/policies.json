@@ -1,0 +1,82 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "game_chat_messages",
+    "policyname": "chat_member_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((( SELECT auth.uid() AS uid) IS NOT NULL) AND (NOT COALESCE(( SELECT ((auth.jwt() ->> 'is_anonymous'::text))::boolean AS bool), false)) AND (EXISTS ( SELECT 1\n   FROM game_player_profiles\n  WHERE (game_player_profiles.user_id = ( SELECT auth.uid() AS uid)))) AND ((association_id IS NULL) OR (association_id = ((( SELECT private.my_chat_association() AS my_chat_association) ->> 'id'::text))::uuid)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "game_chat_messages",
+    "policyname": "chat_own_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((user_id = ( SELECT auth.uid() AS uid)) AND (NOT COALESCE(( SELECT ((auth.jwt() ->> 'is_anonymous'::text))::boolean AS bool), false)))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "game_player_profiles",
+    "policyname": "player_profiles_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((( SELECT auth.uid() AS uid) IS NOT NULL) AND (NOT COALESCE((( SELECT (auth.jwt() ->> 'is_anonymous'::text)))::boolean, false)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "game_player_profiles",
+    "policyname": "player_profiles_register",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((( SELECT auth.uid() AS uid) = user_id) AND (NOT COALESCE((( SELECT (auth.jwt() ->> 'is_anonymous'::text)))::boolean, false)))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "game_saves",
+    "policyname": "read own current save",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "realtime",
+    "tablename": "messages",
+    "policyname": "authenticated can receive market broadcasts",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((extension = 'broadcast'::text) AND (realtime.topic() = 'market'::text))",
+    "with_check": null
+  },
+  {
+    "schemaname": "realtime",
+    "tablename": "messages",
+    "policyname": "authenticated can receive resource stronghold broadcasts",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((extension = 'broadcast'::text) AND (realtime.topic() = 'resource_stronghold'::text))",
+    "with_check": null
+  },
+  {
+    "schemaname": "realtime",
+    "tablename": "messages",
+    "policyname": "game session broadcasts are private to user",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((extension = 'broadcast'::text) AND (realtime.topic() = ('game-session:'::text || (( SELECT auth.uid() AS uid))::text)))",
+    "with_check": null
+  }
+]
