@@ -98,7 +98,7 @@ begin
   'foodTurns',coalesce((select food_turns from private.village_life_players where user_id=u),'{}'::jsonb)
  );
 end;
-$function$
+$function$;
 
 
 -- The OVERALL ranking is computed from all current members' live CP.
@@ -180,5 +180,4 @@ begin
   'myAssociationId',v_my_guild,'myRank',v_my_rank,'entries',v_rows,
   'updatedAt',clock_timestamp());
 end
-$function$
-
+$function$;
