@@ -3,7 +3,6 @@ import type{GameplayLease} from '../../online/gameSession';
 import type{OnlineAssociationDirectoryEntry,OnlineAssociationOwnApplication} from '../../online/association';
 import{GuildEmblem}from'./GuildEmblem';
 import{GuildRankingPanel}from'./GuildRankingPanel';
-import{Pager}from'../../ui/mobile';
 import'./guildRecruitment.css';
 
 type Filter='all'|'open'|'approval'|'rankings';
@@ -46,7 +45,6 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
  const listRef=useRef<HTMLDivElement>(null);
  const scrollListTop=()=>{if(listRef.current)listRef.current.scrollTop=0;};
  const[expandedId,setExpandedId]=useState<string|null>(null);
- const[page,setPage]=useState(0);
  const waiting=new Set(applications.map(x=>x.associationId));
  const matching=useMemo(()=>{
   const q=query.trim().toLocaleLowerCase('ko-KR');
@@ -54,11 +52,8 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    .filter(e=>filter==='open'?e.joinPolicy==='OPEN'&&e.memberCount<e.memberLimit:filter==='approval'?e.joinPolicy==='APPROVAL'&&e.memberCount<e.memberLimit:true)
    .sort((a,b)=>sortGuilds(a,b,sortMode));
  },[entries,filter,query,sortMode]);
- const pages=Math.max(1,Math.ceil(matching.length/4));
- const safePage=Math.min(page,pages-1);
- const changeFilter=(id:Filter)=>{setFilter(id);setExpandedId(null);setPage(0);scrollListTop();};
- const changeSort=(next:SortMode)=>{setSortMode(next);setExpandedId(null);setPage(0);scrollListTop();};
- const changePage=(next:number)=>{setPage(next);setExpandedId(null);scrollListTop();};
+ const changeFilter=(id:Filter)=>{setFilter(id);setExpandedId(null);scrollListTop();};
+ const changeSort=(next:SortMode)=>{setSortMode(next);setExpandedId(null);scrollListTop();};
  const toggleListItem=(id:string)=>setExpandedId(current=>current===id?null:id);
  const joinButton=(e:OnlineAssociationDirectoryEntry)=>{
   const applied=waiting.has(e.associationId);
@@ -72,7 +67,7 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
   <div className="tc-grb-search-row">
    <label className="tc-grb-search">
     <span>원정단 검색</span>
-    <div className="tc-grb-search-field"><span aria-hidden="true" className="tc-grb-magnifier"/><input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);setExpandedId(null);scrollListTop();}} placeholder="원정단명 검색" aria-label="원정단명 검색"/>{query&&<button aria-label="검색어 지우기" onClick={()=>{setQuery('');setPage(0);setExpandedId(null);scrollListTop();}}>×</button>}</div>
+    <div className="tc-grb-search-field"><span aria-hidden="true" className="tc-grb-magnifier"/><input value={query} onChange={e=>{setQuery(e.target.value);setExpandedId(null);scrollListTop();}} placeholder="원정단명 검색" aria-label="원정단명 검색"/>{query&&<button aria-label="검색어 지우기" onClick={()=>{setQuery('');setExpandedId(null);scrollListTop();}}>×</button>}</div>
    </label>
    <button className="tc-grb-create" onClick={onCreate}><span aria-hidden="true">✧</span> 원정단 창설</button>
   </div>
@@ -93,7 +88,7 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    </div>
    <div className="tc-grb-list-viewport" ref={listRef}>
     <div className="tc-grb-list">
-    {matching.slice(safePage*4,safePage*4+4).map(e=>{
+    {matching.map(e=>{
      const isExpanded=expandedId===e.associationId;
      return <article key={e.associationId} className={'tc-grb-list-item'+(isExpanded?' expanded':'')}>
       <button type="button" className="tc-grb-list-card" aria-expanded={isExpanded} aria-controls={'tc-grb-details-'+e.associationId} onClick={()=>toggleListItem(e.associationId)} aria-label={e.name+' 상세 정보 '+(isExpanded?'접기':'보기')}>
@@ -114,9 +109,6 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
     })}
     </div>
     {!matching.length&&<div className="tc-grb-empty"><strong>조건에 맞는 원정단이 없습니다.</strong><span>검색어나 가입 조건을 변경하거나 새 원정단을 창설하세요.</span></div>}
-   </div>
-   <div className="tc-grb-pager-shell">
-    {pages>1?<Pager page={safePage} count={pages} onChange={changePage}/>:<div className="tc-grb-single-page">1 / 1</div>}
    </div>
   </div>}
   {error&&<div className="tc-floor-risk" role="alert">{error}</div>}
