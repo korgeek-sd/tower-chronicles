@@ -4,9 +4,9 @@
 .tc-guild-create-layout{height:100%;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;background:linear-gradient(180deg,#1b1922,#130f15 40%,#0d0b10);color:#e5d5b8}
 .tc-guild-create-layout *{box-sizing:border-box}
 .tc-guild-create-scroll{min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#806444 #17120f;padding:10px 9px 24px;display:flex;flex-direction:column;gap:12px}
-.tc-guild-create-header{min-height:55px;display:grid;grid-template-columns:60px minmax(0,1fr) 95px;align-items:center;gap:7px;padding-bottom:8px;border-bottom:1px solid #695036}
-.tc-guild-create-header>button{height:37px;padding:0 5px;border:1px solid #755a39;background:linear-gradient(#2c231d,#17141a);color:#e1c594;font-size:23px;cursor:pointer}
-.tc-guild-create-header>button span{font-size:11px;vertical-align:3px}
+.tc-guild-create-header{min-height:55px;display:grid;grid-template-columns:74px minmax(0,1fr) 95px;align-items:center;gap:7px;padding-bottom:8px;border-bottom:1px solid #695036}
+.tc-guild-create-header>button{min-width:0;height:37px;display:inline-flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:5px;white-space:nowrap;word-break:keep-all;line-height:1;padding:0 5px;border:1px solid #755a39;background:linear-gradient(#2c231d,#17141a);color:#e1c594;font-size:21px;cursor:pointer}
+.tc-guild-create-header>button span{display:inline-block;flex:none;white-space:nowrap;word-break:keep-all;font-size:11px;line-height:1}
 .tc-guild-create-header>div{text-align:center;min-width:0}
 .tc-guild-create-header small{display:block;color:#b69a6a;font-size:8px;letter-spacing:.1em;line-height:1.35}
 .tc-guild-create-header h1{color:#f3dba8;text-shadow:0 2px 2px #000;font:700 clamp(16px,5vw,21px) Georgia,'Noto Serif KR',serif;line-height:1.25;margin:3px 0 0;white-space:nowrap}
@@ -92,7 +92,7 @@
 .tc-guild-create-screen .tc-guild-emblem-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
 .tc-guild-create-screen .tc-guild-emblem-actions button{min-height:37px;background:linear-gradient(#3a3033,#282329);color:#e9d5ad;border:1px solid #9e7952;font-size:12px}
 @media(min-width:520px){.tc-guild-charter-workspace{grid-template-columns:36% minmax(0,1fr)}.tc-guild-charter-crest{display:flex}.tc-guild-charter-tiles>button{min-height:68px}}
-@media(max-width:370px){.tc-guild-create-scroll{padding:7px 6px 18px;gap:9px}.tc-guild-create-summary{grid-template-columns:96px minmax(0,1fr);gap:6px;padding:6px}.tc-guild-create-summary .tc-guild-emblem{width:85px;height:85px}.tc-guild-create-header{grid-template-columns:50px minmax(0,1fr) 79px;gap:4px}.tc-guild-create-wallet{font-size:9px}.tc-guild-charter-swatches{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.tc-guild-charter-tiles>button{min-height:64px}.tc-guild-charter-adjust label{grid-template-columns:57px minmax(0,1fr) 39px;gap:5px}}
+@media(max-width:370px){.tc-guild-create-scroll{padding:7px 6px 18px;gap:9px}.tc-guild-create-summary{grid-template-columns:96px minmax(0,1fr);gap:6px;padding:6px}.tc-guild-create-summary .tc-guild-emblem{width:85px;height:85px}.tc-guild-create-header{grid-template-columns:70px minmax(0,1fr) 79px;gap:4px}.tc-guild-create-wallet{font-size:9px}.tc-guild-charter-swatches{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.tc-guild-charter-tiles>button{min-height:64px}.tc-guild-charter-adjust label{grid-template-columns:57px minmax(0,1fr) 39px;gap:5px}}
 
 .tc-guild-create-name-feedback{font-size:10px;line-height:1.5;color:#bfae90;margin:4px 0 2px;padding:0 2px}
 .tc-guild-create-name-feedback.invalid{color:#e2a09a}
