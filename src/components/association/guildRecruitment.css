@@ -1,7 +1,9 @@
 /* Recruitment directory — equal-size, expandable guild rows.
    Scoped to the non-member screen; headquarters and existing guild CSS are untouched. */
-.tc-guild-directory-screen>.tc-screen-body{min-height:0;overflow:hidden}
-.tc-grb{height:100%;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#6c5637 #151714;display:flex;flex-direction:column;gap:10px;padding:2px 1px 15px;color:#e3d5b8}
+/* One scroll surface only: the game screen body scrolls, not the inner guild list. */
+.tc-guild-directory-screen>.tc-screen-body{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
+.tc-guild-directory-screen>.tc-screen-body::-webkit-scrollbar{display:none}
+.tc-grb{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:10px;padding:2px 1px 15px;color:#e3d5b8}
 .tc-grb button{font-family:inherit}
 .tc-grb-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:end}
 .tc-grb-search{min-width:0;display:grid;gap:4px}
@@ -25,11 +27,6 @@
 .tc-grb-tabs>button[aria-selected=true]{border-color:#b69560;background:linear-gradient(#765434,#49321e);color:#f5dfb3;font-weight:700;box-shadow:inset 0 1px #c4a06b}
 .tc-grb-tabs>button[aria-selected=true]::after{content:'';position:absolute;bottom:-6px;left:calc(50% - 4px);width:7px;height:7px;transform:rotate(45deg);background:#c29e69;border-right:1px solid #815c35;border-bottom:1px solid #815c35}
 .tc-grb-result{display:flex;min-height:0;flex-direction:column;gap:8px}
-.tc-grb-heading{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:2px;color:#e5c78d;text-align:center}
-.tc-grb-heading strong{font:700 17px/1.25 Georgia,'Noto Serif KR','Malgun Gothic',serif;text-shadow:0 1px 4px #030303;letter-spacing:-.02em}
-.tc-grb-heading-decoration{color:#997547;font-size:12px}
-.tc-grb-count{display:flex;align-items:center;justify-content:space-between;gap:6px;color:#a9a397;font-size:9px;line-height:1.4}
-.tc-grb-count strong{color:#c9b489;white-space:nowrap}
 .tc-grb-member-track{height:5px;background:#0e1315;border:1px solid #51493c}
 .tc-grb-member-track>i{display:block;height:100%;max-width:100%;background:linear-gradient(90deg,#876337,#d1aa6a)}
 .tc-grb-join{min-height:40px;display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;border:1px solid #967750;background:linear-gradient(#51402e,#35291f);color:#e4d0ac;font-size:12px;font-weight:700}
