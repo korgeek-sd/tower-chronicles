@@ -156,10 +156,35 @@ const auction=()=>({associationId:LAB_GUILD,points:guild.points,isLeader:guild.r
  sellerId:uid(2),isMyListing:false,cancelledAt:null,returnedAt:null,canCancel:false,canReturn:false,canRelist:false,
  startingBid:100,topBid:guild.lotBid,nextBid:guild.lotBid+20,topUserId:uid(3),startedAt:created,endsAt:new Date(Date.now()+86400000).toISOString(),
  claimedAt:null,status:'OPEN',isMyTopBid:false}]});
-const rankings=(mode:string)=>({mode,totalGuilds:4,myAssociationId:guild.role==='NONE'?null:LAB_GUILD,myRank:2,updatedAt:now(),
- entries:[{associationId:uid(41),name:'철의 맹세',recordNumber:'00021',emblem:{...DEFAULT_GUILD_EMBLEM,base:'#2f4f80',symbol:'crown'},level:5,exp:8800,members:20,memberLimit:30,territories:1,victories:11,captures:6,defenses:5,mine:false},
- {associationId:LAB_GUILD,name:guild.name,recordNumber:'00027',emblem:guild.emblem,level:guild.level,exp:guild.exp,members:guild.members.length,memberLimit:30,territories:guild.owned.length,victories:8,captures:3,defenses:5,mine:guild.role!=='NONE'},
- {associationId:uid(43),name:'붉은 달',recordNumber:'00025',emblem:{...DEFAULT_GUILD_EMBLEM,base:'#624075',symbol:'moon'},level:3,exp:5600,members:16,memberLimit:30,territories:1,victories:4,captures:2,defenses:2,mine:false}].map((x,i)=>({rank:i+1,...x}))});
+// Match the 30-guild directory in the offline leaderboard as well.
+const rankings=(mode:string)=>{
+ const entries=associationState().directory.map((d,i)=>{
+  const mine=d.associationId===LAB_GUILD&&guild.role!=='NONE';
+  const level=mine?guild.level:2+(i*3)%6;
+  const territories=mine?guild.owned.length:(i*7)%5;
+  const victories=mine?8:(i*11)%21;
+  return{
+   associationId:d.associationId,name:d.name,recordNumber:d.recordNumber,
+   emblem:d.emblem,level,exp:mine?guild.exp:level*900+(i*317)%850,
+   members:d.memberCount,memberLimit:d.memberLimit,
+   territories,victories,captures:mine?3:Math.min(victories,(i*3)%10),
+   defenses:mine?5:Math.min(victories,(i*5)%12),
+   createdAt:d.createdAt,mine
+  };
+ });
+ const sorted=entries.sort((a,b)=>
+  mode==='TERRITORY'?b.territories-a.territories||b.level-a.level||b.victories-a.victories:
+  mode==='WARS'?b.victories-a.victories||b.captures-a.captures||b.territories-a.territories:
+  mode==='GROWTH'?b.level-a.level||b.exp-a.exp||b.members-a.members:
+  b.territories-a.territories||b.victories-a.victories||b.level-a.level||b.members-a.members);
+ const ranked=sorted.map((e,i)=>({...e,rank:i+1}));
+ return{
+  mode,totalGuilds:ranked.length,
+  myAssociationId:guild.role==='NONE'?null:LAB_GUILD,
+  myRank:guild.role==='NONE'?null:ranked.find(e=>e.associationId===LAB_GUILD)?.rank??null,
+  updatedAt:now(),entries:ranked
+ };
+};
 const cycle=()=>({cycleKey:'guild-ui-lab-cycle',phase:'BIDDING',bidClosesAt:new Date(Date.now()+3600000).toISOString(),battleStartsAt:new Date(Date.now()+7200000).toISOString(),battleEndsAt:new Date(Date.now()+10800000).toISOString(),nextCycleAt:new Date(Date.now()+604800000).toISOString()});
 const warDeclarations=()=>({cycleKey:'guild-ui-lab-cycle',phase:'BIDDING',bidClosesAt:cycle().bidClosesAt,battleStartsAt:cycle().battleStartsAt,
  myAssociationId:guild.role==='NONE'?null:LAB_GUILD,myRole:guild.role==='NONE'?null:guild.role,tickets:100,guildTickets:guild.tickets,
