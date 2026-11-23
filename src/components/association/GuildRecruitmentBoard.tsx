@@ -22,7 +22,7 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
 }){
  const[filter,setFilter]=useState<Filter>('recommended');
  const[query,setQuery]=useState('');
- const[focusId,setFocusId]=useState<string|null>(null);
+ const[expandedId,setExpandedId]=useState<string|null>(null);
  const[page,setPage]=useState(0);
  const[expanded,setExpanded]=useState(false);
  const waiting=new Set(applications.map(x=>x.associationId));
@@ -35,12 +35,12 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
     ?b.memberCount-a.memberCount||Date.parse(b.createdAt)-Date.parse(a.createdAt)
     :Date.parse(b.createdAt)-Date.parse(a.createdAt)||a.name.localeCompare(b.name,'ko-KR'));
  },[entries,filter,query]);
- const featured=matching.find(e=>e.associationId===focusId)??matching[0]??null;
+ const featured=matching[0]??null;
  const rest=matching.filter(e=>e.associationId!==featured?.associationId);
  const pages=Math.max(1,Math.ceil(rest.length/3));
  const safePage=Math.min(page,pages-1);
- const changeFilter=(id:Filter)=>{setFilter(id);setFocusId(null);setPage(0);setExpanded(false);};
- const pick=(id:string)=>{setFocusId(id);setPage(0);setExpanded(false);};
+ const changeFilter=(id:Filter)=>{setFilter(id);setExpandedId(null);setPage(0);setExpanded(false);};
+ const toggleListItem=(id:string)=>setExpandedId(current=>current===id?null:id);
  const joinButton=(e:OnlineAssociationDirectoryEntry,featuredCard=false)=>{
   const applied=waiting.has(e.associationId);
   const full=e.memberCount>=e.memberLimit,closed=e.joinPolicy==='CLOSED';
@@ -53,7 +53,7 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
   <div className="tc-grb-search-row">
    <label className="tc-grb-search">
     <span>원정단 검색</span>
-    <div className="tc-grb-search-field"><span aria-hidden="true" className="tc-grb-magnifier"/><input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);setFocusId(null);setExpanded(false);}} placeholder="원정단명 검색" aria-label="원정단명 검색"/>{query&&<button aria-label="검색어 지우기" onClick={()=>{setQuery('');setPage(0);setFocusId(null);}}>×</button>}</div>
+    <div className="tc-grb-search-field"><span aria-hidden="true" className="tc-grb-magnifier"/><input value={query} onChange={e=>{setQuery(e.target.value);setPage(0);setExpandedId(null);setExpanded(false);}} placeholder="원정단명 검색" aria-label="원정단명 검색"/>{query&&<button aria-label="검색어 지우기" onClick={()=>{setQuery('');setPage(0);setExpandedId(null);setExpanded(false);}}>×</button>}</div>
    </label>
    <button className="tc-grb-create" onClick={onCreate}><span aria-hidden="true">✧</span> 원정단 창설</button>
   </div>
@@ -64,7 +64,7 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
   </div>
   {filter==='rankings'?<div className="tc-grb-ranking"><GuildRankingPanel lease={lease}/></div>:<div className="tc-grb-result">
    <div className="tc-grb-heading"><span className="tc-grb-heading-decoration">✦</span><strong>{filter==='recommended'?'추천 원정단':filter==='all'?'원정단 목록':filter==='open'?'자유 가입 원정단':'승인 가입 원정단'}</strong><span className="tc-grb-heading-decoration">✦</span></div>
-   <div className="tc-grb-count"><span>{filter==='recommended'?'모집 현황을 기준으로 정렬했습니다.':'원정단 이름을 선택하면 상세 정보가 표시됩니다.'}</span><strong>{fmt(matching.length)}개</strong></div>
+   <div className="tc-grb-count"><span>{filter==='recommended'?'모집 현황을 기준으로 정렬했습니다.':'원정단을 누르면 그 자리에서 상세 정보가 열립니다.'}</span><strong>{fmt(matching.length)}개</strong></div>
    {featured&&<section className="tc-grb-featured" aria-label={featured.name+' 상세 정보'}>
     <div className="tc-grb-featured-main">
      <div className="tc-grb-featured-crest"><GuildEmblem value={featured.emblem} size={76}/></div>
@@ -82,11 +82,25 @@ export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy
    </section>}
    {rest.length>0&&<div className="tc-grb-list-heading"><strong>다른 원정단</strong><span>{rest.length}개</span></div>}
    <div className="tc-grb-list">
-    {rest.slice(safePage*3,safePage*3+3).map(e=><button key={e.associationId} type="button" className="tc-grb-list-card" onClick={()=>pick(e.associationId)} aria-label={e.name+' 상세 정보 보기'}>
-      <span className="tc-grb-list-crest"><GuildEmblem value={e.emblem} size={43}/></span>
-      <span className="tc-grb-list-copy"><strong>{e.name}</strong><small>{e.description||'등록된 소개가 없습니다.'}</small><span className="tc-grb-list-meta">{e.memberCount}/{e.memberLimit}명 <em className={e.joinPolicy==='OPEN'?'open':''}>{status(e)}</em></span></span>
-      <span className="tc-grb-list-arrow" aria-hidden="true">›</span>
-     </button>)}
+    {rest.slice(safePage*3,safePage*3+3).map(e=>{
+     const isExpanded=expandedId===e.associationId;
+     return <article key={e.associationId} className={'tc-grb-list-item'+(isExpanded?' expanded':'')}>
+      <button type="button" className="tc-grb-list-card" aria-expanded={isExpanded} aria-controls={'tc-grb-details-'+e.associationId} onClick={()=>toggleListItem(e.associationId)} aria-label={e.name+' 상세 정보 '+(isExpanded?'접기':'보기')}>
+       <span className="tc-grb-list-crest"><GuildEmblem value={e.emblem} size={43}/></span>
+       <span className="tc-grb-list-copy"><strong>{e.name}</strong><small>{e.description||'등록된 소개가 없습니다.'}</small><span className="tc-grb-list-meta">{e.memberCount}/{e.memberLimit}명 <em className={e.joinPolicy==='OPEN'?'open':''}>{status(e)}</em></span></span>
+       <span className="tc-grb-list-arrow" aria-hidden="true">{isExpanded?'⌃':'›'}</span>
+      </button>
+      {isExpanded&&<div className="tc-grb-list-details" id={'tc-grb-details-'+e.associationId}>
+       <p className="tc-grb-list-detail-description">{e.description||'등록된 원정단 소개가 없습니다.'}</p>
+       <div className="tc-grb-list-info-row"><span>원정단 기록</span><strong>No. {e.recordNumber}</strong></div>
+       <div className="tc-grb-list-info-row"><span>단원 수</span><strong>{e.memberCount} / {e.memberLimit}명</strong></div>
+       <div className="tc-grb-member-track"><i style={{width:Math.min(100,e.memberLimit?e.memberCount/e.memberLimit*100:0)+'%'}}/></div>
+       <div className="tc-grb-list-info-row"><span>안전 귀환 수익 분담</span><strong>{e.revenueShareRatePercent??0}%</strong></div>
+       <div className="tc-grb-list-info-row"><span>창설일</span><strong>{compactDate(e.createdAt)}</strong></div>
+       {joinButton(e)}
+      </div>}
+     </article>;
+    })}
    </div>
    {!matching.length&&<div className="tc-grb-empty"><strong>조건에 맞는 원정단이 없습니다.</strong><span>검색어나 가입 조건을 변경하거나 새 원정단을 창설하세요.</span></div>}
    {pages>1&&<Pager page={safePage} count={pages} onChange={setPage}/>}
