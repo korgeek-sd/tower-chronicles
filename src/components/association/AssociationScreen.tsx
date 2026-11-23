@@ -33,6 +33,7 @@ import {GuildTerritoryPanel} from './GuildTerritoryPanel';
 import {GuildRankingPanel} from './GuildRankingPanel';
 import {GuildEmblem,GuildEmblemEditor,DEFAULT_GUILD_EMBLEM,type GuildEmblemData} from './GuildEmblem';
 import {GuildCreationPage} from './GuildCreationPage';
+import {GuildRecruitmentBoard} from './GuildRecruitmentBoard';
 import {PagedSelectContext} from '../../ui/GameScrollSelect';
 import {GuildTask} from './GuildTask';
 import './guild-workspace.css';
@@ -82,7 +83,6 @@ function OnlineAssociationScreen({
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState('');
  const [tab,setTab]=useState<ServerTab>('overview');
- const [discoveryRankings,setDiscoveryRankings]=useState(false);
  const [page,setPage]=useState(0);
  const [name,setName]=useState('');
  const [emblem,setEmblem]=useState<GuildEmblemData>({...DEFAULT_GUILD_EMBLEM});
@@ -90,7 +90,7 @@ function OnlineAssociationScreen({
  const [policy,setPolicy]=useState<AssociationPolicy>('APPROVAL');
  const [notice,setNotice]=useState('');
  const [share,setShare]=useState(0);
- const [creating,setCreating]=useState(false),[search,setSearch]=useState(''),[available,setAvailable]=useState(true),[selected,setSelected]=useState<string|null>(null),[fullNotice,setFullNotice]=useState(false);
+ const [creating,setCreating]=useState(false),[fullNotice,setFullNotice]=useState(false);
  const [occupation,setOccupation]=useState<OnlineOccupationState|null>(null);
  const [growthOpen,setGrowthOpen]=useState(false);
  const [heroProgress,setHeroProgress]=useState<AssociationProgression|null>(null);
@@ -157,9 +157,6 @@ function OnlineAssociationScreen({
  if(!current){
   const rejoinAt=state.rejoinAt?Date.parse(state.rejoinAt):0;
   const rejoinLocked=rejoinAt>(state.serverNow??Date.now());
-  const pending=new Set(state.myApplications.map(item=>item.associationId));
- const directory=state.directory.filter(e=>(!available||(e.joinPolicy!=='CLOSED'&&e.memberCount<e.memberLimit))&&e.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
-  const directoryPages=Math.max(1,Math.ceil(directory.length/3)),safeDirectory=Math.min(page,directoryPages-1);
   if(creating)return <GuildCreationPage
    name={name} setName={setName} description={description} setDescription={setDescription}
    policy={policy} setPolicy={setPolicy} emblem={emblem} setEmblem={setEmblem}
@@ -170,31 +167,13 @@ function OnlineAssociationScreen({
     name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL',emblem
    }),'원정단을 서버에 등록했습니다.')}/>;
   return <Screen className="tc-guild-directory-screen" eyebrow="NOVAR COMPANY REGISTRY / ONLINE" title="원정단 찾기" meta={<span>{game.silver.toLocaleString()} S</span>}>
-   <PagedSelectContext.Provider value={true}>
-   <div className="tc-assoc tc-assoc-online tc-assoc-registry">
-    <div className="tc-hq-toolbar"><label>원정단 검색<input value={search} onChange={e=>{setSearch(e.target.value);setPage(0);}} placeholder="원정단명 검색"/></label><button onClick={()=>{setCreating(x=>!x);setDiscoveryRankings(false);}}>{creating?'목록으로':'원정단 창설'}</button></div>
-     <button type="button" className="tc-gr-discover" onClick={()=>{setDiscoveryRankings(x=>!x);setCreating(false);}}>{discoveryRankings?'모집 게시판으로':'원정단 랭킹 보기'}</button>
-    {rejoinLocked&&<div className="tc-hq-waiting" role="status">재가입 가능: {new Date(rejoinAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})} (한국시간) · 탈퇴 후 72시간 제한 · 시간이 지나면 화면을 다시 열어 주세요.</div>}
-    {state.myApplications.length>0&&<div className="tc-hq-waiting">신청 대기 · {state.myApplications.map(x=>x.associationName).join(', ')}</div>}
-    {!creating&&<label className="tc-hq-filter"><input type="checkbox" checked={available} onChange={e=>setAvailable(e.target.checked)}/>가입 가능한 원정단만</label>}
-    {!creating&&discoveryRankings&&<GuildRankingPanel lease={lease}/>}
-     {!creating&&!discoveryRankings&&<section className="tc-panel tc-assoc-recruitment">
-     <div className="tc-panel-title"><b>원정단 찾기 · 모집 게시판</b><small>{directory.length}개 원정단</small></div>
-     <div className="tc-assoc-directory">
-      {directory.slice(safeDirectory*3,safeDirectory*3+3).map(entry=>{
-       const waiting=pending.has(entry.associationId),full=entry.memberCount>=entry.memberLimit;
-       return <article key={entry.associationId} className={selected===entry.associationId?'selected':''}>
-        <div><div className="tc-guild-emblem-name-row"><GuildEmblem value={entry.emblem} size={42}/><button className="tc-hq-directory-name" onClick={()=>setSelected(selected===entry.associationId?null:entry.associationId)} aria-expanded={selected===entry.associationId}>{entry.name}</button></div><small>{entry.recordNumber} · {entry.memberCount}/{entry.memberLimit}명 · {entry.joinPolicy==='OPEN'?'자유 가입':entry.joinPolicy==='APPROVAL'?'승인 가입':'모집 중지'}</small>{selected===entry.associationId&&<p>{entry.description||'등록된 소개가 없습니다.'}<br/>안전 귀환 수익 분담 {entry.revenueShareRatePercent??0}%</p>}</div>
-        <button hidden={selected!==entry.associationId} disabled={rejoinLocked||busy||waiting||full||entry.joinPolicy==='CLOSED'} onClick={()=>void act(()=>joinOnlineAssociation(lease,entry.associationId),entry.joinPolicy==='OPEN'?'원정단에 가입했습니다.':'가입 신청을 보냈습니다.')}>{waiting?'신청 대기':full?'정원 마감':entry.joinPolicy==='OPEN'?'즉시 가입':'가입 신청'}</button>
-       </article>;
-      })}
-      {!directory.length&&<div className="tc-market-v2-empty">조건에 맞는 원정단이 없습니다.<br/>검색 조건을 바꾸거나 새 원정단을 창설하세요.</div>}
-     </div>
-     <Pager page={safeDirectory} count={directoryPages} onChange={setPage}/>
-    </section>}
-    {error&&<div className="tc-floor-risk">{error}</div>}
-   </div>
-   </PagedSelectContext.Provider>
+   <GuildRecruitmentBoard
+    entries={state.directory} applications={state.myApplications}
+    locked={rejoinLocked} rejoinAt={rejoinAt} busy={busy} error={error}
+    lease={lease}
+    onCreate={()=>{setCreating(true);setError('');}}
+    onJoin={entry=>void act(()=>joinOnlineAssociation(lease,entry.associationId),entry.joinPolicy==='OPEN'?'원정단에 가입했습니다.':'가입 신청을 보냈습니다.')}
+   />
   </Screen>;
  }
 
