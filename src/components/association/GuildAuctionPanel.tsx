@@ -22,7 +22,7 @@ const describe=(item:GuildAuctionListing)=>{
  const stat=equipmentItemStats(item.gear);
  return Object.entries(stat).filter(([key,val])=>!!val&&['hp','attack','defense'].includes(key)).map(([key,value])=>({hp:'HP',attack:'공격력',defense:'방어력'}[key]??key)+' +'+value).join(' · ');
 };
-const lotName=(l:GuildAuctionListing)=>l.source==='MATERIAL'?GUILD_MATERIAL_NAMES[l.materialId??'herb']+' ×'+n(l.materialQuantity??0):equipmentItemName(l.gear);
+const lotName=(l:GuildAuctionListing)=>l.source==='MATERIAL'?(l.materialId?GUILD_MATERIAL_NAMES[l.materialId]:'재료')+' ×'+n(l.materialQuantity??0):equipmentItemName(l.gear);
 const lotSource=(l:GuildAuctionListing)=>l.source==='MATERIAL'?'점령 마을 세금 재료':l.source==='BOSS'?'보스 토벌 전리품':'길드장 등록 장비';
 type PendingBid={id:string;amount:number};
 type AuctionSection='active'|'mine'|'history';
@@ -31,7 +31,11 @@ const gradePriority={common:0,uncommon:1,rare:2,heroic:3,legendary:4} as const;
 type AuctionSort='ending'|'highest'|'lowest';
 function AuctionArt({lot,featured=false}:{lot:GuildAuctionListing;featured?:boolean}){
  return <span className={'tc-ga-art '+(featured?'featured ':'')+(lot.source==='MATERIAL'?'material':'grade-'+lot.gear.grade)} aria-hidden="true">
-  {lot.source==='MATERIAL'?<span className="tc-ga-material-symbol">◆</span>:<img src={assetUrl('assets/ui/equipment/'+lot.gear.kind+'.png')} alt="" loading="lazy"/>}
+  {lot.source==='MATERIAL'
+    ?lot.materialId
+     ?<img src={assetUrl('assets/ui/crafting/'+lot.materialId+'.png')} alt="" loading="lazy"/>
+     :<span className="tc-ga-material-symbol">◆</span>
+    :<img src={assetUrl('assets/ui/equipment/'+lot.gear.kind+'.png')} alt="" loading="lazy"/>}
  </span>;
 }
 export function GuildAuctionPanel({lease,associationId,expedition,onRecord,onChanged,onBack}:{lease:GameplayLease;associationId:string;expedition:boolean;onRecord:(record:CloudSaveRecord,message:string)=>void;onChanged:()=>void;onBack?:()=>void}){
