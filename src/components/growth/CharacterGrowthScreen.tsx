@@ -44,7 +44,7 @@ export function CharacterGrowthScreen({data,nickname,loading,error,accessMessage
  const weapon=summary?.weapon;
  return <section className="tc-character-page" aria-label="성장 현황" aria-busy={loading} onKeyDown={e=>{if(e.key==='Escape'&&!detail)onClose();}}>
   <header className="tc-character-heading"><h1 ref={heading} tabIndex={-1}>성장 현황</h1><button type="button" onClick={onClose} aria-label="성장 현황 닫기">×</button></header>
-  {!data?<div className="tc-character-unavailable"><p role={error?'alert':'status'}>{accessMessage||error||(loading?'성장 현황을 불러오는 중…':'성장 정보를 확인해 주세요.')}</p>{!accessMessage&&<button type="button" disabled={loading} onClick={onRetry}>{loading?'확인 중…':'다시 확인'}</button>}</div>:<div className="tc-character-content">
+  {!data?<div className="tc-character-unavailable"><p role={error?'alert':'status'}>{accessMessage||error||(loading?'성장 현황을 불러오는 중…':'성장 정보를 확인해 주세요.')}</p>{!accessMessage&&<button type="button" disabled={loading} onClick={onRetry}>{loading?'확인 중…':'다시 확인'}</button>}</div>:<><div className="tc-character-content">
    <section className="tc-character-identity" aria-label="캐릭터 성장">
     {portrait&&<img src={assetUrl(portrait)} alt="현재 캐릭터 외형"/>}
     <div className="tc-character-name"><strong>{nickname??'모험가'}</strong><span>{job?.displayName??'직업 미선택'}</span><b>Lv. {summary!.progress.level}</b></div>
@@ -61,8 +61,9 @@ export function CharacterGrowthScreen({data,nickname,loading,error,accessMessage
     <button type="button" className="tc-character-panel tc-character-seals" onClick={onSeals}><header><h2>인장</h2><small>성장 ›</small></header><div>{(['association','guardian'] as const).map(id=><span key={id}><img className="tc-character-seal-art" data-seal={id} src={sealArt} alt=""/><small>{id==='association'?'전투':'수호'} 인장</small><b>{data.seals[id].level} / 30</b></span>)}</div></button>
    </div>
    <button type="button" className="tc-character-panel tc-character-collection" onClick={onCollection}><header><h2>컬렉션</h2><small>{summary!.collection.total?`달성 ${summary!.collection.completed} / ${summary!.collection.total}`:'컬렉션 준비 중'} ›</small></header><Progress label="컬렉션 달성도" value={Math.floor(summary!.collection.completed/Math.max(1,summary!.collection.total)*100)} text={`${summary!.collection.completed} / ${summary!.collection.total}`}/><div><img src={assetUrl('assets/ui/skillbook.jpg')} alt=""/><span><span className="tc-character-collection-values">{(['attack','defense','hp'] as const).map(key=><span key={key}>{GROWTH_STAT_LABELS[key]}<b>+{growthValue(key,summary!.collection.planned[key])}</b></span>)}</span></span></div><p>{data.collection.applied?'영구 적용 · 전투 능력치에 반영':'전투 능력치에는 아직 적용되지 않았습니다'}</p></button>
+  </div>
    <footer className="tc-character-actions"><button type="button" onClick={()=>setDetail('attack')}>상세 능력치 보기 ›</button><button type="button" onClick={onGrowthRecord}>생활 숙련도 ›</button></footer>
-  </div>}
+  </>}
   {data&&detail&&<DetailDialog data={data} stat={detail} onStat={setDetail} onClose={()=>setDetail(null)} onEquipment={onEquipment}/>}
  </section>;
 }
