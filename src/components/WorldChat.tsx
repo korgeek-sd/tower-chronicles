@@ -4,16 +4,19 @@ import {loadChatAssociation,type ChatAssociation,loadChatMessages,sendChatMessag
 import {GuildEmblem} from './association/GuildEmblem';
 import './world-chat.css';
 const CLASS_LABELS={warrior:'전사',mage:'마법사',archer:'궁수'} as const;
-function ChatSenderInfo({message,showGuild,mine}:{message:ChatMessage;showGuild:boolean;mine:boolean}){
- return <div className="tc-chat-author">
-  {showGuild&&message.senderGuildName&&<span className="tc-chat-sender-guild" title={message.senderGuildName}>
-   <GuildEmblem value={message.senderGuildEmblem} size={19}/>
-   <span>{message.senderGuildName}</span>
-  </span>}
-  <b title={message.nickname}>{message.nickname}</b>
-  {message.senderClassId&&<small className={'tc-chat-class-badge tc-chat-class-'+message.senderClassId}>{CLASS_LABELS[message.senderClassId]}</small>}
-  {mine&&<small className="tc-chat-self">나</small>}
- </div>;
+function ChatMessageRow({message,mine,inline=false}:{message:ChatMessage;mine:boolean;inline?:boolean}){
+ return <article className={'tc-chat-row'+(mine?' mine':'')}>
+  <span className="tc-chat-emblem-slot" title={message.senderGuildName??undefined}>
+   {message.senderGuildId&&message.senderGuildEmblem?<GuildEmblem value={message.senderGuildEmblem} size={32} label={message.senderGuildName??'원정단'}/>:null}
+  </span>
+  <div className="tc-chat-author">
+   <b title={message.nickname}>{message.nickname}</b>
+   {message.senderClassId&&<small className={'tc-chat-class-badge tc-chat-class-'+message.senderClassId}>{CLASS_LABELS[message.senderClassId]}</small>}
+   {message.senderCombatPower!=null&&<small className="tc-chat-power"><span aria-hidden="true">⚔</span> 전투력 {message.senderCombatPower.toLocaleString('ko-KR')}</small>}
+  </div>
+  <time dateTime={message.createdAt}>{new Date(message.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</time>
+  {inline?<span className="tc-chat-message-text">{message.body}</span>:<p className="tc-chat-message-text">{message.body}</p>}
+ </article>;
 }
 export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:string|null;nickname?:string;enabled:boolean;inlineAtHome?:boolean}){
  const [inlineHost,setInlineHost]=useState<HTMLElement|null>(null);
@@ -71,7 +74,7 @@ export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:s
    <header className="tc-chat-inline-heading"><strong>노바르 채팅</strong><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'연결 중'}</span><span className="tc-chat-inline-preview">{error?'채팅 연결을 확인해 주세요':messages.length>0?<><b>{messages[messages.length-1].nickname}:</b> {messages[messages.length-1].body}</>:enabled?'탐험가들과 이야기를 나눠보세요':'채팅을 열어 대화를 확인하세요'}</span><button type="button" ref={entry} className="tc-chat-inline-expand" onClick={()=>setOpen(true)}>확대 ↗</button></header>
    <nav className="tc-chat-inline-channels" aria-label="채팅 채널"><button type="button" aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button type="button" disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단'}</button></nav>
    <div className="tc-chat-inline-messages" ref={scroller} role="log" aria-label={channelName+' 메시지'} aria-live="polite" onScroll={()=>{const el=scroller.current;if(el)nearBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<60;}}>
-    {!enabled?<p className="tc-chat-inline-hint">{userId?'플레이 세션에 연결하면 채팅할 수 있습니다.':'Google 로그인 후 채팅할 수 있습니다.'}</p>:loading&&messages.length===0?<p className="tc-chat-inline-hint">채팅 불러오는 중…</p>:messages.length===0?<p className="tc-chat-inline-hint">첫 메시지를 남겨보세요.</p>:messages.map(m=><article key={m.id} className={m.userId===userId?'mine':''}><ChatSenderInfo message={m} showGuild={channel==='world'} mine={m.userId===userId}/><span className="tc-chat-message-text">{m.body}</span><time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</time></article>)}
+    {!enabled?<p className="tc-chat-inline-hint">{userId?'플레이 세션에 연결하면 채팅할 수 있습니다.':'Google 로그인 후 채팅할 수 있습니다.'}</p>:loading&&messages.length===0?<p className="tc-chat-inline-hint">채팅 불러오는 중…</p>:messages.length===0?<p className="tc-chat-inline-hint">첫 메시지를 남겨보세요.</p>:messages.map(m=><ChatMessageRow key={m.id} message={m} mine={m.userId===userId} inline/>)}
    </div>
    {error&&<div className="tc-chat-inline-error" role="alert">{error}<button type="button" onClick={()=>setRetry(n=>n+1)}>재연결</button></div>}
    <form className="tc-chat-inline-form" onSubmit={e=>{e.preventDefault();void send();}}><input ref={input} value={draft} disabled={!enabled||busy} maxLength={200} autoComplete="off" aria-label="채팅 메시지" placeholder={enabled?'채팅 메시지 입력...':'로그인 후 이용 가능'} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&e.nativeEvent.isComposing)e.preventDefault();}}/><button disabled={!enabled||busy||cooldown||!!validateChatBody(draft).error}>{busy?'전송 중':'전송'}</button></form>
@@ -85,7 +88,7 @@ export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:s
    {enabled&&<div className="tc-chat-channels"><button aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단 미가입'}</button></div>}
    {!enabled?<div className="tc-chat-empty">{userId?'플레이 세션이 연결되면 채팅을 이용할 수 있습니다.':'Google 로그인 후 닉네임을 정하면 채팅에 참여할 수 있습니다.'}</div>:<>
     <div className="tc-chat-log" ref={scroller} role="log" aria-label="전체 채팅 메시지" aria-live="polite" aria-relevant="additions" onScroll={()=>{const el=scroller.current;if(el)nearBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<60;}}>
-     {loading&&messages.length===0?<p className="tc-chat-empty">기록을 불러오는 중…</p>:messages.length===0?<p className="tc-chat-empty">노바르의 탐험가들에게 첫 인사를 남겨보세요.</p>:messages.map(m=><article key={m.id} className={m.userId===userId?'mine':''}><div className="tc-chat-msg-header"><ChatSenderInfo message={m} showGuild={channel==='world'} mine={m.userId===userId}/><time dateTime={m.createdAt}>{new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</time></div><p>{m.body}</p></article>)}
+     {loading&&messages.length===0?<p className="tc-chat-empty">기록을 불러오는 중…</p>:messages.length===0?<p className="tc-chat-empty">노바르의 탐험가들에게 첫 인사를 남겨보세요.</p>:messages.map(m=><ChatMessageRow key={m.id} message={m} mine={m.userId===userId}/>)}
     </div>
     {error&&<div className="tc-chat-error" role="alert">{error}<button disabled={loading} onClick={()=>setRetry(n=>n+1)}>다시 연결</button></div>}
     <form onSubmit={e=>{e.preventDefault();void send();}}><label className="tc-chat-label" htmlFor="tc-chat-input">{nickname} · {[...draft.normalize('NFC')].length}/200</label><div><input id="tc-chat-input" ref={input} value={draft} disabled={busy} autoComplete="off" placeholder="메시지 입력" onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&e.nativeEvent.isComposing)e.preventDefault();}}/><button disabled={busy||cooldown||!!validateChatBody(draft).error}>{busy?'전송 중':cooldown?'잠시 대기':'전송'}</button></div><small>최근 50개 기록 · 200자 · 전송 간격 2초</small></form>

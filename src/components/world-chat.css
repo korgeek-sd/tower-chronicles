@@ -128,3 +128,50 @@
  .tc-chat-author>b{max-width:100px}
  .tc-chat-inline-messages article .tc-chat-author>b{max-width:84px}
 }
+
+/* Message-only layout: guild crest column, identity, timestamp, wrapping body.
+   Keep the chat sheet, dock, input, and all home layout declarations untouched. */
+.tc-chat-log article.tc-chat-row{
+ display:grid;grid-template-columns:32px minmax(0,1fr) auto;
+ grid-template-areas:"emblem sender time" "emblem message message";
+ align-items:start;gap:4px 8px;margin:0;padding:9px 0;border-bottom:1px solid #373c30;
+}
+.tc-chat-inline-messages article.tc-chat-row{
+ display:grid;grid-template-columns:26px minmax(0,1fr) auto;
+ grid-template-areas:"emblem sender time" "emblem message message";
+ align-items:start;gap:3px 5px;padding:5px 0;
+}
+.tc-chat-row>.tc-chat-emblem-slot{
+ grid-area:emblem;display:flex;align-items:center;justify-content:center;
+ width:32px;height:32px;min-width:0;flex:none;
+}
+.tc-chat-row>.tc-chat-emblem-slot .tc-guild-emblem{width:32px;height:32px;flex:none}
+.tc-chat-inline-messages .tc-chat-row>.tc-chat-emblem-slot,
+.tc-chat-inline-messages .tc-chat-row>.tc-chat-emblem-slot .tc-guild-emblem{width:26px;height:26px}
+.tc-chat-log article.tc-chat-row>.tc-chat-author,
+.tc-chat-inline-messages article.tc-chat-row>.tc-chat-author{
+ grid-area:sender;display:flex;align-items:center;justify-content:flex-start;
+ flex-wrap:wrap;gap:4px;min-width:0;max-width:100%;overflow:visible;white-space:normal;
+}
+.tc-chat-row>.tc-chat-author>b{max-width:100%;min-width:0;flex:0 1 auto}
+.tc-chat-row .tc-chat-class-badge{flex:none}
+.tc-chat-log article.tc-chat-row .tc-chat-power,
+.tc-chat-inline-messages article.tc-chat-row .tc-chat-power{
+ display:inline-flex;align-items:center;gap:3px;max-width:100%;flex:0 0 auto;
+ padding:2px 5px;border:1px solid #8f6f3e;border-radius:2px;background:#211d13;
+ font:inherit;font-size:10px;font-weight:600;color:#e4bf77;line-height:1.2;
+ white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.tc-chat-inline-messages article.tc-chat-row .tc-chat-power{font-size:9px;padding:1px 3px}
+.tc-chat-row .tc-chat-power>span{color:inherit;font-size:10px;flex:none}
+.tc-chat-log article.tc-chat-row>time,.tc-chat-inline-messages article.tc-chat-row>time{
+ grid-area:time;justify-self:end;white-space:nowrap;align-self:start;margin-top:2px;
+}
+.tc-chat-log article.tc-chat-row>.tc-chat-message-text,
+.tc-chat-inline-messages article.tc-chat-row>.tc-chat-message-text{
+ grid-area:message;min-width:0;margin:0;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;overflow:visible;
+}
+@media(max-width:360px){
+ .tc-chat-log article.tc-chat-row{gap:3px 5px}
+ .tc-chat-log article.tc-chat-row .tc-chat-power{font-size:9px;padding:2px 3px}
+}
