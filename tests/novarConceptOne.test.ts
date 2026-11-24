@@ -25,12 +25,12 @@ test('hub has one utility entry and plain facility card backgrounds',()=>{
  assert.match(home,/assets\/backgrounds\/hub\/novar-concept-one.webp/);
 });
 
-test('hub visual regression: six facility buttons stay in their own grid, never overlay the scene',()=>{
+test('approved Novar style has precedence over legacy skins regardless of CSS bundle order',()=>{
  const css=readFileSync(new URL('../src/components/mobile/novar-concept-one.css',import.meta.url),'utf8');
- assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick\s*\{[^}]*display:grid!important/);
- assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick button\s*\{[^}]*position:relative!important/);
- assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick button\s*\{[^}]*left:auto!important/);
- assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick button\s*\{[^}]*transform:none!important/);
- assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-primary\s*\{[^}]*grid-template-columns:1\.9fr 1fr!important/);
- assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-chat-dock\s*\{[^}]*height:44px!important/);
+ assert.doesNotMatch(css,/Final hub layout contract/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-dossier\{[^}]*grid-template-columns:50px minmax\(0,1fr\) minmax\(100px,\.9fr\)/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-quick\{position:static;inset:auto;display:grid;/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-quick button\{position:relative;inset:auto!important;transform:none;display:flex;/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-primary\{display:grid;grid-template-columns:1\.9fr 1fr;/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-chat-dock\{margin:0;height:44px;min-height:44px;/);
 });
