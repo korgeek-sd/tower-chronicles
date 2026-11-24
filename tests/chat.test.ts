@@ -77,3 +77,9 @@ test('chat parses server-snapshotted guild and permanent class while keeping leg
  assert.equal(parseChatMessage({...row,sender_class_id:'bogus'})?.senderClassId,null);
  assert.equal(parseChatMessage({...row,sender_guild_name:'조작된 길드'})?.senderGuildName,null);
 });
+
+test('server chat combat power parses bounded integers and tolerates historical nulls',()=>{
+ assert.equal(parseChatMessage({...row,sender_combat_power:12450})?.senderCombatPower,12450);
+ assert.equal(parseChatMessage({...row,sender_combat_power:0})?.senderCombatPower,0);
+ for(const invalid of [null,undefined,-1,1.5,1000000001,'12450'])assert.equal(parseChatMessage({...row,sender_combat_power:invalid})?.senderCombatPower,null);
+});
