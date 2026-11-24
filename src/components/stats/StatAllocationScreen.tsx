@@ -33,7 +33,7 @@ export function StatAllocationScreen({game,level,allocation,remaining,resets=0,c
   <div className="tc-stat-points"><div><small>남은 스탯 포인트</small><strong>{Math.max(0,available-drafted)}</strong></div><span>레벨업마다 +1 PT</span></div>
   {error&&<p className="tc-stat-notice" role="alert">{error}</p>}
   <div className="tc-stat-rows">{FIELDS.map(field=><article className="tc-stat-row" key={field.id}>
-   <Glyph name={field.icon}/><div><h2>{field.name}</h2><p>현재 <b>{display(field.id,valueOf(field.id,base))}</b></p><small>1 PT 당 {field.gain}{field.id==='crit'?' · 최대 10 PT':''}</small></div>
+   <Glyph name={field.icon}/><div className="tc-stat-info"><h2>{field.name}</h2><p>현재 <b>{display(field.id,valueOf(field.id,base))}</b></p><small>1 PT 당 {field.gain}{field.id==='crit'?' · 최대 10 PT':''}</small></div>
    <div className="tc-stat-controls"><button disabled={!canEdit||(draft[field.id]??0)<=(saved[field.id]??0)} aria-label={field.name+' 배분 줄이기'} onClick={()=>change(field.id,-1)}>−</button><output aria-label={field.name+' 배분 포인트'}>{draft[field.id]??0}</output><button disabled={!canEdit||drafted>=available||(field.id==='crit'&&draft.crit>=10)} aria-label={field.name+' 배분 늘리기'} onClick={()=>change(field.id,1)}>+</button></div>
   </article>)}</div>
   <section className="tc-stat-preview" aria-label="예상 최종 능력치"><h2>예상 최종 능력치</h2><div>{FIELDS.map(field=><p key={field.id}><span>{field.name}</span><b>{display(field.id,valueOf(field.id,base))} <i>→</i> {display(field.id,valueOf(field.id,preview))}</b></p>)}</div></section>
