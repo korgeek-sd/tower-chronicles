@@ -48,7 +48,7 @@ test('경매장 v4: 숨겨진 게임 제목 때문에 공헌도 박스가 중앙
 });
 
 test('경매 재료의 종류별 아이콘이 서로 섞이지 않도록 전용 이미지를 사용',()=>{
- assert.match(panel,/assetUrl\('assets\\/ui\\/crafting\\/'\+lot\.materialId\+'\\.png'\)/);
+ assert.ok(panel.includes("assetUrl('assets/ui/crafting/'+lot.materialId+'.png')"));
  assert.match(panel,/lot\.materialId\s*\?\s*<img/);
  assert.match(panel,/l\.materialId\?GUILD_MATERIAL_NAMES\[l\.materialId\]:'재료'/);
  assert.match(panel,/lot\.source==='MATERIAL'/);
