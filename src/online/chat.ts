@@ -4,7 +4,7 @@ import {setWebsocketPresence} from './monitoring';
 import {getClientInstanceId,platformLabel} from './gameSession';
 import type {GuildEmblemData} from '../components/association/GuildEmblem';
 export type ChatClassId='warrior'|'mage'|'archer';
-export interface ChatMessage {id:string;userId:string;nickname:string;body:string;createdAt:string;clientId:string;associationId?:string|null;senderGuildId?:string|null;senderGuildName?:string|null;senderGuildEmblem?:GuildEmblemData|null;senderClassId?:ChatClassId|null}
+export interface ChatMessage {id:string;userId:string;nickname:string;body:string;createdAt:string;clientId:string;associationId?:string|null;senderGuildId?:string|null;senderGuildName?:string|null;senderGuildEmblem?:GuildEmblemData|null;senderClassId?:ChatClassId|null;senderCombatPower?:number|null}
 export type ChatStatus='connecting'|'subscribed'|'error';
 export function validateChatBody(value:string){
  const body=value.normalize('NFC').trim();
@@ -20,7 +20,8 @@ export function parseChatMessage(value:unknown):ChatMessage|null{
  const guildName=typeof r.sender_guild_name==='string'&&guildId?r.sender_guild_name.slice(0,20):null;
  const crest=r.sender_guild_emblem&&typeof r.sender_guild_emblem==='object'&&!Array.isArray(r.sender_guild_emblem)&&guildId?r.sender_guild_emblem as GuildEmblemData:null;
  return {id:r.id as string,userId:r.user_id as string,nickname:r.nickname as string,body:r.body as string,createdAt:r.created_at as string,clientId:r.client_id as string,associationId:typeof r.association_id==='string'?r.association_id:null,
-  senderGuildId:guildId,senderGuildName:guildName,senderGuildEmblem:crest,senderClassId:job};
+  senderGuildId:guildId,senderGuildName:guildName,senderGuildEmblem:crest,senderClassId:job,
+  senderCombatPower:typeof r.sender_combat_power==='number'&&Number.isSafeInteger(r.sender_combat_power)&&r.sender_combat_power>=0&&r.sender_combat_power<=1000000000?r.sender_combat_power:null};
 }
 export function mergeChatMessages(previous:ChatMessage[],incoming:ChatMessage[]){
  return [...new Map([...previous,...incoming].map(m=>[m.id,m])).values()].sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt)||a.id.localeCompare(b.id)).slice(-50);
