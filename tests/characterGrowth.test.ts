@@ -92,6 +92,7 @@ test('combat power has one prominent banner between the identity and navigation'
  const identity=html.indexOf('class="tc-character-identity"'),banner=html.indexOf('class="tc-character-power-banner"'),tabs=html.indexOf('class="tc-character-tabs"');
  assert.ok(identity>=0&&identity<banner&&banner<tabs);
  assert.match(html,/class="tc-character-combat-score"[^>]*>1,014<\/strong>/);
+ assert.doesNotMatch(html,/장비 · 인장 · 컬렉션 등 반영|tc-character-power-emblem/);
  assert.equal((html.match(/class="tc-character-combat-score"/g)??[]).length,1);
  const large=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,{...props,data:{...data,combatPower:1000000000}}));
  assert.match(large,/1,000,000,000/);
@@ -99,5 +100,7 @@ test('combat power has one prominent banner between the identity and navigation'
  assert.match(missing,/class="tc-character-combat-score"[^>]*>—<\/strong>/);
  const css=readFileSync('src/components/growth/character-growth.css','utf8');
  assert.match(css,/\.tc-character-power-banner\{/);
+ assert.match(css,/combat-power-banner\.webp/);
+ assert.ok(readFileSync('src/assets/ui/growth/combat-power-banner.webp').length>0);
  assert.match(css,/\.tc-character-power-banner[^}]*\.tc-character-combat-score\{[^}]*font-variant-numeric:tabular-nums/);
 });

@@ -83,40 +83,20 @@ dialog.tc-character-dialog{position:fixed;inset:0;margin:auto;width:min(460px,ca
 
 .tc-character-seals>div>span,.tc-character-weapon>div>span{line-height:1.15}.tc-character-seal-art{min-height:0}.tc-character-dialog>header{position:sticky;top:0;z-index:1}
 
-/* Approved growth concept 1: a single gold power banner between EXP and tabs. */
+/* Approved image asset, cropped to its decorative frame; live score remains text. */
 .tc-character-power-banner{
- position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(5px,2.3cqw,16px);
- min-width:0;min-height:0;padding:4px 12px;overflow:hidden;isolation:isolate;
- border:1px solid #d5a15e;background:radial-gradient(ellipse at 50% 55%,#69401d 0%,#372015 48%,#100d0b 85%);
- box-shadow:inset 0 0 0 2px #1b100c,inset 0 0 0 3px #96703b,inset 0 0 16px #e5a14e22,0 2px 4px #0009;
+ position:relative;display:grid;grid-template-columns:37% minmax(0,46%) 17%;
+ align-items:center;min-width:0;min-height:0;overflow:hidden;isolation:isolate;
+ background:#100d0b url('../../assets/ui/growth/combat-power-banner.webp') center/100% 100% no-repeat;
 }
-.tc-character-power-banner::before,.tc-character-power-banner::after{
- content:'';position:absolute;top:4px;bottom:4px;width:8px;pointer-events:none;
- border-top:1px solid #e7bd79;border-bottom:1px solid #e7bd79;
-}
-.tc-character-power-banner::before{left:4px;border-left:1px solid #e7bd79}
-.tc-character-power-banner::after{right:4px;border-right:1px solid #e7bd79}
-.tc-character-power-emblem{width:clamp(28px,11cqw,62px);height:100%;max-height:62px;flex:none;color:#d8a650;filter:drop-shadow(0 0 4px #e0a34b44)}
-.tc-character-power-copy{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;max-width:100%}
-.tc-character-power-main{display:flex;align-items:baseline;justify-content:center;gap:clamp(5px,2cqw,12px);min-width:0;white-space:nowrap}
-.tc-character-power-main>span{font-size:clamp(12px,4.4cqw,20px);font-weight:700;color:#f1c77a}
-.tc-character-power-banner .tc-character-combat-score{font-family:inherit;font-size:clamp(20px,7cqw,36px);font-weight:700;line-height:1.12;color:#ffe1a0;text-shadow:0 1px 0 #482711,0 0 7px #d9a55344;font-variant-numeric:tabular-nums;letter-spacing:-.025em;white-space:nowrap}
-.tc-character-power-copy>small{font-size:clamp(8px,2.5cqw,11px);line-height:1.15;white-space:nowrap;color:#d0b58b}
-@container character-growth (max-height:560px){
- .tc-character-power-banner{padding-block:3px;gap:7px}
- .tc-character-power-emblem{max-height:39px}
- .tc-character-power-banner .tc-character-combat-score{font-size:clamp(19px,6.8cqw,30px)}
-}
+.tc-character-power-copy{grid-column:2;display:flex;align-items:center;justify-content:center;min-width:0;max-width:100%;padding-inline:2px}
+.tc-character-power-main{display:flex;align-items:baseline;justify-content:center;gap:clamp(3px,1.2cqw,7px);min-width:0;white-space:nowrap}
+.tc-character-power-main>span{font-size:clamp(10px,3.6cqw,18px);font-weight:700;color:#f1c77a}
+.tc-character-power-banner .tc-character-combat-score{font-family:inherit;font-size:clamp(18px,6.2cqw,32px);font-weight:700;line-height:1.12;color:#ffe1a0;text-shadow:0 1px 2px #331b0a,0 0 7px #d9a55344;font-variant-numeric:tabular-nums;letter-spacing:-.025em;white-space:nowrap}
+.tc-character-power-main[data-wide="true"]{flex-direction:column;align-items:center;gap:0;line-height:1.1}
+.tc-character-power-main[data-wide="true"]>span{font-size:clamp(9px,2.7cqw,13px)}
+.tc-character-power-main[data-wide="true"] .tc-character-combat-score{font-size:clamp(12px,4.2cqw,22px)}
 @container character-growth (max-height:480px){
- .tc-character-power-banner{padding:2px 8px;gap:6px}
- .tc-character-power-emblem{width:29px;max-height:30px}
- .tc-character-power-main>span{font-size:12px}
- .tc-character-power-banner .tc-character-combat-score{font-size:clamp(18px,6cqw,24px)}
- .tc-character-power-copy{gap:0}
- .tc-character-power-copy>small{font-size:8px}
-}
-@container character-growth (max-width:350px){
- .tc-character-power-banner{padding-inline:9px;gap:5px}
- .tc-character-power-emblem{width:32px}
- .tc-character-power-banner .tc-character-combat-score{font-size:clamp(18px,6cqw,24px)}
+ .tc-character-power-banner .tc-character-combat-score{font-size:clamp(16px,5.4cqw,25px)}
+ .tc-character-power-main[data-wide="true"] .tc-character-combat-score{font-size:clamp(11px,3.9cqw,18px)}
 }
