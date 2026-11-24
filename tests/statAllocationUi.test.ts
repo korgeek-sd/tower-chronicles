@@ -18,3 +18,17 @@ test('camp portrait and nickname are keyboard-accessible growth overview shortcu
   assert.ok(source.includes(`aria-label="${label}" onClick={()=>onMove('character')}`));
  }
 });
+
+test('all five stat rows reserve enough space for labels, values and point descriptions',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const css=readFileSync('src/components/stats/stats.css','utf8');
+ const html=renderToStaticMarkup(React.createElement(StatAllocationScreen,{game:initialState(),level:22,onHome:()=>{}}));
+ assert.equal((html.match(/class="tc-stat-row"/g)??[]).length,5);
+ assert.equal((html.match(/class="tc-stat-info"/g)??[]).length,5);
+ assert.match(css,/\.tc-stat-rows\{[^}]*grid-template-rows:repeat\(5,minmax\(64px,1fr\)\)/);
+ assert.match(css,/\.tc-stat-rows\{[^}]*overflow-y:auto/);
+ assert.match(css,/\.tc-stat-info\{[^}]*display:flex;flex-direction:column/);
+ assert.match(css,/\.tc-stat-info>small\{[^}]*line-height:1\.3/);
+ assert.doesNotMatch(css,/\.tc-stat-row small\{display:none/);
+ assert.match(css,/\.tc-stat-controls button\{[^}]*width:44px;height:44px/);
+});
