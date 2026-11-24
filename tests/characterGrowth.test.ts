@@ -62,7 +62,7 @@ test('growth overview fits a mobile viewport without scrolling or hiding navigat
  const templates=[...css.matchAll(/\.tc-character-content\{[^}]*grid-template-rows:([^;}]+)/g)].map(match=>match[1].trim().split(/\s+/));
  assert.equal(templates.length,3,'base, compact and short-viewport layouts are required');
  for(const tracks of templates){
-  assert.equal(tracks.length,7,'all seven overview sections must have their own grid row');
+  assert.equal(tracks.length,8,'all eight overview sections must have their own grid row');
   assert.ok(tracks.every(track=>track.includes('px')),'all grid tracks must have predictable minimum heights');
  }
  const minHeight=(tracks:string[])=>tracks.reduce((sum,track)=>{
@@ -70,8 +70,8 @@ test('growth overview fits a mobile viewport without scrolling or hiding navigat
   assert.ok(match,'unable to determine minimum row height: '+track);
   return sum+Number(match[1]);
  },0);
- assert.ok(minHeight(templates[1])+6*3+2*4+42<=560,'compact grid must fit a 560px page');
- assert.ok(minHeight(templates[2])+6*2+2*3+40<=480,'short grid must fit a 480px page');
+ assert.ok(minHeight(templates[1])+7*3+2*4+42<=560,'compact grid must fit a 560px page');
+ assert.ok(minHeight(templates[2])+7*2+2*3+40<=480,'short grid must fit a 480px page');
 });
 
 
@@ -83,4 +83,21 @@ test('collection migration applies bonuses to combat using server-owned unlock a
  assert.match(source,/enhancement_level>=1/);
  assert.match(source,/'collection',jsonb_build_object\('applied',true/);
  assert.match(source,/attack:=attack\+coalesce/);
+});
+
+test('combat power has one prominent banner between the identity and navigation',()=>{
+ const noop=()=>{},data={...characterGrowthFixture(),combatPower:1014};
+ const props={data,nickname:'검증',loading:false,onRetry:noop,onClose:noop,onStats:noop,onEquipment:noop,onSeals:noop,onCollection:noop,onGrowthRecord:noop};
+ const html=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,props));
+ const identity=html.indexOf('class="tc-character-identity"'),banner=html.indexOf('class="tc-character-power-banner"'),tabs=html.indexOf('class="tc-character-tabs"');
+ assert.ok(identity>=0&&identity<banner&&banner<tabs);
+ assert.match(html,/class="tc-character-combat-score"[^>]*>1,014<\/strong>/);
+ assert.equal((html.match(/class="tc-character-combat-score"/g)??[]).length,1);
+ const large=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,{...props,data:{...data,combatPower:1000000000}}));
+ assert.match(large,/1,000,000,000/);
+ const missing=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,{...props,data:{...data,combatPower:undefined as unknown as number}}));
+ assert.match(missing,/class="tc-character-combat-score"[^>]*>—<\/strong>/);
+ const css=readFileSync('src/components/growth/character-growth.css','utf8');
+ assert.match(css,/\.tc-character-power-banner\{/);
+ assert.match(css,/\.tc-character-power-banner[^}]*\.tc-character-combat-score\{[^}]*font-variant-numeric:tabular-nums/);
 });
