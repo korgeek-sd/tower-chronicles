@@ -24,3 +24,13 @@ test('hub has one utility entry and plain facility card backgrounds',()=>{
  assert.match(css,/grid-template-columns:1\.9fr 1fr/);
  assert.match(home,/assets\/backgrounds\/hub\/novar-concept-one.webp/);
 });
+
+test('hub visual regression: six facility buttons stay in their own grid, never overlay the scene',()=>{
+ const css=readFileSync(new URL('../src/components/mobile/novar-concept-one.css',import.meta.url),'utf8');
+ assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick\s*\{[^}]*display:grid!important/);
+ assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick button\s*\{[^}]*position:relative!important/);
+ assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick button\s*\{[^}]*left:auto!important/);
+ assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-quick button\s*\{[^}]*transform:none!important/);
+ assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-primary\s*\{[^}]*grid-template-columns:1\.9fr 1fr!important/);
+ assert.match(css,/tc-novar-concept-one[^\n]*tc-camp-v2-chat-dock\s*\{[^}]*height:44px!important/);
+});
