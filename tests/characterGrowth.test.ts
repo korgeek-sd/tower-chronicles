@@ -42,6 +42,7 @@ test('overview shows actual values, equipment, seals and explicitly pending coll
  const html=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,props));
  for(const text of ['성장 현황','검증 캐릭터','42','전투','수호','공격력 구성','컬렉션','전투 능력치에는 아직 적용되지 않았습니다','협회 철검','음식 제외'])assert.ok(html.includes(text),text);
  assert.match(html,/공격력 43.2 상세 보기/);
+ assert.match(html,/<\/button><\/div><footer class="tc-character-actions">[^]*상세 능력치 보기[^]*생활 숙련도/,'footer must be a sibling outside the scrollable content');
  const failed=renderToStaticMarkup(React.createElement(CharacterGrowthScreen,{...props,data:null,error:'조회 실패'}));
  assert.match(failed,/조회 실패/);assert.match(failed,/다시 확인/);assert.doesNotMatch(failed,/Lv\. 1|2,400|최종 능력치/);
  const main=readFileSync('src/main.tsx','utf8');assert.match(main,/page==='character'&&<CharacterGrowthPage/);
@@ -49,20 +50,21 @@ test('overview shows actual values, equipment, seals and explicitly pending coll
 });
 
 
-test('growth overview fits a mobile viewport without scrolling or hiding navigation',()=>{
+test('growth overview keeps footer visible, with scroll fallback only for the content',()=>{
  const css=readFileSync('src/components/growth/character-growth.css','utf8');
  const first=css.match(/\.tc-character-content\{[^}]*\}/)?.[0]??'';
- assert.match(first,/overflow:hidden/,'the growth overview must not scroll');
- assert.doesNotMatch(first,/overflow-y:(auto|scroll)/,'a scrolling overview is a regression');
+ assert.match(first,/overflow-y:auto/,'short screens must never clip content');
+ assert.match(first,/flex:1 1 0%/,'body must yield space to the fixed footer');
+ assert.match(css,/\.tc-character-actions\{[^}]*flex:0 0 44px/,'reserve the full touch-target height outside the content grid');
  assert.match(css,/\.tc-character-metrics\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/,'all final stats must share one compact row');
  assert.match(css,/\.tc-character-metrics\{[^}]*grid-template-rows:minmax\(44px,1fr\)/);
  assert.match(css,/@container character-growth \(max-height:560px\)/);
- assert.match(css,/@container character-growth \(max-height:480px\)/);
+ assert.match(css,/@container character-growth \(max-height:540px\)/);
  assert.doesNotMatch(css,/\.tc-character-(?:tabs|actions)\{display:none\}/,'tabs and footer buttons must remain on-screen');
  const templates=[...css.matchAll(/\.tc-character-content\{[^}]*grid-template-rows:([^;}]+)/g)].map(match=>match[1].trim().split(/\s+/));
  assert.equal(templates.length,3,'base, compact and short-viewport layouts are required');
  for(const tracks of templates){
-  assert.equal(tracks.length,8,'all eight overview sections must have their own grid row');
+  assert.equal(tracks.length,7,'all seven content sections must have their own grid row; footer is separate');
   assert.ok(tracks.every(track=>track.includes('px')),'all grid tracks must have predictable minimum heights');
  }
  const minHeight=(tracks:string[])=>tracks.reduce((sum,track)=>{
@@ -70,8 +72,9 @@ test('growth overview fits a mobile viewport without scrolling or hiding navigat
   assert.ok(match,'unable to determine minimum row height: '+track);
   return sum+Number(match[1]);
  },0);
- assert.ok(minHeight(templates[1])+7*3+2*4+42<=560,'compact grid must fit a 560px page');
- assert.ok(minHeight(templates[2])+7*2+2*3+40<=480,'short grid must fit a 480px page');
+ assert.ok(minHeight(templates[1])+6*3+2*4+42+44+4+2<=560,'compact grid must fit a 560px page');
+ assert.ok(minHeight(templates[0])+6*4+2*5+44+44+5+2<=570,'full grid must fit above the compact breakpoint');
+ assert.ok(minHeight(templates[2])+6*2+2*3+40+44+3+2<=480,'short grid must fit a 480px page');
 });
 
 
