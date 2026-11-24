@@ -24,3 +24,14 @@ test('desktop mouse long press tolerates movement before activation',()=>{
  assert.match(drag,/gesture\.pointerType!==\'mouse\'&&distance>CHAT_ENTRY_MOVE_CANCEL_PX/);
  assert.match(drag,/current\.cancelled\|\|current\.moved/);
 });
+
+test('chat rows use a reserved emblem column and server power without guild name text',()=>{
+ const source=readFileSync(new URL('../src/components/WorldChat.tsx',import.meta.url),'utf8');
+ assert.match(source,/className="tc-chat-emblem-slot"/);
+ assert.match(source,/GuildEmblem value=\{message.senderGuildEmblem\} size=\{32\}/);
+ assert.doesNotMatch(source,/<span>\{message.senderGuildName\}<\/span>/);
+ assert.match(source,/message.senderCombatPower!=null/);
+ assert.match(source,/전투력 \{message.senderCombatPower.toLocaleString\('ko-KR'\)\}/);
+ assert.match(css,/\.tc-chat-log article\.tc-chat-row\{[^}]*grid-template-columns:32px minmax\(0,1fr\) auto/);
+ assert.match(css,/overflow-wrap:anywhere/);
+});
