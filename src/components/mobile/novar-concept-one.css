@@ -71,3 +71,19 @@
  .tc-novar-concept-one .tc-village-heading h2{font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){.tc-novar-concept-one *{animation:none!important;transition:none!important}}
+
+/* Final hub layout contract: legacy iron/village/moonlit selectors must not
+   drag the six new facility cards over the art or collapse the chat row.
+   Scope the overrides to this screen only; do not alter other game UI. */
+.tc-screen.tc-novar-concept-one .tc-camp-v2{grid-template-rows:66px 44px minmax(0,1fr) 44px 44px!important}
+.tc-screen.tc-novar-concept-one .tc-village{display:grid!important;grid-template-rows:minmax(0,1fr) clamp(162px,23vh,210px) 48px!important;min-height:0;overflow:hidden}
+.tc-screen.tc-novar-concept-one .tc-village-scene{position:relative!important;min-height:0;overflow:hidden}
+.tc-screen.tc-novar-concept-one .tc-village-map{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;transform:none!important}
+.tc-screen.tc-novar-concept-one .tc-camp-v2-quick{position:relative!important;inset:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(44px,1fr))!important;gap:6px;min-height:0;z-index:3;pointer-events:auto!important;overflow:hidden}
+.tc-screen.tc-novar-concept-one .tc-camp-v2-quick button{position:relative!important;inset:auto!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;transform:none!important;display:flex!important;visibility:visible!important;opacity:1!important;width:100%!important;height:100%!important;min-width:0!important;min-height:44px!important;max-width:none!important;overflow:hidden}
+.tc-screen.tc-novar-concept-one .tc-camp-v2-primary{display:grid!important;grid-template-columns:1.9fr 1fr!important;grid-template-rows:minmax(44px,1fr)!important;min-height:44px!important}
+.tc-screen.tc-novar-concept-one .tc-camp-v2-chat-dock{display:block!important;min-height:44px!important;height:44px!important;overflow:hidden}
+@media(max-height:700px){
+ .tc-screen.tc-novar-concept-one .tc-camp-v2{grid-template-rows:60px 44px minmax(0,1fr) 44px 44px!important}
+ .tc-screen.tc-novar-concept-one .tc-village{grid-template-rows:minmax(0,1fr) 148px 44px!important}
+}
