@@ -11,3 +11,7 @@ Realtime uses the existing project's Phoenix 2.0 WebSocket pattern with Postgres
 Tests: `tests/chat.test.ts`, `tests/chatUi.test.ts`, `tests/chatEntryPlacement.test.ts` and transactional `supabase/tests/world_chat.sql`. No test messages remain in production. Guild/party/DM channels, reporting, blocking, moderator tools and a profanity dictionary are future features.
 
 Design references: BjornMelin/dev-skills `supabase-ts`; dreamteam-hq/brigid `gamedev-mmo-persistence` Chat Architecture; Supabase official Postgres Changes and Realtime Protocol docs. Adapted to this Vite app and the existing Postgres service; no Redis or alternative backend introduced.
+
+### Sender identity and combat power
+
+Each message uses a reserved crest column (empty for players without a recorded emblem), nickname, permanent class, and the server-authoritative combat power at send time. The crest uses the existing guild emblem renderer; guild name is available as a tooltip rather than printed in the row. Long messages wrap beneath the author line. Existing chat history is not retroactively assigned a fabricated combat power. Missing data hides the badge. The private insert trigger snapshots `private.member_combat_power(auth.uid())` using the same calculation as guild ranking; clients have SELECT but not INSERT/UPDATE on the new column. No change to message limits, cooldown, RLS, channels or subscriptions.
