@@ -4,6 +4,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {getGuildRankings,type GuildRankingEntry,type GuildRankingMode,type GuildRankingState} from '../../online/guildRankings';
 import './guildRankings.css';
+import {openAdventurerRanking} from '../../online/adventurerDirectory';
 
 const MODES:readonly (readonly [GuildRankingMode,string])[]=[
  ['OVERALL','전투력'],['TERRITORY','영지'],['WARS','공성전'],['GROWTH','성장']
@@ -73,6 +74,7 @@ export function GuildRankingPanel({lease}:{lease:GameplayLease}){
    <div><small>GUILD LEADERBOARD</small><h2>원정단 랭킹</h2><p>소속 단원 전체의 상시 전투력 합산</p></div>
    <button type="button" className="tc-gr-reload" disabled={loading} onClick={()=>void load(mode)}>새로고침</button>
   </header>
+  <button type="button" className="tc-adventurer-rank-entry" onClick={openAdventurerRanking}>개인 전투력 랭킹 · 검색 ›</button>
   <nav className="tc-gr-modes" aria-label="랭킹 종류">
    {MODES.map(([id,label])=><button key={id} type="button" aria-pressed={mode===id} className={mode===id?'active':''} onClick={()=>changeMode(id)}>{label}</button>)}
   </nav>
