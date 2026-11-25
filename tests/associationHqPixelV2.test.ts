@@ -88,12 +88,17 @@ test('top three guild ranks use the approved illustrated art without changing or
   assert.equal(asset.toString('ascii',8,12),'WEBP');
   const rule=css.match(new RegExp('\\[data-podium="'+rank+'"\\]\\{([^}]+)\\}'))?.[1]??'';
   assert.ok(rule.includes(file));
-  assert.ok(rule.includes('--rank-ratio:2172/650'));
+  assert.ok(rule.includes('--rank-emblem-x:'));
+  assert.ok(rule.includes('--rank-content-y:'));
+  assert.ok(rule.includes('--rank-name-x:'));
   assert.equal(asset.toString('ascii',12,16),'VP8X');
   assert.equal(asset.readUIntLE(24,3)+1,2172);
   assert.equal(asset.readUIntLE(27,3)+1,650);
  }
- assert.match(css,/aspect-ratio:var\(--rank-ratio\)/);
- assert.match(css,/background-size:contain/);
+ assert.match(css,/height:clamp\(62px,20vw,76px\)/);
+ assert.match(css,/background-size:100% 100%/);
+ assert.match(css,/\.tc-gr-summary>svg\.tc-guild-emblem\{[^}]*left:var\(--rank-emblem-x\)/);
+ assert.match(css,/width:clamp\(16px,5\.4vw,22px\)/);
+ assert.doesNotMatch(css,/aspect-ratio:var\(--rank-ratio\)/);
  assert.match(css,/\.tc-gr-entry\[data-podium\] \.tc-gr-rank\{[^}]*opacity:0/);
 });

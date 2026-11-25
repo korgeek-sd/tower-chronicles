@@ -58,24 +58,24 @@
 .tc-gr-metrics{min-width:75px}.tc-gr-metrics b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tc-gr-metrics>span{white-space:nowrap;color:#c1ae88}.tc-gr-stats b{font-size:clamp(11px,3vw,15px)}
 @media(max-width:360px){.tc-gr-metrics{min-width:65px}.tc-gr-metrics b{font-size:11px}}
 
-/* Approved rank-specific artwork. High-resolution 2172 × 650 frames share one ratio; the
-   live emblem and values are rendered separately in the empty interior. */
-.tc-gr-entry[data-podium="1"]{--rank-art:url('../../assets/ui/guild/guild-rank-1.webp');--rank-ratio:2172/650;--rank-reserve:21.5%;--rank-top:4%;--rank-metal:#f4d78c}
-.tc-gr-entry[data-podium="2"]{--rank-art:url('../../assets/ui/guild/guild-rank-2.webp');--rank-ratio:2172/650;--rank-reserve:21.5%;--rank-top:3.5%;--rank-metal:#e0e3e7}
-.tc-gr-entry[data-podium="3"]{--rank-art:url('../../assets/ui/guild/guild-rank-3.webp');--rank-ratio:2172/650;--rank-reserve:20%;--rank-top:4%;--rank-metal:#e7b17b}
+/* Compact high-resolution podium: pin each live emblem to its artwork slot.
+   Only podium rows use this layout; ordinary ranks retain their existing styles. */
+.tc-gr-entry[data-podium="1"]{--rank-art:url('../../assets/ui/guild/guild-rank-1.webp');--rank-emblem-x:27%;--rank-content-y:58%;--rank-name-x:34.5%;--rank-metal:#f4d78c}
+.tc-gr-entry[data-podium="2"]{--rank-art:url('../../assets/ui/guild/guild-rank-2.webp');--rank-emblem-x:27%;--rank-content-y:56%;--rank-name-x:33.5%;--rank-metal:#e0e3e7}
+.tc-gr-entry[data-podium="3"]{--rank-art:url('../../assets/ui/guild/guild-rank-3.webp');--rank-emblem-x:25.5%;--rank-content-y:57%;--rank-name-x:32.5%;--rank-metal:#e7b17b}
 .tc-gr .tc-gr-entry[data-podium]{border:0;background:transparent;min-width:0;padding:0}
-.tc-gr .tc-gr-entry[data-podium]>.tc-guild-task-open{box-sizing:border-box;display:block;width:100%;height:auto;min-height:44px;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{box-sizing:border-box;position:relative;aspect-ratio:var(--rank-ratio);width:100%;height:auto;min-height:44px;padding:var(--rank-top) 4% 0 1%;gap:clamp(3px,1vw,6px);background-image:var(--rank-art);background-position:center;background-size:contain;background-repeat:no-repeat}
-.tc-gr-entry[data-podium] .tc-gr-rank{opacity:0;flex:0 0 var(--rank-reserve);width:auto;min-width:0;border:0;background:none}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-name{gap:2px;line-height:1.2}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-name b{font-size:clamp(11px,3.4vw,15px);color:#f1dfb8;text-shadow:0 1px 2px #080b11}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-name small{font-size:clamp(8px,2.4vw,10px);line-height:1.2;color:#c7bca8}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics{min-width:0;flex:none;max-width:34%;gap:2px;line-height:1.2}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b{font-size:clamp(12px,3.8vw,17px);color:var(--rank-metal);text-shadow:0 1px 3px #080b11;font-variant-numeric:tabular-nums}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b small,.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics>span{font-size:clamp(8px,2.4vw,10px);line-height:1.2}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary>svg{flex:none;width:clamp(24px,8vw,34px);height:auto}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-arrow{color:var(--rank-metal)}
-@media(max-width:340px){.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{gap:3px}.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b small{font-size:8px}.tc-gr .tc-gr-entry[data-podium] .tc-gr-name small{font-size:8px}}
-
-/* Ranks 2 and 3 have a chevron drawn into the new frame. */
+.tc-gr .tc-gr-entry[data-podium]>.tc-guild-task-open{box-sizing:border-box;display:block;width:100%;height:auto;min-height:0;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{box-sizing:border-box;position:relative;display:block;width:100%;height:clamp(62px,20vw,76px);min-height:0;padding:0;background-color:transparent;background-image:var(--rank-art);background-position:center;background-size:100% 100%;background-repeat:no-repeat}
+.tc-gr-entry[data-podium] .tc-gr-rank{opacity:0;position:absolute;width:1px;height:1px;min-width:0;border:0;background:none;pointer-events:none}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary>svg.tc-guild-emblem{position:absolute;left:var(--rank-emblem-x);top:var(--rank-content-y);transform:translate(-50%,-50%);width:clamp(16px,5.4vw,22px);height:clamp(16px,5.4vw,22px);margin:0;max-width:none;max-height:none}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-name{position:absolute;left:var(--rank-name-x);right:36%;top:var(--rank-content-y);transform:translateY(-50%);gap:1px;line-height:1.15;min-width:0}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-name b{font-size:clamp(10px,3.1vw,14px);color:#f1dfb8;text-shadow:0 1px 2px #080b11}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-name small{font-size:clamp(7px,2.15vw,10px);line-height:1.15;color:#c7bca8}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics{position:absolute;left:65%;right:6%;top:var(--rank-content-y);transform:translateY(-50%);min-width:0;max-width:none;gap:1px;line-height:1.15;text-align:right}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b{font-size:clamp(11px,3.4vw,16px);color:var(--rank-metal);text-shadow:0 1px 3px #080b11;font-variant-numeric:tabular-nums}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b small,.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics>span{font-size:clamp(7px,2.15vw,10px);line-height:1.15}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-arrow{position:absolute;right:3.6%;top:var(--rank-content-y);transform:translateY(-50%);color:var(--rank-metal);font-size:12px}
 .tc-gr-entry:is([data-podium="2"],[data-podium="3"]) .tc-gr-arrow{visibility:hidden}
+/* The workspace skin must not draw an extra rectangular panel behind podium art. */
+.tc-guild-workspace .tc-gr .tc-gr-entry[data-podium],
+.tc-guild-workspace .tc-gr .tc-gr-entry[data-podium]>.tc-guild-task-open{background-color:transparent!important;border:0;box-shadow:none}
