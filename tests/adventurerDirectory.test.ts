@@ -33,3 +33,16 @@ test('character inspection preserves the original combat power banner aspect rat
  assert.match(rule,/width:100%/);
  assert.match(rule,/flex:none/);
 });
+
+test('public profile hides the crossed-swords crest without stretching or replacing the banner',()=>{
+ const css=readFileSync('src/components/growth/adventurer-directory.css','utf8');
+ const rule=css.match(/\.tc-adventurer-power\{([^}]+)\}/)?.[1]??'';
+ const cover=css.match(/\.tc-adventurer-power::before\{([^}]+)\}/)?.[1]??'';
+ assert.match(rule,/position:relative/);
+ assert.match(rule,/grid-template-columns:17% minmax\(0,66%\) 17%/);
+ assert.match(cover,/background-image:url\('\.\.\/\.\.\/assets\/ui\/growth\/combat-power-banner\.webp'\)/);
+ assert.match(cover,/background-size:100cqw auto/);
+ assert.match(cover,/mask-composite:intersect/);
+ assert.match(cover,/pointer-events:none/);
+ assert.match(css,/\.tc-adventurer-power>span\{[^}]*z-index:1/);
+});
