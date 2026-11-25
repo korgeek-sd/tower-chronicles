@@ -75,3 +75,22 @@ test('guild ranking reserves space for the complete power-ranked list',()=>{
  assert.match(ui,/<GuildTask title=\{entry\.name\+' 상세'\}/);
  assert.match(css,/\.tc-guild-workspace \.tc-gr-list\s*\{[^}]*overflow-y:\s*auto/);
 });
+
+test('top three guild ranks use the approved illustrated art without changing ordinary rows',()=>{
+ const ui=readFileSync('src/components/association/GuildRankingPanel.tsx','utf8');
+ const css=readFileSync('src/components/association/guildRankings.css','utf8');
+ assert.match(ui,/data-podium=\{entry\.rank>=1&&entry\.rank<=3\?entry\.rank:undefined\}/);
+ assert.match(ui,/<RankNumber rank=\{entry\.rank\}\/>/);
+ for(const [rank,height] of [[1,105],[2,79],[3,66]]){
+  const file='guild-rank-'+rank+'.webp';
+  const asset=readFileSync('src/assets/ui/guild/'+file);
+  assert.equal(asset.toString('ascii',0,4),'RIFF');
+  assert.equal(asset.toString('ascii',8,12),'WEBP');
+  const rule=css.match(new RegExp('\\[data-podium="'+rank+'"\\]\\{([^}]+)\\}'))?.[1]??'';
+  assert.ok(rule.includes(file));
+  assert.ok(rule.includes('--rank-ratio:420/'+height));
+ }
+ assert.match(css,/aspect-ratio:var\(--rank-ratio\)/);
+ assert.match(css,/background-size:contain/);
+ assert.match(css,/\.tc-gr-entry\[data-podium\] \.tc-gr-rank\{[^}]*opacity:0/);
+});
