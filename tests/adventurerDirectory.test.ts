@@ -5,7 +5,7 @@ test('adventurer inspection is read-only and available from chat and guild membe
  assert.match(read('src/components/association/AssociationScreen.tsx'),/openAdventurerProfile\(member.userId\)/);
  assert.match(read('src/main.tsx'),/<AdventurerDirectory/);
  const ui=read('src/components/growth/AdventurerDirectory.tsx');
- for(const label of ['캐릭터 정보','개인 전투력 랭킹','닉네임 검색','장착 장비','전투 인장','수호 인장'])assert.ok(ui.includes(label));
+ for(const label of ['캐릭터 정보','모험가 랭킹','개인 전투력','원정단 전투력','닉네임 검색','장착 장비','전투 인장','수호 인장'])assert.ok(ui.includes(label),'missing UI label: '+label);
  assert.doesNotMatch(ui,/onConfirm|onEquipment|onStats|foodTurns|combatPowerSkillBonus/);
 });
 
