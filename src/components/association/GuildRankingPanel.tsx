@@ -10,7 +10,7 @@ function RankNumber({rank}:{rank:number}){
  return <span className={'tc-gr-rank'+(rank<=3?' top top-'+rank:'')} aria-label={rank+'위'}>{rank<10?'0'+rank:rank}</span>;
 }
 function Row({entry}:{entry:GuildRankingEntry}){
- return <article className={'tc-gr-entry'+(entry.mine?' mine':'')}>
+ return <article className={'tc-gr-entry'+(entry.mine?' mine':'')} data-podium={entry.rank>=1&&entry.rank<=3?entry.rank:undefined}>
   <GuildTask title={entry.name+' 상세'} trigger={<span className="tc-gr-summary">
    <RankNumber rank={entry.rank}/>
    <GuildEmblem value={entry.emblem} size={34} label={entry.name+' 문장'}/>
