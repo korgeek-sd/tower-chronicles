@@ -229,9 +229,9 @@ const adventurers=():AdventurerProfile[]=>{
 function adventurerDirectory(p:Record<string,any>){
  const profiles=adventurers();
  if(p.p_target)return profiles.find(x=>x.userId===p.p_target)??null;
- const ranked=profiles.sort((a,b)=>b.combatPower-a.combatPower||b.level-a.level||a.userId.localeCompare(b.userId)).map((x,i)=>({userId:x.userId,nickname:x.nickname,level:x.level,classId:x.classId,combatPower:x.combatPower,guildName:x.guildName,rank:i+1}));
+ const ranked=profiles.sort((a,b)=>b.combatPower-a.combatPower||b.level-a.level||a.userId.localeCompare(b.userId)).map((x,i)=>({userId:x.userId,nickname:x.nickname,level:x.level,classId:x.classId,combatPower:x.combatPower,guildName:x.guildName,guildEmblem:x.guildEmblem,rank:i+1}));
  const search=String(p.p_search??'').trim().toLowerCase();
- return {myRank:ranked.find(x=>x.userId===LAB_USER)?.rank??null,total:ranked.length,entries:ranked.filter(x=>!search||x.nickname.toLowerCase()===search).slice(0,100)};
+ return {myRank:ranked.find(x=>x.userId===LAB_USER)?.rank??null,mine:ranked.find(x=>x.userId===LAB_USER)??null,total:ranked.length,entries:ranked.filter(x=>!search||x.nickname.toLowerCase()===search).slice(0,100)};
 }
 type LabChatMessage={id:string;user_id:string;nickname:string;body:string;created_at:string;client_id:string;association_id:string|null;sender_guild_id:string|null;sender_guild_name:string|null;sender_guild_emblem:GuildEmblemData|null;sender_class_id:string|null;sender_combat_power:number|null};
 const chatTexts=['오늘 보스전 참여하실 분?','저도 같이 가겠습니다. 장비부터 정리하고 출발할게요.','원정단 모집 중인가요? 이제 막 탑을 오르기 시작했습니다.','이번 주 점령전 준비는 어떻게 하시나요?','공격력 많이 올리셨네요. 장비 정보 확인해도 될까요?','오늘은 사냥터에서 재료를 좀 모아야겠습니다.'];
