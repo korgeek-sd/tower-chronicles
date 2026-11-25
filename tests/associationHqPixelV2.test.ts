@@ -76,11 +76,20 @@ test('guild ranking reserves space for the complete power-ranked list',()=>{
  assert.match(css,/\.tc-guild-workspace \.tc-gr-list\s*\{[^}]*overflow-y:\s*auto/);
 });
 
-test('top three guild ranks use the approved illustrated art without changing ordinary rows',()=>{
+test('guild ranking uses a shared compact grid and live emblem across all ranks',()=>{
  const ui=readFileSync('src/components/association/GuildRankingPanel.tsx','utf8');
  const css=readFileSync('src/components/association/guildRankings.css','utf8');
  assert.match(ui,/data-podium=\{entry\.rank>=1&&entry\.rank<=3\?entry\.rank:undefined\}/);
  assert.match(ui,/<RankNumber rank=\{entry\.rank\}\/>/);
+ assert.match(ui,/<GuildEmblem value=\{entry\.emblem\}/);
+ assert.match(ui,/<PodiumFrame rank=\{entry\.rank\}\/>/);
+ assert.match(ui,/<RankingIcon kind="power"\/>/);
+ assert.match(ui,/<RankingIcon kind="crown"\/>/);
+ assert.match(css,/grid-template-columns:clamp\(/);
+ assert.match(css,/grid-auto-rows:max-content/);
+ assert.match(css,/--rank-height:48px/);
+ assert.match(css,/height:var\(--rank-height\)/);
+ assert.doesNotMatch(css,/--rank-emblem-x|--rank-name-x|--rank-ratio/);
  for(const rank of [1,2,3]){
   const file='guild-rank-'+rank+'.webp';
   const asset=readFileSync('src/assets/ui/guild/'+file);
@@ -88,17 +97,9 @@ test('top three guild ranks use the approved illustrated art without changing or
   assert.equal(asset.toString('ascii',8,12),'WEBP');
   const rule=css.match(new RegExp('\\[data-podium="'+rank+'"\\]\\{([^}]+)\\}'))?.[1]??'';
   assert.ok(rule.includes(file));
-  assert.ok(rule.includes('--rank-emblem-x:'));
-  assert.ok(rule.includes('--rank-content-y:'));
-  assert.ok(rule.includes('--rank-name-x:'));
+  assert.ok(rule.includes('--rank-height:'+(rank===1?74:56)+'px'));
   assert.equal(asset.toString('ascii',12,16),'VP8X');
   assert.equal(asset.readUIntLE(24,3)+1,2172);
   assert.equal(asset.readUIntLE(27,3)+1,650);
  }
- assert.match(css,/height:clamp\(62px,20vw,76px\)/);
- assert.match(css,/background-size:100% 100%/);
- assert.match(css,/\.tc-gr-summary>svg\.tc-guild-emblem\{[^}]*left:var\(--rank-emblem-x\)/);
- assert.match(css,/width:clamp\(16px,5\.4vw,22px\)/);
- assert.doesNotMatch(css,/aspect-ratio:var\(--rank-ratio\)/);
- assert.match(css,/\.tc-gr-entry\[data-podium\] \.tc-gr-rank\{[^}]*opacity:0/);
 });
