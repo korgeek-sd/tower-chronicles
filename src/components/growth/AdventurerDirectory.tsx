@@ -53,7 +53,7 @@ export function AdventurerDirectory({lease}:{lease:GameplayLease|null}){
  const changeMode=(next:'personal'|'guild')=>{if(mode!==next){setDraft('');setQuery('');setExpanded(null);setMode(next);}};
  const guildRows=(guildRanking?.entries??[]).filter(x=>x.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
  const myGuild=guildRanking?.entries.find(x=>x.mine);
- const own=(ranking?ranking.mine:null)??ranking?.entries.find(x=>x.rank===ranking.myRank);
+ const own=(ranking?ranking.mine:null)??ranking?.entries.find(x=>x.rank===ranking?.myRank);
  const status=loading?<p role="status">정보를 불러오는 중…</p>:error?<div role="alert">{error}<button onClick={()=>setRetry(n=>n+1)}>다시 시도</button></div>:null;
  return <dialog ref={dialog} className={'tc-adventurer-dialog'+(isRank?' tc-adventurer-ranking-dialog':'')} aria-labelledby="tc-adventurer-title" onCancel={e=>{e.preventDefault();setView(null);}} onClick={e=>{if(e.target===e.currentTarget)setView(null);}}>
   <header><h2 id="tc-adventurer-title">{view.userId?'캐릭터 정보':'모험가 랭킹'}</h2><button type="button" onClick={()=>setView(null)} aria-label="캐릭터 정보 닫기">×</button></header>
@@ -62,7 +62,7 @@ export function AdventurerDirectory({lease}:{lease:GameplayLease|null}){
    <form className="tc-adventurer-rank-search" onSubmit={e=>{e.preventDefault();setQuery(draft.trim());setRetry(n=>n+1);}}><input aria-label={mode==='personal'?'닉네임 검색':'원정단명 검색'} placeholder={mode==='personal'?'닉네임 검색':'원정단명 검색'} maxLength={mode==='personal'?12:40} value={draft} onChange={e=>setDraft(e.target.value)}/><button type="submit">검색</button><button type="button" onClick={()=>{setDraft('');setQuery('');setRetry(n=>n+1);}}>전체</button></form>
    <div className="tc-adventurer-rank-heading"><span>순위</span><span>{mode==='personal'?'모험가':'원정단'}</span><span>전투력</span></div>
    <div className="tc-adventurer-rank-list" ref={list}>{status??(mode==='personal'?ranking?(ranking.entries.length?ranking.entries.map(entry=><PersonalRow key={entry.userId} entry={entry} onClick={()=>setView({userId:entry.userId})}/>):<p>검색 결과가 없습니다.</p>):null:guildRanking?(guildRows.length?guildRows.map(entry=><GuildRow key={entry.associationId} entry={entry} expanded={expanded===entry.associationId} onClick={()=>setExpanded(old=>old===entry.associationId?null:entry.associationId)}/>):<p>검색 결과가 없습니다.</p>):null)}</div>
-   <footer className="tc-adventurer-own-rank">{mode==='personal'?<><small>내 순위 · 전체 {number(ranking?.total??0)}명</small>{own?<PersonalRow entry={own} onClick={()=>setView({userId:own.userId})}/>:<p>{ranking?.myRank?ranking.myRank+'위':'—'}</p>}</>:<><small>우리 원정단 순위 · 전체 {number(guildRanking?.totalGuilds??0)}개</small>{myGuild?<GuildRow entry={myGuild} expanded={false} onClick={()=>{setDraft('');setQuery('');setExpanded(myGuild.associationId);}}/>:<p>{guildRanking?.myRank?guildRanking.myRank+'위':'소속 원정단 없음'}</p>}</>}</footer>
+   <footer className="tc-adventurer-own-rank">{mode==='personal'?<><small>내 순위 · 전체 {number(ranking?.total??0)}명</small>{own?<PersonalRow entry={own} onClick={()=>setView({userId:own.userId})}/>:<p>{ranking?.myRank?ranking.myRank+'위':'—'}</p>}</>:<><small>우리 원정단 순위 · 전체 {number(guildRanking?.totalGuilds??0)}개</small>{myGuild?<GuildRow entry={myGuild} expanded={expanded===myGuild.associationId} onClick={()=>setExpanded(old=>old===myGuild.associationId?null:myGuild.associationId)}/>:<p>{guildRanking?.myRank?guildRanking.myRank+'위':'소속 원정단 없음'}</p>}</>}</footer>
   </div>}
  </dialog>;
 }
