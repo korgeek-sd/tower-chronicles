@@ -75,7 +75,7 @@
 .tc-guild-workspace .tc-territory-scroll { flex: 1; overflow: visible; display: grid; align-content: start; gap: 8px; }
 .tc-guild-workspace :is(.tc-territory-head p,.tc-gr-header p,.tc-gr-stats,.tc-gr-rule) { display: none; }
 .tc-guild-workspace .tc-territory-stats article { padding: 7px 2px; }
-.tc-guild-workspace .tc-gr-list { overflow: hidden; }
+.tc-guild-workspace .tc-gr-list { overflow-x: hidden; overflow-y: auto; min-height: 0; flex: 1; }
 .tc-guild-workspace .tc-gr-entry { padding: 0; }
 .tc-guild-workspace .tc-gr-entry .tc-guild-task-open { min-height: 28px; font-size: 10px; width: 100%; padding: 2px; }
 .tc-guild-workspace .tc-gr-summary { min-height: 44px; }

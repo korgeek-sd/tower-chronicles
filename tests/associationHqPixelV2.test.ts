@@ -65,3 +65,13 @@ test('all member pages share the crest, growth header and pixel navigation',()=>
  const css=readFileSync('src/components/association/gatehouse.css','utf8');
  assert.match(css,/tc-courtyard-scene/);
 });
+
+test('guild ranking reserves space for the complete power-ranked list',()=>{
+ const ui=readFileSync('src/components/association/GuildRankingPanel.tsx','utf8');
+ const css=readFileSync('src/components/association/guild-workspace.css','utf8');
+ assert.doesNotMatch(ui,/tc-adventurer-rank-entry|tc-gr-modes|tc-gr-search|tc-gr-pages|PAGE_SIZE/);
+ assert.match(ui,/getGuildRankings\(lease,'OVERALL'\)/);
+ assert.match(ui,/rows\.map\(entry=><Row/);
+ assert.match(ui,/<GuildTask title=\{entry\.name\+' 상세'\}/);
+ assert.match(css,/\.tc-guild-workspace \.tc-gr-list\s*\{[^}]*overflow-y:\s*auto/);
+});
