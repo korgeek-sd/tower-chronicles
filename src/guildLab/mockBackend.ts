@@ -1,3 +1,4 @@
+import type {AdventurerProfile} from '../online/adventurerDirectory';
 import {initialState} from '../game/engine/state';
 import {DEFAULT_GUILD_EMBLEM,type GuildEmblemData} from '../components/association/GuildEmblem';
 import type{GameState}from'../game/types';
@@ -200,12 +201,48 @@ const warStage=(townId:string)=>({enabled:true,serverNow:Date.now(),phase:'DEPLO
 const occupation=()=>({userId:LAB_USER,window:cycle(),identity:guild.role==='NONE'?null:{groupKey:LAB_GUILD,groupName:guild.name,role:guild.role,associationId:LAB_GUILD},
  towers:['ore','leather','gem','kaleon'].map(t=>({tower:t,ownerGroupKey:t==='ore'?LAB_GUILD:null,ownerGroupName:t==='ore'?guild.name:null,occupiedAt:created})),
  merit:{ore:100,leather:20,gem:0,kaleon:0},bids:[],matches:[],duel:null});
-const fakeChatMessages:{id:string;user_id:string;nickname:string;body:string;created_at:string;client_id:string;association_id:string|null;sender_guild_id:string;sender_guild_name:string;sender_guild_emblem:GuildEmblemData;sender_class_id:string}[]=[
- {id:uid(100),user_id:uid(2),nickname:'루시안',body:'오늘 보스전 참여하실 분?',created_at:created,client_id:'demo-a',association_id:LAB_GUILD,sender_guild_id:LAB_GUILD,sender_guild_name:'검은 새벽',sender_guild_emblem:guild.emblem,sender_class_id:'mage'}
-];
+// All characters here are deterministic, fictitious lab records.
+const adventurers=():AdventurerProfile[]=>{
+ const people=[...guild.members,...[
+  {userId:uid(101),playerLabel:'흑기사',role:'MEMBER'},
+  {userId:uid(102),playerLabel:'은빛달',role:'MEMBER'},
+  {userId:uid(103),playerLabel:'아르카',role:'MEMBER'},
+  {userId:uid(104),playerLabel:'떠돌이검객',role:'MEMBER'},
+  {userId:uid(105),playerLabel:'별빛',role:'MEMBER'},
+  {userId:uid(106),playerLabel:'노바',role:'MEMBER'}
+ ].filter(p=>!guild.members.some(m=>m.userId===p.userId))];
+ return people.map((p,i)=>{
+  const own=guild.members.some(m=>m.userId===p.userId)&&!(p.userId===LAB_USER&&guild.role==='NONE');
+  const classId=(['warrior','mage','archer'] as const)[i%3];
+  const guildName=own?guild.name:i%2?'은빛 맹세':null;
+  const combatPower=p.userId===LAB_USER?1014:Math.round(2400+(i*8197)%58000);
+  const equipment:AdventurerProfile['equipment']=[
+   {slot:'weapon',kind:classId==='mage'?'archive_standard_arcane_staff':classId==='archer'?'outer_guard_longbow':'association_supply_iron_sword',grade:'legendary',enhancement:7},
+   {slot:'helmet',kind:'expedition_iron_helmet',grade:'heroic',enhancement:5},
+   {slot:'armor',kind:'return_corps_plate_armor',grade:'heroic',enhancement:6},
+   {slot:'gloves',kind:'mining_detail_reinforced_gloves',grade:'rare',enhancement:4},
+   {slot:'boots',kind:'survey_corps_dust_boots',grade:'rare',enhancement:5},
+   {slot:'ring',kind:'expedition_merit_ring',grade:'uncommon',enhancement:2}];
+  return {userId:p.userId,nickname:p.playerLabel,classId,level:p.userId===LAB_USER?22:30+i*3,combatPower,guildName,guildEmblem:guildName?own?guild.emblem:{...DEFAULT_GUILD_EMBLEM,base:'#2f4f80',symbol:'moon'}:null,guildRole:guildName?p.role:null,currentJobId:null,selectedAppearanceId:['knight','necromancer','scout','returning_knight','cultist','corsair'][i%6],stats:{hp:Math.round(602+i*291),attack:48.38+i*41.25,defense:54.14+i*22.6,critChance:Math.min(.6,.1+i*.03)},equipment:i===0?equipment.slice(0,1):i===7?equipment.slice(0,2):equipment,associationSeal:Math.min(30,10+i*3),guardianSeal:Math.min(30,5+i*2),collectionCompleted:Math.min(20,4+i*2),collectionTotal:20};
+ });
+};
+function adventurerDirectory(p:Record<string,any>){
+ const profiles=adventurers();
+ if(p.p_target)return profiles.find(x=>x.userId===p.p_target)??null;
+ const ranked=profiles.sort((a,b)=>b.combatPower-a.combatPower||b.level-a.level||a.userId.localeCompare(b.userId)).map((x,i)=>({userId:x.userId,nickname:x.nickname,level:x.level,classId:x.classId,combatPower:x.combatPower,guildName:x.guildName,rank:i+1}));
+ const search=String(p.p_search??'').trim().toLowerCase();
+ return {myRank:ranked.find(x=>x.userId===LAB_USER)?.rank??null,total:ranked.length,entries:ranked.filter(x=>!search||x.nickname.toLowerCase()===search).slice(0,100)};
+}
+type LabChatMessage={id:string;user_id:string;nickname:string;body:string;created_at:string;client_id:string;association_id:string|null;sender_guild_id:string|null;sender_guild_name:string|null;sender_guild_emblem:GuildEmblemData|null;sender_class_id:string|null;sender_combat_power:number|null};
+const chatTexts=['오늘 보스전 참여하실 분?','저도 같이 가겠습니다. 장비부터 정리하고 출발할게요.','원정단 모집 중인가요? 이제 막 탑을 오르기 시작했습니다.','이번 주 점령전 준비는 어떻게 하시나요?','공격력 많이 올리셨네요. 장비 정보 확인해도 될까요?','오늘은 사냥터에서 재료를 좀 모아야겠습니다.'];
+const fakeChatMessages:LabChatMessage[]=adventurers().filter(p=>p.userId!==LAB_USER).map((p,i)=>({id:uid(200+i),user_id:p.userId,nickname:p.nickname,body:chatTexts[i%chatTexts.length],created_at:new Date(Date.now()-(10-i)*60000).toISOString(),client_id:'demo-world-'+i,association_id:null,sender_guild_id:p.guildName?(p.guildName===guild.name?LAB_GUILD:uid(199)):null,sender_guild_name:p.guildName,sender_guild_emblem:p.guildEmblem,sender_class_id:p.classId,sender_combat_power:p.combatPower}));
+for(const [i,p] of adventurers().filter(p=>p.userId!==LAB_USER&&guild.members.some(m=>m.userId===p.userId)).entries()){
+ fakeChatMessages.push({id:uid(300+i),user_id:p.userId,nickname:p.nickname,body:chatTexts[i%chatTexts.length],created_at:new Date(Date.now()-(3-i)*60000).toISOString(),client_id:'demo-guild-'+i,association_id:LAB_GUILD,sender_guild_id:LAB_GUILD,sender_guild_name:p.guildName,sender_guild_emblem:p.guildEmblem,sender_class_id:p.classId,sender_combat_power:p.combatPower});
+}
 function dispatch(name:string,p:Record<string,any>):any{
  const n=Number(p.p_amount)||0;
  switch(name){
+ case'get_adventurer_directory':return adventurerDirectory(p);
  case'get_online_association_state_v2':return associationState();
  case'create_online_association_v3':
   if(guild.role!=='NONE')throw Error('ASSOCIATION_ALREADY_JOINED');
@@ -301,7 +338,7 @@ export function installGuildLabMock(){
         const item=JSON.parse(String(init?.body||'{}')) as {body:string;client_id:string;association_id?:string};
         const message={id:crypto.randomUUID(),user_id:LAB_USER,nickname:'기크',body:String(item.body||'').slice(0,200),created_at:now(),
          client_id:item.client_id,association_id:item.association_id||null,sender_guild_id:guild.role==='NONE'?null:LAB_GUILD,
-         sender_guild_name:guild.role==='NONE'?null:guild.name,sender_guild_emblem:guild.role==='NONE'?null:guild.emblem,sender_class_id:'warrior'};
+         sender_guild_name:guild.role==='NONE'?null:guild.name,sender_guild_emblem:guild.role==='NONE'?null:guild.emblem,sender_class_id:'warrior',sender_combat_power:1014};
         fakeChatMessages.push(message as typeof fakeChatMessages[number]);
         return new Response(JSON.stringify([message]),{status:201,headers:{'Content-Type':'application/json'}});
       }
