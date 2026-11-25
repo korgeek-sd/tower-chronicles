@@ -81,14 +81,17 @@ test('top three guild ranks use the approved illustrated art without changing or
  const css=readFileSync('src/components/association/guildRankings.css','utf8');
  assert.match(ui,/data-podium=\{entry\.rank>=1&&entry\.rank<=3\?entry\.rank:undefined\}/);
  assert.match(ui,/<RankNumber rank=\{entry\.rank\}\/>/);
- for(const [rank,height] of [[1,105],[2,79],[3,66]]){
+ for(const rank of [1,2,3]){
   const file='guild-rank-'+rank+'.webp';
   const asset=readFileSync('src/assets/ui/guild/'+file);
   assert.equal(asset.toString('ascii',0,4),'RIFF');
   assert.equal(asset.toString('ascii',8,12),'WEBP');
   const rule=css.match(new RegExp('\\[data-podium="'+rank+'"\\]\\{([^}]+)\\}'))?.[1]??'';
   assert.ok(rule.includes(file));
-  assert.ok(rule.includes('--rank-ratio:420/'+height));
+  assert.ok(rule.includes('--rank-ratio:2172/650'));
+  assert.equal(asset.toString('ascii',12,16),'VP8X');
+  assert.equal(asset.readUIntLE(24,3)+1,2172);
+  assert.equal(asset.readUIntLE(27,3)+1,650);
  }
  assert.match(css,/aspect-ratio:var\(--rank-ratio\)/);
  assert.match(css,/background-size:contain/);
