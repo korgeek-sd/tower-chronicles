@@ -9,3 +9,9 @@ dialog.tc-adventurer-dialog{box-sizing:border-box;width:min(480px,calc(100vw - 2
 .tc-adventurer-rank-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:6px;text-align:left}.tc-adventurer-rank-row>span{min-width:0;font-size:11px}.tc-adventurer-rank-row small{display:block;color:#b8a582;overflow-wrap:anywhere}.tc-adventurer-rank-row>span:last-child{color:#e5c17d;text-align:right}.tc-adventurer-rank-row>span:last-child b{display:block}.tc-adventurer-rank-note{color:#c4ab80}.tc-adventurer-back{align-self:start}
 .tc-chat-author .tc-adventurer-name,.tc-assoc-member .tc-adventurer-name{font:inherit;font-weight:bold;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:left;min-width:0;min-height:24px;text-decoration:underline;text-underline-offset:3px}
 .tc-gr .tc-adventurer-rank-entry{min-height:44px;border:1px solid #8b7046;background:#241b13;color:#e8d4a7;font:inherit;padding:6px}
+
+/* Keep the chat row stable: fit the existing nickname slot, with a larger tap target. */
+.tc-chat-log article.tc-chat-row .tc-chat-author>.tc-adventurer-name,.tc-chat-inline-messages article.tc-chat-row .tc-chat-author>.tc-adventurer-name{min-width:0;max-width:100%;min-height:24px;flex:0 1 auto;line-height:1.2;color:#eadac0;background:transparent;border:0;padding:0 2px;font-size:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-chat-author>.tc-adventurer-name>b{display:inline;color:inherit;font:inherit}
+.tc-chat-channels{flex-wrap:wrap;flex-shrink:0}.tc-chat-channels>button{min-width:44px;min-height:44px;padding-inline:8px}.tc-gr .tc-adventurer-rank-entry{flex:none}
+.tc-assoc-member .tc-adventurer-name{min-height:44px}
