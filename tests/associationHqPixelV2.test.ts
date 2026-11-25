@@ -76,20 +76,21 @@ test('guild ranking reserves space for the complete power-ranked list',()=>{
  assert.match(css,/\.tc-guild-workspace \.tc-gr-list\s*\{[^}]*overflow-y:\s*auto/);
 });
 
-test('guild ranking uses a shared compact grid and live emblem across all ranks',()=>{
+test('guild podium uses original compact artwork and image icons with live ranking data',()=>{
  const ui=readFileSync('src/components/association/GuildRankingPanel.tsx','utf8');
  const css=readFileSync('src/components/association/guildRankings.css','utf8');
  assert.match(ui,/data-podium=\{entry\.rank>=1&&entry\.rank<=3\?entry\.rank:undefined\}/);
  assert.match(ui,/<RankNumber rank=\{entry\.rank\}\/>/);
  assert.match(ui,/<GuildEmblem value=\{entry\.emblem\}/);
- assert.match(ui,/<PodiumFrame rank=\{entry\.rank\}\/>/);
  assert.match(ui,/<RankingIcon kind="power"\/>/);
  assert.match(ui,/<RankingIcon kind="crown"\/>/);
- assert.match(css,/grid-template-columns:clamp\(/);
+ assert.match(ui,/<img className="tc-gr-stat-icon"/);
+ assert.doesNotMatch(ui,/PodiumFrame|<svg/);
  assert.match(css,/grid-auto-rows:max-content/);
  assert.match(css,/--rank-height:48px/);
  assert.match(css,/height:var\(--rank-height\)/);
- assert.doesNotMatch(css,/--rank-emblem-x|--rank-name-x|--rank-ratio/);
+ assert.match(css,/background:var\(--rank-art\) center\/100% 100% no-repeat/);
+ assert.doesNotMatch(css,/tc-gr-podium-frame|tc-gr-podium-crown|clip-path:polygon|tc-gr-rank::/);
  for(const rank of [1,2,3]){
   const file='guild-rank-'+rank+'.webp';
   const asset=readFileSync('src/assets/ui/guild/'+file);
@@ -97,9 +98,14 @@ test('guild ranking uses a shared compact grid and live emblem across all ranks'
   assert.equal(asset.toString('ascii',8,12),'WEBP');
   const rule=css.match(new RegExp('\\[data-podium="'+rank+'"\\]\\{([^}]+)\\}'))?.[1]??'';
   assert.ok(rule.includes(file));
-  assert.ok(rule.includes('--rank-height:'+(rank===1?74:56)+'px'));
   assert.equal(asset.toString('ascii',12,16),'VP8X');
-  assert.equal(asset.readUIntLE(24,3)+1,2172);
-  assert.equal(asset.readUIntLE(27,3)+1,650);
+  assert.equal(asset.readUIntLE(24,3)+1,1440);
+  assert.equal(asset.readUIntLE(27,3)+1,rank===1?376:267);
+ }
+ for(const icon of ['crown','power']){
+  const file='guild-ranking-'+icon+'.webp';
+  const asset=readFileSync('src/assets/ui/guild/'+file);
+  assert.ok(ui.includes(file));
+  assert.equal(asset.toString('ascii',8,12),'WEBP');
  }
 });
