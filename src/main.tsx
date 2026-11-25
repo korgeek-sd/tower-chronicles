@@ -21,6 +21,7 @@ import {loadGameMail} from './online/mail';
 import {SaveManagement} from './components/SaveManagement';
 import React,{useEffect,useRef,useState} from 'react';
 import {WorldChat} from './components/WorldChat';
+import {AdventurerDirectory} from './components/growth/AdventurerDirectory';
 import {MarketTrendsScreen} from './components/market/MarketTrendsScreen';
 import {createRoot} from 'react-dom/client';
 import {flushSync} from 'react-dom';
@@ -594,6 +595,7 @@ function App(){
   </main>
   {!immersive&&<nav className="tc-nav" aria-label="주요 메뉴">{nav.map(([p,label])=><button key={p} aria-label={label+((p==='shop'&&actionAlerts.attendance)||(p==='home'&&actionAlerts.quests)?' · 받을 보상 있음':'')} aria-current={page===p||(p==='market'&&page==='gold-exchange')||(p==='association'&&page==='occupation')||(p==='home'&&['quests','settings','jobs','bestiary','cosmetics','seal','towers','floor','skills','enhancement','world','bank','character','growth','production','craft','stats','market-trends'].includes(page))} onClick={()=>move(p)}><HubIcon name={p}/>{label}{p==='market'&&(game.market.storage?.length??0)>0&&<b className="tc-nav-badge">{game.market.storage!.length}</b>}{((p==='shop'&&actionAlerts.attendance)||(p==='home'&&actionAlerts.quests))&&<i className="tc-action-alert-dot" aria-hidden="true"/>}</button>)}</nav>}
   <WorldChat key={'chat:'+(onlineSession?.userId??'guest')} userId={onlineSession?.userId??null} nickname={playerNickname} enabled={!!onlineSession&&profileReady&&gameSessionPhase==='active'} inlineAtHome={page==='home'}/>
+  <AdventurerDirectory key={(onlineSession?.userId??'guest')+':'+(gameplayLease?.leaseId??'')+':'+(gameplayLease?.generation??0)} lease={gameSessionPhase==='active'?gameplayLease:null}/>
   <GameSessionGate phase={gameSessionPhase} activePlatform={gameSessionPlatform} heartbeatAt={gameSessionHeartbeat} message={gameSessionMessage} onTakeover={()=>void takeOverHere()} onRetry={()=>void retryGameSession()} onLogout={()=>void logoutOnline()}/>
  </div>;
 }

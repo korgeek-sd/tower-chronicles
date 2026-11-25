@@ -3,6 +3,7 @@ import {createPortal} from 'react-dom';
 import {loadChatAssociation,type ChatAssociation,loadChatMessages,sendChatMessage,subscribeChatMessages,mergeChatMessages,validateChatBody,type ChatMessage,type ChatStatus} from '../online/chat';
 import {GuildEmblem} from './association/GuildEmblem';
 import './world-chat.css';
+import {openAdventurerProfile,openAdventurerRanking} from '../online/adventurerDirectory';
 const CLASS_LABELS={warrior:'전사',mage:'마법사',archer:'궁수'} as const;
 function ChatMessageRow({message,mine,inline=false}:{message:ChatMessage;mine:boolean;inline?:boolean}){
  return <article className={'tc-chat-row'+(mine?' mine':'')}>
@@ -10,7 +11,7 @@ function ChatMessageRow({message,mine,inline=false}:{message:ChatMessage;mine:bo
    {message.senderGuildId&&message.senderGuildEmblem?<GuildEmblem value={message.senderGuildEmblem} size={32} label={message.senderGuildName??'원정단'}/>:null}
   </span>
   <div className="tc-chat-author">
-   <b title={message.nickname}>{message.nickname}</b>
+   <button type="button" className="tc-adventurer-name" title={message.nickname} aria-label={message.nickname+' 캐릭터 정보'} onClick={()=>openAdventurerProfile(message.userId)}><b>{message.nickname}</b></button>
    {message.senderClassId&&<small className={'tc-chat-class-badge tc-chat-class-'+message.senderClassId}>{CLASS_LABELS[message.senderClassId]}</small>}
    {message.senderCombatPower!=null&&<small className="tc-chat-power"><span aria-hidden="true">⚔</span> 전투력 {message.senderCombatPower.toLocaleString('ko-KR')}</small>}
   </div>
@@ -85,7 +86,7 @@ export function WorldChat({userId,nickname,enabled,inlineAtHome=false}:{userId:s
    if(e.key==='Tab'){const items=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled)'));const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
   }}>
    <header><div><small>NOVAR</small><h2 id="tc-chat-title">{channelName}</h2></div><span className={'tc-chat-status '+status}>{!userId?'게스트':!enabled?'접속 대기':status==='subscribed'?'연결됨':status==='error'?'연결 오류':'재연결 중'}</span><button autoFocus={!enabled} aria-label="채팅 닫기" onClick={close}>×</button></header>
-   {enabled&&<div className="tc-chat-channels"><button aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단 미가입'}</button></div>}
+   {enabled&&<div className="tc-chat-channels"><button aria-pressed={channel==='world'} disabled={busy} onClick={()=>setChannel('world')}>전체</button><button disabled={!association||busy} aria-pressed={channel==='association'} onClick={()=>setChannel('association')}>{association?.name??'원정단 미가입'}</button><button type="button" onClick={openAdventurerRanking}>모험가 랭킹</button></div>}
    {!enabled?<div className="tc-chat-empty">{userId?'플레이 세션이 연결되면 채팅을 이용할 수 있습니다.':'Google 로그인 후 닉네임을 정하면 채팅에 참여할 수 있습니다.'}</div>:<>
     <div className="tc-chat-log" ref={scroller} role="log" aria-label="전체 채팅 메시지" aria-live="polite" aria-relevant="additions" onScroll={()=>{const el=scroller.current;if(el)nearBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<60;}}>
      {loading&&messages.length===0?<p className="tc-chat-empty">기록을 불러오는 중…</p>:messages.length===0?<p className="tc-chat-empty">노바르의 탐험가들에게 첫 인사를 남겨보세요.</p>:messages.map(m=><ChatMessageRow key={m.id} message={m} mine={m.userId===userId}/>)}
