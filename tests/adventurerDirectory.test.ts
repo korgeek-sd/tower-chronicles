@@ -46,3 +46,16 @@ test('public profile hides the crossed-swords crest without stretching or replac
  assert.match(cover,/pointer-events:none/);
  assert.match(css,/\.tc-adventurer-power>span\{[^}]*z-index:1/);
 });
+
+test('ranking redesign fixes own rank outside the scrolling list and supports both ranking modes',()=>{
+ const ui=readFileSync('src/components/growth/AdventurerDirectory.tsx','utf8'),css=readFileSync('src/components/growth/adventurer-directory.css','utf8'),mock=readFileSync('src/guildLab/mockBackend.ts','utf8');
+ assert.match(ui,/개인 전투력/);assert.match(ui,/원정단 전투력/);
+ assert.match(ui,/getGuildRankings\(lease,'OVERALL'\)/);
+ assert.match(ui,/ranking\.mine/);assert.match(ui,/entry\.guildEmblem/);
+ assert.match(ui,/className="tc-adventurer-rank-list"/);
+ assert.match(ui,/className="tc-adventurer-own-rank"/);
+ assert.match(css,/\.tc-adventurer-rank-list\{[^}]*overflow-y:auto/);
+ assert.match(css,/\.tc-adventurer-own-rank\{[^}]*flex:none/);
+ for(const rank of [1,2,3])assert.ok(css.includes('[data-rank="'+rank+'"]'));
+ assert.match(mock,/mine:ranked\.find/);
+});
