@@ -301,6 +301,15 @@ function dispatch(name:string,p:Record<string,any>):any{
   changed('재료 '+material+' 이동');return{state:materials(),replayed:false};
  }
  case'get_guild_rankings_v2':return rankings(String(p.p_mode||'OVERALL'));
+ case'get_guild_public_profile':{
+  const id=String(p.p_association_id),d=associationState().directory.find(g=>g.associationId===id),e=rankings('OVERALL').entries.find(g=>g.associationId===id);
+  if(!d||!e)return null;
+  const own=id===LAB_GUILD,people=own?guild.members:Array.from({length:d.memberCount},(_,i)=>({playerLabel:d.name.replace(/\s/g,'').slice(0,4)+(i===0?'단장':String(i+1).padStart(2,'0')),role:i===0?'LEADER':'MEMBER'}));
+  const n=people.length,total=Math.max(0,e.combatPower),top=n?Math.min(total,Math.max(Math.ceil(total/n),e.topPower)):0,rest=total-top;
+  const roster=people.map((m,i)=>({nickname:m.playerLabel,role:m.role,combatPower:i===0?top:Math.floor(rest/Math.max(1,n-1))+(i<=rest%Math.max(1,n-1)?1:0)})).sort((a,b)=>b.combatPower-a.combatPower);
+  const lands=(own?townData.filter(t=>guild.owned.includes(t.townId)):townData.slice(0,e.territories)).map(t=>({name:t.name,occupiedAt:created}));
+  return {associationId:id,description:d.description,leaderName:people.find(m=>m.role==='LEADER')?.playerLabel??null,joinPolicy:d.joinPolicy,members:roster,territories:lands,recentWars:lands.slice(0,2).map(t=>({townName:t.name,settledAt:created,outcome:'CAPTURED'}))};
+ }
  case'get_guild_boss_state':return bosses();
  case'attack_guild_boss':{
   const kind=p.p_kind==='WEEKLY'?'WEEKLY':'DAILY';const damage=kind==='WEEKLY'?4500:1200;

@@ -16,3 +16,12 @@ export interface GuildRankingState{
 }
 export const getGuildRankings=(lease:GameplayLease,mode:GuildRankingMode)=>
  rpc<GuildRankingState>('get_guild_rankings_v2',{...args(lease),p_mode:mode});
+
+export interface GuildPublicProfile {
+ associationId:string;description:string;leaderName:string|null;joinPolicy:'OPEN'|'APPROVAL'|'CLOSED';
+ members:{nickname:string|null;role:string;combatPower:number}[];
+ territories:{name:string;occupiedAt:string}[];
+ recentWars:{townName:string;settledAt:string;outcome:'CAPTURED'|'DEFENDED'|'LOST'|'UNDECIDED'}[];
+}
+export const getGuildPublicProfile=(lease:GameplayLease,associationId:string)=>
+ rpc<GuildPublicProfile|null>('get_guild_public_profile',{...args(lease),p_association_id:associationId});

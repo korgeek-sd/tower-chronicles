@@ -1,11 +1,11 @@
 import React,{useId,useRef} from 'react';
 import {GameScrollSelect} from '../../ui/GameScrollSelect';
 
-export function GuildTask({title,children,feedback,trigger}:{title:string;children:React.ReactNode;feedback?:string;trigger?:React.ReactNode}){
+export function GuildTask({title,children,feedback,trigger,onOpen,onClose,dialogClassName=''}:{title:string;children:React.ReactNode;feedback?:string;trigger?:React.ReactNode;onOpen?:()=>void;onClose?:()=>void;dialogClassName?:string}){
  const ref=useRef<HTMLDialogElement>(null),id=useId();
  return <>
-  <button type="button" className="tc-guild-task-open" aria-haspopup="dialog" onClick={()=>ref.current?.showModal()}>{trigger??title}</button>
-  <dialog className="tc-guild-task" ref={ref} aria-labelledby={id}>
+  <button type="button" className="tc-guild-task-open" aria-haspopup="dialog" onClick={()=>{ref.current?.showModal();onOpen?.();}}>{trigger??title}</button>
+  <dialog className={'tc-guild-task'+(dialogClassName?' '+dialogClassName:'')} ref={ref} aria-labelledby={id} onClose={onClose}>
    <header><strong id={id}>{title}</strong><button type="button" aria-label={title+' 닫기'} onClick={()=>ref.current?.close()}>닫기</button></header>
    <div className="tc-guild-task-content">{children}</div>
    {feedback&&<p role="status">{feedback}</p>}

@@ -72,7 +72,7 @@ test('guild ranking reserves space for the complete power-ranked list',()=>{
  assert.doesNotMatch(ui,/tc-adventurer-rank-entry|tc-gr-modes|tc-gr-search|tc-gr-pages|PAGE_SIZE/);
  assert.match(ui,/getGuildRankings\(lease,'OVERALL'\)/);
  assert.match(ui,/rows\.map\(entry=><Row/);
- assert.match(ui,/<GuildTask title=\{entry\.name\+' 상세'\}/);
+ assert.match(ui,/<GuildTask title="원정단 프로필"/);
  assert.match(css,/\.tc-guild-workspace \.tc-gr-list\s*\{[^}]*overflow-y:\s*auto/);
 });
 
@@ -108,4 +108,16 @@ test('guild podium uses original compact artwork and image icons with live ranki
   assert.ok(ui.includes(file));
   assert.equal(asset.toString('ascii',8,12),'WEBP');
  }
+});
+
+test('guild profile loads only when opened and preserves live ranking details',()=>{
+ const ui=readFileSync('src/components/association/GuildRankingPanel.tsx','utf8');
+ const api=readFileSync('src/online/guildRankings.ts','utf8');
+ const lab=readFileSync('src/guildLab/mockBackend.ts','utf8');
+ assert.match(ui,/\{open&&<GuildProfile entry=\{entry\} lease=\{lease\}\/>\}/);
+ assert.match(ui,/getGuildPublicProfile\(lease,entry\.associationId\)/);
+ assert.match(ui,/members\.slice\(0,3\)/);
+ assert.match(ui,/전체 단원 보기/);
+ assert.match(api,/get_guild_public_profile/);
+ assert.match(lab,/case'get_guild_public_profile'/);
 });

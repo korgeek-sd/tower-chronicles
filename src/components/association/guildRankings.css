@@ -85,3 +85,50 @@
 .tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b{color:#ffe0a0}
 .tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-name b,.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-metrics b{font-size:clamp(12px,3.65vw,16px)}
 @media(max-width:340px){.tc-gr .tc-gr-entry .tc-gr-summary{padding-right:5px;gap:4px}.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{padding-right:9px;gap:3px}.tc-gr .tc-gr-stat-icon{margin-right:2px}.tc-gr .tc-gr-entry .tc-gr-name small{font-size:8px}}
+
+/* Public expedition profile. Scoped to this dialog; the ranking artwork is unchanged. */
+.tc-guild-task.tc-gr-profile-dialog{height:min(610px,calc(100dvh - 24px));padding:10px;gap:8px;background:#0b1725;color:#edddbd}
+.tc-gr-profile-dialog>.tc-guild-task-content{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#967b50 transparent}
+.tc-gr-profile-dialog .tc-gr-profile{display:flex;flex-direction:column;gap:10px;padding:0 2px 8px;flex:none;min-height:0}
+.tc-gr-profile-hero{display:flex;align-items:center;gap:12px;padding:12px 8px;border:1px solid #63563d;background:#142639;min-width:0}
+.tc-gr-profile-hero>.tc-guild-emblem{width:68px;height:68px;flex:none}
+.tc-gr-profile-hero>div{min-width:0;display:grid;gap:4px}
+.tc-gr-profile-hero h2{font-size:20px;line-height:1.2;margin:0;color:#f2dfb8;overflow-wrap:anywhere}
+.tc-gr-profile-hero small{font-size:11px;color:#d6b77a}
+.tc-gr-profile-hero span{font-size:10px;color:#bcb6a8}
+.tc-gr-profile-hero[data-rank="1"]{border-color:#c29b57}
+.tc-gr-profile-hero[data-rank="2"]{border-color:#a5b0ba}
+.tc-gr-profile-hero[data-rank="3"]{border-color:#ab7954}
+.tc-gr-profile-power{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tc-gr-profile-power>div{padding:10px 4px;background:#142434;border:1px solid #62563f;display:grid;gap:5px;text-align:center}
+.tc-gr-profile-power span{font-size:10px;color:#c8bda6}
+.tc-gr-profile-power b{font-size:clamp(15px,5vw,21px);color:#f0ca83;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tc-gr-profile-power b small{font-size:10px}
+.tc-gr-profile-dialog .tc-gr-stat-icon{display:inline-block;width:1em;height:1em;object-fit:contain;vertical-align:-.12em;margin-right:4px}
+.tc-gr-profile-section{display:grid;gap:6px;min-width:0}
+.tc-gr-profile-section h3{display:flex;align-items:center;justify-content:space-between;margin:0;padding:5px 0;border-bottom:1px solid #514936;font-size:13px;color:#e4c68c}
+.tc-gr-profile-section h3 small{font-size:9px;color:#a99e88;font-weight:normal}
+.tc-gr-profile-section dl{margin:0;display:grid;gap:0}
+.tc-gr-profile-section dl>div{display:flex;justify-content:space-between;gap:8px;padding:6px 4px;border-bottom:1px solid #263644;font-size:11px}
+.tc-gr-profile-section dt{color:#b3ab99;flex:none}
+.tc-gr-profile-section dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.tc-gr-profile-description{background:#122333;padding:9px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;color:#d6cbb6}
+.tc-gr-profile-members{display:grid;gap:4px}
+.tc-gr-profile-member{display:grid;grid-template-columns:23px minmax(0,1fr) auto;align-items:center;gap:8px;background:#172737;padding:7px 8px;min-width:0}
+.tc-gr-profile-member>span{color:#d2b276;font-size:12px}
+.tc-gr-profile-member>div{display:grid;gap:2px;min-width:0}
+.tc-gr-profile-member b{font-size:12px;overflow-wrap:anywhere}
+.tc-gr-profile-member small{font-size:9px;color:#aaa392}
+.tc-gr-profile-member strong{font-size:11px;color:#e7cb94;text-align:right}
+.tc-gr-profile-dialog button.tc-gr-profile-toggle,.tc-gr-profile-status button{border:1px solid #806a47;color:#e6c98f;background:#182b3b;padding:7px;min-height:36px;font-size:11px}
+.tc-gr-profile-lands{display:flex;flex-wrap:wrap;gap:5px}
+.tc-gr-profile-lands span{background:#172737;border:1px solid #62563f;padding:6px 9px;font-size:11px}
+.tc-gr-profile-history{display:grid;gap:4px}
+.tc-gr-profile-history>div{display:flex;justify-content:space-between;align-items:center;gap:6px;background:#152434;padding:7px;font-size:11px}
+.tc-gr-profile-history>div>span{display:grid;gap:3px}
+.tc-gr-profile-history small{font-size:9px;color:#a99e8b}
+.tc-gr-profile-history b{color:#a4c7a2}
+.tc-gr-profile-history b[data-outcome="LOST"]{color:#db9993}
+.tc-gr-profile-history b[data-outcome="UNDECIDED"]{color:#b7ac96}
+.tc-gr-profile-status{color:#b7ad99;font-size:11px;padding:7px 4px}
+.tc-gr-profile-status button{display:block;margin-top:6px}
