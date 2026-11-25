@@ -19,3 +19,41 @@ dialog.tc-adventurer-dialog{box-sizing:border-box;width:min(480px,calc(100vw - 2
 .tc-chat-author>.tc-adventurer-name>b{display:inline;color:inherit;font:inherit}
 .tc-chat-channels{flex-wrap:wrap;flex-shrink:0}.tc-chat-channels>button{min-width:44px;min-height:44px;padding-inline:8px}.tc-gr .tc-adventurer-rank-entry{flex:none}
 .tc-assoc-member .tc-adventurer-name{min-height:44px}
+
+/* Ranking only: fixed controls and own record, one continuous scrollable list. */
+dialog.tc-adventurer-ranking-dialog[open]{display:flex;flex-direction:column;height:min(720px,calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));overflow:hidden}
+.tc-adventurer-ranking-dialog>header{flex:none}
+.tc-adventurer-ranking-body{display:flex;flex-direction:column;flex:1;min-height:0;gap:7px;padding:8px;overflow:hidden;container-type:inline-size}
+.tc-adventurer-rank-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:none}
+.tc-adventurer-rank-tabs button{font-size:13px;background:#211b15;color:#ad9c7e}
+.tc-adventurer-rank-tabs button[aria-pressed=true]{background:linear-gradient(#502820,#352016);border-color:#b68a4d;color:#f2d6a0}
+.tc-adventurer-rank-search{display:flex;gap:4px;flex:none}
+.tc-adventurer-rank-search input{flex:1;min-width:0;font-size:13px}
+.tc-adventurer-rank-search button{font-size:12px}
+.tc-adventurer-rank-heading{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;padding:0 18px 0 7px;color:#ad9977;font-size:10px;flex:none}
+.tc-adventurer-rank-list{display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#80643e #17130f}
+.tc-adventurer-ranking-body .tc-adventurer-rank-row{box-sizing:border-box;width:100%;flex:none;min-height:52px;display:grid;grid-template-columns:38px minmax(0,1fr) auto 8px;align-items:center;gap:6px;padding:5px 6px;text-align:left;background:#191711;border:1px solid #51432e}
+.tc-adventurer-ranking-body .tc-adventurer-rank-row[data-rank="1"]{background:linear-gradient(100deg,#392a16,#201911);border-color:#b28b4d}
+.tc-adventurer-ranking-body .tc-adventurer-rank-row[data-rank="2"]{background:linear-gradient(100deg,#30312f,#1e1d19);border-color:#8b8d88}
+.tc-adventurer-ranking-body .tc-adventurer-rank-row[data-rank="3"]{background:linear-gradient(100deg,#35251b,#201813);border-color:#9b6745}
+.tc-adventurer-rank-mark{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#b5a17f;line-height:1.15}
+.tc-adventurer-rank-mark b{font-size:14px}
+[data-rank="1"] .tc-adventurer-rank-mark{color:#e8c474}
+[data-rank="2"] .tc-adventurer-rank-mark{color:#c4c8c9}
+[data-rank="3"] .tc-adventurer-rank-mark{color:#ca956d}
+.tc-adventurer-rank-identity{min-width:0;display:grid;gap:2px;align-content:center}
+.tc-adventurer-rank-name{display:flex;align-items:center;gap:4px;min-width:0}
+.tc-adventurer-rank-name strong{font-size:13px;color:#efdab4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.tc-adventurer-rank-name svg{flex:none}
+.tc-adventurer-rank-identity small{font-size:10px;line-height:1.25;color:#b6a181;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-adventurer-ranking-body .tc-adventurer-rank-score{font-size:clamp(12px,4.5cqw,19px);font-weight:700;color:#eac88a;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tc-adventurer-ranking-body .tc-adventurer-rank-arrow{font-size:15px;color:#8d7755;text-align:right}
+.tc-adventurer-own-rank{flex:none;border:1px solid #a58349;padding:5px;background:#2c2317;display:grid;gap:3px}
+.tc-adventurer-own-rank>small{font-size:10px;color:#d7bc88}
+.tc-adventurer-own-rank .tc-adventurer-rank-row{border-color:#b08c4e;background:#30261a;min-height:48px}
+.tc-adventurer-own-rank>p{margin:4px;color:#e3cca5}
+.tc-adventurer-guild-entry{flex:none;min-width:0}
+.tc-adventurer-guild-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:6px;border:1px solid #56472e;border-top:0;background:#17140f}
+.tc-adventurer-guild-details span{display:grid;gap:3px;text-align:center;font-size:10px;color:#bca784}
+.tc-adventurer-guild-details b{font-size:12px;color:#ead1a3}
+@media(max-height:470px){.tc-adventurer-ranking-body{gap:4px;padding:5px}.tc-adventurer-ranking-body .tc-adventurer-rank-row{min-height:46px}.tc-adventurer-own-rank{padding:3px}.tc-adventurer-rank-heading{font-size:9px}}
