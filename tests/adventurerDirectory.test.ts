@@ -18,3 +18,18 @@ test('offline guild lab opens the production character directory with simulated 
  assert.match(mock,/LAB_BLOCKED_REAL_BACKEND/);
  assert.doesNotMatch(readFileSync('src/main.tsx','utf8'),/guildLab\/mockBackend/);
 });
+
+test('character inspection preserves the original combat power banner aspect ratio',()=>{
+ const asset=readFileSync('src/assets/ui/growth/combat-power-banner.webp');
+ // The approved asset is a VP8 WebP; read its actual frame dimensions.
+ assert.equal(asset.toString('ascii',12,16),'VP8 ');
+ const width=asset.readUInt16LE(26)&0x3fff,height=asset.readUInt16LE(28)&0x3fff;
+ const css=readFileSync('src/components/growth/adventurer-directory.css','utf8');
+ const rule=css.match(/\.tc-adventurer-power\{([^}]+)\}/)?.[1]??'';
+ assert.match(rule,new RegExp('aspect-ratio:'+width+'/'+height+'(?:;|$)'));
+ assert.match(rule,/background:[^;]*combat-power-banner\.webp[^;]*center\/contain no-repeat/);
+ assert.match(rule,/height:auto/);
+ assert.doesNotMatch(rule,/height:68px|100% 100%/);
+ assert.match(rule,/width:100%/);
+ assert.match(rule,/flex:none/);
+});
