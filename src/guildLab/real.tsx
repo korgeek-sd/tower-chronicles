@@ -5,6 +5,8 @@ import{VillageWarBattleScreen}from'../components/occupation/VillageWarBattleScre
 import{GameTopBar}from'../components/mobile/GameTopBar';
 import{HubIcon}from'../components/mobile/HubIcon';
 import{WorldChat}from'../components/WorldChat';
+import{AdventurerDirectory}from'../components/growth/AdventurerDirectory';
+import{openAdventurerRanking}from'../online/adventurerDirectory';
 import type{GameState}from'../game/types';
 import{gameSnapshot,installGuildLabMock,LAB_LEASE,LAB_USER,labRole,listenLabChanges,resetLab,setGameSnapshot,updateLabRole}from'./mockBackend';
 import'../mobile-game.css';
@@ -24,6 +26,7 @@ class Fallback extends React.Component<{children:React.ReactNode},{error:string}
  render(){return this.state.error?<div className="gl-crash" role="alert">원정단 실험실 화면 오류: {this.state.error}<button onClick={()=>location.reload()}>실험실 새로고침</button></div>:this.props.children;}
 }
 function RealGuildLab(){
+ useEffect(()=>{if(new URLSearchParams(location.search).get('view')==='adventurers'){const id=window.setTimeout(openAdventurerRanking,0);return()=>window.clearTimeout(id);}},[]);
  const[game,setGameInternal]=useState<GameState>(()=>gameSnapshot());
  const[role,setRole]=useState<Role>(()=>labRole());
  const[page,setPage]=useState<Page>('association');
@@ -54,6 +57,7 @@ function RealGuildLab(){
      <button className={role==='MEMBER'?'active':''} onClick={()=>changeRole('MEMBER')}>단원</button>
      <button className={role==='NONE'?'active':''} onClick={()=>changeRole('NONE')}>미가입</button>
     </div>
+    <button type="button" onClick={openAdventurerRanking}>모험가 랭킹</button>
     <button className="gl-real-reset" onClick={()=>{resetLab();setGameInternal(gameSnapshot());setPage('association');setToast('모의 데이터를 초기화했습니다.');}}>초기화</button></>}
    <button className="gl-real-toggle" aria-label={barVisible?'실험 도구 숨기기':'실험 도구 열기'} onClick={()=>setBarVisible(b=>!b)}>{barVisible?'▴':'실험 ▾'}</button>
   </div>
@@ -75,6 +79,7 @@ function RealGuildLab(){
     </button>
    )}</nav>
    <WorldChat userId={LAB_USER} nickname="기크" enabled={true} inlineAtHome={false}/>
+   <AdventurerDirectory lease={LAB_LEASE}/>
   </div>
   {page==='occupation'&&<button className="gl-real-back" onClick={()=>setPage('association')}>‹ 원정단 본부</button>}
   {toast&&<div className="gl-real-toast" role="status">{toast}</div>}
