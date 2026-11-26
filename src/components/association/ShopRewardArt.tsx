@@ -5,7 +5,8 @@ import {assetUrl} from '../../game/data/graphics';
 export function ShopRewardArt({itemId,large=false}:{itemId:string;large?:boolean}){
  const id=useId().replace(/:/g,'');
  const box=itemId.includes('box')||itemId.includes('equipment');
- const ticket=itemId.includes('job_draw_ticket');
+ const selector=itemId==='ssr_shard_selector';
+ const ticket=selector||itemId.includes('job_draw_ticket');
  const potion=itemId.includes('vitality_potion');
  const gold=itemId.includes('gold_box');
  const silver=itemId.includes('silver_box');
@@ -19,7 +20,7 @@ export function ShopRewardArt({itemId,large=false}:{itemId:string;large?:boolean
   <img src={assetUrl("assets/ui/shop/vitality_potion_pixel.webp")} alt="" decoding="async"/>
  </span>;
  if(ticket)return <span className={'tc-shop-art tc-shop-art-ticket tc-shop-art-pixel'+(large?' is-large':'')}>
-  <img src={assetUrl("assets/ui/shop/appearance_summon_ticket_pixel.webp")} alt="" decoding="async"/>
+  <img src={assetUrl(selector?'assets/ui/shop/ssr_shard_selector.webp':'assets/ui/shop/appearance_summon_ticket_pixel.webp')} alt="" decoding="async"/>
  </span>;
  if(box&&(gold||silver||rare))return <span className={'tc-shop-art tc-shop-art-chest tc-shop-art-chest-image tc-shop-art-pixel'+(large?' is-large':'')+(gold?' is-gold':silver?' is-silver':' is-rare')}>
   <img src={assetUrl(gold?'assets/ui/shop/gold_pixel_supply_chest.webp':silver?'assets/ui/shop/silver_pixel_supply_chest.webp':'assets/ui/shop/adventurer_equipment_box.png')} alt="" decoding="async"/>

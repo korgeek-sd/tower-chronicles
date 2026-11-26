@@ -60,7 +60,7 @@ export function ShardSelectorDialog({game,lease,stock,disabled,onClose,onReceive
   <footer>{message&&<p role="alert">{message}</p>}
    <button type="button" className="tc-shard-use" disabled={disabled||busy||!lease||!choice||stock<1} onClick={()=>void receive()}>
     {busy?'사용 중…':pending.current?'결과 확인':'사용하기'}
-    <span><img src={assetUrl('assets/ui/shop/appearance_summon_ticket_pixel.webp')} alt="선택권"/> ×1</span>
+    <span><img src={assetUrl('assets/ui/shop/ssr_shard_selector.webp')} alt="선택권"/> ×1</span>
    </button>
   </footer>
  </dialog>;
