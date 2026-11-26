@@ -22,6 +22,7 @@ export function marketItemIdForEquipment(item:EquipmentItem):string|null{
  return item.id===V2_STARTER_EQUIPMENT_ID?null:equipmentMarketKey(item);
 }
 export function marketItemIdForInventory(s:GameState,item:InventoryViewItem):string|null{
+ if(item.sourceId==='life:ssr_shard_selector')return null;
  if(item.lifeProduct==='challenge_ticket')return 'other:challenge_ticket';
  if(item.lifeProduct&&MARKET_LIFE_PRODUCT_IDS.some(id=>id===item.lifeProduct))return marketLifeProductItemId(item.lifeProduct as MarketLifeProduct);
  if(item.lifeMaterial&&MARKET_LIFE_MATERIAL_IDS.some(id=>id===item.lifeMaterial))return marketLifeItemId(item.lifeMaterial as MarketLifeMaterial);

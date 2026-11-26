@@ -23,6 +23,8 @@ export function unifiedInventoryView(game:GameState,life:VillageLifeState|null):
   if(r.id==='potion')facts.push('회복 HP 1 / 1개','사용 일반 사냥 자동 회복');
   items.push({key:'life:product:'+r.id,category:food?'foods':r.id==='potion'?'potions':'other',sourceId:'life:'+r.id,lifeProduct:r.id as ProductId,name:PRODUCT_NAMES[r.id],quantity,iconId:food?'health':r.id==='potion'?'potions':'tickets',description:r.description+(food?' · 세 종류 동시 적용, 같은 음식은 지속 횟수만 늘어납니다.':''),facts,order,stack:true});
  }
+ const selectors=life.products?.ssr_shard_selector??0;
+ if(selectors>0)items.push({key:'life:product:ssr_shard_selector',category:'other',sourceId:'life:ssr_shard_selector',name:'SSR 외형 조각 선택권',quantity:selectors,iconId:'tickets',description:'원하는 SSR 외형 한 종류의 조각 3개를 획득합니다.',facts:['거래 불가'],order:97,stack:true});
  const boxes=life.products?.adventurer_box??0;
  if(boxes>0)items.push({key:'life:product:adventurer_box',category:'other',sourceId:'life:adventurer_box',lifeProduct:'adventurer_box',name:'모험가 장비 상자',quantity:boxes,iconId:'other',description:'개봉하면 기존 장비 9종 중 무작위 장비 1개를 획득합니다. 거래소 거래 가능.',facts:['일반 50%','고급 35%','희귀 13%','영웅 1.9%','전설 0.1%','장비종류 각 1/9','거래 가능','최대 10개 일괄 개봉'],order:98,stack:true});
  const vitalityPotions=life.products?.vitality_potion??0;
