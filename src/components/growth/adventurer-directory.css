@@ -72,10 +72,27 @@ dialog.tc-adventurer-ranking-dialog[open]{display:flex;flex-direction:column;hei
 .tc-rank-forecast .tc-rank-item{width:22px;height:22px}
 .tc-rank-portrait{display:block;width:36px;height:42px;object-fit:cover;object-position:center top;flex:none;border:1px solid #675838;background:#161516}
 .tc-adventurer-ranking-body .tc-personal-row{grid-template-columns:32px 36px minmax(0,1fr) auto 8px;min-height:57px}
-.tc-personal-row[data-rank="1"]{--medal-art:url('../../assets/ui/guild/guild-rank-1.webp')}
-.tc-personal-row[data-rank="2"]{--medal-art:url('../../assets/ui/guild/guild-rank-2.webp')}
-.tc-personal-row[data-rank="3"]{--medal-art:url('../../assets/ui/guild/guild-rank-3.webp')}
-.tc-adventurer-ranking-body .tc-personal-row:is([data-rank="1"],[data-rank="2"],[data-rank="3"]){background-image:linear-gradient(90deg,#151119a8,#171512e8),var(--medal-art);background-size:cover;background-position:center}
+
+.tc-adventurer-ranking-body:has(.tc-personal-row){background:#091524}
+.tc-adventurer-ranking-body .tc-personal-row{grid-template-columns:10% 10.5% minmax(0,1fr) auto;gap:2%;padding:5px 3%;background:#19293a;border:1px solid #746649;border-radius:2px}
+.tc-personal-row .tc-adventurer-rank-arrow{display:none}
+.tc-personal-row .tc-rank-portrait{width:100%;height:auto;aspect-ratio:1;object-fit:cover}
+.tc-personal-row .tc-adventurer-rank-mark{border:1px solid #796641;background:#272722;padding:5px 0}
+.tc-personal-row .tc-adventurer-rank-score{color:#ebd5a1;text-shadow:0 1px 2px #080b11}
+.tc-personal-row[data-rank="1"]{--personal-ratio:1440/376;--medal-art:url('../../assets/ui/guild/guild-rank-1.webp')}
+.tc-personal-row[data-rank="2"]{--personal-ratio:1440/267;--medal-art:url('../../assets/ui/guild/guild-rank-2.webp')}
+.tc-personal-row[data-rank="3"]{--personal-ratio:1440/267;--medal-art:url('../../assets/ui/guild/guild-rank-3.webp')}
+.tc-adventurer-ranking-body .tc-personal-row:is([data-rank="1"],[data-rank="2"],[data-rank="3"]){
+ aspect-ratio:var(--personal-ratio);height:auto;min-height:0;
+ grid-template-columns:17.5% 10.5% minmax(0,1fr) auto;
+ padding:2% 5% 2% 2%;gap:1.4%;border:0;box-shadow:none;
+ background:var(--medal-art) center/contain no-repeat
+}
+.tc-adventurer-ranking-body .tc-personal-row[data-rank="1"]{padding-top:7%;padding-bottom:2.5%}
+.tc-personal-row:is([data-rank="1"],[data-rank="2"],[data-rank="3"]) .tc-adventurer-rank-mark{opacity:0}
+.tc-personal-row .tc-adventurer-rank-name strong{font-size:clamp(12px,3.7cqw,19px)}
+.tc-personal-row .tc-adventurer-rank-name svg{width:1em;height:1em}
+.tc-adventurer-ranking-body .tc-personal-row .tc-adventurer-rank-score{font-size:clamp(12px,3.55cqw,19px)}
 .tc-month-table-wrap{min-height:0;overflow:auto;overscroll-behavior:contain}
 .tc-month-table{width:100%;border-collapse:collapse;text-align:center;font-variant-numeric:tabular-nums}
 .tc-month-table th,.tc-month-table td{border-bottom:1px solid #584730;padding:8px 2px;color:#ead6af}

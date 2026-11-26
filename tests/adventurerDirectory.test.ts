@@ -66,3 +66,10 @@ test('personal ranking exposes monthly tiers and uses the live personal rank',()
  assert.match(ui,/tierForRank\(ownRank\)/);
  for(const amount of [100,80,60,40,25,10])assert.ok(ui.includes('amount: '+amount+' }'));
 });
+
+test('personal podium preserves the full expedition frames and embedded rank numbers',()=>{
+ const css=readFileSync('src/components/growth/adventurer-directory.css','utf8');
+ assert.match(css,/background:var\(--medal-art\) center\/contain no-repeat/);
+ assert.match(css,/--personal-ratio:1440\/376/);
+ assert.match(css,/--personal-ratio:1440\/267/);
+});
