@@ -92,6 +92,10 @@ export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=nu
      <strong>{nickname??'모험가'}</strong>
      <span>{job?.displayName??'직업 미선택'} {job?.rarity&&<small>{job.rarity}</small>} · Lv.{huntStatus?huntingLevel(huntStatus.experience):'—'}</span>
     </button>
+    <button type="button" className="tc-hub-rank tc-feel-press" data-game-feel="press" disabled={!lease} aria-label="개인 전투력 랭킹 열기" onClick={openAdventurerRanking}>
+     <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor">{[false,true].map(right=><g key={String(right)} transform={right?'translate(24 0) scale(-1 1)':undefined}><path d="M11 21C4 19 1 12 4 5c-1 7 1 12 7 15z"/><path d="M4 9Q1 6 4 2q2 4 0 7m0 5Q0 12 1 8q4 2 3 6m3 4Q2 18 2 14q4 0 5 4m3 2q-4 2-7-1 4-1 7 1"/></g>)}</g></svg>
+     <span><strong><span className="tc-rank-prefix">전투력 </span>랭킹 ›</strong><small>{!lease?'접속 대기':myRank?'내 순위 '+myRank+'위':'내 순위 —'}</small></span>
+    </button>
     <div className="tc-novar-vitality" aria-label="현재 활력">
      <span><b>ϟ 활력</b><strong>{huntStatus?.vitality.toLocaleString()??'—'}</strong></span>
      <div className="tc-novar-vitality-track"><i style={{width:Math.min(100,Math.max(0,(huntStatus?.vitality??0)/VITALITY_CAP*100))+'%'}}/></div>

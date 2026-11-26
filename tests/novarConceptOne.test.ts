@@ -28,7 +28,7 @@ test('hub has one utility entry and plain facility card backgrounds',()=>{
 test('approved Novar style has precedence over legacy skins regardless of CSS bundle order',()=>{
  const css=readFileSync(new URL('../src/components/mobile/novar-concept-one.css',import.meta.url),'utf8');
  assert.doesNotMatch(css,/Final hub layout contract/);
- assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-dossier\{[^}]*grid-template-columns:48px minmax\(0,1fr\) auto minmax\(72px,\.65fr\)/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-dossier\{[^}]*grid-template-columns:48px minmax\(0,1fr\) auto minmax\(72px,\.9fr\)/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-quick\{position:static;inset:auto;display:grid;/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-quick button\{position:relative;inset:auto!important;transform:none;display:flex;/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-primary\{display:grid;grid-template-columns:1\.9fr 1fr;/);
