@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {getAdventurerProfile,type AdventurerProfile,type AdventurerDirectoryRequest} from '../../online/adventurerDirectory';
 import {GuildRankingPanel} from '../association/GuildRankingPanel';
-import {assetUrl,playerGraphicForJob} from '../../game/data/graphics';
+import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
 import {jobById} from '../../game/jobs/catalog';
 import {EQUIPMENT_DEFINITIONS,EQUIPMENT_GRADE_NAMES} from '../../game/data/equipment';
 import {EquipmentArt} from '../inventory/EquipmentArt';
@@ -13,7 +13,7 @@ const className=(id:string|null)=>id==='warrior'?'전사':id==='mage'?'마법사
 const slots=['weapon','helmet','armor','gloves','boots','necklace','ring'];
 const slotLabels=['무기','투구','갑옷','장갑','신발','목걸이','반지'];
 function Profile({data}:{data:AdventurerProfile}){
- const portrait=playerGraphicForJob(data.currentJobId,data.selectedAppearanceId).image.idle;
+ const portrait=playerGraphicFor(data.selectedAppearanceId).image.idle;
  return <>
   <div className="tc-adventurer-identity">{portrait?<img src={assetUrl(portrait)} alt="착용 외형"/>:<span className="tc-adventurer-portrait-empty" aria-label="외형 이미지 없음"/>}<div><h3>{data.nickname} <span>Lv. {data.level}</span></h3><p>{className(data.classId)} · {data.currentJobId?jobById(data.currentJobId)?.displayName??'기본 외형':'기본 외형'}</p><p>{data.guildEmblem&&<GuildEmblem value={data.guildEmblem} size={26}/>} {data.guildName?data.guildName+' · '+(data.guildRole==='LEADER'?'단장':'단원'):'원정단 미가입'}</p></div></div>
   <div className="tc-adventurer-power"><span>전투력 <strong>{number(data.combatPower)}</strong></span></div>
