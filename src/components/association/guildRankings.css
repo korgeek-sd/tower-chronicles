@@ -137,3 +137,80 @@
 .tc-gr-profile-history b[data-outcome="UNDECIDED"]{color:#b7ac96}
 .tc-gr-profile-status{color:#b7ad99;font-size:11px;padding:7px 4px}
 .tc-gr-profile-status button{display:block;margin-top:6px}
+
+/* Shared navigation and panels for the guild and personal standings. */
+.tc-gr.tc-combat-rankings{
+ box-sizing:border-box;width:100%;min-width:0;gap:6px;padding:8px;
+ background:#091522;color:#eddebf;container-type:inline-size
+}
+.tc-gr-navigation,.tc-gr-context{display:flex;align-items:center;gap:6px;flex:none;min-width:0}
+.tc-gr-tabs{
+ flex:1;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ border-bottom:1px solid #766345
+}
+.tc-combat-rankings .tc-gr-tabs button{
+ display:flex;justify-content:center;align-items:center;gap:6px;min-height:44px;min-width:0;
+ border:0;padding:5px 3px;background:#101c2a;color:#b5b2a8;font:inherit;
+ font-size:clamp(12px,3.4cqw,16px);white-space:nowrap;cursor:pointer
+}
+.tc-gr-tabs img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}
+.tc-gr-tabs [aria-selected=false] img{opacity:.65}
+.tc-combat-rankings .tc-gr-tabs button[aria-selected=true]{
+ color:#ffdfa0;background-image:linear-gradient(0deg,#3b3426,#17202b 85%);
+ box-shadow:inset 0 -3px #e7ba6b;font-weight:bold
+}
+.tc-combat-rankings .tc-gr-action,.tc-combat-rankings .tc-gr-close{
+ flex:none;min-height:44px;min-width:44px;padding:4px 8px;color:#e8d5af;
+ border:1px solid #726347;background:#162332;font:inherit;font-size:12px;cursor:pointer
+}
+.tc-combat-rankings .tc-gr-close{border:0;background:transparent;font-size:22px}
+.tc-combat-rankings button:focus-visible{outline:2px solid #f4c875;outline-offset:-2px}
+.tc-gr-pane{display:flex;flex:1 1 0;min-width:0;min-height:0;flex-direction:column;gap:6px;overflow:hidden}
+.tc-gr-pane[hidden]{display:none}
+.tc-gr-context{
+ min-height:44px;padding:3px 0 5px;border-bottom:1px solid #3b4650
+}
+.tc-gr-standing{
+ flex:1;min-width:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 6px;line-height:1.25
+}
+.tc-gr-standing small,.tc-gr-standing span{font-size:11px;color:#bcb5a5}
+.tc-gr-standing strong{font-size:16px;color:#f4d599;white-space:nowrap}
+.tc-gr-standing span{flex-basis:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tc-combat-rankings .tc-gr-find{
+ box-sizing:border-box;width:100%;min-height:44px;flex:none;background:#101c2a;color:#f4e3c0;
+ border:1px solid #887247;padding:0 10px;font:inherit;font-size:13px
+}
+.tc-gr-summary>.tc-gr-portrait{
+ box-sizing:border-box;grid-column:2;justify-self:center;display:block;width:100%;height:auto;
+ max-width:52px;aspect-ratio:1;object-fit:cover;object-position:center top;border:1px solid #796643;
+ background:#101822;image-rendering:pixelated
+}
+.tc-gr-name small>.tc-guild-emblem{width:1.25em;height:1.25em;vertical-align:middle;margin-right:3px}
+.tc-grb-ranking:has(>.tc-combat-rankings){display:flex;flex-direction:column;min-height:0}
+.tc-grb-ranking>.tc-combat-rankings{flex:1}
+.tc-gr-monthly{flex:none;max-width:42%}
+.tc-gr-monthly>.tc-guild-task-open{
+ box-sizing:border-box;display:grid;place-content:center;gap:1px;min-height:44px;
+ padding:3px 6px;background:#232524;border:1px solid #93784b;color:#f4d298;font:inherit;font-size:12px
+}
+.tc-gr-monthly>.tc-guild-task-open small{display:flex;align-items:center;justify-content:center;gap:1px;white-space:nowrap;font-size:10px}
+.tc-gr-monthly .tc-rank-item{width:16px;height:16px;object-fit:contain;image-rendering:pixelated}
+.tc-gr-rewards-dialog>.tc-guild-task-content{overflow:auto;overscroll-behavior:contain}
+.tc-gr-reward-period,.tc-gr-reward-bonus{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tc-gr-reward-period{font-size:12px}.tc-gr-reward-period span,.tc-gr-reward-bonus small{color:#c2af89}
+.tc-gr-reward-table{width:100%;border-collapse:collapse;text-align:center;font-variant-numeric:tabular-nums}
+.tc-gr-reward-table th,.tc-gr-reward-table td{border-bottom:1px solid #524b3d;padding:6px 2px}
+.tc-gr-reward-table thead{background:#1f2e3c;font-size:12px}
+.tc-gr-reward-table tbody tr{height:46px;background:#142332}
+.tc-gr-reward-table tbody tr[data-mine=true]{outline:1px solid #cfaa64;outline-offset:-1px;background:#342d21}
+.tc-gr-reward-table th small{display:block;color:#e4c580;font-size:10px}
+.tc-gr-reward-table td{white-space:nowrap}
+.tc-gr-rewards-dialog .tc-rank-item{width:27px;height:27px;object-fit:contain;vertical-align:middle;margin-right:4px}
+.tc-gr-reward-bonus{justify-content:center;margin-top:3px;padding:8px;border:1px solid #8d754d;background:#1c2330}
+.tc-gr-reward-bonus div{display:grid;gap:4px}
+.tc-gr-reward-bonus .tc-rank-item{width:58px;height:42px}
+@container(max-width:320px){
+ .tc-combat-rankings .tc-gr-tabs button{gap:3px;font-size:12px}
+ .tc-gr-tabs img{width:16px;height:16px}
+ .tc-gr-context{gap:4px}
+}

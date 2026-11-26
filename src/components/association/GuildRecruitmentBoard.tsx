@@ -25,13 +25,14 @@ const options:{id:Filter;label:string}[]=[
 ];
 const status=(e:OnlineAssociationDirectoryEntry)=>e.memberCount>=e.memberLimit?'정원 마감':e.joinPolicy==='CLOSED'?'모집 중지':e.joinPolicy==='OPEN'?'자유 가입':'승인 가입';
 const compactDate=(iso:string)=>{const d=new Date(iso);return Number.isFinite(d.getTime())?d.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}):'—';};
-export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy,error,onCreate,onJoin,lease}:{
+export function GuildRecruitmentBoard({entries,applications,locked,rejoinAt,busy,error,onCreate,onJoin,lease,initialRankings=false}:{
+ initialRankings?:boolean;
  entries:OnlineAssociationDirectoryEntry[];
  applications:OnlineAssociationOwnApplication[];
  locked:boolean;rejoinAt:number;busy:boolean;error:string;
  onCreate:()=>void;onJoin:(entry:OnlineAssociationDirectoryEntry)=>void;lease:GameplayLease;
 }){
- const[filter,setFilter]=useState<Filter>('all');
+ const[filter,setFilter]=useState<Filter>(initialRankings?'rankings':'all');
  const[query,setQuery]=useState('');
  const[sortMode,setSortMode]=useState<SortMode>('recent');
  const[sortOpen,setSortOpen]=useState(false);

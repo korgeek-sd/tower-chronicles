@@ -12,5 +12,6 @@ export interface AdventurerProfile extends Omit<AdventurerEntry,'rank'>{
 export interface AdventurerRanking{myRank:number|null;mine?:AdventurerEntry|null;total:number;entries:AdventurerEntry[]}
 export const getAdventurerProfile=(lease:GameplayLease,userId:string)=>rpc<AdventurerProfile|null>('get_adventurer_directory',{...args(lease),p_target:userId,p_search:''});
 export const getAdventurerRanking=(lease:GameplayLease,search='')=>rpc<AdventurerRanking>('get_adventurer_directory',{...args(lease),p_target:null,p_search:search});
-export const openAdventurerProfile=(userId:string)=>window.dispatchEvent(new CustomEvent('tower-adventurer-directory',{detail:{userId}}));
+export type AdventurerDirectoryRequest = {userId:string|null;fromRanking?:boolean};
+export const openAdventurerProfile=(userId:string,fromRanking=false)=>window.dispatchEvent(new CustomEvent<AdventurerDirectoryRequest>('tower-adventurer-directory',{detail:{userId,fromRanking}}));
 export const openAdventurerRanking=()=>window.dispatchEvent(new CustomEvent('tower-adventurer-directory',{detail:{userId:null}}));

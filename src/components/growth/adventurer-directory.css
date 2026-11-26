@@ -10,99 +10,19 @@ dialog.tc-adventurer-dialog{box-sizing:border-box;width:min(480px,calc(100vw - 2
 .tc-adventurer-power::before{content:'';position:absolute;pointer-events:none;z-index:0;left:14%;width:23%;top:10%;height:80%;background-image:url('../../assets/ui/growth/combat-power-banner.webp');background-size:100cqw auto;background-position:-43cqw -1.910714cqw;background-repeat:no-repeat;mask-image:linear-gradient(to right,transparent,#000 7%,#000 94%,transparent),linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect}
 .tc-adventurer-power>span{position:relative;z-index:1;grid-column:2;min-width:0;font-size:clamp(9px,3.2cqw,12px);line-height:1.15;text-align:center;color:#f4d28d}.tc-adventurer-power strong{font-size:clamp(12px,5.4cqw,26px);display:block;white-space:nowrap;line-height:1.12}
 .tc-adventurer-card{padding:7px;border:1px solid #79613e;background:#17140f;display:grid;gap:5px}.tc-adventurer-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.tc-adventurer-metrics>div,.tc-adventurer-equipment>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid #4f412b;padding:5px;min-width:0}.tc-adventurer-card small{font-size:10px;color:#c4b18c}.tc-adventurer-card b{font-size:13px;color:#edcf92}.tc-adventurer-equipment{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.tc-adventurer-equipment img{width:36px;height:36px;object-fit:contain}.tc-adventurer-equipment b,.tc-adventurer-equipment span{font-size:10px;overflow-wrap:anywhere;text-align:center}
-.tc-adventurer-rank-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:6px;text-align:left}.tc-adventurer-rank-row>span{min-width:0;font-size:11px}.tc-adventurer-rank-row small{display:block;color:#b8a582;overflow-wrap:anywhere}.tc-adventurer-rank-row>span:last-child{color:#e5c17d;text-align:right}.tc-adventurer-rank-row>span:last-child b{display:block}.tc-adventurer-rank-note{color:#c4ab80}.tc-adventurer-back{align-self:start}
+.tc-adventurer-back{align-self:start}
 .tc-chat-author .tc-adventurer-name,.tc-assoc-member .tc-adventurer-name{font:inherit;font-weight:bold;color:inherit;border:0;background:none;padding:0;cursor:pointer;text-align:left;min-width:0;min-height:24px;text-decoration:underline;text-underline-offset:3px}
-.tc-gr .tc-adventurer-rank-entry{min-height:44px;border:1px solid #8b7046;background:#241b13;color:#e8d4a7;font:inherit;padding:6px}
 
 /* Keep the chat row stable: fit the existing nickname slot, with a larger tap target. */
 .tc-chat-log article.tc-chat-row .tc-chat-author>.tc-adventurer-name,.tc-chat-inline-messages article.tc-chat-row .tc-chat-author>.tc-adventurer-name{min-width:0;max-width:100%;min-height:24px;flex:0 1 auto;line-height:1.2;color:#eadac0;background:transparent;border:0;padding:0 2px;font-size:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-chat-author>.tc-adventurer-name>b{display:inline;color:inherit;font:inherit}
-.tc-chat-channels{flex-wrap:wrap;flex-shrink:0}.tc-chat-channels>button{min-width:44px;min-height:44px;padding-inline:8px}.tc-gr .tc-adventurer-rank-entry{flex:none}
+.tc-chat-channels{flex-wrap:wrap;flex-shrink:0}.tc-chat-channels>button{min-width:44px;min-height:44px;padding-inline:8px}
 .tc-assoc-member .tc-adventurer-name{min-height:44px}
 
-/* Ranking only: fixed controls and own record, one continuous scrollable list. */
-dialog.tc-adventurer-ranking-dialog[open]{display:flex;flex-direction:column;height:min(720px,calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));overflow:hidden}
-.tc-adventurer-ranking-dialog>header{flex:none}
-.tc-adventurer-ranking-body{display:flex;flex-direction:column;flex:1;min-height:0;gap:7px;padding:8px;overflow:hidden;container-type:inline-size}
-.tc-adventurer-rank-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:none}
-.tc-adventurer-rank-tabs button{font-size:13px;background:#211b15;color:#ad9c7e}
-.tc-adventurer-rank-tabs button[aria-pressed=true]{background:linear-gradient(#502820,#352016);border-color:#b68a4d;color:#f2d6a0}
-.tc-adventurer-rank-search{display:flex;gap:4px;flex:none}
-.tc-adventurer-rank-search input{flex:1;min-width:0;font-size:13px}
-.tc-adventurer-rank-search button{font-size:12px}
-.tc-adventurer-rank-heading{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;padding:0 18px 0 7px;color:#ad9977;font-size:10px;flex:none}
-.tc-adventurer-rank-list{display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#80643e #17130f}
-.tc-adventurer-ranking-body .tc-adventurer-rank-row{box-sizing:border-box;width:100%;flex:none;min-height:52px;display:grid;grid-template-columns:38px minmax(0,1fr) auto 8px;align-items:center;gap:6px;padding:5px 6px;text-align:left;background:#191711;border:1px solid #51432e}
-.tc-adventurer-ranking-body .tc-adventurer-rank-row[data-rank="1"]{background:linear-gradient(100deg,#392a16,#201911);border-color:#b28b4d}
-.tc-adventurer-ranking-body .tc-adventurer-rank-row[data-rank="2"]{background:linear-gradient(100deg,#30312f,#1e1d19);border-color:#8b8d88}
-.tc-adventurer-ranking-body .tc-adventurer-rank-row[data-rank="3"]{background:linear-gradient(100deg,#35251b,#201813);border-color:#9b6745}
-.tc-adventurer-rank-mark{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#b5a17f;line-height:1.15}
-.tc-adventurer-rank-mark b{font-size:14px}
-[data-rank="1"] .tc-adventurer-rank-mark{color:#e8c474}
-[data-rank="2"] .tc-adventurer-rank-mark{color:#c4c8c9}
-[data-rank="3"] .tc-adventurer-rank-mark{color:#ca956d}
-.tc-adventurer-rank-identity{min-width:0;display:grid;gap:2px;align-content:center}
-.tc-adventurer-rank-name{display:flex;align-items:center;gap:4px;min-width:0}
-.tc-adventurer-rank-name strong{font-size:13px;color:#efdab4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.tc-adventurer-rank-name svg{flex:none}
-.tc-adventurer-rank-identity small{font-size:10px;line-height:1.25;color:#b6a181;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-adventurer-ranking-body .tc-adventurer-rank-score{font-size:clamp(12px,4.5cqw,19px);font-weight:700;color:#eac88a;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-.tc-adventurer-ranking-body .tc-adventurer-rank-arrow{font-size:15px;color:#8d7755;text-align:right}
-.tc-adventurer-own-rank{flex:none;border:1px solid #a58349;padding:5px;background:#2c2317;display:grid;gap:3px}
-.tc-adventurer-own-rank>small{font-size:10px;color:#d7bc88}
-.tc-adventurer-own-rank .tc-adventurer-rank-row{border-color:#b08c4e;background:#30261a;min-height:48px}
-.tc-adventurer-own-rank>p{margin:4px;color:#e3cca5}
-.tc-adventurer-guild-entry{flex:none;min-width:0}
-.tc-adventurer-guild-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:6px;border:1px solid #56472e;border-top:0;background:#17140f}
-.tc-adventurer-guild-details span{display:grid;gap:3px;text-align:center;font-size:10px;color:#bca784}
-.tc-adventurer-guild-details b{font-size:12px;color:#ead1a3}
-@media(max-height:470px){.tc-adventurer-ranking-body{gap:4px;padding:5px}.tc-adventurer-ranking-body .tc-adventurer-rank-row{min-height:46px}.tc-adventurer-own-rank{padding:3px}.tc-adventurer-rank-heading{font-size:9px}}
 
-.tc-adventurer-ranking-dialog>header[style]{min-height:76px;padding-inline:14px;text-shadow:0 2px 3px #000}
-.tc-adventurer-ranking-dialog>header[style] h2{font:700 clamp(20px,5vw,28px)/1.2 serif;color:#f6dfaa}
-.tc-adventurer-ranking-dialog>header[style] button{background:#181611cc}
-.tc-adventurer-rank-tabs[aria-label="개인 랭킹 보기"] button[aria-pressed=true]{background:#392d1d;border-color:#d2aa64;color:#ffe1a3}
-.tc-month-summary,.tc-month-bonus{display:flex;align-items:center;gap:8px;border:1px solid #99784e;background:linear-gradient(110deg,#29231e,#171614);padding:9px;color:#eedaba}
-.tc-month-summary>div,.tc-month-bonus>div{min-width:0;display:grid;gap:4px}
-.tc-month-summary strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tc-month-summary span,.tc-month-summary small,.tc-month-bonus small{font-size:11px}
-.tc-month-summary .tc-rank-forecast{margin-left:auto;text-align:right;flex:none;border-left:1px solid #68523c;padding-left:8px;color:#f3d69d}
-.tc-rank-forecast span{display:flex;align-items:center;justify-content:end;gap:2px;flex-wrap:wrap}
-.tc-rank-item{width:27px;height:27px;object-fit:contain;vertical-align:middle;image-rendering:pixelated}
-.tc-rank-forecast .tc-rank-item{width:22px;height:22px}
-.tc-rank-portrait{display:block;width:36px;height:42px;object-fit:cover;object-position:center top;flex:none;border:1px solid #675838;background:#161516}
-.tc-adventurer-ranking-body .tc-personal-row{grid-template-columns:32px 36px minmax(0,1fr) auto 8px;min-height:57px}
-
-.tc-adventurer-ranking-body:has(.tc-personal-row){background:#091524}
-.tc-adventurer-ranking-body .tc-personal-row{grid-template-columns:10% 10.5% minmax(0,1fr) auto;gap:2%;padding:5px 3%;background:#19293a;border:1px solid #746649;border-radius:2px}
-.tc-personal-row .tc-adventurer-rank-arrow{display:none}
-.tc-personal-row .tc-rank-portrait{width:100%;height:auto;aspect-ratio:1;object-fit:cover}
-.tc-personal-row .tc-adventurer-rank-mark{border:1px solid #796641;background:#272722;padding:5px 0}
-.tc-personal-row .tc-adventurer-rank-score{color:#ebd5a1;text-shadow:0 1px 2px #080b11}
-.tc-personal-row[data-rank="1"]{--personal-ratio:1440/376;--medal-art:url('../../assets/ui/guild/guild-rank-1.webp')}
-.tc-personal-row[data-rank="2"]{--personal-ratio:1440/267;--medal-art:url('../../assets/ui/guild/guild-rank-2.webp')}
-.tc-personal-row[data-rank="3"]{--personal-ratio:1440/267;--medal-art:url('../../assets/ui/guild/guild-rank-3.webp')}
-.tc-adventurer-ranking-body .tc-personal-row:is([data-rank="1"],[data-rank="2"],[data-rank="3"]){
- aspect-ratio:var(--personal-ratio);height:auto;min-height:0;
- grid-template-columns:17.5% 10.5% minmax(0,1fr) auto;
- padding:2% 5% 2% 2%;gap:1.4%;border:0;box-shadow:none;
- background:var(--medal-art) center/contain no-repeat
+dialog.tc-adventurer-ranking-dialog[open]{
+ display:flex;flex-direction:column;overflow:hidden;
+ width:min(520px,calc(100vw - 16px));height:min(740px,calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+ background:#091421;border-color:#8c764e
 }
-.tc-adventurer-ranking-body .tc-personal-row[data-rank="1"]{padding-top:7%;padding-bottom:2.5%}
-.tc-personal-row:is([data-rank="1"],[data-rank="2"],[data-rank="3"]) .tc-adventurer-rank-mark{opacity:0}
-.tc-personal-row .tc-adventurer-rank-name strong{font-size:clamp(12px,3.7cqw,19px)}
-.tc-personal-row .tc-adventurer-rank-name svg{width:1em;height:1em}
-.tc-adventurer-ranking-body .tc-personal-row .tc-adventurer-rank-score{font-size:clamp(12px,3.55cqw,19px)}
-.tc-month-table-wrap{min-height:0;overflow:auto;overscroll-behavior:contain}
-.tc-month-table{width:100%;border-collapse:collapse;text-align:center;font-variant-numeric:tabular-nums}
-.tc-month-table th,.tc-month-table td{border-bottom:1px solid #584730;padding:8px 2px;color:#ead6af}
-.tc-month-table thead th{background:#30271d;font-size:12px}
-.tc-month-table tbody tr{height:48px;background:#1a1815}
-.tc-month-table tbody th{font-size:14px}
-.tc-month-table td{font-size:14px;white-space:nowrap}
-.tc-month-table td img{margin-right:4px}
-.tc-month-table tr[data-mine=true]{outline:1px solid #c9a260;outline-offset:-1px;background:#342a1d}
-.tc-month-table th small{display:block;color:#e8c886;font-size:10px}
-.tc-month-bonus{margin-top:9px;justify-content:center}
-.tc-month-bonus .tc-rank-item{width:62px;height:45px}
-@media(max-width:370px){.tc-month-summary{gap:4px;padding:6px}.tc-month-summary>.tc-rank-portrait{width:29px}.tc-month-summary .tc-rank-forecast{padding-left:4px}.tc-month-table td img{width:21px}}
+.tc-adventurer-ranking-dialog>.tc-gr{flex:1;border:0}

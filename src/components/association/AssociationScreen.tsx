@@ -60,31 +60,33 @@ const companySections:readonly {id:CompanySection;label:string;art:string;first:
 const PAGE_SIZE=3;
 
 export function AssociationScreen({
- game,setGame,onlineLease,onServerRecord,onOccupation,
+ game,setGame,onlineLease,onServerRecord,onOccupation,initialRankings=false,
 }:{
  game:GameState;
  setGame:React.Dispatch<React.SetStateAction<GameState>>;
  onlineLease?:GameplayLease|null;
+ initialRankings?:boolean;
  onOccupation?:()=>void;
  onServerRecord?:(record:CloudSaveRecord,message:string)=>void;
 }){
- if(onlineLease)return <OnlineAssociationScreen game={game} setGame={setGame} lease={onlineLease} onServerRecord={onServerRecord} onOccupation={onOccupation}/>;
+ if(onlineLease)return <OnlineAssociationScreen game={game} setGame={setGame} lease={onlineLease} initialRankings={initialRankings} onServerRecord={onServerRecord} onOccupation={onOccupation}/>;
  return <LocalAssociationScreen game={game} setGame={setGame}/>;
 }
 
 function OnlineAssociationScreen({
- game,setGame,lease,onServerRecord,onOccupation,
+ game,setGame,lease,onServerRecord,onOccupation,initialRankings,
 }:{
  game:GameState;
  setGame:React.Dispatch<React.SetStateAction<GameState>>;
  lease:GameplayLease;
+ initialRankings:boolean;
  onOccupation?:()=>void;
  onServerRecord?:(record:CloudSaveRecord,message:string)=>void;
 }){
  const [state,setState]=useState<OnlineAssociationState|null>(null);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState('');
- const [tab,setTab]=useState<ServerTab>('overview');
+ const [tab,setTab]=useState<ServerTab>(initialRankings?'rankings':'overview');
  const [page,setPage]=useState(0);
  const [name,setName]=useState('');
  const [emblem,setEmblem]=useState<GuildEmblemData>({...DEFAULT_GUILD_EMBLEM});
@@ -169,7 +171,7 @@ function OnlineAssociationScreen({
     name,description,joinPolicy:policy==='OPEN'?'OPEN':'APPROVAL',emblem
    }),'원정단을 서버에 등록했습니다.')}/>;
   return <Screen className="tc-guild-directory-screen" title="원정단 찾기" hideHeader>
-   <GuildRecruitmentBoard
+   <GuildRecruitmentBoard initialRankings={initialRankings}
     entries={state.directory} applications={state.myApplications}
     locked={rejoinLocked} rejoinAt={rejoinAt} busy={busy} error={error}
     lease={lease}

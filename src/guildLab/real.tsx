@@ -18,6 +18,7 @@ import'../components/mobile/novar-concept-one.css';
 import'./realLab.css';
 
 installGuildLabMock();
+const initialView=new URLSearchParams(location.search).get('view');
 type Page='association'|'occupation';
 type Role='LEADER'|'MEMBER'|'NONE';
 class Fallback extends React.Component<{children:React.ReactNode},{error:string}>{
@@ -67,7 +68,7 @@ function RealGuildLab(){
    <div className="tc-statusbar"><span><i/>노바르 거점</span><span>원정단 UI 실험실 · 서버 비연결</span></div>
    <main className="tc-main">
     <Fallback key={page+':'+role}>
-     {page==='association'?<AssociationScreen key={role} game={game} setGame={setGame} onlineLease={LAB_LEASE}
+     {page==='association'?<AssociationScreen key={role} initialRankings={initialView==='rankings'} game={game} setGame={setGame} onlineLease={LAB_LEASE}
       onOccupation={()=>setPage('occupation')} onServerRecord={onRecord}/>:
       <VillageWarBattleScreen userId={LAB_USER} game={game} nickname="기크" lease={LAB_LEASE} onLegacy={()=>setPage('association')}/>}
     </Fallback>
@@ -78,7 +79,7 @@ function RealGuildLab(){
     </button>
    )}</nav>
    <WorldChat userId={LAB_USER} nickname="기크" enabled={true} inlineAtHome={false}/>
-   <AdventurerDirectory lease={LAB_LEASE} initiallyOpen={new URLSearchParams(location.search).get('view')==='adventurers'}/>
+   <AdventurerDirectory lease={LAB_LEASE} initiallyOpen={initialView==='adventurers'}/>
   </div>
   {page==='occupation'&&<button className="gl-real-back" onClick={()=>setPage('association')}>‹ 원정단 본부</button>}
   {toast&&<div className="gl-real-toast" role="status">{toast}</div>}
