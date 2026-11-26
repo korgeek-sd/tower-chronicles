@@ -22,3 +22,15 @@ test('온라인 계정은 lease가 없어도 로컬 프리미엄을 표시하거
  assert.match(html,/<button[^>]*disabled[^>]*>1,000골드로 30일 활성화/);
  assert.match(html,/온라인 은행 설립/);
 });
+
+test('프리미엄 1안: 다섯 혜택과 실제 결제 상태를 세로형 왕관 UI에 표시한다',()=>{
+ const game=initialState();game.market.gold=100;game.goldenRecorder={expiresAt:Date.now()+86400000};
+ const html=renderToStaticMarkup(React.createElement(PremiumDialog,{game,lease:null,onClose:()=>{},onRecord:()=>{},onPrepare:async()=>{},onPending:()=>{}}));
+ assert.match(html,/tc-premium-crest/);
+ assert.match(html,/tc-premium-banner left/);
+ assert.match(html,/tc-premium-benefits/);
+ assert.equal((html.match(/class="tc-premium-benefit-icon"/g)??[]).length,5);
+ assert.doesNotMatch(html,/<table/);
+ for(const value of ['+10%','5%','5장','가능','3개','100 골드','골드가 부족합니다.','1,000골드로 30일 연장'])assert.ok(html.includes(value),value);
+ assert.match(html,/<button[^>]*disabled[^>]*>1,000골드로 30일 연장/);
+});

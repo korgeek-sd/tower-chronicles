@@ -1,12 +1,62 @@
-.tc-premium-backdrop{position:fixed;inset:0;z-index:1300;background:#050706e8;display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 8px) 10px calc(env(safe-area-inset-bottom) + 8px)}
-.tc-premium,.tc-premium *{box-sizing:border-box}.tc-premium{width:min(100%,460px);color:#e3d8bb;background:radial-gradient(ellipse at top,#35402c80,transparent 55%),#101812;border:1px solid #967d4e;box-shadow:0 0 0 3px #191d14,0 20px 70px #000a;padding:14px;display:flex;flex-direction:column;gap:10px;outline:none;font-size:14px}
-.tc-premium header{display:flex;align-items:center;justify-content:space-between}.tc-premium header small{font-size:10px;letter-spacing:2px;color:#aa9c77}.tc-premium h2{margin:3px 0;font-size:24px}.tc-premium button{min-height:44px;font:inherit;color:inherit;border:1px solid #89734c;background:linear-gradient(#393d2b,#20271b);cursor:pointer}.tc-premium button:disabled{opacity:.5;cursor:default}.tc-premium header button{width:44px;font-size:25px}.tc-premium :focus-visible{outline:2px solid #e1c788;outline-offset:2px}
-.tc-premium-price{display:flex;align-items:center;justify-content:center;gap:18px;border:1px solid #8a7547;background:#282e1d;padding:14px}.tc-premium-price strong{font-size:30px;color:#ead59e}.tc-premium-price small{font-size:16px}.tc-premium-price>span{border-left:1px solid #77623c;padding-left:18px;font-size:20px}
-.tc-premium table{width:100%;border-collapse:collapse;table-layout:fixed;text-align:center;font-size:14px}.tc-premium th,.tc-premium td{border:1px solid #534f36;padding:10px 4px;line-height:1.3}.tc-premium th:first-child{width:44%;text-align:left;padding-left:10px;font-weight:400}.tc-premium thead th{font-weight:400;color:#c2b694}.tc-premium tr>:last-child{background:#35351c80;color:#ecd296;font-weight:700}.tc-premium-info p{font-size:11px;line-height:1.5;margin:1px 0;color:#b8b097}.tc-premium-period{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px;background:#1c251a;border:1px solid #55553b;padding:9px}.tc-premium-period b{color:#d4bf86}.tc-premium-period small{width:100%;font-size:11px;color:#b8b097}.tc-premium-wallet{display:flex;justify-content:space-between;gap:8px;font-size:11px}.tc-premium-wallet span{display:flex;flex-direction:column;gap:3px}.tc-premium-wallet span:last-child{text-align:right}.tc-premium-wallet b{font-size:14px;color:#e0c991}.tc-premium footer p{font-size:11px;line-height:1.4;margin:0 0 7px;min-height:16px;color:#b8b097}.tc-premium footer p[role=alert]{color:#ffc0a1}.tc-premium footer button{width:100%;background:linear-gradient(#86653c,#514027);border-color:#c2a56a;font-size:16px;min-height:48px}
+/* Royal premium dialog: source artwork atlas cropped from approved concept 1. */
+.tc-premium-backdrop{position:fixed;inset:0;z-index:1300;background:#050706e0;display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 8px) 10px calc(env(safe-area-inset-bottom) + 8px)}
+.tc-premium,.tc-premium *{box-sizing:border-box}
+.tc-premium{position:relative;width:min(100%,460px);max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#78613b #101b15;color:#e8dec2;background:radial-gradient(ellipse at 50% 5%,#1c3827 0%,transparent 45%),#0a2018;border:3px double #bd9956;box-shadow:0 0 0 2px #302719,0 12px 44px #000c,inset 0 0 0 2px #3f3c22;padding:12px 15px;display:flex;flex-direction:column;gap:9px;outline:none;font-size:14px}
+.tc-premium>*{flex-shrink:0}
+.tc-premium-royal-header{position:relative;display:flex;justify-content:center;text-align:center;min-height:112px}
+.tc-premium-heading{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;z-index:1;min-width:0;padding-top:1px}
+.tc-premium h2{margin:0;font-size:clamp(20px,6vw,29px);line-height:1.2;color:#f1deb0;letter-spacing:-.6px;text-shadow:1px 2px #372b19}
+.tc-premium-heading>small{font-size:11px;color:#ae9d74;letter-spacing:1px}
+.tc-premium-badge{display:block;min-width:116px;border:1px solid #a88a51;background:#17291e;color:#dcc38c;line-height:24px;padding:0 12px;margin-top:2px;font-size:12px;text-align:center}
+.tc-premium-badge[data-active=true]{color:#f4d993;border-color:#d0b16e;box-shadow:inset 0 0 8px #73854b44}
+.tc-premium button{min-height:44px;font:inherit;color:inherit;border:1px solid #89734c;background:#273025;cursor:pointer}
+.tc-premium button:disabled{opacity:.5;cursor:default}
+.tc-premium header button{position:absolute;right:0;top:0;z-index:2;width:36px;min-height:36px;font-size:23px;border:2px double #a58c59;background:#263224}
+.tc-premium :focus-visible{outline:2px solid #e1c788;outline-offset:2px}
+.tc-premium-art{display:inline-block;flex-shrink:0;width:32px;height:32px;background-image:url('../assets/ui/premium/premium-royal-atlas.webp');background-repeat:no-repeat;background-size:384px 64px;vertical-align:middle;image-rendering:pixelated}
+.tc-premium-crest{width:96px;height:48px;background-position:0 -8px}
+.tc-premium-banner{position:absolute;top:0;width:32px;height:64px;opacity:.95}
+.tc-premium-banner.left{left:6px;background-position:-96px 0}
+.tc-premium-banner.right{right:42px;background-position:-128px 0}
+.tc-premium-coin{background-position:-160px -16px}
+.tc-premium-art-0{background-position:-192px -16px}
+.tc-premium-art-1{background-position:-224px -16px}
+.tc-premium-art-2{background-position:-256px -16px}
+.tc-premium-art-3{background-position:-288px -16px}
+.tc-premium-art-4{background-position:-320px -16px}
+.tc-premium-hourglass{background-position:-352px -16px}
+.tc-premium-price{display:flex;align-items:center;justify-content:center;gap:10px;border:3px double #b99a5e;background:#101c14;box-shadow:inset 0 0 12px #94774725;padding:7px 6px;color:#ead59e;white-space:nowrap}
+.tc-premium-price strong{font-size:clamp(22px,6.6vw,30px);line-height:1.2}
+.tc-premium-price small{font-size:15px;font-weight:400}
+.tc-premium-price>span{font-size:18px;border-left:1px solid #77623c;padding-left:10px}
+.tc-premium-benefits-title{display:flex;align-items:center;gap:9px;justify-content:center;color:#ead8ae;font-weight:400;font-size:14px;margin:0;line-height:1.4}
+.tc-premium-benefits-title:before,.tc-premium-benefits-title:after{content:'';height:1px;background:#8e7547;flex:1}
+.tc-premium-benefits{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.tc-premium-benefits li{display:grid;grid-template-columns:42px minmax(0,1fr) minmax(66px,25%);align-items:center;min-height:38px;border:1px solid #91794b;background:#122a1e;color:#e5dfc8;overflow:hidden}
+.tc-premium-benefit-icon{display:grid;place-items:center;min-height:36px;background:#0a2018;border-right:1px solid #8c7548}
+.tc-premium-benefit-label{padding:0 8px;line-height:1.3;font-size:13px}
+.tc-premium-benefits strong{display:grid;place-items:center;align-self:stretch;background:#2b3220;border-left:1px solid #7d6a42;color:#f1d383;font-size:17px;font-weight:400}
+.tc-premium-info{border-top:1px solid #5b5134;padding-top:5px}
+.tc-premium-info p{font-size:10px;line-height:1.45;margin:1px 0;color:#bdb39a;overflow-wrap:anywhere}
+.tc-premium-period{display:grid;grid-template-columns:32px auto minmax(0,1fr);align-items:center;gap:3px 6px;background:#142c20;border:2px double #a89260;padding:6px 8px;box-shadow:inset 0 0 10px #6a855222}
+.tc-premium-period>i{grid-row:1/3}
+.tc-premium-period b{color:#ecd4a0;font-size:13px;white-space:nowrap}
+.tc-premium-period>span{border-left:1px solid #786b44;padding-left:8px;text-align:right;font-size:12px}
+.tc-premium-period small{grid-column:2/-1;text-align:right;font-size:10px;color:#c2b99b}
+.tc-premium-wallet{display:grid;grid-template-columns:1fr 16px 1fr;align-items:center;gap:5px;padding:4px 3px;border-top:1px solid #514b32;border-bottom:1px solid #514b32;font-size:11px}
+.tc-premium-wallet span{display:flex;flex-direction:column;gap:1px;min-width:0}
+.tc-premium-wallet span:last-child{text-align:right;align-items:flex-end}
+.tc-premium-wallet b{display:flex;align-items:center;gap:2px;font-size:14px;color:#e9d29b;white-space:nowrap}
+.tc-premium-wallet-arrow{text-align:center;color:#b9a574;font-size:21px;font-style:normal}
+.tc-premium-wallet .tc-premium-coin{width:24px;height:24px;background-size:288px 48px;background-position:-120px -12px}
+.tc-premium footer p{font-size:11px;line-height:1.4;margin:0 0 6px;min-height:15px;color:#b8b097;text-align:center}
+.tc-premium footer p:empty{display:none}
+.tc-premium footer p[role=alert],.tc-premium footer .tc-premium-shortage{color:#f2a395}
+.tc-premium footer button{width:100%;background:linear-gradient(#8d713e,#544026);border:3px double #c3a36b;font-size:15px;min-height:45px;color:#f7e5be;box-shadow:inset 0 0 0 1px #493b25}
+.tc-premium footer button:disabled{opacity:1;background:#3a372b;color:#9a917c;border-color:#786746}
 .tc-wallet button.tc-coin{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer;min-height:44px;padding:0}.tc-wallet button.tc-coin:focus-visible{outline:2px solid #e1c788}
-@media(max-height:720px){.tc-premium{padding:8px;gap:6px}.tc-premium header small{display:none}.tc-premium-price{padding:6px}.tc-premium th,.tc-premium td{padding-top:7px;padding-bottom:7px}.tc-premium-info p{line-height:1.35}.tc-premium-period{padding:6px}}
-@media(max-height:580px){.tc-premium{gap:4px;font-size:12px}.tc-premium h2{font-size:20px}.tc-premium-price strong{font-size:24px}.tc-premium th,.tc-premium td{padding-top:5px;padding-bottom:5px;font-size:12px}.tc-premium-info{display:none}.tc-premium-period small{font-size:10px}}
-
+@media(max-height:730px){.tc-premium{padding:8px 11px;gap:6px}.tc-premium-royal-header{min-height:99px}.tc-premium-crest{height:40px;background-position:0 -12px}.tc-premium-heading{gap:1px}.tc-premium-badge{line-height:20px}.tc-premium-price{padding:4px}.tc-premium-benefits li{min-height:34px}.tc-premium-benefit-icon{min-height:32px}.tc-premium-info{padding-top:3px}.tc-premium-period{padding:4px 6px}.tc-premium-wallet{padding:2px}.tc-premium footer button{min-height:42px}}
+@media(max-width:340px){.tc-premium{padding-inline:8px}.tc-premium-banner.left{left:1px}.tc-premium-banner.right{right:35px}.tc-premium-benefit-label{font-size:12px;padding-inline:5px}.tc-premium-price{gap:6px}.tc-premium-price>span{padding-left:6px}.tc-premium-period>span{font-size:11px}}
 /* Two-line currencies and a stable 44px premium state beside them. */
 .tc-topbar .tc-wallet{min-width:0;gap:8px}
 .tc-header-funds{display:grid;gap:4px;min-width:0;max-width:112px}
