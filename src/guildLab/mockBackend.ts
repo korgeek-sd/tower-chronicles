@@ -229,7 +229,7 @@ const adventurers=():AdventurerProfile[]=>{
 function adventurerDirectory(p:Record<string,any>){
  const profiles=adventurers();
  if(p.p_target)return profiles.find(x=>x.userId===p.p_target)??null;
- const ranked=profiles.sort((a,b)=>b.combatPower-a.combatPower||b.level-a.level||a.userId.localeCompare(b.userId)).map((x,i)=>({userId:x.userId,nickname:x.nickname,level:x.level,classId:x.classId,combatPower:x.combatPower,guildName:x.guildName,guildEmblem:x.guildEmblem,rank:i+1}));
+ const ranked=profiles.sort((a,b)=>b.combatPower-a.combatPower||b.level-a.level||a.userId.localeCompare(b.userId)).map((x,i)=>({userId:x.userId,nickname:x.nickname,level:x.level,classId:x.classId,selectedAppearanceId:x.selectedAppearanceId,combatPower:x.combatPower,guildName:x.guildName,guildEmblem:x.guildEmblem,rank:i+1}));
  const search=String(p.p_search??'').trim().toLowerCase();
  return {myRank:ranked.find(x=>x.userId===LAB_USER)?.rank??null,mine:ranked.find(x=>x.userId===LAB_USER)??null,total:ranked.length,entries:ranked.filter(x=>!search||x.nickname.toLowerCase()===search).slice(0,100)};
 }
