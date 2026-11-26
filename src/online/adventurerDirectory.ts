@@ -2,7 +2,7 @@ import type {GameplayLease} from './gameSession';
 import {associationGrowthRpc as rpc,associationLeaseArgs as args} from './associationGrowthRpc';
 import type {GuildEmblemData} from '../components/association/GuildEmblem';
 import type {EquipmentKind,EquipmentGrade} from '../game/types';
-export interface AdventurerEntry{userId:string;nickname:string;level:number;classId:string|null;combatPower:number;guildName:string|null;guildEmblem?:GuildEmblemData|null;rank:number}
+export interface AdventurerEntry{userId:string;nickname:string;level:number;classId:string|null;selectedAppearanceId?:string;combatPower:number;guildName:string|null;guildEmblem?:GuildEmblemData|null;rank:number}
 export interface AdventurerProfile extends Omit<AdventurerEntry,'rank'>{
  guildEmblem:GuildEmblemData|null;guildRole:string|null;currentJobId:string|null;selectedAppearanceId:string;
  stats:{hp:number;attack:number;defense:number;critChance:number};
