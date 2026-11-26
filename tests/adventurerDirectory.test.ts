@@ -14,6 +14,8 @@ test('offline guild lab opens the production character directory with simulated 
  assert.match(lab,/<AdventurerDirectory lease=\{LAB_LEASE\}/);
  assert.match(lab,/get\('view'\)==='adventurers'/);
  assert.match(mock,/case'get_adventurer_directory':return adventurerDirectory/);
+ assert.match(lab,/initiallyOpen=\{new URLSearchParams/);
+ assert.doesNotMatch(lab,/setTimeout\(openAdventurerRanking/);
  assert.match(mock,/sender_combat_power/);
  assert.match(mock,/LAB_BLOCKED_REAL_BACKEND/);
  assert.doesNotMatch(readFileSync('src/main.tsx','utf8'),/guildLab\/mockBackend/);

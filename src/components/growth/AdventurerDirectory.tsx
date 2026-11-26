@@ -76,8 +76,8 @@ function PersonalRow({entry,onClick}:{entry:AdventurerEntry;onClick:()=>void}){
 function GuildRow({entry,expanded,onClick}:{entry:GuildRankingEntry;expanded:boolean;onClick:()=>void}){
  return <div className="tc-adventurer-guild-entry"><button type="button" className="tc-adventurer-rank-row" data-rank={entry.rank} aria-expanded={expanded} onClick={onClick}><RankMark rank={entry.rank}/><span className="tc-adventurer-rank-identity"><span className="tc-adventurer-rank-name">{entry.emblem&&<GuildEmblem value={entry.emblem} size={24} label={entry.name+' 문장'}/>}<strong>{entry.name}</strong></span><small>Lv. {entry.level} · {entry.members}/{entry.memberLimit}명</small></span><span className="tc-adventurer-rank-score">{number(entry.combatPower)}</span><span className="tc-adventurer-rank-arrow" aria-hidden="true">{expanded?'⌄':'›'}</span></button>{expanded&&<div className="tc-adventurer-guild-details"><span>최고 단원 전투력 <b>{number(entry.topPower)}</b></span><span>점령 영지 <b>{entry.territories}곳</b></span><span>공성전 승리 <b>{entry.victories}회</b></span></div>}</div>;
 }
-export function AdventurerDirectory({lease}:{lease:GameplayLease|null}){
- const [view,setView]=useState<{userId:string|null}|null>(null);
+export function AdventurerDirectory({lease,initiallyOpen=false}:{lease:GameplayLease|null;initiallyOpen?:boolean}){
+ const [view,setView]=useState<{userId:string|null}|null>(()=>initiallyOpen&&lease?{userId:null}:null);
  const [rewards,setRewards]=useState(false);
  const [mode,setMode]=useState<'personal'|'guild'>('personal');
  const [profile,setProfile]=useState<AdventurerProfile|null>(null),[ranking,setRanking]=useState<AdventurerRanking|null>(null),[guildRanking,setGuildRanking]=useState<GuildRankingState|null>(null);

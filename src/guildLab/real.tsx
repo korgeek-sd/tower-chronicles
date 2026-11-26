@@ -26,7 +26,6 @@ class Fallback extends React.Component<{children:React.ReactNode},{error:string}
  render(){return this.state.error?<div className="gl-crash" role="alert">원정단 실험실 화면 오류: {this.state.error}<button onClick={()=>location.reload()}>실험실 새로고침</button></div>:this.props.children;}
 }
 function RealGuildLab(){
- useEffect(()=>{if(new URLSearchParams(location.search).get('view')==='adventurers'){const id=window.setTimeout(openAdventurerRanking,0);return()=>window.clearTimeout(id);}},[]);
  const[game,setGameInternal]=useState<GameState>(()=>gameSnapshot());
  const[role,setRole]=useState<Role>(()=>labRole());
  const[page,setPage]=useState<Page>('association');
@@ -79,7 +78,7 @@ function RealGuildLab(){
     </button>
    )}</nav>
    <WorldChat userId={LAB_USER} nickname="기크" enabled={true} inlineAtHome={false}/>
-   <AdventurerDirectory lease={LAB_LEASE}/>
+   <AdventurerDirectory lease={LAB_LEASE} initiallyOpen={new URLSearchParams(location.search).get('view')==='adventurers'}/>
   </div>
   {page==='occupation'&&<button className="gl-real-back" onClick={()=>setPage('association')}>‹ 원정단 본부</button>}
   {toast&&<div className="gl-real-toast" role="status">{toast}</div>}
