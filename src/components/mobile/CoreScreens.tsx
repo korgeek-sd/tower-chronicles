@@ -1,3 +1,4 @@
+import {getAdventurerRanking,openAdventurerRanking} from '../../online/adventurerDirectory';
 import {HubIcon} from './HubIcon';
 import {GameSelect} from '../../ui/GameSelect';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
@@ -34,6 +35,15 @@ import {huntingLevel,VITALITY_CAP,type HuntingState} from '../../game/hunting/mo
 export type AppPage='character'|'growth'|'production'|'quests'|'craft'|'world'|'home'|'stats'|'hunt'|'battle'|'inventory'|'enhancement'|'skills'|'jobs'|'cosmetics'|'market'|'gold-exchange'|'association'|'seal'|'occupation'|'settings'|'bestiary'|'shop'|'bank'|'market-trends';
 
 export function HomeScreen({game,onMove,onOpenJobs,nickname,lease=null,userId=null,actionAlerts}:{onOpenMail?:()=>void;mailUnread?:number;nickname?:string;game:GameState;onMove:(p:AppPage)=>void;onOpenJobs:(tab:'register'|'list')=>void;lease?:GameplayLease|null;userId?:string|null;actionAlerts?:{quests:boolean;attendance:boolean}}){
+ const [myRank,setMyRank]=useState<number|null>(null);
+ useEffect(()=>{
+  let current=true;
+  setMyRank(null);
+  if(lease) void getAdventurerRanking(lease).then(ranking=>{
+   if(current)setMyRank(ranking.myRank);
+  }).catch(()=>{ /* The directory can still be opened to retry. */ });
+  return ()=>{current=false;};
+ },[lease?.leaseId,lease?.generation,userId]);
  const [showAllFacilities,setShowAllFacilities]=useState(false);
  const facilityToggle=useRef<HTMLButtonElement>(null);
  const [huntStatus,setHuntStatus]=useState<Pick<HuntingState,'vitality'|'currentHp'|'maxHp'|'currentMp'|'maxMp'|'experience'>|null>(null);

@@ -28,9 +28,17 @@ test('hub has one utility entry and plain facility card backgrounds',()=>{
 test('approved Novar style has precedence over legacy skins regardless of CSS bundle order',()=>{
  const css=readFileSync(new URL('../src/components/mobile/novar-concept-one.css',import.meta.url),'utf8');
  assert.doesNotMatch(css,/Final hub layout contract/);
- assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-dossier\{[^}]*grid-template-columns:50px minmax\(0,1fr\) minmax\(100px,\.9fr\)/);
+ assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-dossier\{[^}]*grid-template-columns:48px minmax\(0,1fr\) auto minmax\(72px,\.65fr\)/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-quick\{position:static;inset:auto;display:grid;/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-quick button\{position:relative;inset:auto!important;transform:none;display:flex;/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-primary\{display:grid;grid-template-columns:1\.9fr 1fr;/);
  assert.match(css,/\.tc-screen\.tc-novar-concept-one \.tc-camp-v2-chat-dock\{margin:0;height:44px;min-height:44px;/);
+});
+
+test('dossier opens personal rankings between identity and vitality',()=>{
+ const entry=home.indexOf('onClick={openAdventurerRanking}');
+ assert.ok(entry>home.indexOf('닉네임으로 성장 현황 열기'));
+ assert.ok(entry<home.indexOf('className="tc-novar-vitality"'));
+ assert.match(home,/getAdventurerRanking\(lease\)/);
+ assert.match(home,/setMyRank\(ranking.myRank\)/);
 });
