@@ -5,7 +5,7 @@ import type {GameplayLease} from '../../online/gameSession';
 import {getGuildRankings,getGuildPublicProfile,type GuildPublicProfile,type GuildRankingEntry} from '../../online/guildRankings';
 import {getAdventurerRanking,openAdventurerProfile,type AdventurerEntry} from '../../online/adventurerDirectory';
 import {getOnboardingClassLabel} from '../intro/onboardingClassLabels';
-import {assetUrl} from '../../game/data/graphics';
+import {assetUrl,playerGraphicFor} from '../../game/data/graphics';
 import {PersonalRankingRewards} from '../growth/PersonalRankingRewards';
 import './guildRankings.css';
 import powerIcon from '../../assets/ui/guild/guild-ranking-power.webp';
@@ -100,10 +100,11 @@ function PersonalRow({entry,mine}:{entry:AdventurerEntry;mine:boolean}){
  const id=entry.classId;
  const classId=id==='warrior'||id==='mage'||id==='archer'?id:null;
  const job=classId?getOnboardingClassLabel(classId):'직업 미선택';
+ const portrait=playerGraphicFor(entry.selectedAppearanceId??'default').image.idle;
  return <article className={'tc-gr-entry'+(mine?' mine':'')} data-podium={entry.rank>=1&&entry.rank<=3?entry.rank:undefined}>
   <button type="button" className="tc-guild-task-open" aria-haspopup="dialog" onClick={()=>openAdventurerProfile(entry.userId, true)}>
    <RankingSummary entry={entry} name={entry.nickname+(mine?' · 나':'')}
-    portrait={classId?<img className="tc-gr-portrait" src={assetUrl('assets/characters/classes/'+classId+'-portrait-v2.svg')} loading="lazy" alt=""/>:<span className="tc-gr-portrait" aria-hidden="true"/>}
+    portrait={portrait?<img className="tc-gr-portrait" src={assetUrl(portrait)} loading="lazy" alt=""/>:<span className="tc-gr-portrait" aria-hidden="true"/>}
     detail={<>{entry.guildEmblem&&<GuildEmblem value={entry.guildEmblem} size={14}/>}Lv.{entry.level} · {job}{entry.guildName?' · '+entry.guildName:''}</>}/>
   </button>
  </article>;
