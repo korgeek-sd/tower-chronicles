@@ -17,11 +17,14 @@
   .tc-gate-level { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 5px; align-items: center; font-size: clamp(10px, 2.8vw, 14px); }
   .tc-gate-meter { height: 8px; overflow: hidden; border-radius: 2px; background: #39414e; }
   .tc-gate-meter i { display: block; height: 100%; background: #55b9ec; }
-  .tc-gate-tools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; }
+  .tc-gate-tools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; min-width: 0; }
+  .tc-gate-tools button { white-space: nowrap; word-break: keep-all; }
+  .tc-gate-tools button > span > .tc-gate-icon { flex: 0 0 14px; width: 14px; height: 14px; }
   .tc-gate-tools button > span {
     display: flex; align-items: center; justify-content: center; gap: 3px;
     min-height: 25px; border: 1px solid #b48a54; border-radius: 3px;
-    background: #151513; color: #ffe1ad; font-size: clamp(11px, 3.1vw, 15px);
+    background: #151513; color: #ffe1ad; font-size: clamp(10px, 2.9vw, 13px);
+    white-space: nowrap; word-break: keep-all; flex-wrap: nowrap; box-sizing: border-box; padding: 0 3px;
     box-shadow: inset 0 0 0 1px #392c20;
   }
   .tc-company-mainnav { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:4px; margin:0; padding:2px 5px; background:#0b1420; }

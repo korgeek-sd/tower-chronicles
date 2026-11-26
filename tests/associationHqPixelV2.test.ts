@@ -89,7 +89,8 @@ test('guild podium uses original compact artwork and image icons with live ranki
  assert.match(css,/grid-auto-rows:max-content/);
  assert.match(css,/--rank-height:48px/);
  assert.match(css,/height:var\(--rank-height\)/);
- assert.match(css,/background:var\(--rank-art\) center\/100% 100% no-repeat/);
+ assert.match(css,/background:var\(--rank-art\) center\/contain no-repeat/);
+ assert.match(css,/aspect-ratio:var\(--rank-ratio\)/);
  assert.doesNotMatch(css,/tc-gr-podium-frame|tc-gr-podium-crown|clip-path:polygon|tc-gr-rank::/);
  for(const rank of [1,2,3]){
   const file='guild-rank-'+rank+'.webp';
@@ -98,6 +99,7 @@ test('guild podium uses original compact artwork and image icons with live ranki
   assert.equal(asset.toString('ascii',8,12),'WEBP');
   const rule=css.match(new RegExp('\\[data-podium="'+rank+'"\\]\\{([^}]+)\\}'))?.[1]??'';
   assert.ok(rule.includes(file));
+  assert.ok(rule.includes('--rank-ratio:1440/'+(rank===1?376:267)));
   assert.equal(asset.toString('ascii',12,16),'VP8X');
   assert.equal(asset.readUIntLE(24,3)+1,1440);
   assert.equal(asset.readUIntLE(27,3)+1,rank===1?376:267);
@@ -120,4 +122,12 @@ test('guild profile loads only when opened and preserves live ranking details',(
  assert.match(ui,/전체 단원 보기/);
  assert.match(api,/get_guild_public_profile/);
  assert.match(lab,/case'get_guild_public_profile'/);
+});
+
+test('guild header keeps ranking and record labels on a single line',()=>{
+ const gate=readFileSync('src/components/association/gatehouse.css','utf8');
+ const workspace=readFileSync('src/components/association/guild-workspace.css','utf8');
+ assert.match(gate,/\.tc-gate-tools button\s*\{[^}]*white-space:\s*nowrap/);
+ assert.match(gate,/\.tc-gate-tools button > span\s*\{[^}]*flex-wrap:\s*nowrap/);
+ assert.match(workspace,/grid-template-columns: 44px minmax\(0,1fr\) clamp\(108px,30vw,128px\) 30px/);
 });

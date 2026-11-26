@@ -56,7 +56,7 @@
 @media(max-width:360px){.tc-gr-metrics{min-width:65px}.tc-gr-metrics b{font-size:11px}}
 
 /* Shared leaderboard row grid: live data in consistent columns. */
-.tc-gr .tc-gr-list{gap:4px;align-content:start;grid-auto-rows:max-content}
+.tc-gr .tc-gr-list{gap:4px;align-content:start;grid-auto-rows:max-content;container-type:inline-size}
 .tc-gr .tc-gr-entry{--rank-height:48px;--rank-metal:#9a835b;min-width:0;border:1px solid #716244;background:#172535;border-radius:2px;box-sizing:border-box}
 .tc-gr .tc-gr-entry.mine{border-color:#82936d}
 .tc-gr .tc-gr-entry>.tc-guild-task-open{box-sizing:border-box;display:block;width:100%;min-height:0;height:auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;text-align:left;color:inherit}
@@ -72,19 +72,24 @@
 .tc-gr .tc-gr-entry .tc-gr-arrow{display:none}
 /* Original illustrated frames and icon assets. CSS controls placement only. */
 .tc-gr .tc-gr-stat-icon{display:inline-block;width:1.05em;height:1.05em;object-fit:contain;vertical-align:-.14em;margin-right:3px}
-.tc-gr .tc-gr-entry[data-podium="1"]{--rank-height:clamp(68px,22vw,84px);--rank-art:url('../../assets/ui/guild/guild-rank-1.webp')}
-.tc-gr .tc-gr-entry[data-podium="2"]{--rank-height:clamp(49px,15.5vw,60px);--rank-art:url('../../assets/ui/guild/guild-rank-2.webp')}
-.tc-gr .tc-gr-entry[data-podium="3"]{--rank-height:clamp(49px,15.5vw,60px);--rank-art:url('../../assets/ui/guild/guild-rank-3.webp')}
+.tc-gr .tc-gr-entry[data-podium="1"]{--rank-ratio:1440/376;--rank-art:url('../../assets/ui/guild/guild-rank-1.webp')}
+.tc-gr .tc-gr-entry[data-podium="2"]{--rank-ratio:1440/267;--rank-art:url('../../assets/ui/guild/guild-rank-2.webp')}
+.tc-gr .tc-gr-entry[data-podium="3"]{--rank-ratio:1440/267;--rank-art:url('../../assets/ui/guild/guild-rank-3.webp')}
 .tc-gr .tc-gr-entry[data-podium],
 .tc-guild-workspace .tc-gr .tc-gr-entry[data-podium]{border:0;background:transparent!important;box-shadow:none;overflow:hidden}
 .tc-gr .tc-gr-entry[data-podium]>.tc-guild-task-open{background:transparent!important;box-shadow:none;border:0}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{grid-template-columns:17% clamp(29px,9vw,36px) minmax(0,1fr) minmax(65px,max-content);gap:clamp(3px,1.25vw,6px);padding:3px 12px 3px 3px;background:var(--rank-art) center/100% 100% no-repeat}
-.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-summary{padding-top:clamp(15px,5vw,20px);padding-bottom:7px}
+/* Keep the actual WebP aspect ratios at every viewport width. Padding and
+   content columns follow the illustrated interior rather than viewport height. */
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{height:auto;aspect-ratio:var(--rank-ratio);grid-template-columns:17.5% 10.5% minmax(0,1fr) minmax(0,29%);gap:clamp(3px,1.4cqw,8px);padding:2% 5% 2% 2%;background:var(--rank-art) center/contain no-repeat}
+.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-summary{padding-top:7%;padding-bottom:2.5%}
 .tc-gr .tc-gr-entry[data-podium] .tc-gr-rank{opacity:0;pointer-events:none}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-name b{color:#f4e5c7;text-shadow:0 1px 2px #080b11}
-.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b{color:#ffe0a0}
-.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-name b,.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-metrics b{font-size:clamp(12px,3.65vw,16px)}
-@media(max-width:340px){.tc-gr .tc-gr-entry .tc-gr-summary{padding-right:5px;gap:4px}.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary{padding-right:9px;gap:3px}.tc-gr .tc-gr-stat-icon{margin-right:2px}.tc-gr .tc-gr-entry .tc-gr-name small{font-size:8px}}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-summary>.tc-guild-emblem{width:100%;height:auto;aspect-ratio:1;max-width:58px;max-height:58px;justify-self:center}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-name b{font-size:clamp(11px,3.8cqw,21px);color:#f4e5c7;text-shadow:0 1px 2px #080b11}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-name small{font-size:clamp(8px,2.65cqw,14px)}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b{font-size:clamp(11px,3.55cqw,20px);color:#ffe0a0;white-space:nowrap}
+.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics b small,.tc-gr .tc-gr-entry[data-podium] .tc-gr-metrics>span{font-size:clamp(8px,2.5cqw,13px);white-space:nowrap}
+.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-name b,.tc-gr .tc-gr-entry[data-podium="1"] .tc-gr-metrics b{font-size:clamp(12px,4cqw,22px)}
+@media(max-width:340px){.tc-gr .tc-gr-entry:not([data-podium]) .tc-gr-summary{padding-right:5px;gap:4px}.tc-gr .tc-gr-stat-icon{margin-right:2px}.tc-gr .tc-gr-entry .tc-gr-name small{font-size:8px}}
 
 /* Public expedition profile. Scoped to this dialog; the ranking artwork is unchanged. */
 .tc-guild-task.tc-gr-profile-dialog{height:min(610px,calc(100dvh - 24px));padding:10px;gap:8px;background:#0b1725;color:#edddbd}

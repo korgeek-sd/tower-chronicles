@@ -1,6 +1,6 @@
 /* Each section shows its primary task. Secondary operations open a focused dialog. */
 .tc-assoc.tc-assoc-hq.tc-assoc-hq-v2.tc-assoc-hq-v4.tc-gate-detail {
-  .tc-gate-identity { flex-basis: 54px; grid-template-columns: 44px minmax(0,1fr) 104px 36px; }
+  .tc-gate-identity { flex-basis: 54px; grid-template-columns: 44px minmax(0,1fr) clamp(108px,30vw,128px) 30px; }
   .tc-gate-growth b { font-size: 16px; }
   .tc-gate-level { font-size: 10px; }
   .tc-guild-chat-tool { padding: 0; min-height: 44px; background: transparent; border: 0; color: #e6ce9f; }
