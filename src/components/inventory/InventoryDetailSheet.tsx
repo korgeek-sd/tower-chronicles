@@ -1,4 +1,4 @@
-import {assetUrl} from '../../game/data/graphics';
+import {ShopRewardArt} from '../association/ShopRewardArt';
 import {SkillBookArt} from './SkillBookArt';
 import {skillBookFor} from '../../game/skills/books';
 import React,{useEffect,useRef,useState} from 'react';
@@ -13,7 +13,7 @@ import {CRAFT_RECIPES} from '../../game/life/crafting';
 import type {EquipmentStatComparison} from '../../game/engine/state';
 
 export function InventoryItemArt({item,slot=false}:{item:InventoryViewItem;slot?:boolean}){
- if(item.sourceId==='life:ssr_shard_selector')return <img src={assetUrl('assets/ui/shop/appearance_summon_ticket_pixel.webp')} alt="" style={{width:'100%',height:'100%',objectFit:'contain',imageRendering:'pixelated'}}/>;
+ if(item.sourceId==='life:ssr_shard_selector')return <i className={slot?'tc-inventory-slot-art':'tc-glyph'} aria-hidden="true"><ShopRewardArt itemId="job_draw_ticket"/></i>;
  if(item.category==='skillbooks')return <i className={slot?'tc-inventory-slot-art':'tc-glyph'} aria-hidden="true"><SkillBookArt grade={skillBookFor(item.sourceId)?.grade}/></i>;
  if(item.equipmentKind)return <i className={slot?'tc-inventory-slot-art':'tc-glyph'} aria-hidden="true"><EquipmentArt kind={item.equipmentKind} grade={item.grade}/></i>;
  const id=item.lifeMaterial??item.lifeProduct;
