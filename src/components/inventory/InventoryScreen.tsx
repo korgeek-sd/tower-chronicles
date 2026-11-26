@@ -48,6 +48,11 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
  const life=useInventoryLife(userId,onlineLease??null);
  const [category,setCategory]=useState<InventoryCategory>(()=>inventoryTabFor(initialCategory)),[query,setQuery]=useState(''),[sort,setSort]=useState<InventorySort>('default'),[filter,setFilter]=useState<InventoryFilter>({tier:0,status:false}),[selected,setSelected]=useState<string|null>(null),[page,setPage]=useState(0),[toolsOpen,setToolsOpen]=useState(false),[busy,setBusy]=useState(false);
  const [selectorMessage,setSelectorMessage]=useState('');
+ useEffect(()=>{
+  if(!selectorMessage)return;
+  const timer=window.setTimeout(()=>setSelectorMessage(''),3500);
+  return ()=>window.clearTimeout(timer);
+ },[selectorMessage]);
  const [boxCount,setBoxCount]=useState(1);
  const [boxRewards,setBoxRewards]=useState<EquipmentItem[]|null>(null);
  useEffect(()=>setBoxCount(1),[selected]);
@@ -135,7 +140,7 @@ export function InventoryScreen({game,setGame,onlineLease,userId=null,onEnhancem
   {item?.sourceId==='life:ssr_shard_selector'&&<ShardSelectorDialog key={userId} game={game} lease={onlineLease??null} stock={item.quantity} disabled={life.disabled} onClose={()=>{close();void life.refresh();}} onReceived={(name,result)=>{
    if(userId)rememberCloudRecord(result.record,userId);
    setGame(current=>({...current,cosmetics:{...current.cosmetics,appearanceItems:result.record.payload.cosmetics.appearanceItems}}));
-   life.applySnapshot(result.state);setSelectorMessage(name+' 조각 3개를 받았습니다.');close();
+   life.applySnapshot(result.state);setSelectorMessage(name+' 조각 3개 획득');close();
   }}/>}
   {item?.sourceId!=='life:ssr_shard_selector'&&item?.lifeProduct!=='adventurer_box'&&item&&<InventoryDetailSheet item={item} status={(item.category==='foods'||item.lifeProduct==='vitality_potion')?life.error||(life.pending?'사용 결과를 다시 확인해 주세요.':life.message):undefined} retryAction={(item.category==='foods'||item.lifeProduct==='vitality_potion')&&(life.pending||life.error)?life.retry:undefined} retryDisabled={life.busy||boxes.busy||!onlineLease} comparison={item.category==='equipment'?comparisonFor(item.sourceId):null} onClose={close}  marketAction={marketAction} marketDisabled={marketDisabled} marketLabel={marketLabel} dangerAction={item.category==='equipment'&&item.modern?dismantleSelected:undefined} dangerDisabled={dismantleDisabled} dangerLabel={busy?'분해 처리 중':dismantleLabel} {...{action,label,disabled}}/>}
  </Screen>;
