@@ -87,3 +87,13 @@ test('both standings use the guild row grid and its original podium frame sizing
  assert.match(css,/background:var\(--rank-art\) center\/contain no-repeat/);
  for(const rank of [1,2,3])assert.ok(css.includes('guild-rank-'+rank+'.webp'));
 });
+
+test('switching standings captures the visible list before hiding it and restores its own offset',()=>{
+ const ui=readFileSync('src/components/association/GuildRankingPanel.tsx','utf8');
+ const switchTab=ui.slice(ui.indexOf('const selectTab='),ui.indexOf('const onTabKey='));
+ assert.match(switchTab,/scrollTopByTab\.current\[tab\]\s*=\s*activeList\.current\.scrollTop/);
+ assert.ok(switchTab.indexOf('activeList.current.scrollTop')<switchTab.indexOf('setTab(next)'));
+ assert.match(ui,/useLayoutEffect\(\(\)=>\{[^}]*activeList\.current\.scrollTop\s*=\s*scrollTopByTab\.current\[tab\]/);
+ assert.match(ui,/GuildStandings lease=\{lease\} listRef=\{guildList\}/);
+ assert.match(ui,/PersonalStandings lease=\{lease\} listRef=\{personalList\}/);
+});

@@ -1,6 +1,6 @@
 import {GuildTask} from './GuildTask';
 import {GuildEmblem} from './GuildEmblem';
-import React,{useEffect,useId,useState} from 'react';
+import React,{useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
 import type {GameplayLease} from '../../online/gameSession';
 import {getGuildRankings,getGuildPublicProfile,type GuildPublicProfile,type GuildRankingEntry} from '../../online/guildRankings';
 import {getAdventurerRanking,openAdventurerProfile,type AdventurerEntry} from '../../online/adventurerDirectory';
@@ -128,17 +128,20 @@ function useStandings<T>(lease:GameplayLease,read:(lease:GameplayLease)=>Promise
  return {data,loading,error,refresh:()=>setRevision(n=>n+1)};
 }
 
-function StandingsList({loading,error,ready,refresh,children}:{
+function StandingsList({loading,error,ready,refresh,listRef,children}:{
+ listRef:React.Ref<HTMLDivElement>;
  loading:boolean;error:boolean;ready:boolean;refresh:()=>void;children:React.ReactNode;
 }){
- return <div className="tc-gr-list" aria-busy={loading}>
+ return <div ref={listRef} className="tc-gr-list" aria-busy={loading}>
   {loading&&!ready && <p className="tc-gr-empty" role="status">순위를 불러오는 중입니다.</p>}
   {error && <div className="tc-gr-empty" role="alert">순위를 불러오지 못했습니다.<button type="button" onClick={refresh}>다시 시도</button></div>}
   {ready && children}
  </div>;
 }
 
-function GuildStandings({lease}:{lease:GameplayLease}){
+type StandingsProps={lease:GameplayLease;listRef:React.Ref<HTMLDivElement>};
+
+function GuildStandings({lease,listRef}:StandingsProps){
  const {data,loading,error,refresh}=useStandings(lease,readGuildStandings);
  const [search,setSearch]=useState<string|null>(null);
  const query=search?.trim().toLocaleLowerCase('ko-KR');
@@ -155,13 +158,13 @@ function GuildStandings({lease}:{lease:GameplayLease}){
    <button type="button" className="tc-gr-action" disabled={loading} onClick={refresh}>새로고침</button>
   </div>
   {search!==null && <input type="search" className="tc-gr-filter" aria-label="원정단명" autoFocus maxLength={40} placeholder="원정단명 검색" value={search} onChange={event=>setSearch(event.target.value)}/>}
-  <StandingsList ready={!!data} loading={loading} error={error} refresh={refresh}>
+  <StandingsList listRef={listRef} ready={!!data} loading={loading} error={error} refresh={refresh}>
    {rows.length?rows.map(entry=><Row key={entry.associationId} entry={entry} lease={lease}/>):<p className="tc-gr-empty">{query?'검색 결과가 없습니다.':'현재 등록된 활성 원정단이 없습니다.'}</p>}
   </StandingsList>
  </>;
 }
 
-function PersonalStandings({lease}:{lease:GameplayLease}){
+function PersonalStandings({lease,listRef}:StandingsProps){
  const {data,loading,error,refresh}=useStandings(lease,getAdventurerRanking);
  const own=data?.mine??data?.entries.find(entry=>entry.rank===data.myRank);
  const ownRank=own?.rank??data?.myRank??null;
@@ -173,7 +176,7 @@ function PersonalStandings({lease}:{lease:GameplayLease}){
    <PersonalRankingRewards ownRank={ownRank}/>
    <button type="button" className="tc-gr-action" disabled={loading} onClick={refresh}>새로고침</button>
   </div>
-  <StandingsList ready={!!data} loading={loading} error={error} refresh={refresh}>
+  <StandingsList listRef={listRef} ready={!!data} loading={loading} error={error} refresh={refresh}>
    {data?.entries.length?data.entries.map(entry=><PersonalRow key={entry.userId} entry={entry} mine={entry.userId===own?.userId}/>):<p className="tc-gr-empty">등록된 모험가가 없습니다.</p>}
   </StandingsList>
  </>;
@@ -185,8 +188,18 @@ export function GuildRankingPanel({lease,initialTab='guild',onClose}:{
  const id=useId();
  const [tab,setTab]=useState<RankingTab>(initialTab);
  const [visitedBoth,setVisitedBoth]=useState(false);
+ const session=lease.leaseId+':'+lease.generation;
+ const guildList=useRef<HTMLDivElement>(null);
+ const personalList=useRef<HTMLDivElement>(null);
+ const activeList=tab==='guild'?guildList:personalList;
+ const scrollTopByTab=useRef<Record<RankingTab,number>>({guild:0,personal:0});
+ useLayoutEffect(()=>{scrollTopByTab.current={guild:0,personal:0};},[session]);
+ useLayoutEffect(()=>{
+  if(activeList.current)activeList.current.scrollTop=scrollTopByTab.current[tab];
+ },[activeList,tab,session]);
  const selectTab=(next:RankingTab)=>{
   if(next===tab)return;
+  if(activeList.current)scrollTopByTab.current[tab]=activeList.current.scrollTop;
   setVisitedBoth(true);
   setTab(next);
  };
@@ -202,7 +215,6 @@ export function GuildRankingPanel({lease,initialTab='guild',onClose}:{
   selectTab(next);
   document.getElementById(id+'-tab-'+next)?.focus();
  };
- const session=lease.leaseId+':'+lease.generation;
  return <section className="tc-gr tc-combat-rankings" aria-label="전투력 랭킹">
   <header className="tc-gr-navigation">
    <div role="tablist" aria-label="랭킹 종류" className="tc-gr-tabs" onKeyDown={onTabKey}>
@@ -216,7 +228,7 @@ export function GuildRankingPanel({lease,initialTab='guild',onClose}:{
   </header>
   {rankingTabs.map(item=><div key={session+item.id} className="tc-gr-pane" role="tabpanel"
    id={id+'-panel-'+item.id} aria-labelledby={id+'-tab-'+item.id} hidden={tab!==item.id}>
-   {(tab===item.id||visitedBoth) && (item.id==='guild'?<GuildStandings lease={lease}/>:<PersonalStandings lease={lease}/>)}
+   {(tab===item.id||visitedBoth) && (item.id==='guild'?<GuildStandings lease={lease} listRef={guildList}/>:<PersonalStandings lease={lease} listRef={personalList}/>)}
   </div>)}
  </section>;
 }
