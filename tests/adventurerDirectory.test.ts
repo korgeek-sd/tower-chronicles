@@ -5,7 +5,7 @@ test('adventurer inspection is read-only and available from chat and guild membe
  assert.match(read('src/components/association/AssociationScreen.tsx'),/openAdventurerProfile\(member.userId\)/);
  assert.match(read('src/main.tsx'),/<AdventurerDirectory/);
  const ui=read('src/components/growth/AdventurerDirectory.tsx');
- for(const label of ['캐릭터 정보','모험가 랭킹','개인 전투력','원정단 전투력','닉네임 검색','장착 장비','전투 인장','수호 인장'])assert.ok(ui.includes(label),'missing UI label: '+label);
+ for(const label of ['캐릭터 정보','모험가 랭킹','개인 전투력','원정단 전투력','원정단명 검색','장착 장비','전투 인장','수호 인장'])assert.ok(ui.includes(label),'missing UI label: '+label);
  assert.doesNotMatch(ui,/onConfirm|onEquipment|onStats|foodTurns|combatPowerSkillBonus/);
 });
 
@@ -58,4 +58,11 @@ test('ranking redesign fixes own rank outside the scrolling list and supports bo
  assert.match(css,/\.tc-adventurer-own-rank\{[^}]*flex:none/);
  for(const rank of [1,2,3])assert.ok(css.includes('[data-rank="'+rank+'"]'));
  assert.match(mock,/mine:ranked\.find/);
+});
+
+test('personal ranking exposes monthly tiers and uses the live personal rank',()=>{
+ const ui=readFileSync('src/components/growth/AdventurerDirectory.tsx','utf8');
+ assert.match(ui,/월간 보상/);
+ assert.match(ui,/tierForRank\(ownRank\)/);
+ for(const amount of [100,80,60,40,25,10])assert.ok(ui.includes('amount: '+amount+' }'));
 });
