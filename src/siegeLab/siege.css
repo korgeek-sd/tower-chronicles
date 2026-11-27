@@ -37,3 +37,17 @@
 .sl-unit.left-edge .sl-hp-details{left:0}.sl-unit.right-edge .sl-hp-details{right:0}
 .me-warning{color:#ffb05c}
 @media(prefers-reduced-motion:no-preference){.me-warning{animation:sl-warning 1.4s ease-in-out infinite alternate}@keyframes sl-warning{to{opacity:.5}}}
+
+.sl-unit{width:5.1%;transition:none}
+.sl-unit.focus{--hp-height:7px}
+.sl-unit .sl-ring{top:calc(100% + 1px)}
+.sl-unit .sl-tag-emblem{position:absolute;left:-3px;top:-2px;width:12px;height:12px}
+.sl-tag-emblem svg{width:100%;height:100%}
+.sl-unit .sl-tag,.sl-unit.top-edge .sl-tag{inset:auto;flex-direction:column;gap:0!important;width:max-content;text-align:center;line-height:1.1;background:transparent;text-shadow:0 1px 2px #000,1px 0 #101310,-1px 0 #101310}
+.sl-unit.me .sl-tag,.sl-unit.focus .sl-tag{background:#12170fea;border-radius:3px;padding:1px 3px}
+.sl-tag small:empty,.sl-tag .sl-power:empty{display:none}
+.sl-tag .sl-name-row{display:flex;align-items:center;gap:2px}
+.sl-tag .sl-power{position:static;font-size:9px;background:none}
+.sl-tag .sl-percent{background:transparent;color:#ffdf89}
+.sl-unit .sl-role{width:11px;height:11px;font-size:8px;right:0;bottom:0}
+.sl-status{gap:8px}.sl-status #target{font-variant-numeric:tabular-nums;color:#ffe4a1}
