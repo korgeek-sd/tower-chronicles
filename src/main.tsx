@@ -117,7 +117,11 @@ function App(){
  const [mailOpen,setMailOpen]=useState(false),[mailUnread,setMailUnread]=useState(0);
  const [notificationsOpen,setNotificationsOpen]=useState(false),[notificationsUnread,setNotificationsUnread]=useState(0);
  // Local bank records remain untouched while server banking is under maintenance.
- const [page,setPage]=useState<AppPage>(game.expedition?'battle':'home');
+ const [page,setPage]=useState<AppPage>(()=>{
+  if(game.expedition)return 'battle';
+  const target=new URLSearchParams(location.search).get('tab');
+  return nav.find(([p])=>p===target)?.[0]??'home';
+ });
  const [inventoryShortcutCategory,setInventoryShortcutCategory]=useState<'equipment'|'potions'|null>(null);
  useEffect(()=>{if(page==='battle'&&!game.expedition)setPage('hunt');},[page,game.expedition]);
  const [jobsEntryTab,setJobsEntryTab]=useState<JobTab>('register');
