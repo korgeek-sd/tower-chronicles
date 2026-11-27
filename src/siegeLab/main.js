@@ -510,7 +510,18 @@ function render(){
   $('hp').style.width=me.hp/me.max*100+'%';$('mp').style.width=me.mp+'%';$('hp').style.background=hpColor(me.hp/me.max);
   $('myhp').textContent='HP '+Math.ceil(me.hp).toLocaleString('ko-KR')+' / '+me.max.toLocaleString('ko-KR');
   const target=units.find(u=>alive(u)&&u.id===focus);
-  const routePreview=me.trip?.path??(goal!==null&&alive(me)?routes(me,blocked(goal,me)||occupied.has(goal)?near(goal):[goal]):null);
+  const moving=alive(me)&&goal!==null;
+  const nextSteps=me.trip?.path.slice(me.trip.times.filter(t=>t<=elapsed-me.trip.start).length)
+    ??(moving?routes(me,blocked(goal,me)||occupied.has(goal)?near(goal):[goal]):null);
+  const headings=new Map();
+  if(moving&&nextSteps?.length){
+    let prev=me.trip?me.trip.path[me.trip.path.length-nextSteps.length-1]??me.k:me.k;
+    for(const step of nextSteps.slice(0,3)){
+      const [x,y]=xy(prev),[nx,ny]=xy(step);
+      if(step!==goal)headings.set(step,Math.atan2(ny-y,nx-x)*180/Math.PI);
+      prev=step;
+    }
+  }
   const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&visible(me,u,attackRange(me))&&me.attackAt>elapsed&&goal===null);
   const inspected=units[inspectId]||me;
   if(infoTeam!==inspected.team){
@@ -522,10 +533,14 @@ function render(){
   $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
-    const c=cells[k];c.classList.toggle('spell-range',aiming!==null&&validGround(k));c.classList.toggle('route',!!routePreview?.includes(k));c.classList.toggle('goal',!target&&goal===k);
+    const c=cells[k];c.classList.toggle('spell-range',aiming!==null&&validGround(k));c.classList.toggle('path-mark',headings.has(k));
+    if(headings.has(k))c.style.setProperty('--heading',headings.get(k)+'deg');
+    const destination=moving&&!target&&goal===k;
+    c.classList.toggle('move-mark',destination&&!gates.get(k));
+    c.classList.toggle('goal',destination&&!!gates.get(k));
     c.classList.toggle('ice',frost.some(z=>z.cells.includes(k)));
     c.classList.toggle('warn',fire.some(p=>dist(k,p)<=1));c.classList.toggle('center',fire.includes(k));
-    if(!gates.has(k)&&layout[k]!=='throne')c.textContent=goal===k&&!target?'⚑':'';
+    
     if(gates.has(k)){
       const hp=gates.get(k);
       if(c.dataset.hp!==String(hp)){
@@ -554,6 +569,7 @@ function render(){
     n.hidden=false;
     const [x,y]=position(u);
     n.className='sl-unit'+(u===me?' me':'')+(u.team?' red':'')+(u===actual?' focus':'')+(x<1?' left-edge':x>W-2?' right-edge':'')+(y<.7?' top-edge':y>H-1.7?' last-row':'');
+    n.classList.toggle('passing',u===me&&!!u.trip&&u.trip.path.length>1);
     n.querySelector('.sl-token').classList.toggle('red',!!u.team);
     n.style.left=(x+.5)/W*100+'%';n.style.top=(y+.5)/H*100+'%';
     const ratio=u.hp/u.max;
