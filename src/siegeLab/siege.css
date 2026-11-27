@@ -88,3 +88,28 @@ html,body{height:100%;overflow:hidden}
 .sl-cell.spell-range{outline:1px solid #8bd3d2;outline-offset:-2px}
 #pause{margin-left:auto;min-height:30px}#halt a{color:#ebd89b}
 @media(max-height:550px){#siege{gap:2px}.sl-meter,.sl-score{display:none}.skill-fan{--orb:46px}}
+
+/* 32px terrain atlas: rampart, side wall, gate stages, throne, trail, turf. */
+.sl-cells{--terrain-atlas:url(data:image/png;base64,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)}
+.sl-cell:is(.wall,.gate,.throne,.road,.grass)::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:var(--terrain-atlas);background-size:800% 100%;
+  background-position:var(--tile-x) center;image-rendering:pixelated;
+}
+.sl-cell.wall{--tile-x:0%}
+.sl-cell.side-wall{--tile-x:14.285714%}
+.sl-cell.gate{--tile-x:28.571429%;border:0}
+.sl-cell.gate.broken{--tile-x:42.857143%}
+.sl-cell.gate.open{--tile-x:57.142857%}
+.sl-cell.throne{--tile-x:71.428571%}
+.sl-cell.road{--tile-x:85.714286%}
+.sl-cell.grass{--tile-x:100%}
+.sl-cell.road:not(.ice):not(.center):not(.route):not(.goal){background-color:#78674c}
+.sl-cell:is(.grass,.road){border-color:#14201512}
+.sl-cell:is(.gate,.throne,.wall){box-shadow:none}
+.sl-cell:is(.route,.goal,.ice,.center,.warn)::before{opacity:.55}
+.sl-cell.gate.goal::after{content:'';position:absolute;inset:1px;border:2px solid #edcf83;pointer-events:none}
+.gate-health{position:absolute;z-index:1;bottom:4%;left:16%;width:68%;height:4px;background:#26251f;border:1px solid #181914}
+.gate-health::after{content:'';display:block;height:100%;background:#d8b66e;transform-origin:left;transform:scaleX(var(--gate-hp,1))}
+.broken .gate-health::after{background:#e57c55}
+.open .gate-health{display:none}
