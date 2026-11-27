@@ -113,7 +113,7 @@ let infoTeam=null;
 const skills = [['강타','방패 가격','방어 태세'],['조준 사격','속박 화살','연속 사격'],['화염구','서리 장판','보호막']];
 const cooldowns = [[5,10,15],[7,10,6],[8,12,15]];
 const power = [66,59,73], cadence = [2.2,2.7,3.1];
-let inspectId = 0, overview = false, frost = [], beams = [], playerRole = 0;
+let inspectId = 0, overview = false, frost = [], beams = [], basicAttacks = [], playerRole = 0;
 const occupied = new Map(), reserved = new Map();
 const terrainBlocks = (k,u) => ['wall','rock','tree'].includes(layout[k]) || (u.team===0 && gates.get(k)>0);
 const blocked = (k,u) => terrainBlocks(k,u) || (occupied.has(k) && occupied.get(k).team!==u.team) || (reserved.has(k) && reserved.get(k)!==u);
@@ -208,7 +208,7 @@ function hpColor(ratio){
   if(ratio<=.5)return '#edc448';
   return '#74cf77';
 }
-function damage(u,v,n){
+function damage(u,v,n,source=position(u)){
   if(!alive(v))return;
   let amount=Math.round(n*(v.guard>elapsed?.65:1));
   if(v.shieldUntil>elapsed){const absorbed=Math.min(amount,v.shield);v.shield-=absorbed;amount-=absorbed}
@@ -216,6 +216,10 @@ function damage(u,v,n){
     if(!(v.trailUntil>elapsed))v.trailHp=v.hp;
     v.trailUntil=elapsed+.4;
     v.hp=Math.max(0,v.hp-amount);v.hitAt=elapsed;
+    if(v===me){
+      const [x,y]=position(v);
+      v.hitDirection=Math.atan2(source[1]-y,source[0]-x)*180/Math.PI;
+    }
   }
   if(v.hp===0){
     if(v===me)aiming=null;
@@ -312,12 +316,30 @@ function resolveCast(u){
   }
   return true;
 }
+function startBasicAttack(u,v){
+  const from=position(u),to=position(v);
+  const duration=u.role===0?.18:.28;
+  basicAttacks.push({u,v,from,start:elapsed,end:elapsed+duration});
+  if(u.role===0){
+    const angle=Math.atan2(to[1]-from[1],to[0]-from[0]);
+    u.lunge={angle,start:elapsed,end:elapsed+duration*2};
+  }
+}
+function resolveBasicAttacks(){
+  const flying=[];
+  for(const attack of basicAttacks){
+    if(!alive(attack.v))continue;
+    if(elapsed<attack.end)flying.push(attack);
+    else damage(attack.u,attack.v,power[attack.u.role],attack.from);
+  }
+  basicAttacks=flying;
+}
 function strike(u,v,foes){
   const r=u.role, range=[1,3,3][r];
   if(u.attackAt>elapsed)return;
   if(!visible(u,v,range)&&!(r===1&&ready(u,0)&&visible(u,v,4)))return;
   u.lastTarget=v.id;u.attackAt=elapsed+cadence[r];
-  if(u===me){beam(u,v,['hit','arrow','magic'][r]);damage(u,v,power[r]);return}
+  if(u===me){startBasicAttack(u,v);return}
   if(r===0){
     if(v.cast&&ready(u,1)){use(u,1);v.cast=null;v.stun=elapsed+.6;beam(u,v);damage(u,v,power[r]);return}
     if(ready(u,0)){use(u,0);beam(u,v);damage(u,v,power[r]*1.6);return}
@@ -334,7 +356,7 @@ function strike(u,v,foes){
     if(pair&&ready(u,1)){use(u,1);frost.push({team:u.team,cells:[v.k,pair.k],until:elapsed+2});return}
     if(ready(u,0)){use(u,0);u.cast={type:'fire',k:v.k,end:elapsed+.7};return}
   }
-  beam(u,v,['hit','arrow','magic'][r]);damage(u,v,power[r]);
+  startBasicAttack(u,v);
   u.combo=u.comboId===v.id?u.combo+1:1;u.comboId=v.id;
 }
 function place(u,preferred){
@@ -361,13 +383,13 @@ function reset(){
     place(u,id(x,u.team?gateRow+1+rank:H-2-rank));
   }
   elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;owner='';inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
-  kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
+  kills=[0,0];logs=[];beams=[];basicAttacks=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
   nodes.clear();unitLayer.replaceChildren();
   $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='Ⅱ';$('myface').src=me.img;
   document.querySelector('.sl-me-name').textContent='기크 · '+roleNames[me.role];render();
 }
 function tick(dt){
-  elapsed+=dt;frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
+  elapsed+=dt;resolveBasicAttacks();frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
   for(const u of units){
     if(!alive(u)){
       if(elapsed>=u.respawnAt&&place(u,u.team?id(centerX,0):camp)){
@@ -444,6 +466,20 @@ function drawEffects(){
     el.setAttribute('d',d);el.setAttribute('fill','none');el.setAttribute('stroke',color);el.setAttribute('stroke-width',width);
     if(dash)el.setAttribute('stroke-dasharray','1 .6');
     fx.append(el);
+  }
+  for(const {u,v,from,start,end} of basicAttacks){
+    if(u.role===0)continue;
+    const progress=Math.min(1,(elapsed-start+.035)/(end-start));
+    const to=position(v),at=f=>from.map((n,i)=>n+(to[i]-n)*f);
+    const tip=at(progress), important=u===me||v===me;
+    if(u.role===1){
+      line(at(Math.max(0,progress-.22)),tip,important?'#ffdc85':'#b9af8f',important?.55:.32,false,true);
+    }else{
+      const orb=document.createElementNS(svgNS,'circle');
+      orb.setAttribute('cx',tip[0]*10+5);orb.setAttribute('cy',tip[1]*10+5);
+      orb.setAttribute('r',important?1.05:.65);orb.setAttribute('fill',important?'#e8dbff':'#b8a0cb');
+      orb.setAttribute('stroke','#9066bd');orb.setAttribute('stroke-width','.4');fx.append(orb);
+    }
   }
   for(const b of beams){
     const duration=b.mine?.38:.16, age=elapsed-(b.until-.48);
@@ -563,6 +599,9 @@ function render(){
       const emblemRoot=createRoot(n.querySelector('.sl-tag-emblem'));
       unitEmblems.push(emblemRoot);
       renderGuildEmblem(emblemRoot,guilds[u.team],15);
+      if(u===me){
+        const arc=document.createElement('i');arc.className='sl-hit-direction';arc.hidden=true;arc.setAttribute('aria-hidden','true');n.append(arc);
+      }
       n.querySelector('img').src=u.img;n.querySelector('.sl-role').textContent=roleIcon[u.role];
       n.querySelector('.sl-role').title=roleNames[u.role];unitLayer.append(n);nodes.set(u.id,n);
     }
@@ -570,7 +609,20 @@ function render(){
     const [x,y]=position(u);
     n.className='sl-unit'+(u===me?' me':'')+(u.team?' red':'')+(u===actual?' focus':'')+(x<1?' left-edge':x>W-2?' right-edge':'')+(y<.7?' top-edge':y>H-1.7?' last-row':'');
     n.classList.toggle('passing',u===me&&!!u.trip&&u.trip.path.length>1);
-    n.querySelector('.sl-token').classList.toggle('red',!!u.team);
+    const token=n.querySelector('.sl-token');
+    token.classList.toggle('red',!!u.team);
+    token.classList.toggle('impact',elapsed-u.hitAt<.23);
+    if(u.lunge){
+      const {angle,start,end}=u.lunge;
+      const offset=Math.max(0,Math.sin(Math.PI*Math.min(1,(elapsed-start)/(end-start))))*23;
+      token.style.transform='translate('+Math.cos(angle)*offset+'%,'+Math.sin(angle)*offset+'%)';
+      if(elapsed>=end){token.style.removeProperty('transform');u.lunge=null}
+    }
+    if(u===me){
+      const arc=n.querySelector('.sl-hit-direction');
+      arc.hidden=!(elapsed-u.hitAt<.6);
+      if(!arc.hidden)arc.style.setProperty('--direction',u.hitDirection+'deg');
+    }
     n.style.left=(x+.5)/W*100+'%';n.style.top=(y+.5)/H*100+'%';
     const ratio=u.hp/u.max;
     n.style.setProperty('--hp-color',hpColor(ratio));
