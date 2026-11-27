@@ -51,3 +51,16 @@
 .sl-tag .sl-percent{background:transparent;color:#ffdf89}
 .sl-unit .sl-role{width:11px;height:11px;font-size:8px;right:0;bottom:0}
 .sl-status{gap:8px}.sl-status #target{font-variant-numeric:tabular-nums;color:#ffe4a1}
+
+.sl-frame{position:relative}
+.sl-frame .sl-viewport{height:clamp(260px,68dvh,620px);max-height:none;overscroll-behavior:contain}
+.sl-frame .sl-board{width:137.5%;touch-action:none}
+.sl-frame.overview .sl-viewport{height:auto;overflow:hidden}
+.sl-frame.overview .sl-board{width:min(100%,53.4dvh);margin-inline:auto;touch-action:pan-y}
+.sl-frame:not(.overview) .sl-unit{width:5.6%}
+.sl-frame:not(.overview) .sl-name-row b{font-size:12px;line-height:1.15}
+.sl-frame:not(.overview) .sl-role{width:14px;height:14px;font-size:10px}
+.sl-frame:not(.overview) .sl-tag-emblem,.sl-frame:not(.overview) .sl-tag-emblem svg{width:14px;height:14px}
+.sl-frame .sl-tag-emblem{left:-4px;top:0}
+.sl-frame .sl-overlay{z-index:40}
+.sl-cell.goal{color:#ffdb80;font-weight:700}
