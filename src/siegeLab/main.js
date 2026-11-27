@@ -7,14 +7,39 @@ import {APPEARANCES} from '../game/data/cosmetics';
 const W=11,H=14,root=document.getElementById('siege');
 const img=(i)=>new URL((APPEARANCES[i%APPEARANCES.length].imagePath||APPEARANCES[0].imagePath),location.href).href;
 const names=['기크','아르칸','설화','루시안','카인','테오','아벨','녹스','레온','카론','라그나','벨리온','세라','이든','렌','모르','바엘','리안','회색늑대','카엘'];
+const sideSize=30, battleSeconds=30*60;
+const fronts=[
+  {gates:[2,5,8],rock:[1,9,0,10,3,7],tree:[0,10,1,9,0,10]},
+  {gates:[1,4,8],rock:[2,8,2,7,1,9],tree:[0,9,4,8,0,10]},
+  {gates:[2,6,9],rock:[1,7,3,8,0,7],tree:[0,10,2,6,1,9]},
+  {gates:[1,5,9],rock:[0,10,3,7,1,9],tree:[2,8,0,10,2,8]},
+  {gates:[2,4,7],rock:[0,8,1,6,2,9],tree:[1,10,3,8,0,7]}
+];
+let front=0;
+const extraNames=['아린','토르','레아','세인','유나','로한','베라','이안','달빛','나린','은별','로이','제나','하람','세온','니아','파란','미르','노을','연우','루카','자운','헤라','로잔','타린','엘렌','도안','제온','무영','화린','다온','라움','포르','리엘','테린','하온','유란','라온','레드','칼린'];
 const roleNames=['전사','궁수','마법사'],roleIcon=['⚔','➶','⚕'];
 const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
 const throne=id(5,1),camp=id(5,13);
 let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner='',last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
-const layout=Array.from({length:W*H},(_,k)=>{const[x,y]=xy(k);if(k===throne)return'throne';if(y===3)return[2,5,8].includes(x)?'gate':'wall';if((x===0||x===10)&&y<4)return'wall';if(y<=2)return'stone';if(y===13)return'camp';if([id(1,5),id(9,5),id(0,8),id(10,8),id(3,10),id(7,10)].includes(k))return'rock';if([id(0,5),id(10,5),id(1,9),id(9,9),id(0,11),id(10,11)].includes(k))return'tree';return x===5||y===7?'road':'grass'});
-root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">08:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><div class="skill-fan" id="fan"></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
+function buildLayout(field){
+  const rocks=new Set(field.rock.map((x,i)=>id(x,[5,5,8,8,10,10][i])));
+  const trees=new Set(field.tree.map((x,i)=>id(x,[5,5,9,9,11,11][i])));
+  return Array.from({length:W*H},(_,k)=>{
+    const [x,y]=xy(k);
+    if(k===throne)return 'throne';
+    if(y===3)return field.gates.includes(x)?'gate':'wall';
+    if((x===0||x===W-1)&&y<4)return 'wall';
+    if(y<=2)return 'stone';
+    if(y===H-1)return 'camp';
+    if(rocks.has(k))return 'rock';
+    if(trees.has(k))return 'tree';
+    return x===5||y===7?'road':'grass';
+  });
+}
+let layout=buildLayout(fronts[front]);
+root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">30:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><div class="skill-fan" id="fan"></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
 const $=s=>document.getElementById(s),unitLayer=$('units');
 for(let k=0;k<W*H;k++){const b=document.createElement('button');b.className='sl-cell '+layout[k];b.type='button';b.setAttribute('aria-label',layout[k]+' '+xy(k).join(','));if(layout[k]==='throne')b.textContent='♛';b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
 let message='', messageUntil=0, aiming=null;
@@ -271,15 +296,21 @@ function place(u,preferred){
   u.k=free[0];occupied.set(u.k,u);return true;
 }
 function createUnit(i){
-  const team=Number(i>=10),role=i===0?playerRole:i%3;
+  const team=Number(i>=sideSize), index=i%sideSize;
+  const sample=team*10+(index%10),role=i===0?playerRole:sample%3;
+  const name=index<10?names[sample]:extraNames[team*20+index-10];
   const max=role===0?1250:850;
-  return {id:i,name:names[i],team,role,max,hp:max,mp:100,img:img(i),cp:[86210,79340,72640,77420,81210,80400,71200,76480,81670,79560,84520,80130,81250,76180,75240,84310,72690,81750,79300,78510][i],cd:[0,0,0],stun:0,root:0,guard:0,shield:0,shieldUntil:0,attackAt:0,combo:0,lastTarget:null};
+  return {id:i,name,team,role,max,hp:max,mp:100,img:img(i),cp:[86210,79340,72640,77420,81210,80400,71200,76480,81670,79560,84520,80130,81250,76180,75240,84310,72690,81750,79300,78510][sample]+Math.floor(index/10)*733,cd:[0,0,0],stun:0,root:0,guard:0,shield:0,shieldUntil:0,attackAt:0,combo:0,lastTarget:null};
 }
 function reset(){
+  document.querySelector('.sl-top b').textContent='노바르 · 제'+(front+1)+'전장';
   aiming=null;message='';messageUntil=0;$('inspect').hidden=true;$('halt').hidden=true;
-  occupied.clear();reserved.clear();gates.clear();[2,5,8].forEach(x=>gates.set(id(x,3),2200));
-  units=Array.from({length:20},(_,i)=>createUnit(i));me=units[0];
-  for(const u of units)place(u,u.team?id(2+u.id%7,4+u.id%2):id(2+u.id%7,11+u.id%2));
+  occupied.clear();reserved.clear();gates.clear();fronts[front].gates.forEach(x=>gates.set(id(x,3),2200));
+  units=Array.from({length:sideSize*2},(_,i)=>createUnit(i));me=units[0];
+  for(const u of units){
+    const slot=u.id%sideSize, x=(slot+5)%10;
+    place(u,id(x,u.team?4+Math.floor(slot/10):12-Math.floor(slot/10)));
+  }
   elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;owner='';inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
   kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
   nodes.clear();unitLayer.replaceChildren();
@@ -315,7 +346,7 @@ function tick(dt){
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team===0){
-      const gate=id([2,5,8][u.id%3],3);
+      const gate=id(fronts[front].gates[u.id%3],3);
       dest=gates.get(gate)>0?gate:throne;
     }
     if(dest==null)continue;
@@ -334,14 +365,14 @@ function tick(dt){
   const at=units.filter(v=>alive(v)&&!v.trip&&dist(v.k,throne)<=1);
   if(gateLog&&at.some(v=>!v.team)&&!at.some(v=>v.team))hold+=dt;
   else hold=Math.max(0,hold-dt*(at.some(v=>v.team)?2:.5));
-  if(hold>=10||elapsed>=480){
-    ended=true;running=false;$('end').hidden=false;$('endtitle').textContent=hold>=10?'왕좌 점령 성공':'점령전 종료';
+  if(hold>=10||elapsed>=battleSeconds){
+    ended=true;running=false;$('end').hidden=false;$('endtitle').textContent=hold>=10?'왕좌 점령 성공':'수비군 승리 · 시간 종료';
     $('enddesc').textContent='아군 처치 '+kills[0]+' · 적군 처치 '+kills[1];
   }
 }
 const board=document.querySelector('.sl-board');
 const frame=board.closest('.sl-frame'), viewport=board.parentElement;
-frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label><p id="loadout"></p><button id="start">스킬 등록 · 전투 시작</button></div></section>');
+frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>전장 <select id="front"></select></label> <label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label><p id="loadout"></p><button id="start">스킬 등록 · 전투 시작</button></div></section>');
 frame.insertAdjacentHTML('beforeend','<section class="sl-overlay" id="halt" hidden><div><h2>일시정지</h2><p id="registered"></p><button id="resume">계속하기</button> <button id="reset">출전 준비</button> <a href="./">게임으로</a></div></section>');
 const svgNS='http://www.w3.org/2000/svg';
 const fx=document.createElementNS(svgNS,'svg');
@@ -418,7 +449,7 @@ function layoutNames(actual,inspected){
   arrangeTags(entries,{w:bounds.width,h:bounds.height},performance.now());
 }
 function render(){
-  const left=Math.max(0,Math.ceil(480-elapsed));
+  const left=Math.max(0,Math.ceil(battleSeconds-elapsed));
   $('time').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
   const counts=[0,1].map(t=>units.filter(u=>alive(u)&&u.team===t).length);
   $('blue').textContent='공격군 '+counts[0]+'명';$('red').textContent='수비군 '+counts[1]+'명';
@@ -516,8 +547,18 @@ viewport.addEventListener('click',e=>{if(blockClick&&e.detail){e.stopPropagation
 viewport.addEventListener('wheel',()=>{following=false},{passive:true});
 $('view-toggle').onclick=()=>setView(!overview);
 $('locate').onclick=()=>{inspectId=me.id;setView(false)};
+fronts.forEach((_,i)=>$('front').add(new Option('제'+(i+1)+'전장',String(i))));
+$('front').onchange=()=>{
+  front=$('front').selectedIndex;layout=buildLayout(fronts[front]);
+  for(let k=0;k<cells.length;k++){
+    cells[k].className='sl-cell '+layout[k];
+    cells[k].textContent=k===throne?'♛':'';
+    cells[k].setAttribute('aria-label',layout[k]+' '+xy(k).join(','));
+  }
+  reset();
+};
 $('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset();buildSlots()};
-$('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 10명 / 적군 10명')};
+$('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 30명 / 적군 30명')};
 
 $('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){aiming=null;const camps=layout.flatMap((tile,k)=>tile==='camp'&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
 $('pause').onclick=()=>{if(!running||ended)return;running=false;aiming=null;$('halt').hidden=false;$('registered').textContent=skills[me.role].filter((_,i)=>equipped[me.role][i]).join(' · ');render()};
