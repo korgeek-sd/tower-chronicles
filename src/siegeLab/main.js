@@ -12,9 +12,9 @@ const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
 const throne=id(5,1),camp=id(5,13);
-let units=[],me,goal=null,focus=null,mode='attack',path=[],running=true,ended=false,elapsed=0,hold=0,owner='',last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
+let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner='',last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
 const layout=Array.from({length:W*H},(_,k)=>{const[x,y]=xy(k);if(k===throne)return'throne';if(y===3)return[2,5,8].includes(x)?'gate':'wall';if((x===0||x===10)&&y<4)return'wall';if(y<=2)return'stone';if(y===13)return'camp';if([id(1,5),id(9,5),id(0,8),id(10,8),id(3,10),id(7,10)].includes(k))return'rock';if([id(0,5),id(10,5),id(1,9),id(9,9),id(0,11),id(10,11)].includes(k))return'tree';return x===5||y===7?'road':'grass'});
-root.innerHTML='<header class="sl-head"><div class="sl-top"><div><small>탑의 기록 · 전투 실험실</small><br><b>노바르 점령전</b></div><span class="sl-time" id="time">08:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="detail" aria-pressed="false">간략 / 상세</button></div><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div></section></div><section class="sl-status"><strong id="state">목적지를 터치하세요</strong><span id="target"></span></section><section class="sl-panel" id="inspect"></section><div class="sl-modes"><button data-mode="attack" class="active">공격 우선</button><button data-mode="move">이동 우선</button><button data-mode="hold">위치 방어</button></div><section class="sl-panel"><div class="sl-caption"><span>등록 스킬 · 자동 사용</span><span id="auto">AUTO</span></div><div class="sl-skills" id="skills"></div></section><div class="sl-actions"><button id="retreat">진영으로 후퇴</button><button id="pause">일시정지</button><button id="reset">초기화</button></div><section class="sl-panel sl-logs" id="logs"></section><p class="sl-help">빈 칸을 누르면 이동, 적을 누르면 집중 공격합니다. 아군을 누르면 정보를 확인합니다. 아군 칸 통과에는 1.5배 시간이 걸립니다. 스킬은 자동 발동합니다.</p><footer class="sl-footer"><span>로컬 시뮬레이션 · 실제 계정/서버 미연결</span><a href="./">게임으로 돌아가기</a></footer>';
+root.innerHTML='<header class="sl-head"><div class="sl-top"><div><small>탑의 기록 · 전투 실험실</small><br><b>노바르 점령전</b></div><span class="sl-time" id="time">08:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div></div><section class="sl-status"><strong id="state">목적지를 터치하세요</strong><span id="target"></span></section><section class="sl-panel" id="inspect"></section><section class="sl-panel"><div class="sl-caption"><span>등록 스킬 · 자동 사용</span><span id="auto">AUTO</span></div><div class="sl-skills" id="skills"></div></section><div class="sl-actions"><button id="retreat">진영으로 후퇴</button><button id="pause">일시정지</button><button id="reset">초기화</button></div><section class="sl-panel sl-logs" id="logs"></section><p class="sl-help">빈칸은 이동, 적과 닫힌 성문은 공격합니다. 화면을 밀어 둘러보고 내 초상화로 복귀하세요. 아군을 누르면 정보를 확인합니다. 아군 칸 통과에는 1.5배 시간이 걸립니다. 스킬은 자동 발동합니다.</p><footer class="sl-footer"><span>로컬 시뮬레이션 · 실제 계정/서버 미연결</span><a href="./">게임으로 돌아가기</a></footer>';
 const $=s=>document.getElementById(s),unitLayer=$('units');
 for(let k=0;k<W*H;k++){const b=document.createElement('button');b.className='sl-cell '+layout[k];b.type='button';b.setAttribute('aria-label',layout[k]+' '+xy(k).join(','));if(layout[k]==='throne')b.textContent='♛';b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
 function note(t){logs.unshift(t);logs=logs.slice(0,3);$('logs').replaceChildren(...logs.map(s=>{const d=document.createElement('div');d.textContent=s;return d}))}
@@ -38,7 +38,7 @@ let infoTeam=null;
 const skills = [['강타','방패 가격','방어 태세'],['조준 사격','속박 화살','연속 사격'],['화염구','서리 장판','보호막']];
 const cooldowns = [[5,10,15],[7,10,6],[8,12,15]];
 const power = [66,59,73], cadence = [2.2,2.7,3.1];
-let inspectId = 0, detailed = false, frost = [], beams = [], playerRole = 0;
+let inspectId = 0, overview = false, frost = [], beams = [], playerRole = 0;
 const occupied = new Map(), reserved = new Map();
 const terrainBlocks = (k,u) => ['wall','rock','tree'].includes(layout[k]) || (u.team===0 && gates.get(k)>0);
 const blocked = (k,u) => terrainBlocks(k,u) || (occupied.has(k) && occupied.get(k).team!==u.team) || (reserved.has(k) && reserved.get(k)!==u);
@@ -103,14 +103,21 @@ function visible(u,v,range){
   }
   return true;
 }
-function choose(k){
-  if(ended||!alive(me))return;
-  const v=units.find(v=>alive(v)&&id(...position(v).map(Math.round))===k)||occupied.get(k);
-  if(v){inspectId=v.id;if(v.team===0){render();return}}
-  cancelTravel(me);me.cast=null;
-  if(v){focus=v.id;mode='attack';goal=v.k}
-  else{focus=null;goal=k;if(mode==='hold')mode='move'}
+function issueOrder(k, enemy=null){
+  cancelTravel(me);me.cast=null;me.lastTarget=null;me.planAt=0;
+  focus=enemy?.id??null;goal=k;
   render();
+}
+const attackRange=u=>[1,ready(u,0)?4:3,3][u.role];
+function choose(k){
+  if(ended||!alive(me)||!$('setup').hidden)return;
+  const unit=units.find(v=>alive(v)&&id(...position(v).map(Math.round))===k)||occupied.get(k);
+  if(unit){
+    inspectId=unit.id;
+    if(unit.team===me.team){render();return}
+    issueOrder(unit.k,unit);return;
+  }
+  if(!terrainBlocks(k,me)||gates.get(k)>0)issueOrder(k);
 }
 function beam(u,v,kind='hit'){
   beams.push({from:position(u),to:position(v),kind,team:u.team,mine:u===me||v===me,until:elapsed+.48});
@@ -196,7 +203,7 @@ function reset(){
   occupied.clear();reserved.clear();gates.clear();[2,5,8].forEach(x=>gates.set(id(x,3),2200));
   units=Array.from({length:20},(_,i)=>createUnit(i));me=units[0];
   for(const u of units)place(u,u.team?id(2+u.id%7,4+u.id%2):id(2+u.id%7,11+u.id%2));
-  elapsed=hold=0;goal=focus=null;mode='attack';gateLog=ended=false;running=false;owner='';inspectId=0;
+  elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;owner='';inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
   kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
   nodes.clear();unitLayer.replaceChildren();
   $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='일시정지';$('myface').src=me.img;
@@ -224,11 +231,11 @@ function tick(dt){
     const foes=units.filter(v=>v.team!==u.team&&alive(v)).sort((a,b)=>dist(u.k,a.k)-dist(u.k,b.k)||a.hp-b.hp);
     const manual=u===me?foes.find(v=>v.id===focus):null;
     if(u===me&&focus!==null){if(manual)goal=manual.k;else goal=focus=null}
-    if(u===me&&goal===u.k)goal=null;
-    const range=[1,ready(u,0)?4:3,3][u.role];
+    if(u===me&&goal===u.k&&!manual)goal=null;
+    const range=attackRange(u);
     const enemy=manual||foes.find(v=>visible(u,v,range));
-    if(enemy&&visible(u,enemy,range)&&!(u===me&&mode==='move'&&goal!==null)){strike(u,enemy,foes);continue}
-    if(u.root>elapsed||(u===me&&(mode==='hold'||goal===null)))continue;
+    if(enemy&&visible(u,enemy,range)&&!(u===me&&goal!==null&&!manual)){strike(u,enemy,foes);continue}
+    if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team===0){
       const gate=id([2,5,8][u.id%3],3);
@@ -238,7 +245,7 @@ function tick(dt){
     if(gates.get(dest)>0&&u.team===0&&dist(u.k,dest)===1){
       if(elapsed>=u.attackAt){
         u.attackAt=elapsed+2.4;gates.set(dest,Math.max(0,gates.get(dest)-72));
-        if(!gates.get(dest)){gateLog=true;note('성문 돌파')}
+        if(!gates.get(dest)){if(goal===dest&&focus===null)goal=null;gateLog=true;note('성문 돌파')}
       }
       continue;
     }
@@ -256,7 +263,8 @@ function tick(dt){
   }
 }
 const board=document.querySelector('.sl-board');
-board.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label><p id="loadout"></p><button id="start">스킬 등록 · 전투 시작</button></div></section>');
+const frame=board.closest('.sl-frame'), viewport=board.parentElement;
+frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label><p id="loadout"></p><button id="start">스킬 등록 · 전투 시작</button></div></section>');
 const svgNS='http://www.w3.org/2000/svg';
 const fx=document.createElementNS(svgNS,'svg');
 fx.setAttribute('viewBox','0 0 110 140');fx.setAttribute('preserveAspectRatio','none');
@@ -342,20 +350,21 @@ function render(){
   $('myhp').textContent='HP '+Math.ceil(me.hp).toLocaleString('ko-KR')+' / '+me.max.toLocaleString('ko-KR');
   const target=units.find(u=>alive(u)&&u.id===focus);
   const routePreview=me.trip?.path??(goal!==null&&alive(me)?routes(me,blocked(goal,me)||occupied.has(goal)?near(goal):[goal]):null);
-  const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&visible(me,u,[1,4,3][me.role])&&me.attackAt>elapsed&&mode!=='move');
+  const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&visible(me,u,attackRange(me))&&me.attackAt>elapsed&&goal===null);
   const inspected=units[inspectId]||me;
   if(infoTeam!==inspected.team){
     infoTeam=inspected.team;
     renderGuildEmblem(infoRoot,guilds[infoTeam],28);
   }
   infoText.textContent='살펴보는 '+(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+guilds[inspected.team].name+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
-  $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,[1,4,3][me.role])?' 공격 중':' 추적 중')):mode==='hold'?'위치 방어 중':goal!==null?'목적지 이동 중':'목적지를 터치하세요';
-  $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':'';
+  $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,attackRange(me))?' 공격 중':' 추적 중')):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
+  $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/2200*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
     const c=cells[k];c.classList.toggle('route',!!routePreview?.includes(k));c.classList.toggle('goal',!target&&goal===k);
     c.classList.toggle('ice',frost.some(z=>z.cells.includes(k)));
     c.classList.toggle('warn',fire.some(p=>dist(k,p)<=1));c.classList.toggle('center',fire.includes(k));
+    if(!gates.has(k)&&layout[k]!=='throne')c.textContent=goal===k&&!target?'⚑':'';
     if(gates.has(k)){const h=gates.get(k);c.classList.toggle('open',!h);c.textContent=h?Math.ceil(h/2200*100)+'%':'개방'}
   }
   for(const u of units){
@@ -383,27 +392,56 @@ function render(){
     const showTrail=u===actual&&u.trailUntil>elapsed;
     n.querySelector('.damage-trail').style.width=showTrail?u.trailHp/u.max*100+'%':'0%';
     n.querySelector('.sl-percent').textContent=u===actual?Math.ceil(ratio*100)+'%':'';
-    n.querySelector('small').textContent=detailed?guilds[u.team].name:'';
+    n.querySelector('small').textContent='';
     const name=n.querySelector('b');
     if(!name.hasChildNodes()){
       if(u===me){const marker=document.createElement('span');marker.textContent='나▼ ';name.append(marker)}
       name.append(u.name);
     }
     if(u===me)name.firstElementChild.classList.toggle('me-warning',ratio<=.3);
-    n.querySelector('.sl-power').textContent=detailed?cp(u):'';
+    n.querySelector('.sl-power').textContent='';
     n.querySelector('.sl-condition').textContent=u.stun>elapsed?'✸':u.root>elapsed?'⛓':u.guard>elapsed||u.shieldUntil>elapsed&&u.shield?'▣':'';
   }
   $('skills').textContent=skills[me.role].map((s,i)=>s+' '+(me.cd[i]>elapsed?(me.cd[i]-elapsed).toFixed(1)+'초':'준비')).join('　');
-  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+
   layoutNames(actual,inspected);
-  drawEffects();
+  drawEffects();trackPlayer();
 }
-$('detail').onclick=()=>{detailed=!detailed;board.classList.toggle('detailed',detailed);$('detail').setAttribute('aria-pressed',String(detailed));$('detail').textContent=detailed?'상세 ▾':'간략 / 상세';render()};
-$('locate').onclick=()=>{inspectId=0;render();const n=nodes.get(0);if(n&&!n.hidden)n.scrollIntoView({block:'nearest',inline:'center'});if(n&&!n.hidden)n.animate([{filter:'brightness(2)',outline:'3px solid gold'},{outline:'0 solid transparent'}],{duration:650,iterations:2})};
+let following=true, drag=null, blockClick=false;
+function trackPlayer(center=false){
+  if(overview||!following||!me||!$('setup').hidden||ended)return;
+  const [x,y]=position(me);
+  const px=(x+.5)*board.clientWidth/W, py=(y+.5)*board.clientHeight/H;
+  const shift=(p,scroll,size)=>center?p-size/2:p<scroll+size*.23?p-size*.23:p>scroll+size*.77?p-size*.77:scroll;
+  viewport.scrollTo(shift(px,viewport.scrollLeft,viewport.clientWidth),shift(py,viewport.scrollTop,viewport.clientHeight));
+}
+function setView(full){
+  overview=full;following=true;
+  frame.classList.toggle('overview',full);
+  $('view-toggle').textContent=full?'내 주변':'전장 전체';
+  viewport.scrollTo(0,0);trackPlayer(true);render();
+}
+viewport.addEventListener('pointerdown',e=>{
+  if(!e.isPrimary||e.button!==0)return;
+  blockClick=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop};
+});
+viewport.addEventListener('pointermove',e=>{
+  if(!drag||drag.id!==e.pointerId||overview)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!blockClick&&Math.hypot(dx,dy)<7)return;
+  blockClick=true;following=false;viewport.setPointerCapture(e.pointerId);
+  viewport.scrollTo(drag.left-dx,drag.top-dy);
+});
+window.addEventListener('pointerup',()=>{drag=null});
+window.addEventListener('pointercancel',()=>{drag=null});
+viewport.addEventListener('click',e=>{if(blockClick&&e.detail){e.stopPropagation();blockClick=false}},true);
+viewport.addEventListener('wheel',()=>{following=false},{passive:true});
+$('view-toggle').onclick=()=>setView(!overview);
+$('locate').onclick=()=>{inspectId=me.id;setView(false)};
 $('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset();$('loadout').textContent=skills[playerRole].join(' · ')};
-$('start').onclick=()=>{$('setup').hidden=true;running=true;last=performance.now();note('점령전 시작 · 아군 10명 / 적군 10명')};
-document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;if(mode==='hold'){goal=focus=null;cancelTravel(me)}if(mode==='move')me.cast=null;render()});
-$('retreat').onclick=()=>{me.cast=null;cancelTravel(me);focus=null;goal=camp;mode='move';render()};
+$('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 10명 / 적군 10명')};
+
+$('retreat').onclick=()=>{if(!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>tile==='camp'&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
 $('pause').onclick=()=>{if(ended||!$('setup').hidden)return;running=!running;last=performance.now();$('pause').textContent=running?'일시정지':'계속하기'};
 $('reset').onclick=$('restart').onclick=reset;
 $('loadout').textContent=skills[playerRole].join(' · ');
