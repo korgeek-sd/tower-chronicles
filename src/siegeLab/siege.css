@@ -133,3 +133,10 @@ html,body{height:100%;overflow:hidden}
 }
 .sl-hit-direction[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.sl-unit .sl-token{transform:none!important}}
+
+.sl-bottom-nav{flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid #a18550;padding:2px 4px;background:linear-gradient(#0c1524,#060a11)}
+.sl-bottom-nav a{display:grid;place-items:center;align-content:center;gap:1px;min-height:48px;font-size:12px;color:#c5bcad;text-decoration:none;border-right:1px solid #544731}
+.sl-bottom-nav a:last-child{border-right:0}
+.sl-bottom-nav a[aria-current]{color:#f7e1a6;background:radial-gradient(ellipse at 50% 100%,#84652b66,transparent 75%);box-shadow:inset 0 -2px #be9b56}
+.sl-bottom-nav a:focus-visible{outline:2px solid #dfc17e;outline-offset:-2px}
+.sl-bottom-nav .tc-hub-icon{width:29px;height:29px;background-image:url('../assets/ui/hub/novar-icons.webp');background-size:400% 400%;background-repeat:no-repeat;filter:drop-shadow(0 1px 1px #0009)}
