@@ -23,10 +23,12 @@ const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
 const centerX=Math.floor(W/2), gateRow=5;
+const tower=id(centerX,3), towerMaxHp=1800;
+let towerHp=towerMaxHp;
 const throne=id(centerX,1),camp=id(centerX,H-1);
 root.style.setProperty('--cols',W);
 root.style.setProperty('--rows',H);
-let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner='',last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
+let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner=1,last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
 function buildLayout(field){
   const rocks=new Set(field.rock.map((x,i)=>id(x,[8,8,12,12,15,15][i])));
   const trees=new Set(field.tree.map((x,i)=>id(x,[8,8,13,13,16,16][i])));
@@ -70,6 +72,7 @@ function buildLayout(field){
     layRoad(id(x,gateRow-1),id(x,2),2,gateRow-1);
     layRoad(id(x,2),id(centerX,2),2,2);
   }
+  tiles[tower]='tower';
   return tiles;
 }
 let layout=buildLayout(fronts[front]);
@@ -80,15 +83,16 @@ function paintCell(cell,k){
   if(tile==='wall' && y<gateRow)cell.classList.add('side-wall');
   delete cell.dataset.hp;
   cell.replaceChildren();
-  if(tile==='gate'){
+  if(tile==='tower')cell.textContent='♜';
+  if(tile==='gate'||tile==='tower'){
     const bar=document.createElement('i');
     bar.className='gate-health';
     cell.append(bar);
   }
-  cell.setAttribute('aria-label',({gate:'철문',wall:'성벽',throne:'왕좌',road:'흙길'})[tile]||tile);
+  cell.setAttribute('aria-label',({tower:'수호탑',gate:'철문',wall:'성벽',throne:'왕좌',road:'흙길'})[tile]||tile);
   cell.setAttribute('aria-label',cell.getAttribute('aria-label')+' '+x+','+y);
 }
-root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">30:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
+root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">30:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span><span id="owner-label"></span> ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
 const bottomNav=document.createElement('nav');
 bottomNav.className='sl-bottom-nav';
 bottomNav.setAttribute('aria-label','주요 메뉴');
@@ -124,7 +128,7 @@ const cooldowns = [[5,10,15],[7,10,6],[8,12,15]];
 const power = [66,59,73], cadence = [2.2,2.7,3.1];
 let inspectId = 0, overview = false, frost = [], beams = [], basicAttacks = [], playerRole = 0;
 const occupied = new Map(), reserved = new Map();
-const terrainBlocks = (k,u) => ['wall','rock','tree'].includes(layout[k]) || (u.team===0 && gates.get(k)>0);
+const terrainBlocks = (k,u) => ['wall','rock','tree'].includes(layout[k]) || (u.team!==owner && gates.get(k)>0) || (k===tower&&towerHp>0);
 const blocked = (k,u) => terrainBlocks(k,u) || (occupied.has(k) && occupied.get(k).team!==u.team) || (reserved.has(k) && reserved.get(k)!==u);
 function routes(u,targets) {
   const ends=new Set(targets.filter(k=>!blocked(k,u) && (!occupied.has(k)||k===u.k)));
@@ -201,7 +205,7 @@ function choose(k){
     if(unit.team===me.team){render();return}
     issueOrder(unit.k,unit);return;
   }
-  if(!terrainBlocks(k,me)||gates.get(k)>0){$('inspect').hidden=true;issueOrder(k)}
+  if(!terrainBlocks(k,me)||(me.team!==owner&&(gates.get(k)>0||(gateLog&&k===tower)))){$('inspect').hidden=true;issueOrder(k)}
 }
 function beam(u,v,kind='hit'){
   beams.push({from:position(u),to:position(v),kind,team:u.team,mine:u===me||v===me,until:elapsed+.48});
@@ -307,34 +311,50 @@ function createUnit(i){
   const max=role===0?1250:850;
   return {id:i,name,team,role,max,hp:max,mp:100,img:img(i),cp:[86210,79340,72640,77420,81210,80400,71200,76480,81670,79560,84520,80130,81250,76180,75240,84310,72690,81750,79300,78510][sample]+Math.floor(index/10)*733,cd:[0,0,0],stun:0,root:0,guard:0,shield:0,shieldUntil:0,attackAt:0,combo:0,lastTarget:null};
 }
+function restoreStructures(){
+  gateLog=false;towerHp=towerMaxHp;hold=0;
+  gates.clear();
+  for(const x of fronts[front].gates)gates.set(id(x,gateRow),gateMaxHp);
+}
+function deploySides(){
+  occupied.clear();reserved.clear();basicAttacks=[];frost=[];beams=[];
+  for(const u of units){
+    u.trip=null;u.cast=null;u.lastTarget=null;u.planAt=0;u.lunge=null;
+    if(!alive(u))continue;
+    const slot=u.id%sideSize,columns=W-2,rank=Math.floor(slot/columns);
+    const x=1+(slot+centerX-1)%columns;
+    place(u,id(x,u.team===owner?gateRow-1-rank:H-2-rank));
+  }
+}
+function captureCastle(){
+  owner=1-owner;goal=focus=null;restoreStructures();deploySides();
+  following=true;trackPlayer(true);
+  note(guilds[owner].name+' 점령 · 공수 교대');messageUntil=elapsed+4;
+}
 function reset(){
   document.querySelector('.sl-top b').textContent='노바르 · 제'+(front+1)+'전장';
   message='';messageUntil=0;$('inspect').hidden=true;$('halt').hidden=true;
-  occupied.clear();reserved.clear();gates.clear();fronts[front].gates.forEach(x=>gates.set(id(x,gateRow),gateMaxHp));
+  owner=1;restoreStructures();
   units=Array.from({length:sideSize*2},(_,i)=>createUnit(i));me=units[0];
-  for(const u of units){
-    const slot=u.id%sideSize, columns=W-2;
-    const x=1+(slot+centerX-1)%columns, rank=Math.floor(slot/columns);
-    place(u,id(x,u.team?gateRow+1+rank:H-2-rank));
-  }
-  elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;owner='';inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
+  deploySides();
+  elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
   kills=[0,0];logs=[];beams=[];basicAttacks=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
   nodes.clear();unitLayer.replaceChildren();
   $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='Ⅱ';$('myface').src=me.img;
   document.querySelector('.sl-me-name').textContent='기크 · '+roleNames[me.role];render();
 }
 function tick(dt){
-  elapsed+=dt;resolveBasicAttacks();frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
+  dt=Math.min(dt,battleSeconds-elapsed);elapsed+=dt;resolveBasicAttacks();frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
   for(const u of units){
     if(!alive(u)){
-      if(elapsed>=u.respawnAt&&place(u,u.team?id(centerX,0):camp)){
+      if(elapsed>=u.respawnAt&&place(u,u.team===owner?id(centerX,0):camp)){
         u.trailUntil=0;u.hp=u.max;u.mp=100;u.guard=elapsed+3;u.root=u.stun=u.shield=u.combo=0;u.attackAt=elapsed+2;
         if(u===me){goal=focus=null}
       }
       continue;
     }
     u.mp=Math.min(100,u.mp+dt*2);
-    if(u.team===0&&layout[u.k]==='camp')u.hp=Math.min(u.max,u.hp+dt*95);
+    if(u.team!==owner&&layout[u.k]==='camp')u.hp=Math.min(u.max,u.hp+dt*95);
     if(u.stun>elapsed)continue;
     defend(u);
     if(u.trip){
@@ -351,12 +371,20 @@ function tick(dt){
     if(enemy&&visible(u,enemy,range)&&!(u===me&&goal!==null&&!manual)){strike(u,enemy,foes);continue}
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
-    if(u!==me&&u.team===0){
+    if(u!==me&&u.team!==owner){
       const gate=id(fronts[front].gates[u.id%3],gateRow);
-      dest=gates.get(gate)>0?gate:throne;
+      dest=!gateLog?gate:towerHp>0?tower:throne;
     }
+    if(u!==me&&u.team===owner&&!gateLog)continue;
     if(dest==null)continue;
-    if(gates.get(dest)>0&&u.team===0&&dist(u.k,dest)===1){
+    if(dest===tower&&towerHp>0&&gateLog&&u.team!==owner&&dist(u.k,tower)===1){
+      if(elapsed>=u.attackAt){
+        towerHp=Math.max(0,towerHp-72);u.attackAt=elapsed+2.4;
+        if(!towerHp){if(goal===tower)goal=null;note('수호탑 파괴 · 왕좌 점령 가능')}
+      }
+      continue;
+    }
+    if(gates.get(dest)>0&&u.team!==owner&&dist(u.k,dest)===1){
       if(elapsed>=u.attackAt){
         u.attackAt=elapsed+2.4;gates.set(dest,Math.max(0,gates.get(dest)-72));
         const gateCell=cells[dest];
@@ -372,10 +400,11 @@ function tick(dt){
     travel(u,routes(u,targets));
   }
   const at=units.filter(v=>alive(v)&&!v.trip&&dist(v.k,throne)<=1);
-  if(gateLog&&at.some(v=>!v.team)&&!at.some(v=>v.team))hold+=dt;
-  else hold=Math.max(0,hold-dt*(at.some(v=>v.team)?2:.5));
-  if(hold>=10||elapsed>=battleSeconds){
-    ended=true;running=false;$('end').hidden=false;$('endtitle').textContent=hold>=10?'왕좌 점령 성공':'수비군 승리 · 시간 종료';
+  if(gateLog&&towerHp===0&&at.some(v=>v.team!==owner)&&!at.some(v=>v.team===owner))hold+=dt;
+  else hold=Math.max(0,hold-dt*(at.some(v=>v.team===owner)?2:.5));
+  if(hold>=10)captureCastle();
+  if(elapsed>=battleSeconds){
+    ended=true;running=false;$('end').hidden=false;$('endtitle').textContent=guilds[owner].name+' 승리 · 최종 점령';
     $('enddesc').textContent='아군 처치 '+kills[0]+' · 적군 처치 '+kills[1];
   }
 }
@@ -475,9 +504,10 @@ function render(){
   const left=Math.max(0,Math.ceil(battleSeconds-elapsed));
   $('time').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
   const counts=[0,1].map(t=>units.filter(u=>alive(u)&&u.team===t).length);
-  $('blue').textContent='공격군 '+counts[0]+'명';$('red').textContent='수비군 '+counts[1]+'명';
+  $('blue').textContent=(owner===0?'수비군 ':'공격군 ')+counts[0]+'명';$('red').textContent=(owner===1?'수비군 ':'공격군 ')+counts[1]+'명';
   $('balance').style.width=counts[0]/(counts[0]+counts[1]||1)*100+'%';
-  $('objective').textContent=hold?'왕좌 각인 '+hold.toFixed(1)+'초':gateLog?'왕좌 진입':'성문 돌파';
+  $('owner-label').textContent='성주 '+guilds[owner].name;
+  $('objective').textContent=hold?'왕좌 각인 '+hold.toFixed(1)+'초':gateLog?(towerHp?'수호탑 '+Math.ceil(towerHp/towerMaxHp*100)+'%':'왕좌 진입'):'성문 돌파';
   $('hp').style.width=me.hp/me.max*100+'%';$('mp').style.width=me.mp+'%';$('hp').style.background=hpColor(me.hp/me.max);
   $('myhp').textContent='HP '+Math.ceil(me.hp).toLocaleString('ko-KR')+' / '+me.max.toLocaleString('ko-KR');
   const target=units.find(u=>alive(u)&&u.id===focus);
@@ -500,7 +530,7 @@ function render(){
     renderGuildEmblem(infoRoot,guilds[infoTeam],28);
   }
   infoText.textContent='살펴보는 '+(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+guilds[inspected.team].name+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
-  $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,attackRange(me))?' 공격 중':' 추적 중')):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
+  $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,attackRange(me))?' 공격 중':' 추적 중')):goal===tower&&towerHp>0?(dist(me.k,tower)===1?'수호탑 공격 중':'수호탑으로 이동 중'):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
   $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
@@ -512,14 +542,16 @@ function render(){
     c.classList.toggle('ice',frost.some(z=>z.cells.includes(k)));
     c.classList.toggle('warn',fire.some(p=>dist(k,p)<=1));c.classList.toggle('center',fire.includes(k));
     
-    if(gates.has(k)){
-      const hp=gates.get(k);
+    if(gates.has(k)||k===tower){
+      const isTower=k===tower,max=isTower?towerMaxHp:gateMaxHp;
+      const hp=isTower?towerHp:gates.get(k);
       if(c.dataset.hp!==String(hp)){
         c.dataset.hp=String(hp);
-        c.classList.toggle('broken',hp>0&&hp<=gateMaxHp/2);
+        c.classList.toggle('broken',hp>0&&hp<=max/2);
         c.classList.toggle('open',hp===0);
-        c.style.setProperty('--gate-hp',hp/gateMaxHp);
-        c.setAttribute('aria-label',hp?'철문 체력 '+Math.ceil(hp/gateMaxHp*100)+'%':'열린 성문');
+        c.style.setProperty('--gate-hp',hp/max);
+        if(isTower)c.firstChild.nodeValue=hp?'♜':'▧';
+        c.setAttribute('aria-label',hp?(isTower?'수호탑 ':'철문 ')+Math.ceil(hp/max*100)+'%':isTower?'파괴된 수호탑':'열린 성문');
       }
     }
   }
@@ -622,7 +654,7 @@ $('front').onchange=()=>{
 $('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset()};
 $('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 30명 / 적군 30명')};
 
-$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>tile==='camp'&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
+$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?xy(k)[1]===0:tile==='camp')&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
 $('pause').onclick=()=>{if(!running||ended)return;running=false;$('halt').hidden=false;render()};
 $('resume').onclick=()=>{$('halt').hidden=true;running=true;last=performance.now();render()};
 $('close-info').onclick=()=>{$('inspect').hidden=true};
