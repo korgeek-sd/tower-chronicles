@@ -1,3 +1,6 @@
+import {createElement} from 'react';
+import {createRoot} from 'react-dom/client';
+import {GuildEmblem} from '../components/association/GuildEmblem';
 import '../game-fonts.css';
 import './siege.css';
 import {APPEARANCES} from '../game/data/cosmetics';
@@ -16,8 +19,22 @@ const $=s=>document.getElementById(s),unitLayer=$('units');
 for(let k=0;k<W*H;k++){const b=document.createElement('button');b.className='sl-cell '+layout[k];b.type='button';b.setAttribute('aria-label',layout[k]+' '+xy(k).join(','));if(layout[k]==='throne')b.textContent='♛';b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
 function note(t){logs.unshift(t);logs=logs.slice(0,3);$('logs').replaceChildren(...logs.map(s=>{const d=document.createElement('div');d.textContent=s;return d}))}
 function alive(u){return u.hp>0}
-const guilds = ['은빛여명', '붉은서약'];
-const marks = ['☾', '◆'];
+const guilds = [
+  {name:'은빛여명', emblem:{shape:'round',symbol:'moon',pattern:'band',border:'silver',base:'#2f4f80',accent:'#b5b8b1'}},
+  {name:'붉은서약', emblem:{shape:'shield',symbol:'sword',pattern:'chevron',border:'gold',base:'#942f3c',accent:'#d7b878'}}
+];
+const unitEmblems = [];
+function renderGuildEmblem(root, guild, size) {
+  root.render(createElement(GuildEmblem, {value:guild.emblem, size, label:guild.name+' 원정단 문장'}));
+}
+const info = $('inspect');
+info.style.display='flex';
+info.style.alignItems='center';
+info.style.gap='7px';
+const infoMark=document.createElement('span'), infoText=document.createElement('span');
+info.append(infoMark,infoText);
+const infoRoot=createRoot(infoMark);
+let infoTeam=null;
 const skills = [['강타','방패 가격','방어 태세'],['조준 사격','속박 화살','연속 사격'],['화염구','서리 장판','보호막']];
 const cooldowns = [[5,10,15],[7,10,6],[8,12,15]];
 const power = [66,59,73], cadence = [2.2,2.7,3.1];
@@ -171,7 +188,8 @@ function reset(){
   units=Array.from({length:20},(_,i)=>createUnit(i));me=units[0];
   for(const u of units)place(u,u.team?id(2+u.id%7,4+u.id%2):id(2+u.id%7,11+u.id%2));
   elapsed=hold=0;goal=focus=null;mode='attack';gateLog=ended=false;running=false;owner='';inspectId=0;
-  kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();nodes.clear();unitLayer.replaceChildren();
+  kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
+  nodes.clear();unitLayer.replaceChildren();
   $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='일시정지';$('myface').src=me.img;
   document.querySelector('.sl-me-name').textContent='기크 · '+roleNames[me.role];render();
 }
@@ -264,7 +282,11 @@ function render(){
   const routePreview=me.trip?.path??(goal!==null&&alive(me)?routes(me,blocked(goal,me)||occupied.has(goal)?near(goal):[goal]):null);
   const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&visible(me,u,[1,4,3][me.role])&&me.attackAt>elapsed&&mode!=='move');
   const inspected=units[inspectId]||me;
-  $('inspect').textContent=(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+marks[inspected.team]+' '+guilds[inspected.team]+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
+  if(infoTeam!==inspected.team){
+    infoTeam=inspected.team;
+    renderGuildEmblem(infoRoot,guilds[infoTeam],28);
+  }
+  infoText.textContent=(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+guilds[inspected.team].name+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
   $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,[1,4,3][me.role])?' 공격 중':' 추적 중')):mode==='hold'?'위치 방어 중':goal!==null?'목적지 이동 중':'목적지를 터치하세요';
   $('target').textContent='';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
@@ -278,7 +300,13 @@ function render(){
     let n=nodes.get(u.id);
     if(!alive(u)){if(n)n.hidden=true;continue}
     if(!n){
-      n=document.createElement('div');n.innerHTML='<div class="sl-token"><img alt=""></div><div class="sl-ring"><i></i></div><span class="sl-role"></span><span class="sl-tag"><small></small><b></b></span><span class="sl-power"></span><span class="sl-condition"></span>';
+      n=document.createElement('div');n.innerHTML='<div class="sl-token"><img alt=""></div><div class="sl-ring"><i></i></div><span class="sl-role"></span><span class="sl-tag"><span class="sl-tag-emblem"></span><span><small></small><b></b></span></span><span class="sl-power"></span><span class="sl-condition"></span>';
+      const tag=n.querySelector('.sl-tag');
+      tag.style.display='flex';tag.style.alignItems='center';tag.style.gap='2px';
+      tag.querySelector('b').style.display='block';
+      const emblemRoot=createRoot(tag.querySelector('.sl-tag-emblem'));
+      unitEmblems.push(emblemRoot);
+      renderGuildEmblem(emblemRoot,guilds[u.team],15);
       n.querySelector('img').src=u.img;n.querySelector('.sl-role').textContent=roleIcon[u.role];
       n.querySelector('.sl-role').title=roleNames[u.role];unitLayer.append(n);nodes.set(u.id,n);
     }
@@ -288,8 +316,8 @@ function render(){
     n.querySelector('.sl-token').classList.toggle('red',!!u.team);
     n.style.left=(x+.5)/W*100+'%';n.style.top=(y+.5)/H*100+'%';
     n.querySelector('.sl-ring i').style.width=u.hp/u.max*100+'%';
-    n.querySelector('small').textContent=detailed?marks[u.team]+' '+guilds[u.team]:'';
-    n.querySelector('b').textContent=(u===me?'나▼ ':'')+(detailed?'':marks[u.team])+' '+u.name;
+    n.querySelector('small').textContent=detailed?guilds[u.team].name:'';
+    n.querySelector('b').textContent=(u===me?'나▼ ':'')+u.name;
     n.querySelector('.sl-power').textContent=detailed||u===inspected?cp(u):'';
     n.querySelector('.sl-condition').textContent=u.stun>elapsed?'✸':u.root>elapsed?'⛓':u.guard>elapsed||u.shieldUntil>elapsed&&u.shield?'▣':'';
   }
