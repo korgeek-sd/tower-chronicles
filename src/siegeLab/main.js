@@ -14,10 +14,12 @@ const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(
 const throne=id(5,1),camp=id(5,13);
 let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner='',last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
 const layout=Array.from({length:W*H},(_,k)=>{const[x,y]=xy(k);if(k===throne)return'throne';if(y===3)return[2,5,8].includes(x)?'gate':'wall';if((x===0||x===10)&&y<4)return'wall';if(y<=2)return'stone';if(y===13)return'camp';if([id(1,5),id(9,5),id(0,8),id(10,8),id(3,10),id(7,10)].includes(k))return'rock';if([id(0,5),id(10,5),id(1,9),id(9,9),id(0,11),id(10,11)].includes(k))return'tree';return x===5||y===7?'road':'grass'});
-root.innerHTML='<header class="sl-head"><div class="sl-top"><div><small>탑의 기록 · 전투 실험실</small><br><b>노바르 점령전</b></div><span class="sl-time" id="time">08:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div></div><section class="sl-status"><strong id="state">목적지를 터치하세요</strong><span id="target"></span></section><section class="sl-panel" id="inspect"></section><section class="sl-panel"><div class="sl-caption"><span>등록 스킬 · 자동 사용</span><span id="auto">AUTO</span></div><div class="sl-skills" id="skills"></div></section><div class="sl-actions"><button id="retreat">진영으로 후퇴</button><button id="pause">일시정지</button><button id="reset">초기화</button></div><section class="sl-panel sl-logs" id="logs"></section><p class="sl-help">빈칸은 이동, 적과 닫힌 성문은 공격합니다. 화면을 밀어 둘러보고 내 초상화로 복귀하세요. 아군을 누르면 정보를 확인합니다. 아군 칸 통과에는 1.5배 시간이 걸립니다. 스킬은 자동 발동합니다.</p><footer class="sl-footer"><span>로컬 시뮬레이션 · 실제 계정/서버 미연결</span><a href="./">게임으로 돌아가기</a></footer>';
+root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">08:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><div class="skill-fan" id="fan"></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
 const $=s=>document.getElementById(s),unitLayer=$('units');
 for(let k=0;k<W*H;k++){const b=document.createElement('button');b.className='sl-cell '+layout[k];b.type='button';b.setAttribute('aria-label',layout[k]+' '+xy(k).join(','));if(layout[k]==='throne')b.textContent='♛';b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
-function note(t){logs.unshift(t);logs=logs.slice(0,3);$('logs').replaceChildren(...logs.map(s=>{const d=document.createElement('div');d.textContent=s;return d}))}
+let message='', messageUntil=0, aiming=null;
+const equipped=Array.from({length:3},()=>[true,true,true]);
+function note(t){message=t;messageUntil=elapsed+1.1}
 function alive(u){return u.hp>0}
 const guilds = [
   {name:'은빛여명', emblem:{shape:'round',symbol:'moon',pattern:'band',border:'silver',base:'#2f4f80',accent:'#b5b8b1'}},
@@ -108,16 +110,17 @@ function issueOrder(k, enemy=null){
   focus=enemy?.id??null;goal=k;
   render();
 }
-const attackRange=u=>[1,ready(u,0)?4:3,3][u.role];
+const attackRange=u=>[1,u!==me&&ready(u,0)?4:3,3][u.role];
 function choose(k){
   if(ended||!alive(me)||!$('setup').hidden)return;
+  if(aiming!==null){activate(aiming,k);return}
   const unit=units.find(v=>alive(v)&&id(...position(v).map(Math.round))===k)||occupied.get(k);
   if(unit){
-    inspectId=unit.id;
+    inspectId=unit.id;$('inspect').hidden=false;
     if(unit.team===me.team){render();return}
     issueOrder(unit.k,unit);return;
   }
-  if(!terrainBlocks(k,me)||gates.get(k)>0)issueOrder(k);
+  if(!terrainBlocks(k,me)||gates.get(k)>0){$('inspect').hidden=true;issueOrder(k)}
 }
 function beam(u,v,kind='hit'){
   beams.push({from:position(u),to:position(v),kind,team:u.team,mine:u===me||v===me,until:elapsed+.48});
@@ -142,6 +145,7 @@ function damage(u,v,n){
     v.hp=Math.max(0,v.hp-amount);v.hitAt=elapsed;
   }
   if(v.hp===0){
+    if(v===me)aiming=null;
     occupied.delete(v.k);cancelTravel(v);v.cast=null;v.respawnAt=elapsed+12;kills[u.team]++;
     if(v===me)note('전사했습니다. 12초 후 부활');
   }
@@ -151,6 +155,77 @@ function defend(u){
   use(u,2);
   if(u.role===0)u.guard=elapsed+3;
   else{u.shield=u.max*.2;u.shieldUntil=elapsed+3}
+}
+const arrow='<path d="M9 39 35 13m-3-2 9-4-4 10-2-4zM9 33l-4 5 5-1-1 5 6-6"/>';
+const shield='<path d="M24 5 39 11v11c0 9-6 15-15 21C15 37 9 31 9 22V11z"/>';
+const iconShapes=[
+  ['<path d="m10 39 22-24 9-8-4 13-23 23m-5-15 12 11"/>','<path d="m5 13 8 2m-9 8 10-1m-7 11 8-5"/>'+shield,shield+'<path d="M24 12v22m-8-14 8-8 8 8"/>'],
+  ['<circle cx="24" cy="24" r="15"/><path d="M24 3v9m0 25v8M3 24h9m25 0h8"/>'+arrow,
+   arrow+'<g stroke="#cbd6d0" stroke-width="3" fill="none" transform="rotate(-40 24 24)"><rect x="9" y="14" width="11" height="19" rx="5"/><rect x="17" y="21" width="15" height="9" rx="4"/><rect x="28" y="14" width="11" height="19" rx="5"/></g>',
+   '<g transform="translate(-3 5) scale(.7)">'+arrow+'</g><g transform="translate(6 8) scale(.7)">'+arrow+'</g><g transform="translate(15 11) scale(.7)">'+arrow+'</g>'],
+  ['<path fill="#d77a36" d="M25 3c4 12 14 12 14 25a15 15 0 0 1-30 0c0-6 4-11 8-16l1 9c5-4 8-11 7-18Z"/><path d="m20 35 4-11 6 7"/>','<path stroke="#bbe6ff" d="M24 4v40M7 14l34 20M7 34l34-20M18 8l6 6 6-6m-12 32 6-6 6 6M8 21l8-2-2-8m20 26-2-8 8-2"/>',shield+'<path fill="#9dd2f0" d="m24 13 7 10-7 10-7-10z"/>']
+];
+const slotButtons=[];
+function buildSlots(){
+  $('loadout').replaceChildren();$('fan').replaceChildren();slotButtons.length=0;
+  skills[playerRole].forEach((skill,i)=>{
+    const label=document.createElement('label'), input=document.createElement('input');
+    input.type='checkbox';input.checked=equipped[playerRole][i];
+    input.onchange=()=>{equipped[playerRole][i]=input.checked;slotButtons[i].hidden=!input.checked;$('start').disabled=!equipped[playerRole].some(Boolean)};
+    label.append(input,skill);$('loadout').append(label);
+    const b=document.createElement('button');b.type='button';b.className='skill-orb slot-'+i;b.hidden=!input.checked;
+    b.setAttribute('aria-label',skill);b.title=skill;
+    b.innerHTML='<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+iconShapes[playerRole][i]+'</svg><i></i><b></b>';
+    b.onclick=()=>activate(i);$('fan').append(b);slotButtons.push(b);
+  });
+  $('start').disabled=!equipped[playerRole].some(Boolean);
+}
+function updateSkills(){
+  const fighting=running&&!ended&&alive(me);
+  for(let i=0;i<slotButtons.length;i++){
+    const button=slotButtons[i], left=Math.max(0,me.cd[i]-elapsed);
+    button.disabled=!fighting||left>0||me.mp<14||me.stun>elapsed||!!me.cast;
+    button.classList.toggle('aiming',aiming===i);
+    button.style.setProperty('--cooldown',(360*left/cooldowns[me.role][i])+'deg');
+    button.querySelector('b').textContent=left?Math.ceil(left):'';
+    if(button.dataset.cooling==='yes'&&!left&&fighting)button.animate([{filter:'brightness(1.8)'},{filter:'brightness(1)'}],{duration:320});
+    button.dataset.cooling=left?'yes':'no';
+  }
+  if(aiming!==null)$('state').textContent=skills[me.role][aiming]+' · 칸 선택';
+  else if(message&&messageUntil>elapsed)$('state').textContent=message;
+}
+function validGround(k){
+  return !terrainBlocks(k,me)&&visible(me,{k},3);
+}
+function activate(i,k=null){
+  if(!running||ended||!alive(me)||!equipped[me.role][i])return;
+  const reject=t=>{note(t);render()};
+  if(!ready(me,i)||me.stun>elapsed||me.cast){reject(me.mp<14?'MP 부족':'아직 사용할 수 없습니다');return}
+  const role=me.role, area=role===2&&i<2, self=role!==1&&i===2;
+  if(area&&k===null){aiming=aiming===i?null:i;message='';render();return}
+  if(area&&!validGround(k)){reject('사거리 안의 칸을 선택하세요');return}
+  const range=role===0?1:[4,2,3][i];
+  const nearby=units.filter(v=>alive(v)&&v.team!==me.team&&visible(me,v,range)).sort((a,b)=>dist(me.k,a.k)-dist(me.k,b.k));
+  const enemy=focus!==null?units.find(v=>v.id===focus&&alive(v)):nearby.find(v=>v.id===me.lastTarget)||nearby[0];
+  if(!area&&!self&&(!enemy||!visible(me,enemy,range))){reject('사거리 안에 대상이 없습니다');return}
+  aiming=null;use(me,i);
+  if(self){
+    if(role===0)me.guard=elapsed+3;
+    else{me.shield=me.max*.2;me.shieldUntil=elapsed+3}
+  }else if(area){
+    cancelTravel(me);
+    if(i===0)me.cast={type:'fire',k,end:elapsed+.7};
+    else frost.push({team:me.team,cells:[k,...near(k)].filter(n=>!terrainBlocks(n,me)),until:elapsed+2});
+  }else{
+    me.lastTarget=enemy.id;
+    if(role===0){
+      if(i===1){enemy.cast=null;cancelTravel(enemy);enemy.stun=elapsed+.6}
+      beam(me,enemy);damage(me,enemy,power[0]*(i===0?1.6:1));
+    }else if(i===0){cancelTravel(me);me.cast={type:'aim',v:enemy,end:elapsed+.8}}
+    else if(i===1){cancelTravel(enemy);enemy.root=elapsed+1.2;beam(me,enemy,'arrow')}
+    else{beam(me,enemy,'arrow');damage(me,enemy,power[1]*.7);damage(me,enemy,power[1]*.7)}
+  }
+  render();
 }
 function resolveCast(u){
   const c=u.cast;
@@ -169,6 +244,7 @@ function strike(u,v,foes){
   if(u.attackAt>elapsed)return;
   if(!visible(u,v,range)&&!(r===1&&ready(u,0)&&visible(u,v,4)))return;
   u.lastTarget=v.id;u.attackAt=elapsed+cadence[r];
+  if(u===me){beam(u,v,['hit','arrow','magic'][r]);damage(u,v,power[r]);return}
   if(r===0){
     if(v.cast&&ready(u,1)){use(u,1);v.cast=null;v.stun=elapsed+.6;beam(u,v);damage(u,v,power[r]);return}
     if(ready(u,0)){use(u,0);beam(u,v);damage(u,v,power[r]*1.6);return}
@@ -200,13 +276,14 @@ function createUnit(i){
   return {id:i,name:names[i],team,role,max,hp:max,mp:100,img:img(i),cp:[86210,79340,72640,77420,81210,80400,71200,76480,81670,79560,84520,80130,81250,76180,75240,84310,72690,81750,79300,78510][i],cd:[0,0,0],stun:0,root:0,guard:0,shield:0,shieldUntil:0,attackAt:0,combo:0,lastTarget:null};
 }
 function reset(){
+  aiming=null;message='';messageUntil=0;$('inspect').hidden=true;$('halt').hidden=true;
   occupied.clear();reserved.clear();gates.clear();[2,5,8].forEach(x=>gates.set(id(x,3),2200));
   units=Array.from({length:20},(_,i)=>createUnit(i));me=units[0];
   for(const u of units)place(u,u.team?id(2+u.id%7,4+u.id%2):id(2+u.id%7,11+u.id%2));
   elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;owner='';inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
   kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
   nodes.clear();unitLayer.replaceChildren();
-  $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='일시정지';$('myface').src=me.img;
+  $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='Ⅱ';$('myface').src=me.img;
   document.querySelector('.sl-me-name').textContent='기크 · '+roleNames[me.role];render();
 }
 function tick(dt){
@@ -222,7 +299,7 @@ function tick(dt){
     u.mp=Math.min(100,u.mp+dt*2);
     if(u.team===0&&xy(u.k)[1]===13)u.hp=Math.min(u.max,u.hp+dt*95);
     if(u.stun>elapsed)continue;
-    defend(u);
+    if(u!==me)defend(u);
     if(u.trip){
       if(elapsed-u.trip.start<u.trip.times.at(-1))continue;
       occupied.delete(u.k);u.k=u.trip.path.at(-1);occupied.set(u.k,u);cancelTravel(u);
@@ -265,6 +342,7 @@ function tick(dt){
 const board=document.querySelector('.sl-board');
 const frame=board.closest('.sl-frame'), viewport=board.parentElement;
 frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label><p id="loadout"></p><button id="start">스킬 등록 · 전투 시작</button></div></section>');
+frame.insertAdjacentHTML('beforeend','<section class="sl-overlay" id="halt" hidden><div><h2>일시정지</h2><p id="registered"></p><button id="resume">계속하기</button> <button id="reset">출전 준비</button> <a href="./">게임으로</a></div></section>');
 const svgNS='http://www.w3.org/2000/svg';
 const fx=document.createElementNS(svgNS,'svg');
 fx.setAttribute('viewBox','0 0 110 140');fx.setAttribute('preserveAspectRatio','none');
@@ -361,7 +439,7 @@ function render(){
   $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/2200*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
-    const c=cells[k];c.classList.toggle('route',!!routePreview?.includes(k));c.classList.toggle('goal',!target&&goal===k);
+    const c=cells[k];c.classList.toggle('spell-range',aiming!==null&&validGround(k));c.classList.toggle('route',!!routePreview?.includes(k));c.classList.toggle('goal',!target&&goal===k);
     c.classList.toggle('ice',frost.some(z=>z.cells.includes(k)));
     c.classList.toggle('warn',fire.some(p=>dist(k,p)<=1));c.classList.toggle('center',fire.includes(k));
     if(!gates.has(k)&&layout[k]!=='throne')c.textContent=goal===k&&!target?'⚑':'';
@@ -402,7 +480,7 @@ function render(){
     n.querySelector('.sl-power').textContent='';
     n.querySelector('.sl-condition').textContent=u.stun>elapsed?'✸':u.root>elapsed?'⛓':u.guard>elapsed||u.shieldUntil>elapsed&&u.shield?'▣':'';
   }
-  $('skills').textContent=skills[me.role].map((s,i)=>s+' '+(me.cd[i]>elapsed?(me.cd[i]-elapsed).toFixed(1)+'초':'준비')).join('　');
+  updateSkills();
 
   layoutNames(actual,inspected);
   drawEffects();trackPlayer();
@@ -438,13 +516,15 @@ viewport.addEventListener('click',e=>{if(blockClick&&e.detail){e.stopPropagation
 viewport.addEventListener('wheel',()=>{following=false},{passive:true});
 $('view-toggle').onclick=()=>setView(!overview);
 $('locate').onclick=()=>{inspectId=me.id;setView(false)};
-$('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset();$('loadout').textContent=skills[playerRole].join(' · ')};
+$('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset();buildSlots()};
 $('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 10명 / 적군 10명')};
 
-$('retreat').onclick=()=>{if(!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>tile==='camp'&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
-$('pause').onclick=()=>{if(ended||!$('setup').hidden)return;running=!running;last=performance.now();$('pause').textContent=running?'일시정지':'계속하기'};
+$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){aiming=null;const camps=layout.flatMap((tile,k)=>tile==='camp'&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
+$('pause').onclick=()=>{if(!running||ended)return;running=false;aiming=null;$('halt').hidden=false;$('registered').textContent=skills[me.role].filter((_,i)=>equipped[me.role][i]).join(' · ');render()};
+$('resume').onclick=()=>{$('halt').hidden=true;running=true;last=performance.now();render()};
+$('close-info').onclick=()=>{$('inspect').hidden=true};
 $('reset').onclick=$('restart').onclick=reset;
-$('loadout').textContent=skills[playerRole].join(' · ');
+buildSlots();
 reset();
 new ResizeObserver(()=>render()).observe(board);
 setInterval(()=>{const now=performance.now(),dt=Math.min(.25,(now-last)/1000);last=now;if(running&&!ended){tick(dt);render()}},100);
