@@ -120,11 +120,20 @@ function use(u,i){
   u.cd[i]=elapsed+cooldowns[u.role][i];u.mp-=14;
   if(u===me)note(skills[u.role][i]+' 발동');
 }
+function hpColor(ratio){
+  if(ratio<=.25)return '#f66b62';
+  if(ratio<=.5)return '#edc448';
+  return '#74cf77';
+}
 function damage(u,v,n){
   if(!alive(v))return;
   let amount=Math.round(n*(v.guard>elapsed?.65:1));
   if(v.shieldUntil>elapsed){const absorbed=Math.min(amount,v.shield);v.shield-=absorbed;amount-=absorbed}
-  v.hp=Math.max(0,v.hp-amount);v.hitAt=elapsed;
+  if(amount>0){
+    if(!(v.trailUntil>elapsed))v.trailHp=v.hp;
+    v.trailUntil=elapsed+.4;
+    v.hp=Math.max(0,v.hp-amount);v.hitAt=elapsed;
+  }
   if(v.hp===0){
     occupied.delete(v.k);cancelTravel(v);v.cast=null;v.respawnAt=elapsed+12;kills[u.team]++;
     if(v===me)note('전사했습니다. 12초 후 부활');
@@ -198,7 +207,7 @@ function tick(dt){
   for(const u of units){
     if(!alive(u)){
       if(elapsed>=u.respawnAt&&place(u,u.team?id(5,0):camp)){
-        u.hp=u.max;u.mp=100;u.guard=elapsed+3;u.root=u.stun=u.shield=u.combo=0;u.attackAt=elapsed+2;
+        u.trailUntil=0;u.hp=u.max;u.mp=100;u.guard=elapsed+3;u.root=u.stun=u.shield=u.combo=0;u.attackAt=elapsed+2;
         if(u===me){goal=focus=null}
       }
       continue;
@@ -277,7 +286,8 @@ function render(){
   $('blue').textContent='공격군 '+counts[0]+'명';$('red').textContent='수비군 '+counts[1]+'명';
   $('balance').style.width=counts[0]/(counts[0]+counts[1]||1)*100+'%';
   $('objective').textContent=hold?'왕좌 각인 '+hold.toFixed(1)+'초':gateLog?'왕좌 진입':'성문 돌파';
-  $('hp').style.width=me.hp/me.max*100+'%';$('mp').style.width=me.mp+'%';$('myhp').textContent=Math.ceil(me.hp)+' / '+me.max;
+  $('hp').style.width=me.hp/me.max*100+'%';$('mp').style.width=me.mp+'%';$('hp').style.background=hpColor(me.hp/me.max);
+  $('myhp').textContent='HP '+Math.ceil(me.hp).toLocaleString('ko-KR')+' / '+me.max.toLocaleString('ko-KR');
   const target=units.find(u=>alive(u)&&u.id===focus);
   const routePreview=me.trip?.path??(goal!==null&&alive(me)?routes(me,blocked(goal,me)||occupied.has(goal)?near(goal):[goal]):null);
   const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&visible(me,u,[1,4,3][me.role])&&me.attackAt>elapsed&&mode!=='move');
@@ -300,7 +310,7 @@ function render(){
     let n=nodes.get(u.id);
     if(!alive(u)){if(n)n.hidden=true;continue}
     if(!n){
-      n=document.createElement('div');n.innerHTML='<div class="sl-token"><img alt=""></div><div class="sl-ring"><i></i></div><span class="sl-role"></span><span class="sl-tag"><span class="sl-tag-emblem"></span><span><small></small><b></b></span></span><span class="sl-power"></span><span class="sl-condition"></span>';
+      n=document.createElement('div');n.innerHTML='<div class="sl-token"><img alt=""></div><div class="sl-ring"><span class="damage-trail"></span><i></i></div><span class="sl-role"></span><span class="sl-tag"><span class="sl-tag-emblem"></span><span><small></small><b></b></span></span><span class="sl-hp-details"><span class="sl-percent"></span><span class="sl-power"></span></span><span class="sl-condition"></span>';
       const tag=n.querySelector('.sl-tag');
       tag.style.display='flex';tag.style.alignItems='center';tag.style.gap='2px';
       tag.querySelector('b').style.display='block';
@@ -312,12 +322,22 @@ function render(){
     }
     n.hidden=false;
     const [x,y]=position(u);
-    n.className='sl-unit'+(u===me?' me':'')+(u.team?' red':'')+(u===actual?' focus':'')+(x<1?' left-edge':x>W-2?' right-edge':'')+(y<.7?' top-edge':'');
+    n.className='sl-unit'+(u===me?' me':'')+(u.team?' red':'')+(u===actual?' focus':'')+(x<1?' left-edge':x>W-2?' right-edge':'')+(y<.7?' top-edge':y>H-1.7?' last-row':'');
     n.querySelector('.sl-token').classList.toggle('red',!!u.team);
     n.style.left=(x+.5)/W*100+'%';n.style.top=(y+.5)/H*100+'%';
-    n.querySelector('.sl-ring i').style.width=u.hp/u.max*100+'%';
+    const ratio=u.hp/u.max;
+    n.style.setProperty('--hp-color',hpColor(ratio));
+    n.querySelector('.sl-ring i').style.width=ratio*100+'%';
+    const showTrail=u===actual&&u.trailUntil>elapsed;
+    n.querySelector('.damage-trail').style.width=showTrail?u.trailHp/u.max*100+'%':'0%';
+    n.querySelector('.sl-percent').textContent=u===actual?Math.ceil(ratio*100)+'%':'';
     n.querySelector('small').textContent=detailed?guilds[u.team].name:'';
-    n.querySelector('b').textContent=(u===me?'나▼ ':'')+u.name;
+    const name=n.querySelector('b');
+    if(!name.hasChildNodes()){
+      if(u===me){const marker=document.createElement('span');marker.textContent='나▼ ';name.append(marker)}
+      name.append(u.name);
+    }
+    if(u===me)name.firstElementChild.classList.toggle('me-warning',ratio<=.3);
     n.querySelector('.sl-power').textContent=detailed||u===inspected?cp(u):'';
     n.querySelector('.sl-condition').textContent=u.stun>elapsed?'✸':u.root>elapsed?'⛓':u.guard>elapsed||u.shieldUntil>elapsed&&u.shield?'▣':'';
   }
