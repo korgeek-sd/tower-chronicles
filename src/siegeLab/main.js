@@ -4,16 +4,16 @@ import {GuildEmblem} from '../components/association/GuildEmblem';
 import '../game-fonts.css';
 import './siege.css';
 import {APPEARANCES} from '../game/data/cosmetics';
-const W=11,H=14,root=document.getElementById('siege');
+const W=17,H=20,root=document.getElementById('siege');
 const img=(i)=>new URL((APPEARANCES[i%APPEARANCES.length].imagePath||APPEARANCES[0].imagePath),location.href).href;
 const names=['기크','아르칸','설화','루시안','카인','테오','아벨','녹스','레온','카론','라그나','벨리온','세라','이든','렌','모르','바엘','리안','회색늑대','카엘'];
 const sideSize=30, battleSeconds=30*60;
 const fronts=[
-  {gates:[2,5,8],rock:[1,9,0,10,3,7],tree:[0,10,1,9,0,10]},
-  {gates:[1,4,8],rock:[2,8,2,7,1,9],tree:[0,9,4,8,0,10]},
-  {gates:[2,6,9],rock:[1,7,3,8,0,7],tree:[0,10,2,6,1,9]},
-  {gates:[1,5,9],rock:[0,10,3,7,1,9],tree:[2,8,0,10,2,8]},
-  {gates:[2,4,7],rock:[0,8,1,6,2,9],tree:[1,10,3,8,0,7]}
+  {gates:[3,8,13],rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
+  {gates:[2,6,13],rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
+  {gates:[3,10,14],rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
+  {gates:[2,8,14],rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
+  {gates:[3,6,12],rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
 ];
 let front=0;
 const extraNames=['아린','토르','레아','세인','유나','로한','베라','이안','달빛','나린','은별','로이','제나','하람','세온','니아','파란','미르','노을','연우','루카','자운','헤라','로잔','타린','엘렌','도안','제온','무영','화린','다온','라움','포르','리엘','테린','하온','유란','라온','레드','칼린'];
@@ -21,21 +21,24 @@ const roleNames=['전사','궁수','마법사'],roleIcon=['⚔','➶','⚕'];
 const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
-const throne=id(5,1),camp=id(5,13);
+const centerX=Math.floor(W/2), gateRow=5;
+const throne=id(centerX,1),camp=id(centerX,H-1);
+root.style.setProperty('--cols',W);
+root.style.setProperty('--rows',H);
 let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner='',last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
 function buildLayout(field){
-  const rocks=new Set(field.rock.map((x,i)=>id(x,[5,5,8,8,10,10][i])));
-  const trees=new Set(field.tree.map((x,i)=>id(x,[5,5,9,9,11,11][i])));
+  const rocks=new Set(field.rock.map((x,i)=>id(x,[8,8,12,12,15,15][i])));
+  const trees=new Set(field.tree.map((x,i)=>id(x,[8,8,13,13,16,16][i])));
   return Array.from({length:W*H},(_,k)=>{
     const [x,y]=xy(k);
     if(k===throne)return 'throne';
-    if(y===3)return field.gates.includes(x)?'gate':'wall';
-    if((x===0||x===W-1)&&y<4)return 'wall';
-    if(y<=2)return 'stone';
+    if(y===gateRow)return field.gates.includes(x)?'gate':'wall';
+    if((x===0||x===W-1)&&y<=gateRow)return 'wall';
+    if(y<gateRow)return 'stone';
     if(y===H-1)return 'camp';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
-    return x===5||y===7?'road':'grass';
+    return x===centerX||y===10?'road':'grass';
   });
 }
 let layout=buildLayout(fronts[front]);
@@ -305,11 +308,12 @@ function createUnit(i){
 function reset(){
   document.querySelector('.sl-top b').textContent='노바르 · 제'+(front+1)+'전장';
   aiming=null;message='';messageUntil=0;$('inspect').hidden=true;$('halt').hidden=true;
-  occupied.clear();reserved.clear();gates.clear();fronts[front].gates.forEach(x=>gates.set(id(x,3),2200));
+  occupied.clear();reserved.clear();gates.clear();fronts[front].gates.forEach(x=>gates.set(id(x,gateRow),2200));
   units=Array.from({length:sideSize*2},(_,i)=>createUnit(i));me=units[0];
   for(const u of units){
-    const slot=u.id%sideSize, x=(slot+5)%10;
-    place(u,id(x,u.team?4+Math.floor(slot/10):12-Math.floor(slot/10)));
+    const slot=u.id%sideSize, columns=W-2;
+    const x=1+(slot+centerX-1)%columns, rank=Math.floor(slot/columns);
+    place(u,id(x,u.team?gateRow+1+rank:H-2-rank));
   }
   elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;owner='';inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
   kills=[0,0];logs=[];beams=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
@@ -321,14 +325,14 @@ function tick(dt){
   elapsed+=dt;frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
   for(const u of units){
     if(!alive(u)){
-      if(elapsed>=u.respawnAt&&place(u,u.team?id(5,0):camp)){
+      if(elapsed>=u.respawnAt&&place(u,u.team?id(centerX,0):camp)){
         u.trailUntil=0;u.hp=u.max;u.mp=100;u.guard=elapsed+3;u.root=u.stun=u.shield=u.combo=0;u.attackAt=elapsed+2;
         if(u===me){goal=focus=null}
       }
       continue;
     }
     u.mp=Math.min(100,u.mp+dt*2);
-    if(u.team===0&&xy(u.k)[1]===13)u.hp=Math.min(u.max,u.hp+dt*95);
+    if(u.team===0&&layout[u.k]==='camp')u.hp=Math.min(u.max,u.hp+dt*95);
     if(u.stun>elapsed)continue;
     if(u!==me)defend(u);
     if(u.trip){
@@ -346,7 +350,7 @@ function tick(dt){
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team===0){
-      const gate=id(fronts[front].gates[u.id%3],3);
+      const gate=id(fronts[front].gates[u.id%3],gateRow);
       dest=gates.get(gate)>0?gate:throne;
     }
     if(dest==null)continue;
@@ -376,7 +380,7 @@ frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><di
 frame.insertAdjacentHTML('beforeend','<section class="sl-overlay" id="halt" hidden><div><h2>일시정지</h2><p id="registered"></p><button id="resume">계속하기</button> <button id="reset">출전 준비</button> <a href="./">게임으로</a></div></section>');
 const svgNS='http://www.w3.org/2000/svg';
 const fx=document.createElementNS(svgNS,'svg');
-fx.setAttribute('viewBox','0 0 110 140');fx.setAttribute('preserveAspectRatio','none');
+fx.setAttribute('viewBox',`0 0 ${W*10} ${H*10}`);fx.setAttribute('preserveAspectRatio','none');
 fx.classList.add('sl-effects');board.insertBefore(fx,unitLayer);
 const cp=u=>u.cp.toLocaleString('ko-KR');
 function drawEffects(){
