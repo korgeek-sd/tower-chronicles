@@ -29,7 +29,7 @@ let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,
 function buildLayout(field){
   const rocks=new Set(field.rock.map((x,i)=>id(x,[8,8,12,12,15,15][i])));
   const trees=new Set(field.tree.map((x,i)=>id(x,[8,8,13,13,16,16][i])));
-  return Array.from({length:W*H},(_,k)=>{
+  const tiles=Array.from({length:W*H},(_,k)=>{
     const [x,y]=xy(k);
     if(k===throne)return 'throne';
     if(y===gateRow)return field.gates.includes(x)?'gate':'wall';
@@ -38,13 +38,58 @@ function buildLayout(field){
     if(y===H-1)return 'camp';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
-    return x===centerX||y===10?'road':'grass';
+    return 'grass';
   });
+
+  // Follow walkable tiles so the painted approach always leads through its own gate.
+  function layRoad(start,end,minY,maxY){
+    const queue=[start], parent=new Map([[start,null]]);
+    for(let i=0;i<queue.length;i++){
+      const k=queue[i];
+      if(k===end){
+        for(let n=k;n!==null;n=parent.get(n)){
+          if(['grass','stone'].includes(tiles[n]))tiles[n]='road';
+        }
+        return;
+      }
+      const steps=near(k).sort((a,b)=>dist(a,end)-dist(b,end));
+      for(const n of steps){
+        const [,y]=xy(n);
+        if(y<minY||y>maxY||parent.has(n)||['tree','rock','wall'].includes(tiles[n]))continue;
+        parent.set(n,k);queue.push(n);
+      }
+    }
+  }
+  const fork=id(centerX,14);
+  layRoad(camp,fork,14,H-1);
+  for(const x of field.gates){
+    const bend=id(x,11);
+    layRoad(fork,bend,11,14);
+    layRoad(bend,id(x,gateRow+1),gateRow+1,11);
+    layRoad(id(x,gateRow-1),id(x,2),2,gateRow-1);
+    layRoad(id(x,2),id(centerX,2),2,2);
+  }
+  return tiles;
 }
 let layout=buildLayout(fronts[front]);
+const gateMaxHp=2200;
+function paintCell(cell,k){
+  const tile=layout[k], [x,y]=xy(k);
+  cell.className='sl-cell '+tile;
+  if(tile==='wall' && y<gateRow)cell.classList.add('side-wall');
+  delete cell.dataset.hp;
+  cell.replaceChildren();
+  if(tile==='gate'){
+    const bar=document.createElement('i');
+    bar.className='gate-health';
+    cell.append(bar);
+  }
+  cell.setAttribute('aria-label',({gate:'철문',wall:'성벽',throne:'왕좌',road:'흙길'})[tile]||tile);
+  cell.setAttribute('aria-label',cell.getAttribute('aria-label')+' '+x+','+y);
+}
 root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">30:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><div class="skill-fan" id="fan"></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
 const $=s=>document.getElementById(s),unitLayer=$('units');
-for(let k=0;k<W*H;k++){const b=document.createElement('button');b.className='sl-cell '+layout[k];b.type='button';b.setAttribute('aria-label',layout[k]+' '+xy(k).join(','));if(layout[k]==='throne')b.textContent='♛';b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
+for(let k=0;k<W*H;k++){const b=document.createElement('button');b.type='button';paintCell(b,k);b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
 let message='', messageUntil=0, aiming=null;
 const equipped=Array.from({length:3},()=>[true,true,true]);
 function note(t){message=t;messageUntil=elapsed+1.1}
@@ -308,7 +353,7 @@ function createUnit(i){
 function reset(){
   document.querySelector('.sl-top b').textContent='노바르 · 제'+(front+1)+'전장';
   aiming=null;message='';messageUntil=0;$('inspect').hidden=true;$('halt').hidden=true;
-  occupied.clear();reserved.clear();gates.clear();fronts[front].gates.forEach(x=>gates.set(id(x,gateRow),2200));
+  occupied.clear();reserved.clear();gates.clear();fronts[front].gates.forEach(x=>gates.set(id(x,gateRow),gateMaxHp));
   units=Array.from({length:sideSize*2},(_,i)=>createUnit(i));me=units[0];
   for(const u of units){
     const slot=u.id%sideSize, columns=W-2;
@@ -357,6 +402,9 @@ function tick(dt){
     if(gates.get(dest)>0&&u.team===0&&dist(u.k,dest)===1){
       if(elapsed>=u.attackAt){
         u.attackAt=elapsed+2.4;gates.set(dest,Math.max(0,gates.get(dest)-72));
+        const gateCell=cells[dest];
+        if(!gateCell.getAnimations().length&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+          gateCell.animate([{transform:'translateX(-1px)'},{transform:'translateX(1px)'},{transform:'none'}],{duration:140});
         if(!gates.get(dest)){if(goal===dest&&focus===null)goal=null;gateLog=true;note('성문 돌파')}
       }
       continue;
@@ -471,14 +519,23 @@ function render(){
   }
   infoText.textContent='살펴보는 '+(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+guilds[inspected.team].name+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
   $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,attackRange(me))?' 공격 중':' 추적 중')):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
-  $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/2200*100)+'%':'';
+  $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
     const c=cells[k];c.classList.toggle('spell-range',aiming!==null&&validGround(k));c.classList.toggle('route',!!routePreview?.includes(k));c.classList.toggle('goal',!target&&goal===k);
     c.classList.toggle('ice',frost.some(z=>z.cells.includes(k)));
     c.classList.toggle('warn',fire.some(p=>dist(k,p)<=1));c.classList.toggle('center',fire.includes(k));
     if(!gates.has(k)&&layout[k]!=='throne')c.textContent=goal===k&&!target?'⚑':'';
-    if(gates.has(k)){const h=gates.get(k);c.classList.toggle('open',!h);c.textContent=h?Math.ceil(h/2200*100)+'%':'개방'}
+    if(gates.has(k)){
+      const hp=gates.get(k);
+      if(c.dataset.hp!==String(hp)){
+        c.dataset.hp=String(hp);
+        c.classList.toggle('broken',hp>0&&hp<=gateMaxHp/2);
+        c.classList.toggle('open',hp===0);
+        c.style.setProperty('--gate-hp',hp/gateMaxHp);
+        c.setAttribute('aria-label',hp?'철문 체력 '+Math.ceil(hp/gateMaxHp*100)+'%':'열린 성문');
+      }
+    }
   }
   for(const u of units){
     let n=nodes.get(u.id);
@@ -555,9 +612,7 @@ fronts.forEach((_,i)=>$('front').add(new Option('제'+(i+1)+'전장',String(i)))
 $('front').onchange=()=>{
   front=$('front').selectedIndex;layout=buildLayout(fronts[front]);
   for(let k=0;k<cells.length;k++){
-    cells[k].className='sl-cell '+layout[k];
-    cells[k].textContent=k===throne?'♛':'';
-    cells[k].setAttribute('aria-label',layout[k]+' '+xy(k).join(','));
+    paintCell(cells[k],k);
   }
   reset();
 };
