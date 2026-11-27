@@ -1,5 +1,6 @@
 import {createElement} from 'react';
 import {createRoot} from 'react-dom/client';
+import {HubIcon} from '../components/mobile/HubIcon';
 import {GuildEmblem} from '../components/association/GuildEmblem';
 import '../game-fonts.css';
 import './siege.css';
@@ -88,6 +89,15 @@ function paintCell(cell,k){
   cell.setAttribute('aria-label',cell.getAttribute('aria-label')+' '+x+','+y);
 }
 root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">30:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span>공격군 ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
+const bottomNav=document.createElement('nav');
+bottomNav.className='sl-bottom-nav';
+bottomNav.setAttribute('aria-label','주요 메뉴');
+root.append(bottomNav);
+const destinations=[['home','거점'],['shop','상점'],['inventory','가방'],['market','거래소'],['association','원정단']];
+createRoot(bottomNav).render(destinations.map(([page,label])=>
+  createElement('a',{key:page,href:'./?tab='+page,'aria-current':page==='association'?'location':undefined},
+    createElement(HubIcon,{name:page}),label)
+));
 const $=s=>document.getElementById(s),unitLayer=$('units');
 for(let k=0;k<W*H;k++){const b=document.createElement('button');b.type='button';paintCell(b,k);b.addEventListener('click',()=>choose(k));$('cells').append(b);cells.push(b);}
 let message='', messageUntil=0;
