@@ -33,7 +33,7 @@ function castleGates(field){
   return [id(field.frontX,gateRow),id(field.sideX,field.sideY),id(field.innerX,innerRow)];
 }
 const campNames=['남','동','북','서'];
-const camps=[id(centerX,H-4),id(W-4,26),id(centerX,3),id(3,26)];
+const camps=[id(centerX,H-6),id(W-6,26),id(centerX,5),id(5,26)];
 let campByTeam=[0,-1,1,2,3],claimant=null;
 function insideCamp(k,anchor){
   const [x,y]=xy(k),[a,b]=xy(anchor);
@@ -64,8 +64,8 @@ function buildLayout(field){
 
     if(camps.some(c=>insideCamp(k,c)))return 'camp';
     if(camps.some(c=>{
-      const [cx,cy]=xy(c),side=cx!==centerX;
-      return Math.abs(x-cx)<=(side?3:4)&&Math.abs(y-cy)<=(side?4:3);
+      const [cx,cy]=xy(c);
+      return Math.abs(x-cx)<=5&&Math.abs(y-cy)<=5;
     }))return 'grass';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
@@ -480,24 +480,21 @@ const campAxes=[[1,0],[0,-1],[-1,0],[0,1]];
 const campProps=camps.map((k,i)=>{
   const [a,b]=campAxes[i];
   function position(x,y){return [a*x-b*y,b*x+a*y]}
-  const floor=prop('sl-camp-floor',k);
-  floor.style.width='calc('+(a?900:700)+'% / var(--cols))';
-  floor.style.height='calc('+(a?700:900)+'% / var(--rows))';
+  prop('sl-camp-floor',k);
   for(const side of [-1,1]){
-    for(const depth of [-2.15,1.95]){
-      const tent=prop('sl-camp-tent',k,...position(side*3.45,depth));
+    for(const depth of [-3.1,3.15]){
+      const tent=prop('sl-camp-tent',k,...position(side*3.1,depth));
       const frame=((side<0?1:3)-i+4)%4;
       tent.style.backgroundPosition=(frame*100/3)+'% center';
     }
   }
   for(const [name,x,y] of [
-    ['command-tent',0,2.5],['supply-wagon',-3.55,0],
-    ['equipment-rack',3.55,-.7],['supply-pile',3.55,.68]
+    ['command-tent',0,3.05],['supply-wagon',-3.05,0],
+    ['equipment-rack',3.1,-.95],['supply-pile',3.1,1.05]
   ]){
-    const node=prop('sl-camp-prop '+name,k,...position(x,y));
-    if(!a&&name==='command-tent')node.style.width='calc(200% / var(--cols))';
+    prop('sl-camp-prop '+name,k,...position(x,y));
   }
-  return {...standard(k,...position(-2.45,-2.35)),label:prop('sl-camp-caption',k,0,a?-2.4:-3.7)};
+  return {...standard(k,...position(-1.55,-2.45)),label:prop('sl-camp-caption',k,0,a?-2.75:-4.45)};
 });
 const castleStandard=standard(throne,1.25,.2);
 function markStandard(item,team){
