@@ -5,16 +5,16 @@ import {GuildEmblem} from '../components/association/GuildEmblem';
 import '../game-fonts.css';
 import './siege.css';
 import {APPEARANCES} from '../game/data/cosmetics';
-const W=17,H=20,root=document.getElementById('siege');
+const W=35,H=36,root=document.getElementById('siege');
 const img=(i)=>new URL((APPEARANCES[i%APPEARANCES.length].imagePath||APPEARANCES[0].imagePath),location.href).href;
 const names=['기크','아르칸','설화','루시안','카인','테오','아벨','녹스','레온','카론','라그나','벨리온','세라','이든','렌','모르','바엘','리안','회색늑대','카엘'];
 const sideSize=30, battleSeconds=30*60;
 const fronts=[
-  {frontX:8,sideX:14,sideY:6,innerX:8,rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
-  {frontX:7,sideX:14,sideY:6,innerX:9,rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
-  {frontX:9,sideX:2,sideY:7,innerX:7,rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
-  {frontX:8,sideX:2,sideY:6,innerX:9,rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
-  {frontX:6,sideX:14,sideY:7,innerX:8,rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
+  {frontX:17,sideX:28,sideY:11,innerX:17,rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
+  {frontX:15,sideX:28,sideY:11,innerX:19,rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
+  {frontX:19,sideX:6,sideY:13,innerX:15,rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
+  {frontX:17,sideX:6,sideY:11,innerX:19,rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
+  {frontX:13,sideX:28,sideY:13,innerX:17,rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
 ];
 let front=0;
 const extraNames=['아린','토르','레아','세인','유나','로한','베라','이안','달빛','나린','은별','로이','제나','하람','세온','니아','파란','미르','노을','연우','루카','자운','헤라','로잔','타린','엘렌','도안','제온','무영','화린','다온','라움','포르','리엘','테린','하온','유란','라온','레드','칼린'];
@@ -22,20 +22,29 @@ const roleNames=['전사','궁수','마법사'],roleIcon=['⚔','➶','⚕'];
 const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
-const centerX=Math.floor(W/2), gateRow=10,innerRow=4,westWall=2,eastWall=W-3;
-const tower=id(centerX,2), towerMaxHp=1800;
+const centerX=Math.floor(W/2), gateRow=17,innerRow=7,westWall=6,eastWall=W-7;
+const tower=id(centerX,4), towerMaxHp=1800;
 let towerHp=towerMaxHp;
-const throne=id(centerX,1),camp=id(centerX,H-1);
+const throne=id(centerX,2);
 root.style.setProperty('--cols',W);
 root.style.setProperty('--rows',H);
 let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner=1,last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
 function castleGates(field){
   return [id(field.frontX,gateRow),id(field.sideX,field.sideY),id(field.innerX,innerRow)];
 }
+function campsFor(field){
+  return [id(field.frontX,H-4),id(field.sideX===westWall?3:W-4,field.sideY+12)];
+}
+function insideCamp(k,anchor){
+  const [x,y]=xy(k),[a,b]=xy(anchor);
+  return Math.abs(x-a)<=2&&Math.abs(y-b)<=1;
+}
+const flankSquad=u=>(u.id%sideSize)%2===1;
+function homeCamp(u){return campsFor(fronts[front])[Number(flankSquad(u))]}
 function buildLayout(field){
-  const entries=castleGates(field);
-  const rocks=new Set(field.rock.map((x,i)=>id(x,[8,8,12,12,15,15][i])));
-  const trees=new Set(field.tree.map((x,i)=>id(x,[8,8,13,13,16,16][i])));
+  const entries=castleGates(field), camps=campsFor(field);
+  const rocks=new Set(field.rock.map((x,i)=>id(2*x+1,[18,18,22,22,27,27][i])));
+  const trees=new Set(field.tree.map((x,i)=>id(2*x+1,[19,19,24,24,29,29][i])));
   const tiles=Array.from({length:W*H},(_,k)=>{
     const [x,y]=xy(k);
     if(k===throne)return 'throne';
@@ -45,7 +54,7 @@ function buildLayout(field){
       return 'stone';
     }
     if(y<=gateRow)return 'grass';
-    if(y===H-1)return 'camp';
+    if(camps.some(c=>insideCamp(k,c)))return 'camp';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
     return 'grass';
@@ -70,13 +79,11 @@ function buildLayout(field){
       }
     }
   }
-  const fork=id(centerX,14);
-  layRoad(camp,fork,14,H-1);
   const flank=field.sideX===westWall?-1:1;
   const lane=field.sideX+flank;
-  layRoad(fork,id(field.frontX,gateRow+1),gateRow+1,H-2);
-  layRoad(fork,id(lane,gateRow+1),gateRow+1,H-2);
-  layRoad(id(lane,gateRow+1),id(lane,field.sideY),field.sideY,gateRow+1);
+  layRoad(camps[0],id(field.frontX,gateRow+1),gateRow+1,H-1);
+  layRoad(camps[1],id(lane,field.sideY),field.sideY,H-1);
+  layRoad(camps[0],camps[1],gateRow+2,H-1);
   layRoad(id(field.frontX,gateRow-1),id(field.innerX,innerRow+1),innerRow+1,gateRow-1);
   layRoad(id(field.sideX-flank,field.sideY),id(field.innerX,innerRow+1),innerRow+1,gateRow-1);
   layRoad(id(field.innerX,innerRow-1),throne,1,innerRow-1);
@@ -330,9 +337,11 @@ function deploySides(){
   for(const u of units){
     u.trip=null;u.cast=null;u.lastTarget=null;u.planAt=0;u.lunge=null;
     if(!alive(u))continue;
-    const slot=u.id%sideSize,columns=W-2,rank=Math.floor(slot/columns);
-    const x=1+(slot+centerX-1)%columns;
-    if(u.team!==owner){place(u,id(x,H-2-rank));continue}
+    const slot=u.id%sideSize;
+    if(u.team!==owner){
+      const [x,y]=xy(homeCamp(u)),n=Math.floor(slot/2);
+      place(u,id(x+n%5-2,y+Math.floor(n/5)-1));continue;
+    }
     const field=fronts[front], squad=slot%3;
     const anchor=squad===0?id(field.frontX,gateRow-2):squad===1?id(field.sideX+(field.sideX===westWall?2:-2),field.sideY):id(field.innerX,innerRow-2);
     place(u,anchor);
@@ -359,7 +368,7 @@ function tick(dt){
   dt=Math.min(dt,battleSeconds-elapsed);elapsed+=dt;resolveBasicAttacks();frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
   for(const u of units){
     if(!alive(u)){
-      if(elapsed>=u.respawnAt&&place(u,u.team===owner?id(centerX,0):camp)){
+      if(elapsed>=u.respawnAt&&place(u,u.team===owner?id(centerX,0):homeCamp(u))){
         u.trailUntil=0;u.hp=u.max;u.mp=100;u.guard=elapsed+3;u.root=u.stun=u.shield=u.combo=0;u.attackAt=elapsed+2;
         if(u===me){goal=focus=null}
       }
@@ -384,7 +393,7 @@ function tick(dt){
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team!==owner){
-      const approach=u.id%3===0?sideGate:frontGate;
+      const approach=flankSquad(u)?sideGate:frontGate;
       dest=!gateLog?approach:gates.get(innerGate)>0?innerGate:towerHp>0?tower:throne;
     }
     if(u!==me&&u.team===owner&&!gateLog)continue;
@@ -512,6 +521,7 @@ function layoutNames(actual,inspected){
   }
   arrangeTags(entries,{w:bounds.width,h:bounds.height},performance.now());
 }
+let lastMarkedCells=new Set();
 function render(){
   const left=Math.max(0,Math.ceil(battleSeconds-elapsed));
   $('time').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
@@ -545,7 +555,10 @@ function render(){
   $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(inAttackRange(me,actual,attackRange(me))?' 공격 중':' 추적 중')):goal===tower&&towerHp>0?(dist(me.k,tower)===1?'수호탑 공격 중':'수호탑으로 이동 중'):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
   $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?gateName(goal)+' '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
-  for(let k=0;k<cells.length;k++){
+  const marked=new Set([...headings.keys(),...gates.keys(),tower,...frost.flatMap(z=>z.cells),...fire.flatMap(k=>[k,...near(k)])]);
+  if(goal!==null)marked.add(goal);
+  const dirty=new Set([...lastMarkedCells,...marked]);lastMarkedCells=marked;
+  for(const k of dirty){
     const c=cells[k];c.classList.toggle('path-mark',headings.has(k));
     if(headings.has(k))c.style.setProperty('--heading',headings.get(k)+'deg');
     const destination=moving&&!target&&goal===k;
@@ -666,7 +679,7 @@ $('front').onchange=()=>{
 $('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset()};
 $('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 30명 / 적군 30명')};
 
-$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?insideCastle(k)&&xy(k)[1]===0:tile==='camp')&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
+$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?insideCastle(k)&&xy(k)[1]===0:tile==='camp'&&insideCamp(k,homeCamp(me)))&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
 $('pause').onclick=()=>{if(!running||ended)return;running=false;$('halt').hidden=false;render()};
 $('resume').onclick=()=>{$('halt').hidden=true;running=true;last=performance.now();render()};
 $('close-info').onclick=()=>{$('inspect').hidden=true};
