@@ -5,16 +5,16 @@ import {GuildEmblem} from '../components/association/GuildEmblem';
 import '../game-fonts.css';
 import './siege.css';
 import {APPEARANCES} from '../game/data/cosmetics';
-const W=35,H=36,root=document.getElementById('siege');
+const W=59,H=54,root=document.getElementById('siege');
 const img=(i)=>new URL((APPEARANCES[i%APPEARANCES.length].imagePath||APPEARANCES[0].imagePath),location.href).href;
 const names=['기크','아르칸','설화','루시안','카인','테오','아벨','녹스','레온','카론','라그나','벨리온','세라','이든','렌','모르','바엘','리안','회색늑대','카엘'];
-const sideSize=30, battleSeconds=30*60;
+const sideSize=12, battleSeconds=30*60;
 const fronts=[
-  {frontX:17,sideX:28,sideY:11,innerX:17,rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
-  {frontX:15,sideX:28,sideY:11,innerX:19,rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
-  {frontX:19,sideX:6,sideY:13,innerX:15,rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
-  {frontX:17,sideX:6,sideY:11,innerX:19,rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
-  {frontX:13,sideX:28,sideY:13,innerX:17,rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
+  {frontX:29,sideX:40,sideY:29,innerX:29,rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
+  {frontX:27,sideX:40,sideY:29,innerX:31,rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
+  {frontX:31,sideX:18,sideY:31,innerX:27,rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
+  {frontX:29,sideX:18,sideY:29,innerX:31,rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
+  {frontX:25,sideX:40,sideY:31,innerX:29,rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
 ];
 let front=0;
 const extraNames=['아린','토르','레아','세인','유나','로한','베라','이안','달빛','나린','은별','로이','제나','하람','세온','니아','파란','미르','노을','연우','루카','자운','헤라','로잔','타린','엘렌','도안','제온','무영','화린','다온','라움','포르','리엘','테린','하온','유란','라온','레드','칼린'];
@@ -22,38 +22,45 @@ const roleNames=['전사','궁수','마법사'],roleIcon=['⚔','➶','⚕'];
 const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
-const centerX=Math.floor(W/2), gateRow=17,innerRow=7,westWall=6,eastWall=W-7;
-const tower=id(centerX,4), towerMaxHp=1800;
+const centerX=Math.floor(W/2), northWall=18,gateRow=35,innerRow=25,westWall=18,eastWall=W-19;
+const tower=id(centerX,northWall+4), towerMaxHp=1800;
 let towerHp=towerMaxHp;
-const throne=id(centerX,2);
+const throne=id(centerX,northWall+2);
 root.style.setProperty('--cols',W);
 root.style.setProperty('--rows',H);
-let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner=1,last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
+let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner=1,last=performance.now(),logs=[],kills=Array(5).fill(0),lastUi=0,gateLog=false;
 function castleGates(field){
   return [id(field.frontX,gateRow),id(field.sideX,field.sideY),id(field.innerX,innerRow)];
 }
-function campsFor(field){
-  return [id(field.frontX,H-4),id(field.sideX===westWall?3:W-4,field.sideY+12)];
-}
+const campNames=['남','동','북','서'];
+const campColors=['#5380a4','#ad8041','#728c60','#8f73ad'];
+const camps=[id(centerX,H-4),id(W-4,26),id(centerX,3),id(3,26)];
+let campByTeam=[0,-1,1,2,3],claimant=null;
 function insideCamp(k,anchor){
   const [x,y]=xy(k),[a,b]=xy(anchor);
   return Math.abs(x-a)<=2&&Math.abs(y-b)<=1;
 }
-const flankSquad=u=>(u.id%sideSize)%2===1;
-function homeCamp(u){return campsFor(fronts[front])[Number(flankSquad(u))]}
+function homeCamp(u){return camps[campByTeam[u.team]]}
 function buildLayout(field){
-  const entries=castleGates(field), camps=campsFor(field);
-  const rocks=new Set(field.rock.map((x,i)=>id(2*x+1,[18,18,22,22,27,27][i])));
-  const trees=new Set(field.tree.map((x,i)=>id(2*x+1,[19,19,24,24,29,29][i])));
+  const entries=castleGates(field);
+  const rocks=new Set(),trees=new Set();
+  function scatter(coords,tiles,offset){
+    coords.forEach((n,i)=>{
+      const depth=3+((i*5+offset)%13), along=(n*3+i)%W;
+      for(const k of [id(along,gateRow+depth),id(W-1-along,northWall-depth),
+        id(westWall-depth,along%H),id(eastWall+depth,H-1-along%H)])tiles.add(k);
+    });
+  }
+  scatter(field.rock,rocks,0);scatter(field.tree,trees,2);
   const tiles=Array.from({length:W*H},(_,k)=>{
     const [x,y]=xy(k);
     if(k===throne)return 'throne';
     if(entries.includes(k))return 'gate';
-    if(y<=gateRow&&x>=westWall&&x<=eastWall){
-      if(x===westWall||x===eastWall||y===innerRow||y===gateRow)return 'wall';
+    if(y>=northWall&&y<=gateRow&&x>=westWall&&x<=eastWall){
+      if(x===westWall||x===eastWall||y===northWall||y===innerRow||y===gateRow)return 'wall';
       return 'stone';
     }
-    if(y<=gateRow)return 'grass';
+
     if(camps.some(c=>insideCamp(k,c)))return 'camp';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
@@ -74,16 +81,19 @@ function buildLayout(field){
       const steps=near(k).sort((a,b)=>dist(a,end)-dist(b,end));
       for(const n of steps){
         const [,y]=xy(n);
-        if(y<minY||y>maxY||parent.has(n)||['tree','rock','wall'].includes(tiles[n]))continue;
+        if(y<minY||y>maxY||parent.has(n)||['tree','rock','wall','gate'].includes(tiles[n]))continue;
         parent.set(n,k);queue.push(n);
       }
     }
   }
   const flank=field.sideX===westWall?-1:1;
   const lane=field.sideX+flank;
-  layRoad(camps[0],id(field.frontX,gateRow+1),gateRow+1,H-1);
-  layRoad(camps[1],id(lane,field.sideY),field.sideY,H-1);
-  layRoad(camps[0],camps[1],gateRow+2,H-1);
+  const outsideFront=id(field.frontX,gateRow+1),outsideSide=id(lane,field.sideY);
+  for(const camp of camps){
+    const entry=dist(camp,outsideFront)<=dist(camp,outsideSide)?outsideFront:outsideSide;
+    layRoad(camp,entry,0,H-1);
+  }
+  for(let i=0;i<camps.length;i++)layRoad(camps[i],camps[(i+1)%camps.length],0,H-1);
   layRoad(id(field.frontX,gateRow-1),id(field.innerX,innerRow+1),innerRow+1,gateRow-1);
   layRoad(id(field.sideX-flank,field.sideY),id(field.innerX,innerRow+1),innerRow+1,gateRow-1);
   layRoad(id(field.innerX,innerRow-1),throne,1,innerRow-1);
@@ -100,6 +110,11 @@ function paintCell(cell,k){
   if(tile==='wall' && (x===westWall||x===eastWall) && y<gateRow)cell.classList.add('side-wall');
   delete cell.dataset.hp;
   cell.replaceChildren();
+  if(tile==='camp'){
+    const i=camps.findIndex(anchor=>insideCamp(k,anchor));
+    cell.style.backgroundColor=campColors[i];
+    if(k===camps[i])cell.textContent=campNames[i];
+  }else cell.style.removeProperty('background-color');
   if(tile==='tower')cell.textContent='♜';
   if(tile==='gate'||tile==='tower'){
     const bar=document.createElement('i');
@@ -107,6 +122,7 @@ function paintCell(cell,k){
     cell.append(bar);
   }
   cell.setAttribute('aria-label',({tower:'수호탑',gate:'철문',wall:'성벽',throne:'왕좌',road:'흙길'})[tile]||tile);
+  if(tile==='camp')cell.setAttribute('aria-label',campNames[camps.findIndex(anchor=>insideCamp(k,anchor))]+' 캠프');
   cell.setAttribute('aria-label',cell.getAttribute('aria-label')+' '+x+','+y);
 }
 root.innerHTML='<header class="sl-head"><div class="sl-top"><div><b>노바르 점령전</b></div><button id="pause" aria-label="일시정지">Ⅱ</button><span class="sl-time" id="time">30:00</span></div><div class="sl-meter"><span class="sl-blue" id="blue"></span><span id="objective">성문 돌파</span><span class="sl-red" id="red"></span></div><div class="sl-score"><i id="balance"></i></div></header><section class="sl-panel sl-me"><button id="locate" aria-label="내 위치 찾기"><img id="myface" alt=""></button><div><div class="sl-me-name">기크 · 전사 <small>Lv. 52</small></div><div class="sl-hp"><i id="hp"></i></div><div class="sl-hp sl-mp"><i id="mp"></i></div></div><small id="myhp"></small></section><div class="sl-caption"><span><span id="owner-label"></span> ● <span class="sl-blue">아군</span> / <span class="sl-red">적군</span></span><button id="view-toggle">전장 전체</button></div><div class="sl-frame"><div class="sl-viewport"><section class="sl-board" aria-label="점령전 격자 전장"><div class="sl-cells" id="cells"></div><div class="sl-units" id="units"></div></section></div><div class="sl-overlay" id="end" hidden><div><h2 id="endtitle"></h2><p id="enddesc"></p><button id="restart">다시 시작</button></div></div><button type="button" class="retreat-orb" id="retreat" aria-label="진영으로 후퇴" title="진영으로 후퇴">↶</button><section class="sl-status"><strong id="state"></strong><span id="target"></span></section><section class="sl-panel" id="inspect" hidden><button id="close-info" aria-label="정보 닫기">×</button></section></div>';
@@ -126,7 +142,10 @@ function note(t){message=t;messageUntil=elapsed+1.1}
 function alive(u){return u.hp>0}
 const guilds = [
   {name:'은빛여명', emblem:{shape:'round',symbol:'moon',pattern:'band',border:'silver',base:'#2f4f80',accent:'#b5b8b1'}},
-  {name:'붉은서약', emblem:{shape:'shield',symbol:'sword',pattern:'chevron',border:'gold',base:'#942f3c',accent:'#d7b878'}}
+  {name:'붉은서약', emblem:{shape:'shield',symbol:'sword',pattern:'chevron',border:'gold',base:'#942f3c',accent:'#d7b878'}},
+  {name:'황금서광',emblem:{shape:'shield',symbol:'sword',pattern:'band',border:'gold',base:'#945d23',accent:'#f1ce7c'}},
+  {name:'녹빛수호',emblem:{shape:'round',symbol:'moon',pattern:'chevron',border:'silver',base:'#416544',accent:'#c5db94'}},
+  {name:'보랏빛별',emblem:{shape:'shield',symbol:'moon',pattern:'band',border:'silver',base:'#67477e',accent:'#dcb4eb'}}
 ];
 const unitEmblems = [];
 function renderGuildEmblem(root, guild, size) {
@@ -150,11 +169,13 @@ const blocked = (k,u) => terrainBlocks(k,u) || (occupied.has(k) && occupied.get(
 function routes(u,targets) {
   const ends=new Set(targets.filter(k=>!blocked(k,u) && (!occupied.has(k)||k===u.k)));
   if (!ends.size) return null;
-  const queue=[u.k], costs=new Map([[u.k,0]]), prev=new Map();
-  while(queue.length){
-    let min=0;
-    for(let i=1;i<queue.length;i++) if(costs.get(queue[i])<costs.get(queue[min])) min=i;
-    const k=queue.splice(min,1)[0];
+  // Movement weights are multiples of a quarter step; bucketed costs avoid scanning the frontier.
+  const buckets=[ [u.k] ],costs=new Map([[u.k,0]]),prev=new Map();
+  for(let score=0;score<buckets.length;score++){
+    const bucket=buckets[score];
+    if(!bucket)continue;
+    for(const k of bucket){
+    if(costs.get(k)!==score)continue;
     if(ends.has(k)){
       const path=[];
       for(let p=k;p!==u.k;p=prev.get(p)) path.unshift(p);
@@ -162,10 +183,11 @@ function routes(u,targets) {
     }
     for(const n of near(k)){
       if(blocked(n,u)) continue;
-      const cost=costs.get(k)+(occupied.has(n)?1.5:1)*(icy(n,u)?1.5:1);
+      const cost=score+(occupied.has(n)?6:4)*(icy(n,u)?1.5:1);
       if(cost>=(costs.get(n)??Infinity)) continue;
-      costs.set(n,cost);prev.set(n,k);if(!queue.includes(n))queue.push(n);
+      costs.set(n,cost);prev.set(n,k);(buckets[cost]??=[]).push(n);
     }
+  }
   }
   return null;
 }
@@ -311,18 +333,18 @@ function strike(u,v,foes){
 }
 function insideCastle(k){
   const [x,y]=xy(k);
-  return x>westWall&&x<eastWall&&y<gateRow;
+  return x>westWall&&x<eastWall&&y>northWall&&y<gateRow;
 }
 function place(u,preferred){
-  const free=layout.map((_,k)=>k).filter(k=>(u.team===owner?insideCastle(k):xy(k)[1]>gateRow)&&layout[k]!=='gate'&&!terrainBlocks(k,u)&&!occupied.has(k)&&!reserved.has(k));
+  const free=layout.map((_,k)=>k).filter(k=>(u.team===owner?insideCastle(k):insideCamp(k,homeCamp(u)))&&layout[k]!=='gate'&&!terrainBlocks(k,u)&&!occupied.has(k)&&!reserved.has(k));
   free.sort((a,b)=>dist(a,preferred)-dist(b,preferred));
   if(!free.length)return false;
   u.k=free[0];occupied.set(u.k,u);return true;
 }
 function createUnit(i){
-  const team=Number(i>=sideSize), index=i%sideSize;
-  const sample=team*10+(index%10),role=i===0?playerRole:sample%3;
-  const name=index<10?names[sample]:extraNames[team*20+index-10];
+  const team=Math.floor(i/sideSize), index=i%sideSize;
+  const sample=i%names.length,role=i===0?playerRole:sample%3;
+  const name=i<names.length?names[i]:extraNames[i-names.length];
   const max=role===0?1250:850;
   return {id:i,name,team,role,max,hp:max,mp:100,img:img(i),cp:[86210,79340,72640,77420,81210,80400,71200,76480,81670,79560,84520,80130,81250,76180,75240,84310,72690,81750,79300,78510][sample]+Math.floor(index/10)*733,cd:[0,0,0],stun:0,root:0,guard:0,shield:0,shieldUntil:0,attackAt:0,combo:0,lastTarget:null};
 }
@@ -333,13 +355,14 @@ function restoreStructures(){
   for(const k of [frontGate,sideGate,innerGate])gates.set(k,gateMaxHp);
 }
 function deploySides(){
+  refreshCampLabels();
   occupied.clear();reserved.clear();basicAttacks=[];frost=[];beams=[];
   for(const u of units){
     u.trip=null;u.cast=null;u.lastTarget=null;u.planAt=0;u.lunge=null;
     if(!alive(u))continue;
     const slot=u.id%sideSize;
     if(u.team!==owner){
-      const [x,y]=xy(homeCamp(u)),n=Math.floor(slot/2);
+      const [x,y]=xy(homeCamp(u)),n=slot;
       place(u,id(x+n%5-2,y+Math.floor(n/5)-1));continue;
     }
     const field=fronts[front], squad=slot%3;
@@ -347,19 +370,20 @@ function deploySides(){
     place(u,anchor);
   }
 }
-function captureCastle(){
-  owner=1-owner;goal=focus=null;restoreStructures();deploySides();
+function captureCastle(winner){
+  campByTeam[owner]=campByTeam[winner];campByTeam[winner]=-1;
+  claimant=null;owner=winner;goal=focus=null;restoreStructures();deploySides();
   following=true;trackPlayer(true);
   note(guilds[owner].name+' 점령 · 공수 교대');messageUntil=elapsed+4;
 }
 function reset(){
   document.querySelector('.sl-top b').textContent='노바르 · 제'+(front+1)+'전장';
   message='';messageUntil=0;$('inspect').hidden=true;$('halt').hidden=true;
-  owner=1;restoreStructures();
-  units=Array.from({length:sideSize*2},(_,i)=>createUnit(i));me=units[0];
+  owner=1;campByTeam=[0,-1,1,2,3];claimant=null;restoreStructures();
+  units=Array.from({length:sideSize*guilds.length},(_,i)=>createUnit(i));me=units[0];
   deploySides();
   elapsed=hold=0;goal=focus=null;gateLog=ended=false;running=false;inspectId=0;following=true;overview=false;frame.classList.remove('overview');$('view-toggle').textContent='전장 전체';
-  kills=[0,0];logs=[];beams=[];basicAttacks=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
+  kills=Array(5).fill(0);logs=[];beams=[];basicAttacks=[];frost=[];last=performance.now();for(const root of unitEmblems.splice(0))root.unmount();
   nodes.clear();unitLayer.replaceChildren();
   $('end').hidden=true;$('setup').hidden=false;$('pause').textContent='Ⅱ';$('myface').src=me.img;
   document.querySelector('.sl-me-name').textContent='기크 · '+roleNames[me.role];render();
@@ -368,14 +392,14 @@ function tick(dt){
   dt=Math.min(dt,battleSeconds-elapsed);elapsed+=dt;resolveBasicAttacks();frost=frost.filter(z=>z.until>elapsed);beams=beams.filter(b=>b.until>elapsed);
   for(const u of units){
     if(!alive(u)){
-      if(elapsed>=u.respawnAt&&place(u,u.team===owner?id(centerX,0):homeCamp(u))){
+      if(elapsed>=u.respawnAt&&place(u,u.team===owner?id(centerX,northWall+1):homeCamp(u))){
         u.trailUntil=0;u.hp=u.max;u.mp=100;u.guard=elapsed+3;u.root=u.stun=u.shield=u.combo=0;u.attackAt=elapsed+2;
         if(u===me){goal=focus=null}
       }
       continue;
     }
     u.mp=Math.min(100,u.mp+dt*2);
-    if(u.team!==owner&&layout[u.k]==='camp')u.hp=Math.min(u.max,u.hp+dt*95);
+    if(u.team!==owner&&insideCamp(u.k,homeCamp(u)))u.hp=Math.min(u.max,u.hp+dt*95);
     if(u.stun>elapsed)continue;
     defend(u);
     if(u.trip){
@@ -393,7 +417,7 @@ function tick(dt){
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team!==owner){
-      const approach=flankSquad(u)?sideGate:frontGate;
+      const approach=dist(homeCamp(u),sideGate)<dist(homeCamp(u),frontGate)?sideGate:frontGate;
       dest=!gateLog?approach:gates.get(innerGate)>0?innerGate:towerHp>0?tower:throne;
     }
     if(u!==me&&u.team===owner&&!gateLog)continue;
@@ -421,15 +445,27 @@ function tick(dt){
     travel(u,routes(u,targets));
   }
   const at=units.filter(v=>alive(v)&&!v.trip&&dist(v.k,throne)<=1);
-  if(gateLog&&towerHp===0&&at.some(v=>v.team!==owner)&&!at.some(v=>v.team===owner))hold+=dt;
-  else hold=Math.max(0,hold-dt*(at.some(v=>v.team===owner)?2:.5));
-  if(hold>=10)captureCastle();
+  const present=new Set(at.map(u=>u.team));
+  const contender=present.size===1?at[0].team:null;
+  if(gateLog&&towerHp===0&&contender!==null&&contender!==owner){
+    if(claimant!==contender){claimant=contender;hold=0}
+    hold+=dt;
+    if(hold>=10)captureCastle(contender);
+  }else hold=Math.max(0,hold-dt*(present.size?2:.5));
   if(elapsed>=battleSeconds){
     ended=true;running=false;$('end').hidden=false;$('endtitle').textContent=guilds[owner].name+' 승리 · 최종 점령';
-    $('enddesc').textContent='아군 처치 '+kills[0]+' · 적군 처치 '+kills[1];
+    $('enddesc').textContent='내 원정단 처치 '+kills[me.team];
   }
 }
 const board=document.querySelector('.sl-board');
+const campLabels=camps.map((k,i)=>{
+  const label=document.createElement('span'),[x,y]=xy(k);
+  Object.assign(label.style,{position:'absolute',pointerEvents:'none',zIndex:'5',color:'#ffedb9',background:'#172018eb',border:'1px solid '+campColors[i],fontSize:'11px',padding:'1px 3px',whiteSpace:'nowrap',left:((x+.5)/W*100)+'%',top:((y-1.5)/H*100)+'%',transform:'translate('+ (i===1?'-100%':i===3?'0%':'-50%') +',-100%)'});
+  board.append(label);return label;
+});
+function refreshCampLabels(){
+  campLabels.forEach((label,i)=>{label.textContent=campNames[i]+' · '+guilds[campByTeam.indexOf(i)].name});
+}
 const frame=board.closest('.sl-frame'), viewport=board.parentElement;
 frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>전장 <select id="front"></select></label> <label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label> <button id="start">전투 시작</button></div></section>');
 frame.insertAdjacentHTML('beforeend','<section class="sl-overlay" id="halt" hidden><div><h2>일시정지</h2><button id="resume">계속하기</button> <button id="reset">출전 준비</button> <a href="./">게임으로</a></div></section>');
@@ -525,11 +561,12 @@ let lastMarkedCells=new Set();
 function render(){
   const left=Math.max(0,Math.ceil(battleSeconds-elapsed));
   $('time').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
-  const counts=[0,1].map(t=>units.filter(u=>alive(u)&&u.team===t).length);
-  $('blue').textContent=(owner===0?'수비군 ':'공격군 ')+counts[0]+'명';$('red').textContent=(owner===1?'수비군 ':'공격군 ')+counts[1]+'명';
-  $('balance').style.width=counts[0]/(counts[0]+counts[1]||1)*100+'%';
+  const defenders=units.filter(u=>alive(u)&&u.team===owner).length;
+  const attackers=units.filter(u=>alive(u)&&u.team!==owner).length;
+  $('blue').textContent='공성 '+attackers+'명';$('red').textContent='수성 '+defenders+'명';
+  $('balance').style.width=attackers/(attackers+defenders||1)*100+'%';
   $('owner-label').textContent='성주 '+guilds[owner].name;
-  $('objective').textContent=hold?'왕좌 각인 '+hold.toFixed(1)+'초':gateLog?(gates.get(innerGate)>0?'내성문 돌파':towerHp?'수호탑 '+Math.ceil(towerHp/towerMaxHp*100)+'%':'왕좌 진입'):'외성문 돌파';
+  $('objective').textContent=hold?guilds[claimant].name+' '+hold.toFixed(1)+'초':gateLog?(gates.get(innerGate)>0?'내성문 돌파':towerHp?'수호탑 '+Math.ceil(towerHp/towerMaxHp*100)+'%':'왕좌 진입'):'외성문 돌파';
   $('hp').style.width=me.hp/me.max*100+'%';$('mp').style.width=me.mp+'%';$('hp').style.background=hpColor(me.hp/me.max);
   $('myhp').textContent='HP '+Math.ceil(me.hp).toLocaleString('ko-KR')+' / '+me.max.toLocaleString('ko-KR');
   const target=units.find(u=>alive(u)&&u.id===focus);
@@ -603,6 +640,7 @@ function render(){
     n.classList.toggle('passing',u===me&&!!u.trip&&u.trip.path.length>1);
     const token=n.querySelector('.sl-token');
     token.classList.toggle('red',!!u.team);
+    token.style.borderColor=u===me?'':guilds[u.team].emblem.accent;
     token.classList.toggle('impact',elapsed-u.hitAt<.23);
     if(u.lunge){
       const {angle,start,end}=u.lunge;
@@ -677,9 +715,9 @@ $('front').onchange=()=>{
   reset();
 };
 $('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset()};
-$('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 30명 / 적군 30명')};
+$('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 4방향 캠프')};
 
-$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?insideCastle(k)&&xy(k)[1]===0:tile==='camp'&&insideCamp(k,homeCamp(me)))&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
+$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?insideCastle(k)&&xy(k)[1]===northWall+1:tile==='camp'&&insideCamp(k,homeCamp(me)))&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
 $('pause').onclick=()=>{if(!running||ended)return;running=false;$('halt').hidden=false;render()};
 $('resume').onclick=()=>{$('halt').hidden=true;running=true;last=performance.now();render()};
 $('close-info').onclick=()=>{$('inspect').hidden=true};
