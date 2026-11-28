@@ -493,7 +493,10 @@ const campProps=camps.map((k,i)=>{
   for(const [name,x,y] of [
     ['command-tent',0,2.5],['supply-wagon',-3.55,0],
     ['equipment-rack',3.55,-.7],['supply-pile',3.55,.68]
-  ])prop('sl-camp-prop '+name,k,...position(x,y));
+  ]){
+    const node=prop('sl-camp-prop '+name,k,...position(x,y));
+    if(!a&&name==='command-tent')node.style.width='calc(200% / var(--cols))';
+  }
   return {...standard(k,...position(-2.45,-2.35)),label:prop('sl-camp-caption',k,0,a?-2.4:-3.7)};
 });
 const castleStandard=standard(throne,1.25,.2);
