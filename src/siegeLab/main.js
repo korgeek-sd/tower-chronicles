@@ -37,7 +37,9 @@ const camps=[id(centerX,H-4),id(W-4,26),id(centerX,3),id(3,26)];
 let campByTeam=[0,-1,1,2,3],claimant=null;
 function insideCamp(k,anchor){
   const [x,y]=xy(k),[a,b]=xy(anchor);
-  return Math.abs(x-a)<=2&&Math.abs(y-b)<=1;
+  const lateral=a===centerX?Math.abs(x-a):Math.abs(y-b);
+  const depth=a===centerX?Math.abs(y-b):Math.abs(x-a);
+  return lateral<=2&&depth<=1;
 }
 function homeCamp(u){return camps[campByTeam[u.team]]}
 function buildLayout(field){
@@ -61,6 +63,10 @@ function buildLayout(field){
     }
 
     if(camps.some(c=>insideCamp(k,c)))return 'camp';
+    if(camps.some(c=>{
+      const [cx,cy]=xy(c),side=cx!==centerX;
+      return Math.abs(x-cx)<=(side?3:4)&&Math.abs(y-cy)<=(side?4:3);
+    }))return 'grass';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
     return 'grass';
@@ -469,21 +475,26 @@ function standard(k,dx,dy){
   const cloth=part(pole,'sl-camp-cloth');
   return {pole,root:createRoot(part(cloth,'sl-standard-emblem'))};
 }
-// Camps: south, east, north, west. Tent frames: N/E/S/W.
-const campLayouts=[
-  {frame:0,tents:[[-1.75,.85],[1.75,.85]],flag:[-.9,-.3]},
-  {frame:3,tents:[[1.8,-.85],[1.8,.85]],flag:[.65,-.25]},
-  {frame:2,tents:[[-1.75,-.85],[1.75,-.85]],flag:[.9,.3]},
-  {frame:1,tents:[[-1.8,-.85],[-1.8,.85]],flag:[-.65,-.25]}
-];
+// Local camp coordinates use a south camp with the castle to its north.
+const campAxes=[[1,0],[0,-1],[-1,0],[0,1]];
 const campProps=camps.map((k,i)=>{
-  prop('sl-camp-floor',k);
-  const {frame,tents,flag}=campLayouts[i];
-  for(const [x,y] of tents){
-    const tent=prop('sl-camp-tent',k,x,y);
-    tent.style.backgroundPosition=(frame*100/3)+'% center';
+  const [a,b]=campAxes[i];
+  function position(x,y){return [a*x-b*y,b*x+a*y]}
+  const floor=prop('sl-camp-floor',k);
+  floor.style.width='calc('+(a?900:700)+'% / var(--cols))';
+  floor.style.height='calc('+(a?700:900)+'% / var(--rows))';
+  for(const side of [-1,1]){
+    for(const depth of [-2.15,1.95]){
+      const tent=prop('sl-camp-tent',k,...position(side*3.45,depth));
+      const frame=((side<0?1:3)-i+4)%4;
+      tent.style.backgroundPosition=(frame*100/3)+'% center';
+    }
   }
-  return {...standard(k,...flag),label:prop('sl-camp-caption',k,0,-1.6)};
+  for(const [name,x,y] of [
+    ['command-tent',0,2.5],['supply-wagon',-3.55,0],
+    ['equipment-rack',3.55,-.7],['supply-pile',3.55,.68]
+  ])prop('sl-camp-prop '+name,k,...position(x,y));
+  return {...standard(k,...position(-2.45,-2.35)),label:prop('sl-camp-caption',k,0,a?-2.4:-3.7)};
 });
 const castleStandard=standard(throne,1.25,.2);
 function markStandard(item,team){
