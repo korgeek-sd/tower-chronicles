@@ -33,7 +33,6 @@ function castleGates(field){
   return [id(field.frontX,gateRow),id(field.sideX,field.sideY),id(field.innerX,innerRow)];
 }
 const campNames=['남','동','북','서'];
-const campColors=['#5380a4','#ad8041','#728c60','#8f73ad'];
 const camps=[id(centerX,H-4),id(W-4,26),id(centerX,3),id(3,26)];
 let campByTeam=[0,-1,1,2,3],claimant=null;
 function insideCamp(k,anchor){
@@ -110,11 +109,6 @@ function paintCell(cell,k){
   if(tile==='wall' && (x===westWall||x===eastWall) && y<gateRow)cell.classList.add('side-wall');
   delete cell.dataset.hp;
   cell.replaceChildren();
-  if(tile==='camp'){
-    const i=camps.findIndex(anchor=>insideCamp(k,anchor));
-    cell.style.backgroundColor=campColors[i];
-    if(k===camps[i])cell.textContent=campNames[i];
-  }else cell.style.removeProperty('background-color');
   if(tile==='tower')cell.textContent='♜';
   if(tile==='gate'||tile==='tower'){
     const bar=document.createElement('i');
@@ -458,13 +452,51 @@ function tick(dt){
   }
 }
 const board=document.querySelector('.sl-board');
-const campLabels=camps.map((k,i)=>{
-  const label=document.createElement('span'),[x,y]=xy(k);
-  Object.assign(label.style,{position:'absolute',pointerEvents:'none',zIndex:'5',color:'#ffedb9',background:'#172018eb',border:'1px solid '+campColors[i],fontSize:'11px',padding:'1px 3px',whiteSpace:'nowrap',left:((x+.5)/W*100)+'%',top:((y-1.5)/H*100)+'%',transform:'translate('+ (i===1?'-100%':i===3?'0%':'-50%') +',-100%)'});
-  board.append(label);return label;
+const scenery=document.createElement('div');
+scenery.className='sl-camp-scenery';
+scenery.setAttribute('aria-hidden','true');
+board.insertBefore(scenery,unitLayer);
+function part(parent,css){
+  const node=document.createElement('span');node.className=css;parent.append(node);return node;
+}
+function prop(css,k,dx=0,dy=0){
+  const node=part(scenery,css),[x,y]=xy(k);
+  node.style.left=(x+.5+dx)/W*100+'%';node.style.top=(y+.5+dy)/H*100+'%';
+  return node;
+}
+function standard(k,dx,dy){
+  const pole=prop('sl-camp-standard',k,dx,dy);
+  const cloth=part(pole,'sl-camp-cloth');
+  return {pole,root:createRoot(part(cloth,'sl-standard-emblem'))};
+}
+// Camps: south, east, north, west. Tent frames: N/E/S/W.
+const campLayouts=[
+  {frame:0,tents:[[-1.75,.85],[1.75,.85]],flag:[-.9,-.3]},
+  {frame:3,tents:[[1.8,-.85],[1.8,.85]],flag:[.65,-.25]},
+  {frame:2,tents:[[-1.75,-.85],[1.75,-.85]],flag:[.9,.3]},
+  {frame:1,tents:[[-1.8,-.85],[-1.8,.85]],flag:[-.65,-.25]}
+];
+const campProps=camps.map((k,i)=>{
+  prop('sl-camp-floor',k);
+  const {frame,tents,flag}=campLayouts[i];
+  for(const [x,y] of tents){
+    const tent=prop('sl-camp-tent',k,x,y);
+    tent.style.backgroundPosition=(frame*100/3)+'% center';
+  }
+  return {...standard(k,...flag),label:prop('sl-camp-caption',k,0,-1.6)};
 });
+const castleStandard=standard(throne,1.25,.2);
+function markStandard(item,team){
+  const guild=guilds[team];
+  item.pole.style.setProperty('--cloth-color',guild.emblem.base);
+  renderGuildEmblem(item.root,guild,18);
+}
 function refreshCampLabels(){
-  campLabels.forEach((label,i)=>{label.textContent=campNames[i]+' · '+guilds[campByTeam.indexOf(i)].name});
+  campProps.forEach((item,i)=>{
+    const team=campByTeam.indexOf(i);
+    markStandard(item,team);item.label.textContent=campNames[i]+' · '+guilds[team].name;
+  });
+  markStandard(castleStandard,owner);
 }
 const frame=board.closest('.sl-frame'), viewport=board.parentElement;
 frame.insertAdjacentHTML('beforeend','<section id="setup" class="sl-overlay"><div><h2>출전 준비</h2><label>전장 <select id="front"></select></label> <label>직업 <select id="profession"><option>전사</option><option>궁수</option><option>마법사</option></select></label> <button id="start">전투 시작</button></div></section>');
