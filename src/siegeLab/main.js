@@ -181,15 +181,9 @@ function position(u){
   const side=path.length>1?.20*Math.sin(Math.PI*f):0;
   return [x+(a-x)*f+(b-y)*side,y+(b-y)*f-(a-x)*side];
 }
-function visible(u,v,range){
-  if(dist(u.k,v.k)>range)return false;
-  const [x,y]=xy(u.k),[a,b]=xy(v.k);
-  const steps=Math.max(Math.abs(a-x),Math.abs(b-y));
-  for(let i=1;i<steps;i++){
-    const k=id(Math.round(x+(a-x)*i/steps),Math.round(y+(b-y)*i/steps));
-    if(layout[k]==='wall'||gates.get(k)>0)return false;
-  }
-  return true;
+// Fortifications block movement. Attacks can cross them in either direction.
+function inAttackRange(u,v,range){
+  return dist(u.k,v.k)<=range;
 }
 function issueOrder(k, enemy=null){
   cancelTravel(me);me.cast=null;me.lastTarget=null;me.planAt=0;
@@ -247,7 +241,7 @@ function defend(u){
 function resolveCast(u){
   const c=u.cast;
   if(!c)return false;
-  if(c.type==='aim'&&(!alive(c.v)||!visible(u,c.v,4))){u.cast=null;return false}
+  if(c.type==='aim'&&(!alive(c.v)||!inAttackRange(u,c.v,4))){u.cast=null;return false}
   if(c.end>elapsed)return true;
   u.cast=null;
   if(c.type==='aim'){beam(u,c.v,'arrow');damage(u,c.v,power[1]*1.8)}
@@ -277,13 +271,13 @@ function resolveBasicAttacks(){
 function strike(u,v,foes){
   const r=u.role, range=[1,3,3][r];
   if(u.attackAt>elapsed)return;
-  if(!visible(u,v,range)&&!(r===1&&ready(u,0)&&visible(u,v,4)))return;
+  if(!inAttackRange(u,v,range)&&!(r===1&&ready(u,0)&&inAttackRange(u,v,4)))return;
   u.lastTarget=v.id;u.attackAt=elapsed+cadence[r];
   if(r===0){
     if(v.cast&&ready(u,1)){use(u,1);v.cast=null;v.stun=elapsed+.6;beam(u,v);damage(u,v,power[r]);return}
     if(ready(u,0)){use(u,0);beam(u,v);damage(u,v,power[r]*1.6);return}
   }else if(r===1){
-    if(v.trip&&dist(v.trip.path.at(-1),u.k)<dist(v.k,u.k)&&visible(u,v,2)&&ready(u,1)){
+    if(v.trip&&dist(v.trip.path.at(-1),u.k)<dist(v.k,u.k)&&inAttackRange(u,v,2)&&ready(u,1)){
       use(u,1);cancelTravel(v);v.root=elapsed+1.2;beam(u,v,'arrow');return;
     }
     if(u.comboId===v.id&&u.combo>=2&&ready(u,2)){
@@ -291,7 +285,7 @@ function strike(u,v,foes){
     }
     if(ready(u,0)){use(u,0);u.cast={type:'aim',v,end:elapsed+.8};return}
   }else{
-    const pair=foes.find(w=>w!==v&&dist(w.k,v.k)===1&&visible(u,w,3));
+    const pair=foes.find(w=>w!==v&&dist(w.k,v.k)===1&&inAttackRange(u,w,3));
     if(pair&&ready(u,1)){use(u,1);frost.push({team:u.team,cells:[v.k,pair.k],until:elapsed+2});return}
     if(ready(u,0)){use(u,0);u.cast={type:'fire',k:v.k,end:elapsed+.7};return}
   }
@@ -367,8 +361,8 @@ function tick(dt){
     if(u===me&&focus!==null){if(manual)goal=manual.k;else goal=focus=null}
     if(u===me&&goal===u.k&&!manual)goal=null;
     const range=attackRange(u);
-    const enemy=manual||foes.find(v=>visible(u,v,range));
-    if(enemy&&visible(u,enemy,range)&&!(u===me&&goal!==null&&!manual)){strike(u,enemy,foes);continue}
+    const enemy=manual||foes.find(v=>inAttackRange(u,v,range));
+    if(enemy&&inAttackRange(u,enemy,range)&&!(u===me&&goal!==null&&!manual)){strike(u,enemy,foes);continue}
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team!==owner){
@@ -523,14 +517,14 @@ function render(){
       prev=step;
     }
   }
-  const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&visible(me,u,attackRange(me))&&me.attackAt>elapsed&&goal===null);
+  const actual=target||units.find(u=>alive(u)&&u.id===me.lastTarget&&inAttackRange(me,u,attackRange(me))&&me.attackAt>elapsed&&goal===null);
   const inspected=units[inspectId]||me;
   if(infoTeam!==inspected.team){
     infoTeam=inspected.team;
     renderGuildEmblem(infoRoot,guilds[infoTeam],28);
   }
   infoText.textContent='살펴보는 '+(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+guilds[inspected.team].name+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
-  $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(visible(me,actual,attackRange(me))?' 공격 중':' 추적 중')):goal===tower&&towerHp>0?(dist(me.k,tower)===1?'수호탑 공격 중':'수호탑으로 이동 중'):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
+  $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(inAttackRange(me,actual,attackRange(me))?' 공격 중':' 추적 중')):goal===tower&&towerHp>0?(dist(me.k,tower)===1?'수호탑 공격 중':'수호탑으로 이동 중'):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
   $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
