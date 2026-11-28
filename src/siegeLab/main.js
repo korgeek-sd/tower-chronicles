@@ -10,11 +10,11 @@ const img=(i)=>new URL((APPEARANCES[i%APPEARANCES.length].imagePath||APPEARANCES
 const names=['기크','아르칸','설화','루시안','카인','테오','아벨','녹스','레온','카론','라그나','벨리온','세라','이든','렌','모르','바엘','리안','회색늑대','카엘'];
 const sideSize=30, battleSeconds=30*60;
 const fronts=[
-  {gates:[3,8,13],rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
-  {gates:[2,6,13],rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
-  {gates:[3,10,14],rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
-  {gates:[2,8,14],rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
-  {gates:[3,6,12],rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
+  {frontX:8,sideX:14,sideY:6,innerX:8,rock:[2,14,0,16,5,11],tree:[0,16,2,14,0,16]},
+  {frontX:7,sideX:14,sideY:6,innerX:9,rock:[3,13,3,11,2,14],tree:[0,14,6,13,0,16]},
+  {frontX:9,sideX:2,sideY:7,innerX:7,rock:[2,11,5,13,0,11],tree:[0,16,3,10,2,14]},
+  {frontX:8,sideX:2,sideY:6,innerX:9,rock:[0,16,5,11,2,14],tree:[3,13,0,16,3,13]},
+  {frontX:6,sideX:14,sideY:7,innerX:8,rock:[0,13,2,10,3,14],tree:[2,16,5,13,0,11]}
 ];
 let front=0;
 const extraNames=['아린','토르','레아','세인','유나','로한','베라','이안','달빛','나린','은별','로이','제나','하람','세온','니아','파란','미르','노을','연우','루카','자운','헤라','로잔','타린','엘렌','도안','제온','무영','화린','다온','라움','포르','리엘','테린','하온','유란','라온','레드','칼린'];
@@ -22,22 +22,29 @@ const roleNames=['전사','궁수','마법사'],roleIcon=['⚔','➶','⚕'];
 const cells=[],gates=new Map(),nodes=new Map();
 const id=(x,y)=>y*W+x,xy=k=>[k%W,Math.floor(k/W)],dist=(a,b)=>{const [x,y]=xy(a),[u,v]=xy(b);return Math.abs(x-u)+Math.abs(y-v)};
 const near=k=>{const[x,y]=xy(k);return [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(([a,b])=>a>=0&&a<W&&b>=0&&b<H).map(([a,b])=>id(a,b))};
-const centerX=Math.floor(W/2), gateRow=5;
-const tower=id(centerX,3), towerMaxHp=1800;
+const centerX=Math.floor(W/2), gateRow=10,innerRow=4,westWall=2,eastWall=W-3;
+const tower=id(centerX,2), towerMaxHp=1800;
 let towerHp=towerMaxHp;
 const throne=id(centerX,1),camp=id(centerX,H-1);
 root.style.setProperty('--cols',W);
 root.style.setProperty('--rows',H);
 let units=[],me,goal=null,focus=null,path=[],running=true,ended=false,elapsed=0,hold=0,owner=1,last=performance.now(),logs=[],kills=[0,0],lastUi=0,gateLog=false;
+function castleGates(field){
+  return [id(field.frontX,gateRow),id(field.sideX,field.sideY),id(field.innerX,innerRow)];
+}
 function buildLayout(field){
+  const entries=castleGates(field);
   const rocks=new Set(field.rock.map((x,i)=>id(x,[8,8,12,12,15,15][i])));
   const trees=new Set(field.tree.map((x,i)=>id(x,[8,8,13,13,16,16][i])));
   const tiles=Array.from({length:W*H},(_,k)=>{
     const [x,y]=xy(k);
     if(k===throne)return 'throne';
-    if(y===gateRow)return field.gates.includes(x)?'gate':'wall';
-    if((x===0||x===W-1)&&y<=gateRow)return 'wall';
-    if(y<gateRow)return 'stone';
+    if(entries.includes(k))return 'gate';
+    if(y<=gateRow&&x>=westWall&&x<=eastWall){
+      if(x===westWall||x===eastWall||y===innerRow||y===gateRow)return 'wall';
+      return 'stone';
+    }
+    if(y<=gateRow)return 'grass';
     if(y===H-1)return 'camp';
     if(rocks.has(k))return 'rock';
     if(trees.has(k))return 'tree';
@@ -65,22 +72,25 @@ function buildLayout(field){
   }
   const fork=id(centerX,14);
   layRoad(camp,fork,14,H-1);
-  for(const x of field.gates){
-    const bend=id(x,11);
-    layRoad(fork,bend,11,14);
-    layRoad(bend,id(x,gateRow+1),gateRow+1,11);
-    layRoad(id(x,gateRow-1),id(x,2),2,gateRow-1);
-    layRoad(id(x,2),id(centerX,2),2,2);
-  }
+  const flank=field.sideX===westWall?-1:1;
+  const lane=field.sideX+flank;
+  layRoad(fork,id(field.frontX,gateRow+1),gateRow+1,H-2);
+  layRoad(fork,id(lane,gateRow+1),gateRow+1,H-2);
+  layRoad(id(lane,gateRow+1),id(lane,field.sideY),field.sideY,gateRow+1);
+  layRoad(id(field.frontX,gateRow-1),id(field.innerX,innerRow+1),innerRow+1,gateRow-1);
+  layRoad(id(field.sideX-flank,field.sideY),id(field.innerX,innerRow+1),innerRow+1,gateRow-1);
+  layRoad(id(field.innerX,innerRow-1),throne,1,innerRow-1);
   tiles[tower]='tower';
   return tiles;
 }
 let layout=buildLayout(fronts[front]);
+let [frontGate,sideGate,innerGate]=castleGates(fronts[front]);
+const gateName=k=>k===frontGate?'정문':k===sideGate?'측문':'내성문';
 const gateMaxHp=2200;
 function paintCell(cell,k){
   const tile=layout[k], [x,y]=xy(k);
   cell.className='sl-cell '+tile;
-  if(tile==='wall' && y<gateRow)cell.classList.add('side-wall');
+  if(tile==='wall' && (x===westWall||x===eastWall) && y<gateRow)cell.classList.add('side-wall');
   delete cell.dataset.hp;
   cell.replaceChildren();
   if(tile==='tower')cell.textContent='♜';
@@ -199,7 +209,7 @@ function choose(k){
     if(unit.team===me.team){render();return}
     issueOrder(unit.k,unit);return;
   }
-  if(!terrainBlocks(k,me)||(me.team!==owner&&(gates.get(k)>0||(gateLog&&k===tower)))){$('inspect').hidden=true;issueOrder(k)}
+  if(!terrainBlocks(k,me)||(me.team!==owner&&(gates.get(k)>0||(gates.get(innerGate)===0&&k===tower)))){$('inspect').hidden=true;issueOrder(k)}
 }
 function beam(u,v,kind='hit'){
   beams.push({from:position(u),to:position(v),kind,team:u.team,mine:u===me||v===me,until:elapsed+.48});
@@ -292,8 +302,12 @@ function strike(u,v,foes){
   startBasicAttack(u,v);
   u.combo=u.comboId===v.id?u.combo+1:1;u.comboId=v.id;
 }
+function insideCastle(k){
+  const [x,y]=xy(k);
+  return x>westWall&&x<eastWall&&y<gateRow;
+}
 function place(u,preferred){
-  const free=layout.map((_,k)=>k).filter(k=>!terrainBlocks(k,u)&&!occupied.has(k)&&!reserved.has(k));
+  const free=layout.map((_,k)=>k).filter(k=>(u.team===owner?insideCastle(k):xy(k)[1]>gateRow)&&layout[k]!=='gate'&&!terrainBlocks(k,u)&&!occupied.has(k)&&!reserved.has(k));
   free.sort((a,b)=>dist(a,preferred)-dist(b,preferred));
   if(!free.length)return false;
   u.k=free[0];occupied.set(u.k,u);return true;
@@ -308,7 +322,8 @@ function createUnit(i){
 function restoreStructures(){
   gateLog=false;towerHp=towerMaxHp;hold=0;
   gates.clear();
-  for(const x of fronts[front].gates)gates.set(id(x,gateRow),gateMaxHp);
+  [frontGate,sideGate,innerGate]=castleGates(fronts[front]);
+  for(const k of [frontGate,sideGate,innerGate])gates.set(k,gateMaxHp);
 }
 function deploySides(){
   occupied.clear();reserved.clear();basicAttacks=[];frost=[];beams=[];
@@ -317,7 +332,10 @@ function deploySides(){
     if(!alive(u))continue;
     const slot=u.id%sideSize,columns=W-2,rank=Math.floor(slot/columns);
     const x=1+(slot+centerX-1)%columns;
-    place(u,id(x,u.team===owner?gateRow-1-rank:H-2-rank));
+    if(u.team!==owner){place(u,id(x,H-2-rank));continue}
+    const field=fronts[front], squad=slot%3;
+    const anchor=squad===0?id(field.frontX,gateRow-2):squad===1?id(field.sideX+(field.sideX===westWall?2:-2),field.sideY):id(field.innerX,innerRow-2);
+    place(u,anchor);
   }
 }
 function captureCastle(){
@@ -366,25 +384,25 @@ function tick(dt){
     if(u.root>elapsed||(u===me&&goal===null))continue;
     let dest=u===me?goal:foes[0]?.k;
     if(u!==me&&u.team!==owner){
-      const gate=id(fronts[front].gates[u.id%3],gateRow);
-      dest=!gateLog?gate:towerHp>0?tower:throne;
+      const approach=u.id%3===0?sideGate:frontGate;
+      dest=!gateLog?approach:gates.get(innerGate)>0?innerGate:towerHp>0?tower:throne;
     }
     if(u!==me&&u.team===owner&&!gateLog)continue;
     if(dest==null)continue;
-    if(dest===tower&&towerHp>0&&gateLog&&u.team!==owner&&dist(u.k,tower)===1){
+    if(dest===tower&&towerHp>0&&gates.get(innerGate)===0&&u.team!==owner&&dist(u.k,tower)===1){
       if(elapsed>=u.attackAt){
         towerHp=Math.max(0,towerHp-72);u.attackAt=elapsed+2.4;
         if(!towerHp){if(goal===tower)goal=null;note('수호탑 파괴 · 왕좌 점령 가능')}
       }
       continue;
     }
-    if(gates.get(dest)>0&&u.team!==owner&&dist(u.k,dest)===1){
+    if(gates.get(dest)>0&&(dest!==innerGate||gateLog)&&u.team!==owner&&dist(u.k,dest)===1){
       if(elapsed>=u.attackAt){
         u.attackAt=elapsed+2.4;gates.set(dest,Math.max(0,gates.get(dest)-72));
         const gateCell=cells[dest];
         if(!gateCell.getAnimations().length&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
           gateCell.animate([{transform:'translateX(-1px)'},{transform:'translateX(1px)'},{transform:'none'}],{duration:140});
-        if(!gates.get(dest)){if(goal===dest&&focus===null)goal=null;gateLog=true;note('성문 돌파')}
+        if(!gates.get(dest)){if(goal===dest&&focus===null)goal=null;if(dest!==innerGate)gateLog=true;note(gateName(dest)+' 돌파')}
       }
       continue;
     }
@@ -501,7 +519,7 @@ function render(){
   $('blue').textContent=(owner===0?'수비군 ':'공격군 ')+counts[0]+'명';$('red').textContent=(owner===1?'수비군 ':'공격군 ')+counts[1]+'명';
   $('balance').style.width=counts[0]/(counts[0]+counts[1]||1)*100+'%';
   $('owner-label').textContent='성주 '+guilds[owner].name;
-  $('objective').textContent=hold?'왕좌 각인 '+hold.toFixed(1)+'초':gateLog?(towerHp?'수호탑 '+Math.ceil(towerHp/towerMaxHp*100)+'%':'왕좌 진입'):'성문 돌파';
+  $('objective').textContent=hold?'왕좌 각인 '+hold.toFixed(1)+'초':gateLog?(gates.get(innerGate)>0?'내성문 돌파':towerHp?'수호탑 '+Math.ceil(towerHp/towerMaxHp*100)+'%':'왕좌 진입'):'외성문 돌파';
   $('hp').style.width=me.hp/me.max*100+'%';$('mp').style.width=me.mp+'%';$('hp').style.background=hpColor(me.hp/me.max);
   $('myhp').textContent='HP '+Math.ceil(me.hp).toLocaleString('ko-KR')+' / '+me.max.toLocaleString('ko-KR');
   const target=units.find(u=>alive(u)&&u.id===focus);
@@ -525,7 +543,7 @@ function render(){
   }
   infoText.textContent='살펴보는 '+(inspected===me?'나':inspected.team?'적군':'아군')+' · '+inspected.name+' · '+roleNames[inspected.role]+'　'+guilds[inspected.team].name+' 원정단 · 전투력 '+cp(inspected)+(alive(inspected)?'':' · 부활 대기');
   $('state').textContent=!alive(me)?'부활까지 '+Math.max(0,Math.ceil(me.respawnAt-elapsed))+'초':me.trip?.path.length>1?'아군 통과 중':actual?(actual.name+(inAttackRange(me,actual,attackRange(me))?' 공격 중':' 추적 중')):goal===tower&&towerHp>0?(dist(me.k,tower)===1?'수호탑 공격 중':'수호탑으로 이동 중'):gates.get(goal)>0?(dist(me.k,goal)===1?'성문 공격 중':'성문으로 이동 중'):goal!==null?'목적지로 이동 중':'현재 위치 방어 중';
-  $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?'성문 '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
+  $('target').textContent=alive(me)&&actual?'HP '+Math.ceil(actual.hp/actual.max*100)+'%':gates.get(goal)>0?gateName(goal)+' '+Math.ceil(gates.get(goal)/gateMaxHp*100)+'%':'';
   const fire=units.filter(u=>u.cast?.type==='fire').map(u=>u.cast.k);
   for(let k=0;k<cells.length;k++){
     const c=cells[k];c.classList.toggle('path-mark',headings.has(k));
@@ -545,7 +563,7 @@ function render(){
         c.classList.toggle('open',hp===0);
         c.style.setProperty('--gate-hp',hp/max);
         if(isTower)c.firstChild.nodeValue=hp?'♜':'▧';
-        c.setAttribute('aria-label',hp?(isTower?'수호탑 ':'철문 ')+Math.ceil(hp/max*100)+'%':isTower?'파괴된 수호탑':'열린 성문');
+        c.setAttribute('aria-label',hp?(isTower?'수호탑 ':gateName(k)+' ')+Math.ceil(hp/max*100)+'%':isTower?'파괴된 수호탑':'열린 '+gateName(k));
       }
     }
   }
@@ -648,7 +666,7 @@ $('front').onchange=()=>{
 $('profession').onchange=()=>{playerRole=$('profession').selectedIndex;reset()};
 $('start').onclick=()=>{$('setup').hidden=true;running=true;trackPlayer(true);last=performance.now();note('점령전 시작 · 아군 30명 / 적군 30명')};
 
-$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?xy(k)[1]===0:tile==='camp')&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
+$('retreat').onclick=()=>{if(running&&!ended&&alive(me)&&$('setup').hidden){const camps=layout.flatMap((tile,k)=>(me.team===owner?insideCastle(k)&&xy(k)[1]===0:tile==='camp')&&!blocked(k,me)&&(!occupied.has(k)||k===me.k)?[k]:[]);const path=routes(me,camps);if(path)issueOrder(path.at(-1)??me.k)}};
 $('pause').onclick=()=>{if(!running||ended)return;running=false;$('halt').hidden=false;render()};
 $('resume').onclick=()=>{$('halt').hidden=true;running=true;last=performance.now();render()};
 $('close-info').onclick=()=>{$('inspect').hidden=true};
