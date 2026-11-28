@@ -166,3 +166,38 @@ html,body{height:100%;overflow:hidden}
 .sl-camp-prop.supply-pile{width:calc(170% / var(--cols));height:calc(160% / var(--rows));background-image:url('./camp/supply-pile.webp')}
 
 .sl-camp-scenery>.sl-camp-floor,.sl-camp-scenery>.sl-camp-tent,.sl-camp-scenery>.sl-camp-prop{image-rendering:auto}
+
+/* South camp material study. Ground marks sit under the original sprite. */
+.sl-camp-prop.sl-grounded.command-tent{
+  --art:url('./camp/command-tent.webp');
+  background:radial-gradient(ellipse at 50% 91%,#785a3b88 0 10%,#c39c704a 28%,transparent 49%) center bottom -9%/64% 29% no-repeat;
+}
+.sl-camp-prop.sl-grounded.supply-wagon{
+  --art:url('./camp/supply-wagon.webp');
+  background:
+    radial-gradient(ellipse,#59402e85,transparent 72%) 8% 92%/17% 20% no-repeat,
+    radial-gradient(ellipse,#59402e85,transparent 72%) 94% 92%/17% 20% no-repeat;
+}
+.sl-grounded::before,.sl-grounded::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+}
+.sl-grounded::before{
+  background:var(--art) center/contain no-repeat;
+  filter:contrast(.83) saturate(.84) brightness(.96) drop-shadow(1px 2px 1px #4d382c66);
+}
+.sl-grounded::after{
+  background:linear-gradient(to top,#ac8159a6,transparent 24%);
+  mask:var(--art) center/contain no-repeat;
+}
+.sl-grounded.supply-wagon::before{
+  filter:contrast(.82) saturate(.78) brightness(1.02) drop-shadow(1px 2px 1px #4d382c70);
+}
+.sl-camp-scenery>.sl-wheel-ruts{
+  width:calc(215% / var(--cols));height:calc(92% / var(--rows));transform:translate(-50%,-50%);
+  background:linear-gradient(179deg,#664c3499,transparent) 12% center/5% 100% no-repeat,
+    linear-gradient(182deg,#664c3499,transparent) 88% center/5% 100% no-repeat;
+}
+.sl-camp-scenery>.sl-tent-entry{
+  width:calc(165% / var(--cols));height:calc(73% / var(--rows));transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at 49% 30%,#76563870 5%,#a47c5366 40%,transparent 72%);
+}

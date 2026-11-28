@@ -488,11 +488,16 @@ const campProps=camps.map((k,i)=>{
       tent.style.backgroundPosition=(frame*100/3)+'% center';
     }
   }
+  if(i===0){
+    prop('sl-wheel-ruts',k,-3.05,1.72);
+    prop('sl-tent-entry',k,0,4.45);
+  }
   for(const [name,x,y] of [
     ['command-tent',0,3.05],['supply-wagon',-3.05,0],
     ['equipment-rack',3.1,-.95],['supply-pile',3.1,1.05]
   ]){
-    prop('sl-camp-prop '+name,k,...position(x,y));
+    const facility=prop('sl-camp-prop '+name,k,...position(x,y));
+    if(i===0&&(name==='command-tent'||name==='supply-wagon'))facility.classList.add('sl-grounded');
   }
   return {...standard(k,...position(-1.55,-2.45)),label:prop('sl-camp-caption',k,0,a?-2.75:-4.45)};
 });
